@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <!-- this bean will be injected into the TaskTestIT class -->
+    <bean id="task1" class="Task">
+        <!-- set properties, etc. -->
+    </bean>
+    
+    
+    
+    <!-- other beans -->
+
+</beans>

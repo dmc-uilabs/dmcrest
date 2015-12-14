@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/component",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "http://dmc-dev.geinspire.com/component/id",
+      "type": "integer"
+    },
+    "title": {
+      "id": "http://dmc-dev.geinspire.com/component/title",
+      "type": "string"
+    },
+    "description": {
+      "id": "http://dmc-dev.geinspire.com/component/description",
+      "type": "string"
+    },
+    "owner": {
+      "id": "http://dmc-dev.geinspire.com/component/owner",
+      "type": "string"
+    },
+    "releaseDate": {
+      "id": "http://dmc-dev.geinspire.com/component/releaseDate",
+      "type": "string"
+    },
+    "tags": {
+      "id": "http://dmc-dev.geinspire.com/component/tags",
+      "type": "array",
+      "items": 
+        { 
+          "id": "http://dmc-dev.geinspire.com/component/tags",
+          "oneOf": [
+        { "type": "null" },
+        { "type": "string" }
+    ]
+        } 
+    },
+    
+    "featureImage": {
+      "id": "http://dmc-dev.geinspire.com/component/featureImage",
+      "type": "object",
+      "properties": {
+        "thumbnail": {
+          "id": "http://dmc-dev.geinspire.com/component/featureImage/thumbnail",
+          "type": "string"
+        },
+        "large": {
+          "id": "http://dmc-dev.geinspire.com/component/featureImage/large",
+          "type": "string"
+        }
+      }
+    },
+    "services": {
+      "id": "http://dmc-dev.geinspire.com/component/services",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "description",
+    "owner",
+    "releaseDate",
+    "tags",
+    "featureImage",
+    "services"
+  ]
+}

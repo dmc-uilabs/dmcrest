@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <!-- this bean will be injected into the ProjectTestIT class -->
+    <bean id="project1" class="Project">
+        <!-- set properties, etc. -->
+    </bean>
+    
+    
+    
+    <!-- other beans -->
+
+</beans>

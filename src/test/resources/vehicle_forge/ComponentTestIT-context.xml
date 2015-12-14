@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <!-- this bean will be injected into the ComponentTestIT class -->
+    <bean id="component1" class="Component">
+        <!-- set properties, etc. -->
+    </bean>
+    
+    
+    
+    <!-- other beans -->
+
+</beans>

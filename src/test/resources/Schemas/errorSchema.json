@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/message",
+  "type": "object",
+  "properties": {
+    "message": {
+      "id": "http://dmc-dev.geinspire.com/message",
+      "type": "string"
+    }
+  },
+  "required": [
+    "message"
+  ]
+}

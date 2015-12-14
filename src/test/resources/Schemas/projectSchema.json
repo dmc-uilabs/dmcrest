@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/project",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "http://dmc-dev.geinspire.com/project/id",
+      "type": "integer"
+    },
+    "title": {
+      "id": "http://dmc-dev.geinspire.com/project/title",
+      "type": "string"
+    },
+    "projectManager": {
+      "id": "http://dmc-dev.geinspire.com/project/projectManager",
+      "type": "string"
+    },
+    "featureImage": {
+      "id": "http://dmc-dev.geinspire.com/project/featureImage",
+      "type": "object",
+      "properties": {
+        "thumbnail": {
+          "id": "http://dmc-dev.geinspire.com/project/featureImage/thumbnail",
+          "type": "string"
+        },
+        "large": {
+          "id": "http://dmc-dev.geinspire.com/project/featureImage/large",
+          "type": "string"
+        }
+      }
+    },
+    "images": {
+      "id": "http://dmc-dev.geinspire.com/project/images",
+      "type": "string"
+    },
+    "description": {
+      "id": "http://dmc-dev.geinspire.com/project/description",
+      "type": ["string","null"] 
+    },
+    "tasks": {
+      "id": "http://dmc-dev.geinspire.com/project/tasks",
+      "type": "object",
+      "properties": {
+        "totalItems": {
+          "id": "http://dmc-dev.geinspire.com/project/tasks/totalItems",
+          "type": "integer"
+        },
+        "link": {
+          "id": "http://dmc-dev.geinspire.com/project/tasks/link",
+          "type": "string"
+        }
+      }
+    },
+    "discussions": {
+      "id": "http://dmc-dev.geinspire.com/project/discussions",
+      "type": "object",
+      "properties": {
+        "totalItems": {
+          "id": "http://dmc-dev.geinspire.com/project/discussions/totalItems",
+          "type": "integer"
+        },
+        "link": {
+          "id": "http://dmc-dev.geinspire.com/project/discussions/link",
+          "type": "string"
+        }
+      }
+    },
+    "services": {
+      "id": "http://dmc-dev.geinspire.com/project/services",
+      "type": "object",
+      "properties": {
+        "totalItems": {
+          "id": "http://dmc-dev.geinspire.com/project/services/totalItems",
+          "type": "integer"
+        },
+        "link": {
+          "id": "http://dmc-dev.geinspire.com/project/services/link",
+          "type": "string"
+        }
+      }
+    },
+    "components": {
+      "id": "http://dmc-dev.geinspire.com/project/components",
+      "type": "object",
+      "properties": {
+        "totalItems": {
+          "id": "http://dmc-dev.geinspire.com/project/components/totalItems",
+          "type": "integer"
+        },
+        "link": {
+          "id": "http://dmc-dev.geinspire.com/project/components/link",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "projectManager",
+    "featureImage",
+    "images",
+    "description",
+    "tasks",
+    "discussions",
+    "services",
+    "components"
+  ]
+}

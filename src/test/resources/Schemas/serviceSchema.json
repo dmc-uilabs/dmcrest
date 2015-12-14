@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/service",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "http://dmc-dev.geinspire.com/service/id",
+      "type": "integer"
+    },
+    "title": {
+      "id": "http://dmc-dev.geinspire.com/service/title",
+      "type": "string"
+    },
+    "description": {
+      "id": "http://dmc-dev.geinspire.com/service/description",
+      "type": "string"
+    },
+    "owner": {
+      "id": "http://dmc-dev.geinspire.com/service/owner",
+      "type": ["string","null"]
+    },
+    "releaseDate": {
+      "id": "http://dmc-dev.geinspire.com/service/releaseDate",
+      "type": ["string","null"]
+    },
+    "tags": {
+      "id": "http://dmc-dev.geinspire.com/service/tags",
+      "type": "array",
+      "items": [
+        {
+          "id": "http://dmc-dev.geinspire.com/service/tags/0",
+          "type": ["string","null"]
+        },
+        {
+          "id": "http://dmc-dev.geinspire.com/service/tags/1",
+          "type": ["string","null"]
+        }
+      ]
+    },
+    "specifications": {
+      "id": "http://dmc-dev.geinspire.com/service/specifications",
+      "type": ["string","null"]
+    },
+    "serviceType": {
+      "id": "http://dmc-dev.geinspire.com/service/serviceType",
+      "type": ["string","null"]
+    },
+    "featureImage": {
+      "id": "http://dmc-dev.geinspire.com/service/featureImage",
+      "type": "object",
+      "properties": {
+        "thumbnail": {
+          "id": "http://dmc-dev.geinspire.com/service/featureImage/thumbnail",
+          "type": ["string","null"]
+        },
+        "large": {
+          "id": "http://dmc-dev.geinspire.com/service/featureImage/large",
+          "type": ["string","null"]
+        }
+      }
+    },
+    "currentStatus": {
+      "id": "http://dmc-dev.geinspire.com/service/currentStatus",
+      "type": "object",
+      "properties": {
+        "percentCompleted": {
+          "id": "http://dmc-dev.geinspire.com/service/currentStatus/percentCompleted",
+          "type": ["string","null"]
+        },
+        "startDate": {
+          "id": "http://dmc-dev.geinspire.com/service/currentStatus/startDate",
+          "type": ["string","null"]
+        },
+        "startTime": {
+          "id": "http://dmc-dev.geinspire.com/service/currentStatus/startTime",
+          "type": ["string","null"]
+        },
+        "project": {
+          "id": "http://dmc-dev.geinspire.com/service/currentStatus/project",
+          "type": "object",
+          "properties": {
+            "id": {
+              "id": "http://dmc-dev.geinspire.com/service/currentStatus/project/id",
+              "type": "integer"
+            },
+            "title": {
+              "id": "http://dmc-dev.geinspire.com/service/currentStatus/project/title",
+              "type": ["string","null"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "description",
+    "owner",
+    "releaseDate",
+    "tags",
+    "specifications",
+    "serviceType",
+    "featureImage",
+    "currentStatus"
+  ]
+}

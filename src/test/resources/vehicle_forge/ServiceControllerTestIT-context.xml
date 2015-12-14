@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <!-- this bean will be injected into the ServiceTestIT class -->
+    <bean id="service1" class="Services">
+        <!-- set properties, etc. -->
+    </bean>
+    
+    
+    
+    <!-- other beans -->
+
+</beans>

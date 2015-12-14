@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/discussionList",
+  "type": "array",
+  "items": [
+    {
+      "id": "http://dmc-dev.geinspire.com/discussionList/0",
+      "type": "object",
+      "properties": {
+        "id": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/0/id",
+          "type": "integer"
+        },
+        "text": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/0/text",
+          "type": "string"
+        },
+        "full_name": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/0/full_name",
+          "type": "string"
+        },
+        "created_at": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/0/created_at",
+          "type": "string"
+        },
+        "avatar": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/0/avatar",
+          "type": "string"
+        },
+        "projectId": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/0/projectId",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "full_name",
+        "created_at",
+        "avatar",
+        "projectId"
+      ]
+    },
+    {
+      "id": "http://dmc-dev.geinspire.com/discussionList/1",
+      "type": "object",
+      "properties": {
+        "id": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/1/id",
+          "type": "integer"
+        },
+        "text": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/1/text",
+          "type": "string"
+        },
+        "full_name": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/1/full_name",
+          "type": "string"
+        },
+        "created_at": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/1/created_at",
+          "type": "string"
+        },
+        "avatar": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/1/avatar",
+          "type": "string"
+        },
+        "projectId": {
+          "id": "http://dmc-dev.geinspire.com/discussionList/1/projectId",
+          "type": "integer"
+        }
+      }
+    }
+  ]
+}

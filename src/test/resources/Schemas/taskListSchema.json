@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "integer"
+      },
+      "title": {
+        "type": "string"
+      },
+      "project": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "assignee": {
+        "type": "string"
+      },
+      "reporter": {
+        "type": "string"
+      },
+      "dueDate": {
+        "type": "string"
+      },
+      "priority": {
+        "type": "string"
+      }
+    }
+  }
+}

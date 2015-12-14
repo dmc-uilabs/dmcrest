@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/specification",
+  "type": "object",
+  "properties": {
+    "description": {
+      "id": "http://dmc-dev.geinspire.com/specification/description",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string" }
+    ]
+    },
+    "input": {
+      "id": "http://dmc-dev.geinspire.com/specification/input",
+      "type": "integer"
+    },
+    "output": {
+      "id": "http://dmc-dev.geinspire.com/specification/output",
+      "type": "integer"
+    },
+    "usageStats": {
+      "id": "http://dmc-dev.geinspire.com/specification/usageStats",
+      "type": "object",
+      "properties": {
+        "added": {
+          "id": "http://dmc-dev.geinspire.com/specification/usageStats/added",
+          "type": "integer"
+        },
+        "members": {
+          "id": "http://dmc-dev.geinspire.com/specification/usageStats/members",
+          "type": "integer"
+        }
+      }
+    },
+    "runStats": {
+      "id": "http://dmc-dev.geinspire.com/specification/runStats",
+      "type": "object",
+      "properties": {
+        "success": {
+          "id": "http://dmc-dev.geinspire.com/specification/runStats/success",
+          "type": "integer"
+        },
+        "fail": {
+          "id": "http://dmc-dev.geinspire.com/specification/runStats/fail",
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "required": [
+    "description",
+    "input",
+    "output",
+    "usageStats",
+    "runStats"
+  ]
+}

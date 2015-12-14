@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/discussion",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "http://dmc-dev.geinspire.com/discussion/id",
+      "type": "integer"
+    },
+    "text": {
+      "id": "http://dmc-dev.geinspire.com/discussion/text",
+      "type": "string"
+    },
+    "full_name": {
+      "id": "http://dmc-dev.geinspire.com/discussion/full_name",
+      "type": "string"
+    },
+    "created_at": {
+      "id": "http://dmc-dev.geinspire.com/discussion/created_at",
+      "type": "string"
+    },
+    "avatar": {
+      "id": "http://dmc-dev.geinspire.com/discussion/avatar",
+      "type": "string"
+    },
+    "projectId": {
+      "id": "http://dmc-dev.geinspire.com/discussion/projectId",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id",
+    "text",
+    "full_name",
+    "created_at",
+    "avatar",
+    "projectId"
+  ]
+}
