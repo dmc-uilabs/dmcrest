@@ -120,4 +120,62 @@ public class DiscussionListDao {
 		return null;
 	
 	}
+	
+	public ArrayList<Discussion> getDiscussionList(int pid){
+		
+		ArrayList<Discussion> discussions = new ArrayList<Discussion>();
+		
+			
+		int id = 0;
+		String text = "";
+		String full_name = ""; 
+		String avatar = "";
+		int projectId = 0;
+		long dateInt = 0;
+		String date = "";
+		
+		
+		
+		String query = "SELECT h.comment_id AS id, "
+				+ "h.comment AS text, h.time_posted AS time, u.realname AS name, "
+				+ "h.ref_id AS pid, g.group_name as title FROM home_comments h JOIN "
+				+ "users u ON u.user_id = h.user_id JOIN groups g ON h.ref_id = g.group_id WHERE g.group_id = " + pid;
+		
+		//ServiceLogger.log(logTag, "getDiscussion, id: " + discussionId);
+		
+		try {
+				resultSet = DBConnector.executeQuery(query);
+				while (resultSet.next()) {
+					id = resultSet.getInt("id");
+					text = resultSet.getString("text");
+					full_name = resultSet.getString("name");
+					projectId = resultSet.getInt("pid");
+					
+					Date releaseDate = new Date(1000L * resultSet.getLong("time"));
+					
+					SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-YYYY hh:mm:ss");
+					
+					date = formatter.format(releaseDate); 
+					
+					//ServiceLogger.log(logTag, "Release Date: " + date);
+					
+						discussions.add( new Discussion.DiscussionBuilder(id).avatar()
+						.text(text).full_name(full_name)
+						.created_at(date).projectId(projectId).build());					
+				}
+				
+				
+				
+				return discussions;
+				
+				
+				
+			
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		  
+		return null;
+	
+	}
 }

@@ -34,6 +34,13 @@ public class DiscussionController {
     	//ServiceLogger.log(logTag, "In getDiscussionList, authorization: " + authorization);
     	return DiscussionList.getDiscussionList();
     }
+	
+	@RequestMapping(value = "/projects/{pid}/discussions", method = RequestMethod.GET)
+	public ArrayList<Discussion> getDiscussionList(@PathVariable("pid") int pid){
+		ServiceLogger.log(logTag, "In getDiscussionList with projectId: "+ pid);
+    	//ServiceLogger.log(logTag, "In getDiscussionList, authorization: " + authorization);
+    	return DiscussionList.getDiscussionList(pid);
+	}
     
     
     @RequestMapping(value = "/discussions/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
