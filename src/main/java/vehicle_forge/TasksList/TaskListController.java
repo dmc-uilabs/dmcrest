@@ -23,4 +23,9 @@ public class TaskListController {
 		return taskSearch.getTaskList();
 	}
 	
+	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET)
+	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId) {
+		return taskSearch.getTaskList(projectId);
+	}
+	
 }
