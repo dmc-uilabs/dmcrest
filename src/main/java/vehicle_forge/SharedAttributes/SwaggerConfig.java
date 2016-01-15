@@ -37,7 +37,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-@SpringBootApplication
+@EnableWebMvc
 @EnableSwagger2
 @ComponentScan(basePackageClasses = { ServiceController.class })
 public class SwaggerConfig extends WebMvcConfigurerAdapter {
@@ -76,7 +76,7 @@ public class SwaggerConfig extends WebMvcConfigurerAdapter {
 						typeResolver.resolve(DeferredResult.class,
 								typeResolver.resolve(ResponseEntity.class, WildcardType.class)),
 						typeResolver.resolve(WildcardType.class)))
-				/*		
+						
 				.globalResponseMessage(RequestMethod.GET,
 						newArrayList(new ResponseMessageBuilder()
 						.code(500).message("Server Error")
@@ -84,7 +84,7 @@ public class SwaggerConfig extends WebMvcConfigurerAdapter {
 								.build()
 						)
 				 )
-				 */
+				 
 				.securitySchemes(newArrayList(apiKey()))
 				.securityContexts(newArrayList(securityContext()));
 	}
