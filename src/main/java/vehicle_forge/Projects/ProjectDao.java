@@ -6,14 +6,16 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import org.json.JSONObject;
 import org.json.JSONException;
+import org.dmc.solr.SolrUtils;
+import java.io.IOException;
 
 public class ProjectDao {
-	
-	
+
+
 
 	private final String logTag = ProjectDao.class.getName();
 	private ResultSet resultSet;
-	
+
 	public ProjectDao(){}
 	
 	public Project getProject(int projectId) {
@@ -28,12 +30,12 @@ public class ProjectDao {
 		ProjectTask task;
 		ProjectComponent component;
 		String projectManager = "None";
-		
+
 		try {
-		
+
 			query = "SELECT g.group_id AS id, g.group_name AS title, "
 				+ "g.short_description AS description, s.msg_posted AS count, "
-				+"pt.taskCount AS taskCount, " 
+				+"pt.taskCount AS taskCount, "
 				+"ss.servicesCount AS servicesCount, "
 				+"c.componentsCount AS componentsCount "
  				+ "FROM groups g LEFT JOIN stats_project s ON s.group_id = g.group_id LEFT JOIN "
@@ -44,7 +46,7 @@ public class ProjectDao {
  				+ "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects "
  				+ "GROUP BY group_id) AS c ON c.id = g.group_id "
 				+ "WHERE g.group_id = ?";
-		
+
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, projectId);
 
@@ -54,10 +56,10 @@ public class ProjectDao {
 				id = resultSet.getInt("id");
 				title = resultSet.getString("title");
 				description = resultSet.getString("description");
-				
+
 				if (description == null)
 					description = "";
-				
+
 				num_discussions = resultSet.getInt("count");
 				num_components = resultSet.getInt("componentsCount");
 			}
@@ -90,8 +92,8 @@ public class ProjectDao {
 					.service(service)
 					.discussion(discussion)
 					.component(component).projectManager(projectManager).build();
-				
-			
+
+
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
@@ -129,6 +131,9 @@ public class ProjectDao {
 		
 		
 
+        String indexResponse = SolrUtils.invokeFulIndexingProjects();
+		ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
+
 		return new Id.IdBuilder(id)
 		.build();
 	}
@@ -154,6 +159,9 @@ public class ProjectDao {
 			//id = resultSet.getString("id");
 			id = resultSet.getInt("id");
 		}
+
+        String indexResponse = SolrUtils.invokeFulIndexingProjects();
+		ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
 
 		return new Id.IdBuilder(id)
 		.build();
