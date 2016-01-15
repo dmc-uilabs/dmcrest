@@ -17,6 +17,11 @@ public class ComponentDao {
 	public ComponentDao(){}
 
 	public Component getComponent(int componentId) {
+		
+		/*TODO:
+		 * 
+		 * get project ID as well
+		 */
 		int id = componentId;
 		Date releaseDate;
 		String title = "", description = "", owner = "None", query;
@@ -27,18 +32,27 @@ public class ComponentDao {
 		String date = "";
 		String tag = "";
 		
+		String determineTypeId = "SELECT activity_type_id AS type_id FROM site_activity_mapping s"
+				+ " WHERE s.activity_type_string = 'project_component_add'";
+		try {
+			
+			resultSet = DBConnector.executeQuery(determineTypeId);
+			int typeId = 0;
+			if (resultSet.next())
+				typeId = resultSet.getInt("type_id");
 		
-		
-		query = "SELECT c.name AS title, c.repo_creation_time AS releaseDate, "
+			query = "SELECT c.name AS title, c.repo_creation_time AS releaseDate, "
 				+ "t.tag_name AS tagname,"
-				+ "c.description AS description, g.group_name AS username "
-				+"FROM cem_objects c LEFT JOIN cem_tags_join j ON c.cem_id = j.cem_id "
-				+ "LEFT JOIN groups g ON c.group_id = g.group_id"
+				+ "c.description AS description, u.firstname AS firstname, u.lastname AS lastname "
+				+"FROM  cem_objects c "
+				+ "LEFT JOIN site_activity s ON c.cem_id = s.ref_id AND c.group_id = s.object_id AND s.type_id = "
+				+ typeId + " LEFT JOIN users u ON u.user_id = s.user_id "
+				+ "LEFT JOIN cem_tags_join j ON s.ref_id = j.cem_id AND s.object_id = j.group_id "
 				+ " LEFT JOIN cem_tags t "
 						+ "ON t.cem_tag_id = j.cem_tag_id "
 				+ "WHERE c.cem_id = " + componentId;
 		//ServiceLogger.log(logTag, "getComponent, Query: " + query);
-		try {
+		
 				resultSet = DBConnector.executeQuery(query);
 				while (resultSet.next()) {
 					title = resultSet.getString("title");
@@ -48,7 +62,7 @@ public class ComponentDao {
 						description = "";
 					
 					releaseDate = new Date(1000L * resultSet.getLong("releaseDate"));
-					owner = resultSet.getString("username");
+					owner  = resultSet.getString("firstname") + " " + resultSet.getString("lastname");
 					
 					/*ServiceLogger.log(logTag, "\nID: " + id + "\nTitle: " + title + 
 							"\nDesc: " + description + "\n"

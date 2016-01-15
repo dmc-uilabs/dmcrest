@@ -15,7 +15,7 @@ public class ProjectDao {
 	private ResultSet resultSet;
 	
 	public ProjectDao(){}
-
+	
 	public Project getProject(int projectId) {
 		int id = 0;
 		int num_tasks = 0, num_discussions = 0, num_services = 0, num_components = 0;
@@ -113,14 +113,26 @@ public class ProjectDao {
 		// since no parameters can use execute query safely
 		query = "select currval('groups_pk_seq') as id";
 		resultSet = DBConnector.executeQuery(query);
-		while (resultSet.next()) {
+		if (resultSet.next()) {
 			//id = resultSet.getString("id");
 			id = resultSet.getInt("id");
-		}
+		}//TODO:Add error handling after if
+		
+		query = "INSERT into group_project_list (group_id, project_name, is_public, description, send_all_posts_to) values (?, ?, ?, ?, ?)";
+		preparedStatement = DBConnector.prepareStatement(query);
+		preparedStatement.setInt(1, id);
+		preparedStatement.setString(2,"fill-in");
+		preparedStatement.setInt(3,0);
+		preparedStatement.setString(4, "fill-in");
+		preparedStatement.setString(5, "none");		
+		preparedStatement.executeUpdate();
+		
+		
 
 		return new Id.IdBuilder(id)
 		.build();
 	}
+
 	public Id createProject(String jsonStr) throws SQLException, JSONException, Exception {
 
 		//String id = "null";
