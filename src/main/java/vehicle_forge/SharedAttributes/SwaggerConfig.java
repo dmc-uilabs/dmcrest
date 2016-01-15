@@ -37,8 +37,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-@Configuration
-@EnableWebMvc
+@SpringBootApplication
 @EnableSwagger2
 @ComponentScan(basePackageClasses = { ServiceController.class })
 public class SwaggerConfig extends WebMvcConfigurerAdapter {
@@ -71,7 +70,7 @@ public class SwaggerConfig extends WebMvcConfigurerAdapter {
 				.paths(PathSelectors.any())
 				.build()
 				.pathMapping("/")
-				.directModelSubstitute(LocalDate.class, String.class)
+				//.directModelSubstitute(LocalDate.class, String.class)
 				.genericModelSubstitutes(ResponseEntity.class)
 				.alternateTypeRules(newRule(
 						typeResolver.resolve(DeferredResult.class,
