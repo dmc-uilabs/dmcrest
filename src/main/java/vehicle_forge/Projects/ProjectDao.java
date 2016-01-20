@@ -130,7 +130,7 @@ public class ProjectDao {
 		preparedStatement.executeUpdate();
 		
 		
-		if (Config.isTest != null){
+		if (Config.IS_TEST == null){
         String indexResponse = SolrUtils.invokeFulIndexingProjects();
 		ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
 		}
@@ -161,7 +161,7 @@ public class ProjectDao {
 			id = resultSet.getInt("id");
 		}
 
-		if (Config.isTest != null){
+		if (Config.IS_TEST == null){
 	        String indexResponse = SolrUtils.invokeFulIndexingProjects();
 			ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
 		}

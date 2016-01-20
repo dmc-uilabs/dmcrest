@@ -59,7 +59,7 @@ public class UserDao {
 
 			ServiceLogger.log(logTag, "User added: " + id);
 			
-			if (Config.isTest != null){
+			if (Config.IS_TEST == null){
 				String indexResponse = SolrUtils.invokeFulIndexingUsers();
 				ServiceLogger.log(logTag, "SolR indexing triggered for user: " + id);
 				}
