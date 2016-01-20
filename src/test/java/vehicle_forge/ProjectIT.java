@@ -95,7 +95,6 @@ public class ProjectIT extends BaseIT {
 		when().
 			post("/projects/create").
 		then().
-			contentType("application/json").
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 
