@@ -120,7 +120,7 @@ public class ProjectDao {
 			id = resultSet.getInt("id");
 		}//TODO:Add error handling after if
 		
-		query = "INSERT into group_project_list (group_id, project_name, is_public, description, send_all_posts_to) values (?, ?, ?, ?, ?)";
+		query = "INSERT into project_group_list (group_id, project_name, is_public, description, send_all_posts_to) values (?, ?, ?, ?, ?)";
 		preparedStatement = DBConnector.prepareStatement(query);
 		preparedStatement.setInt(1, id);
 		preparedStatement.setString(2,"fill-in");
