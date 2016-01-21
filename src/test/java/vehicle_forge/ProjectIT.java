@@ -78,7 +78,7 @@ public class ProjectIT extends BaseIT {
 	}
 	
 
-	/*@Test
+	@Test
 	public void testProjectCreateJson(){
 		JSONObject json = new JSONObject();
 		Date date = new Date();
@@ -98,7 +98,7 @@ public class ProjectIT extends BaseIT {
 			post("/projects/create").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-	}*/
+	}
 
 	@Test
 	public void testProjectCreateFailOnDuplicate(){
