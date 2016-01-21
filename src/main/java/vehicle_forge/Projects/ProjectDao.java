@@ -160,6 +160,15 @@ public class ProjectDao {
 			//id = resultSet.getString("id");
 			id = resultSet.getInt("id");
 		}
+		
+		query = "INSERT into project_group_list (group_id, project_name, is_public, description, send_all_posts_to) values (?, ?, ?, ?, ?)";
+		preparedStatement = DBConnector.prepareStatement(query);
+		preparedStatement.setInt(1, id);
+		preparedStatement.setString(2,"fill-in");
+		preparedStatement.setInt(3,0);
+		preparedStatement.setString(4, "fill-in");
+		preparedStatement.setString(5, "none");		
+		preparedStatement.executeUpdate();
 
 		if (Config.IS_TEST == null){
 	        String indexResponse = SolrUtils.invokeFulIndexingProjects();
