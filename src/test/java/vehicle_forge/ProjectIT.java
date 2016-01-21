@@ -58,7 +58,7 @@ public class ProjectIT extends BaseIT {
 			body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
 	}
 
-/*
+
 	// leaving this as an example of how to work with parameters to URL
 	// instead of json, but json is probably preferable
 	@Test
@@ -76,9 +76,9 @@ public class ProjectIT extends BaseIT {
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
-	*/
+	
 
-	@Test
+	/*@Test
 	public void testProjectCreateJson(){
 		JSONObject json = new JSONObject();
 		Date date = new Date();
@@ -132,5 +132,5 @@ public class ProjectIT extends BaseIT {
 		then().
 			log().all().
 			body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
-	}
+	}*/
 }
