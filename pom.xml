@@ -30,6 +30,20 @@
 				<unit-tests.skip>true</unit-tests.skip>
 				<integration-tests.skip>false</integration-tests.skip>
 			</properties>
+			<!-- Exclude swagger during integration tests -->			
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<excludes>
+								<exclude>**/SwaggerConfig.java</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 
 		<!-- unit test -->
@@ -39,6 +53,20 @@
 				<unit-tests.skip>false</unit-tests.skip>
 				<integration-tests.skip>true</integration-tests.skip>
 			</properties>
+			<!-- Exclude swagger during tests -->			
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<excludes>
+								<exclude>**/SwaggerConfig.java</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 
 		<!-- swagger -->
