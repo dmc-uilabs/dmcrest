@@ -98,7 +98,7 @@ public class ProjectIT extends BaseIT {
 			post("/projects/create").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-	}
+	}*/
 
 	@Test
 	public void testProjectCreateFailOnDuplicate(){
@@ -132,5 +132,5 @@ public class ProjectIT extends BaseIT {
 		then().
 			log().all().
 			body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
-	}*/
+	}
 }
