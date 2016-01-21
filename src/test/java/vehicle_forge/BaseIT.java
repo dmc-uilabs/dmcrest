@@ -42,7 +42,19 @@ public class BaseIT {
       // Use the embedded container port when testing
       // This setup() method is inheritted by all tests so all tests will use this port similarly
       // It can also be overridden
-      RestAssured.port = serverPort;
+	  String baseURI = System.getProperty("baseURI", "not specified");
+	  if (baseURI.equals("not specified")){
+		RestAssured.port = serverPort;
+		ServiceLogger.log("BaseIT", "BASE URI not specified.");
+	  }
+	  else{
+		  ServiceLogger.log("BaseIT", "BASE URI specified, setting attributes");
+		  RestAssured.baseURI = baseURI; 
+		  RestAssured.port = Integer.getInteger("port", 8080).intValue();
+		  RestAssured.basePath = "/rest";
+		  
+		  
+	  }
     } 
     
     @Test 
