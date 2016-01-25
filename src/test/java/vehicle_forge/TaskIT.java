@@ -56,12 +56,13 @@ public class TaskIT extends BaseIT {
 	    JSONObject json = new JSONObject();
 		Random r = new Random();     // use to randomize data params
 				
+        json.put("title", "sample test task");
+		json.put("description", "description for sample test task");
 		json.put("priority", 0);
-        json.put("end_date", 0);      // a user ID in users table 
-	    json.put("created_by", 102);  // another user ID in users table
+        json.put("dueDate", 0);      // a user ID in users table 
+	    json.put("reporter", "bamboo tester");  // another user ID in users table
 		json.put("assignee", 103);    // from group table
-		json.put("group_id", 1);     // from group table and project_group_list, 1 is available in both
-		json.put("status_id", 1);     // Table to be identified
+		json.put("projectId", 1);     // from group table and project_group_list, 1 is available in both
 		
 		given()
 			.body(json.toString())
