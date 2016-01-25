@@ -117,7 +117,7 @@ public class TaskDao {
 		try {
 			JSONObject json = new JSONObject(jsonStr);
 			
-			String title = json.getString("title);
+			String title = json.getString("title");
 			String description = json.getString("description");
 			//Integer priority = json.getInt("priority");
 			Integer priority = new Integer(1);
@@ -134,7 +134,7 @@ public class TaskDao {
 			//long millisOfDate = (new Date()).getTime();
 			
 			String query = "INSERT INTO project_task (summary, details, priority, end_date, created_by, group_project_id, status_id)" + 
-					"values ( ?, ?, ?, ?, ?)";
+					"values ( ?, ?, ?, ?, ?, ?, ?)";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setString(1, title);
