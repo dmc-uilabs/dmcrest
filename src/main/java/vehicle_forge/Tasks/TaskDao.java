@@ -117,24 +117,33 @@ public class TaskDao {
 		try {
 			JSONObject json = new JSONObject(jsonStr);
 			
-			Integer priority = json.getInt("priority");
-			Integer endDate = json.getInt("end_date");
-			Integer createdBy = json.getInt("created_by");
-			Integer groupId = json.getInt("group_id");
-			Integer statusId = json.getInt("status_id");
+			String title = json.getString("title);
+			String description = json.getString("description");
+			//Integer priority = json.getInt("priority");
+			Integer priority = new Integer(1);
+			//String assignee = new String("assignee");
+			Integer endDate = json.getInt("dueDate");
+			//String reporter = json.getInt("reporter");
+			Integer createdBy = new Integer("102");
+			Integer groupId = json.getInt("projectId");
+			//Integer statusId = json.getInt("status_id");
+			//always assign project task = open
+			Integer statusId = new Integer(1);
 
 			//SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-YYYY hh:mm:ss");
 			//long millisOfDate = (new Date()).getTime();
 			
-			String query = "INSERT INTO project_task (priority, end_date, created_by, group_project_id, status_id)" + 
+			String query = "INSERT INTO project_task (summary, details, priority, end_date, created_by, group_project_id, status_id)" + 
 					"values ( ?, ?, ?, ?, ?)";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-			preparedStatement.setInt(1, priority);
-			preparedStatement.setInt(2, endDate);
-			preparedStatement.setInt(3, createdBy);
-			preparedStatement.setInt(4, groupId);
-			preparedStatement.setInt(5, statusId);
+			preparedStatement.setString(1, title);
+			preparedStatement.setString(2, description);
+			preparedStatement.setInt(3, priority);
+			preparedStatement.setInt(4, endDate);
+			preparedStatement.setInt(5, createdBy);
+			preparedStatement.setInt(6, groupId);
+			preparedStatement.setInt(7, statusId);
 			preparedStatement.executeUpdate();
 
 			query = "select currval('project_task_pk_seq') as id";
