@@ -51,21 +51,21 @@ public class TaskListDao {
 						+  "\nOwner: " + owner);
 				ServiceLogger.log(logTag, "Service Name - " + resultSet.toString());
 				*/
-				SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
+				SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 				
 				date = formatter.format(releaseDate);
 				
 				Date today = new Date();
 				Date dueDate = new Date(resultSet.getLong("priority") * 1000L);
 				
-				formatter = new SimpleDateFormat("dd-MM-YYYY");
+				formatter = new SimpleDateFormat("dd-MM-yyyy");
 				String now = formatter.format(today);
 				String dueOn = formatter.format(dueDate);
 				
 				if (now.equals(dueOn))
 					priority = "today";
 				else{
-					formatter = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
+					formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 					priority = formatter.format(dueDate);
 				}
 				
@@ -125,21 +125,21 @@ public class TaskListDao {
 						+  "\nOwner: " + owner);
 				ServiceLogger.log(logTag, "Service Name - " + resultSet.toString());
 				*/
-				SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
+				SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 				
 				date = formatter.format(releaseDate);
 				
 				Date today = new Date();
 				Date dueDate = new Date(resultSet.getLong("priority") * 1000L);
 				
-				formatter = new SimpleDateFormat("dd-MM-YYYY");
+				formatter = new SimpleDateFormat("dd-MM-yyyy");
 				String now = formatter.format(today);
 				String dueOn = formatter.format(dueDate);
 				
 				if (now.equals(dueOn))
 					priority = "today";
 				else{
-					formatter = new SimpleDateFormat("dd-MM-YYYY hh:mm:ss");
+					formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 					priority = formatter.format(dueDate);
 				}
 				
