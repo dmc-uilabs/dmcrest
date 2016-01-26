@@ -95,7 +95,7 @@ public class DiscussionListDao {
 					
 					Date releaseDate = new Date(1000L * resultSet.getLong("time"));
 					
-					SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-YYYY hh:mm:ss");
+					SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
 					
 					date = formatter.format(releaseDate); 
 					
@@ -153,7 +153,7 @@ public class DiscussionListDao {
 					
 					Date releaseDate = new Date(1000L * resultSet.getLong("time"));
 					
-					SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-YYYY hh:mm:ss");
+					SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
 					
 					date = formatter.format(releaseDate); 
 					

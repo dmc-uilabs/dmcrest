@@ -25,7 +25,7 @@ public class DiscussionDao {
 		try{
 			JSONObject json = new JSONObject(jsonStr);
 			String text = json.getString("text");
-			SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-YYYY hh:mm:ss");
+			SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
 			long millisOfDate = (new Date()).getTime();
 			int projectId = json.getInt("projectId");
 			
@@ -100,7 +100,7 @@ public class DiscussionDao {
 							+  "\nOwner: " + owner);
 					ServiceLogger.log(logTag, "Service Name - " + resultSet.toString());
 					*/
-					SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-YYYY hh:mm:ss");
+					SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
 					
 					date = formatter.format(releaseDate);
 					
