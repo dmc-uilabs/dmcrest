@@ -16,7 +16,7 @@ public class Config {
     public static final String DOC_API_DESCRIPTION = "Serves the DMC Frontend Application";
     public static final String DOC_API_VERSION = "0.1.0";
     public static final String DOC_API_URL = "http://terms-of-service.url";
-    public static final String DOC_API_CONTACT = "Contact Name <contact@contact.com>";
+    public static final String DOC_API_CONTACT = "DMC <dmc@uilabs.org>";
     public static final String DOC_API_LICENSE = "License";
     public static final String DOC_API_LICENSE_URL = "http://licenseurl";
 
