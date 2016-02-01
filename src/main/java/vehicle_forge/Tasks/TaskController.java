@@ -25,7 +25,8 @@ public class TaskController {
 	private TaskDao task = new TaskDao();
 	
 	@RequestMapping(value = "tasks/{taskID}", method = RequestMethod.GET)
-	public vehicle_forge.Task getTask(@PathVariable("taskID") String taskID) {
+	public vehicle_forge.Task getTask(@PathVariable("taskID") String taskID, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "UserName: " + userEPPN);
 		return task.getTask(taskID);
 	}
 	
