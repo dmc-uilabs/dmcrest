@@ -21,19 +21,23 @@ public class UserDao {
 
 	public UserDao(){}
 
-	public Id createUser(String jsonStr){
-			int id = -99999;
+        public Id createUser(String jsonStr, String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail){
+	    if(userEPPN.equals("")) {
+		// no user to create, so returning Id equal to negative 1.
+		return new Id.IdBuilder(-1).build();  
+	    }
+                        int id = -99999;
 			JSONObject json = new JSONObject(jsonStr);
 		try{
 
-			String username = json.getString("user_name");
-			SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-YYYY hh:mm:ss");
+		        String username = userEPPN;
+			SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
 			long millisOfDate = (new Date()).getTime();
-			String email = json.getString("email");
-			String password = json.getString("password");
-			String realName = json.getString("name");
-			String firstName = realName.split(" ", 2)[0];
-			String lastName = realName.split(" ", 2)[1];
+			String email = userEmail;
+			String password = "password";
+			String realName = userFullName;
+			String firstName = userFirstName;
+			String lastName = userSurname;
 
 
 			String query = "INSERT INTO users(user_name, email, user_pw, realname, add_date, firstname, lastname) "

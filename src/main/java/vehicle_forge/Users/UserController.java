@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,7 +27,13 @@ public class UserController {
     
     @RequestMapping(value = "/users/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     
-    public Id createUser(@RequestBody String payload) {
+    public Id createUser(@RequestBody String payload, 
+			 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
+			 @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
+			 @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
+			 @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
+			 @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
+    {
     	//System.out.println("In createRole role: " + name);
     	
     	
@@ -35,7 +42,7 @@ public class UserController {
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
     	
-    	return user.createUser(payload);
+        return user.createUser(payload, userEPPN, userFirstName, userSurname, userFull, userEmail);
     	
     	//Create role and update db through JDBC then return role using new role's id
     	

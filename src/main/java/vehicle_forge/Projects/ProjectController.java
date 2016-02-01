@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -31,8 +32,8 @@ public class ProjectController {
     
     private ProjectListDao projectList = new ProjectListDao(); 
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
-    public ArrayList<Project> getProjectList() {
-    	ServiceLogger.log(logTag, "In getProjectList");
+    public ArrayList<Project> getProjectList(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+    	ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
     	return projectList.getProjectList();
     }
     
