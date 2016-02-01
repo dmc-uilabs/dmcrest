@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
-
+import java.util.Iterator;
 
 @RestController
 public class TaskListController {
@@ -25,7 +25,19 @@ public class TaskListController {
 	}
 	
 	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET)
-	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader HttpHeaders headers) {
+		
+
+   Iterator<String> it = headers.keySet().iterator();
+
+
+         while(it.hasNext()){
+           String theKey = (String)it.next();
+		   ServiceLogger.log(logTag, "key: " + theKey + " value: " + headers.getFirst(theKey));
+           
+       }
+		
+		
 		ServiceLogger.log(logTag, "UserName: " + userEPPN);
 		return taskSearch.getTaskList(projectId);
 	}
