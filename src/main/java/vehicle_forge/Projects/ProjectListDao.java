@@ -116,7 +116,7 @@ public class ProjectListDao {
 		
 		//ServiceLogger.log(logTag, "Query" + query);
 		try {
-				resultSet = DBConnector.executeQuery(query);
+				resultSet = DBConnector.executeQuery(groupIdList);
 				//ServiceLogger.log(logTag, "ResultSet: " + resultSet);
 				while (resultSet.next()) {
 					/*id  = resultSet.getInt("id");
