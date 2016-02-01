@@ -34,7 +34,7 @@ public class ProjectController {
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
     public ArrayList<Project> getProjectList(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
     	ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
-    	return projectList.getProjectList();
+    	return projectList.getProjectList(userEPPN);
     }
     
 

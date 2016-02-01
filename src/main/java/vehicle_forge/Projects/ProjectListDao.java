@@ -14,7 +14,7 @@ public class ProjectListDao {
 	
 	public ProjectListDao(){}
 	
-	public ArrayList<Project> getProjectList(){
+	public ArrayList<Project> getProjectList(String userEPPN){
 		
 		ArrayList<Project> projects = new ArrayList<Project>();
 		
@@ -90,7 +90,6 @@ public class ProjectListDao {
 		String outerQuery = "SELECT g.group_id AS id from groups g";
 		
 		
-		
 		query = "SELECT g.group_id AS id, g.group_name AS title, "
 				+ "g.short_description AS description, s.msg_posted AS count, "
 				+"pt.taskCount AS taskCount, " 
@@ -104,6 +103,14 @@ public class ProjectListDao {
  				+ "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects "
  				+ "GROUP BY group_id) AS c ON c.id = g.group_id ";
 				//+ "WHERE g.group_id = " + projectId;
+
+
+		String groupIdList = "select * from (" + query + ") as project_info, (SELECT pfo_role.home_group_id"+
+                                      " FROM  pfo_role,  pfo_user_role, users"+                                                                         
+                                      " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"+                                                           
+                                      " pfo_role.home_group_id IS NOT NULL AND"+                                                                        
+                                      " pfo_user_role.user_id =users.user_id AND users.user_name = " + userEPPN + ") as project_id"+                     
+		    " where project_info.group_id = project_id.home_group_id;";
 		
 		ProjectDao pLookup = new ProjectDao();
 		
