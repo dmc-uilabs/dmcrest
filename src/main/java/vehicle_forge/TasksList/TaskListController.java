@@ -27,8 +27,9 @@ public class TaskListController {
 	}
 	
 	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET)
-	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader HttpHeaders headers) {
+	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader HttpHeaders headers, @RequestBody String payload) {
 		
+    	ServiceLogger.log(logTag, "Payload: " + payload);
 
    		Iterator<String> it = headers.keySet().iterator();
 
