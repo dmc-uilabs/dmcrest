@@ -10,7 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import vehicle_forge.ServiceLogger;
+import org.dmc.services.ServiceLogger;
 
 /**
  * Created by 200005921 on 1/13/2016.
