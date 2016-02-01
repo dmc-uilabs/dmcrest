@@ -30,17 +30,16 @@ public class TaskListController {
 	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader HttpHeaders headers) {
 		
 
-   Iterator<String> it = headers.keySet().iterator();
+   		Iterator<String> it = headers.keySet().iterator();
 
 
-         while(it.hasNext()){
-           String theKey = (String)it.next();
-		   ServiceLogger.log(logTag, "key: " + theKey + " value: " + headers.getFirst(theKey));
-           
+        while(it.hasNext()){
+        	String theKey = (String)it.next();
+		   	ServiceLogger.log(logTag, "key: " + theKey + " value: " + headers.getFirst(theKey));
        }
 		
 		
-		ServiceLogger.log(logTag, "UserName: " + userEPPN);
+//		ServiceLogger.log(logTag, "UserName: " + userEPPN);
 		return taskSearch.getTaskList(projectId);
 	}
 	
