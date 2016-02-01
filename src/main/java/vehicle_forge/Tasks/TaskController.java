@@ -36,4 +36,13 @@ public class TaskController {
     	
     	return task.createTask(payload);
     }
+	@RequestMapping(value = "tasks", method = RequestMethod.GET)
+	public ArrayList<vehicle_forge.Task> getTaskList() {
+		return task.getTaskList();
+	}
+	
+	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET)
+	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId) {
+		return task.getTaskList(projectId);
+	}
 }
