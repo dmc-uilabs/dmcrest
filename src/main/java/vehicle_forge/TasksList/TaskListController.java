@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +25,8 @@ public class TaskListController {
 	}
 	
 	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET)
-	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId) {
+	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "UserName: " + userEPPN);
 		return taskSearch.getTaskList(projectId);
 	}
 	
