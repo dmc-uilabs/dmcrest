@@ -114,7 +114,7 @@ public class ProjectListDao {
 		
 		ProjectDao pLookup = new ProjectDao();
 		
-		//ServiceLogger.log(logTag, "Query" + query);
+		ServiceLogger.log(logTag, "groupIdList: " + groupIdList);
 		try {
 				resultSet = DBConnector.executeQuery(groupIdList);
 				//ServiceLogger.log(logTag, "ResultSet: " + resultSet);
