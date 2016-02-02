@@ -183,6 +183,9 @@ public class ProjectListDao {
 		catch(SQLException e){
 			ServiceLogger.log(logTag, e.getMessage());
 		}
+		catch(Exception e){
+		    ServiceLogger.log(logTag, e.getMessage());
+                }
 		
 
 		
