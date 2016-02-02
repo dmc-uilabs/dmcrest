@@ -144,7 +144,9 @@ public class ProjectListDao {
 					 description = resultSet.getString("description");
 					 if (description == null)
 							description = "";
-					
+					 ServiceLogger.log(logTag, "projectId: " + projectId + "num_discussions: " + num_discussions + 
+							   "num_components: " + num_components + "num_tasks: " + num_tasks + 
+							   "num_services: " + num_services + "description: " + description );
 					 component = new ProjectComponent(num_components, projectId);
 					projects.add(new Project.ProjectBuilder(resultSet.getInt("id"), 
 							resultSet.getString("title"), description)
