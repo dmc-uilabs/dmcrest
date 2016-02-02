@@ -110,7 +110,7 @@ public class ProjectListDao {
                                       " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"+                                                           
                                       " pfo_role.home_group_id IS NOT NULL AND"+                                                                        
                                       " pfo_user_role.user_id =users.user_id AND users.user_name = '" + userEPPN + "') as project_id"+                     
-		    " where project_info.id = project_id.home_group_id;";
+		    " where project_info.id = project_id.home_group_id";
 		
 		ProjectDao pLookup = new ProjectDao();
 		
