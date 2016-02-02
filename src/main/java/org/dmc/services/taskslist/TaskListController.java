@@ -23,18 +23,11 @@ public class TaskListController {
 	}
 
 	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET)
-	public ArrayList<Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader HttpHeaders headers) {
 
-   		Iterator<String> it = headers.keySet().iterator();
+	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+		
+		ServiceLogger.log(logTag, "UserName: " + userEPPN);
 
-
-        while(it.hasNext()){
-        	String theKey = (String)it.next();
-		   	ServiceLogger.log(logTag, "key: " + theKey + " value: " + headers.getFirst(theKey));
-       }
-
-
-//		ServiceLogger.log(logTag, "UserName: " + userEPPN);
 		return taskSearch.getTaskList(projectId);
 	}
 

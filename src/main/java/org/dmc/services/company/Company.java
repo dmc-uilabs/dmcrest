@@ -13,7 +13,7 @@ public class Company {
     private final String description;
     private final String division;
     private final String industry;
-    //private final String NAICSCode;
+    private final String NAICSCode;
     private final String RDFocus;
     private final String customers;
     private final String awardsReceived;
@@ -25,7 +25,7 @@ public class Company {
     private final String upcomingProjectInterests;
     private final String address;
     private final String city;
-    private final int state;
+    private final String state;
     private final String zipCode;
     private final String twitter;
     private final String linkedIn;
@@ -39,7 +39,7 @@ public class Company {
     private final FeatureImage featureImage;
     private final String logoImage;
     private final boolean follow;
-    private final int favoritesCount;
+    private final int favoratesCount;
     private final boolean isOwner;
     private final String owner;
 
@@ -52,7 +52,7 @@ public class Company {
         this.description = builder.description;
         this.division = builder.division;
         this.industry = builder.industry;
-        //this.NAICSCode = builder.NAICScode;
+        this.NAICSCode = builder.NAICSCode;
         this.RDFocus = builder.RDFocus;
         this.customers = builder.customers;
         this.awardsReceived = builder.awardsReceived;
@@ -78,7 +78,7 @@ public class Company {
         this.featureImage = builder.featureImage;
         this.logoImage = builder.logoImage;
         this.follow = builder.follow;
-        this.favoritesCount = builder.favoritesCount;
+        this.favoratesCount = builder.favoratesCount;
         this.isOwner = builder.isOwner;
         this.owner = builder.owner;
     }
@@ -111,12 +111,10 @@ public class Company {
     	return industry;
     }
     
-    /*
     public String getNAICSCode() {
     	return NAICSCode;
     }
-    */
-    
+   
     public String getRDFocus() {
     	return RDFocus;
     }
@@ -129,7 +127,7 @@ public class Company {
     	return awardsReceived;
     }
     
-    public String getTechincalExpertise() {
+    public String getTechnicalExpertise() {
     	return technicalExpertise;
     }
     
@@ -141,7 +139,7 @@ public class Company {
     	return postCollaborations;
     }
     
-    public String getCollaborationsInterests() {
+    public String getCollaborationInterests() {
     	return collaborationInterests;
     }
     
@@ -161,7 +159,7 @@ public class Company {
     	return city;
     }
     
-    public int getState() {
+    public String getState() {
     	return state;
     }
     
@@ -217,8 +215,8 @@ public class Company {
     	return follow;
     }
     
-    public int getFavoritesCount() {
-    	return favoritesCount;
+    public int getfavoratesCount() {
+    	return favoratesCount;
     }
     
     public boolean getIsOwner() {
@@ -237,37 +235,37 @@ public class Company {
         private final String name;   
         private String location;
         private String description;
-        private  String division;
-        private  String industry;
-        private  String NAICSCode;
-        private  String RDFocus;
-        private  String customers;
-        private  String awardsReceived;
-        private  String technicalExpertise;
-        private  String toolsSoftwareEquipmentMachines;
-        private  String postCollaborations;
-        private  String collaborationInterests;
-        private  String pastProjects;
-        private  String upcomingProjectInterests;
-        private  String address;
-        private  String city;
-        private  int state;
-        private  String zipCode;
-        private  String twitter;
-        private  String linkedIn;
-        private  String website;
-        private  String methodCommunication;
-        private  String email;
-        private  String phone;
-        private  int categoryTier;
-        private  String dateJoined;
-        private  String reasonJoining;
-        private  FeatureImage featureImage;
-        private  String logoImage;
-        private  boolean follow;
-        private  int favoritesCount;
-        private  boolean isOwner;
-        private  String owner;
+        private String division;
+        private String industry;
+        private String NAICSCode;
+        private String RDFocus;
+        private String customers;
+        private String awardsReceived;
+        private String technicalExpertise;
+        private String toolsSoftwareEquipmentMachines;
+        private String postCollaborations;
+        private String collaborationInterests;
+        private String pastProjects;
+        private String upcomingProjectInterests;
+        private String address;
+        private String city;
+        private String state;
+        private String zipCode;
+        private String twitter;
+        private String linkedIn;
+        private String website;
+        private String methodCommunication;
+        private String email;
+        private String phone;
+        private int categoryTier;
+        private String dateJoined;
+        private String reasonJoining;
+        private FeatureImage featureImage;
+        private String logoImage;
+        private boolean follow;
+        private int favoratesCount;
+        private boolean isOwner;
+        private String owner;
    
     	public CompanyBuilder(int id, int accountId, String name) {
     		this.id = id;
@@ -315,7 +313,7 @@ public class Company {
         	return this;
         }
         
-        public CompanyBuilder techincalExpertise(String technicalExpertise) {
+        public CompanyBuilder technicalExpertise(String technicalExpertise) {
         	this.technicalExpertise = technicalExpertise;
         	return this;
         }
@@ -330,7 +328,7 @@ public class Company {
         	return this;
         }
         
-        public CompanyBuilder collaborationsInterests(String collaborationInterests) {
+        public CompanyBuilder collaborationInterests(String collaborationInterests) {
         	this.collaborationInterests = collaborationInterests;
         	return this;
         }
@@ -355,7 +353,7 @@ public class Company {
         	return this;
         }
         
-        public CompanyBuilder state(int state) {
+        public CompanyBuilder state(String state) {
         	this.state = state;
         	return this;
         }
@@ -425,8 +423,8 @@ public class Company {
         	return this;
         }
         
-        public CompanyBuilder favoritesCount(int favoritesCount) {
-        	this.favoritesCount = favoritesCount;
+        public CompanyBuilder favoratesCount(int favoratesCount) {
+        	this.favoratesCount = favoratesCount;
         	return this;
         }
         
@@ -438,6 +436,10 @@ public class Company {
         public CompanyBuilder owner(String owner) {
         	this.owner = owner;
         	return this;
+        }
+        
+        public Company build() {
+        	return new Company(this);
         }
     }
 }

@@ -8,6 +8,9 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
 
+import org.apache.commons.codec.binary.Base64;
+import java.util.Arrays;
+
 public class ProjectListDao {
 
 	private final String logTag = ProjectListDao.class.getName();
@@ -15,7 +18,7 @@ public class ProjectListDao {
 	
 	public ProjectListDao(){}
 	
-	public ArrayList<Project> getProjectList(){
+	public ArrayList<Project> getProjectList(String userEPPN){
 		
 		ArrayList<Project> projects = new ArrayList<Project>();
 		
@@ -91,7 +94,6 @@ public class ProjectListDao {
 		String outerQuery = "SELECT g.group_id AS id from groups g";
 		
 		
-		
 		query = "SELECT g.group_id AS id, g.group_name AS title, "
 				+ "g.short_description AS description, s.msg_posted AS count, "
 				+"pt.taskCount AS taskCount, " 
@@ -105,26 +107,36 @@ public class ProjectListDao {
  				+ "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects "
  				+ "GROUP BY group_id) AS c ON c.id = g.group_id ";
 				//+ "WHERE g.group_id = " + projectId;
+
+
+		String groupIdList = "select * from (" + query + ") as project_info, (SELECT pfo_role.home_group_id"+
+                                      " FROM  pfo_role,  pfo_user_role, users"+                                                                         
+                                      " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"+                                                           
+                                      " pfo_role.home_group_id IS NOT NULL AND"+                                                                        
+                                      " pfo_user_role.user_id =users.user_id AND users.user_name = '" + userEPPN + "') as project_id"+                     
+		    " where project_info.id = project_id.home_group_id";
 		
 		ProjectDao pLookup = new ProjectDao();
 		
-		//ServiceLogger.log(logTag, "Query" + query);
+		//		ServiceLogger.log(logTag, "groupIdList: " + groupIdList);
 		try {
-				resultSet = DBConnector.executeQuery(query);
-				//ServiceLogger.log(logTag, "ResultSet: " + resultSet);
+				resultSet = DBConnector.executeQuery(groupIdList);
+
 				while (resultSet.next()) {
-					/*id  = resultSet.getInt("id");
-					ServiceLogger.log(logTag, "Lookup id: " 
-				+ id);*/
-					 int projectId = resultSet.getInt("id");
+		       			 int projectId = resultSet.getInt("id");
+
 					 num_discussions = resultSet.getInt("count");
+
 					 num_components = resultSet.getInt("componentsCount");
+
 					/*ServiceLogger.log(logTag, "Project ID " + projectId + " has " 
 					+ num_tasks + " discussions.");*/
 					 num_tasks = resultSet.getInt("taskCount");
+
 					/*ServiceLogger.log(logTag, "Project ID " + projectId + " has " 
 					+ num_tasks + " total tasks.");*/
 					 num_services = resultSet.getInt("servicesCount");
+
 					/*ServiceLogger.log(logTag, "Project ID " + projectId + " has " 
 					+ num_tasks + " service subscriptions.");*/
 					 thumbnail = "";
@@ -136,11 +148,14 @@ public class ProjectListDao {
 					 discussion = new ProjectDiscussion(num_discussions, projectId);
 					 
 					 description = resultSet.getString("description");
+
 					 if (description == null)
 							description = "";
-					
+					 ServiceLogger.log(logTag, "projectId: " + projectId + "num_discussions: " + num_discussions + 
+							   "num_components: " + num_components + "num_tasks: " + num_tasks + 
+							   "num_services: " + num_services + "description: " + description );
 					 component = new ProjectComponent(num_components, projectId);
-					projects.add(new Project.ProjectBuilder(resultSet.getInt("id"), 
+					 projects.add(new Project.ProjectBuilder(resultSet.getInt("id"), 
 							resultSet.getString("title"), description)
 							.imgLink()
 							.image(image)
@@ -175,6 +190,9 @@ public class ProjectListDao {
 		catch(SQLException e){
 			ServiceLogger.log(logTag, e.getMessage());
 		}
+		catch(Exception e){
+		    ServiceLogger.log(logTag, e.getMessage());
+                }
 		
 
 		
