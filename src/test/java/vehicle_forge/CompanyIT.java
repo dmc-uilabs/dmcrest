@@ -32,6 +32,7 @@ public class CompanyIT extends BaseIT {
 	private Company company = null;		
 	private Random r = new Random();
 	
+	/*
 	@Test
 	public void getCompany() {		
 	  company = companyDao.getCompany(1);
@@ -43,4 +44,5 @@ public class CompanyIT extends BaseIT {
           body(matchesJsonSchemaInClasspath("Schemas/companySchema.json"));
 	  }
 	}
+	*/
 }
