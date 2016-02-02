@@ -24,7 +24,7 @@ public class TaskListController {
 
 	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET)
 
-	public ArrayList<vehicle_forge.Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+	public ArrayList<Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 		
 		ServiceLogger.log(logTag, "UserName: " + userEPPN);
 

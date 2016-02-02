@@ -1,6 +1,11 @@
 package org.dmc.services.company;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.dmc.services.DBConnector;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.sharedattributes.FeatureImage;
 
 public class CompanyDao {
 

@@ -24,6 +24,9 @@ import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
+import org.dmc.services.company.CompanyDao;
+import org.dmc.services.company.Company;
+
 //@Ignore
 public class CompanyIT extends BaseIT {
 	
