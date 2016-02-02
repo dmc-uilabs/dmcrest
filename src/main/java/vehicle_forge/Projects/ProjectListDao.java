@@ -117,20 +117,22 @@ public class ProjectListDao {
 		ServiceLogger.log(logTag, "groupIdList: " + groupIdList);
 		try {
 				resultSet = DBConnector.executeQuery(groupIdList);
-				//ServiceLogger.log(logTag, "ResultSet: " + resultSet);
+				ServiceLogger.log(logTag, "ResultSet: " + resultSet);
 				while (resultSet.next()) {
-					/*id  = resultSet.getInt("id");
-					ServiceLogger.log(logTag, "Lookup id: " 
-				+ id);*/
-					 int projectId = resultSet.getInt("id");
+		       			 int projectId = resultSet.getInt("id");
+					 ServiceLogger.log(logTag, "projectId: " + projectId );
 					 num_discussions = resultSet.getInt("count");
+					 ServiceLogger.log(logTag, "num_discussions: " + num_discussions );
 					 num_components = resultSet.getInt("componentsCount");
+					 ServiceLogger.log(logTag, "num_components: " + num_components );
 					/*ServiceLogger.log(logTag, "Project ID " + projectId + " has " 
 					+ num_tasks + " discussions.");*/
 					 num_tasks = resultSet.getInt("taskCount");
+					 ServiceLogger.log(logTag, "num_tasks: " + num_tasks );
 					/*ServiceLogger.log(logTag, "Project ID " + projectId + " has " 
 					+ num_tasks + " total tasks.");*/
 					 num_services = resultSet.getInt("servicesCount");
+					 ServiceLogger.log(logTag, "num_services: " + num_services );
 					/*ServiceLogger.log(logTag, "Project ID " + projectId + " has " 
 					+ num_tasks + " service subscriptions.");*/
 					 thumbnail = "";
@@ -142,6 +144,7 @@ public class ProjectListDao {
 					 discussion = new ProjectDiscussion(num_discussions, projectId);
 					 
 					 description = resultSet.getString("description");
+					 ServiceLogger.log(logTag, "description: " + description );
 					 if (description == null)
 							description = "";
 					 ServiceLogger.log(logTag, "projectId: " + projectId + "num_discussions: " + num_discussions + 
