@@ -22,7 +22,6 @@ import com.jayway.restassured.RestAssured;
 
 import static org.hamcrest.Matchers.*;
 
-import java.util.Random;
 import org.junit.Ignore;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -37,7 +36,7 @@ public class CompanyIT extends BaseIT {
 		
 	//@Ignore
 	@Test
-	public void testTaskCreateAndGet() {
+	public void testCompanyCreateAndGet() {
 		JSONObject json = createFixture();
 		Integer id = given()
 				.body(json.toString())
@@ -77,7 +76,6 @@ public class CompanyIT extends BaseIT {
 	public JSONObject createFixture() {
 		
 		JSONObject json = new JSONObject();
-		Random r = new Random(); // use to randomize data params
 
 		json.put("accountId", 1001);
 		json.put("name", "test name");
