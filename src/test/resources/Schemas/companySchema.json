@@ -1,0 +1,200 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/company",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "http://dmc-dev.geinspire.com/company/id",
+      "type": "integer"
+    },
+    "accountId": {
+      "id": "http://dmc-dev.geinspire.com/company/accountId",
+      "type": "integer"
+    },
+    "name": {
+      "id": "http://dmc-dev.geinspire.com/company/name",
+      "type": "string"
+    },
+    "location": {
+      "id": "http://dmc-dev.geinspire.com/company/location",
+      "type": "string"
+    },
+    "description": {
+      "id": "http://dmc-dev.geinspire.com/company/description",
+      "type": "string"
+    },
+    "division": {
+      "id": "http://dmc-dev.geinspire.com/company/division",
+      "type": "string"
+    },
+    "division": {
+      "id": "http://dmc-dev.geinspire.com/company/division",
+      "type": "string"
+    },
+    "industry": {
+      "id": "http://dmc-dev.geinspire.com/company/industry",
+      "type": "string"
+    },
+    "NAICSCode": {
+      "id": "http://dmc-dev.geinspire.com/company/NAICSCode",
+      "type": "string"
+    },
+    "RDFocus": {
+      "id": "http://dmc-dev.geinspire.com/company/RDFocus",
+      "type": "string"
+    },
+    "customers": {
+      "id": "http://dmc-dev.geinspire.com/company/customers",
+      "type": "string"
+    },
+    "awardsReceived": {
+      "id": "http://dmc-dev.geinspire.com/company/awardsReceived",
+      "type": "string"
+    },
+    "technicalExpertise": {
+      "id": "http://dmc-dev.geinspire.com/company/technicalExpertise",
+      "type": "string"
+    },
+    "toolsSoftwareEquipmentMachines": {
+      "id": "http://dmc-dev.geinspire.com/company/toolsSoftwareEquipmentMachines",
+      "type": "string"
+    },
+    "postCollaborations": {
+      "id": "http://dmc-dev.geinspire.com/company/postCollaborations",
+      "type": "string"
+    },
+    "collaborationInterests": {
+      "id": "http://dmc-dev.geinspire.com/company/collaborationInterests",
+      "type": "string"
+    },
+    "pastProjects": {
+      "id": "http://dmc-dev.geinspire.com/company/pastProjects",
+      "type": ["string", "null"]
+    },
+    "upcomingProjectInterests": {
+      "id": "http://dmc-dev.geinspire.com/company/upcomingProjectInterests",
+      "type": ["string", "null"]
+    },
+    "address": {
+      "id": "http://dmc-dev.geinspire.com/company/address",
+      "type": "string"
+    },
+    "city": {
+      "id": "http://dmc-dev.geinspire.com/company/city",
+      "type": "string"
+    },
+    "state": {
+      "id": "http://dmc-dev.geinspire.com/company/state",
+      "type": "string"
+    },
+    "zipCode": {
+      "id": "http://dmc-dev.geinspire.com/company/zipCode",
+      "type": "string"
+    },
+    "twitter": {
+      "id": "http://dmc-dev.geinspire.com/company/twitter",
+      "type": "string"
+    },
+    "linkedin": {
+      "id": "http://dmc-dev.geinspire.com/company/linkedin",
+      "type": "string"
+    },
+    "website": {
+      "id": "http://dmc-dev.geinspire.com/company/website",
+      "type": "string"
+    },
+    "methodCommunication": {
+      "id": "http://dmc-dev.geinspire.com/company/methodCommunication",
+      "type": "string"
+    },
+    "email": {
+      "id": "http://dmc-dev.geinspire.com/company/email",
+      "type": "string"
+    },
+    "phone": {
+      "id": "http://dmc-dev.geinspire.com/company/phone",
+      "type": "string"
+    },
+    "categoryTier": {
+      "id": "http://dmc-dev.geinspire.com/company/categoryTier",
+      "type": "integer"
+    },
+    "dateJoined": {
+      "id": "http://dmc-dev.geinspire.com/company/dateJoined",
+      "type": "string"
+    },
+    "reasonJoining": {
+      "id": "http://dmc-dev.geinspire.com/company/reasonJoining",
+      "type": "string"
+    },
+    "featureImage": {
+      "id": "http://dmc-dev.geinspire.com/company/featureImage",
+      "type": "object",
+      "properties": {
+        "thumbnail": {
+          "id": "http://dmc-dev.geinspire.com/company/featureImage/thumbnail",
+          "type": "string"
+        },
+        "large": {
+          "id": "http://dmc-dev.geinspire.com/company/featureImage/large",
+          "type": "string"
+        }
+      }
+    },
+    "logoImage": {
+      "id": "http://dmc-dev.geinspire.com/company/logoImage",
+      "type": "string"
+    },
+    "follow": {
+      "id": "http://dmc-dev.geinspire.com/company/follow",
+      "type": "boolean"
+    },
+    "favoratesCount": {
+      "id": "http://dmc-dev.geinspire.com/company/favoratesCount",
+      "type": "integer"
+    },
+    "isOwner": {
+      "id": "http://dmc-dev.geinspire.com/company/isOwner",
+      "type": "boolean"
+    },
+    "owner": {
+      "id": "http://dmc-dev.geinspire.com/company/owner",
+      "type": "string"
+    }
+  },
+  "required": [
+     "id",          
+     "accountId",    
+     "name",   
+     "location",
+     "description",
+     "division",
+     "industry",
+     "customers",
+     "awardsReceived",
+     "technicalExpertise",
+     "toolsSoftwareEquipmentMachines",
+     "postCollaborations",
+     "collaborationInterests",
+     "pastProjects",
+     "upcomingProjectInterests",
+     "address",
+     "city",
+     "state",
+     "zipCode",
+     "twitter",
+     "linkedIn",
+     "website",
+     "methodCommunication",
+     "email",
+     "phone",
+     "categoryTier",
+     "dateJoined",
+     "reasonJoining",
+     "logoImage",
+     "follow",
+     "favoratesCount",
+     "isOwner",
+     "owner"
+  ]
+}
