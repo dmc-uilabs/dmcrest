@@ -180,6 +180,14 @@
 			<version>4.5.1</version>
 		</dependency>
 
+
+		<dependency>
+			<artifactId>solr-solrj</artifactId>
+			<groupId>org.apache.solr</groupId>
+			<version>5.4.1</version>
+			<type>jar</type>
+		</dependency>
+
 		<!-- Test Dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
