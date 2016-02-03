@@ -1,9 +1,12 @@
 package org.dmc.services.company;
 
+import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -11,11 +14,18 @@ public class CompanyController {
 
 	private final String logTag = CompanyController.class.getName();
 	
-    private CompanyDao CompanyDao = new CompanyDao(); 
+    private CompanyDao companyDao = new CompanyDao(); 
 	
-    @RequestMapping(value = "/company/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/companies/{id}", method = RequestMethod.GET)
     public Company getCompany(@PathVariable("id") int id) {
     	ServiceLogger.log(logTag, "getCompany, id: " + id);
-    	return CompanyDao.getCompany(id);
+    	return  companyDao.getCompany(id);
+    }
+    
+    @RequestMapping(value = "/companies/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @ResponseBody
+    public Id createTask(@RequestBody String payload) {
+    	ServiceLogger.log(logTag, "Payload: " + payload);	
+    	return companyDao.createCompany(payload);
     }
 }
