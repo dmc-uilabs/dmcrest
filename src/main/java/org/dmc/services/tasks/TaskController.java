@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+
 @RestController
 public class TaskController {
 	
@@ -29,4 +31,14 @@ public class TaskController {
     	
     	return task.createTask(payload);
     }
+	@RequestMapping(value = "tasks", method = RequestMethod.GET)
+	public ArrayList<Task> getTaskList() {
+		return task.getTaskList();
+	}
+	
+	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET)
+	public ArrayList<Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "UserName: " + userEPPN);
+		return task.getTaskList(projectId);
+	}
 }

@@ -29,6 +29,12 @@
       "type": ["string", "null"]
     },
     "priority": {
+      "type": ["integer", "null"]
+    },
+    "summary": {
+      "type": ["string", "null"]
+    },
+    "details": {
       "type": ["string", "null"]
     }
   }

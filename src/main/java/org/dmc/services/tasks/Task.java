@@ -8,10 +8,12 @@ public class Task {
 	private final String assignee;
 	private final String reporter;
 	private final String dueDate;
-	private final String priority;
+	private final int priority;
+	private final String summary;
+	private final String details;
 
 	public Task(int id, String title, TaskProject taskProject, String assignee, String reporter, String dueDate,
-			String priority) {
+			int priority, String summary, String details) {
 		this.id = id;
 		this.title = title;
 		this.tProject = taskProject;
@@ -19,6 +21,8 @@ public class Task {
 		this.reporter = reporter;
 		this.dueDate = dueDate;
 		this.priority = priority;
+		this.summary = summary;
+		this.details = details;
 	}
 
 	public int getId()
@@ -36,19 +40,33 @@ public class Task {
     	return tProject;
     }
 
-	public String getAssignee() {
+	public String getAssignee() 
+	{
 		return assignee;
 	}
 
-	public String getReporter() {
+	public String getReporter() 
+	{
 		return reporter;
 	}
 
-	public String getDueDate() {
+	public String getDueDate() 
+	{
 		return dueDate;
 	}
  
-	public String getPriority() {
+	public int getPriority() 
+	{
 		return priority;
+	}
+	
+	public String getSummary() 
+	{
+		return summary;
+	}
+	
+	public String getDetails() 
+	{
+		return details;
 	}
 }
