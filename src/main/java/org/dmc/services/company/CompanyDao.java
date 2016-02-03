@@ -62,7 +62,7 @@ public class CompanyDao {
 					+ "WHERE o.organization_id = "  + id);
 			
 			if (resultSet.next()) {
-				id = resultSet.getInt("id");
+				id = resultSet.getInt("organization_id");
 				accountId = resultSet.getInt("accountId");
 				name = resultSet.getString("name");
 				location = resultSet.getString("location");
@@ -147,9 +147,7 @@ public class CompanyDao {
 	
 	public Id createCompany(String jsonStr) { 
 		int id = -99999, commonAddressId = -9999, commonImageId = -9999;
-				
-		
-		ServiceLogger.log(logTag, "In createCompany: ");
+
 		try {
 			JSONObject json = new JSONObject(jsonStr);
 			       
@@ -195,8 +193,6 @@ public class CompanyDao {
 	        String query = "INSERT INTO common_address"
 	        		+ "(street_address1, street_address2, city, state, zip) "
 	        		+ "VALUES (?, ?, ?, ?, ?) ";
-	         
-	        ServiceLogger.log(logTag, "AFTER COMMON ADDRESS UPDATE");
 	        
 	        PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 	        preparedStatement.setString(1, address);   
@@ -212,10 +208,8 @@ public class CompanyDao {
 				commonAddressId = resultSet.getInt("id");
 			}
 			
-			ServiceLogger.log(logTag, "COMMON ADDRESS ID:" + commonAddressId);
-			
-			
-			
+			ServiceLogger.log(logTag, "ASSOCIATED COMMON_ADDRESS ENTRY: " + commonAddressId);
+
 	        // insert into relational common_image
 	        query = "INSERT INTO common_image"
 	        		+ "(caption, thumbnail, large_image) "
@@ -233,7 +227,7 @@ public class CompanyDao {
 				commonImageId = resultSet.getInt("id");
 			}
 	        			
-			ServiceLogger.log(logTag, "COMMON IMAGE ID:" + commonImageId);
+			ServiceLogger.log(logTag, "ASSOCIATED COMMON_IMAGE ENTRY: " + commonImageId);
 			
 			query = "INSERT INTO organization "
 			+ "(accountid, name, location, description, division, "
@@ -244,9 +238,6 @@ public class CompanyDao {
 			+ "perfered_comm_method, category_tier, date_joining, reason_joining, "
 			+ "feature_image, logo_image, follow, favorates_count, is_owner, owner)" 
 			+ "values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-			
-			ServiceLogger.log(logTag, "COMMON IMAGE ID:" + commonImageId);
 			
 			preparedStatement = DBConnector.prepareStatement(query);			      
 			preparedStatement.setInt(1, accountId);    
@@ -289,18 +280,26 @@ public class CompanyDao {
 				id = resultSet.getInt("id");
 			}
 			
+			ServiceLogger.log(logTag, "ORGANIZATION/COMPANY ID: " + id);
+			
 		}
 		catch (SQLException e) {
-			ServiceLogger.log(logTag, "EXCEPTION -- " + e.getMessage());
+			ServiceLogger.log(logTag, e.getMessage());
 			return null;
 		}
 		catch (JSONException e) {
-			ServiceLogger.log(logTag, "EXCEPTION -- " + e.getMessage());
+			ServiceLogger.log(logTag, e.getMessage());
 			return null;
 		}
 		return new Id.IdBuilder(id)
 		.build();
 
+	}
+	
+	public Id deleteCompany(int id) {
+		// Implementation pending
+		return new Id.IdBuilder(id)
+		.build();
 	}
 	
 }

@@ -23,6 +23,7 @@ import com.jayway.restassured.RestAssured;
 import static org.hamcrest.Matchers.*;
 
 import org.junit.Ignore;
+import org.junit.After;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
@@ -33,12 +34,15 @@ public class CompanyIT extends BaseIT {
 	
 	private static final String COMPANY_GET_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_CREATE_RESOURCE = "/companies/create";
+	private static final String COMPANY_DELETE_RESOURCE = "/companies/{id}/delete";
+	
+	private Integer createdId;
 		
-	//@Ignore
-	@Test
-	public void testCompanyCreateAndGet() {
+	// Setup test data
+	@Before
+	public void testCompanyCreate() {
 		JSONObject json = createFixture();
-		Integer id = given()
+		this.createdId = given()
 				.body(json.toString())
 				.expect()
 				.statusCode(200)
@@ -48,29 +52,31 @@ public class CompanyIT extends BaseIT {
 				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
 				.extract()
 				.path("id");
-
-		expect().statusCode(200)
-				.when()
-				.get(COMPANY_GET_RESOURCE, id.toString())
-				.then().log()
-				.all()
-				.body(matchesJsonSchemaInClasspath("Schemas/taskSchema.json"));
 	}
 	
+	
 	@Test
-	public void testCompanyCreate() {
-		
-		JSONObject json = createFixture();
-		
-		given()
-		.body(json.toString())
-		.expect()
-		.statusCode(200)
+	public void testCompanyGet() {
+		expect().statusCode(200)
 		.when()
-		.post("/companies/create")
+		.get(COMPANY_GET_RESOURCE, this.createdId.toString())
+		.then().log()
+		.all()
+		.body(matchesJsonSchemaInClasspath("Schemas/companySchema.json"))
+		 // at the very least verify the correct item was returned
+		.body("id", equalTo(this.createdId));
+	}
+	
+	// Cleanup
+	@After  
+	public void testCompanyDelete() {
+		expect().statusCode(200)
+		.when()
+		.get(COMPANY_DELETE_RESOURCE, this.createdId.toString())
 		.then()
+		.log()
+		.all()
 		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-
 	}
 	
 	public JSONObject createFixture() {

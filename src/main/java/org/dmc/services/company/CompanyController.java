@@ -25,7 +25,13 @@ public class CompanyController {
     @RequestMapping(value = "/companies/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     @ResponseBody
     public Id createTask(@RequestBody String payload) {
-    	ServiceLogger.log(logTag, "Payload: " + payload);	
+    	ServiceLogger.log(logTag, "CreateCompany, Payload: " + payload);	
     	return companyDao.createCompany(payload);
+    }
+    
+    @RequestMapping(value = "/companies/{id}/delete", method = RequestMethod.GET)
+    public Id deleteCompany(@PathVariable("id") int id) {
+    	ServiceLogger.log(logTag, "deleteCompany, id: " + id);
+    	return  companyDao.deleteCompany(id);
     }
 }
