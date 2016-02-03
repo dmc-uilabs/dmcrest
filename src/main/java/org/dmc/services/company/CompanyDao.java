@@ -77,7 +77,7 @@ public class CompanyDao {
 				toolsSoftwareEquipmentMachines = resultSet.getString("tools_software_equip_mach");
 				postCollaborations = resultSet.getString("post_collaboration");
 				collaborationInterests = resultSet.getString("collaboration_interest");
-				pastProjects = resultSet.getString("pastProjects");
+				pastProjects = resultSet.getString("past_projects");
 				upcomingProjectInterests = resultSet.getString("upcoming_project_interests");
 				address = resultSet.getString("street_address1");
 				address2 = resultSet.getString("street_address2");

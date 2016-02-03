@@ -35,7 +35,7 @@ public class CompanyIT extends BaseIT {
 	private static final String COMPANY_GET_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_CREATE_RESOURCE = "/companies/create";
 		
-	@Ignore
+	//@Ignore
 	@Test
 	public void testTaskCreateAndGet() {
 		JSONObject json = createFixture();
