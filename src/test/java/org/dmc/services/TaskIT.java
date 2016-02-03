@@ -10,6 +10,7 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 
 import java.util.Random;
 import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import org.json.JSONObject;
 
