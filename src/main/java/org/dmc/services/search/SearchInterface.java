@@ -3,6 +3,7 @@ package org.dmc.services.search;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
 import org.dmc.services.services.Service;
+import org.dmc.services.users.User;
 
 import java.util.List;
 
@@ -42,4 +43,12 @@ public interface SearchInterface {
      * @throws SearchException
      */
     public List<Project> searchProjects (String query) throws SearchException;
+
+    /**
+     * Search users
+     * @param query
+     * @return
+     * @throws SearchException
+     */
+    public List<User> searchUsers (String query) throws SearchException;
 }
