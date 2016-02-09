@@ -48,27 +48,31 @@ public class ProjectController {
     @ResponseBody
     public Id createProject(
     		@RequestParam("projectname") String projectname,
-    		@RequestParam("unixname") String unixname) throws Exception {
-    	System.out.println("In createProject: " + projectname + "," + unixname);
+    		@RequestParam("unixname") String unixname,
+            @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
+    	
+        System.out.println("In createProject: " + projectname + "," + unixname);
     	
     	//RoleDao.createRole creates a new Role in the database using the provided POST params
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
     	
-    	return project.createProject(projectname, unixname);    	
+    	return project.createProject(projectname, unixname, userEPPN);
     }
     
     @RequestMapping(value = "/projects/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    public Id createProject(@RequestBody String payload) throws Exception {
-    	System.out.println("In createProject: " + payload);
+    public Id createProject(@RequestBody String payload,
+                            @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
+    	
+        System.out.println("In createProject: " + payload);
     	
     	//RoleDao.createRole creates a new Role in the database using the provided POST params
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
     	
-    	return project.createProject(payload);    	
+    	return project.createProject(payload, userEPPN);
     }
        /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)

@@ -105,8 +105,10 @@ public class ProjectDao {
 	}
 	// leaving this as an example of how to work with parameter to URL
 	// instead of json, but json is probably preferable
-	public Id createProject(String projectname, String unixname) throws SQLException, JSONException, Exception {
+	public Id createProject(String projectname, String unixname, String userEPPN) throws SQLException, JSONException, Exception {
 
+//        int userID = getUserID(userEPPN);
+        
 		//String id = "null";
 		int id = -99999;
 		String query = "insert into groups(group_name, unix_group_name) values ( ?, ? )";
@@ -135,51 +137,31 @@ public class ProjectDao {
 		
 		
 		if (Config.IS_TEST == null){
-        String indexResponse = SolrUtils.invokeFulIndexingProjects();
-		ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
+            String indexResponse = SolrUtils.invokeFulIndexingProjects();
+            ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
 		}
 		
-		return new Id.IdBuilder(id)
-		.build();
+		return new Id.IdBuilder(id).build();
 	}
 
-	public Id createProject(String jsonStr) throws SQLException, JSONException, Exception {
+	public Id createProject(String jsonStr, String userEPPN) throws SQLException, JSONException, Exception {
 
 		//String id = "null";
 		int id = -99999;
 		JSONObject json = new JSONObject(jsonStr);
 		String projectname = json.getString("projectname");
 		String unixname = json.getString("unixname");
-		String query = "insert into groups(group_name, unix_group_name) values ( ?, ? )";
-
-		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-		preparedStatement.setString(1, projectname);
-		preparedStatement.setString(2, unixname);
-		preparedStatement.executeUpdate();
-
-		// since no parameters can use execute query safely
-		query = "select currval('groups_pk_seq') as id";
-		resultSet = DBConnector.executeQuery(query);
-		while (resultSet.next()) {
-			//id = resultSet.getString("id");
-			id = resultSet.getInt("id");
-		}
-		
-		query = "INSERT into project_group_list (group_id, project_name, is_public, description, send_all_posts_to) values (?, ?, ?, ?, ?)";
-		preparedStatement = DBConnector.prepareStatement(query);
-		preparedStatement.setInt(1, id);
-		preparedStatement.setString(2,"fill-in");
-		preparedStatement.setInt(3,0);
-		preparedStatement.setString(4, "fill-in");
-		preparedStatement.setString(5, "none");		
-		preparedStatement.executeUpdate();
-
-		if (Config.IS_TEST == null){
-	        String indexResponse = SolrUtils.invokeFulIndexingProjects();
-			ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
-		}
-
-		return new Id.IdBuilder(id)
-		.build();
+        
+        return createProject(projectname, unixname, userEPPN);
 	}
+    
+//    public int getUserID(String userEPPN) {
+//        String query = "insert into groups(group_name, unix_group_name) values ( ?, ? )";
+//        
+//		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+//		preparedStatement.setString(1, projectname);
+//		preparedStatement.setString(2, unixname);
+//		preparedStatement.executeUpdate();
+//        
+//    }
 }
