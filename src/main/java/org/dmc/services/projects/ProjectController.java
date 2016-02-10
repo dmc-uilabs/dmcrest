@@ -28,10 +28,11 @@ public class ProjectController {
 	
 	private ProjectDao project = new ProjectDao(); 
     @RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
-    public Project getProject(@PathVariable("projectID") int projectID) {
-    	ServiceLogger.log(logTag, "In getProject");
-    	ServiceLogger.log(logTag, "In getProject, projectID: " + projectID);
-    	return project.getProject(projectID);
+    public Project getProject(@PathVariable("projectID") int projectID,
+    						  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+
+    	ServiceLogger.log(logTag, "In getProject, projectID: " + projectID + " as user " + userEPPN);
+    	return project.getProject(projectID, userEPPN);
     }
     
     private ProjectListDao projectList = new ProjectListDao(); 
@@ -51,7 +52,7 @@ public class ProjectController {
     		@RequestParam("unixname") String unixname,
             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
-        System.out.println("In createProject: " + projectname + "," + unixname);
+        System.out.println("In createProject: " + projectname + ", " + unixname + " as user " + userEPPN);
     	
     	//RoleDao.createRole creates a new Role in the database using the provided POST params
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
@@ -65,7 +66,7 @@ public class ProjectController {
     public Id createProject(@RequestBody String payload,
                             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
-        System.out.println("In createProject: " + payload);
+        System.out.println("In createProject: " + payload + " as user " + userEPPN);
     	
     	//RoleDao.createRole creates a new Role in the database using the provided POST params
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)

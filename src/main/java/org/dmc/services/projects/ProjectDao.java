@@ -22,7 +22,17 @@ public class ProjectDao {
 
 	public ProjectDao(){}
 	
-	public Project getProject(int projectId) {
+	public Project getProject(int projectId, String userEPPN) {
+		
+		// check if user has a role in project
+		try {
+			if(!hasProjectRole(projectId, userEPPN)) {
+				return null;
+			}
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
 		int id = 0;
 		int num_tasks = 0, num_discussions = 0, num_services = 0, num_components = 0;
 		String title = "", description = "", query;
@@ -195,7 +205,7 @@ public class ProjectDao {
 		return -1;
     }
     
-    boolean createProjectRole(String roleName, int projectId) throws SQLException {
+    void createProjectRole(String roleName, int projectId) throws SQLException {
     	// create project member role
     	String createProjectMemberRoleQuery = "insert into pfo_role (role_name, role_class, home_group_id, is_public, old_role_id) values (?, 1, ?, FALSE, 0)";
     	PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectMemberRoleQuery);
@@ -203,7 +213,30 @@ public class ProjectDao {
     	preparedStatement.setInt(2,projectId);
    		preparedStatement.executeUpdate();
    		
-   		//check insert
+   		// TODO: check insert was successful
+    }
+    
+    boolean hasProjectRole(int projectId, String userEPPN) throws SQLException {
+    	int userId = getUserID(userEPPN);
+    	String findUsersRoleInProjectQuery = 	"SELECT "+
+    											"role_name "+
+    											"FROM  "+
+    											"  public.pfo_user_role, "+
+    											"  public.pfo_role "+
+    											"WHERE  "+
+    											"  pfo_user_role.role_id = pfo_role.role_id AND "+
+    											"  pfo_role.home_group_id = ? AND  "+
+    											"  pfo_user_role.user_id = ?";
+    	PreparedStatement preparedStatement = DBConnector.prepareStatement(findUsersRoleInProjectQuery);
+    	preparedStatement.setInt(1,projectId);
+    	preparedStatement.setInt(2,userId);
+    	preparedStatement.execute();
+		resultSet = preparedStatement.getResultSet();
+		if (!resultSet.next()) {
+			// user has no role in project
+			return false;
+		} 
+		// else user has a role
     	return true;
     }
 }
