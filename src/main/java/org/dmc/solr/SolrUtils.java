@@ -9,6 +9,7 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.dmc.services.ServiceLogger;
 
@@ -28,6 +29,8 @@ public class SolrUtils {
     public static final String CORE_GFORGE_SERVICES   = "gforge_services";
     public static final String CORE_GFORGE_USERS      = "gforge_users";
     public static final String CORE_GFORGE_WIKI       = "gforge_wiki";
+
+    public static final String Q_ALL_FIELDS = "*";
 
     // http://52.88.250.74:8983/solr/gforge_users/dataimport?command=full-import&clean=true
 
@@ -125,5 +128,29 @@ public class SolrUtils {
         }
 
         return response;
+    }
+
+    public static String convertToSolrQuery (String query, List<String> fields) {
+        String solrQuery = query;
+        if (query != null) {
+
+            if (fields != null) {
+                solrQuery = "";
+                for (int i=0; i < fields.size(); i++) {
+
+                    if (i > 0) solrQuery += " OR ";
+
+                    String Q = fields.get(i) + ":" + "\"" + query + "\"";
+                    solrQuery += Q;
+                }
+            } else {
+
+            }
+        }
+        else {
+            solrQuery = "*:*";
+        }
+        return solrQuery;
+
     }
 }

@@ -3,6 +3,7 @@ package org.dmc.services.search;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
 import org.dmc.services.services.Service;
+import org.dmc.services.users.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class SearchResult {
     private List<Component> components;
     private List<Project> projects;
     private List<Service> services;
+    private List<User> users;
 
 
     public List<Component> getComponents() {
@@ -45,5 +47,13 @@ public class SearchResult {
 
     public void setServices(List<Service> services) {
         this.services = services;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 }
