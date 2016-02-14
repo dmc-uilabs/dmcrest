@@ -24,11 +24,17 @@ public class CompanyController {
     
     @RequestMapping(value = "/companies/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     @ResponseBody
-    public Id createTask(@RequestBody String payload) {
+    public Id createCompany(@RequestBody String payload) {
     	ServiceLogger.log(logTag, "CreateCompany, Payload: " + payload);	
     	return companyDao.createCompany(payload);
     }
-    
+
+    @RequestMapping(value = "/companies/{id}/update", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @ResponseBody
+    public Id updateCompany(@PathVariable("id") int id, @RequestBody String payload) {
+    	ServiceLogger.log(logTag, "UpdateCompany, ID: " + id + " Payload: " + payload);	
+    	return companyDao.updateCompany(id, payload);
+    }
     @RequestMapping(value = "/companies/{id}/delete", method = RequestMethod.GET)
     public Id deleteCompany(@PathVariable("id") int id) {
     	ServiceLogger.log(logTag, "deleteCompany, id: " + id);

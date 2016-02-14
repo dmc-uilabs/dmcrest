@@ -34,6 +34,7 @@ public class CompanyIT extends BaseIT {
 	
 	private static final String COMPANY_GET_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_CREATE_RESOURCE = "/companies/create";
+	private static final String COMPANY_UPDATE_RESOURCE = "/companies/{id}/update";
 	private static final String COMPANY_DELETE_RESOURCE = "/companies/{id}/delete";
 	
 	private Integer createdId;
@@ -54,7 +55,6 @@ public class CompanyIT extends BaseIT {
 				.path("id");
 	}
 	
-	
 	@Test
 	public void testCompanyGet() {
 		expect().statusCode(200)
@@ -67,6 +67,19 @@ public class CompanyIT extends BaseIT {
 		.body("id", equalTo(this.createdId));
 	}
 	
+	@Test
+	public void testCompanyUpdate() {
+		JSONObject json = updateFixture();
+		given()
+		.body(json.toString())
+		.expect()
+		.statusCode(200)
+		.when()
+		.post(COMPANY_UPDATE_RESOURCE, this.createdId.toString())
+		.then()
+		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+	}
+	
 	// Cleanup
 	@After  
 	public void testCompanyDelete() {
@@ -74,8 +87,6 @@ public class CompanyIT extends BaseIT {
 		.when()
 		.get(COMPANY_DELETE_RESOURCE, this.createdId.toString())
 		.then()
-		.log()
-		.all()
 		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 	
@@ -122,4 +133,49 @@ public class CompanyIT extends BaseIT {
         
 		return json;
 	}
+
+	public JSONObject updateFixture() {
+		
+		JSONObject json = new JSONObject();
+
+		json.put("accountId", 1001);
+		json.put("name", "test updated name");
+		json.put("location", "test updated location");
+		json.put("description", "test updated description");
+		json.put("division", "test updated division");
+		json.put("industry", "test updated industry");
+		json.put("NAICSCode", "test updated NAICSCode");
+		json.put("RDFocus", "test updated RDFocus");
+		json.put("customers", "test updated customers");
+		json.put("awardsReceived", "test updated awardsReceived");
+		json.put("technicalExpertise", "test updated technicalExpertise");
+		json.put("toolsSoftwareEquipmentMachines", "test updated toolsSoftwareEquipmentMachines");
+		json.put("postCollaborations", "test updated postCollaborations");
+		json.put("collaborationInterests", "test updated collaborationInterests");
+		json.put("pastProjects", "test updated pastProjects");
+		json.put("upcomingProjectInterests", "test updated upcomingProjectInterests");
+		json.put("address", "test updated address");
+		json.put("city", "test updated city");
+		json.put("state", "test updated state");
+		json.put("zipCode", "test updated zipCode");
+		json.put("twitter", "test updated twitter");
+		json.put("linkedIn", "test updated linkedIn");
+		json.put("website", "test updated website");
+		json.put("methodCommunication", "test updated methodCommunication");
+		json.put("email", "test updated email");
+		json.put("phone", "test updated phone");
+		json.put("categoryTier", 30);
+		json.put("dateJoined", "test updated dateJoined");
+		json.put("reasonJoining", "test updated reasonJoining");
+		json.put("featureImageThumb", "feature_image_thumb.jpg");
+		json.put("featureImageLarge", "feature_image_large.jpg");
+		json.put("logoImage", "test updated logoImage");
+		json.put("follow", true);
+		json.put("favoratesCount", 1002);
+		json.put("isOwner", false);
+		json.put("owner", "test updated owner");
+        
+		return json;
+	}
+	
 }
