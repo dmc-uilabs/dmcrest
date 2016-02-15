@@ -27,8 +27,12 @@ public class BaseIT {
 	@Value("${local.server.port}")
 	private int serverPort;
 
+	protected String userEPPN;
+	
     @Before  
     public void setup() {  
+    	userEPPN = new String("fforgeadmin");
+    	
       // Use the embedded container port when testing
       // This setup() method is inheritted by all tests so all tests will use this port similarly
       // It can also be overridden

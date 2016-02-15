@@ -28,10 +28,11 @@ public class ProjectController {
 	
 	private ProjectDao project = new ProjectDao(); 
     @RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
-    public Project getProject(@PathVariable("projectID") int projectID) {
-    	ServiceLogger.log(logTag, "In getProject");
-    	ServiceLogger.log(logTag, "In getProject, projectID: " + projectID);
-    	return project.getProject(projectID);
+    public Project getProject(@PathVariable("projectID") int projectID,
+    						  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+
+    	ServiceLogger.log(logTag, "In getProject, projectID: " + projectID + " as user " + userEPPN);
+    	return project.getProject(projectID, userEPPN);
     }
     
     private ProjectListDao projectList = new ProjectListDao(); 
@@ -48,27 +49,31 @@ public class ProjectController {
     @ResponseBody
     public Id createProject(
     		@RequestParam("projectname") String projectname,
-    		@RequestParam("unixname") String unixname) throws Exception {
-    	System.out.println("In createProject: " + projectname + "," + unixname);
+    		@RequestParam("unixname") String unixname,
+            @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
+    	
+        System.out.println("In createProject: " + projectname + ", " + unixname + " as user " + userEPPN);
     	
     	//RoleDao.createRole creates a new Role in the database using the provided POST params
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
     	
-    	return project.createProject(projectname, unixname);    	
+    	return project.createProject(projectname, unixname, userEPPN);
     }
     
     @RequestMapping(value = "/projects/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    public Id createProject(@RequestBody String payload) throws Exception {
-    	System.out.println("In createProject: " + payload);
+    public Id createProject(@RequestBody String payload,
+                            @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
+    	
+        System.out.println("In createProject: " + payload + " as user " + userEPPN);
     	
     	//RoleDao.createRole creates a new Role in the database using the provided POST params
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
     	
-    	return project.createProject(payload);    	
+    	return project.createProject(payload, userEPPN);
     }
        /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)
