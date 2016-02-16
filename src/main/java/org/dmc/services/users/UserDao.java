@@ -97,7 +97,15 @@ public class UserDao {
 	}
 
     public User getUser(String userEPPN){
-        if(getUserID(userEPPN) == -1) {
+        int userId = -1;
+        
+        try {
+            userId = getUserID(userEPPN);
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+    
+        if(userId == -1) {
             // user does not exist, return null user
             return new User();
         }
@@ -110,8 +118,9 @@ public class UserDao {
         
 		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 		preparedStatement.setString(1, userEPPN);
-		preparedStatement.execute();
-		ResultSet resultSet = preparedStatement.getResultSet();
+        preparedStatement.execute();
+        
+        ResultSet resultSet = preparedStatement.getResultSet();
 		if (resultSet.next()) {
 			//id = resultSet.getString("id");
 			return resultSet.getInt("user_id");
