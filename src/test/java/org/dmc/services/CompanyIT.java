@@ -45,6 +45,7 @@ public class CompanyIT extends BaseIT {
 		JSONObject json = createFixture();
 		this.createdId = given()
 				.body(json.toString())
+				.header("AJP_eppn", "test-eppn@google.com")
 				.expect()
 				.statusCode(200)
 				.when()

@@ -3,6 +3,7 @@ package org.dmc.services.company;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,9 +25,9 @@ public class CompanyController {
     
     @RequestMapping(value = "/companies/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     @ResponseBody
-    public Id createCompany(@RequestBody String payload) {
+    public Id createCompany(@RequestBody String payload, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
     	ServiceLogger.log(logTag, "CreateCompany, Payload: " + payload);	
-    	return companyDao.createCompany(payload);
+    	return companyDao.createCompany(payload, userEPPN);
     }
 
     @RequestMapping(value = "/companies/{id}/update", method = RequestMethod.POST, headers = {"Content-type=text/plain"})

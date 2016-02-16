@@ -107,143 +107,145 @@ public class CompanyDao {
 		return null;
 	}
 	
-	public Id createCompany(String jsonStr) { 
+	public Id createCompany(String jsonStr, String userEPPN) { 
 		int id = -99999, commonAddressId = -9999, commonImageId = -9999;
 
 		try {
-			JSONObject json = new JSONObject(jsonStr);
-			       
-	         int accountId = json.getInt("accountId");    
-	         String name = json.getString("name");   
-	         String location =  json.getString("location");
-	         String description =  json.getString("description");
-	         String division =  json.getString("division");
-	         String industry =  json.getString("industry");
-	         String NAICSCode =  json.getString("NAICSCode");
-	         String RDFocus =  json.getString("RDFocus");
-	         String customers =  json.getString("customers");
-	         String awardsReceived =  json.getString("awardsReceived");
-	         String technicalExpertise =  json.getString("technicalExpertise");
-	         String toolsSoftwareEquipmentMachines =  json.getString("toolsSoftwareEquipmentMachines");
-	         String postCollaborations =  json.getString("postCollaborations");
-	         String collaborationInterests =  json.getString("collaborationInterests");
-	         String pastProjects =  json.getString("pastProjects");
-	         String upcomingProjectInterests =  json.getString("upcomingProjectInterests");
-	         String address =  json.getString("address");
-	         String city =  json.getString("city");
-	         String state =  json.getString("state");
-	         String zipCode =  json.getString("zipCode");
-	         String twitter =  json.getString("twitter");
-	         String linkedIn =  json.getString("linkedIn");
-	         String website =  json.getString("website");
-	         String methodCommunication =  json.getString("methodCommunication");
-	         String email =  json.getString("email");
-	         String phone =  json.getString("phone");
-	         int categoryTier = json.getInt("categoryTier");
-	         String dateJoined =  json.getString("dateJoined");
-	         String reasonJoining =  json.getString("reasonJoining");
-	         String featureImageThumb = json.getString("featureImageThumb");
-	         String featureImageLarge = json.getString("featureImageLarge");
-	         String logoImage =  json.getString("logoImage");
-	         boolean follow = json.getBoolean("follow");
-	         int favoratesCount = json.getInt("favoratesCount");
-	         boolean isOwner = json.getBoolean("isOwner");
-	         String owner =  json.getString("owner");
+			String owner = userEPPN;
 
-	         
-	        // insert into relational common_address
-	        String query = "INSERT INTO common_address"
-	        		+ "(street_address1, street_address2, city, state, zip) "
-	        		+ "VALUES (?, ?, ?, ?, ?) ";
-	        
-	        PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-	        preparedStatement.setString(1, address);   
-	        preparedStatement.setString(2, "");
-	        preparedStatement.setString(3, city);
-	        preparedStatement.setString(4, state);
-	        preparedStatement.setString(5, zipCode);
-	        preparedStatement.executeUpdate();
-	        
+			JSONObject json = new JSONObject(jsonStr);
+			int accountId = json.getInt("accountId");
+			String name = json.getString("name");
+			String location = json.getString("location");
+			String description = json.getString("description");
+			String division = json.getString("division");
+			String industry = json.getString("industry");
+			String NAICSCode = json.getString("NAICSCode");
+			String RDFocus = json.getString("RDFocus");
+			String customers = json.getString("customers");
+			String awardsReceived = json.getString("awardsReceived");
+			String technicalExpertise = json.getString("technicalExpertise");
+			String toolsSoftwareEquipmentMachines = json.getString("toolsSoftwareEquipmentMachines");
+			String postCollaborations = json.getString("postCollaborations");
+			String collaborationInterests = json.getString("collaborationInterests");
+			String pastProjects = json.getString("pastProjects");
+			String upcomingProjectInterests = json.getString("upcomingProjectInterests");
+			String address = json.getString("address");
+			String city = json.getString("city");
+			String state = json.getString("state");
+			String zipCode = json.getString("zipCode");
+			String twitter = json.getString("twitter");
+			String linkedIn = json.getString("linkedIn");
+			String website = json.getString("website");
+			String methodCommunication = json.getString("methodCommunication");
+			String email = json.getString("email");
+			String phone = json.getString("phone");
+			int categoryTier = json.getInt("categoryTier");
+			String dateJoined = json.getString("dateJoined");
+			String reasonJoining = json.getString("reasonJoining");
+			String featureImageThumb = json.getString("featureImageThumb");
+			String featureImageLarge = json.getString("featureImageLarge");
+			String logoImage = json.getString("logoImage");
+			boolean follow = json.getBoolean("follow");
+			int favoratesCount = json.getInt("favoratesCount");
+			boolean isOwner = json.getBoolean("isOwner");
+
+			// insert into relational common_address
+			String query = "INSERT INTO common_address"
+					+ "(street_address1, street_address2, city, state, zip) "
+					+ "VALUES (?, ?, ?, ?, ?) ";
+
+			PreparedStatement preparedStatement = DBConnector
+					.prepareStatement(query);
+			preparedStatement.setString(1, address);
+			preparedStatement.setString(2, "");
+			preparedStatement.setString(3, city);
+			preparedStatement.setString(4, state);
+			preparedStatement.setString(5, zipCode);
+			preparedStatement.executeUpdate();
+
 			query = "SELECT currval('common_address_id_seq') as id";
 			resultSet = DBConnector.executeQuery(query);
 			while (resultSet.next()) {
 				commonAddressId = resultSet.getInt("id");
 			}
-			
-			ServiceLogger.log(logTag, "ASSOCIATED COMMON_ADDRESS ENTRY: " + commonAddressId);
 
-	        // insert into relational common_image
-	        query = "INSERT INTO common_image"
-	        		+ "(caption, thumbnail, large_image) "
-	        		+ "VALUES (?, ?, ?) ";
-	         
-	        preparedStatement = DBConnector.prepareStatement(query);
-	        preparedStatement.setString(1, "");   
-	        preparedStatement.setString(2, featureImageThumb);
-	        preparedStatement.setString(3, featureImageLarge);
-	        preparedStatement.executeUpdate();
-	        
+			ServiceLogger.log(logTag, "ASSOCIATED COMMON_ADDRESS ENTRY: "
+					+ commonAddressId);
+
+			// insert into relational common_image
+			query = "INSERT INTO common_image"
+					+ "(caption, thumbnail, large_image) "
+					+ "VALUES (?, ?, ?) ";
+
+			preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setString(1, "");
+			preparedStatement.setString(2, featureImageThumb);
+			preparedStatement.setString(3, featureImageLarge);
+			preparedStatement.executeUpdate();
+
 			query = "SELECT currval('common_image_id_seq') as id";
 			resultSet = DBConnector.executeQuery(query);
 			while (resultSet.next()) {
 				commonImageId = resultSet.getInt("id");
 			}
-	        			
-			ServiceLogger.log(logTag, "ASSOCIATED COMMON_IMAGE ENTRY: " + commonImageId);
-			
+
+			ServiceLogger.log(logTag, "ASSOCIATED COMMON_IMAGE ENTRY: "
+					+ commonImageId);
+
 			query = "INSERT INTO organization "
-			+ "(accountid, name, location, description, division, "
-			+ "industry, naics_code, rd_focus, customers, awards , "
-		    + "tech_expertise, tools_software_equip_mach, post_collaboration, collaboration_interest, past_projects, "
-			+ "upcoming_project_interests, addressid, email, phone, "
-            + "website, social_media_linkedin, social_media_twitter, "
-			+ "perfered_comm_method, category_tier, date_joining, reason_joining, "
-			+ "feature_image, logo_image, follow, favorates_count, is_owner, owner)" 
-			+ "values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			
-			preparedStatement = DBConnector.prepareStatement(query);			      
-			preparedStatement.setInt(1, accountId);    
-	        preparedStatement.setString(2, name);   
-	        preparedStatement.setString(3, location);
-	        preparedStatement.setString(4, description);
-	        preparedStatement.setString(5, division);
-	        preparedStatement.setString(6, industry);
-	        preparedStatement.setString(7, NAICSCode);
-	        preparedStatement.setString(8, RDFocus);
-	        preparedStatement.setString(9, customers);
-	        preparedStatement.setString(10, awardsReceived);
-	        preparedStatement.setString(11, technicalExpertise);
-	        preparedStatement.setString(12, toolsSoftwareEquipmentMachines);
-	        preparedStatement.setString(13, postCollaborations);
-	        preparedStatement.setString(14, collaborationInterests);
-	        preparedStatement.setString(15, pastProjects);
-	        preparedStatement.setString(16, upcomingProjectInterests);
-	        preparedStatement.setInt(17, commonAddressId);
-	        preparedStatement.setString(18, email);
-	        preparedStatement.setString(19, phone);
-	        preparedStatement.setString(20, website);
-	        preparedStatement.setString(21, linkedIn);
-	        preparedStatement.setString(22, twitter);
-	        preparedStatement.setString(23, methodCommunication);
-	        preparedStatement.setInt(24, categoryTier);
-	        preparedStatement.setString(25, dateJoined);
-	        preparedStatement.setString(26, reasonJoining);
-	        preparedStatement.setInt(27, commonImageId);
-	        preparedStatement.setString(28, logoImage);
-	        preparedStatement.setBoolean(29, follow);
-	        preparedStatement.setInt(30, favoratesCount);
-	        preparedStatement.setBoolean(31, isOwner);
-	        preparedStatement.setString(32, owner);
-	        preparedStatement.executeUpdate();
-	        
+					+ "(accountid, name, location, description, division, "
+					+ "industry, naics_code, rd_focus, customers, awards , "
+					+ "tech_expertise, tools_software_equip_mach, post_collaboration, collaboration_interest, past_projects, "
+					+ "upcoming_project_interests, addressid, email, phone, "
+					+ "website, social_media_linkedin, social_media_twitter, "
+					+ "perfered_comm_method, category_tier, date_joining, reason_joining, "
+					+ "feature_image, logo_image, follow, favorates_count, is_owner, owner)"
+					+ "values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+			preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, accountId);
+			preparedStatement.setString(2, name);
+			preparedStatement.setString(3, location);
+			preparedStatement.setString(4, description);
+			preparedStatement.setString(5, division);
+			preparedStatement.setString(6, industry);
+			preparedStatement.setString(7, NAICSCode);
+			preparedStatement.setString(8, RDFocus);
+			preparedStatement.setString(9, customers);
+			preparedStatement.setString(10, awardsReceived);
+			preparedStatement.setString(11, technicalExpertise);
+			preparedStatement.setString(12, toolsSoftwareEquipmentMachines);
+			preparedStatement.setString(13, postCollaborations);
+			preparedStatement.setString(14, collaborationInterests);
+			preparedStatement.setString(15, pastProjects);
+			preparedStatement.setString(16, upcomingProjectInterests);
+			preparedStatement.setInt(17, commonAddressId);
+			preparedStatement.setString(18, email);
+			preparedStatement.setString(19, phone);
+			preparedStatement.setString(20, website);
+			preparedStatement.setString(21, linkedIn);
+			preparedStatement.setString(22, twitter);
+			preparedStatement.setString(23, methodCommunication);
+			preparedStatement.setInt(24, categoryTier);
+			preparedStatement.setString(25, dateJoined);
+			preparedStatement.setString(26, reasonJoining);
+			preparedStatement.setInt(27, commonImageId);
+			preparedStatement.setString(28, logoImage);
+			preparedStatement.setBoolean(29, follow);
+			preparedStatement.setInt(30, favoratesCount);
+			preparedStatement.setBoolean(31, isOwner);
+			preparedStatement.setString(32, owner);
+			preparedStatement.executeUpdate();
+
 			query = "SELECT currval('organization_organization_id_seq') as id";
 			resultSet = DBConnector.executeQuery(query);
 			while (resultSet.next()) {
 				id = resultSet.getInt("id");
 			}
-			
+
 			ServiceLogger.log(logTag, "ORGANIZATION/COMPANY ID: " + id);
-			
+
 		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
