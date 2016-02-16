@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": ["integer", "null"]
+    },
+    "userName": {
+      "type": ["string", "null"]
+    },
+    "realName": {
+      "type": ["string", "null"]
+    },
+    "displayName": {
+      "type": ["string", "null"]
+    },
+    "accountId": {
+      "type": ["integer", "null"]
+    },
+    "profileId": {
+      "type": ["integer", "null"]
+    },
+    "companyId": {
+      "type": ["integer", "null"]
+    },
+    "role": {
+      "type": ["integer", "null"]
+    },
+    "termsConditions": {
+      "type": [“boolean”, "null"]
+    },
+    "notifications": {
+      "type": [“object”, "null"]
+    },
+    "services": {
+      "type": [“object”, "null"]
+    },
+    "messages": {
+      "type": [“object”, "null"]
+    },
+    "onboarding": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "type": [“boolean”, "null"]
+        },
+        "account": {
+          "type": [“boolean”, "null"]
+        },
+        "company": {
+          "type": [“boolean”, "null"]
+        },
+        "storefront": {
+          "type": [“boolean”, "null"]
+        }
+      }
+    }
+  }
+}

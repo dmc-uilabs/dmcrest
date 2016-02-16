@@ -36,5 +36,20 @@ public class UserIT extends BaseIT {
 		given().body(json.toString()).expect().statusCode(200).when().post("/users/create").then()
 		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
+
 	
+    @Test
+	public void testUserGet_UnknownUser(){
+        String unknownUser = "unknown";
+        
+		given().
+        header("AJP_eppn", unknownUser).
+		expect().
+        statusCode(200).
+		when().
+        get("/user").
+		then().
+        body(matchesJsonSchemaInClasspath("Schemas/userSchema.json"));
+	}
+
 }
