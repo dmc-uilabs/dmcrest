@@ -47,11 +47,16 @@ public class UserController {
         return user.createUser(payload, userEPPN, userFirstName, userSurname, userFull, userEmail);
     	
     	//Create role and update db through JDBC then return role using new role's id
-    	
-    	
-    	
     }
 
+    @RequestMapping(value = "/user", method = RequestMethod.GET, headers = {"Content-type=text/plain"})
+    
+    public User user(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
+    {
+    	System.out.println("In user: " + userEPPN);
+    	   
+        return user.getUser(userEPPN);
+    }
     
     /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)

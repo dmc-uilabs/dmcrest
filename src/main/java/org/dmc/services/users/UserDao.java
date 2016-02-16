@@ -25,16 +25,16 @@ public class UserDao {
 
 	public UserDao(){}
 
-        public Id createUser(String jsonStr, String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail){
-	    if(userEPPN.equals("")) {
-		// no user to create, so returning Id equal to negative 1.
-		return new Id.IdBuilder(-1).build();  
-	    }
-                        int id = -99999;
-			JSONObject json = new JSONObject(jsonStr);
-		try{
+    public Id createUser(String jsonStr, String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail){
+        if(userEPPN.equals("")) {
+            // no user to create, so returning Id equal to negative 1.
+            return new Id.IdBuilder(-1).build();
+        }
+        int id = -99999;
+        JSONObject json = new JSONObject(jsonStr);
+        try{
 
-		        String username = userEPPN;
+            String username = userEPPN;
 			SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
 			long millisOfDate = (new Date()).getTime();
 			String email = userEmail;
@@ -75,7 +75,7 @@ public class UserDao {
 
 			ServiceLogger.log(logTag, "Creating User, returning ID: " + id);
 
-			 return new Id.IdBuilder(id).build();
+            return new Id.IdBuilder(id).build();
 
 		}
 		catch(IOException e){
@@ -90,14 +90,18 @@ public class UserDao {
 			ServiceLogger.log(logTag, j.getMessage());
 			return new Id.IdBuilder(id).build();
 		}
-
 		catch(Exception ee){
 			ServiceLogger.log(logTag, ee.getMessage());
 			return new Id.IdBuilder(id).build();
 		}
-
-
 	}
 
+    public User getUser(String userEPPN){
+        if(userEPPN.equals("")) {
+            // no user to create, so returning Id equal to negative 1.
+            return null;
+        }
+        return null;
+    }
 
 }
