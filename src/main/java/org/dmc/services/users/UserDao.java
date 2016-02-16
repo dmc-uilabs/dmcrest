@@ -104,4 +104,19 @@ public class UserDao {
         return new User();
     }
 
+    public static int getUserID(String userEPPN) throws SQLException {
+    	String query = "select user_id from users where user_name = ?;";
+        
+		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+		preparedStatement.setString(1, userEPPN);
+		preparedStatement.execute();
+		ResultSet resultSet = preparedStatement.getResultSet();
+		if (resultSet.next()) {
+			//id = resultSet.getString("id");
+			return resultSet.getInt("user_id");
+		}
+		// else no user in DB
+		return -1;
+    }
+    
 }
