@@ -56,8 +56,25 @@ public class User {
     private ArrayList<Message> messages;
     private final Onboarding onboarding;
     
-    public User (int id, String userName, String realName) {
+    public User() {
+        this.id = -1;
+        this.userName = null;
+        this.realName = null;
         
+        this.displayName = null; //TODO: fix
+        this.accountId = -1;
+        this.profileId = -1;
+        this.companyId = -1;
+        this.role = -1;
+        this.termsConditions = false;
+        this.notifications = null;
+        this.services = null;
+        this.messages = null;
+        this.onboarding = new Onboarding(false, false, false, false);
+        
+    }
+    
+    public User (int id, String userName, String realName) {
         this.id = id;
         this.userName = userName;
         this.realName = realName;
@@ -102,6 +119,46 @@ public class User {
 
     public String getRealName() {
         return realName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+    
+    public int getAccountId() {
+        return accountId;
+    }
+    
+    public int getProfileId() {
+        return profileId;
+    }
+    
+    public int getCompanyId() {
+        return companyId;
+    }
+    
+    public int getRole() {
+        return role;
+    }
+    
+    public boolean getTermsConditions() {
+        return termsConditions;
+    }
+    
+    public ArrayList<Notification> getNotifications() {
+        return notifications;
+    }
+    
+    public ArrayList<Service> getServices() {
+        return services;
+    }
+    
+    public ArrayList<Message> getMessages() {
+        return messages;
+    }
+    
+    public Onboarding getOnboarding() {
+        return onboarding;
     }
 
     public static class UserBuilder {

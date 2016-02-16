@@ -1,7 +1,7 @@
 package org.dmc.services.users;
 
 import org.dmc.services.Id;
-
+import org.dmc.services.ServiceLogger;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,11 +24,8 @@ public class UserController {
 	
 	private UserDao user = new UserDao(); 
    
-   
-    
     
     @RequestMapping(value = "/users/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    
     public Id createUser(@RequestBody String payload, 
 			 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
 			 @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
@@ -36,8 +33,7 @@ public class UserController {
 			 @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
 			 @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
-    	//System.out.println("In createRole role: " + name);
-    	
+    	ServiceLogger.log(logTag, "In createUser: " + userEPPN);
     	
     	//RoleDao.createRole creates a new Role in the database using the provided POST params
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
@@ -49,11 +45,10 @@ public class UserController {
     	//Create role and update db through JDBC then return role using new role's id
     }
 
-    @RequestMapping(value = "/user", method = RequestMethod.GET, headers = {"Content-type=text/plain"})
-    
+    @RequestMapping(value = "/user", method = RequestMethod.GET)
     public User user(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
     {
-    	System.out.println("In user: " + userEPPN);
+        ServiceLogger.log(logTag, "In user: " + userEPPN);
     	   
         return user.getUser(userEPPN);
     }

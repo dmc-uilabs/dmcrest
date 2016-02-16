@@ -101,7 +101,7 @@ public class UserDao {
             // no user to create, so returning Id equal to negative 1.
             return null;
         }
-        return null;
+        return new User();
     }
 
 }
