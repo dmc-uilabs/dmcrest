@@ -15,26 +15,35 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 public class ProjectIT extends BaseIT {
 
 	@Test
-	public void testProject1() {
-	  expect().
-	    statusCode(200).
-	    when().
-	    get("/projects/1").then().
-        body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json")); 
-	}
-	
-	@Test
-	public void testProject5(){
+	public void testProject6() {
+		given().
+			header("AJP_eppn", userEPPN).
 		expect().
 			statusCode(200).
 		when().
-			get("/projects/5").
+			get("/projects/6").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
 	}
 	
 	@Test
+	public void testProject5(){
+		
+		//TODO: need to update to another demo project
+		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(200).
+		when().
+			get("/projects/6").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));		
+	}
+	
+	@Test
 	public void testProjectList(){
+		given().
+			header("AJP_eppn", userEPPN).
 		expect().
 			statusCode(200).
 		when().
@@ -52,6 +61,7 @@ public class ProjectIT extends BaseIT {
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		String unique = format.format(date);
 		given().
+			header("AJP_eppn", userEPPN).
 			param("projectname", "junitTestParam" + unique).
 			param("unixname", "junitParam" + unique).
 		expect().
@@ -76,6 +86,7 @@ public class ProjectIT extends BaseIT {
 		json.put("unixname", "junit" + unique);
 		System.out.println("json = " + json.toString());
 		given().
+			header("AJP_eppn", userEPPN).
 			body(json.toString()).
 		expect().
 			statusCode(200).
@@ -99,6 +110,7 @@ public class ProjectIT extends BaseIT {
 
 		// first time should work
 		given().
+			header("AJP_eppn", userEPPN).
 			body(json.toString()).
 		expect().
 			statusCode(200).
@@ -109,6 +121,7 @@ public class ProjectIT extends BaseIT {
 
 		// second time should fail, because unixname is a duplicate
 		given().
+			header("AJP_eppn", userEPPN).
 			body(json.toString()).
 		expect().
 			statusCode(200).

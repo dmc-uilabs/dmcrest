@@ -22,7 +22,17 @@ public class ProjectDao {
 
 	public ProjectDao(){}
 	
-	public Project getProject(int projectId) {
+	public Project getProject(int projectId, String userEPPN) {
+		
+		// check if user has a role in project
+		try {
+			if(!hasProjectRole(projectId, userEPPN)) {
+				return null;
+			}
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
 		int id = 0;
 		int num_tasks = 0, num_discussions = 0, num_services = 0, num_components = 0;
 		String title = "", description = "", query;
@@ -103,83 +113,130 @@ public class ProjectDao {
 		}
 		return null;
 	}
-	// leaving this as an example of how to work with parameter to URL
-	// instead of json, but json is probably preferable
-	public Id createProject(String projectname, String unixname) throws SQLException, JSONException, Exception {
 
-		//String id = "null";
-		int id = -99999;
-		String query = "insert into groups(group_name, unix_group_name) values ( ?, ? )";
-
-		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+	public Id createProject(String projectname, String unixname, String userEPPN) throws SQLException, JSONException, Exception {
+		int projectId = -1;
+		// look up userID
+        int userID = getUserID(userEPPN);
+        		
+		// create new project in groups table
+		String createProjectQuery = "insert into groups(group_name, unix_group_name, user_id) values ( ?, ?, ? )";
+		PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
 		preparedStatement.setString(1, projectname);
 		preparedStatement.setString(2, unixname);
+		preparedStatement.setInt(3, userID);
 		preparedStatement.executeUpdate();
 
 		// since no parameters can use execute query safely
-		query = "select currval('groups_pk_seq') as id";
-		resultSet = DBConnector.executeQuery(query);
+		String getProjectsIdQuery = "select currval('groups_pk_seq') as id";
+		resultSet = DBConnector.executeQuery(getProjectsIdQuery);
 		if (resultSet.next()) {
 			//id = resultSet.getString("id");
-			id = resultSet.getInt("id");
+			projectId = resultSet.getInt("id");
 		}//TODO:Add error handling after if
 		
-		query = "INSERT into project_group_list (group_id, project_name, is_public, description, send_all_posts_to) values (?, ?, ?, ?, ?)";
-		preparedStatement = DBConnector.prepareStatement(query);
-		preparedStatement.setInt(1, id);
-		preparedStatement.setString(2,"fill-in");
+		
+		String createProjectListQuery = "INSERT into project_group_list (group_id, project_name, is_public, description, send_all_posts_to) values (?, ?, ?, ?, ?)";
+		preparedStatement = DBConnector.prepareStatement(createProjectListQuery);
+		preparedStatement.setInt(1, projectId);
+		preparedStatement.setString(2,"projectname");
 		preparedStatement.setInt(3,0);
 		preparedStatement.setString(4, "fill-in");
 		preparedStatement.setString(5, "none");		
 		preparedStatement.executeUpdate();
 		
+		// create project member role
+		createProjectRole("Project Member", projectId);
+		
+		// create project admin role
+		createProjectRole("Admin", projectId);
+		
+		//get project admin role ID
+		int projectAdminRoleId = -1;
+		String getProjectAdminRoleIdQuery = "select role_id from pfo_role where home_group_id = ? and role_name = 'Admin'";
+		preparedStatement = DBConnector.prepareStatement(getProjectAdminRoleIdQuery);
+		preparedStatement.setInt(1,projectId);
+		preparedStatement.execute();
+		resultSet = preparedStatement.getResultSet();
+		if (resultSet.next()) {
+			//id = resultSet.getString("id");
+			projectAdminRoleId = resultSet.getInt("role_id");
+		}//TODO:Add error handling after if
+		
+		//add user as admin of project
+		String setUserAsAdminQuery = "INSERT into pfo_user_role (user_id, role_id) values (?, ?)";
+		preparedStatement = DBConnector.prepareStatement(setUserAsAdminQuery);
+		preparedStatement.setInt(1, userID);
+		preparedStatement.setInt(2,projectAdminRoleId);
+		preparedStatement.executeUpdate();
+		
 		
 		if (Config.IS_TEST == null){
-        String indexResponse = SolrUtils.invokeFulIndexingProjects();
-		ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
+            String indexResponse = SolrUtils.invokeFulIndexingProjects();
+            ServiceLogger.log(logTag, "SolR indexing triggered for project: " + projectId);
 		}
 		
-		return new Id.IdBuilder(id)
-		.build();
+		return new Id.IdBuilder(projectId).build();
 	}
 
-	public Id createProject(String jsonStr) throws SQLException, JSONException, Exception {
+	public Id createProject(String jsonStr, String userEPPN) throws SQLException, JSONException, Exception {
 
 		//String id = "null";
 		int id = -99999;
 		JSONObject json = new JSONObject(jsonStr);
 		String projectname = json.getString("projectname");
 		String unixname = json.getString("unixname");
-		String query = "insert into groups(group_name, unix_group_name) values ( ?, ? )";
-
-		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-		preparedStatement.setString(1, projectname);
-		preparedStatement.setString(2, unixname);
-		preparedStatement.executeUpdate();
-
-		// since no parameters can use execute query safely
-		query = "select currval('groups_pk_seq') as id";
-		resultSet = DBConnector.executeQuery(query);
-		while (resultSet.next()) {
-			//id = resultSet.getString("id");
-			id = resultSet.getInt("id");
-		}
-		
-		query = "INSERT into project_group_list (group_id, project_name, is_public, description, send_all_posts_to) values (?, ?, ?, ?, ?)";
-		preparedStatement = DBConnector.prepareStatement(query);
-		preparedStatement.setInt(1, id);
-		preparedStatement.setString(2,"fill-in");
-		preparedStatement.setInt(3,0);
-		preparedStatement.setString(4, "fill-in");
-		preparedStatement.setString(5, "none");		
-		preparedStatement.executeUpdate();
-
-		if (Config.IS_TEST == null){
-	        String indexResponse = SolrUtils.invokeFulIndexingProjects();
-			ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
-		}
-
-		return new Id.IdBuilder(id)
-		.build();
+        
+        return createProject(projectname, unixname, userEPPN);
 	}
+    
+    public int getUserID(String userEPPN) throws SQLException {
+    	String query = "select user_id from users where user_name = ?;";
+        
+		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+		preparedStatement.setString(1, userEPPN);
+		preparedStatement.execute();
+		resultSet = preparedStatement.getResultSet();
+		if (resultSet.next()) {
+			//id = resultSet.getString("id");
+			return resultSet.getInt("user_id");
+		} 
+		// else no user in DB
+		return -1;
+    }
+    
+    void createProjectRole(String roleName, int projectId) throws SQLException {
+    	// create project member role
+    	String createProjectMemberRoleQuery = "insert into pfo_role (role_name, role_class, home_group_id, is_public, old_role_id) values (?, 1, ?, FALSE, 0)";
+    	PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectMemberRoleQuery);
+    	preparedStatement.setString(1,roleName);
+    	preparedStatement.setInt(2,projectId);
+   		preparedStatement.executeUpdate();
+   		
+   		// TODO: check insert was successful
+    }
+    
+    boolean hasProjectRole(int projectId, String userEPPN) throws SQLException {
+    	int userId = getUserID(userEPPN);
+    	String findUsersRoleInProjectQuery = 	"SELECT "+
+    											"role_name "+
+    											"FROM  "+
+    											"  public.pfo_user_role, "+
+    											"  public.pfo_role "+
+    											"WHERE  "+
+    											"  pfo_user_role.role_id = pfo_role.role_id AND "+
+    											"  pfo_role.home_group_id = ? AND  "+
+    											"  pfo_user_role.user_id = ?";
+    	PreparedStatement preparedStatement = DBConnector.prepareStatement(findUsersRoleInProjectQuery);
+    	preparedStatement.setInt(1,projectId);
+    	preparedStatement.setInt(2,userId);
+    	preparedStatement.execute();
+		resultSet = preparedStatement.getResultSet();
+		if (!resultSet.next()) {
+			// user has no role in project
+			return false;
+		} 
+		// else user has a role
+    	return true;
+    }
 }
