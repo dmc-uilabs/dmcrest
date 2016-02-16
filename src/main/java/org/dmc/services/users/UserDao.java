@@ -97,10 +97,11 @@ public class UserDao {
 	}
 
     public User getUser(String userEPPN){
-        if(userEPPN.equals("")) {
-            // no user to create, so returning Id equal to negative 1.
-            return null;
+        if(getUserID(userEPPN) == -1) {
+            // user does not exist, return null user
+            return new User();
         }
+        // user exists
         return new User();
     }
 
