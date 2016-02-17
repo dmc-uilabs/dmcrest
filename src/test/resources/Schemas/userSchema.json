@@ -22,16 +22,54 @@
             "type": "boolean"
         },
         "notifications": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array"
+                }
+            }
         },
         "runningServices": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array"
+                }
+            }
         },
         "messages": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array"
+                }
+            }
         },
         "onboarding": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "profile": {
+                    "type": "boolean"
+                },
+                "account": {
+                    "type": "boolean"
+                },
+                "company": {
+                    "type": "boolean"
+                },
+                "storefront": {
+                    "type": "boolean"
+                }
+            }
         }
         
     },
