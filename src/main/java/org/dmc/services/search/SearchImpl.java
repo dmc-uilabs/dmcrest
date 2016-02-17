@@ -8,6 +8,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
+import org.dmc.services.Config;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
@@ -48,6 +49,8 @@ public class SearchImpl implements SearchInterface {
 
 
     public SearchImpl () {
+
+        ServiceLogger.log(logTag, "SOLR_BASE_URL: " + SolrUtils.getBaseUrl());
         loadFieldMap();
     }
 
@@ -155,11 +158,11 @@ public class SearchImpl implements SearchInterface {
             throw new SearchException(e.toString());
         }
 
-        QueryResponse responseSearvices = null;
+        QueryResponse responseServices = null;
         try {
-            responseSearvices = searchSolr(query, COLLECTION_SERVICES);
-            List<Service> serviceRsults = serviceHandler.retrieve(responseSearvices);
-            searchResult.setServices(serviceRsults);
+            responseServices = searchSolr(query, COLLECTION_SERVICES);
+            List<Service> serviceResults = serviceHandler.retrieve(responseServices);
+            searchResult.setServices(serviceResults);
         } catch (SearchException e) {
             e.printStackTrace();
             throw new SearchException(e.toString());
