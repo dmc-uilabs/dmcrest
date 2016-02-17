@@ -6,22 +6,20 @@ import org.dmc.services.services.Service;
 
 public class UserRunningServices {
 	
-	private final int totalItems;
 	private final ArrayList<Service> items;
 	
 	private final String logTag = UserRunningServices.class.getName();
 	
     public UserRunningServices(){
-		this(0, new ArrayList<Service>());
+		this(new ArrayList<Service>());
 	}
     
-	public UserRunningServices(int totalItems, ArrayList<Service> items){
-		this.totalItems = totalItems;
+	public UserRunningServices(ArrayList<Service> items){
 		this.items = items;
 	}
 	
 	public int getTotalItems(){
-		return totalItems;
+		return items.size();
 	}
 	
 	public ArrayList<Service> getItems(){

@@ -6,22 +6,20 @@ import org.dmc.services.message.Message;
 
 public class UserMessages {
 	
-	private final int totalItems;
 	private final ArrayList<Message> items;
 	
 	private final String logTag = UserMessages.class.getName();
 	
     public UserMessages(){
-		this(0, new ArrayList<Message>());
+		this(new ArrayList<Message>());
 	}
     
-	public UserMessages(int totalItems, ArrayList<Message> items){
-		this.totalItems = totalItems;
-		this.items = items;
+	public UserMessages(ArrayList<Message> items){
+        this.items = items;
 	}
 	
 	public int getTotalItems(){
-		return totalItems;
+		return items.size();
 	}
 	
 	public ArrayList<Message> getItems(){
