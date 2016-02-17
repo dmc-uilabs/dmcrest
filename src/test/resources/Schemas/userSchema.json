@@ -1,59 +1,31 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": ["integer", "null"]
-    },
-    "userName": {
-      "type": ["string", "null"]
-    },
-    "realName": {
-      "type": ["string", "null"]
-    },
-    "displayName": {
-      "type": ["string", "null"]
-    },
-    "accountId": {
-      "type": ["integer", "null"]
-    },
-    "profileId": {
-      "type": ["integer", "null"]
-    },
-    "companyId": {
-      "type": ["integer", "null"]
-    },
-    "role": {
-      "type": ["integer", "null"]
-    },
-    "termsConditions": {
-      "type": [“boolean”, "null"]
-    },
-    "notifications": {
-      "type": [“object”, "null"]
-    },
-    "services": {
-      "type": [“object”, "null"]
-    },
-    "messages": {
-      "type": [“object”, "null"]
-    },
-    "onboarding": {
-      "type": "object",
-      "properties": {
-        "profile": {
-          "type": [“boolean”, "null"]
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "user": "http://dmc-dev.geinspire.com/user",
+    "type": "object",
+    "properties": {
+        "accountId": {
+            "type": "integer"
         },
-        "account": {
-          "type": [“boolean”, "null"]
+        "accountId": {
+            "type": "integer"
         },
-        "company": {
-          "type": [“boolean”, "null"]
+        "profileId": {
+            "type": "integer"
         },
-        "storefront": {
-          "type": [“boolean”, "null"]
+        "companyId": {
+            "type": "integer"
+        },
+        "role": {
+            "type": "integer"
+        },
+        "termsConditions": {
+            "type": "boolean"
+        },
+        "notifications": {
+            "type": "object"
         }
-      }
-    }
-  }
+        
+    },
+    "required": [ "accountId", "profileId", "companyId", "role", "termsConditions", "notifications"
+    ]
 }
