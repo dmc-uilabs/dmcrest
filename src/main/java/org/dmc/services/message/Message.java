@@ -10,14 +10,48 @@ public class Message {
     private final String created_at;
     private final int id;
     
-    Message() {
-        this.senderId = -1;
-        this.recipientId = -1;
-        this.isRead = false;
-        this.senderDelete = false;
-        this.recipientDelete = false;
-        this.text = null;
-        this.created_at = null;
-        this.id = -1;
+    Message(int id, int senderId, int recipientId,
+            boolean isRead, boolean senderDelete, boolean recipientDelete,
+            String text, String created_at) {
+        this.senderId = senderId;
+        this.recipientId = recipientId;
+        this.isRead = isRead;
+        this.senderDelete = senderDelete;
+        this.recipientDelete = recipientDelete;
+        this.text = text;
+        this.created_at = created_at;
+        this.id = id;
+    }
+    
+    public int getSenderId() {
+        return senderId;
+    }
+    
+    public int getRecipientId() {
+        return recipientId;
+    }
+    
+    public boolean getIsRead() {
+        return isRead;
+    }
+    
+    public boolean getSenderDelete() {
+        return senderDelete;
+    }
+    
+    public boolean getRecipientDelete() {
+        return recipientDelete;
+    }
+    
+    public String getText() {
+        return text;
+    }
+    
+    public String getCreated_at() {
+        return created_at;
+    }
+    
+    public int id() {
+        return id;
     }
 }
