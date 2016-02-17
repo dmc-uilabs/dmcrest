@@ -98,19 +98,35 @@ public class UserDao {
 
     public User getUser(String userEPPN){
         int userId = -1;
+        String displayName = null;
+        String userName = null;
         
         try {
             userId = getUserID(userEPPN);
+    
+            if(userId == -1) {
+                // user does not exist, return null user
+                return new User();
+            }
+            // user exists
+            String query = "select user_name, realname from users where user_id = ?";
+        
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.execute();
+        
+            ResultSet resultSet = preparedStatement.getResultSet();
+        
+            if (resultSet.next()) {
+                //id = resultSet.getString("id");
+                displayName = resultSet.getString("realname");
+                userName = resultSet.getString("user_name");
+            }
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
-    
-        if(userId == -1) {
-            // user does not exist, return null user
-            return new User();
-        }
-        // user exists
-        return new User();
+        
+        return new User(userId, userName, displayName);
     }
 
     public static int getUserID(String userEPPN) throws SQLException {

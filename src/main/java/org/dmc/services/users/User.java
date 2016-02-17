@@ -76,15 +76,15 @@ public class User {
         this.userName = userName;
         this.realName = realName;
         
-        this.displayName = null; //TODO: fix
-        this.accountId = -1;
+        this.displayName = realName;
+        this.accountId = id;
         this.profileId = -1;
         this.companyId = -1;
         this.role = -1;
         this.termsConditions = false;
-        this.notifications = null;
-        this.runningServices = null;
-        this.messages = null;
+        this.notifications = new UserNotifications();
+        this.runningServices = new UserRunningServices();
+        this.messages = new UserMessages();
         this.onboarding = new Onboarding(false, false, false, false);
     }
 
@@ -94,15 +94,15 @@ public class User {
         this.userName = userBuilder.userName;
         this.realName = userBuilder.realName;
         
-        this.displayName = null; //TODO: fix
-        this.accountId = -1;
+        this.displayName = userBuilder.realName;
+        this.accountId = userBuilder.id;
         this.profileId = -1;
         this.companyId = -1;
         this.role = -1;
         this.termsConditions = false;
-        this.notifications = null;
-        this.runningServices = null;
-        this.messages = null;
+        this.notifications = new UserNotifications();
+        this.runningServices = new UserRunningServices();
+        this.messages = new UserMessages();
         this.onboarding = new Onboarding(false, false, false, false);
     }
 

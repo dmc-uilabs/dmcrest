@@ -52,4 +52,17 @@ public class UserIT extends BaseIT {
         body(matchesJsonSchemaInClasspath("Schemas/userSchema.json"));
 	}
 
+    @Test
+	public void testUserGet_KnownUser(){
+        String knownUser = "fforgeadmin";
+        
+		given().
+        header("AJP_eppn", knownUser).
+		expect().
+        statusCode(200).
+		when().
+        get("/user").
+		then().
+        body(matchesJsonSchemaInClasspath("Schemas/userSchema.json"));
+	}
 }
