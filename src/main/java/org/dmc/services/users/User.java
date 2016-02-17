@@ -5,9 +5,6 @@ package org.dmc.services.users;
  */
 
 import java.util.ArrayList;
-import org.dmc.services.notification.Notification;
-import org.dmc.services.services.Service;
-import org.dmc.services.message.Message;
 
 public class User {
 
@@ -51,9 +48,9 @@ public class User {
     private final int companyId;
     private final int role;
     private final boolean termsConditions;
-    private ArrayList<Notification> notifications;
-    private ArrayList<Service> services;
-    private ArrayList<Message> messages;
+    private UserNotifications notifications;
+    private UserServices services;
+    private UserMessages messages;
     private final Onboarding onboarding;
     
     public User() {
@@ -67,9 +64,9 @@ public class User {
         this.companyId = -1;
         this.role = -1;
         this.termsConditions = false;
-        this.notifications = null;
-        this.services = null;
-        this.messages = null;
+        this.notifications = new UserNotifications();
+        this.services = new UserServices();
+        this.messages = new UserMessages();
         this.onboarding = new Onboarding(false, false, false, false);
         
     }
@@ -145,15 +142,15 @@ public class User {
         return termsConditions;
     }
     
-    public ArrayList<Notification> getNotifications() {
+    public UserNotifications getNotifications() {
         return notifications;
     }
     
-    public ArrayList<Service> getServices() {
+    public UserServices getServices() {
         return services;
     }
     
-    public ArrayList<Message> getMessages() {
+    public UserMessages getMessages() {
         return messages;
     }
     
