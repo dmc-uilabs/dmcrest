@@ -1,7 +1,5 @@
 package org.dmc.services.profile;
 
-import org.dmc.services.sharedattributes.FeatureImage;
-
 import java.util.ArrayList;
 
 public class Profile {
@@ -57,6 +55,10 @@ public class Profile {
 	}
 
 	public String getImage() {
+		return image;
+	}
+	
+	public String getDescription() {
 		return image;
 	}
 
