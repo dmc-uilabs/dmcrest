@@ -28,12 +28,11 @@ public class UserController {
    
     
     @RequestMapping(value = "/users/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    public Id createUser(@RequestBody String payload, 
-			 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
-			 @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
-			 @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
-			 @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
-			 @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
+    public Id createUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
+                         @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
+                         @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
+                         @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
+                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
     	ServiceLogger.log(logTag, "In createUser: " + userEPPN);
     	
@@ -42,7 +41,7 @@ public class UserController {
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
     	
-        return user.createUser(payload, userEPPN, userFirstName, userSurname, userFull, userEmail);
+        return user.createUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
     	
     	//Create role and update db through JDBC then return role using new role's id
     }
@@ -77,6 +76,7 @@ public class UserController {
     	ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage())
 		.build();
     	System.out.print(result);
+        ServiceLogger.log(logTag, ex.getMessage());
     	return result;
     }
 }

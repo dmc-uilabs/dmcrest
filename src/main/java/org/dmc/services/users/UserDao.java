@@ -25,13 +25,12 @@ public class UserDao {
 
 	public UserDao(){}
 
-    public Id createUser(String jsonStr, String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail){
+    public Id createUser(String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail){
         if(userEPPN.equals("")) {
             // no user to create, so returning Id equal to negative 1.
             return new Id.IdBuilder(-1).build();
         }
         int id = -99999;
-        JSONObject json = new JSONObject(jsonStr);
         try{
 
             String username = userEPPN;

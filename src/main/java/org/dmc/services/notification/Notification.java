@@ -1,6 +1,11 @@
 package org.dmc.services.notification;
 
 public class Notification {
+    
+    public enum NotificationEvent {
+        NEW_CONTACT, REPLIED_DISCUSSION
+    }
+    
     private final int id;
     private final String image;
     private final String link;
