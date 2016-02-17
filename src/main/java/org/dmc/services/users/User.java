@@ -49,7 +49,7 @@ public class User {
     private final int role;
     private final boolean termsConditions;
     private UserNotifications notifications;
-    private UserServices services;
+    private UserRunningServices runningServices;
     private UserMessages messages;
     private final Onboarding onboarding;
     
@@ -65,7 +65,7 @@ public class User {
         this.role = -1;
         this.termsConditions = false;
         this.notifications = new UserNotifications();
-        this.services = new UserServices();
+        this.runningServices = new UserRunningServices();
         this.messages = new UserMessages();
         this.onboarding = new Onboarding(false, false, false, false);
         
@@ -83,7 +83,7 @@ public class User {
         this.role = -1;
         this.termsConditions = false;
         this.notifications = null;
-        this.services = null;
+        this.runningServices = null;
         this.messages = null;
         this.onboarding = new Onboarding(false, false, false, false);
     }
@@ -101,7 +101,7 @@ public class User {
         this.role = -1;
         this.termsConditions = false;
         this.notifications = null;
-        this.services = null;
+        this.runningServices = null;
         this.messages = null;
         this.onboarding = new Onboarding(false, false, false, false);
     }
@@ -146,8 +146,8 @@ public class User {
         return notifications;
     }
     
-    public UserServices getServices() {
-        return services;
+    public UserRunningServices getRunningServices() {
+        return runningServices;
     }
     
     public UserMessages getMessages() {

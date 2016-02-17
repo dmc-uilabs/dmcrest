@@ -4,18 +4,18 @@ import java.util.ArrayList;
 
 import org.dmc.services.services.Service;
 
-public class UserServices {
+public class UserRunningServices {
 	
 	private final int totalItems;
 	private final ArrayList<Service> items;
 	
-	private final String logTag = UserServices.class.getName();
+	private final String logTag = UserRunningServices.class.getName();
 	
-    public UserServices(){
+    public UserRunningServices(){
 		this(0, new ArrayList<Service>());
 	}
     
-	public UserServices(int totalItems, ArrayList<Service> items){
+	public UserRunningServices(int totalItems, ArrayList<Service> items){
 		this.totalItems = totalItems;
 		this.items = items;
 	}

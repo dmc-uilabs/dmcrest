@@ -23,9 +23,18 @@
         },
         "notifications": {
             "type": "object"
+        },
+        "runningServices": {
+            "type": "object"
+        },
+        "messages": {
+            "type": "object"
+        },
+        "onboarding": {
+            "type": "object"
         }
         
     },
-    "required": [ "accountId", "profileId", "companyId", "role", "termsConditions", "notifications"
+    "required": [ "accountId", "profileId", "companyId", "role", "termsConditions", "notifications", "runningServices", "messages", "onboarding"
     ]
 }
