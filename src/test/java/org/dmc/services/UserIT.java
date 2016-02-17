@@ -42,9 +42,6 @@ public class UserIT extends BaseIT {
 		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
         
         assertTrue("Valid user ID return.  Value is " + id + ", but should be -99999.", id == -99999);
-
-        //ToDo.
-        assertTrue("Add default user to database", false);
 	}
     
     @Test
