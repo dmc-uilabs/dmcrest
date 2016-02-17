@@ -44,7 +44,7 @@ public class SearchIT {
     @Test
     public void testSearchAll () {
 
-        String queryString = "*:*";
+        String queryString = "transformer";
 
         //SearchImpl searchImpl = new SearchImpl();
         SearchController searchController = new SearchController();
@@ -72,7 +72,7 @@ public class SearchIT {
     @Test
     public void testSearchAllProjects () {
 
-        String queryString = "*:*";
+        String queryString = "transformer";
 
         SearchController searchController = new SearchController();
         List<Project> projects = null;
@@ -97,7 +97,7 @@ public class SearchIT {
     @Test
     public void testSearchAllComponents () {
 
-        String queryString = "*:*";
+        String queryString = "transformer";
 
         SearchController searchController = new SearchController();
         List<Component> components = null;
