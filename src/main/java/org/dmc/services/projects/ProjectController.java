@@ -52,7 +52,7 @@ public class ProjectController {
     		@RequestParam("unixname") String unixname,
             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
-        System.out.println("In createProject: " + projectname + ", " + unixname + " as user " + userEPPN);
+        ServiceLogger.log(logTag, "In createProject: " + projectname + ", " + unixname + " as user " + userEPPN);
     	
     	//RoleDao.createRole creates a new Role in the database using the provided POST params
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
@@ -66,7 +66,7 @@ public class ProjectController {
     public Id createProject(@RequestBody String payload,
                             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
-        System.out.println("In createProject: " + payload + " as user " + userEPPN);
+        ServiceLogger.log(logTag, "In createProject: " + payload + " as user " + userEPPN);
     	
     	//RoleDao.createRole creates a new Role in the database using the provided POST params
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
