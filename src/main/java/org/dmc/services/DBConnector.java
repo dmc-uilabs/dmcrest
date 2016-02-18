@@ -77,4 +77,18 @@ public class DBConnector {
 		}
 		return null;
 	}
+	
+	// Use this prepared statement to return generated keys. 
+	// For example to retrieve the serial keys when an insert is performed
+	public static PreparedStatement prepareStatement(String query, int returnKeys) {
+		try {
+			if (connectorInstance == null) {
+				connectorInstance = new DBConnector();
+			}
+			return connectorInstance.conn.prepareStatement(query, returnKeys);
+		} catch(SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		return null;
+	}
 }
