@@ -25,16 +25,15 @@ public class UserDao {
 
 	public UserDao(){}
 
-        public Id createUser(String jsonStr, String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail){
-	    if(userEPPN.equals("")) {
-		// no user to create, so returning Id equal to negative 1.
-		return new Id.IdBuilder(-1).build();  
-	    }
-                        int id = -99999;
-			JSONObject json = new JSONObject(jsonStr);
-		try{
+    public Id createUser(String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail){
+        if(userEPPN.equals("")) {
+            // no user to create, so returning Id equal to negative 1.
+            return new Id.IdBuilder(-1).build();
+        }
+        int id = -99999;
+        try{
 
-		        String username = userEPPN;
+            String username = userEPPN;
 			SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy hh:mm:ss");
 			long millisOfDate = (new Date()).getTime();
 			String email = userEmail;
@@ -75,7 +74,7 @@ public class UserDao {
 
 			ServiceLogger.log(logTag, "Creating User, returning ID: " + id);
 
-			 return new Id.IdBuilder(id).build();
+            return new Id.IdBuilder(id).build();
 
 		}
 		catch(IOException e){
@@ -90,14 +89,59 @@ public class UserDao {
 			ServiceLogger.log(logTag, j.getMessage());
 			return new Id.IdBuilder(id).build();
 		}
-
 		catch(Exception ee){
 			ServiceLogger.log(logTag, ee.getMessage());
 			return new Id.IdBuilder(id).build();
 		}
-
-
 	}
 
+    public User getUser(String userEPPN){
+        int userId = -1;
+        String displayName = null;
+        String userName = null;
+        
+        try {
+            userId = getUserID(userEPPN);
+    
+            if(userId == -1) {
+                // user does not exist, return null user
+                return new User();
+            }
+            // user exists
+            String query = "select user_name, realname from users where user_id = ?";
+        
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.execute();
+        
+            ResultSet resultSet = preparedStatement.getResultSet();
+        
+            if (resultSet.next()) {
+                //id = resultSet.getString("id");
+                displayName = resultSet.getString("realname");
+                userName = resultSet.getString("user_name");
+            }
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+        
+        return new User(userId, userName, displayName);
+    }
 
+    public static int getUserID(String userEPPN) throws SQLException {
+    	String query = "select user_id from users where user_name = ?;";
+        
+		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+		preparedStatement.setString(1, userEPPN);
+        preparedStatement.execute();
+        
+        ResultSet resultSet = preparedStatement.getResultSet();
+		if (resultSet.next()) {
+			//id = resultSet.getString("id");
+			return resultSet.getInt("user_id");
+		}
+		// else no user in DB
+		return -1;
+    }
+    
 }

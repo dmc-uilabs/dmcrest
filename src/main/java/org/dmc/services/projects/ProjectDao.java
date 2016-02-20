@@ -9,6 +9,8 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.users.UserDao;
+
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.dmc.solr.SolrUtils;
@@ -117,7 +119,7 @@ public class ProjectDao {
 	public Id createProject(String projectname, String unixname, String userEPPN) throws SQLException, JSONException, Exception {
 		int projectId = -1;
 		// look up userID
-        int userID = getUserID(userEPPN);
+        int userID = UserDao.getUserID(userEPPN);
         		
 		// create new project in groups table
 		String createProjectQuery = "insert into groups(group_name, unix_group_name, user_id) values ( ?, ?, ? )";
@@ -189,22 +191,7 @@ public class ProjectDao {
         
         return createProject(projectname, unixname, userEPPN);
 	}
-    
-    public int getUserID(String userEPPN) throws SQLException {
-    	String query = "select user_id from users where user_name = ?;";
         
-		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-		preparedStatement.setString(1, userEPPN);
-		preparedStatement.execute();
-		resultSet = preparedStatement.getResultSet();
-		if (resultSet.next()) {
-			//id = resultSet.getString("id");
-			return resultSet.getInt("user_id");
-		} 
-		// else no user in DB
-		return -1;
-    }
-    
     void createProjectRole(String roleName, int projectId) throws SQLException {
     	// create project member role
     	String createProjectMemberRoleQuery = "insert into pfo_role (role_name, role_class, home_group_id, is_public, old_role_id) values (?, 1, ?, FALSE, 0)";
@@ -217,7 +204,7 @@ public class ProjectDao {
     }
     
     boolean hasProjectRole(int projectId, String userEPPN) throws SQLException {
-    	int userId = getUserID(userEPPN);
+    	int userId = UserDao.getUserID(userEPPN);
     	String findUsersRoleInProjectQuery = 	"SELECT "+
     											"role_name "+
     											"FROM  "+
