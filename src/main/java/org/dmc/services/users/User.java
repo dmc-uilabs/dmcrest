@@ -3,23 +3,107 @@ package org.dmc.services.users;
 /**
  * Created by 200005921 on 2/8/2016.
  */
+
+import java.util.ArrayList;
+
 public class User {
 
+    public class Onboarding {
+        private final boolean profile;
+        private final boolean account;
+        private final boolean company;
+        private final boolean storefront;
+        
+        Onboarding(boolean profile, boolean account, boolean company, boolean storefront) {
+            this.profile = profile;
+            this.account = account;
+            this.company = company;
+            this.storefront = storefront;
+        }
+        
+        public boolean getProfile() {
+            return profile;
+        }
+
+        public boolean getAccount() {
+            return account;
+        }
+
+        public boolean getCompany() {
+            return company;
+        }
+
+        public boolean getStorefront() {
+            return storefront;
+        }
+    }
+    
     private int id;
     private final String userName;
     private final String realName;
-
+    
+    private final String displayName;
+    private final int accountId;
+    private final int profileId;
+    private final int companyId;
+    private final int role;
+    private final boolean termsConditions;
+    private UserNotifications notifications;
+    private UserRunningServices runningServices;
+    private UserMessages messages;
+    private final Onboarding onboarding;
+    
+    public User() {
+        this.id = -1;
+        this.userName = null;
+        this.realName = null;
+        
+        this.displayName = null; //TODO: fix
+        this.accountId = -1;
+        this.profileId = -1;
+        this.companyId = -1;
+        this.role = -1;
+        this.termsConditions = false;
+        this.notifications = new UserNotifications();
+        this.runningServices = new UserRunningServices();
+        this.messages = new UserMessages();
+        this.onboarding = new Onboarding(false, false, false, false);
+        
+    }
+    
     public User (int id, String userName, String realName) {
-
         this.id = id;
         this.userName = userName;
         this.realName = realName;
+        
+        this.displayName = realName;
+        this.accountId = id;
+        this.profileId = -1;
+        this.companyId = -1;
+        this.role = -1;
+        this.termsConditions = false;
+        this.notifications = new UserNotifications();
+        this.runningServices = new UserRunningServices();
+        this.messages = new UserMessages();
+        this.onboarding = new Onboarding(false, false, false, false);
     }
 
     public User (UserBuilder userBuilder) {
+        
         this.id = userBuilder.id;
         this.userName = userBuilder.userName;
         this.realName = userBuilder.realName;
+        
+        this.displayName = userBuilder.realName;
+        this.accountId = userBuilder.id;
+        this.profileId = -1;
+        this.companyId = -1;
+        this.role = -1;
+        this.termsConditions = false;
+        this.notifications = new UserNotifications();
+        this.runningServices = new UserRunningServices();
+        this.messages = new UserMessages();
+        this.onboarding = new Onboarding(false, false, false, false);
     }
 
     public int getId() {
@@ -34,6 +118,45 @@ public class User {
         return realName;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+    
+    public int getAccountId() {
+        return accountId;
+    }
+    
+    public int getProfileId() {
+        return profileId;
+    }
+    
+    public int getCompanyId() {
+        return companyId;
+    }
+    
+    public int getRole() {
+        return role;
+    }
+    
+    public boolean getTermsConditions() {
+        return termsConditions;
+    }
+    
+    public UserNotifications getNotifications() {
+        return notifications;
+    }
+    
+    public UserRunningServices getRunningServices() {
+        return runningServices;
+    }
+    
+    public UserMessages getMessages() {
+        return messages;
+    }
+    
+    public Onboarding getOnboarding() {
+        return onboarding;
+    }
 
     public static class UserBuilder {
 

@@ -1,0 +1,78 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "user": "http://dmc-dev.geinspire.com/user",
+    "type": "object",
+    "properties": {
+        "accountId": {
+            "type": "integer"
+        },
+        "accountId": {
+            "type": "integer"
+        },
+        "profileId": {
+            "type": "integer"
+        },
+        "companyId": {
+            "type": "integer"
+        },
+        "role": {
+            "type": "integer"
+        },
+        "termsConditions": {
+            "type": "boolean"
+        },
+        "notifications": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array"
+                }
+            }
+        },
+        "runningServices": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array"
+                }
+            }
+        },
+        "messages": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "items": {
+                    "type": "array"
+                }
+            }
+        },
+        "onboarding": {
+            "type": "object",
+            "properties": {
+                "profile": {
+                    "type": "boolean"
+                },
+                "account": {
+                    "type": "boolean"
+                },
+                "company": {
+                    "type": "boolean"
+                },
+                "storefront": {
+                    "type": "boolean"
+                }
+            }
+        }
+        
+    },
+    "required": [ "accountId", "profileId", "companyId", "role", "termsConditions", "notifications", "runningServices", "messages", "onboarding"
+    ]
+}
