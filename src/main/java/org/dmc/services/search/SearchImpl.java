@@ -8,6 +8,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
+import org.dmc.services.Config;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
@@ -48,6 +49,8 @@ public class SearchImpl implements SearchInterface {
 
 
     public SearchImpl () {
+
+        ServiceLogger.log(logTag, "SOLR_BASE_URL: " + SolrUtils.getBaseUrl());
         loadFieldMap();
     }
 
@@ -111,10 +114,11 @@ public class SearchImpl implements SearchInterface {
             // solrQueryResponse.getResults()
 
         } catch (SolrServerException e) {
+            ServiceLogger.log(logTag, "SolR error searching collection " + collection + ": " + e.toString());
             e.printStackTrace();
             throw new SearchException(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            ServiceLogger.log(logTag, "SolR error searching collection " + collection + ": " + e.toString());
             throw new SearchException(e);
         }
 
@@ -131,7 +135,7 @@ public class SearchImpl implements SearchInterface {
             List<Component> componentResults = componentHandler.retrieve(responseComponents);
             searchResult.setComponents(componentResults);
         } catch (SearchException e) {
-            e.printStackTrace();
+            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_COMPONENTS + ": " + e.toString());
             throw new SearchException(e.toString());
         }
 
@@ -141,7 +145,7 @@ public class SearchImpl implements SearchInterface {
             List<Project> projectResults = projectHandler.retrieve(responseProjects);
             searchResult.setProjects(projectResults);
         } catch (SearchException e) {
-            e.printStackTrace();
+            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_PROJECTS + ": " + e.toString());
             throw new SearchException(e.toString());
         }
 
@@ -151,17 +155,17 @@ public class SearchImpl implements SearchInterface {
             List<User> userResults = userHandler.retrieve(responseUsers);
             searchResult.setUsers(userResults);
         } catch (SearchException e) {
-            e.printStackTrace();
+            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
             throw new SearchException(e.toString());
         }
 
-        QueryResponse responseSearvices = null;
+        QueryResponse responseServices = null;
         try {
-            responseSearvices = searchSolr(query, COLLECTION_SERVICES);
-            List<Service> serviceRsults = serviceHandler.retrieve(responseSearvices);
-            searchResult.setServices(serviceRsults);
+            responseServices = searchSolr(query, COLLECTION_SERVICES);
+            List<Service> serviceResults = serviceHandler.retrieve(responseServices);
+            searchResult.setServices(serviceResults);
         } catch (SearchException e) {
-            e.printStackTrace();
+            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_SERVICES + ": " + e.toString());
             throw new SearchException(e.toString());
         }
 
@@ -176,7 +180,7 @@ public class SearchImpl implements SearchInterface {
             responseComponents = searchSolr(query, COLLECTION_COMPONENTS);
             componentResults = componentHandler.retrieve(responseComponents);
         } catch (SearchException e) {
-            e.printStackTrace();
+            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_COMPONENTS + ": " + e.toString());
             throw new SearchException(e.toString());
         }
         return componentResults;
@@ -190,7 +194,7 @@ public class SearchImpl implements SearchInterface {
             responseServices = searchSolr(query, COLLECTION_SERVICES);
             serviceResults = serviceHandler.retrieve(responseServices);
         } catch (SearchException e) {
-            e.printStackTrace();
+            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_SERVICES + ": " + e.toString());
             throw new SearchException(e.toString());
         }
         return serviceResults;
@@ -204,7 +208,7 @@ public class SearchImpl implements SearchInterface {
             responseProjects = searchSolr(query, COLLECTION_PROJECTS);
             projectResults = projectHandler.retrieve(responseProjects);
         } catch (SearchException e) {
-            e.printStackTrace();
+            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_PROJECTS + ": " + e.toString());
             throw new SearchException(e.toString());
         }
         return projectResults;
@@ -218,7 +222,7 @@ public class SearchImpl implements SearchInterface {
             responseUsers = searchSolr(query, COLLECTION_USERS);
             userResults = userHandler.retrieve(responseUsers);
         } catch (SearchException e) {
-            e.printStackTrace();
+            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
             throw new SearchException(e.toString());
         }
         return userResults;

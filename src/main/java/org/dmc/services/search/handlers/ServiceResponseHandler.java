@@ -4,7 +4,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.dmc.services.services.Service;
-import org.dmc.services.users.User;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,6 +42,8 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
     public static final String FIELD_GROUP_NAME         = "group_name";
     public static final String FIELD_IS_PUBLIC          = "is_public";
     public static final String FIELD_UNIX_GROUP_NAME    = "unix_group_name";
+    public static final String FIELD_TITLE              = "title";
+    public static final String FIELD_DESCRIPTION        = "description";
 
 
     @Override
@@ -61,14 +62,14 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
 
                     String idStr = (String) doc.getFieldValue(FIELD_ID);
                     int id = Integer.parseInt(idStr);
-                    String title = null;
-                    String description = null;
 
-//                    String interfaceData = (String) doc.getFieldValue(FIELD_INTERFACE_DATA);
-//                    String interaceName = (String) doc.getFieldValue(FIELD_INTERFACE_NAME);
-//                    String serverUrl = (String) doc.getFieldValue(FIELD_SERVER_URL);
-//                    String groupName = (String) doc.getFieldValue(FIELD_GROUP_NAME);
-//                    String unixGroupName = (String) doc.getFieldValue(FIELD_UNIX_GROUP_NAME);
+                    String interfaceData = (String) doc.getFieldValue(FIELD_INTERFACE_DATA);
+                    String interfaceName = (String) doc.getFieldValue(FIELD_INTERFACE_NAME);
+                    String serverUrl = (String) doc.getFieldValue(FIELD_SERVER_URL);
+                    String groupName = (String) doc.getFieldValue(FIELD_GROUP_NAME);
+                    String unixGroupName = (String) doc.getFieldValue(FIELD_UNIX_GROUP_NAME);
+                    String title = (String) doc.getFieldValue(FIELD_TITLE);
+                    String description = (String) doc.getFieldValue(FIELD_DESCRIPTION);
 
                     Service service =  new Service.ServiceBuilder(id, title, description).build();
                     if (l == null) {

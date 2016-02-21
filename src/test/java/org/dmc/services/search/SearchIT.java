@@ -3,6 +3,9 @@ package org.dmc.services.search;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.services.Service;
+import org.junit.Assert;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
 import org.junit.Test;
@@ -41,10 +44,13 @@ public class SearchIT {
 //        }
 //    }
 
+
+    private final String logTag = SearchIT.class.getName();
+
     @Test
     public void testSearchAll () {
 
-        String queryString = "*:*";
+        String queryString = "transformer";
 
         //SearchImpl searchImpl = new SearchImpl();
         SearchController searchController = new SearchController();
@@ -53,26 +59,27 @@ public class SearchIT {
         try {
             searchResult = searchController.search(queryString);
         } catch (SearchException e) {
+            Assert.fail(e.toString());
             e.printStackTrace();
         }
 
-        System.out.println(searchResult);
+        Assert.assertTrue(searchResult != null);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         String jsonString = null;
         try {
             jsonString = objectMapper.writeValueAsString(searchResult);
-
-            System.out.println (jsonString);
+            ServiceLogger.log(logTag, jsonString);
         } catch (JsonProcessingException e) {
+            Assert.fail(e.toString());
             e.printStackTrace();
         }
     }
 
     @Test
-    public void testSearchAllProjects () {
+    public void testSearchProjects () {
 
-        String queryString = "*:*";
+        String queryString = "transformer";
 
         SearchController searchController = new SearchController();
         List<Project> projects = null;
@@ -81,23 +88,23 @@ public class SearchIT {
         } catch (SearchException e) {
             e.printStackTrace();
         }
+        Assert.assertTrue(projects != null);
 
-        System.out.println(projects);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         String jsonString = null;
         try {
             jsonString = objectMapper.writeValueAsString(projects);
-            System.out.println (jsonString);
+            ServiceLogger.log(logTag, jsonString);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
     }
 
     @Test
-    public void testSearchAllComponents () {
+    public void testSearchComponents () {
 
-        String queryString = "*:*";
+        String queryString = "transformer";
 
         SearchController searchController = new SearchController();
         List<Component> components = null;
@@ -107,15 +114,56 @@ public class SearchIT {
             e.printStackTrace();
         }
 
-        System.out.println(components);
+
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         String jsonString = null;
         try {
             jsonString = objectMapper.writeValueAsString(components);
-            System.out.println (jsonString);
+            ServiceLogger.log(logTag, jsonString);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+
+        Assert.assertTrue(components != null);
+        Assert.assertTrue(components.size() > 0);
+
+        Component component = components.get(0);
+        Assert.assertTrue(component != null);
+        Assert.assertTrue(component.getDescription() != null);
     }
+
+    @Test
+    public void testSearchServices () {
+
+        String queryString = "velocity";
+
+        SearchController searchController = new SearchController();
+        List<Service> services = null;
+        try {
+            services = searchController.searchServices(queryString);
+        } catch (SearchException e) {
+            e.printStackTrace();
+        }
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String jsonString = null;
+        try {
+            jsonString = objectMapper.writeValueAsString(services);
+            ServiceLogger.log(logTag, jsonString);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(services != null);
+        Assert.assertTrue(services.size() > 0);
+
+        Service service =services.get(0);
+        Assert.assertTrue(service != null);
+        Assert.assertTrue(service.getDescription() != null);
+        Assert.assertTrue(service.getDescription().toString().indexOf("velocity") >= 0);
+    }
+
 }
