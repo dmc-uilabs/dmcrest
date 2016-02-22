@@ -7,36 +7,6 @@ package org.dmc.services.users;
 import java.util.ArrayList;
 
 public class User {
-
-    public class Onboarding {
-        private final boolean profile;
-        private final boolean account;
-        private final boolean company;
-        private final boolean storefront;
-        
-        Onboarding(boolean profile, boolean account, boolean company, boolean storefront) {
-            this.profile = profile;
-            this.account = account;
-            this.company = company;
-            this.storefront = storefront;
-        }
-        
-        public boolean getProfile() {
-            return profile;
-        }
-
-        public boolean getAccount() {
-            return account;
-        }
-
-        public boolean getCompany() {
-            return company;
-        }
-
-        public boolean getStorefront() {
-            return storefront;
-        }
-    }
     
     private int id;
     private final String userName;
@@ -51,7 +21,7 @@ public class User {
     private UserNotifications notifications;
     private UserRunningServices runningServices;
     private UserMessages messages;
-    private final Onboarding onboarding;
+    private final UserOnboarding onboarding;
     
     public User() {
         this.id = -1;
@@ -67,7 +37,7 @@ public class User {
         this.notifications = new UserNotifications();
         this.runningServices = new UserRunningServices();
         this.messages = new UserMessages();
-        this.onboarding = new Onboarding(false, false, false, false);
+        this.onboarding = new UserOnboarding(false, false, false, false);
         
     }
     
@@ -85,7 +55,7 @@ public class User {
         this.notifications = new UserNotifications();
         this.runningServices = new UserRunningServices();
         this.messages = new UserMessages();
-        this.onboarding = new Onboarding(false, false, false, false);
+        this.onboarding = UserOnboardingDao.getUserOnboarding(id);
     }
 
     public User (UserBuilder userBuilder) {
@@ -103,7 +73,7 @@ public class User {
         this.notifications = new UserNotifications();
         this.runningServices = new UserRunningServices();
         this.messages = new UserMessages();
-        this.onboarding = new Onboarding(false, false, false, false);
+        this.onboarding = UserOnboardingDao.getUserOnboarding(userBuilder.id);
     }
 
     public int getId() {
@@ -154,7 +124,7 @@ public class User {
         return messages;
     }
     
-    public Onboarding getOnboarding() {
+    public UserOnboarding getOnboarding() {
         return onboarding;
     }
 
