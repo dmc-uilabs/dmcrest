@@ -95,17 +95,18 @@ public class UserDao {
 		}
 	}
 
-    public User getUser(String userEPPN){
+    public User getUser(String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail){
         int userId = -1;
         String displayName = null;
         String userName = null;
         
         try {
             userId = getUserID(userEPPN);
-    
+            
             if(userId == -1) {
-                // user does not exist, return null user
-                return new User();
+                // user does not exist, create new user account
+                Id id = createUser(userEPPN, userFirstName, userSurname, userFullName, userEmail);
+                userId = id.getId();
             }
             // user exists
             String query = "select user_name, realname from users where user_id = ?";

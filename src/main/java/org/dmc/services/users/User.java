@@ -78,7 +78,7 @@ public class User {
         
         this.displayName = realName;
         this.accountId = id;
-        this.profileId = -1;
+        this.profileId = id;
         this.companyId = -1;
         this.role = -1;
         this.termsConditions = false;
