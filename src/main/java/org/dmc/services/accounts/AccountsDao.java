@@ -13,8 +13,9 @@ class AccountsDao {
     
     private final String logTag = AccountsDao.class.getName();
     
-    public UserAccount getUserAccount(int user_id) {
+    public UserAccount getUserAccount(String user_id_string) {
         UserAccount userAccount = new UserAccount();
+        int user_id = Integer.parseInt(user_id_string);
         
         String query = "SELECT * FROM users WHERE user_id = ?";
         
@@ -47,4 +48,17 @@ class AccountsDao {
         return userAccount;
     }
     
+    
+    public UserAccount patchUserAccount(String user_id_string, UserAccount account) {
+        UserAccount storedUserAccount = getUserAccount(user_id_string);
+        int user_id = Integer.parseInt(user_id_string);
+        
+        ServiceLogger.log(logTag, "stored user account " + storedUserAccount.toString());
+        ServiceLogger.log(logTag, "#################/n############");
+        ServiceLogger.log(logTag, "new user account : " + account.toString());
+        
+        // ToDo: perfrom PATCH
+        
+        return account;
+    }
 }

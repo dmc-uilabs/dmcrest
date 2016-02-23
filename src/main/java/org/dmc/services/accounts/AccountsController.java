@@ -30,9 +30,8 @@ public class AccountsController {
     @RequestMapping(value = "/{accountID}",
                     produces = { "application/json"},
                     method = RequestMethod.GET)
-    public ResponseEntity<UserAccount> accountsAccountIDGet(@PathVariable("accountID") int accountID)
+    public ResponseEntity<UserAccount> accountsAccountIDGet(@PathVariable("accountID") String accountID)
     {
-        // do some magic!
         ServiceLogger.log(logTag, "accountsAccountIDGet, accountID: " + accountID);
         UserAccount userAccount = accounts.getUserAccount(accountID);
         return new ResponseEntity<UserAccount>(userAccount, HttpStatus.OK);
@@ -45,8 +44,9 @@ public class AccountsController {
                     method = RequestMethod.PATCH)
     public ResponseEntity<UserAccount> accountsAccountIDPatch(@PathVariable("accountID") String accountID,
                                                               @RequestBody UserAccount account) {
-        // do some magic!
-        return new ResponseEntity<UserAccount>(HttpStatus.OK);
+        ServiceLogger.log(logTag, "accountsAccountIDPatch, accountID: " + accountID);
+        UserAccount userAccount = accounts.patchUserAccount(accountID, account);
+        return new ResponseEntity<UserAccount>(userAccount, HttpStatus.OK);
     }
     
     
