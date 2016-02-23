@@ -12,6 +12,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import org.apache.commons.lang3.StringUtils;
 
 public class ProfileDao {
 
@@ -75,7 +77,7 @@ public class ProfileDao {
 
 	}
 	
-	public Id updateProfile(int id, String jsonStr) {
+	public Id updateProfile(int id, String jsonStr, String userEPPN) {
 		PreparedStatement statement;
 		String query;
         
@@ -93,7 +95,7 @@ public class ProfileDao {
 			// update user
 	        query = "UPDATE users SET "
 	        		+ "realname = ?, title = ?, phone = ?, email = ?, address = ?, image = ?, people_resume = ? "
-	        		+ "WHERE user_id = ?";
+	        		+ "WHERE user_id = ? AND user_name = ?";
 	        
 	        statement = DBConnector.prepareStatement(query);
 	        statement.setString(1, displayName);   
@@ -104,6 +106,7 @@ public class ProfileDao {
 	        statement.setString(6, image);
 	        statement.setString(7, description);
 	        statement.setInt(8, id);
+	        statement.setString(9, userEPPN);
 	        statement.executeUpdate();
 	        
 			// delete and create skills
@@ -175,20 +178,15 @@ public class ProfileDao {
 		PreparedStatement statement;
 		String query;
 		
-        query = "SELECT skill_id FROM people_skill_inventory WHERE user_id = " + userId;
-		resultSet = DBConnector.executeQuery(query);
-		if (resultSet.isBeforeFirst()) {
-			while (resultSet.next()) {
-				query = "DELETE FROM people_skill WHERE skill_id = ?";
-				statement = DBConnector.prepareStatement(query);
-				statement.setInt(1, resultSet.getInt("skill_id"));
-				statement.executeUpdate();
-			}
-			query = "DELETE FROM people_skill_inventory WHERE user_id = ?";
-			statement = DBConnector.prepareStatement(query);
-			statement.setInt(1, userId);
-			statement.executeUpdate();
-		}
+		query = "DELETE FROM people_skill WHERE skill_id IN (SELECT skill_id FROM people_skill_inventory WHERE user_id = ?)";
+		statement = DBConnector.prepareStatement(query);
+		statement.setInt(1, userId);
+		statement.executeUpdate();	
+		
+		query = "DELETE FROM people_skill_inventory WHERE user_id = ?";
+		statement = DBConnector.prepareStatement(query);
+		statement.setInt(1, userId);
+		statement.executeUpdate();
 		
 		return true;
 	}
