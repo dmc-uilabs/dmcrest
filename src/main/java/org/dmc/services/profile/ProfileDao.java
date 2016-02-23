@@ -1,6 +1,7 @@
 package org.dmc.services.profile;
 
 import org.dmc.services.DBConnector;
+import org.dmc.services.Config;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
@@ -13,15 +14,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-
-import org.apache.commons.lang3.StringUtils;
 import org.dmc.solr.SolrUtils;
 
 public class ProfileDao {
 
 	private final String logTag = ProfileDao.class.getName();
-	private ResultSet resultSet;
 
 	public Profile getProfile(int requestId) {
 		return null;
