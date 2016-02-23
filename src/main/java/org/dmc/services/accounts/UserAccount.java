@@ -10,152 +10,165 @@ import java.util.Objects;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-02-22T14:57:06.776Z")
 public class UserAccount  {
-  
-  private String id = null;
-  private String companyId = null;
-  private String profileId = null;
-  private String firstName = null;
-  private String lastName = null;
-  private String displayName = null;
-  private String email = null;
-  private Boolean deactivated = null;
-  private String location = null;
-  private String timezone = null;
-  private UserAccountPrivacy privacy = null;
-
-  
-  /**
-   **/
-  @JsonProperty("id")
-  public String getId() {
-    return id;
-  }
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("companyId")
-  public String getCompanyId() {
-    return companyId;
-  }
-  public void setCompanyId(String companyId) {
-    this.companyId = companyId;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("profileId")
-  public String getProfileId() {
-    return profileId;
-  }
-  public void setProfileId(String profileId) {
-    this.profileId = profileId;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("firstName")
-  public String getFirstName() {
-    return firstName;
-  }
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("lastName")
-  public String getLastName() {
-    return lastName;
-  }
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("displayName")
-  public String getDisplayName() {
-    return displayName;
-  }
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("email")
-  public String getEmail() {
-    return email;
-  }
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("deactivated")
-  public Boolean getDeactivated() {
-    return deactivated;
-  }
-  public void setDeactivated(Boolean deactivated) {
-    this.deactivated = deactivated;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("location")
-  public String getLocation() {
-    return location;
-  }
-  public void setLocation(String location) {
-    this.location = location;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("timezone")
-  public String getTimezone() {
-    return timezone;
-  }
-  public void setTimezone(String timezone) {
-    this.timezone = timezone;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("privacy")
-  public UserAccountPrivacy getPrivacy() {
-    return privacy;
-  }
-  public void setPrivacy(UserAccountPrivacy privacy) {
-    this.privacy = privacy;
-  }
-
-  
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    
+    private String id = null;
+    private String companyId = null;
+    private String profileId = null;
+    private String firstName = null;
+    private String lastName = null;
+    private String displayName = null;
+    private String email = null;
+    private Boolean deactivated = null;
+    private String location = null;
+    private String timezone = null;
+    private UserAccountPrivacy privacy = null;
+    
+    UserAccount() {
+        String id = null;
+        String companyId = null;
+        String profileId = null;
+        String firstName = null;
+        String lastName = null;
+        String displayName = null;
+        String email = null;
+        Boolean deactivated = null;
+        String location = null;
+        String timezone = null;
+        UserAccountPrivacy privacy = new UserAccountPrivacy();
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+    
+    /**
+     **/
+    @JsonProperty("id")
+    public String getId() {
+        return id;
     }
-    UserAccount userAccount = (UserAccount) o;
-    return Objects.equals(id, userAccount.id) &&
+    public void setId(String id) {
+        this.id = id;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("companyId")
+    public String getCompanyId() {
+        return companyId;
+    }
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("profileId")
+    public String getProfileId() {
+        return profileId;
+    }
+    public void setProfileId(String profileId) {
+        this.profileId = profileId;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("firstName")
+    public String getFirstName() {
+        return firstName;
+    }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("lastName")
+    public String getLastName() {
+        return lastName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("displayName")
+    public String getDisplayName() {
+        return displayName;
+    }
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("email")
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("deactivated")
+    public Boolean getDeactivated() {
+        return deactivated;
+    }
+    public void setDeactivated(Boolean deactivated) {
+        this.deactivated = deactivated;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("location")
+    public String getLocation() {
+        return location;
+    }
+    public void setLocation(String location) {
+        this.location = location;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("timezone")
+    public String getTimezone() {
+        return timezone;
+    }
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+    
+    
+    /**
+     **/
+    @JsonProperty("privacy")
+    public UserAccountPrivacy getPrivacy() {
+        return privacy;
+    }
+    public void setPrivacy(UserAccountPrivacy privacy) {
+        this.privacy = privacy;
+    }
+    
+    
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UserAccount userAccount = (UserAccount) o;
+        return Objects.equals(id, userAccount.id) &&
         Objects.equals(companyId, userAccount.companyId) &&
         Objects.equals(profileId, userAccount.profileId) &&
         Objects.equals(firstName, userAccount.firstName) &&
@@ -166,30 +179,30 @@ public class UserAccount  {
         Objects.equals(location, userAccount.location) &&
         Objects.equals(timezone, userAccount.timezone) &&
         Objects.equals(privacy, userAccount.privacy);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, companyId, profileId, firstName, lastName, displayName, email, deactivated, location, timezone, privacy);
-  }
-
-  @Override
-  public String toString()  {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class UserAccount {\n");
+    }
     
-    sb.append("  id: ").append(id).append("\n");
-    sb.append("  companyId: ").append(companyId).append("\n");
-    sb.append("  profileId: ").append(profileId).append("\n");
-    sb.append("  firstName: ").append(firstName).append("\n");
-    sb.append("  lastName: ").append(lastName).append("\n");
-    sb.append("  displayName: ").append(displayName).append("\n");
-    sb.append("  email: ").append(email).append("\n");
-    sb.append("  deactivated: ").append(deactivated).append("\n");
-    sb.append("  location: ").append(location).append("\n");
-    sb.append("  timezone: ").append(timezone).append("\n");
-    sb.append("  privacy: ").append(privacy).append("\n");
-    sb.append("}\n");
-    return sb.toString();
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, companyId, profileId, firstName, lastName, displayName, email, deactivated, location, timezone, privacy);
+    }
+    
+    @Override
+    public String toString()  {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class UserAccount {\n");
+        
+        sb.append("  id: ").append(id).append("\n");
+        sb.append("  companyId: ").append(companyId).append("\n");
+        sb.append("  profileId: ").append(profileId).append("\n");
+        sb.append("  firstName: ").append(firstName).append("\n");
+        sb.append("  lastName: ").append(lastName).append("\n");
+        sb.append("  displayName: ").append(displayName).append("\n");
+        sb.append("  email: ").append(email).append("\n");
+        sb.append("  deactivated: ").append(deactivated).append("\n");
+        sb.append("  location: ").append(location).append("\n");
+        sb.append("  timezone: ").append(timezone).append("\n");
+        sb.append("  privacy: ").append(privacy).append("\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
 }

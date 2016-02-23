@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.dmc.services.ServiceLogger;
+
+
 import java.util.List;
 
 import static org.springframework.http.MediaType.*;
@@ -21,22 +24,24 @@ import static org.springframework.http.MediaType.*;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-02-22T14:57:06.776Z")
 public class AccountsController {
     
+    private final String logTag = AccountsController.class.getName();
+    private AccountsDao accounts = new AccountsDao();
     
     @RequestMapping(value = "/{accountID}",
-                    produces = { "application/json", "text/html" },
-                    consumes = { "application/json", "text/xml" },
+                    produces = { "application/json"},
                     method = RequestMethod.GET)
-    public ResponseEntity<UserAccount> accountsAccountIDGet(@PathVariable("accountID") String accountID)
+    public ResponseEntity<UserAccount> accountsAccountIDGet(@PathVariable("accountID") int accountID)
     {
         // do some magic!
-        return new ResponseEntity<UserAccount>(HttpStatus.OK);
+        ServiceLogger.log(logTag, "accountsAccountIDGet, accountID: " + accountID);
+        UserAccount userAccount = accounts.getUserAccount(accountID);
+        return new ResponseEntity<UserAccount>(userAccount, HttpStatus.OK);
     }
     
     
     
     @RequestMapping(value = "/{accountID}",
-                    produces = { "application/json", "text/html" },
-                    consumes = { "application/json", "text/xml" },
+                    produces = { "application/json" },
                     method = RequestMethod.PATCH)
     public ResponseEntity<UserAccount> accountsAccountIDPatch(@PathVariable("accountID") String accountID,
                                                               @RequestBody UserAccount account) {
@@ -47,8 +52,7 @@ public class AccountsController {
     
     
     @RequestMapping(value = "/{accountID}/account-notification-settings",
-                    produces = { "application/json", "text/html" },
-                    consumes = { "application/json", "text/xml" },
+                    produces = { "application/json" },
                     method = RequestMethod.GET)
     public ResponseEntity<List<AccountNotificationSetting>> accountsAccountIDAccountNotificationSettingsGet(@PathVariable("accountID") String accountID) {
         // do some magic!
@@ -58,8 +62,7 @@ public class AccountsController {
     
     
     @RequestMapping(value = "/{accountID}/account_servers",
-                    produces = { "application/json", "text/html" },
-                    consumes = { "application/json", "text/xml" },
+                    produces = { "application/json" },
                     method = RequestMethod.GET)
     public ResponseEntity<List<UserAccountServer>> accountsAccountIDAccountServersGet(@PathVariable("accountID") String accountID) {
         // do some magic!
@@ -69,8 +72,7 @@ public class AccountsController {
     
     
     @RequestMapping(value = "/{accountID}/favorite_products",
-                    produces = { "application/json", "text/html" },
-                    consumes = { "application/json", "text/xml" },
+                    produces = { "application/json" },
                     method = RequestMethod.GET)
     public ResponseEntity<List<InlineResponse200>> accountsAccountIDFavoriteProductsGet(@PathVariable("accountID") String accountID,
                                                                                         @RequestParam(value = "expand", required = true) List<String> expand,
@@ -92,8 +94,7 @@ public class AccountsController {
     
     
     @RequestMapping(value = "/{accountID}/following_companies", 
-                    produces = { "application/json", "text/html" }, 
-                    consumes = { "application/json", "text/xml" },
+                    produces = { "application/json" }, 
                     method = RequestMethod.GET)
     public ResponseEntity<List<FollowingCompany>> accountsAccountIDFollowingCompaniesGet(@PathVariable("accountID") String accountID)
     {
