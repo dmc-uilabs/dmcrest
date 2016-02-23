@@ -8,12 +8,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+
 import org.apache.commons.lang3.StringUtils;
+import org.dmc.solr.SolrUtils;
 
 public class ProfileDao {
 
@@ -109,6 +112,11 @@ public class ProfileDao {
 	        statement.setString(9, userEPPN);
 	        statement.executeUpdate();
 	        
+	        if (Config.IS_TEST == null){
+	            SolrUtils.invokeFulIndexingUsers();
+	            ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
+	        }
+	        
 			// delete and create skills
 			if (this.deleteSkills(id) && skills.length() > 0) {
 				this.createSkills(id, skills);
@@ -121,20 +129,25 @@ public class ProfileDao {
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
+		} catch (IOException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			return null;
 		}
+		
 		return new Id.IdBuilder(id)
 		.build();
 	}
 	
-	public Id deleteProfile(int id) {
+	public Id deleteProfile(int id, String userEPPN) {
 		PreparedStatement statement;
 		String query;
 
 		try {
 			this.deleteSkills(id);
-			query = "DELETE FROM users WHERE user_id = ?";
+			query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";
 			statement = DBConnector.prepareStatement(query);
 			statement.setInt(1, id);
+			statement.setString(2, userEPPN);
 			statement.executeUpdate();
 		}
 		catch (SQLException e) {

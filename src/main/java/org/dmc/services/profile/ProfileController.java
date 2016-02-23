@@ -37,9 +37,9 @@ public class ProfileController {
     }
     
     @RequestMapping(value = "/profiles/{id}/delete", method = RequestMethod.GET)
-    public Id deleteProfile(@PathVariable("id") int id) {
+    public Id deleteProfile(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "deleteProfile, id: " + id);
-    	return profileDao.deleteProfile(id);
+    	return profileDao.deleteProfile(id, userEPPN);
     }
     
 }
