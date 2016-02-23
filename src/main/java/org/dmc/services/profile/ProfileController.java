@@ -26,8 +26,14 @@ public class ProfileController {
     @RequestMapping(value = "/profiles/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     @ResponseBody
     public Id createProfile(@RequestBody String payload,  @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
-    	ServiceLogger.log(logTag, "================================CreateProfile================, Payload: " + payload);	
+    	ServiceLogger.log(logTag, "Payload: " + payload);	
     	return profileDao.createProfile(payload, userEPPN);
+    }
+    
+    @RequestMapping(value = "/profiles/{id}/update", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    public Id updateProfile(@PathVariable("id") int id, @RequestBody String payload) {
+    	ServiceLogger.log(logTag, "updateProfile, Payload: " + payload);
+    	return profileDao.updateProfile(id, payload);
     }
     
     @RequestMapping(value = "/profiles/{id}/delete", method = RequestMethod.GET)

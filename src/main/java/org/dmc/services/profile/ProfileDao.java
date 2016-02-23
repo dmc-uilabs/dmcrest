@@ -25,7 +25,7 @@ public class ProfileDao {
 	public Id createProfile(String jsonStr, String userEPPN) { 
 		
 		Util util = Util.getInstance();
-        int userId = -9999, peopleSkillId = -9999; 
+        int userId = -9999; 
         
 		try {
 			JSONObject json = new JSONObject(jsonStr);
@@ -59,20 +59,7 @@ public class ProfileDao {
 
 	        // create people_skill, and relational skill_inventory
 			if (skills.length() != 0) {
-		        for (int i=0; i<skills.length(); i++) {
-		        	query = "INSERT INTO people_skill (name) VALUES (?)";
-		        	statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-		        	statement.setString(1, skills.getString(i)); 
-		        	statement.executeUpdate();
-					peopleSkillId = util.getGeneratedKey(statement, "skill_id");
-					ServiceLogger.log(logTag, "PEOPLE SKILL ID: " + peopleSkillId);
-					
-			        query = "INSERT INTO people_skill_inventory (user_id, skill_id) VALUES (?, ?) ";
-			        statement = DBConnector.prepareStatement(query);
-			        statement.setInt(1, userId);   
-			        statement.setInt(2, peopleSkillId);
-			        statement.executeUpdate();
-		        }
+				this.createSkills(userId, skills);
 			}
 		}
 		catch (SQLException e) {
@@ -88,26 +75,60 @@ public class ProfileDao {
 
 	}
 	
+	public Id updateProfile(int id, String jsonStr) {
+		PreparedStatement statement;
+		String query;
+        
+		try {
+			JSONObject json = new JSONObject(jsonStr);
+			String displayName = json.getString("displayName");
+			String jobTitle = json.getString("jobTitle");
+			String phone = json.getString("phone");
+			String email = json.getString("email");
+			String location = json.getString("location");
+			String image = json.getString("image");
+			String description = json.getString("description");
+			JSONArray skills = json.getJSONArray("skills");
+			
+			// update user
+	        query = "UPDATE users SET "
+	        		+ "realname = ?, title = ?, phone = ?, email = ?, address = ?, image = ?, people_resume = ? "
+	        		+ "WHERE user_id = ?";
+	        
+	        statement = DBConnector.prepareStatement(query);
+	        statement.setString(1, displayName);   
+	        statement.setString(2, jobTitle);
+	        statement.setString(3, phone);
+	        statement.setString(4, email);
+	        statement.setString(5, location);
+	        statement.setString(6, image);
+	        statement.setString(7, description);
+	        statement.setInt(8, id);
+	        statement.executeUpdate();
+	        
+			// delete and create skills
+			if (this.deleteSkills(id) && skills.length() > 0) {
+				this.createSkills(id, skills);
+			}
+		}
+		catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			return null;
+		}
+		catch (JSONException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			return null;
+		}
+		return new Id.IdBuilder(id)
+		.build();
+	}
+	
 	public Id deleteProfile(int id) {
 		PreparedStatement statement;
 		String query;
 
 		try {
-	        query = "SELECT skill_id FROM people_skill_inventory WHERE user_id = " + id;
-			resultSet = DBConnector.executeQuery(query);
-			if (resultSet.isBeforeFirst()) {
-				while (resultSet.next()) {
-					query = "DELETE FROM people_skill WHERE skill_id = ?";
-					statement = DBConnector.prepareStatement(query);
-					statement.setInt(1, resultSet.getInt("skill_id"));
-					statement.executeUpdate();
-				}
-				query = "DELETE FROM people_skill_inventory WHERE user_id = ?";
-				statement = DBConnector.prepareStatement(query);
-				statement.setInt(1, id);
-				statement.executeUpdate();
-			}
-			
+			this.deleteSkills(id);
 			query = "DELETE FROM users WHERE user_id = ?";
 			statement = DBConnector.prepareStatement(query);
 			statement.setInt(1, id);
@@ -123,5 +144,52 @@ public class ProfileDao {
 		}
 		return new Id.IdBuilder(id)
 		.build();
+	}
+	
+	public boolean createSkills(int userId, JSONArray skills) throws SQLException {
+		Util util = Util.getInstance();
+		PreparedStatement statement;
+		int skillId;
+
+		if (skills.length() != 0) {
+	        for (int i=0; i<skills.length(); i++) {
+	        	String query = "INSERT INTO people_skill (name) VALUES (?)";
+	        	statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+	        	statement.setString(1, skills.getString(i)); 
+	        	statement.executeUpdate();
+				skillId = util.getGeneratedKey(statement, "skill_id");
+				ServiceLogger.log(logTag, "PEOPLE SKILL ID: " + skillId);
+				
+		        query = "INSERT INTO people_skill_inventory (user_id, skill_id) VALUES (?, ?) ";
+		        statement = DBConnector.prepareStatement(query);
+		        statement.setInt(1, userId);   
+		        statement.setInt(2, skillId);
+		        statement.executeUpdate();
+	        }
+		}
+		
+		return true;
+	}
+	
+	public boolean deleteSkills(int userId) throws SQLException {
+		PreparedStatement statement;
+		String query;
+		
+        query = "SELECT skill_id FROM people_skill_inventory WHERE user_id = " + userId;
+		resultSet = DBConnector.executeQuery(query);
+		if (resultSet.isBeforeFirst()) {
+			while (resultSet.next()) {
+				query = "DELETE FROM people_skill WHERE skill_id = ?";
+				statement = DBConnector.prepareStatement(query);
+				statement.setInt(1, resultSet.getInt("skill_id"));
+				statement.executeUpdate();
+			}
+			query = "DELETE FROM people_skill_inventory WHERE user_id = ?";
+			statement = DBConnector.prepareStatement(query);
+			statement.setInt(1, userId);
+			statement.executeUpdate();
+		}
+		
+		return true;
 	}
 }
