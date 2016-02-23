@@ -58,6 +58,11 @@ public class ProfileDao {
 	        
 	        userId = util.getGeneratedKey(statement, "user_id");
 			ServiceLogger.log(logTag, "USER ID: " + userId);
+			
+	        if (Config.IS_TEST == null){
+	            SolrUtils.invokeFulIndexingUsers();
+	            ServiceLogger.log(logTag, "SolR indexing triggered for User: " + userId);
+	        }
 
 	        // create people_skill, and relational skill_inventory
 			if (skills.length() != 0) {
@@ -72,6 +77,10 @@ public class ProfileDao {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
 		}
+		catch (IOException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
 		return new Id.IdBuilder(userId)
 		.build();
 
