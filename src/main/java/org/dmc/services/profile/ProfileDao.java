@@ -114,7 +114,7 @@ public class ProfileDao {
 	        
 	        if (Config.IS_TEST == null){
 	            SolrUtils.invokeFulIndexingUsers();
-	            ServiceLogger.log(logTag, "SolR indexing triggered for project: " + id);
+	            ServiceLogger.log(logTag, "SolR indexing triggered for User: " + id);
 	        }
 	        
 			// delete and create skills
