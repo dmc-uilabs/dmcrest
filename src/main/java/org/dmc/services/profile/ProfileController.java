@@ -23,7 +23,7 @@ public class ProfileController {
     	return profileDao.getProfile(id);
     }
     
-    @RequestMapping(value = "/profiles/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @RequestMapping(value = "/profiles", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     @ResponseBody
     public Id createProfile(@RequestBody String payload,  @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "Payload: " + payload);	
