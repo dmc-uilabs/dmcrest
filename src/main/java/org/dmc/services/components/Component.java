@@ -26,7 +26,7 @@ public class Component {
         this.title = null;
         this.description = null;
         this.owner = null;
-        this.releaseDate = null;
+        this.releaseDate = new Date();
         this.tags = new ArrayList<String>();
         this.featureImage = null;
         this.services = new ArrayList<Service>();
