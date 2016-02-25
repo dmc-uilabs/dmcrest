@@ -14,8 +14,8 @@ class AccountsDao {
     private final String logTag = AccountsDao.class.getName();
     
     public UserAccount getUserAccount(String user_id_string) {
-        UserAccount userAccount = new UserAccount();
         int user_id = Integer.parseInt(user_id_string);
+        UserAccount userAccount = new UserAccount(user_id);
         
         String query = "SELECT * FROM users WHERE user_id = ?";
         
@@ -28,7 +28,7 @@ class AccountsDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 // get results
-                userAccount.setId(Integer.toString(user_id));
+                // userAccount.setId(Integer.toString(user_id)); //set in constructor
                 userAccount.setCompanyId(Integer.toString(-1)); // need to figure out company
                 userAccount.setProfileId(Integer.toString(user_id));
                 
@@ -38,7 +38,7 @@ class AccountsDao {
                 userAccount.setEmail(resultSet.getString("email"));
                 userAccount.setDeactivated(resultSet.getBoolean("status"));
                 userAccount.setLocation(resultSet.getString("address2"));
-                userAccount.setTimezone("none");
+                userAccount.setTimezone(resultSet.getString("timezone"));
                 userAccount.setPrivacy(new UserAccountPrivacy());
             }
         } catch (SQLException e) {
@@ -50,15 +50,31 @@ class AccountsDao {
     
     
     public UserAccount patchUserAccount(String user_id_string, UserAccount account) {
-        UserAccount storedUserAccount = getUserAccount(user_id_string);
-        int user_id = Integer.parseInt(user_id_string);
+        assert(user_id_string.equals(account.getId()));
         
-        ServiceLogger.log(logTag, "stored user account " + storedUserAccount.toString());
-        ServiceLogger.log(logTag, "#################/n############");
-        ServiceLogger.log(logTag, "new user account : " + account.toString());
+        // the parameter account contains the full UserAccount object for the calling user
+        ServiceLogger.log(logTag, "In patchUserAccount, patching user_id = " + user_id_string);
         
-        // ToDo: perfrom PATCH
-        
+        try {
+            // update user's record in users table
+            String createAccountQuery = "UPDATE users SET realname = ?, firstname = ?, lastname = ?, email = ?, address2 = ?, timezone = ? WHERE user_id = ?";
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(createAccountQuery);
+            preparedStatement.setString(1, account.getDisplayName());
+            preparedStatement.setString(2, account.getFirstName());
+            preparedStatement.setString(3, account.getLastName());
+            preparedStatement.setString(4, account.getEmail());
+            // do not update status, this is an admin task
+            preparedStatement.setString(5, account.getLocation());
+            preparedStatement.setString(6, account.getTimezone());     // need to add time zone
+            // need to create db table to store UserAccountPrivacy
+            
+            preparedStatement.setInt(7, Integer.parseInt(user_id_string)); // set user_id in WHERE clause
+            
+            preparedStatement.executeUpdate();
+            
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
         return account;
     }
 }

@@ -3,48 +3,48 @@ package org.dmc.services.accounts;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Objects;
 
+import javax.validation.constraints.Min;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-02-22T14:57:06.776Z")
 public class UserAccount  {
     
-    private String id = null;
-    private String companyId = null;
-    private String profileId = null;
-    private String firstName = null;
-    private String lastName = null;
-    private String displayName = null;
-    private String email = null;
-    private Boolean deactivated = null;
-    private String location = null;
-    private String timezone = null;
-    private UserAccountPrivacy privacy = null;
+    @Min(100)
+    private int id;
+    private String companyId;
+    private String profileId;
+    private String firstName;
+    private String lastName;
+    private String displayName;
+    private String email;
+    private Boolean deactivated;
+    private String location;
+    private String timezone;
+    private UserAccountPrivacy privacy;
     
-    UserAccount() {
-        String id = null;
-        String companyId = null;
-        String profileId = null;
-        String firstName = null;
-        String lastName = null;
-        String displayName = null;
-        String email = null;
-        Boolean deactivated = null;
-        String location = null;
-        String timezone = null;
-        UserAccountPrivacy privacy = new UserAccountPrivacy();
+    UserAccount(int id) {
+        this.id = id;
+        this.companyId = null;
+        this.profileId = null;
+        this.firstName = null;
+        this.lastName = null;
+        this.displayName = null;
+        this.email = null;
+        this.deactivated = null;
+        this.location = null;
+        this.timezone = null;
+        this.privacy = new UserAccountPrivacy();
     }
     
     /**
      **/
     @JsonProperty("id")
     public String getId() {
-        return id;
+        return Integer.toString(id);
     }
     public void setId(String id) {
-        this.id = id;
+        this.id = Integer.parseInt(id);
     }
     
     

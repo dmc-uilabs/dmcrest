@@ -14,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import org.dmc.services.ServiceLogger;
 
+import javax.validation.*;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -43,7 +45,7 @@ public class AccountsController {
                     produces = { "application/json" },
                     method = RequestMethod.PATCH)
     public ResponseEntity<UserAccount> accountsAccountIDPatch(@PathVariable("accountID") String accountID,
-                                                              @RequestBody UserAccount account) {
+                                                              @Valid @ModelAttribute("account") @RequestBody UserAccount account) {
         ServiceLogger.log(logTag, "accountsAccountIDPatch, accountID: " + accountID);
         UserAccount userAccount = accounts.patchUserAccount(accountID, account);
         return new ResponseEntity<UserAccount>(userAccount, HttpStatus.OK);
