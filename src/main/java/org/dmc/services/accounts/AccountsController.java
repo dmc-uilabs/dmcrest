@@ -15,6 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.dmc.services.ServiceLogger;
 
 import javax.validation.*;
+import javax.xml.ws.http.HTTPException;
+import org.springframework.http.HttpStatus;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,11 +35,21 @@ public class AccountsController {
     @RequestMapping(value = "/{accountID}",
                     produces = { "application/json"},
                     method = RequestMethod.GET)
-    public ResponseEntity<UserAccount> accountsAccountIDGet(@PathVariable("accountID") String accountID)
+    public ResponseEntity<UserAccount> accountsAccountIDGet(@PathVariable("accountID") String accountID,
+                                                            @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
     {
         ServiceLogger.log(logTag, "accountsAccountIDGet, accountID: " + accountID);
-        UserAccount userAccount = accounts.getUserAccount(accountID);
-        return new ResponseEntity<UserAccount>(userAccount, HttpStatus.OK);
+        
+        int httpStatusCode = HttpStatus.OK.value();
+        UserAccount userAccount = null;
+        
+        try{
+            userAccount = accounts.getUserAccount(accountID, userEPPN);
+        } catch(HTTPException httpException) {
+            httpStatusCode = httpException.getStatusCode();
+        }
+        
+        return new ResponseEntity<UserAccount>(userAccount, HttpStatus.valueOf(httpStatusCode));
     }
     
     
@@ -45,10 +58,19 @@ public class AccountsController {
                     produces = { "application/json" },
                     method = RequestMethod.PATCH)
     public ResponseEntity<UserAccount> accountsAccountIDPatch(@PathVariable("accountID") String accountID,
-                                                              @Valid @ModelAttribute("account") @RequestBody UserAccount account) {
+                                                              @Valid @ModelAttribute("account") @RequestBody UserAccount account,
+                                                              @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
         ServiceLogger.log(logTag, "accountsAccountIDPatch, accountID: " + accountID);
-        UserAccount userAccount = accounts.patchUserAccount(accountID, account);
-        return new ResponseEntity<UserAccount>(userAccount, HttpStatus.OK);
+        
+        int httpStatusCode = HttpStatus.OK.value();
+        UserAccount userAccount = null;
+        
+        try {
+            userAccount = accounts.patchUserAccount(accountID, account, userEPPN);
+        } catch(HTTPException httpException) {
+            httpStatusCode = httpException.getStatusCode();
+        }
+        return new ResponseEntity<UserAccount>(userAccount, HttpStatus.valueOf(httpStatusCode));
     }
     
     

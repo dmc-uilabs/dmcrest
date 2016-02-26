@@ -7,15 +7,30 @@ import java.sql.SQLException;
 //import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.users.UserDao;
 
+import javax.xml.ws.http.HTTPException;
+import org.springframework.http.HttpStatus;
 
 class AccountsDao {
     
     private final String logTag = AccountsDao.class.getName();
     
-    public UserAccount getUserAccount(String user_id_string) {
+    public UserAccount getUserAccount(String user_id_string, String userEPPN) throws HTTPException {
         int user_id = Integer.parseInt(user_id_string);
-        UserAccount userAccount = new UserAccount(user_id);
+        int user_id_lookedup = -1;
+        
+        try{
+            user_id_lookedup = UserDao.getUserID(userEPPN);
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+        }
+        
+        if(user_id_lookedup != user_id) {
+            throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // user id for userEPPN does not match user_id_string, return default UserAccount
+        }
+        
+        UserAccount userAccount = new UserAccount(user_id_string);
         
         String query = "SELECT * FROM users WHERE user_id = ?";
         
@@ -23,7 +38,7 @@ class AccountsDao {
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setInt(1, user_id);
             
-            ServiceLogger.log(logTag, "getUserAccount, user_id: " + user_id);
+            ServiceLogger.log(logTag, "getUserAccount, user_id: " + user_id + ", userEPPN: " + userEPPN);
             
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -49,11 +64,24 @@ class AccountsDao {
     }
     
     
-    public UserAccount patchUserAccount(String user_id_string, UserAccount account) {
-        assert(user_id_string.equals(account.getId()));
+    public UserAccount patchUserAccount(String user_id_string, UserAccount account, String userEPPN) throws HTTPException {
+        int user_id_lookedup = -1;
+        int account_user_id = Integer.parseInt(account.getId());
+        int user_id_passedOnPath = Integer.parseInt(user_id_string);
+        
+        try{
+            user_id_lookedup = UserDao.getUserID(userEPPN);
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+        }
+        
+        // check if user has permission to update account
+        if(user_id_lookedup != account_user_id || user_id_lookedup != user_id_passedOnPath || account_user_id != user_id_passedOnPath) {
+            throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+        }
         
         // the parameter account contains the full UserAccount object for the calling user
-        ServiceLogger.log(logTag, "In patchUserAccount, patching user_id = " + user_id_string);
+        ServiceLogger.log(logTag, "In patchUserAccount, patching user_id = " + user_id_string + ", userEPPN: " + userEPPN);
         
         try {
             // update user's record in users table

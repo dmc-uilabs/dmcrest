@@ -2,12 +2,10 @@ package org.dmc.services;
 
 import org.junit.Test;
 
-import java.util.Date;
-import java.text.SimpleDateFormat;
-
 import static com.jayway.restassured.RestAssured.*;
 import static org.junit.Assert.*;
 
+import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 
 /*
@@ -27,9 +25,7 @@ public class UserIT extends BaseIT {
     @Test
 	public void testUserIncorrectInvocation(){
 		JSONObject json = new JSONObject();
-		Date date = new Date();
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-		String unique = format.format(date);
+		String unique = TestUserUtil.generateTime();
 		
         // callin enpoint with content is payload, which is not used when received.
 		json.put("user_name", "username " + unique);
@@ -46,9 +42,7 @@ public class UserIT extends BaseIT {
     
     @Test
 	public void testUserCreate(){
-		Date date = new Date();
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-		String unique = format.format(date);
+		String unique = TestUserUtil.generateTime();
         
         Integer id =
         given().

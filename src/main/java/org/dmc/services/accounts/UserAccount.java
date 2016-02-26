@@ -10,8 +10,7 @@ import javax.validation.constraints.Min;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-02-22T14:57:06.776Z")
 public class UserAccount  {
     
-    @Min(100)
-    private int id;
+    private String id;
     private String companyId;
     private String profileId;
     private String firstName;
@@ -23,17 +22,31 @@ public class UserAccount  {
     private String timezone;
     private UserAccountPrivacy privacy;
     
-    UserAccount(int id) {
+    UserAccount() {
+        this.id = "-1";
+        this.companyId = "-1";
+        this.profileId = "-1";
+        this.firstName = new String();
+        this.lastName = new String();
+        this.displayName = new String();
+        this.email = new String();
+        this.deactivated = true;
+        this.location = new String();
+        this.timezone = new String();
+        this.privacy = new UserAccountPrivacy();
+    }
+    
+    UserAccount(String id) {
         this.id = id;
-        this.companyId = null;
-        this.profileId = null;
-        this.firstName = null;
-        this.lastName = null;
-        this.displayName = null;
-        this.email = null;
-        this.deactivated = null;
-        this.location = null;
-        this.timezone = null;
+        this.companyId = "-1";
+        this.profileId = id;
+        this.firstName = new String();
+        this.lastName = new String();
+        this.displayName = new String();
+        this.email = new String();
+        this.deactivated = true;
+        this.location = new String();
+        this.timezone = new String();
         this.privacy = new UserAccountPrivacy();
     }
     
@@ -41,10 +54,10 @@ public class UserAccount  {
      **/
     @JsonProperty("id")
     public String getId() {
-        return Integer.toString(id);
+        return id;
     }
     public void setId(String id) {
-        this.id = Integer.parseInt(id);
+        this.id = id;
     }
     
     
@@ -132,6 +145,9 @@ public class UserAccount  {
         return location;
     }
     public void setLocation(String location) {
+        if(location == null) {
+            location = new String();
+        }
         this.location = location;
     }
     
