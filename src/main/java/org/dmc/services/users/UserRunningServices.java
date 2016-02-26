@@ -62,6 +62,7 @@ public class UserRunningServices {
     }
     
 	private final ArrayList<RunningService> items;
+    private final int totalItems;
 	
 	private final String logTag = UserRunningServices.class.getName();
 	
@@ -71,6 +72,7 @@ public class UserRunningServices {
     
 	public UserRunningServices(ArrayList<RunningService> items){
 		this.items = items;
+        this.totalItems = items.size();
 	}
 	
 	public int getTotalItems(){

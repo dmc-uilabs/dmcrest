@@ -16,6 +16,9 @@ class AccountsDao {
     
     private final String logTag = AccountsDao.class.getName();
     
+    /**
+     
+     **/
     public UserAccount getUserAccount(String user_id_string, String userEPPN) throws HTTPException {
         int user_id = Integer.parseInt(user_id_string);
         int user_id_lookedup = -1;
@@ -30,7 +33,7 @@ class AccountsDao {
             throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // user id for userEPPN does not match user_id_string, return default UserAccount
         }
         
-        UserAccount userAccount = new UserAccount(user_id_string);
+        UserAccount userAccount = new UserAccount();
         
         String query = "SELECT * FROM users WHERE user_id = ?";
         
@@ -43,7 +46,7 @@ class AccountsDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 // get results
-                // userAccount.setId(Integer.toString(user_id)); //set in constructor
+                userAccount.setId(Integer.toString(user_id)); //set in constructor
                 userAccount.setCompanyId(Integer.toString(-1)); // need to figure out company
                 userAccount.setProfileId(Integer.toString(user_id));
                 
@@ -64,10 +67,15 @@ class AccountsDao {
     }
     
     
+    /**
+     
+     **/
     public UserAccount patchUserAccount(String user_id_string, UserAccount account, String userEPPN) throws HTTPException {
         int user_id_lookedup = -1;
         int account_user_id = Integer.parseInt(account.getId());
         int user_id_passedOnPath = Integer.parseInt(user_id_string);
+        
+        ServiceLogger.log(logTag, "In patchUserAccount, finding account id = " + account_user_id + ", userEPPN: " + userEPPN);
         
         try{
             user_id_lookedup = UserDao.getUserID(userEPPN);

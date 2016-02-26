@@ -7,6 +7,7 @@ import org.dmc.services.notification.Notification;
 public class UserNotifications {
 	
 	private final ArrayList<Notification> items;
+    private final int totalItems;
 	
 	private final String logTag = UserNotifications.class.getName();
 	
@@ -16,6 +17,7 @@ public class UserNotifications {
     
 	public UserNotifications(ArrayList<Notification> items){
 		this.items = items;
+        this.totalItems = items.size();
 	}
 	
 	public int getTotalItems(){

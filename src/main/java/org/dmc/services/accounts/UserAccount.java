@@ -10,45 +10,45 @@ import javax.validation.constraints.Min;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-02-22T14:57:06.776Z")
 public class UserAccount  {
     
-    private String id;
-    private String companyId;
-    private String profileId;
-    private String firstName;
-    private String lastName;
-    private String displayName;
-    private String email;
-    private Boolean deactivated;
-    private String location;
-    private String timezone;
-    private UserAccountPrivacy privacy;
+    private String id = new String();
+    private String companyId = new String();
+    private String profileId = new String();
+    private String firstName = new String();
+    private String lastName = new String();
+    private String displayName = new String();
+    private String email = new String();
+    private Boolean deactivated = true;
+    private String location = new String();
+    private String timezone = new String();
+    private UserAccountPrivacy privacy = new UserAccountPrivacy();
     
-    UserAccount() {
-        this.id = "-1";
-        this.companyId = "-1";
-        this.profileId = "-1";
-        this.firstName = new String();
-        this.lastName = new String();
-        this.displayName = new String();
-        this.email = new String();
-        this.deactivated = true;
-        this.location = new String();
-        this.timezone = new String();
-        this.privacy = new UserAccountPrivacy();
-    }
+//    UserAccount() {
+//        this.id = "-1";
+//        this.companyId = "-1";
+//        this.profileId = "-1";
+//        this.firstName = new String();
+//        this.lastName = new String();
+//        this.displayName = new String();
+//        this.email = new String();
+//        this.deactivated = true;
+//        this.location = new String();
+//        this.timezone = new String();
+//        this.privacy = new UserAccountPrivacy();
+//    }
     
-    UserAccount(String id) {
-        this.id = id;
-        this.companyId = "-1";
-        this.profileId = id;
-        this.firstName = new String();
-        this.lastName = new String();
-        this.displayName = new String();
-        this.email = new String();
-        this.deactivated = true;
-        this.location = new String();
-        this.timezone = new String();
-        this.privacy = new UserAccountPrivacy();
-    }
+//    UserAccount(String id) {
+//        this.id = id;
+//        this.companyId = "-1";
+//        this.profileId = id;
+//        this.firstName = new String();
+//        this.lastName = new String();
+//        this.displayName = new String();
+//        this.email = new String();
+//        this.deactivated = true;
+//        this.location = new String();
+//        this.timezone = new String();
+//        this.privacy = new UserAccountPrivacy();
+//    }
     
     /**
      **/

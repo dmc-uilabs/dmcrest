@@ -32,6 +32,9 @@ public class AccountsController {
     private final String logTag = AccountsController.class.getName();
     private AccountsDao accounts = new AccountsDao();
     
+    /**
+     
+     **/
     @RequestMapping(value = "/{accountID}",
                     produces = { "application/json"},
                     method = RequestMethod.GET)
@@ -53,14 +56,16 @@ public class AccountsController {
     }
     
     
-    
+    /**
+     
+     **/
     @RequestMapping(value = "/{accountID}",
                     produces = { "application/json" },
                     method = RequestMethod.PATCH)
     public ResponseEntity<UserAccount> accountsAccountIDPatch(@PathVariable("accountID") String accountID,
-                                                              @Valid @ModelAttribute("account") @RequestBody UserAccount account,
+                                                              @RequestBody UserAccount account,
                                                               @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
-        ServiceLogger.log(logTag, "accountsAccountIDPatch, accountID: " + accountID);
+        ServiceLogger.log(logTag, "accountsAccountIDPatch, accountID: " + accountID + ", account.id: " + account.getId() + ", userEPPN: " + userEPPN);
         
         int httpStatusCode = HttpStatus.OK.value();
         UserAccount userAccount = null;
@@ -74,7 +79,9 @@ public class AccountsController {
     }
     
     
-    
+    /**
+     
+     **/
     @RequestMapping(value = "/{accountID}/account-notification-settings",
                     produces = { "application/json" },
                     method = RequestMethod.GET)
@@ -84,7 +91,9 @@ public class AccountsController {
     }
     
     
-    
+    /**
+     
+     **/
     @RequestMapping(value = "/{accountID}/account_servers",
                     produces = { "application/json" },
                     method = RequestMethod.GET)
@@ -94,7 +103,9 @@ public class AccountsController {
     }
     
     
-    
+    /**
+     
+     **/
     @RequestMapping(value = "/{accountID}/favorite_products",
                     produces = { "application/json" },
                     method = RequestMethod.GET)
@@ -116,8 +127,10 @@ public class AccountsController {
     }
     
     
-    
-    @RequestMapping(value = "/{accountID}/following_companies", 
+    /**
+     
+     **/
+    @RequestMapping(value = "/{accountID}/following_companies",
                     produces = { "application/json" }, 
                     method = RequestMethod.GET)
     public ResponseEntity<List<FollowingCompany>> accountsAccountIDFollowingCompaniesGet(@PathVariable("accountID") String accountID)

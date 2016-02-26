@@ -6,6 +6,10 @@ public class UserOnboarding {
     private final boolean company;
     private final boolean storefront;
     
+    UserOnboarding() {
+        this(false, false, false, false);
+    }
+                   
     UserOnboarding(boolean profile, boolean account, boolean company, boolean storefront) {
         this.profile = profile;
         this.account = account;

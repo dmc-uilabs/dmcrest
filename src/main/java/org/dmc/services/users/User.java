@@ -8,9 +8,9 @@ import java.util.ArrayList;
 
 public class User {
     
-    private int id;
-    private final String userName;
-    private final String realName;
+    private int id; // out of spec
+    private final String userName; // out of spec
+    private final String realName; // out of spec
     
     private final String displayName;
     private final int accountId;
@@ -76,15 +76,15 @@ public class User {
         this.onboarding = UserOnboardingDao.getUserOnboarding(userBuilder.id);
     }
 
-    public int getId() {
+    public int getId() {  // out of spec
         return id;
     }
 
-    public String getUserName() {
+    public String getUserName() { // out of spec
         return userName;
     }
 
-    public String getRealName() {
+    public String getRealName() { // out of spec
         return realName;
     }
 
@@ -127,6 +127,26 @@ public class User {
     public UserOnboarding getOnboarding() {
         return onboarding;
     }
+    
+    @Override
+    public String toString()  {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class UserAccount {\n");
+        
+        sb.append("  displayName: ").append(displayName).append("\n");
+        sb.append("  accountId: ").append(accountId).append("\n");
+        sb.append("  profileId: ").append(profileId).append("\n");
+        sb.append("  companyId: ").append(companyId).append("\n");
+        sb.append("  role: ").append(role).append("\n");
+        sb.append("  termsConditions: ").append(termsConditions).append("\n");
+        sb.append("  notifications: ").append(notifications).append("\n");
+        sb.append("  runningServices: ").append(runningServices).append("\n");
+        sb.append("  messages: ").append(messages).append("\n");
+        sb.append("  onboarding: ").append(onboarding).append("\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
+
 
     public static class UserBuilder {
 
