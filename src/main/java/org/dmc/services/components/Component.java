@@ -1,5 +1,6 @@
 package org.dmc.services.components;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.services.Service;
 
@@ -65,7 +66,7 @@ public class Component {
 
     public String getReleaseDate(){
         SimpleDateFormat formatter = new SimpleDateFormat("mm/dd/yyyy");
-		return formatter.format(releaseDate);
+		return (releaseDate != null) ? formatter.format(releaseDate) : null;
 	}
 	
 	public ArrayList<String> getTags(){
