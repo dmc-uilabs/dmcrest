@@ -11,6 +11,7 @@ import org.json.JSONArray;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -26,6 +27,7 @@ public class ProfileDao {
 	
 	public Id createProfile(String jsonStr, String userEPPN) { 
 		
+		Connection connection = DBConnector.connection();
 		Util util = Util.getInstance();
         int userId = -9999; 
         
@@ -45,6 +47,7 @@ public class ProfileDao {
 	        		+ "(user_name, realname, title, phone, email, address, image, people_resume) "
 	        		+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ";
 	        
+	        connection.setAutoCommit(false);
 	        PreparedStatement statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 	        statement.setString(1, userEPPN);
 	        statement.setString(2, displayName);   
@@ -68,6 +71,8 @@ public class ProfileDao {
 			if (skills.length() != 0) {
 				this.createSkills(userId, skills);
 			}
+			connection.commit();
+			connection.setAutoCommit(true);
 		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
@@ -87,6 +92,7 @@ public class ProfileDao {
 	}
 	
 	public Id updateProfile(int id, String jsonStr, String userEPPN) {
+		Connection connection = DBConnector.connection();
 		PreparedStatement statement;
 		String query;
         
@@ -106,6 +112,7 @@ public class ProfileDao {
 	        		+ "realname = ?, title = ?, phone = ?, email = ?, address = ?, image = ?, people_resume = ? "
 	        		+ "WHERE user_id = ? AND user_name = ?";
 	        
+	        connection.setAutoCommit(false);
 	        statement = DBConnector.prepareStatement(query);
 	        statement.setString(1, displayName);   
 	        statement.setString(2, jobTitle);
@@ -127,6 +134,8 @@ public class ProfileDao {
 			if (this.deleteSkills(id) && skills.length() > 0) {
 				this.createSkills(id, skills);
 			}
+	        connection.commit();
+	        connection.setAutoCommit(true);
 		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
@@ -135,7 +144,8 @@ public class ProfileDao {
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
 		}
@@ -145,19 +155,31 @@ public class ProfileDao {
 	}
 	
 	public Id deleteProfile(int id, String userEPPN) {
+		Connection connection = DBConnector.connection();
 		PreparedStatement statement;
 		String query;
 
 		try {
+			connection.setAutoCommit(false);
 			this.deleteSkills(id);
 			query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";
 			statement = DBConnector.prepareStatement(query);
 			statement.setInt(1, id);
 			statement.setString(2, userEPPN);
 			statement.executeUpdate();
+	        connection.commit();
+	        connection.setAutoCommit(true);
 		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+	        if (connection != null) {
+	            try {
+	                ServiceLogger.log(logTag, "Transaction Profile Update Rolled back");
+	                connection.rollback();
+	            } catch(SQLException ex) {
+	                ServiceLogger.log(logTag, ex.getMessage());
+	            }
+	        }
 			return null;
 		}
 		catch (JSONException e) {
