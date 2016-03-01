@@ -23,7 +23,7 @@ public class ProfileController {
     	return profileDao.getProfile(id);
     }
     
-    @RequestMapping(value = "/profiles/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @RequestMapping(value = "/profiles", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     @ResponseBody
     public Id createProfile(@RequestBody String payload,  @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "Payload: " + payload);	
@@ -31,15 +31,15 @@ public class ProfileController {
     }
     
     @RequestMapping(value = "/profiles/{id}/update", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    public Id updateProfile(@PathVariable("id") int id, @RequestBody String payload) {
+    public Id updateProfile(@PathVariable("id") int id, @RequestBody String payload, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "updateProfile, Payload: " + payload);
-    	return profileDao.updateProfile(id, payload);
+    	return profileDao.updateProfile(id, payload, userEPPN);
     }
     
     @RequestMapping(value = "/profiles/{id}/delete", method = RequestMethod.GET)
-    public Id deleteProfile(@PathVariable("id") int id) {
+    public Id deleteProfile(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "deleteProfile, id: " + id);
-    	return profileDao.deleteProfile(id);
+    	return profileDao.deleteProfile(id, userEPPN);
     }
     
 }

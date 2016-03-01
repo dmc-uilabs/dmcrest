@@ -1,6 +1,7 @@
 package org.dmc.services.profile;
 
 import org.dmc.services.DBConnector;
+import org.dmc.services.Config;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
@@ -8,15 +9,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.dmc.solr.SolrUtils;
 
 public class ProfileDao {
 
 	private final String logTag = ProfileDao.class.getName();
-	private ResultSet resultSet;
 
 	public Profile getProfile(int requestId) {
 		return null;
@@ -56,6 +58,11 @@ public class ProfileDao {
 	        
 	        userId = util.getGeneratedKey(statement, "user_id");
 			ServiceLogger.log(logTag, "USER ID: " + userId);
+			
+	        if (Config.IS_TEST == null){
+	            SolrUtils.invokeFulIndexingUsers();
+	            ServiceLogger.log(logTag, "SolR indexing triggered for User: " + userId);
+	        }
 
 	        // create people_skill, and relational skill_inventory
 			if (skills.length() != 0) {
@@ -70,12 +77,16 @@ public class ProfileDao {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
 		}
+		catch (IOException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
 		return new Id.IdBuilder(userId)
 		.build();
 
 	}
 	
-	public Id updateProfile(int id, String jsonStr) {
+	public Id updateProfile(int id, String jsonStr, String userEPPN) {
 		PreparedStatement statement;
 		String query;
         
@@ -93,7 +104,7 @@ public class ProfileDao {
 			// update user
 	        query = "UPDATE users SET "
 	        		+ "realname = ?, title = ?, phone = ?, email = ?, address = ?, image = ?, people_resume = ? "
-	        		+ "WHERE user_id = ?";
+	        		+ "WHERE user_id = ? AND user_name = ?";
 	        
 	        statement = DBConnector.prepareStatement(query);
 	        statement.setString(1, displayName);   
@@ -104,7 +115,13 @@ public class ProfileDao {
 	        statement.setString(6, image);
 	        statement.setString(7, description);
 	        statement.setInt(8, id);
+	        statement.setString(9, userEPPN);
 	        statement.executeUpdate();
+	        
+	        if (Config.IS_TEST == null){
+	            SolrUtils.invokeFulIndexingUsers();
+	            ServiceLogger.log(logTag, "SolR indexing triggered for User: " + id);
+	        }
 	        
 			// delete and create skills
 			if (this.deleteSkills(id) && skills.length() > 0) {
@@ -118,20 +135,25 @@ public class ProfileDao {
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
+		} catch (IOException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			return null;
 		}
+		
 		return new Id.IdBuilder(id)
 		.build();
 	}
 	
-	public Id deleteProfile(int id) {
+	public Id deleteProfile(int id, String userEPPN) {
 		PreparedStatement statement;
 		String query;
 
 		try {
 			this.deleteSkills(id);
-			query = "DELETE FROM users WHERE user_id = ?";
+			query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";
 			statement = DBConnector.prepareStatement(query);
 			statement.setInt(1, id);
+			statement.setString(2, userEPPN);
 			statement.executeUpdate();
 		}
 		catch (SQLException e) {
@@ -175,20 +197,15 @@ public class ProfileDao {
 		PreparedStatement statement;
 		String query;
 		
-        query = "SELECT skill_id FROM people_skill_inventory WHERE user_id = " + userId;
-		resultSet = DBConnector.executeQuery(query);
-		if (resultSet.isBeforeFirst()) {
-			while (resultSet.next()) {
-				query = "DELETE FROM people_skill WHERE skill_id = ?";
-				statement = DBConnector.prepareStatement(query);
-				statement.setInt(1, resultSet.getInt("skill_id"));
-				statement.executeUpdate();
-			}
-			query = "DELETE FROM people_skill_inventory WHERE user_id = ?";
-			statement = DBConnector.prepareStatement(query);
-			statement.setInt(1, userId);
-			statement.executeUpdate();
-		}
+		query = "DELETE FROM people_skill WHERE skill_id IN (SELECT skill_id FROM people_skill_inventory WHERE user_id = ?)";
+		statement = DBConnector.prepareStatement(query);
+		statement.setInt(1, userId);
+		statement.executeUpdate();	
+		
+		query = "DELETE FROM people_skill_inventory WHERE user_id = ?";
+		statement = DBConnector.prepareStatement(query);
+		statement.setInt(1, userId);
+		statement.executeUpdate();
 		
 		return true;
 	}
