@@ -25,12 +25,12 @@ public class UserBasicInformationController {
 	private final String logTag = UserBasicInformationController.class.getName();
 	private UserBasicInformationDao  info = new UserBasicInformationDao(); 
     
-    @RequestMapping(value = "/user-basic-information", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    public Id createUser(@RequestBody String payload,
+	@RequestMapping(value = "/user-basic-information", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+	public Id createUser(@RequestBody String payload,
     					 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
     {
-    	ServiceLogger.log(logTag, "User Basic Information: " + userEPPN);
-        return info.createUserBasicInformation(userEPPN, payload);
+		ServiceLogger.log(logTag, "User Basic Information: " + userEPPN);
+    	return info.createUserBasicInformation(userEPPN, payload);
     }
     
     // Exception handler - all exceptions not caught elsewhere will bubble to the controller

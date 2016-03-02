@@ -4,14 +4,13 @@ package org.dmc.services.users;
  * Created by 200005921 on 2/8/2016.
  */
 
-
 public class UserBasicInformation {
 
 	private final int id;
 	private final String email;
 	private final String firstName;
-    private final String lastName;
-    private final String company;
+	private final String lastName;
+	private final String company;
 
 	private UserBasicInformation(UserBasicInformationBuilder builder) {
 		this.id = builder.id;
@@ -21,34 +20,34 @@ public class UserBasicInformation {
 		this.company = builder.company;
 	}
 
-    public int getId() {
-        return id;
-    }
-    
-    public String getEmail() {
-        return email;
-    }
+	public int getId() {
+		return id;
+	}
 
-    public String getfirstName() {
-        return firstName;
-    }
-    
-    public String getLastName() {
-        return lastName;
-    }
-    
-    public String getCompany() {
-        return company;
-    }
-    
-	public static class UserBasicInformationBuilder  {
+	public String getEmail() {
+		return email;
+	}
+
+	public String getfirstName() {
+		return firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public String getCompany() {
+		return company;
+	}
+
+	public static class UserBasicInformationBuilder {
 		private int id;
 		private String email;
 		private String firstName;
 		private String lastName;
 		private String company;
 
-		public UserBasicInformationBuilder (int id) {
+		public UserBasicInformationBuilder(int id) {
 			this.id = id;
 		}
 
@@ -72,10 +71,9 @@ public class UserBasicInformation {
 			return this;
 		}
 
-		public  UserBasicInformation build() {
+		public UserBasicInformation build() {
 			return new UserBasicInformation(this);
 		}
 	}
 
 }
-
