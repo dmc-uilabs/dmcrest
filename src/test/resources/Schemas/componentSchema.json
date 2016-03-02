@@ -30,9 +30,9 @@
         { 
           "id": "http://dmc-dev.geinspire.com/component/tags",
           "oneOf": [
-        { "type": "null" },
-        { "type": "string" }
-    ]
+	  	   { "type": "null" },
+      		   { "type": "string" }
+    	  ]
         } 
     },
     
@@ -50,9 +50,18 @@
         }
       }
     },
+
     "services": {
       "id": "http://dmc-dev.geinspire.com/component/services",
-      "type": "string"
+      "type": "array",
+      "items":
+        {
+          "id": "http://dmc-dev.geinspire.com/component/services",
+          "oneOf": [
+                   { "type": "null" },
+                   { "type": "object" }
+          ]
+        }
     }
   },
   "required": [

@@ -64,6 +64,17 @@ public class UserDao {
 				id = resultSet.getInt("id");
 			}
 
+            String createOnboardingStatus = "INSERT INTO onboarding_status(user_id, profile, account, company, storefront) "
+            + "VALUES ( ?, ?, ?, ?, ? )";
+			PreparedStatement preparedStatementCreateOnboardingStatus = DBConnector.prepareStatement(createOnboardingStatus);
+			preparedStatementCreateOnboardingStatus.setInt(1, id);
+			preparedStatementCreateOnboardingStatus.setBoolean(2, false);
+			preparedStatementCreateOnboardingStatus.setBoolean(3, false);
+			preparedStatementCreateOnboardingStatus.setBoolean(4, false);
+			preparedStatementCreateOnboardingStatus.setBoolean(5, false);
+			preparedStatementCreateOnboardingStatus.executeUpdate();
+            // ToDo: check that record was created successfully.
+            
 			ServiceLogger.log(logTag, "User added: " + id);
 			
 			if (Config.IS_TEST == null){

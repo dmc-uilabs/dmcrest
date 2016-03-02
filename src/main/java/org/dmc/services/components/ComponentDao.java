@@ -3,6 +3,7 @@ package org.dmc.services.components;
 import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.services.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,12 +27,13 @@ public class ComponentDao {
 		 * get project ID as well
 		 */
 		int id = componentId;
-		Date releaseDate;
+		Date releaseDate = new Date();;
 		String title = "", description = "", owner = "None", query;
 		String thumbnail = "";
 		String largeUrl = "";
 		FeatureImage image = new FeatureImage(thumbnail, largeUrl);
 		ArrayList<String> tags = new ArrayList<String>();
+        ArrayList<Service> services = new ArrayList<Service>();
 		String date = "";
 		String tag = "";
 		
@@ -74,7 +76,7 @@ public class ComponentDao {
 					*/
 					SimpleDateFormat formatter = new SimpleDateFormat("mm/dd/yyyy");
 					
-					date = formatter.format(releaseDate);
+//					date = formatter.format(releaseDate);
 					
 					
 					tag = resultSet.getString("tagname");
@@ -103,8 +105,8 @@ public class ComponentDao {
 					tags.add(resultSet.getString("tagname"));
 				}
 				*/
-				return new Component.ComponentBuilder(id, title, description).releaseDate(date)
-						.servicesLink().image(image)
+				return new Component.ComponentBuilder(id, title, description).releaseDate(releaseDate)
+						.services(services).image(image)
 						.owner(owner).tags(tags).build();
 				
 				
