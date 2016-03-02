@@ -76,6 +76,14 @@ public class ProfileDao {
 		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+	        if (connection != null) {
+	            try {
+	                ServiceLogger.log(logTag, "Transaction Profile Create Rolled back");
+	                connection.rollback();
+	            } catch(SQLException ex) {
+	                ServiceLogger.log(logTag, ex.getMessage());
+	            }
+	        }
 			return null;
 		}
 		catch (JSONException e) {
@@ -139,6 +147,14 @@ public class ProfileDao {
 		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+	        if (connection != null) {
+	            try {
+	                ServiceLogger.log(logTag, "Transaction Profile Update Rolled back");
+	                connection.rollback();
+	            } catch(SQLException ex) {
+	                ServiceLogger.log(logTag, ex.getMessage());
+	            }
+	        }
 			return null;
 		}
 		catch (JSONException e) {
@@ -174,7 +190,7 @@ public class ProfileDao {
 			ServiceLogger.log(logTag, e.getMessage());
 	        if (connection != null) {
 	            try {
-	                ServiceLogger.log(logTag, "Transaction Profile Update Rolled back");
+	                ServiceLogger.log(logTag, "Transaction Profile Delete Rolled back");
 	                connection.rollback();
 	            } catch(SQLException ex) {
 	                ServiceLogger.log(logTag, ex.getMessage());
