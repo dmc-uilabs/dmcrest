@@ -59,6 +59,9 @@ public class DBConnector {
 	}
 	
 	public static Connection connection() {
+		if (connectorInstance == null) {
+			connectorInstance = new DBConnector();
+		}
 		return connectorInstance.conn;
 	}
 
@@ -72,10 +75,7 @@ public class DBConnector {
 	//
 	public static PreparedStatement prepareStatement(String query) {
 		try {
-			if (connectorInstance == null) {
-				connectorInstance = new DBConnector();
-			}
-			return connectorInstance.conn.prepareStatement(query);
+			return connection().prepareStatement(query);
 		} catch(SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
@@ -86,10 +86,7 @@ public class DBConnector {
 	// For example to retrieve the serial keys when an insert is performed
 	public static PreparedStatement prepareStatement(String query, int returnKeys) {
 		try {
-			if (connectorInstance == null) {
-				connectorInstance = new DBConnector();
-			}
-			return connectorInstance.conn.prepareStatement(query, returnKeys);
+			return connection().prepareStatement(query, returnKeys);
 		} catch(SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
