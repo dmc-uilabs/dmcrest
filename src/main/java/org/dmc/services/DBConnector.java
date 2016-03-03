@@ -46,10 +46,6 @@ public class DBConnector {
     	}
 	}
 	
-	public static Connection connection () {
-		return connectorInstance.conn;
-	}
-	
 	public static ResultSet executeQuery(String query) {
 		try {
 			if (connectorInstance == null) {
