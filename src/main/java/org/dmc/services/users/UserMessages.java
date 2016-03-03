@@ -7,7 +7,8 @@ import org.dmc.services.message.Message;
 public class UserMessages {
 	
 	private final ArrayList<Message> items;
-	
+    private final int totalItems;
+
 	private final String logTag = UserMessages.class.getName();
 	
     public UserMessages(){
@@ -16,6 +17,7 @@ public class UserMessages {
     
 	public UserMessages(ArrayList<Message> items){
         this.items = items;
+        this.totalItems = items.size();
 	}
 	
 	public int getTotalItems(){

@@ -55,10 +55,18 @@
             }
           }
         },
-        "services": {
-          "id": "http://dmc-dev.geinspire.com/componentList/0/services",
-          "type": "string"
-        }
+    	"services": {
+      	  "id": "http://dmc-dev.geinspire.com/component/services",
+      	  "type": "array",
+      	  "items":
+          {
+		"id": "http://dmc-dev.geinspire.com/component/services",
+          	"oneOf": [
+               		 { "type": "null" },
+                   	 { "type": "object" }
+          		 ]
+          }
+    	}
       },
       "required": [
         "id",
@@ -124,8 +132,16 @@
           }
         },
         "services": {
-          "id": "http://dmc-dev.geinspire.com/componentList/1/services",
-          "type": "string"
+          "id": "http://dmc-dev.geinspire.com/component/services",
+          "type": "array",
+          "items":
+          {
+                "id": "http://dmc-dev.geinspire.com/component/services",
+                "oneOf": [
+                         { "type": "null" },
+                         { "type": "object" }
+                         ]
+          }
         }
       }
     }

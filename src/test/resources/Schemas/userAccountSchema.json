@@ -1,0 +1,49 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "userAccount": "http://dmc-dev.geinspire.com/userAccount",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "companyId": {
+            "type": "string"
+        },
+        "profileId": {
+            "type": "string"
+        },
+        "firstName": {
+            "type": "string"
+        },
+        "lastName": {
+            "type": "string"
+        },
+        "displayName": {
+            "type": "string"
+        },
+        "email": {
+            "type": "string"
+        },
+        "deactivated": {
+            "type": "boolean"
+        },
+        "location": {
+            "type": "string"
+        },
+        "timezone": {
+            "type": "string"
+        },
+        "privacy": {
+            "type": "object",
+            "properties": {
+                "private": {
+                    "type": ["object", "null"]
+                },
+                "public": {
+                    "type": ["object", "null"]
+                }
+            }
+        }
+    },
+    "required": [ "id", "companyId", "profileId", "firstName", "lastName", "displayName", "email", "deactivated", "location", "timezone", "privacy" ]
+}

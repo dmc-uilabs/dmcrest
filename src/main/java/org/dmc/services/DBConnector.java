@@ -61,6 +61,10 @@ public class DBConnector {
 		}
 		return null;
 	}
+	
+	public static Connection connection() {
+		return connectorInstance.conn;
+	}
 
 	//
 	// Use PreparedStatement to reduce chance of SQL Injection attacks and frequently improve performance
