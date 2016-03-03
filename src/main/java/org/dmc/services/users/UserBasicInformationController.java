@@ -39,8 +39,7 @@ public class UserBasicInformationController {
     @ExceptionHandler(Exception.class)
     public ErrorMessage handleException(Exception ex) {
     	ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage())
-		.build();
-    	System.out.print(result);
+    		.build();
         ServiceLogger.log(logTag, "Error Message Exception: " + ex.getMessage());
     	return result;
     }

@@ -56,31 +56,31 @@ public class UserBasicInformationDao {
 			}
 
 			// update the rest of the user fields
-			JSONArray names = json.names();
+			ArrayList<String> setKeys = new ArrayList<String>();
 			ArrayList<String> keys = new ArrayList<String>();
+			keys.add("email");
+			keys.add("firstName");
+			keys.add("lastName");
 
 			query = "UPDATE users SET";
 			boolean firstFieldAdded = false;
-			for (int i = 0; i < names.length(); i++) {
-				query += (firstFieldAdded) ? "," : "";
-				String key = names.getString(i);
-				String value = json.getString(names.getString(i));
-				if (!value.equals("")) {
-					firstFieldAdded = true;
-					ServiceLogger.log(logTag, "KEY: " + key);
-					ServiceLogger.log(logTag, "VALUE: <" + value + ">");
-					keys.add(key);
+			for (int i = 0; i < keys.size(); i++) {
+				String key = keys.get(i);
+				if (json.has(key) && !json.getString(key).equals("")) {
+					String value = json.getString(key);
+					setKeys.add(key);
+					query += (firstFieldAdded) ? "," : "";
 					query += " " + key + " = ?";
+					firstFieldAdded = true;
 				}
 			}
 			query += " WHERE user_name = ?";
 
 			statement = DBConnector.prepareStatement(query, statement.RETURN_GENERATED_KEYS);
-			for (int i = 0; i < keys.size(); i++) {
-				statement.setString(i + 1, json.getString(keys.get(i)));
+			for (int i = 0; i < setKeys.size(); i++) {
+				statement.setString(i + 1, json.getString(setKeys.get(i)));
 			}
-			statement.setString(keys.size() + 1, username);
-			ServiceLogger.log(logTag, "Prepared Statement: " + statement.toString());
+			statement.setString(setKeys.size() + 1, username);
 			statement.executeUpdate();
 			id = util.getGeneratedKey(statement, "user_id");
 			connection.commit();
