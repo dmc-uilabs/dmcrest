@@ -25,7 +25,7 @@ public class UserBasicInformationController {
 	private final String logTag = UserBasicInformationController.class.getName();
 	private UserBasicInformationDao  info = new UserBasicInformationDao(); 
     
-	@RequestMapping(value = "/user-basic-information", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+	@RequestMapping(value = "/user-basic-information", method = RequestMethod.POST, headers = {"Content-type=application/json"})
 	public Id createUser(@RequestBody String payload,
     					 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
     {
