@@ -53,7 +53,7 @@ public class UserBasicInformationIT extends BaseIT {
 		if (this.createdId != -1) {
 			JSONObject json = createFixture("normal");
 			given()
-            .header("Content-type", "application/json")
+			.header("Content-type", "application/json")
 			.header("AJP_eppn", randomEPPN)
 			.body(json.toString())
 			.expect()
@@ -104,7 +104,22 @@ public class UserBasicInformationIT extends BaseIT {
 			.body("id", equalTo(this.createdId));
 		}	
 	}
-
+	
+	@Test
+	public void basicInformationMissingEPPNHeader() {
+		if (this.createdId != -1) {
+			JSONObject json = createFixture("normal");
+			given()
+			.header("Content-type", "application/json")
+			.body(json.toString())
+			.expect()
+			.statusCode(200)
+			.when()
+			.post(UPDATE_RESOURCE)
+			.then()
+			.body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
+		}	
+	}
 
 	public JSONObject createFixture(String type) {
 		
