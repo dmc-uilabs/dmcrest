@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 public class TestUserUtil {
     public static String generateTime() {
         Date date = new Date();
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 		String unique = format.format(date);
         return unique;
     }
