@@ -53,6 +53,7 @@ public class UserBasicInformationIT extends BaseIT {
 		if (this.createdId != -1) {
 			JSONObject json = createFixture("normal");
 			given()
+            .header("Content-type", "application/json")
 			.header("AJP_eppn", randomEPPN)
 			.body(json.toString())
 			.expect()
@@ -71,6 +72,7 @@ public class UserBasicInformationIT extends BaseIT {
 		if (this.createdId != -1) {
 			JSONObject json = createFixture("missing");
 			given()
+			.header("Content-type", "application/json")
 			.header("AJP_eppn", randomEPPN)
 			.body(json.toString())
 			.expect()
@@ -89,6 +91,7 @@ public class UserBasicInformationIT extends BaseIT {
 		if (this.createdId != -1) {
 			JSONObject json = createFixture("empty");
 			given()
+			.header("Content-type", "application/json")
 			.header("AJP_eppn", randomEPPN)
 			.body(json.toString())
 			.expect()
