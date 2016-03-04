@@ -133,7 +133,7 @@ public class ProfileDao {
 			statement.executeUpdate();
 
 			if (Config.IS_TEST == null) {
-				SolrUtils.invokeFulIndexingUsers();
+				//SolrUtils.invokeFulIndexingUsers();
 				ServiceLogger.log(logTag, "SolR indexing triggered for User: "
 						+ id);
 			}
@@ -159,10 +159,10 @@ public class ProfileDao {
 		} catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
-		} catch (IOException e) {
+		} /*catch (IOException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
-		}
+		}*/
 
 		return new Id.IdBuilder(id).build();
 	}

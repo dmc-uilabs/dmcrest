@@ -85,7 +85,7 @@ public class UserDao {
 			ServiceLogger.log(logTag, "User added: " + id);
 			
 			if (Config.IS_TEST == null){
-				String indexResponse = SolrUtils.invokeFulIndexingUsers();
+				String indexResponse = ""; //SolrUtils.invokeFulIndexingUsers();
 				ServiceLogger.log(logTag, "SolR indexing triggered for user: " + id);
 			}
 
@@ -94,10 +94,12 @@ public class UserDao {
             return new Id.IdBuilder(id).build();
 
 		} 
+        /*
         catch(IOException e){
 			ServiceLogger.log(logTag, e.getMessage());
 			return new Id.IdBuilder(id).build();
 		}
+		*/
 		catch(SQLException e){
 			ServiceLogger.log(logTag, e.getMessage());
 			return new Id.IdBuilder(id).build();
