@@ -80,7 +80,7 @@ public class SearchImpl implements SearchInterface {
         fieldsServices.add("interface_data");
         fieldsServices.add("group_name");
         fieldsServices.add("unix_group_name");
-        fieldsServices.add("serverUrl");
+        fieldsServices.add("server_url");
         fieldsServices.add("title");
         fieldsServices.add("description");
         fieldMap.put(COLLECTION_SERVICES, fieldsServices);
