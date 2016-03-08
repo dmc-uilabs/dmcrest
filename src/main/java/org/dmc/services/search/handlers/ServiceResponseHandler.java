@@ -3,6 +3,8 @@ package org.dmc.services.search.handlers;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.search.SearchImpl;
 import org.dmc.services.services.Service;
 
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.List;
  */
 public class ServiceResponseHandler implements ResponseHandler<Service> {
 
+    private final String logTag = ServiceResponseHandler.class.getName();
 //    {
 //        "cem_id": "2",
 //            "id": "1",
@@ -62,7 +65,7 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
 
                     String idStr = (String) doc.getFieldValue(FIELD_ID);
                     int id = Integer.parseInt(idStr);
-
+                    
                     String interfaceData = (String) doc.getFieldValue(FIELD_INTERFACE_DATA);
                     String interfaceName = (String) doc.getFieldValue(FIELD_INTERFACE_NAME);
                     String serverUrl = (String) doc.getFieldValue(FIELD_SERVER_URL);
@@ -70,6 +73,16 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
                     String unixGroupName = (String) doc.getFieldValue(FIELD_UNIX_GROUP_NAME);
                     String title = (String) doc.getFieldValue(FIELD_TITLE);
                     String description = (String) doc.getFieldValue(FIELD_DESCRIPTION);
+
+                    ServiceLogger.log(logTag, "doc: " + doc);
+                    ServiceLogger.log(logTag, "->id: " + id);
+                    ServiceLogger.log(logTag, "->interfaceData: " + interfaceData);
+                    ServiceLogger.log(logTag, "->interfaceName: " + interfaceName);
+                    ServiceLogger.log(logTag, "->serverUrl: " + serverUrl);
+                    ServiceLogger.log(logTag, "->groupName: " + groupName);
+                    ServiceLogger.log(logTag, "->unixGroupName: " + unixGroupName);
+                    ServiceLogger.log(logTag, "->title: " + title);
+                    ServiceLogger.log(logTag, "->description: " + description);
 
                     Service service =  new Service.ServiceBuilder(id, title, description).build();
                     if (l == null) {
