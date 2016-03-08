@@ -3,6 +3,7 @@ package org.dmc.services.users;
 /**
  * Created by 200005921 on 2/8/2016.
  */
+import java.util.Objects;
 
 import java.util.ArrayList;
 import org.dmc.services.ServiceLogger;
@@ -175,6 +176,31 @@ public class User {
         this.onboarding = onboarding;
     }
     
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        User userDetails = (User) o;
+        return Objects.equals(displayName, userDetails.displayName) &&
+        Objects.equals(accountId, userDetails.accountId) &&
+        Objects.equals(profileId, userDetails.profileId) &&
+        Objects.equals(companyId, userDetails.companyId) &&
+        Objects.equals(role, userDetails.role) &&
+        Objects.equals(termsConditions, userDetails.termsConditions) &&
+        Objects.equals(notifications, userDetails.notifications) &&
+        Objects.equals(runningServices, userDetails.runningServices) &&
+        Objects.equals(messages, userDetails.messages) &&
+        Objects.equals(onboarding, userDetails.onboarding);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(displayName, accountId, profileId, companyId, role, termsConditions, notifications, runningServices, messages, onboarding);
+    }
     
     @Override
     public String toString()  {

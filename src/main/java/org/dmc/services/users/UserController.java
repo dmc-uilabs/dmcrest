@@ -60,7 +60,7 @@ public class UserController {
         return user.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
     }
     
-    @RequestMapping(value = "/user", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/user", produces = { "application/json" }, method = RequestMethod.PATCH)
     public ResponseEntity<User> patchUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
                                           @RequestBody User patchUser)
     {

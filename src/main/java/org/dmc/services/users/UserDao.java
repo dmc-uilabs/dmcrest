@@ -162,7 +162,8 @@ public class UserDao {
     }
     
     public User patchUser(String userEPPN, User patchUser) throws HTTPException {
-        User patchedUser = null;
+        ServiceLogger.log(logTag, "patchUser User: " + userEPPN + "\n" + patchUser.toString());
+//        User patchedUser = null;
         int userId = -1;
         try {
             userId = getUserID(userEPPN);
@@ -177,24 +178,27 @@ public class UserDao {
         // Updating displayName;
         // not updating accountId, profileId, companyId, role, termsConditions because they are set by other functions
         try {
-            String query = "UPDATE users SET realname = ? WHERE user_id = ";
+            String query = "UPDATE users SET realname = ? WHERE user_id = ?";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, patchUser.getDisplayName());
             preparedStatement.setInt(2, userId);
             preparedStatement.executeUpdate();
-        
-        //need to update
-//        private UserNotifications notifications;
-//        private UserRunningServices runningServices;
-//        private UserMessages messages;
-//        private UserOnboarding onboarding;
-        
+            
+        //ToDo: need to update
+            //        private UserNotifications notifications;
+            //        private UserRunningServices runningServices;
+            //        private UserMessages messages;
+            UserOnboarding patchUserOnboarding = patchUser.getOnboarding();
+            if(!patchUserOnboarding.patch(userId)) {
+                throw new SQLException("Unable to update user_id: " + userId + " onboarding status");
+            }
+
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
         }
         
         
-        return patchedUser;
+        return patchUser;
     }
 
     public static int getUserID(String userEPPN) throws SQLException {

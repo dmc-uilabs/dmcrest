@@ -32,4 +32,9 @@ public class UserOnboarding {
     public boolean getStorefront() {
         return storefront;
     }
+    
+    public boolean patch(int user_id) {
+        UserOnboardingDao userOnboardingDao = new UserOnboardingDao();
+        return userOnboardingDao.setUserOnboarding(user_id, this);
+    }
 }
