@@ -7,20 +7,22 @@ package org.dmc.services.users;
 import java.util.ArrayList;
 import org.dmc.services.ServiceLogger;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+// This class' name should be changed to UserDetails to match yaml
 public class User {
     private final String logTag = User.class.getName();
-        
-    private final String displayName;
-    private final int accountId;
-    private final int profileId;
-    private final int companyId;
-    private final int role;
-    private final boolean termsConditions;
+    
+    private String displayName;
+    private int accountId;
+    private int profileId;
+    private int companyId;
+    private int role;
+    private boolean termsConditions;
     private UserNotifications notifications;
     private UserRunningServices runningServices;
     private UserMessages messages;
-    private final UserOnboarding onboarding;
+    private UserOnboarding onboarding;
     
     public User() {
         this.displayName = null; //TODO: fix
@@ -63,45 +65,116 @@ public class User {
         this.onboarding = UserOnboardingDao.getUserOnboarding(userBuilder.id);
     }
 
+    
+    /**
+     **/
+    @JsonProperty("displayName")
     public String getDisplayName() {
         return displayName;
     }
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("accountId")
     public int getAccountId() {
         return accountId;
     }
+    public void setAccountId(String accountId) {
+        this.accountId = Integer.parseInt(accountId);
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("profileId")
     public int getProfileId() {
         return profileId;
     }
+    public void setProfileId(String profileId) {
+        this.profileId = Integer.parseInt(profileId);
+    }
+
     
+    /**
+     **/
+    @JsonProperty("companyId")
     public int getCompanyId() {
         return companyId;
     }
+    public void setCompanyId(String companyId) {
+        this.companyId = Integer.parseInt(companyId);
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("role")
     public int getRole() {
         return role;
     }
+    public void setRole(String role) {
+        this.role = Integer.parseInt(role);
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("termsConditions")
     public boolean getTermsConditions() {
         return termsConditions;
     }
+    public void setTermsConditions(Boolean termsConditions) {
+        this.termsConditions = termsConditions;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("notifications")
     public UserNotifications getNotifications() {
         return notifications;
     }
+    public void setNotifications(UserNotifications notifications) {
+        this.notifications = notifications;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("runningServices")
     public UserRunningServices getRunningServices() {
         return runningServices;
     }
+    public void setRunningServices(UserRunningServices runningServices) {
+        this.runningServices = runningServices;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("messages")
     public UserMessages getMessages() {
         return messages;
     }
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("onboarding")
     public UserOnboarding getOnboarding() {
         return onboarding;
     }
+    public void setOnboarding(UserOnboarding onboarding) {
+        this.onboarding = onboarding;
+    }
+    
     
     @Override
     public String toString()  {
