@@ -157,6 +157,12 @@ public class UserDao {
         
         return new User(userId, userName, displayName, termsAndConditions);
     }
+    
+    public User patchUser(String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail, User patchUser){
+        
+        
+        return patchUser;
+    }
 
     public static int getUserID(String userEPPN) throws SQLException {
     	String query = "select user_id from users where user_name = ?;";

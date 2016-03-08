@@ -10,11 +10,7 @@ import org.dmc.services.ServiceLogger;
 
 public class User {
     private final String logTag = User.class.getName();
-    
-    private int id; // out of spec
-    private final String userName; // out of spec
-    private final String realName; // out of spec
-    
+        
     private final String displayName;
     private final int accountId;
     private final int profileId;
@@ -27,10 +23,6 @@ public class User {
     private final UserOnboarding onboarding;
     
     public User() {
-        this.id = -1;
-        this.userName = null;
-        this.realName = null;
-        
         this.displayName = null; //TODO: fix
         this.accountId = -1;
         this.profileId = -1;
@@ -46,10 +38,6 @@ public class User {
     
     public User (int id, String userName, String realName, boolean termsConditions) {
         ServiceLogger.log(logTag, "In User with id " + id + " userName " + userName);
-        this.id = id;
-        this.userName = userName;
-        this.realName = realName;
-        
         this.displayName = realName;
         this.accountId = id;
         this.profileId = id;
@@ -63,11 +51,6 @@ public class User {
     }
 
     public User (UserBuilder userBuilder) {
-        
-        this.id = userBuilder.id;
-        this.userName = userBuilder.userName;
-        this.realName = userBuilder.realName;
-        
         this.displayName = userBuilder.realName;
         this.accountId = userBuilder.id;
         this.profileId = -1;
@@ -78,18 +61,6 @@ public class User {
         this.runningServices = new UserRunningServices();
         this.messages = new UserMessages();
         this.onboarding = UserOnboardingDao.getUserOnboarding(userBuilder.id);
-    }
-
-    public int getId() {  // out of spec
-        return id;
-    }
-
-    public String getUserName() { // out of spec
-        return userName;
-    }
-
-    public String getRealName() { // out of spec
-        return realName;
     }
 
     public String getDisplayName() {

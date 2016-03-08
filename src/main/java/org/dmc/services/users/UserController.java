@@ -47,17 +47,30 @@ public class UserController {
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.GET)
-    public User user(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
-                     @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
-                     @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
-                     @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
-                     @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
+    public User getUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
+                        @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
+                        @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
+                        @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
+                        @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
     	   
         return user.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
     }
     
+    @RequestMapping(value = "/user", method = RequestMethod.PATCH)
+    public User patchUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
+                          @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
+                          @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
+                          @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
+                          @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail,
+                          @RequestBody User patchUser)
+    {
+        ServiceLogger.log(logTag, "In user: " + userEPPN);
+        
+        return user.patchUser(userEPPN, userFirstName, userSurname, userFull, userEmail, patchUser);
+    }
+
     /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)
     @ResponseBody
