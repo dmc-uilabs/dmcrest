@@ -20,6 +20,9 @@ import org.dmc.services.sharedattributes.Util;
 import org.dmc.solr.SolrUtils;
 
 import java.io.IOException;
+import javax.xml.ws.http.HTTPException;
+import org.springframework.http.HttpStatus;
+
 
 public class UserDao {
 
@@ -158,10 +161,22 @@ public class UserDao {
         return new User(userId, userName, displayName, termsAndConditions);
     }
     
-    public User patchUser(String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail, User patchUser){
+    public User patchUser(String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail, User patchUser) throws HTTPException {
+        User patchedUser = null;
+        int userId = -1;
+        try {
+            userId = getUserID(userEPPN);
+        } catch(SQLException e) {
+            throw new HTTPException(HttpStatus.UNAUTHORIZED.value());  // user not in database
+        }
+        
+        if(userId != patchUser.getAccountId()) { //userEPPN and patchUser do not match
+            throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+        }
         
         
-        return patchUser;
+        
+        return patchedUser;
     }
 
     public static int getUserID(String userEPPN) throws SQLException {

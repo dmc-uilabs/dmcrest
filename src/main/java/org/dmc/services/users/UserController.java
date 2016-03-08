@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.xml.ws.http.HTTPException;
+
 @RestController
 public class UserController {
 
@@ -59,16 +61,25 @@ public class UserController {
     }
     
     @RequestMapping(value = "/user", method = RequestMethod.PATCH)
-    public User patchUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
+    public ResponseEntity<User> patchUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
                           @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                           @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                           @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
                           @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail,
                           @RequestBody User patchUser)
     {
-        ServiceLogger.log(logTag, "In user: " + userEPPN);
+        ServiceLogger.log(logTag, "In patchUser: " + userEPPN);
         
-        return user.patchUser(userEPPN, userFirstName, userSurname, userFull, userEmail, patchUser);
+        int httpStatusCode = HttpStatus.OK.value();
+        User patchedUser = null;
+        
+        try{
+            patchedUser = user.patchUser(userEPPN, userFirstName, userSurname, userFull, userEmail, patchUser);
+        } catch(HTTPException httpException) {
+            httpStatusCode = httpException.getStatusCode();
+        }
+        
+        return new ResponseEntity<User>(patchedUser, HttpStatus.valueOf(httpStatusCode));
     }
 
     /*
