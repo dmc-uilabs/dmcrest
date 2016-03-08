@@ -27,7 +27,7 @@ public class ProjectController {
 	private final String logTag = ProjectController.class.getName();
 	
 	private ProjectDao project = new ProjectDao(); 
-    @RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
+    @RequestMapping(value = "/projects/{projectID}", produces = { "application/json" }, method = RequestMethod.GET)
     public Project getProject(@PathVariable("projectID") int projectID,
     						  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 
@@ -36,7 +36,7 @@ public class ProjectController {
     }
     
     private ProjectListDao projectList = new ProjectListDao(); 
-    @RequestMapping(value = "/projects", method = RequestMethod.GET)
+    @RequestMapping(value = "/projects", produces = { "application/json" }, method = RequestMethod.GET)
     public ArrayList<Project> getProjectList(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
     	ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
     	return projectList.getProjectList(userEPPN);
@@ -45,7 +45,7 @@ public class ProjectController {
 
 	// leaving this as an example of how to work with parameters to URL
 	// instead of json, but json is probably preferable
-    @RequestMapping(value = "/projects/createWithParameter", method = RequestMethod.POST)
+    @RequestMapping(value = "/projects/createWithParameter", produces = { "application/json" }, method = RequestMethod.POST)
     @ResponseBody
     public Id createProject(
     		@RequestParam("projectname") String projectname,
@@ -62,7 +62,7 @@ public class ProjectController {
     	return project.createProject(projectname, unixname, userEPPN);
     }
     
-    @RequestMapping(value = "/projects/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @RequestMapping(value = "/projects/create", method = RequestMethod.POST, produces = { "application/json" }, headers = {"Content-type=application/json"})
     public Id createProject(@RequestBody String payload,
                             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
