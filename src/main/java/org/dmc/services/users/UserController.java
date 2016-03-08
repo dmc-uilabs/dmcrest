@@ -62,11 +62,7 @@ public class UserController {
     
     @RequestMapping(value = "/user", method = RequestMethod.PATCH)
     public ResponseEntity<User> patchUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
-                          @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
-                          @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
-                          @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
-                          @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail,
-                          @RequestBody User patchUser)
+                                          @RequestBody User patchUser)
     {
         ServiceLogger.log(logTag, "In patchUser: " + userEPPN);
         
@@ -74,7 +70,7 @@ public class UserController {
         User patchedUser = null;
         
         try{
-            patchedUser = user.patchUser(userEPPN, userFirstName, userSurname, userFull, userEmail, patchUser);
+            patchedUser = user.patchUser(userEPPN, patchUser);
         } catch(HTTPException httpException) {
             httpStatusCode = httpException.getStatusCode();
         }

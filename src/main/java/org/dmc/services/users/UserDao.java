@@ -161,7 +161,7 @@ public class UserDao {
         return new User(userId, userName, displayName, termsAndConditions);
     }
     
-    public User patchUser(String userEPPN, String userFirstName, String userSurname, String userFullName, String userEmail, User patchUser) throws HTTPException {
+    public User patchUser(String userEPPN, User patchUser) throws HTTPException {
         User patchedUser = null;
         int userId = -1;
         try {
@@ -174,6 +174,24 @@ public class UserDao {
             throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
         }
         
+        // Updating displayName;
+        // not updating accountId, profileId, companyId, role, termsConditions because they are set by other functions
+        try {
+            String query = "UPDATE users SET realname = ? WHERE user_id = ";
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, patchUser.getDisplayName());
+            preparedStatement.setInt(2, userId);
+            preparedStatement.executeUpdate();
+        
+        //need to update
+//        private UserNotifications notifications;
+//        private UserRunningServices runningServices;
+//        private UserMessages messages;
+//        private UserOnboarding onboarding;
+        
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+        }
         
         
         return patchedUser;
