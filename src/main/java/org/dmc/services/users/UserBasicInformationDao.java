@@ -74,6 +74,7 @@ public class UserBasicInformationDao {
 					firstFieldAdded = true;
 				}
 			}
+            query += ", accept_term_cond_time = now() ";  // set time when terms and conditions were accepted.
 			query += " WHERE user_name = ?";
 
 			statement = DBConnector.prepareStatement(query, statement.RETURN_GENERATED_KEYS);

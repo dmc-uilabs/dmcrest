@@ -5,8 +5,11 @@ package org.dmc.services.users;
  */
 
 import java.util.ArrayList;
+import org.dmc.services.ServiceLogger;
+
 
 public class User {
+    private final String logTag = User.class.getName();
     
     private int id; // out of spec
     private final String userName; // out of spec
@@ -41,7 +44,8 @@ public class User {
         
     }
     
-    public User (int id, String userName, String realName) {
+    public User (int id, String userName, String realName, boolean termsConditions) {
+        ServiceLogger.log(logTag, "In User with id " + id + " userName " + userName);
         this.id = id;
         this.userName = userName;
         this.realName = realName;
@@ -51,7 +55,7 @@ public class User {
         this.profileId = id;
         this.companyId = -1;
         this.role = -1;
-        this.termsConditions = false;
+        this.termsConditions = termsConditions;
         this.notifications = new UserNotifications();
         this.runningServices = new UserRunningServices();
         this.messages = new UserMessages();

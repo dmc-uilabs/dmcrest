@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -118,6 +119,7 @@ public class UserDao {
         int userId = -1;
         String displayName = null;
         String userName = null;
+        Timestamp termsAndConditionsTimeStamp = null;
         
         try {
             userId = getUserID(userEPPN);
@@ -128,24 +130,32 @@ public class UserDao {
                 userId = id.getId();
             }
             // user exists
-            String query = "select user_name, realname from users where user_id = ?";
+            ServiceLogger.log(logTag, "Finding User ID: " + userId);
+            String query = "select user_name, realname, accept_term_cond_time from users where user_id = ?";
         
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setInt(1, userId);
+            
             preparedStatement.execute();
-        
+
             ResultSet resultSet = preparedStatement.getResultSet();
         
             if (resultSet.next()) {
                 //id = resultSet.getString("id");
                 displayName = resultSet.getString("realname");
                 userName = resultSet.getString("user_name");
+                termsAndConditionsTimeStamp = resultSet.getTimestamp("accept_term_cond_time"); // get accept_term_cond_time time stamp
             }
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
         
-        return new User(userId, userName, displayName);
+        boolean termsAndConditions = false;
+        if(termsAndConditionsTimeStamp != null) {
+            termsAndConditions = true;
+        }
+        
+        return new User(userId, userName, displayName, termsAndConditions);
     }
 
     public static int getUserID(String userEPPN) throws SQLException {
