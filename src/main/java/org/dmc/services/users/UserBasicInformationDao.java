@@ -74,6 +74,7 @@ public class UserBasicInformationDao {
 					firstFieldAdded = true;
 				}
 			}
+            query += ", accept_term_cond_time = now() ";  // set time when terms and conditions were accepted.
 			query += " WHERE user_name = ?";
 
 			statement = DBConnector.prepareStatement(query, statement.RETURN_GENERATED_KEYS);
@@ -90,16 +91,16 @@ public class UserBasicInformationDao {
 			ServiceLogger.log(logTag, "User Basic Information updated! User ID: " + id);
 
 			if (Config.IS_TEST == null) {
-				String indexResponse = SolrUtils.invokeFulIndexingUsers();
+				String indexResponse = ""; //SolrUtils.invokeFulIndexingUsers();
 				ServiceLogger.log(logTag, "SolR indexing triggered for user: " + id);
 			}
 
 			return new Id.IdBuilder(id).build();
 			
-		} catch (IOException e) {
+		} /*catch (IOException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return new Id.IdBuilder(id).build();
-		} catch (SQLException e) {
+		} */ catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			if (connection != null) {
 				try {

@@ -19,6 +19,7 @@ class UserOnboardingDao {
         boolean storefront = false;
 
         try {
+            ServiceLogger.log(logTag, "getUserOnboarding, start, user id: " + userId);
             String getOnboardingStatus = "SELECT * FROM onboarding_status WHERE user_id = ?";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(getOnboardingStatus);
             preparedStatement.setInt(1, userId);

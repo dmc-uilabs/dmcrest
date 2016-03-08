@@ -77,10 +77,8 @@ public class UserController {
     @ExceptionHandler(Exception.class)
     public ErrorMessage handleException(Exception ex) {
         // prepare responseEntity
-    	ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage())
-		.build();
-    	System.out.print(result);
-        ServiceLogger.log(logTag, ex.getMessage());
+        ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
+    	ServiceLogger.log(logTag, ex.getMessage() + " Error message " + result);
     	return result;
     }
 }
