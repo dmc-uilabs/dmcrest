@@ -4,11 +4,14 @@ import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.junit.Assert.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 
 import org.dmc.services.users.User;
+import org.dmc.services.users.UserOnboarding;
 
 /*
 import com.jayway.restassured.RestAssured;
@@ -97,7 +100,12 @@ public class UserIT extends BaseIT {
         body(matchesJsonSchemaInClasspath("Schemas/userSchema.json"));
 	}
     
-    
+    /**
+     Create a new user, patch that user with a different display name
+     Ckeck - New and patched user's display names are not equal
+     Then modify patched user object's display name, back to orginal name
+     Check - Users are equal is true
+     **/
     @Test
 	public void testUserPatch_KnownUsers_DisplayName(){
         String knownUserEPPN = createNewUser();
@@ -127,10 +135,69 @@ public class UserIT extends BaseIT {
         
         patchedKnownUser.setDisplayName(knownUser.getDisplayName());
 
-        //TODO: added override equals method to User class attribute classes
         assertTrue("User are not equal", patchedKnownUser.equals(knownUser));
 	}
+
     
+    /**
+     
+     **/
+    @Test
+	public void testUserPatch_KnownUsers_OnboardingStatus() {
+        String knownUserEPPN = createNewUser();
+        JSONObject knownUserJSON = getUserJson(knownUserEPPN);
+        ObjectMapper mapper = new ObjectMapper();
+        
+        User knownUser = null;
+        try{
+        knownUser = mapper.readValue(knownUserJSON.toString(), User.class);
+        } catch (java.io.IOException e) {
+            assertTrue("Cannot map User from knownUserJSON: "+ knownUserJSON.toString(),false);
+        }
+        
+        UserOnboarding defaultUserOnboarding = new UserOnboarding();
+        assertTrue("New user's onboarding status is not equal to default onboarding status",
+                   knownUser.getOnboarding().equals(defaultUserOnboarding));
+        
+        boolean profile = knownUser.getOnboarding().getProfile();
+        boolean account = knownUser.getOnboarding().getAccount();
+        boolean company = knownUser.getOnboarding().getCompany();
+        boolean storefront = knownUser.getOnboarding().getStorefront();
+
+        assertTrue("Default OnboardingStatus is set to false",
+                   !profile && !account &&
+                   !company && !storefront);
+        
+        // update user's display name
+//        String unique = TestUserUtil.generateTime();
+        
+        knownUser.getOnboarding().setProfile(true);
+        knownUser.getOnboarding().setAccount(true);
+        knownUser.getOnboarding().setCompany(true);
+        knownUser.getOnboarding().setStorefront(true);
+        
+        String patchedKnownUserJSONinString = null;
+        try {
+            patchedKnownUserJSONinString = mapper.writeValueAsString(knownUser);
+        } catch (JsonProcessingException e) {
+            
+        }
+        
+        User patchedKnownUser =
+        given().
+            header("Content-type", "application/json").
+            header("AJP_eppn", knownUserEPPN).
+            body(patchedKnownUserJSONinString).
+		expect().
+            statusCode(200).
+		when().
+            patch("/user").as(User.class);
+        
+        System.out.println("Body of patchedKnownUser is " + patchedKnownUser + ".");
+        
+        // check results of PATCH
+        assertTrue("knownUser and patchedKnownUser are not equal", patchedKnownUser.equals(knownUser));
+	}
     
     private String createNewUser() {
         String unique = TestUserUtil.generateTime();

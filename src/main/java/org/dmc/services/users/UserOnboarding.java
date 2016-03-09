@@ -2,13 +2,15 @@ package org.dmc.services.users;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UserOnboarding {
-    private final boolean profile;
-    private final boolean account;
-    private final boolean company;
-    private final boolean storefront;
+    private boolean profile;
+    private boolean account;
+    private boolean company;
+    private boolean storefront;
     
-    UserOnboarding() {
+    public UserOnboarding() {
         this(false, false, false, false);
     }
                    
@@ -19,20 +21,38 @@ public class UserOnboarding {
         this.storefront = storefront;
     }
     
+    @JsonProperty("profile")
     public boolean getProfile() {
         return profile;
     }
+    public void setProfile(boolean profile) {
+        this.profile = profile;
+    }
+
     
+    @JsonProperty("account")
     public boolean getAccount() {
         return account;
     }
+    public void setAccount(boolean account) {
+        this.account = account;
+    }
     
+    @JsonProperty("company")
     public boolean getCompany() {
         return company;
     }
+    public void setCompany(boolean company) {
+        this.company = company;
+    }
     
+
+    @JsonProperty("storefront")
     public boolean getStorefront() {
         return storefront;
+    }
+    public void setStorefront(boolean storefront) {
+        this.storefront = storefront;
     }
     
     public boolean patch(int user_id) {
