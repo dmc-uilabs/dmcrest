@@ -12,16 +12,10 @@ import org.json.JSONObject;
 
 import org.dmc.services.users.User;
 import org.dmc.services.users.UserOnboarding;
+import org.dmc.services.users.UserNotifications;
+import org.dmc.services.users.UserRunningServices;
+import org.dmc.services.users.UserMessages;
 
-/*
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.builder.ResponseSpecBuilder;
-import com.jayway.restassured.parsing.Parser;
-import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.ResponseSpecification;
-import static com.jayway.restassured.RestAssured.given;
-*/
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 //@Ignore
@@ -140,7 +134,11 @@ public class UserIT extends BaseIT {
 
     
     /**
-     
+     Create a new user, 
+     Check that its UserOnboarding status is equal to default UserOnboarding status
+     Modify new user's UserOnboarding status so that all status fields are opposite their orginal value
+     Patch the user with the newly modified UserOnboarding status
+     Check that user returned from PATCH is equal to user set to the the patch method
      **/
     @Test
 	public void testUserPatch_KnownUsers_OnboardingStatus() {
@@ -168,13 +166,10 @@ public class UserIT extends BaseIT {
                    !profile && !account &&
                    !company && !storefront);
         
-        // update user's display name
-//        String unique = TestUserUtil.generateTime();
-        
-        knownUser.getOnboarding().setProfile(true);
-        knownUser.getOnboarding().setAccount(true);
-        knownUser.getOnboarding().setCompany(true);
-        knownUser.getOnboarding().setStorefront(true);
+        knownUser.getOnboarding().setProfile(!profile);
+        knownUser.getOnboarding().setAccount(!account);
+        knownUser.getOnboarding().setCompany(!company);
+        knownUser.getOnboarding().setStorefront(!storefront);
         
         String patchedKnownUserJSONinString = null;
         try {
@@ -192,6 +187,62 @@ public class UserIT extends BaseIT {
             statusCode(200).
 		when().
             patch("/user").as(User.class);
+        
+        System.out.println("Body of patchedKnownUser is " + patchedKnownUser + ".");
+        
+        // check results of PATCH
+        assertTrue("knownUser and patchedKnownUser are not equal", patchedKnownUser.equals(knownUser));
+	}
+    
+    
+    /**
+     **/
+    @Test
+	public void testUserPatch_KnownUsers_NoModification() {
+        String knownUserEPPN = createNewUser();
+        JSONObject knownUserJSON = getUserJson(knownUserEPPN);
+        ObjectMapper mapper = new ObjectMapper();
+        
+        User knownUser = null;
+        try{
+            knownUser = mapper.readValue(knownUserJSON.toString(), User.class);
+        } catch (java.io.IOException e) {
+            assertTrue("Cannot map User from knownUserJSON: "+ knownUserJSON.toString(),false);
+        }
+        
+        
+        UserOnboarding defaultUserOnboarding = new UserOnboarding();
+        assertTrue("New user's onboarding status is not equal to default onboarding status",
+                   knownUser.getOnboarding().equals(defaultUserOnboarding));
+        
+        UserNotifications defaultUserNotifications = new UserNotifications();
+        assertTrue("New user's notifications status is not equal to default notifications status",
+                   knownUser.getNotifications().equals(defaultUserNotifications));
+
+        UserRunningServices defaultUserRunningServices = new UserRunningServices();
+        assertTrue("New user's Running Services status is not equal to default Running Services status",
+                   knownUser.getRunningServices().equals(defaultUserRunningServices));
+
+        UserMessages defaultUserMessages = new UserMessages();
+        assertTrue("New user's Messages status is not equal to default Running Messages status",
+                   knownUser.getMessages().equals(defaultUserMessages));
+
+        String patchedKnownUserJSONinString = null;
+        try {
+            patchedKnownUserJSONinString = mapper.writeValueAsString(knownUser);
+        } catch (JsonProcessingException e) {
+            
+        }
+        
+        User patchedKnownUser =
+        given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", knownUserEPPN).
+        body(patchedKnownUserJSONinString).
+		expect().
+        statusCode(200).
+		when().
+        patch("/user").as(User.class);
         
         System.out.println("Body of patchedKnownUser is " + patchedKnownUser + ".");
         

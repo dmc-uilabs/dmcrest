@@ -83,7 +83,7 @@ public class UserOnboarding {
     @Override
     public String toString()  {
         StringBuilder sb = new StringBuilder();
-        sb.append("class UserRunningServices {\n");
+        sb.append("class UserOnboarding {\n");
         
         sb.append("  profile: ").append(profile).append("\n");
         sb.append("  account: ").append(account).append("\n");

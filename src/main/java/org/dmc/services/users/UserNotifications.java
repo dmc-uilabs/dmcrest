@@ -50,7 +50,7 @@ public class UserNotifications {
     @Override
     public String toString()  {
         StringBuilder sb = new StringBuilder();
-        sb.append("class UserDetailsNotifications {\n");
+        sb.append("class UserNotifications {\n");
         
         sb.append("  totalItems: ").append(totalItems).append("\n");
         sb.append("  items: ").append(items).append("\n");
