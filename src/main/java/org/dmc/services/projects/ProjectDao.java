@@ -117,6 +117,8 @@ public class ProjectDao {
 	}
 
 	public Id createProject(String projectname, String unixname, String userEPPN) throws SQLException, JSONException, Exception {
+		ServiceLogger.log(logTag,  "starting createProject with arguments");
+		try {
 		int projectId = -1;
 		// look up userID
         int userID = UserDao.getUserID(userEPPN);
@@ -179,9 +181,20 @@ public class ProjectDao {
 		}
 		
 		return new Id.IdBuilder(projectId).build();
+		} catch (SQLException ex) {
+			ServiceLogger.log(logTag,  "got SQLException in createProject: " + ex.getMessage());
+			throw ex;
+		} catch (JSONException ex) {
+			ServiceLogger.log(logTag,  "got JSONException in createProject: " + ex.getMessage());
+			throw ex;
+		} catch (Exception ex) {
+			ServiceLogger.log(logTag,  "got Exception in createProject: " + ex.getMessage());
+			throw ex;
+		}
 	}
 
 	public Id createProject(String jsonStr, String userEPPN) throws SQLException, JSONException, Exception {
+		ServiceLogger.log(logTag,  "starting createProject with json as string");
 
 		//String id = "null";
 		int id = -99999;
@@ -192,6 +205,15 @@ public class ProjectDao {
         return createProject(projectname, unixname, userEPPN);
 	}
         
+	public Id createProject(ProjectCreateRequest json, String userEPPN) throws SQLException, JSONException, Exception {
+		ServiceLogger.log(logTag,  "starting createProject with ProjectCreateRequest");
+
+		String projectname = json.getName();
+		String unixname = json.getName();
+
+        return createProject(projectname, unixname, userEPPN);
+	}
+
     void createProjectRole(String roleName, int projectId) throws SQLException {
     	// create project member role
     	String createProjectMemberRoleQuery = "insert into pfo_role (role_name, role_class, home_group_id, is_public, old_role_id) values (?, 1, ?, FALSE, 0)";
