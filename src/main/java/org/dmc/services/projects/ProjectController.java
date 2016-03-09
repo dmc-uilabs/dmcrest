@@ -62,7 +62,7 @@ public class ProjectController {
     	return project.createProject(projectname, unixname, userEPPN);
     }
     
-    @RequestMapping(value = "/projects/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @RequestMapping(value = "/projects/oldcreate", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     public Id createProject(@RequestBody String payload,
                             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
@@ -74,6 +74,19 @@ public class ProjectController {
     	//converts the response to JSON
     	
     	return project.createProject(payload, userEPPN);
+    }
+
+    @RequestMapping(value = "/projects/create", method = RequestMethod.POST, consumes="application/json", produces="application/json")
+    public ResponseEntity<Id> createProject(@RequestBody ProjectCreateRequest payload,
+                                @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "**********In createProject: " + payload + " as user " + userEPPN);
+
+        //RoleDao.createRole creates a new Role in the database using the provided POST params
+        //it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
+        //this controller in turn returns this new Role instance to the reques using spring's Jackson which
+        //converts the response to JSON
+
+        return new ResponseEntity<Id>(project.createProject(payload, userEPPN), HttpStatus.OK);
     }
        /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)
