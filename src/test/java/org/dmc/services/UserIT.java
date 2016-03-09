@@ -188,14 +188,16 @@ public class UserIT extends BaseIT {
 		when().
             patch("/user").as(User.class);
         
-        System.out.println("Body of patchedKnownUser is " + patchedKnownUser + ".");
-        
         // check results of PATCH
         assertTrue("knownUser and patchedKnownUser are not equal", patchedKnownUser.equals(knownUser));
 	}
     
     
     /**
+     Create new user
+     Check that new user has all of its class attributes set to defaults
+     PATCH the new user, unmodified
+     Check that new user and patched user are equal
      **/
     @Test
 	public void testUserPatch_KnownUsers_NoModification() {
@@ -210,7 +212,14 @@ public class UserIT extends BaseIT {
             assertTrue("Cannot map User from knownUserJSON: "+ knownUserJSON.toString(),false);
         }
         
-        
+        // check User POJOs
+        assertTrue("User account id is > 0", knownUser.getAccountId() > 0);
+        assertTrue("User profile id is > 0", knownUser.getProfileId() > 0);
+        assertTrue("User company id is = -1", knownUser.getCompanyId() == -1);
+        assertTrue("User role is = -1", knownUser.getRole() == -1);
+        assertFalse("User termsConditions is false", knownUser.getTermsConditions());
+
+        // check User subattribute classes
         UserOnboarding defaultUserOnboarding = new UserOnboarding();
         assertTrue("New user's onboarding status is not equal to default onboarding status",
                    knownUser.getOnboarding().equals(defaultUserOnboarding));
@@ -243,8 +252,6 @@ public class UserIT extends BaseIT {
         statusCode(200).
 		when().
         patch("/user").as(User.class);
-        
-        System.out.println("Body of patchedKnownUser is " + patchedKnownUser + ".");
         
         // check results of PATCH
         assertTrue("knownUser and patchedKnownUser are not equal", patchedKnownUser.equals(knownUser));
