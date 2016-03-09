@@ -1,5 +1,7 @@
 package org.dmc.services.users;
 
+import java.util.Objects;
+
 public class UserOnboarding {
     private final boolean profile;
     private final boolean account;
@@ -37,4 +39,38 @@ public class UserOnboarding {
         UserOnboardingDao userOnboardingDao = new UserOnboardingDao();
         return userOnboardingDao.setUserOnboarding(user_id, this);
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UserOnboarding userOnboarding = (UserOnboarding) o;
+        return Objects.equals(profile, userOnboarding.profile) &&
+        Objects.equals(account, userOnboarding.account) &&
+        Objects.equals(company, userOnboarding.company) &&
+        Objects.equals(storefront, userOnboarding.storefront);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(profile, account, company, storefront);
+    }
+    
+    @Override
+    public String toString()  {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class UserRunningServices {\n");
+        
+        sb.append("  profile: ").append(profile).append("\n");
+        sb.append("  account: ").append(account).append("\n");
+        sb.append("  company: ").append(company).append("\n");
+        sb.append("  storefront: ").append(storefront).append("\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
+
 }

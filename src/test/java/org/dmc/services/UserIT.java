@@ -128,7 +128,7 @@ public class UserIT extends BaseIT {
         patchedKnownUser.setDisplayName(knownUser.getDisplayName());
 
         //TODO: added override equals method to User class attribute classes
-//        assertTrue("User are equal",patchedKnownUser.equals(knownUser));
+        assertTrue("User are not equal", patchedKnownUser.equals(knownUser));
 	}
     
     
