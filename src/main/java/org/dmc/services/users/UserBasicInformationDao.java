@@ -26,11 +26,17 @@ public class UserBasicInformationDao {
 
 	public Id createUserBasicInformation(String userEPPN, String jsonStr) {
 
-		Connection connection = DBConnector.connection();
 		Util util = Util.getInstance();
 		PreparedStatement statement = null;
 		String query;
 		int id = -99999;
+
+		Connection connection = DBConnector.connection();
+		try {
+			connection.setAutoCommit(false);
+		} catch (SQLException ex) {
+			return null;
+		}
 
 		// we must have a valid userEPPNto continue;
 		if (userEPPN.equals("")) {
@@ -40,7 +46,6 @@ public class UserBasicInformationDao {
 		try {
 			JSONObject json = new JSONObject(jsonStr.trim());
 			String username = userEPPN;
-			connection.setAutoCommit(false);
 
 			// Update user company
 			if (json.has("company")) {
@@ -86,8 +91,6 @@ public class UserBasicInformationDao {
 			id = util.getGeneratedKey(statement, "user_id");
 			connection.commit();
 
-			connection.setAutoCommit(true);
-
 			ServiceLogger.log(logTag, "User Basic Information updated! User ID: " + id);
 
 			if (Config.IS_TEST == null) {
@@ -113,7 +116,23 @@ public class UserBasicInformationDao {
 			return new Id.IdBuilder(id).build();
 		} catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag, "Basic Information update rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
 			return new Id.IdBuilder(id).build();
+		} finally {
+			if (null != connection) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					// don't really need to do anything
+				}
+			}
 		}
 	}
 }

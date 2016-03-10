@@ -233,7 +233,6 @@ public class ProfileDao {
 			statement.setString(2, userEPPN);
 			statement.executeUpdate();
 			connection.commit();
-			connection.setAutoCommit(true);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			if (connection != null) {
