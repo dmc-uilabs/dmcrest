@@ -128,9 +128,15 @@ public class ProfileDao {
 	}
 
 	public Id updateProfile(int id, String jsonStr, String userEPPN) {
-		Connection connection = DBConnector.connection();
 		PreparedStatement statement;
 		String query;
+
+		Connection connection = DBConnector.connection();
+		try {
+			connection.setAutoCommit(false);
+		} catch (SQLException ex) {
+			return null;
+		}
 
 		try {
 			JSONObject json = new JSONObject(jsonStr);
@@ -148,7 +154,6 @@ public class ProfileDao {
 					+ "realname = ?, title = ?, phone = ?, email = ?, address = ?, image = ?, people_resume = ? "
 					+ "WHERE user_id = ? AND user_name = ?";
 
-			connection.setAutoCommit(false);
 			statement = DBConnector.prepareStatement(query);
 			statement.setString(1, displayName);
 			statement.setString(2, jobTitle);
@@ -172,7 +177,6 @@ public class ProfileDao {
 				this.createSkills(id, skills);
 			}
 			connection.commit();
-			connection.setAutoCommit(true);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			if (connection != null) {
@@ -187,22 +191,41 @@ public class ProfileDao {
 			return null;
 		} catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag,
+							"Transaction Profile Update Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
 			return null;
-		} /*catch (IOException e) {
-			ServiceLogger.log(logTag, e.getMessage());
-			return null;
-		}*/
+		} finally {
+			if (null != connection) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					// don't really need to do anything
+				}
+			}
+		}
 
 		return new Id.IdBuilder(id).build();
 	}
 
 	public Id deleteProfile(int id, String userEPPN) {
-		Connection connection = DBConnector.connection();
 		PreparedStatement statement;
 		String query;
 
+		Connection connection = DBConnector.connection();
 		try {
 			connection.setAutoCommit(false);
+		} catch (SQLException ex) {
+			return null;
+		}
+
+		try {
 			this.deleteSkills(id);
 			query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";
 			statement = DBConnector.prepareStatement(query);
@@ -225,7 +248,24 @@ public class ProfileDao {
 			return null;
 		} catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag,
+							"Transaction Profile Delete Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
 			return null;
+		} finally {
+			if (null != connection) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					// don't really need to do anything
+				}
+			}
 		}
 		return new Id.IdBuilder(id).build();
 	}
