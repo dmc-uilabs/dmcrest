@@ -127,6 +127,7 @@ public class UserBasicInformationDao {
 			}
 			return new Id.IdBuilder(id).build();
 		} finally {
+			ServiceLogger.log(logTag,  "finally block in createUserBasicInformation");
 			if (null != connection) {
 				try {
 					ServiceLogger.log(logTag, "setting AutoCommit = true");

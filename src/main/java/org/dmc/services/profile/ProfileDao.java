@@ -116,6 +116,7 @@ public class ProfileDao {
 			}
 			return null;
 		} finally {
+			ServiceLogger.log(logTag, "finally block in createProfile");
 			if (null != connection) {
 				try {
 					ServiceLogger.log(logTag, "setting AutoCommit = true");
@@ -205,6 +206,7 @@ public class ProfileDao {
 			}
 			return null;
 		} finally {
+			ServiceLogger.log(logTag, "finally block in updateProfile");
 			if (null != connection) {
 				try {
 					ServiceLogger.log(logTag, "setting AutoCommit = true");
@@ -263,6 +265,7 @@ public class ProfileDao {
 			}
 			return null;
 		} finally {
+			ServiceLogger.log(logTag, "finally block in deleteProfile");
 			if (null != connection) {
 				try {
 					ServiceLogger.log(logTag, "setting AutoCommit = true");

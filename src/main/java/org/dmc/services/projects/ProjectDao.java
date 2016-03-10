@@ -216,6 +216,7 @@ public class ProjectDao {
 			}
 			throw ex;
 		} finally {
+			ServiceLogger.log(logTag,  "finally block in createProject");
 	        // let's end the transaction
 			if (null != connection) {
 				connection.setAutoCommit(true);
