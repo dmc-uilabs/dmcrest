@@ -27,9 +27,14 @@ public class ProfileDao {
 
 	public Id createProfile(String jsonStr, String userEPPN) {
 
-		Connection connection = DBConnector.connection();
 		Util util = Util.getInstance();
 		int userId = -9999;
+		Connection connection = DBConnector.connection();
+		try {
+			connection.setAutoCommit(false);
+		} catch (SQLException ex) {
+			return null;
+		}
 
 		try {
 			JSONObject json = new JSONObject(jsonStr);
@@ -47,7 +52,6 @@ public class ProfileDao {
 					+ "(user_name, realname, title, phone, email, address, image, people_resume) "
 					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ";
 
-			connection.setAutoCommit(false);
 			PreparedStatement statement = DBConnector.prepareStatement(query,
 					Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, userEPPN);
@@ -74,7 +78,6 @@ public class ProfileDao {
 				this.createSkills(userId, skills);
 			}
 			connection.commit();
-			connection.setAutoCommit(true);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			if (connection != null) {
@@ -89,11 +92,37 @@ public class ProfileDao {
 			return null;
 		} catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag,
+							"Transaction Profile Create Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
 			return null;
 		} catch (IOException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag,
+							"Transaction Profile Create Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
+			return null;
+		} finally {
+			if (null != connection) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					// don't really need to do anything
+				}
+			}
 		}
-
 		return new Id.IdBuilder(userId).build();
 
 	}
