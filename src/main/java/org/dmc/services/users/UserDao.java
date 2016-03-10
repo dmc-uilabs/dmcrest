@@ -179,8 +179,8 @@ public class UserDao {
         
         // Updating displayName;
         // not updating accountId, profileId, companyId, role, termsConditions because they are set by other functions
+        Connection connection = DBConnector.connection();
         try {
-            Connection connection = DBConnector.connection();
             connection.setAutoCommit(false);
             
             String query = "UPDATE users SET realname = ? WHERE user_id = ?";
@@ -195,15 +195,17 @@ public class UserDao {
             //        private UserMessages messages;
             UserOnboarding patchUserOnboarding = patchUser.getOnboarding();
             if(!patchUserOnboarding.patch(userId)) {
+                connection.rollback();
                 throw new SQLException("Unable to update user_id: " + userId + " onboarding status");
             }
             connection.commit();
-            connection.setAutoCommit(true);
-
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {}
         }
-        
         
         return patchUser;
     }
