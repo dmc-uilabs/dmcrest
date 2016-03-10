@@ -64,7 +64,8 @@ class UserOnboardingDao {
         }
         return true;
     }
-    
+
+    /*
     public void setProfile(int userId, boolean value) {
         ServiceLogger.log(logTag, "setProfile, user id: " + userId + " to " + value);
         setBoolean(userId, "profile", value);
@@ -86,8 +87,9 @@ class UserOnboardingDao {
     }
 
     // The function below was a first attempt, but it only updates one field on a record.
+    // It is a helper function for the attribute setters.
     // The actual use is to update 4 fields per record.  
-/*    private boolean setBoolean(int userId, String identifier, boolean value) {
+    private boolean setBoolean(int userId, String identifier, boolean value) {
         ServiceLogger.log(logTag, "setBoolean, user id: " + userId);
         
         try {
