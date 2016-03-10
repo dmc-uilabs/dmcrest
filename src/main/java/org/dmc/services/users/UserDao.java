@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -103,6 +104,12 @@ public class UserDao {
 		*/
 		catch(SQLException e){
 			ServiceLogger.log(logTag, e.getMessage());
+			Connection connection = DBConnector.connection();
+			try {
+				ServiceLogger.log(logTag, "current transaction state (autocommit) = " + connection.getAutoCommit());
+			} catch (SQLException sqle) {
+				// nothing to do...
+			}
 			return new Id.IdBuilder(id).build();
 		}
 		catch(JSONException j){
