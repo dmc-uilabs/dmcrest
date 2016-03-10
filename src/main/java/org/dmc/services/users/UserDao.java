@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Connection;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +22,9 @@ import org.dmc.services.sharedattributes.Util;
 import org.dmc.solr.SolrUtils;
 
 import java.io.IOException;
+import javax.xml.ws.http.HTTPException;
+import org.springframework.http.HttpStatus;
+
 
 public class UserDao {
 
@@ -157,6 +161,53 @@ public class UserDao {
         }
         
         return new User(userId, userName, displayName, termsAndConditions);
+    }
+    
+    public User patchUser(String userEPPN, User patchUser) throws HTTPException {
+        ServiceLogger.log(logTag, "patchUser User: " + userEPPN + "\n" + patchUser.toString());
+//        User patchedUser = null;
+        int userId = -1;
+        try {
+            userId = getUserID(userEPPN);
+        } catch(SQLException e) {
+            throw new HTTPException(HttpStatus.UNAUTHORIZED.value());  // user not in database
+        }
+        
+        if(userId != patchUser.getAccountId()) { //userEPPN and patchUser do not match
+            throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+        }
+        
+        // Updating displayName;
+        // not updating accountId, profileId, companyId, role, termsConditions because they are set by other functions
+        Connection connection = DBConnector.connection();
+        try {
+            connection.setAutoCommit(false);
+            
+            String query = "UPDATE users SET realname = ? WHERE user_id = ?";
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, patchUser.getDisplayName());
+            preparedStatement.setInt(2, userId);
+            preparedStatement.executeUpdate();
+            
+        //ToDo: need to update
+            //        private UserNotifications notifications;
+            //        private UserRunningServices runningServices;
+            //        private UserMessages messages;
+            UserOnboarding patchUserOnboarding = patchUser.getOnboarding();
+            if(!patchUserOnboarding.patch(userId)) {
+                connection.rollback();
+                throw new SQLException("Unable to update user_id: " + userId + " onboarding status");
+            }
+            connection.commit();
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {}
+        }
+        
+        return patchUser;
     }
 
     public static int getUserID(String userEPPN) throws SQLException {

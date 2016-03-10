@@ -3,34 +3,29 @@ package org.dmc.services.users;
 /**
  * Created by 200005921 on 2/8/2016.
  */
+import java.util.Objects;
 
 import java.util.ArrayList;
 import org.dmc.services.ServiceLogger;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+// This class' name should be changed to UserDetails to match yaml
 public class User {
     private final String logTag = User.class.getName();
     
-    private int id; // out of spec
-    private final String userName; // out of spec
-    private final String realName; // out of spec
-    
-    private final String displayName;
-    private final int accountId;
-    private final int profileId;
-    private final int companyId;
-    private final int role;
-    private final boolean termsConditions;
+    private String displayName;
+    private int accountId;
+    private int profileId;
+    private int companyId;
+    private int role;
+    private boolean termsConditions;
     private UserNotifications notifications;
     private UserRunningServices runningServices;
     private UserMessages messages;
-    private final UserOnboarding onboarding;
+    private UserOnboarding onboarding;
     
     public User() {
-        this.id = -1;
-        this.userName = null;
-        this.realName = null;
-        
         this.displayName = null; //TODO: fix
         this.accountId = -1;
         this.profileId = -1;
@@ -46,10 +41,6 @@ public class User {
     
     public User (int id, String userName, String realName, boolean termsConditions) {
         ServiceLogger.log(logTag, "In User with id " + id + " userName " + userName);
-        this.id = id;
-        this.userName = userName;
-        this.realName = realName;
-        
         this.displayName = realName;
         this.accountId = id;
         this.profileId = id;
@@ -63,11 +54,6 @@ public class User {
     }
 
     public User (UserBuilder userBuilder) {
-        
-        this.id = userBuilder.id;
-        this.userName = userBuilder.userName;
-        this.realName = userBuilder.realName;
-        
         this.displayName = userBuilder.realName;
         this.accountId = userBuilder.id;
         this.profileId = -1;
@@ -80,56 +66,140 @@ public class User {
         this.onboarding = UserOnboardingDao.getUserOnboarding(userBuilder.id);
     }
 
-    public int getId() {  // out of spec
-        return id;
-    }
-
-    public String getUserName() { // out of spec
-        return userName;
-    }
-
-    public String getRealName() { // out of spec
-        return realName;
-    }
-
+    
+    /**
+     **/
+    @JsonProperty("displayName")
     public String getDisplayName() {
         return displayName;
     }
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("accountId")
     public int getAccountId() {
         return accountId;
     }
+    public void setAccountId(String accountId) {
+        this.accountId = Integer.parseInt(accountId);
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("profileId")
     public int getProfileId() {
         return profileId;
     }
+    public void setProfileId(String profileId) {
+        this.profileId = Integer.parseInt(profileId);
+    }
+
     
+    /**
+     **/
+    @JsonProperty("companyId")
     public int getCompanyId() {
         return companyId;
     }
+    public void setCompanyId(String companyId) {
+        this.companyId = Integer.parseInt(companyId);
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("role")
     public int getRole() {
         return role;
     }
+    public void setRole(String role) {
+        this.role = Integer.parseInt(role);
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("termsConditions")
     public boolean getTermsConditions() {
         return termsConditions;
     }
+    public void setTermsConditions(Boolean termsConditions) {
+        this.termsConditions = termsConditions;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("notifications")
     public UserNotifications getNotifications() {
         return notifications;
     }
+    public void setNotifications(UserNotifications notifications) {
+        this.notifications = notifications;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("runningServices")
     public UserRunningServices getRunningServices() {
         return runningServices;
     }
+    public void setRunningServices(UserRunningServices runningServices) {
+        this.runningServices = runningServices;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("messages")
     public UserMessages getMessages() {
         return messages;
     }
+    public void setMessages(UserMessages messages) {
+        this.messages = messages;
+    }
     
+    
+    /**
+     **/
+    @JsonProperty("onboarding")
     public UserOnboarding getOnboarding() {
         return onboarding;
+    }
+    public void setOnboarding(UserOnboarding onboarding) {
+        this.onboarding = onboarding;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        User userDetails = (User) o;
+        return Objects.equals(displayName, userDetails.displayName) &&
+        Objects.equals(accountId, userDetails.accountId) &&
+        Objects.equals(profileId, userDetails.profileId) &&
+        Objects.equals(companyId, userDetails.companyId) &&
+        Objects.equals(role, userDetails.role) &&
+        Objects.equals(termsConditions, userDetails.termsConditions) &&
+        Objects.equals(notifications, userDetails.notifications) &&
+        Objects.equals(runningServices, userDetails.runningServices) &&
+        Objects.equals(messages, userDetails.messages) &&
+        Objects.equals(onboarding, userDetails.onboarding);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(displayName, accountId, profileId, companyId, role, termsConditions, notifications, runningServices, messages, onboarding);
     }
     
     @Override
