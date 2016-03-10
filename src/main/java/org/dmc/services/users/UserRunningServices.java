@@ -1,6 +1,7 @@
 package org.dmc.services.users;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import org.dmc.services.services.Service;
 
@@ -36,6 +37,41 @@ public class UserRunningServices {
             return currentStatus;
         }
         
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            RunningService runningService = (RunningService) o;
+            return Objects.equals(title, runningService.title) &&
+            Objects.equals(serviceId, runningService.serviceId) &&
+            Objects.equals(projectId, runningService.projectId)  &&
+            Objects.equals(currentStatus, runningService.currentStatus);
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hash(title, serviceId, projectId, currentStatus);
+        }
+        
+        @Override
+        public String toString()  {
+            StringBuilder sb = new StringBuilder();
+            sb.append("class CurrentStatus {\n");
+            
+            sb.append("  title: ").append(title).append("\n");
+            sb.append("  serviceId: ").append(serviceId).append("\n");
+            sb.append("  projectId: ").append(projectId).append("\n");
+            sb.append("  currentStatus: ").append(currentStatus).append("\n");
+            sb.append("}\n");
+            return sb.toString();
+        }
+        
+
+    
         class CurrentStatus {
             private final int percentCompleted; // measured from 0-100
             private final String startDate;
@@ -57,6 +93,37 @@ public class UserRunningServices {
             
             public String getStartTime() {
                 return startTime;
+            }
+            
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (o == null || getClass() != o.getClass()) {
+                    return false;
+                }
+                CurrentStatus currentStatus = (CurrentStatus) o;
+                return Objects.equals(percentCompleted, currentStatus.percentCompleted) &&
+                Objects.equals(startDate, currentStatus.startDate)  &&
+                Objects.equals(startTime, currentStatus.startTime);
+            }
+            
+            @Override
+            public int hashCode() {
+                return Objects.hash(percentCompleted, startDate, startTime);
+            }
+            
+            @Override
+            public String toString()  {
+                StringBuilder sb = new StringBuilder();
+                sb.append("class CurrentStatus {\n");
+                
+                sb.append("  percentCompleted: ").append(percentCompleted).append("\n");
+                sb.append("  startDate: ").append(startDate).append("\n");
+                sb.append("  startTime: ").append(startTime).append("\n");
+                sb.append("}\n");
+                return sb.toString();
             }
         }
     }
@@ -82,4 +149,34 @@ public class UserRunningServices {
 	public ArrayList<RunningService> getItems(){
 		return items;
 	}
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        UserRunningServices userRunningServices = (UserRunningServices) o;
+        return Objects.equals(totalItems, userRunningServices.totalItems) &&
+        Objects.equals(items, userRunningServices.items);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(totalItems, items);
+    }
+    
+    @Override
+    public String toString()  {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class UserRunningServices {\n");
+        
+        sb.append("  totalItems: ").append(totalItems).append("\n");
+        sb.append("  items: ").append(items).append("\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
+
 }
