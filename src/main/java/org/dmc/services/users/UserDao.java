@@ -95,7 +95,7 @@ public class UserDao {
 
             return new Id.IdBuilder(id).build();
 
-		} 
+		}
         /*
         catch(IOException e){
 			ServiceLogger.log(logTag, e.getMessage());
@@ -114,10 +114,22 @@ public class UserDao {
 		}
 		catch(JSONException j){
 			ServiceLogger.log(logTag, j.getMessage());
+			Connection connection = DBConnector.connection();
+			try {
+				ServiceLogger.log(logTag, "current transaction state (autocommit) = " + connection.getAutoCommit());
+			} catch (SQLException sqle) {
+				// nothing to do...
+			}
 			return new Id.IdBuilder(id).build();
 		}
 		catch(Exception ee){
 			ServiceLogger.log(logTag, ee.getMessage());
+			Connection connection = DBConnector.connection();
+			try {
+				ServiceLogger.log(logTag, "current transaction state (autocommit) = " + connection.getAutoCommit());
+			} catch (SQLException sqle) {
+				// nothing to do...
+			}
 			return new Id.IdBuilder(id).build();
 		}
 	}

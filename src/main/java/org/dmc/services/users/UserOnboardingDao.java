@@ -2,6 +2,7 @@ package org.dmc.services.users;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 import org.dmc.services.DBConnector;
@@ -35,6 +36,12 @@ class UserOnboardingDao {
             }
         } catch(SQLException e) {
             ServiceLogger.log(logTag, e.getMessage());
+			Connection connection = DBConnector.connection();
+			try {
+				ServiceLogger.log(logTag, "current transaction state (autocommit) = " + connection.getAutoCommit());
+			} catch (SQLException sqle) {
+				// nothing to do...
+			}
 			return new UserOnboarding(false, false, false, false);
         }
         return new UserOnboarding(profile, account, company, storefront);

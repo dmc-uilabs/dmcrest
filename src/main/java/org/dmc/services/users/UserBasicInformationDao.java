@@ -33,6 +33,7 @@ public class UserBasicInformationDao {
 
 		Connection connection = DBConnector.connection();
 		try {
+			ServiceLogger.log(logTag, "setting AutoCommit = false");
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
 			return null;
@@ -128,6 +129,7 @@ public class UserBasicInformationDao {
 		} finally {
 			if (null != connection) {
 				try {
+					ServiceLogger.log(logTag, "setting AutoCommit = true");
 					connection.setAutoCommit(true);
 				} catch (SQLException ex) {
 					// don't really need to do anything

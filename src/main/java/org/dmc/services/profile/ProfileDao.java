@@ -31,6 +31,7 @@ public class ProfileDao {
 		int userId = -9999;
 		Connection connection = DBConnector.connection();
 		try {
+			ServiceLogger.log(logTag, "setting AutoCommit = false");
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
 			return null;
@@ -117,6 +118,7 @@ public class ProfileDao {
 		} finally {
 			if (null != connection) {
 				try {
+					ServiceLogger.log(logTag, "setting AutoCommit = true");
 					connection.setAutoCommit(true);
 				} catch (SQLException ex) {
 					// don't really need to do anything
@@ -133,6 +135,7 @@ public class ProfileDao {
 
 		Connection connection = DBConnector.connection();
 		try {
+			ServiceLogger.log(logTag, "setting AutoCommit = false");
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
 			return null;
@@ -204,6 +207,7 @@ public class ProfileDao {
 		} finally {
 			if (null != connection) {
 				try {
+					ServiceLogger.log(logTag, "setting AutoCommit = true");
 					connection.setAutoCommit(true);
 				} catch (SQLException ex) {
 					// don't really need to do anything
@@ -220,6 +224,7 @@ public class ProfileDao {
 
 		Connection connection = DBConnector.connection();
 		try {
+			ServiceLogger.log(logTag, "setting AutoCommit = false");
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
 			return null;
@@ -260,6 +265,7 @@ public class ProfileDao {
 		} finally {
 			if (null != connection) {
 				try {
+					ServiceLogger.log(logTag, "setting AutoCommit = true");
 					connection.setAutoCommit(true);
 				} catch (SQLException ex) {
 					// don't really need to do anything
