@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Connection;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -178,6 +180,9 @@ public class UserDao {
         // Updating displayName;
         // not updating accountId, profileId, companyId, role, termsConditions because they are set by other functions
         try {
+            Connection connection = DBConnector.connection();
+            connection.setAutoCommit(false);
+            
             String query = "UPDATE users SET realname = ? WHERE user_id = ?";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, patchUser.getDisplayName());
@@ -192,6 +197,8 @@ public class UserDao {
             if(!patchUserOnboarding.patch(userId)) {
                 throw new SQLException("Unable to update user_id: " + userId + " onboarding status");
             }
+            connection.commit();
+            connection.setAutoCommit(true);
 
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
