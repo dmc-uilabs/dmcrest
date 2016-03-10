@@ -85,8 +85,9 @@ class UserOnboardingDao {
         setBoolean(userId, "storefront", value);
     }
 
-    
-    private boolean setBoolean(int userId, String identifier, boolean value) {
+    // The function below was a first attempt, but it only updates one field on a record.
+    // The actual use is to update 4 fields per record.  
+/*    private boolean setBoolean(int userId, String identifier, boolean value) {
         ServiceLogger.log(logTag, "setBoolean, user id: " + userId);
         
         try {
@@ -104,6 +105,6 @@ class UserOnboardingDao {
             return false;
         }
         return true;
-    }
+    }*/
 
 }

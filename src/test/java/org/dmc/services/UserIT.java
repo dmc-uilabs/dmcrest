@@ -21,6 +21,8 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 //@Ignore
 public class UserIT extends BaseIT {
 
+    private static final String logTag = UserIT.class.getName();
+    
     @Test
 	public void testUserIncorrectInvocation(){
 		JSONObject json = new JSONObject();
@@ -121,7 +123,7 @@ public class UserIT extends BaseIT {
 		when().
         patch("/user").as(User.class);
         
-        System.out.println("Body of patchedKnownUser is " + patchedKnownUser + ".");
+        ServiceLogger.log(logTag, "Body of patchedKnownUser is " + patchedKnownUser + ".");
 
         // check results
         assertFalse("New and patched user's display names are equal ",
