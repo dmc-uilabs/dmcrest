@@ -218,7 +218,7 @@ public class ProjectDao {
 		} finally {
 	        // let's end the transaction
 			if (null != connection) {
-				connection.setAutoCommit(false);
+				connection.setAutoCommit(true);
 			}
 		}
 
