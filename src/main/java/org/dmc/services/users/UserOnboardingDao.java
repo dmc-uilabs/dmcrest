@@ -36,12 +36,6 @@ class UserOnboardingDao {
             }
         } catch(SQLException e) {
             ServiceLogger.log(logTag, e.getMessage());
-			Connection connection = DBConnector.connection();
-			try {
-				ServiceLogger.log(logTag, "current transaction state (autocommit) = " + connection.getAutoCommit());
-			} catch (SQLException sqle) {
-				// nothing to do...
-			}
 			return new UserOnboarding(false, false, false, false);
         }
         return new UserOnboarding(profile, account, company, storefront);

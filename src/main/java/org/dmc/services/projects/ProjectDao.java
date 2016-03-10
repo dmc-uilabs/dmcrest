@@ -118,7 +118,6 @@ public class ProjectDao {
 	}
 
 	public Id createProject(String projectname, String unixname, String description, String projectType, String userEPPN) throws SQLException, JSONException, Exception {
-		ServiceLogger.log(logTag,  "starting createProject with arguments");
 		Connection connection = DBConnector.connection();
         // let's start a transaction
 		connection.setAutoCommit(false);
@@ -216,7 +215,6 @@ public class ProjectDao {
 			}
 			throw ex;
 		} finally {
-			ServiceLogger.log(logTag,  "finally block in createProject");
 	        // let's end the transaction
 			if (null != connection) {
 				connection.setAutoCommit(true);
@@ -226,7 +224,6 @@ public class ProjectDao {
 	}
 
 	public Id createProject(String jsonStr, String userEPPN) throws SQLException, JSONException, Exception {
-		ServiceLogger.log(logTag,  "starting createProject with json as string");
 
 		JSONObject json = new JSONObject(jsonStr);
 		String projectname = json.getString("projectname");
@@ -236,7 +233,6 @@ public class ProjectDao {
 	}
         
 	public Id createProject(ProjectCreateRequest json, String userEPPN) throws SQLException, JSONException, Exception {
-		ServiceLogger.log(logTag,  "starting createProject with ProjectCreateRequest");
 
 		String projectname = json.getTitle();
 		String unixname = json.getTitle();

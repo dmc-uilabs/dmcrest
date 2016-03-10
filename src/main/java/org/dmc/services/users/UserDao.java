@@ -62,7 +62,7 @@ public class UserDao {
 			preparedStatement.setString(7, lastName);
 			preparedStatement.executeUpdate();
 
-			ServiceLogger.log(logTag, "Done updating!");
+			ServiceLogger.log(logTag, "Done INSERT INTO users!");
 
 			/*
 			query = "SELECT currval('users_pk_seq') AS id";
@@ -84,7 +84,7 @@ public class UserDao {
 			preparedStatementCreateOnboardingStatus.executeUpdate();
             // ToDo: check that record was created successfully.
             
-			ServiceLogger.log(logTag, "User added: " + id);
+			ServiceLogger.log(logTag, "User added and onboarded: " + id);
 			
 			if (Config.IS_TEST == null){
 				String indexResponse = ""; //SolrUtils.invokeFulIndexingUsers();
@@ -104,32 +104,14 @@ public class UserDao {
 		*/
 		catch(SQLException e){
 			ServiceLogger.log(logTag, e.getMessage());
-			Connection connection = DBConnector.connection();
-			try {
-				ServiceLogger.log(logTag, "current transaction state (autocommit) = " + connection.getAutoCommit());
-			} catch (SQLException sqle) {
-				// nothing to do...
-			}
 			return new Id.IdBuilder(id).build();
 		}
 		catch(JSONException j){
 			ServiceLogger.log(logTag, j.getMessage());
-			Connection connection = DBConnector.connection();
-			try {
-				ServiceLogger.log(logTag, "current transaction state (autocommit) = " + connection.getAutoCommit());
-			} catch (SQLException sqle) {
-				// nothing to do...
-			}
 			return new Id.IdBuilder(id).build();
 		}
 		catch(Exception ee){
 			ServiceLogger.log(logTag, ee.getMessage());
-			Connection connection = DBConnector.connection();
-			try {
-				ServiceLogger.log(logTag, "current transaction state (autocommit) = " + connection.getAutoCommit());
-			} catch (SQLException sqle) {
-				// nothing to do...
-			}
 			return new Id.IdBuilder(id).build();
 		}
 	}
