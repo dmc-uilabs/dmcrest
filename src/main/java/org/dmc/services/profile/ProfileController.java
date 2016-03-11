@@ -30,7 +30,7 @@ public class ProfileController {
     	return profileDao.createProfile(payload, userEPPN);
     }
     
-    @RequestMapping(value = "/profiles/{id}/update", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @RequestMapping(value = "/profiles/{id}", method = RequestMethod.PATCH, headers = {"Content-type=text/plain"})
     public Id updateProfile(@PathVariable("id") int id, @RequestBody String payload, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "updateProfile, Payload: " + payload);
     	return profileDao.updateProfile(id, payload, userEPPN);

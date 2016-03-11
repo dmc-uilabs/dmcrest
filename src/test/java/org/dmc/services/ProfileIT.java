@@ -16,7 +16,7 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 public class ProfileIT extends BaseIT {
 	
 	private static final String PROFILE_CREATE_RESOURCE = "/profiles";
-	private static final String PROFILE_UPDATE_RESOURCE = "/profiles/{id}/update";
+	private static final String PROFILE_UPDATE_RESOURCE = "/profiles/{id}";
 	private static final String PROFILE_DELETE_RESOURCE = "/profiles/{id}/delete";
 	private Integer createdId = -1;
 	String randomEPPN = UUID.randomUUID().toString();
@@ -40,7 +40,7 @@ public class ProfileIT extends BaseIT {
 	}
 	
 	@Test
-	public void testProfileUpdate() {
+	public void testProfilePatch() {
 		JSONObject json = createFixture("update");
 			if (this.createdId > 0) {
 				given()
@@ -49,7 +49,7 @@ public class ProfileIT extends BaseIT {
 				.expect()
 				.statusCode(200)
 				.when()
-				.post(PROFILE_UPDATE_RESOURCE, this.createdId.toString())
+				.patch(PROFILE_UPDATE_RESOURCE, this.createdId.toString())
 				.then()
 				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
 				.extract()
