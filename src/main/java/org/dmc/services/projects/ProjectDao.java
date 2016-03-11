@@ -186,8 +186,9 @@ public class ProjectDao {
 		
 		
 		if (Config.IS_TEST == null){
-            String indexResponse = SolrUtils.invokeFulIndexingProjects();
-            ServiceLogger.log(logTag, "SolR indexing triggered for project: " + projectId);
+            ServiceLogger.log(logTag, "SolR indexing turned off");
+            //String indexResponse = SolrUtils.invokeFulIndexingProjects();
+            //ServiceLogger.log(logTag, "SolR indexing triggered for project: " + projectId);
 		}
 		
 		connection.commit();
