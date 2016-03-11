@@ -5,6 +5,9 @@ import org.dmc.services.Config;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.users.UserDao;
+
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -15,14 +18,70 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+
+import javax.xml.ws.http.HTTPException;
+import org.springframework.http.HttpStatus;
+
 import org.dmc.solr.SolrUtils;
 
 public class ProfileDao {
 
 	private final String logTag = ProfileDao.class.getName();
 
-	public Profile getProfile(int requestId) {
-		return null;
+	public Profile getProfile(int requestId) throws HTTPException {
+        ServiceLogger.log(logTag, "In getProfile: user_id "+requestId);
+        Profile profile = new Profile();
+        profile.setId(Integer.toString(requestId));
+        
+        try {
+            String queryProfile = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users WHERE user_id = ?";
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(queryProfile);
+            preparedStatement.setInt(1, requestId);
+			
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String userName = null;
+            
+            if (resultSet.next()) {
+                //id = resultSet.getString("id");
+                profile.setDisplayName(resultSet.getString("realname"));
+                
+                // need to get company;
+                profile.setCompany("unset");
+                
+                profile.setJobTitle(resultSet.getString("title"));
+                profile.setPhone(resultSet.getString("phone"));
+                profile.setEmail(resultSet.getString("email"));
+                profile.setLocation(resultSet.getString("address"));
+                profile.setImage(resultSet.getString("image"));
+                profile.setDescription(resultSet.getString("people_resume"));
+                
+                // need to get skills;
+                profile.setSkills(new ArrayList<String>());
+                
+                userName = resultSet.getString("user_name");
+                
+            }
+            
+            int user_id_lookedup = -1;
+            try{
+                user_id_lookedup = UserDao.getUserID(userName);
+            } catch (SQLException e) {
+                ServiceLogger.log(logTag, e.getMessage());
+            }
+            
+            // check user name is equal to userEPPN
+            if(user_id_lookedup != requestId) {
+                throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+            }
+            
+
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+            throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value());
+		}
+        
+		return profile;
 	}
 
 	public Id createProfile(String jsonStr, String userEPPN) {

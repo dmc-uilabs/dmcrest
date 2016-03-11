@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.junit.Before; 
 import org.junit.After;
 import org.junit.Ignore;
+import static org.junit.Assert.*;
+
 import java.util.UUID;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -16,6 +18,7 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 public class ProfileIT extends BaseIT {
 	
 	private static final String PROFILE_CREATE_RESOURCE = "/profiles";
+	private static final String PROFILE_READ_RESOURCE   = "/profiles/{id}";
 	private static final String PROFILE_UPDATE_RESOURCE = "/profiles/{id}";
 	private static final String PROFILE_DELETE_RESOURCE = "/profiles/{id}/delete";
 	private Integer createdId = -1;
@@ -39,6 +42,25 @@ public class ProfileIT extends BaseIT {
 				.path("id");
 	}
 	
+    @Test
+	public void testProfileGet() {
+		JSONObject json = createFixture("update");
+        if (this.createdId > 0) {
+            Integer retrivedId = given()
+                .header("AJP_eppn", randomEPPN)
+            .expect()
+                .statusCode(200)
+            .when()
+                .get(PROFILE_READ_RESOURCE, this.createdId.toString())
+            .then()
+                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+                .extract()
+                .path("id");
+            assertTrue("Retrieved Id is not the same as newly created user's id", this.createdId.equals(retrivedId));
+            assertTrue("Retrieved Id is " + retrivedId, retrivedId > 0);
+        }
+	}
+    
 	@Test
 	public void testProfilePatch() {
 		JSONObject json = createFixture("update");

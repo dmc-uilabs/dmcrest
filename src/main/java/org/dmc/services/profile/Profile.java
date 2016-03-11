@@ -2,21 +2,36 @@ package org.dmc.services.profile;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Profile {
 
 	private final String logTag = Profile.class.getName();
 
-	private final int id;
-	private final String displayName;
-	private final String company;
-	private final String jobTitle;
-	private final String phone;
-	private final String email;
-	private final String location;
-	private final String image;
-	private final String description;
-	private final ArrayList<String> skills;
+	private int id;
+	private String displayName;
+	private String company;
+	private String jobTitle;
+	private String phone;
+	private String email;
+	private String location;
+	private String image;
+	private String description;
+	private ArrayList<String> skills;
 
+    public Profile() {
+        this.id = -1;
+        this.displayName = new String();
+        this.company = new String();
+        this.jobTitle = new String();
+        this.phone = new String();
+        this.email = new String();
+        this.location = new String();
+        this.image = new String();
+        this.description = new String();
+        this.skills = new ArrayList<String>();
+    }
+    
 	private Profile(ProfileBuilder builder) {
 		this.id = builder.id;
 		this.displayName = builder.displayName;
@@ -30,42 +45,96 @@ public class Profile {
 		this.skills = builder.skills;
 	}
 
+    @JsonProperty("id")
+	public int getId() {
+		return id;
+	}
+    public void setId(String id) {
+		this.id = Integer.parseInt(id);
+	}
+    
+    
+    @JsonProperty("displayName")
 	public String getDisplayName() {
 		return displayName;
 	}
+    public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
+    
+    @JsonProperty("company")
 	public String getCompany() {
 		return company;
 	}
+    public void setCompany(String company) {
+		this.company = company;
+	}
 
+    
+    @JsonProperty("jobTitle")
 	public String getJobTitle() {
 		return jobTitle;
 	}
+    public void setJobTitle(String jobTitle) {
+		this.jobTitle = jobTitle;
+	}
+    
 
+    @JsonProperty("phone")
 	public String getPhone() {
 		return phone;
 	}
+    public void setPhone(String phone) {
+		this.phone = phone;
+	}
+    
 
+    @JsonProperty("email")
 	public String getEmail() {
 		return email;
 	}
+    public void setEmail(String email) {
+		this.email = email;
+	}
+    
 
+    @JsonProperty("location")
 	public String getLocation() {
 		return location;
 	}
+    public void setLocation(String location) {
+		this.location = location;
+	}
 
+    
+    @JsonProperty("image")
 	public String getImage() {
 		return image;
 	}
+    public void setImage(String image) {
+		this.image = image;
+	}
 	
+    
+    @JsonProperty("description")
 	public String getDescription() {
-		return image;
+		return description;
+	}
+    public void setDescription(String description) {
+		this.description = description;
 	}
 
+    
+    @JsonProperty("skills")
 	public ArrayList<String> getSkills() {
 		return skills;
 	}
+    public void setSkills(ArrayList<String> skills) {
+		this.skills = skills;
+	}
 
+    
 	// Service Builder
 	public static class ProfileBuilder {
 		private final int id;
