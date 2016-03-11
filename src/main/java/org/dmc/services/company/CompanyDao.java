@@ -496,7 +496,6 @@ public class CompanyDao {
 		        statement.executeUpdate();
 		        
 		        connection.commit();
-		        connection.setAutoCommit(true);
 			}
 	    }
 		catch (SQLException e) {
