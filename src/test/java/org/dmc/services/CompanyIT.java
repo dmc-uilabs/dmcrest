@@ -83,7 +83,7 @@ public class CompanyIT extends BaseIT {
 	}
 	
 	// Cleanup
-	//@After  
+	@After  
 	public void testCompanyDelete() {
 		expect().statusCode(200)
 		.when()

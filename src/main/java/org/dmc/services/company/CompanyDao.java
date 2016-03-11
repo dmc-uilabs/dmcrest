@@ -271,8 +271,6 @@ public class CompanyDao {
 			statement.executeUpdate();
 			
 			connection.commit();
-			connection.setAutoCommit(true);
-
 		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
@@ -289,6 +287,15 @@ public class CompanyDao {
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
+		}
+		finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
 		}
 		return new Id.IdBuilder(id)
 		.build();
@@ -507,6 +514,15 @@ public class CompanyDao {
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
+		}
+		finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
 		}
 		
 		return new Id.IdBuilder(id)
