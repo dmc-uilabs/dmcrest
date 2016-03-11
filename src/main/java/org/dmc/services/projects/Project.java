@@ -16,6 +16,9 @@ public class Project {
 	private final ProjectComponent component;
 	private final String projectManager;
 	
+	public static final String PUBLIC = "public";
+	public static final String PRIVATE = "private";
+
 	private final String logTag = Project.class.getName();
 	
 	public Project(int projectId, String title, String description, FeatureImage img, 
@@ -34,7 +37,7 @@ public class Project {
 		this.projectManager = projectManager;
 				
 	}
-	
+
 	public Project(ProjectBuilder build){
 		this.id = build.id;
 		this.title = build.title;
@@ -88,6 +91,12 @@ public class Project {
 		return component;
 	}
 	
+	public static int IsPublic(String projectType) {
+		if (null == projectType) return 0;
+		if (projectType.toLowerCase().equals(PRIVATE)) return 0;
+		if (projectType.toLowerCase().equals(PUBLIC)) return 1;
+		return 0;
+	}
 	//Service Builder
     public static class ProjectBuilder {
     	
@@ -101,7 +110,7 @@ public class Project {
     	private ProjectDiscussion discussion; 
     	private ProjectComponent component;
     	private String projectManager;
-   
+
     	public ProjectBuilder(int id, String title, String description) {
     		this.id = id;
     		this.title = title;
@@ -156,6 +165,7 @@ public class Project {
     	public Project build() {
     		return new Project(this);
     	}
+
     }
 
 }

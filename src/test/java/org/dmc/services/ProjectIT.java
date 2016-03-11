@@ -16,6 +16,7 @@ import static org.hamcrest.CoreMatchers.*;
 
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.projects.ProjectCreateRequest;
+import org.dmc.services.projects.Project;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -115,7 +116,7 @@ public class ProjectIT extends BaseIT {
 
 		ProjectCreateRequest json = new ProjectCreateRequest();
 		json.setDescription("junit testProjectCreateJsonObject " + unique);
-		json.setName("junitjson" + unique);
+		json.setTitle("junitjson" + unique);
 
 		ServiceLogger.log(logTag, "testProjectCreateJsonObject: json = " + json.toString());
 		given().
@@ -180,7 +181,7 @@ public class ProjectIT extends BaseIT {
 		//json.put("description", "junitdup json testing " + unique);
 		ProjectCreateRequest json = new ProjectCreateRequest();
 		json.setDescription("junitdup json testing " + unique);
-		json.setName("junitTestJsondup" + unique);
+		json.setTitle("junitTestJsondup" + unique);
 
         ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicateJson: json = " + json.toString());
 
@@ -215,9 +216,8 @@ public class ProjectIT extends BaseIT {
 	@Test
 	public void whenUsingJsonProperty_thenCorrect()
 	  throws IOException {
-	    //ProjectCreateRequest bean = new ProjectCreateRequest("projectname", "project description");
 		ProjectCreateRequest bean = new ProjectCreateRequest();
-		bean.setName("projectname");
+		bean.setTitle("projectname");
 		bean.setDescription("project description");
 
 	    String result = new ObjectMapper().writeValueAsString(bean);
@@ -227,6 +227,13 @@ public class ProjectIT extends BaseIT {
 
 	    ProjectCreateRequest resultBean = new ObjectMapper().reader(ProjectCreateRequest.class)
 	                                          .readValue(result);
-	    assertEquals("projectname", resultBean.getName());
+	    assertEquals("projectname", resultBean.getTitle());
 	}
+
+	@Test
+	public void testProjectTypeChecks(){
+		assertEquals(1, Project.IsPublic("Public"));
+		assertEquals(0, Project.IsPublic("PRIVATE"));
+	}
+
 }

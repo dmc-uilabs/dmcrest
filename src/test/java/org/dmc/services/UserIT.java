@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import org.dmc.services.users.UserController;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 
@@ -22,9 +23,10 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 public class UserIT extends BaseIT {
 
     private static final String logTag = UserIT.class.getName();
-    
-    @Test
+
+	@Test
 	public void testUserIncorrectInvocation(){
+		ServiceLogger.log(logTag, "starting testUserIncorrectInvocation");
 		JSONObject json = new JSONObject();
 		String unique = TestUserUtil.generateTime();
 		
@@ -43,6 +45,7 @@ public class UserIT extends BaseIT {
     
     @Test
 	public void testUserCreate(){
+		ServiceLogger.log(logTag, "starting testUserCreate");
 		String unique = TestUserUtil.generateTime();
         
         Integer id =
@@ -70,6 +73,7 @@ public class UserIT extends BaseIT {
 	
     @Test
 	public void testUserGet_UnknownUser(){
+		ServiceLogger.log(logTag, "starting testUserGet_UnknownUser");
         String unknownUser = "unknown";
         
 		given().
@@ -84,6 +88,7 @@ public class UserIT extends BaseIT {
 
     @Test
 	public void testUserGet_KnownUser(){
+		ServiceLogger.log(logTag, "starting testUserGet_KnownUser");
         String knownUser = "fforgeadmin";
         
 		given().

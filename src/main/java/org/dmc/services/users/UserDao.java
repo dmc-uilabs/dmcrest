@@ -66,7 +66,7 @@ public class UserDao {
 			preparedStatement.setString(7, lastName);
 			preparedStatement.executeUpdate();
 
-			ServiceLogger.log(logTag, "Done updating!");
+			ServiceLogger.log(logTag, "Done INSERT INTO users!");
 
 			/*
 			query = "SELECT currval('users_pk_seq') AS id";
@@ -88,7 +88,7 @@ public class UserDao {
 			preparedStatementCreateOnboardingStatus.executeUpdate();
             // ToDo: check that record was created successfully.
             
-			ServiceLogger.log(logTag, "User added: " + id);
+			ServiceLogger.log(logTag, "User added and onboarded: " + id);
 			
 			if (Config.IS_TEST == null){
 				String indexResponse = ""; //SolrUtils.invokeFulIndexingUsers();
@@ -99,7 +99,7 @@ public class UserDao {
 
             return new Id.IdBuilder(id).build();
 
-		} 
+		}
         /*
         catch(IOException e){
 			ServiceLogger.log(logTag, e.getMessage());
