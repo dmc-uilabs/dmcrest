@@ -1,34 +1,19 @@
 package org.dmc.services;
 
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.boot.test.*;
-import org.springframework.test.*;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Map;
+import java.util.UUID;
 
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.Before; 
+import org.junit.After;
 import org.junit.Ignore;
 
 import static com.jayway.restassured.RestAssured.*;
 
-import com.jayway.restassured.RestAssured;
-
 import static org.hamcrest.Matchers.*;
-
-import org.junit.Ignore;
-import org.junit.After;
-
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-
-import org.dmc.services.company.CompanyDao;
-import org.dmc.services.company.Company;
 
 public class CompanyIT extends BaseIT {
 	
@@ -37,7 +22,8 @@ public class CompanyIT extends BaseIT {
 	private static final String COMPANY_UPDATE_RESOURCE = "/companies/{id}/update";
 	private static final String COMPANY_DELETE_RESOURCE = "/companies/{id}/delete";
 	
-	private Integer createdId;
+	private Integer createdId = null;
+	String randomEPPN = UUID.randomUUID().toString();
 		
 	// Setup test data
 	@Before
@@ -45,7 +31,7 @@ public class CompanyIT extends BaseIT {
 		JSONObject json = createFixture();
 		this.createdId = given()
 				.body(json.toString())
-				.header("AJP_eppn", "test-eppn@google.com")
+				.header("AJP_eppn", randomEPPN)
 				.expect()
 				.statusCode(200)
 				.when()
@@ -58,14 +44,29 @@ public class CompanyIT extends BaseIT {
 	
 	@Test
 	public void testCompanyGet() {
-		expect().statusCode(200)
-		.when()
-		.get(COMPANY_GET_RESOURCE, this.createdId.toString())
-		.then().log()
-		.all()
-		.body(matchesJsonSchemaInClasspath("Schemas/companySchema.json"))
-		 // at the very least verify the correct item was returned
-		.body("id", equalTo(this.createdId));
+		if (this.createdId != null) {
+			given().
+            header("Content-type", "application/json").
+            header("AJP_eppn", randomEPPN).
+            expect().statusCode(200).
+            when().
+            get(COMPANY_GET_RESOURCE, this.createdId.toString()).
+    		then().
+            body(matchesJsonSchemaInClasspath("Schemas/companySchema.json")).
+            body("id", equalTo(this.createdId));	
+		}
+	}
+	
+	@Test
+	public void testCompanyGetNotOwner() {
+		if (this.createdId != null) {
+			given().
+            header("Content-type", "application/json").
+            header("AJP_eppn", randomEPPN + "random").
+            expect().statusCode(403).
+            when().
+            get(COMPANY_GET_RESOURCE, this.createdId.toString());
+		}
 	}
 	
 	@Test
