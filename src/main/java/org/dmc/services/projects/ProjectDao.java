@@ -1,5 +1,6 @@
 package org.dmc.services.projects;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -116,17 +117,26 @@ public class ProjectDao {
 		return null;
 	}
 
-	public Id createProject(String projectname, String unixname, String userEPPN) throws SQLException, JSONException, Exception {
+	public Id createProject(String projectname, String unixname, String description, String projectType, String userEPPN) throws SQLException, JSONException, Exception {
+		Connection connection = DBConnector.connection();
+        // let's start a transaction
+		connection.setAutoCommit(false);
+
+		try {
 		int projectId = -1;
 		// look up userID
         int userID = UserDao.getUserID(userEPPN);
-        		
+        int isPublic = Project.IsPublic(projectType);
+
 		// create new project in groups table
-		String createProjectQuery = "insert into groups(group_name, unix_group_name, user_id) values ( ?, ?, ? )";
+		String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id) values ( ?, ?, ?, ?, ?, ? )";
 		PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
 		preparedStatement.setString(1, projectname);
 		preparedStatement.setString(2, unixname);
-		preparedStatement.setInt(3, userID);
+		preparedStatement.setString(3,  description);
+		preparedStatement.setString(4,  description);
+		preparedStatement.setInt(5,  isPublic);
+		preparedStatement.setInt(6, userID);
 		preparedStatement.executeUpdate();
 
 		// since no parameters can use execute query safely
@@ -141,9 +151,9 @@ public class ProjectDao {
 		String createProjectListQuery = "INSERT into project_group_list (group_id, project_name, is_public, description, send_all_posts_to) values (?, ?, ?, ?, ?)";
 		preparedStatement = DBConnector.prepareStatement(createProjectListQuery);
 		preparedStatement.setInt(1, projectId);
-		preparedStatement.setString(2,"projectname");
-		preparedStatement.setInt(3,0);
-		preparedStatement.setString(4, "fill-in");
+		preparedStatement.setString(2, projectname);
+		preparedStatement.setInt(3, isPublic);
+		preparedStatement.setString(4, description);
 		preparedStatement.setString(5, "none");		
 		preparedStatement.executeUpdate();
 		
@@ -163,7 +173,9 @@ public class ProjectDao {
 		if (resultSet.next()) {
 			//id = resultSet.getString("id");
 			projectAdminRoleId = resultSet.getInt("role_id");
-		}//TODO:Add error handling after if
+		} else {
+			throw new Exception("expected to get project admin role id, but failed");
+		}
 		
 		//add user as admin of project
 		String setUserAsAdminQuery = "INSERT into pfo_user_role (user_id, role_id) values (?, ?)";
@@ -178,20 +190,57 @@ public class ProjectDao {
             ServiceLogger.log(logTag, "SolR indexing triggered for project: " + projectId);
 		}
 		
+		connection.commit();
+
 		return new Id.IdBuilder(projectId).build();
+		} catch (SQLException ex) {
+			ServiceLogger.log(logTag,  "got SQLException in createProject: " + ex.getMessage());
+			if (null != connection) {
+				ServiceLogger.log(logTag, "Transaction Project Create Rolled back");
+				connection.rollback();
+			}
+			throw ex;
+		} catch (JSONException ex) {
+			ServiceLogger.log(logTag,  "got JSONException in createProject: " + ex.getMessage());
+			if (null != connection) {
+				ServiceLogger.log(logTag, "Transaction Project Create Rolled back");
+				connection.rollback();
+			}
+			throw ex;
+		} catch (Exception ex) {
+			ServiceLogger.log(logTag,  "got Exception in createProject: " + ex.getMessage());
+			if (null != connection) {
+				ServiceLogger.log(logTag, "Transaction Project Create Rolled back");
+				connection.rollback();
+			}
+			throw ex;
+		} finally {
+	        // let's end the transaction
+			if (null != connection) {
+				connection.setAutoCommit(true);
+			}
+		}
+
 	}
 
 	public Id createProject(String jsonStr, String userEPPN) throws SQLException, JSONException, Exception {
 
-		//String id = "null";
-		int id = -99999;
 		JSONObject json = new JSONObject(jsonStr);
 		String projectname = json.getString("projectname");
 		String unixname = json.getString("unixname");
         
-        return createProject(projectname, unixname, userEPPN);
+        return createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN);
 	}
         
+	public Id createProject(ProjectCreateRequest json, String userEPPN) throws SQLException, JSONException, Exception {
+
+		String projectname = json.getTitle();
+		String unixname = json.getTitle();
+		String description = json.getDescription();
+
+        return createProject(projectname, unixname, description, Project.PRIVATE, userEPPN);
+	}
+
     void createProjectRole(String roleName, int projectId) throws SQLException {
     	// create project member role
     	String createProjectMemberRoleQuery = "insert into pfo_role (role_name, role_class, home_group_id, is_public, old_role_id) values (?, 1, ?, FALSE, 0)";

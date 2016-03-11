@@ -1,6 +1,7 @@
 package org.dmc.services;
 
 import java.util.Date;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import org.junit.Test;
@@ -8,13 +9,21 @@ import org.junit.Test;
 import static com.jayway.restassured.RestAssured.*;
 
 import org.json.JSONObject;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.projects.ProjectCreateRequest;
+import org.dmc.services.projects.Project;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
 
-	@Test
+    private final String logTag = ProjectIT.class.getName();
+
+    @Test
 	public void testProject6() {
 		given().
 			header("AJP_eppn", userEPPN).
@@ -74,20 +83,46 @@ public class ProjectIT extends BaseIT {
 	
 
 	@Test
-	public void testProjectCreateJson(){
+	public void testProjectCreateJsonString(){
 		JSONObject json = new JSONObject();
 		Date date = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		String unique = format.format(date);
 
-		String input = "{\"projectname\": " + "junitTest" + unique + ", {\"comment\": \"test " + date.getTime() + "\"}";
-		
-		json.put("projectname", "junitTest" + unique);
+		json.put("projectname", "junit" + unique);
 		json.put("unixname", "junit" + unique);
-		System.out.println("json = " + json.toString());
+        ServiceLogger.log(logTag, "testProjectCreateJsonString: json = " + json.toString());
 		given().
 			header("AJP_eppn", userEPPN).
 			body(json.toString()).
+		expect().
+			statusCode(200).
+		when().
+			post("/projects/oldcreate").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+	}
+
+	// see as an example to configure the object https://github.com/jayway/rest-assured/wiki/Usage#serialization
+	@Test
+	public void testProjectCreateJsonObject()
+	  throws IOException {
+		//JSONObject json = new JSONObject();
+		Date date = new Date();
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		String unique = format.format(date);
+		//json.put("description", "junit testProjectCreateJsonObject " + unique);
+		//json.put("name", "junitjson" + unique);
+
+		ProjectCreateRequest json = new ProjectCreateRequest();
+		json.setDescription("junit testProjectCreateJsonObject " + unique);
+		json.setTitle("junitjson" + unique);
+
+		ServiceLogger.log(logTag, "testProjectCreateJsonObject: json = " + json.toString());
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(json).
 		expect().
 			statusCode(200).
 		when().
@@ -103,15 +138,58 @@ public class ProjectIT extends BaseIT {
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		String unique = format.format(date);
 
-		String input = "{\"projectname\": " + "junitTestdup" + unique + ", {\"comment\": \"test " + date.getTime() + "\"}";
-		
 		json.put("projectname", "junitTestdup" + unique);
 		json.put("unixname", "junitdup" + unique);
+        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicate: json = " + json.toString());
 
 		// first time should work
 		given().
+			header("Content-type", "text/plain").
 			header("AJP_eppn", userEPPN).
 			body(json.toString()).
+		expect().
+			statusCode(200).
+		when().
+			post("/projects/oldcreate").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+
+        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicate: try to create again");
+		// second time should fail, because unixname is a duplicate
+		given().
+			header("Content-type", "text/plain").
+			header("AJP_eppn", userEPPN).
+			body(json.toString()).
+		expect().
+			statusCode(200).
+		when().
+			post("/projects/oldcreate").
+		then().
+			log().all().
+			body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
+	}
+
+	@Test
+	public void testProjectCreateFailOnDuplicateJson()
+	  throws IOException {
+		//JSONObject json = new JSONObject();
+		Date date = new Date();
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		String unique = format.format(date);
+
+		//json.put("name", "junitTestJsondup" + unique);
+		//json.put("description", "junitdup json testing " + unique);
+		ProjectCreateRequest json = new ProjectCreateRequest();
+		json.setDescription("junitdup json testing " + unique);
+		json.setTitle("junitTestJsondup" + unique);
+
+        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicateJson: json = " + json.toString());
+
+		// first time should work
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(json).
 		expect().
 			statusCode(200).
 		when().
@@ -119,10 +197,12 @@ public class ProjectIT extends BaseIT {
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 
+        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicateJson: try to create again");
 		// second time should fail, because unixname is a duplicate
 		given().
+			header("Content-type", "application/json").
 			header("AJP_eppn", userEPPN).
-			body(json.toString()).
+			body(json).
 		expect().
 			statusCode(200).
 		when().
@@ -131,4 +211,29 @@ public class ProjectIT extends BaseIT {
 			log().all().
 			body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
 	}
+
+	// example of @JsonProperty from http://www.baeldung.com/jackson-annotations
+	@Test
+	public void whenUsingJsonProperty_thenCorrect()
+	  throws IOException {
+		ProjectCreateRequest bean = new ProjectCreateRequest();
+		bean.setTitle("projectname");
+		bean.setDescription("project description");
+
+	    String result = new ObjectMapper().writeValueAsString(bean);
+
+	    assertThat(result, containsString("projectname"));
+	    assertThat(result, containsString("project description"));
+
+	    ProjectCreateRequest resultBean = new ObjectMapper().reader(ProjectCreateRequest.class)
+	                                          .readValue(result);
+	    assertEquals("projectname", resultBean.getTitle());
+	}
+
+	@Test
+	public void testProjectTypeChecks(){
+		assertEquals(1, Project.IsPublic("Public"));
+		assertEquals(0, Project.IsPublic("PRIVATE"));
+	}
+
 }
