@@ -30,6 +30,7 @@ public class ProfileIT extends BaseIT {
 	public void testProfileCreate() {
 		JSONObject json = createFixture("create");
 		this.createdId = given()
+            .header("Content-type", "application/json")
 				.header("AJP_eppn", randomEPPN)
 				.body(json.toString())
 				.expect()
@@ -65,17 +66,22 @@ public class ProfileIT extends BaseIT {
 	public void testProfilePatch() {
 		JSONObject json = createFixture("update");
 			if (this.createdId > 0) {
-				given()
-				.header("AJP_eppn", randomEPPN)
-				.body(json.toString())
+				Integer retrivedId =
+                given()
+                    .header("Content-type", "application/json")
+                    .header("AJP_eppn", randomEPPN)
+                    .body(json.toString())
 				.expect()
-				.statusCode(200)
+                    .statusCode(200)
 				.when()
-				.patch(PROFILE_UPDATE_RESOURCE, this.createdId.toString())
+                    .patch(PROFILE_UPDATE_RESOURCE, this.createdId.toString())
 				.then()
-				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-				.extract()
-				.path("id");	
+                    .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+                    .extract()
+                    .path("id");
+                
+                assertTrue("Retrieved Id is not the same as newly created user's id", this.createdId.equals(retrivedId));
+                assertTrue("Retrieved Id is " + retrivedId, retrivedId > 0);
 			}
 	}
 	

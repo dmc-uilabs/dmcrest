@@ -39,21 +39,47 @@ public class ProfileController {
         return new ResponseEntity<Profile>(profile, HttpStatus.valueOf(httpStatusCode));
     }
     
-    @RequestMapping(value = "/profiles", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @RequestMapping(value = "/profiles", method = RequestMethod.POST)
     @ResponseBody
-    public Id createProfile(@RequestBody String payload,  @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
-    	ServiceLogger.log(logTag, "Payload: " + payload);	
-    	return profileDao.createProfile(payload, userEPPN);
+    public ResponseEntity<Id> createProfile(@RequestBody Profile profile,
+                                            @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+        ServiceLogger.log(logTag, "createProfile, profile: " + profile.toString());
+        
+        int httpStatusCode = HttpStatus.OK.value();
+        Id retrivedId = null;
+        
+        try{
+            retrivedId = profileDao.createProfile(profile, userEPPN);
+        } catch(HTTPException httpException) {
+            httpStatusCode = httpException.getStatusCode();
+        }
+        
+        return new ResponseEntity<Id>(retrivedId, HttpStatus.valueOf(httpStatusCode));
     }
+    
     
     @RequestMapping(value = "/profiles/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
-    public Id updateProfile(@PathVariable("id") int id, @RequestBody String payload, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
-    	ServiceLogger.log(logTag, "updateProfile, Payload: " + payload);
-    	return profileDao.updateProfile(id, payload, userEPPN);
+    public ResponseEntity<Id> updateProfile(@PathVariable("id") int id,
+                            @RequestBody Profile profile,
+                            @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+    	ServiceLogger.log(logTag, "updateProfile, profile: " + profile.toString());
+        
+        int httpStatusCode = HttpStatus.OK.value();
+        Id retrivedId = null;
+        
+        try{
+            retrivedId = profileDao.updateProfile(id, profile, userEPPN);
+        } catch(HTTPException httpException) {
+            httpStatusCode = httpException.getStatusCode();
+        }
+        
+        return new ResponseEntity<Id>(retrivedId, HttpStatus.valueOf(httpStatusCode));        
     }
     
+    
     @RequestMapping(value = "/profiles/{id}/delete", method = RequestMethod.GET)
-    public Id deleteProfile(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+    public Id deleteProfile(@PathVariable("id") int id,
+                            @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "deleteProfile, id: " + id);
     	return profileDao.deleteProfile(id, userEPPN);
     }

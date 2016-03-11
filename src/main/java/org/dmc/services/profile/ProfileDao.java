@@ -46,7 +46,7 @@ public class ProfileDao {
                 //id = resultSet.getString("id");
                 profile.setDisplayName(resultSet.getString("realname"));
                 
-                // need to get company;
+                // ToDo: need to get company;
                 profile.setCompany("unset");
                 
                 profile.setJobTitle(resultSet.getString("title"));
@@ -84,7 +84,7 @@ public class ProfileDao {
 		return profile;
 	}
 
-	public Id createProfile(String jsonStr, String userEPPN) {
+	public Id createProfile(Profile profile, String userEPPN) {
 
 		Util util = Util.getInstance();
 		int userId = -9999;
@@ -96,16 +96,6 @@ public class ProfileDao {
 		}
 
 		try {
-			JSONObject json = new JSONObject(jsonStr);
-			String displayName = json.getString("displayName");
-			String jobTitle = json.getString("jobTitle");
-			String phone = json.getString("phone");
-			String email = json.getString("email");
-			String location = json.getString("location");
-			String image = json.getString("image");
-			String description = json.getString("description");
-			JSONArray skills = json.getJSONArray("skills");
-
 			// create user
 			String query = "INSERT INTO users"
 					+ "(user_name, realname, title, phone, email, address, image, people_resume) "
@@ -113,14 +103,16 @@ public class ProfileDao {
 
 			PreparedStatement statement = DBConnector.prepareStatement(query,
 					Statement.RETURN_GENERATED_KEYS);
+            
 			statement.setString(1, userEPPN);
-			statement.setString(2, displayName);
-			statement.setString(3, jobTitle);
-			statement.setString(4, phone);
-			statement.setString(5, email);
-			statement.setString(6, location);
-			statement.setString(7, image);
-			statement.setString(8, description);
+			statement.setString(2, profile.getDisplayName());
+			statement.setString(3, profile.getJobTitle());
+			statement.setString(4, profile.getPhone());
+			statement.setString(5, profile.getEmail());
+			statement.setString(6, profile.getLocation());
+			statement.setString(7, profile.getImage());
+			statement.setString(8, profile.getDescription());
+            // ToDo: need to set company
 			statement.executeUpdate();
 
 			userId = util.getGeneratedKey(statement, "user_id");
@@ -133,23 +125,11 @@ public class ProfileDao {
 			}
 
 			// create people_skill, and relational skill_inventory
-			if (skills.length() != 0) {
-				this.createSkills(userId, skills);
+			if (profile.getSkills().size() != 0) {
+				this.createSkills(userId, profile.getSkills());
 			}
 			connection.commit();
 		} catch (SQLException e) {
-			ServiceLogger.log(logTag, e.getMessage());
-			if (connection != null) {
-				try {
-					ServiceLogger.log(logTag,
-							"Transaction Profile Create Rolled back");
-					connection.rollback();
-				} catch (SQLException ex) {
-					ServiceLogger.log(logTag, ex.getMessage());
-				}
-			}
-			return null;
-		} catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			if (connection != null) {
 				try {
@@ -186,7 +166,7 @@ public class ProfileDao {
 
 	}
 
-	public Id updateProfile(int id, String jsonStr, String userEPPN) {
+	public Id updateProfile(int id, Profile profile, String userEPPN) throws HTTPException {
 		PreparedStatement statement;
 		String query;
 
@@ -198,31 +178,22 @@ public class ProfileDao {
 		}
 
 		try {
-			JSONObject json = new JSONObject(jsonStr);
-			String displayName = json.getString("displayName");
-			String jobTitle = json.getString("jobTitle");
-			String phone = json.getString("phone");
-			String email = json.getString("email");
-			String location = json.getString("location");
-			String image = json.getString("image");
-			String description = json.getString("description");
-			JSONArray skills = json.getJSONArray("skills");
-
 			// update user
 			query = "UPDATE users SET "
 					+ "realname = ?, title = ?, phone = ?, email = ?, address = ?, image = ?, people_resume = ? "
 					+ "WHERE user_id = ? AND user_name = ?";
 
 			statement = DBConnector.prepareStatement(query);
-			statement.setString(1, displayName);
-			statement.setString(2, jobTitle);
-			statement.setString(3, phone);
-			statement.setString(4, email);
-			statement.setString(5, location);
-			statement.setString(6, image);
-			statement.setString(7, description);
+			statement.setString(1, profile.getDisplayName());
+			statement.setString(2, profile.getJobTitle());
+			statement.setString(3, profile.getPhone());
+			statement.setString(4, profile.getEmail());
+			statement.setString(5, profile.getLocation());
+			statement.setString(6, profile.getImage());
+			statement.setString(7, profile.getDescription());
 			statement.setInt(8, id);
 			statement.setString(9, userEPPN);
+            // ToDo: set company
 			statement.executeUpdate();
 
 			if (Config.IS_TEST == null) {
@@ -232,8 +203,8 @@ public class ProfileDao {
 			}
 
 			// delete and create skills
-			if (this.deleteSkills(id) && skills.length() > 0) {
-				this.createSkills(id, skills);
+			if (this.deleteSkills(id) && profile.getSkills().size() > 0) {
+				this.createSkills(id, profile.getSkills());
 			}
 			connection.commit();
 		} catch (SQLException e) {
@@ -247,19 +218,7 @@ public class ProfileDao {
 					ServiceLogger.log(logTag, ex.getMessage());
 				}
 			}
-			return null;
-		} catch (JSONException e) {
-			ServiceLogger.log(logTag, e.getMessage());
-			if (connection != null) {
-				try {
-					ServiceLogger.log(logTag,
-							"Transaction Profile Update Rolled back");
-					connection.rollback();
-				} catch (SQLException ex) {
-					ServiceLogger.log(logTag, ex.getMessage());
-				}
-			}
-			return null;
+            throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value());
 		} finally {
 			if (null != connection) {
 				try {
@@ -328,18 +287,18 @@ public class ProfileDao {
 		return new Id.IdBuilder(id).build();
 	}
 
-	public boolean createSkills(int userId, JSONArray skills)
+	public boolean createSkills(int userId, ArrayList<String> skills)
 			throws SQLException {
 		Util util = Util.getInstance();
 		PreparedStatement statement;
 		int skillId;
 
-		if (skills.length() != 0) {
-			for (int i = 0; i < skills.length(); i++) {
+		if (skills.size() != 0) {
+			for (int i = 0; i < skills.size(); i++) {
 				String query = "INSERT INTO people_skill (name) VALUES (?)";
 				statement = DBConnector.prepareStatement(query,
 						Statement.RETURN_GENERATED_KEYS);
-				statement.setString(1, skills.getString(i));
+				statement.setString(1, skills.get(i));
 				statement.executeUpdate();
 				skillId = util.getGeneratedKey(statement, "skill_id");
 				ServiceLogger.log(logTag, "PEOPLE SKILL ID: " + skillId);
