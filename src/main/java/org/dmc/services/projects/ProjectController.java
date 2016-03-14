@@ -90,27 +90,22 @@ public class ProjectController {
     }
 
     @RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces="application/json")
-    public ResponseEntity<ArrayList<ProjectMember>> getProjectMembers(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+    public ResponseEntity<ArrayList<ProjectMember>> getProjectMembers(
+    		@RequestParam("projectname") String projectname,
+    		@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In getProjectMembers: as user " + userEPPN);
 
         return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectMembers(userEPPN), HttpStatus.OK);
     }
 
-    /*
-    @RequestMapping(value = "/role/update", method = RequestMethod.POST)
-    @ResponseBody
-    public String updateRole(@RequestParam(value="id", defaultValue="-1") int id) {
-    	System.out.println("In createRole role: " + id);
-    	
-    	
-    	//RoleDao.createRole updates the Role in the database identified by id using the provided POST params
-    	//it creates an instance of this role i.e new Role(param.id, param.name, param.title.....)
-    	//this controller in turn returns this updated Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
-    	
-    	return RoleDao.updateRole(params);
+    @RequestMapping(value = "/projects_members/{memberId}", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectMember>> getProjectsForMember(@PathVariable("memberId") String memberId, 
+    																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectsForMember: for member" + memberId + " as user " + userEPPN);
+
+        return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectsForMember(memberId, userEPPN), HttpStatus.OK);
     }
-    */
+
     
 //    @ExceptionHandler(Exception.class)
 //    public ResponseEntity<String> handleException(Exception ex) {
