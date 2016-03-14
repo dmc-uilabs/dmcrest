@@ -9,8 +9,6 @@ import org.dmc.services.users.UserDao;
 
 
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONArray;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
