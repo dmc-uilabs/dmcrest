@@ -79,7 +79,7 @@ public class ProjectController {
     @RequestMapping(value = "/projects/create", method = RequestMethod.POST, consumes="application/json", produces="application/json")
     public ResponseEntity<Id> createProject(@RequestBody ProjectCreateRequest payload,
                                 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
-        ServiceLogger.log(logTag, "**********In createProject: " + payload + " as user " + userEPPN);
+        ServiceLogger.log(logTag, "In createProject: " + payload + " as user " + userEPPN);
 
         //RoleDao.createRole creates a new Role in the database using the provided POST params
         //it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
@@ -88,7 +88,15 @@ public class ProjectController {
 
         return new ResponseEntity<Id>(project.createProject(payload, userEPPN), HttpStatus.OK);
     }
-       /*
+
+    @RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectMember>> getProjectMembers(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectMembers: as user " + userEPPN);
+
+        return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectMembers(userEPPN), HttpStatus.OK);
+    }
+
+    /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)
     @ResponseBody
     public String updateRole(@RequestParam(value="id", defaultValue="-1") int id) {

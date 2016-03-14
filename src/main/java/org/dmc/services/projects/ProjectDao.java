@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
@@ -278,4 +280,50 @@ public class ProjectDao {
 		// else user has a role
     	return true;
     }
+
+// sample query for fforgeadmin user (102)
+//    SELECT r.role_name, u.user_id, u.lastname, u.firstname, u.user_name, r.home_group_id
+//    FROM pfo_user_role ur
+//    JOIN users u ON u.user_id = ur.user_id
+//    JOIN pfo_role r ON r.role_id = ur.role_id
+//    WHERE r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
+//    order by role_name, lastname, firstname
+	public ArrayList<ProjectMember> getProjectMembers(String userEPPN){
+		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
+
+		try {
+			int userId = UserDao.getUserID(userEPPN);
+
+			// requesting user must be administrator of the project to get the list of members.
+			String projectMembersQuery = "SELECT r.role_name, u.user_id, u.lastname, u.firstname, u.user_name, r.home_group_id "
+					+ "FROM pfo_user_role ur "
+					+ "JOIN users u ON u.user_id = ur.user_id "
+					+ "JOIN pfo_role r ON r.role_id = ur.role_id "
+					+ "WHERE r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId + ") "
+					+ "order by role_name, lastname, firstname ";
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(projectMembersQuery);
+			preparedStatement.execute();
+
+			resultSet = preparedStatement.getResultSet();
+			while (resultSet.next()) {
+				//id = resultSet.getString("id");
+				ProjectMember member = new ProjectMember();
+				member.setProfileId(Integer.toString(resultSet.getInt(2)));
+				member.setProjectId(Integer.toString(resultSet.getInt(6)));
+				member.setAccept(true);
+				member.setFromProfileId(Integer.toString(userId));
+				member.setFrom("????");
+				Date now = new Date();
+				member.setDate(now.getTime());
+				list.add(member);
+			}
+
+		} catch (SQLException se)
+		{
+			ServiceLogger.log(logTag, se.getMessage());
+			return null;
+		}
+		return list;
+	}
 }
