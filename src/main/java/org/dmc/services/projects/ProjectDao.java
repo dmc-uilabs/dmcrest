@@ -90,9 +90,11 @@ public class ProjectDao {
 			component = new ProjectComponent(num_components, projectId);
 
 			query = "SELECT u.firstname AS firstname, u.lastname AS lastname "
-					+ "FROM user_roles r "
-					+ "JOIN users u ON u.user_id = r.user_id WHERE r.role_id = 1 AND "
-					+ "r.group_id = ?";
+					+ "FROM pfo_user_role ur "
+					+ "JOIN users u ON u.user_id = ur.user_id "
+					+ "JOIN pfo_role r ON r.role_id = ur.role_id "
+					+ "WHERE r.role_id = 1 AND "
+					+ "r.home_group_id = ?";
 			preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, projectId);
 			resultSet = preparedStatement.executeQuery();
@@ -244,7 +246,7 @@ public class ProjectDao {
 
     void createProjectRole(String roleName, int projectId) throws SQLException {
     	// create project member role
-    	String createProjectMemberRoleQuery = "insert into pfo_role (role_name, role_class, home_group_id, is_public, old_role_id) values (?, 1, ?, FALSE, 0)";
+    	String createProjectMemberRoleQuery = "insert into pfo_role (role_name, role_class, home_group_id, is_public) values (?, 1, ?, FALSE)";
     	PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectMemberRoleQuery);
     	preparedStatement.setString(1,roleName);
     	preparedStatement.setInt(2,projectId);
