@@ -28,16 +28,17 @@ public class CompanyDao {
     
     public ArrayList<Company> getCompanies(String userEPPN) throws HTTPException{
         ArrayList<Company> companies = null;
+        ServiceLogger.log(logTag, "User: " + userEPPN + " asking for all companies");
 		
         try {
             // get all organizations;
             // does the organization need to be active member?  assume no.
-			resultSet = DBConnector.executeQuery("SELECT organization_id, name FROM organization");
+			resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name FROM organization");
 			companies = new ArrayList<Company>();
             
 			while (resultSet.next()) {
 				int id = resultSet.getInt("organization_id");
-                int accountId = resultSet.getInt("accountId");
+                int accountId = resultSet.getInt("accountid");
 				String name = resultSet.getString("name");
 
                 Company company = new Company.CompanyBuilder(id, accountId, name).build();
