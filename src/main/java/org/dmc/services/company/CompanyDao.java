@@ -23,9 +23,8 @@ public class CompanyDao {
 
 	private final String logTag = CompanyDao.class.getName();
 	private ResultSet resultSet;
-	private Connection connection = DBConnector.connection();
-
-    
+	private Connection connection;
+	
     public ArrayList<Company> getCompanies(String userEPPN) throws HTTPException{
         ArrayList<Company> companies = null;
         ServiceLogger.log(logTag, "User: " + userEPPN + " asking for all companies");
@@ -52,7 +51,7 @@ public class CompanyDao {
 	}
 
     
-	public Company getCompany(int id, String userEPPN) throws HTTPException{ 
+	public Company getCompany(int id, String userEPPN) throws HTTPException { 
 		
 		try {
 			if (!isDMDIIMember(id, userEPPN)) {
@@ -155,6 +154,8 @@ public class CompanyDao {
 	}
 	
 	public Id createCompany(String jsonStr, String userEPPN) { 
+		
+		connection = DBConnector.connection();
 		Util util = Util.getInstance();
 		PreparedStatement statement;
 		String query;
@@ -327,11 +328,11 @@ public class CompanyDao {
 		}
 		return new Id.IdBuilder(id)
 		.build();
-
 	}
 	
 	public Id updateCompany(int id, String jsonStr) {
 		 
+		connection = DBConnector.connection();
 		int companyId = id, commonAddressId, commonImageId;
 
 		try {
@@ -481,6 +482,7 @@ public class CompanyDao {
 	
 	public Id deleteCompany(int id) {
 		
+		connection = DBConnector.connection();
 		PreparedStatement statement;
 		String query;
 	    int organizationId = id, commonAddressId, commonImageId;
