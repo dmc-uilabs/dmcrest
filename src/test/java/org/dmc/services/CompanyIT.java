@@ -100,7 +100,7 @@ public class CompanyIT extends BaseIT {
             
             // check JSON later
 		} else {
-            assertTrue("Could not create new user", false);
+            assertTrue("Could not create new company", false);
         }
 	}
 
