@@ -1,18 +1,15 @@
-package org.dmc.services;
+package org.dmc.services.accounts;
 
 import org.junit.Test;
 
-import java.util.Date;
-import java.text.SimpleDateFormat;
-
 import static com.jayway.restassured.RestAssured.*;
-import com.jayway.restassured.response.ValidatableResponse;
 import static org.junit.Assert.*;
 
 import org.json.JSONObject;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
+import org.dmc.services.BaseIT;
 import org.dmc.services.utility.TestUserUtil;
 import org.dmc.services.accounts.UserAccount;
 import org.dmc.services.users.User;
