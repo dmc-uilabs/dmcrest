@@ -8,9 +8,6 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
 
-import org.apache.commons.codec.binary.Base64;
-import java.util.Arrays;
-
 public class ProjectListDao {
 
 	private final String logTag = ProjectListDao.class.getName();
