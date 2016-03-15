@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.parsing.Parser;
+import java.util.ArrayList;
 
 import javax.xml.ws.http.HTTPException;
 
@@ -25,10 +24,29 @@ public class CompanyController {
 	
     private CompanyDao companyDao = new CompanyDao(); 
 	
+    /**
+     Return a list of companies
+     **/
+    @RequestMapping(value = "/companies", method = RequestMethod.GET, produces = { "application/json"})
+    public ResponseEntity getCompanies(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+    	ServiceLogger.log(logTag, "getCompanys, userEPPN: " + userEPPN);
+    	int statusCode = HttpStatus.OK.value();
+    	ArrayList<Company> companies = null;
+    	
+    	try {
+            companies = companyDao.getCompanies(userEPPN);
+            return new ResponseEntity<ArrayList<Company>>(companies, HttpStatus.valueOf(statusCode));
+    	} catch (HTTPException e) {
+    		ServiceLogger.log(logTag, e.getMessage());
+    		statusCode = e.getStatusCode();
+    		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+    		return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+    	}
+    }
+    
     @RequestMapping(value = "/companies/{id}", method = RequestMethod.GET, produces = { "application/json"})
     public ResponseEntity getCompany(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
     	ServiceLogger.log(logTag, "getCompany, id: " + id);
-    	RestAssured.defaultParser = Parser.JSON;
     	int statusCode = HttpStatus.OK.value();
     	Company company = null; 
     	

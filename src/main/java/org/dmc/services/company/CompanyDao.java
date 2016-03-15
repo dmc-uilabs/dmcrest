@@ -15,6 +15,7 @@ import org.dmc.services.sharedattributes.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
+import java.util.ArrayList;
 
 import javax.xml.ws.http.HTTPException;
 
@@ -24,6 +25,33 @@ public class CompanyDao {
 	private ResultSet resultSet;
 	private Connection connection = DBConnector.connection();
 
+    
+    public ArrayList<Company> getCompanies(String userEPPN) throws HTTPException{
+        ArrayList<Company> companies = null;
+        ServiceLogger.log(logTag, "User: " + userEPPN + " asking for all companies");
+		
+        try {
+            // get all organizations;
+            // does the organization need to be active member?  assume no.
+            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name FROM organization");
+            companies = new ArrayList<Company>();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("organization_id");
+                int accountId = resultSet.getInt("accountid");
+                String name = resultSet.getString("name");
+
+                Company company = new Company.CompanyBuilder(id, accountId, name).build();
+                companies.add(company);
+            }
+        } catch (SQLException e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            throw new HTTPException(HttpStatus.FORBIDDEN.value());  // ToDo: what error should this be?
+        }
+        return companies;
+	}
+
+    
 	public Company getCompany(int id, String userEPPN) throws HTTPException{ 
 		
 		try {

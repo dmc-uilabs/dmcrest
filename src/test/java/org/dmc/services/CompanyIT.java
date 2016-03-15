@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import static org.junit.Assert.*;
 
 import java.util.UUID;
 
@@ -9,6 +10,9 @@ import org.junit.runner.RunWith;
 import org.junit.Before; 
 import org.junit.After;
 import org.junit.Ignore;
+
+import org.dmc.services.company.Company;
+import java.util.ArrayList;
 
 import static com.jayway.restassured.RestAssured.*;
 
@@ -21,7 +25,8 @@ public class CompanyIT extends BaseIT {
 	private static final String COMPANY_CREATE_RESOURCE = "/companies/create";
 	private static final String COMPANY_UPDATE_RESOURCE = "/companies/{id}/update";
 	private static final String COMPANY_DELETE_RESOURCE = "/companies/{id}/delete";
-	
+	private static final String ALL_COMPANY_GET_RESOURCE = "/companies";
+
 	private Integer createdId = null;
 	String randomEPPN = UUID.randomUUID().toString();
 		
@@ -41,7 +46,65 @@ public class CompanyIT extends BaseIT {
 				.extract()
 				.path("id");
 	}
-	
+
+    @Test
+	public void testCompaniesGetJSON() {
+		if (this.createdId != null) {
+            given().
+            header("Content-type", "application/json").
+            header("AJP_eppn", randomEPPN).
+            expect().
+            statusCode(200).
+            when().
+            get(ALL_COMPANY_GET_RESOURCE).
+    		then().
+                body(matchesJsonSchemaInClasspath("Schemas/companiesSchema.json"));  // checks JSON syntax
+		} else {
+            assertTrue("Could not create new user", false);
+        }
+	}
+
+    
+    @Test
+	public void testCompaniesGet() {
+		if (this.createdId != null) {
+			ArrayList<Company> orginalCompanyList =
+            given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", randomEPPN).
+            expect().
+                statusCode(200).
+            when().
+                get(ALL_COMPANY_GET_RESOURCE).as(ArrayList.class);
+            
+            // add one company
+            String savedRandomEPPN = randomEPPN;
+            randomEPPN = UUID.randomUUID().toString();
+            testCompanyCreate();
+            randomEPPN = savedRandomEPPN;
+            
+            ArrayList<Company> newCompanyList =
+            given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", randomEPPN).
+            expect().
+                statusCode(200).
+            when().
+                get(ALL_COMPANY_GET_RESOURCE).as(ArrayList.class);
+            
+            
+            assertTrue("",newCompanyList.size() == orginalCompanyList.size()+1);
+            
+//    		then().
+//                body(matchesJsonSchemaInClasspath("Schemas/companySchema.json"));
+            
+            // check JSON later
+		} else {
+            assertTrue("Could not create new company", false);
+        }
+	}
+
+    
 	@Test
 	public void testCompanyGet() {
 		if (this.createdId != null) {
