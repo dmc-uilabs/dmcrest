@@ -33,22 +33,21 @@ public class CompanyDao {
         try {
             // get all organizations;
             // does the organization need to be active member?  assume no.
-			resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name FROM organization");
-			companies = new ArrayList<Company>();
-            
-			while (resultSet.next()) {
-				int id = resultSet.getInt("organization_id");
+            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name FROM organization");
+            companies = new ArrayList<Company>();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("organization_id");
                 int accountId = resultSet.getInt("accountid");
-				String name = resultSet.getString("name");
+                String name = resultSet.getString("name");
 
                 Company company = new Company.CompanyBuilder(id, accountId, name).build();
                 companies.add(company);
             }
-		} catch (SQLException e) {
-			ServiceLogger.log(logTag, e.getMessage());
+        } catch (SQLException e) {
+            ServiceLogger.log(logTag, e.getMessage());
             throw new HTTPException(HttpStatus.FORBIDDEN.value());  // ToDo: what error should this be?
-		}
-		
+        }
         return companies;
 	}
 
