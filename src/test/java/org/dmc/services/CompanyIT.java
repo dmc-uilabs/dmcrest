@@ -145,15 +145,15 @@ public class CompanyIT extends BaseIT {
 		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 	
-//	// Cleanup
-//	@After  
-//	public void testCompanyDelete() {
-//		expect().statusCode(200)
-//		.when()
-//		.get(COMPANY_DELETE_RESOURCE, this.createdId.toString())
-//		.then()
-//		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-//	}
+	// Cleanup
+	@After  
+	public void testCompanyDelete() {
+		expect().statusCode(200)
+		.when()
+		.get(COMPANY_DELETE_RESOURCE, this.createdId.toString())
+		.then()
+		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+	}
 	
 	public JSONObject createFixture() {
 		
