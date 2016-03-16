@@ -90,11 +90,20 @@ public class ProjectController {
 
     @RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces="application/json")
     public ResponseEntity<ArrayList<ProjectMember>> getProjectMembers(
-    		@RequestParam("projectname") String projectname,
+    		@RequestParam(value="projectId", required=false) String projectIdString,
+    		@RequestParam(value="profileId", required=false) String profileIdString,
+    		@RequestParam(value="accept", required=false) boolean accept,
+    		@RequestParam(value="_limit", required=false) int _limit,
+    		@RequestParam(value="_order", required=false) String _order,
+    		@RequestParam(value="_sort", required=false) String _sort,
     		@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In getProjectMembers: as user " + userEPPN);
 
-        return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectMembers(userEPPN), HttpStatus.OK);
+        if (null != projectIdString) {
+        	return new ResponseEntity<ArrayList<ProjectMember>>(project.getMembersForProject(projectIdString, userEPPN), HttpStatus.OK);
+        } else {
+        	return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectMembers(userEPPN), HttpStatus.OK);
+        }
     }
 
     @RequestMapping(value = "/projects_members", method = RequestMethod.POST, produces="application/json")
