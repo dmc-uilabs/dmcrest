@@ -23,6 +23,9 @@ public class CompanyDao {
 
 	private final String logTag = CompanyDao.class.getName();
 	private ResultSet resultSet;
+	
+	// Only declare here and instantiate in method where it is used
+	// Instantiating here may cause NullPointer Exceptions
 	private Connection connection;
 	
     public ArrayList<Company> getCompanies(String userEPPN) throws HTTPException{
