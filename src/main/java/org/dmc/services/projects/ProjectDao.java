@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
@@ -74,7 +75,12 @@ public class ProjectDao {
 				id = resultSet.getInt("id");
 				title = resultSet.getString("title");
 				description = resultSet.getString("description");
-				due_date = resultSet.getLong("due_date");
+				Timestamp t = resultSet.getTimestamp("due_date");
+				if (null == t) {
+					due_date = 0;
+				} else {
+					due_date = t.getTime();
+				}
 
 				if (description == null)
 					description = "";
@@ -142,7 +148,7 @@ public class ProjectDao {
 		preparedStatement.setString(4,  description);
 		preparedStatement.setInt(5,  isPublic);
 		preparedStatement.setInt(6, userID);
-		preparedStatement.setLong(7, dueDate);
+		preparedStatement.setTimestamp(7, new Timestamp(dueDate));
 		preparedStatement.executeUpdate();
 
 		// since no parameters can use execute query safely
