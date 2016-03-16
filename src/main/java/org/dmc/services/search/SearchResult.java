@@ -1,5 +1,6 @@
 package org.dmc.services.search;
 
+import org.dmc.services.company.Company;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
 import org.dmc.services.services.Service;
@@ -13,6 +14,7 @@ import java.util.List;
  */
 public class SearchResult {
 
+    private List<Company> companies;
     private List<Component> components;
     private List<Project> projects;
     private List<Service> services;
@@ -55,5 +57,13 @@ public class SearchResult {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+
+    public List<Company> getCompanies() {
+        return companies;
+    }
+
+    public void setCompanies(List<Company> companies) {
+        this.companies = companies;
     }
 }

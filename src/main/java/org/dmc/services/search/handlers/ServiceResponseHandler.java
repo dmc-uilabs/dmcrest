@@ -50,7 +50,7 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
 
 
     @Override
-    public List<Service> retrieve(QueryResponse queryResponse) {
+    public List<Service> retrieve(QueryResponse queryResponse, String userEPPN) {
 
         List<Service> l = null;
 

@@ -4,12 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.company.Company;
 import org.dmc.services.services.Service;
+import org.dmc.services.users.User;
 import org.junit.Assert;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
 import org.junit.Test;
 
+import javax.xml.ws.http.HTTPException;
 import java.util.List;
 
 /**
@@ -45,6 +48,9 @@ public class SearchIT {
 //    }
 
 
+    public static final String USER_TEST_USER = "testUser";
+    public static final String USER_ACME_USER = "acmeUser";
+
     private final String logTag = SearchIT.class.getName();
 
     @Test
@@ -57,7 +63,7 @@ public class SearchIT {
         SearchResult searchResult = null;
 
         try {
-            searchResult = searchController.search(queryString);
+            searchResult = searchController.search(queryString, USER_TEST_USER);
         } catch (SearchException e) {
             Assert.fail(e.toString());
             e.printStackTrace();
@@ -84,7 +90,7 @@ public class SearchIT {
         SearchController searchController = new SearchController();
         List<Project> projects = null;
         try {
-            projects = searchController.searchProjects(queryString);
+            projects = searchController.searchProjects(queryString, USER_TEST_USER);
         } catch (SearchException e) {
             e.printStackTrace();
         }
@@ -109,7 +115,7 @@ public class SearchIT {
         SearchController searchController = new SearchController();
         List<Component> components = null;
         try {
-            components = searchController.searchComponents(queryString);
+            components = searchController.searchComponents(queryString, USER_TEST_USER);
         } catch (SearchException e) {
             e.printStackTrace();
         }
@@ -141,7 +147,7 @@ public class SearchIT {
         SearchController searchController = new SearchController();
         List<Service> services = null;
         try {
-            services = searchController.searchServices(queryString);
+            services = searchController.searchServices(queryString, USER_TEST_USER);
         } catch (SearchException e) {
             e.printStackTrace();
         }
@@ -158,12 +164,120 @@ public class SearchIT {
         }
 
         Assert.assertTrue(services != null);
-        Assert.assertTrue(services.size() > 0);
+        Assert.assertTrue(services.size() == 1);
 
         Service service =services.get(0);
         Assert.assertTrue(service != null);
         Assert.assertTrue(service.getDescription() != null);
-        Assert.assertTrue(service.getDescription().toString().indexOf("velocity") >= 0);
+        Assert.assertTrue("Description '" + service.getDescription() + "' does not match '" + queryString + "'", service.getDescription().toLowerCase().toString().indexOf(queryString.toLowerCase()) >= 0);
+    }
+
+    @Test
+    public void testSearchCompaniesMemberDMDII () {
+
+        String queryString = "GE Global";
+
+        SearchController searchController = new SearchController();
+        List<Company> companies = null;
+        try {
+            companies = searchController.searchCompanies(queryString, USER_TEST_USER);
+        } catch (HTTPException httpEX) {
+            Assert.fail(httpEX.getMessage());
+        }
+        catch (SearchException e) {
+            Assert.fail(e.getMessage());
+        }
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String jsonString = null;
+        try {
+            jsonString = objectMapper.writeValueAsString(companies);
+            ServiceLogger.log(logTag, jsonString);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(companies != null);
+        Assert.assertTrue(companies.size() > 0);
+
+        Company company  =companies.get(0);
+        Assert.assertTrue(company != null);
+        Assert.assertTrue(company.getName() != null);
+        Assert.assertTrue("Company: " + company.getName() + " does not match: " + queryString, company.getName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
+    }
+
+    @Test
+    public void testSearchCompaniesNonMemberDMDII () {
+
+        String queryString = "GE Global";
+
+        SearchController searchController = new SearchController();
+        List<Company> companies = null;
+        try {
+            companies = searchController.searchCompanies(queryString, USER_ACME_USER);
+        } catch (HTTPException httpEX) {
+            //Assert.fail(httpEX.getMessage());
+            Assert.assertTrue("User " + USER_ACME_USER + " is not DMIDD member, expected response", true);
+            return;
+        }
+        catch (SearchException e) {
+            Assert.fail(e.getMessage());
+        }
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String jsonString = null;
+        try {
+            jsonString = objectMapper.writeValueAsString(companies);
+            ServiceLogger.log(logTag, jsonString);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        // Since non DMDII memeber expected no results returned
+        Assert.assertTrue(companies == null);
+//        Assert.assertTrue(companies.size() > 0);
+//
+//        Company company  =companies.get(0);
+//        Assert.assertTrue(company != null);
+//        Assert.assertTrue(company.getName() != null);
+//        Assert.assertTrue("Company: " + company.getName() + " does not match: " + queryString, company.getName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
+    }
+
+    @Test
+    public void testSearchUsers () {
+
+        String queryString = "berlier";
+
+        SearchController searchController = new SearchController();
+        List<User> users = null;
+        try {
+            users = searchController.searchUsers(queryString, USER_TEST_USER);
+        } catch (SearchException e) {
+            e.printStackTrace();
+        }
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String jsonString = null;
+        try {
+            jsonString = objectMapper.writeValueAsString(users);
+            ServiceLogger.log(logTag, jsonString);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(users != null);
+        Assert.assertTrue(users.size() > 0);
+
+        User user  = users.get(0);
+        Assert.assertTrue(user != null);
+        Assert.assertTrue(user.getDisplayName() != null);
+        Assert.assertTrue("User: " + user.getDisplayName() + " does not match: " + queryString, user.getDisplayName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
     }
 
 }

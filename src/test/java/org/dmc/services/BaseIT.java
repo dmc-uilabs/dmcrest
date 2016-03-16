@@ -16,7 +16,7 @@ import com.jayway.restassured.RestAssured;
 @RunWith(SpringJUnit4ClassRunner.class) 
 @SpringApplicationConfiguration(classes = Application.class)     
 @WebAppConfiguration
-@IntegrationTest("server.port:0")  
+@IntegrationTest("localhost:8080")
 
 //@Ignore
 public class BaseIT {
@@ -45,7 +45,7 @@ public class BaseIT {
 		  ServiceLogger.log("BaseIT", "BASE URI specified, setting attributes");
 		  RestAssured.baseURI = baseURI; 
 		  RestAssured.port = Integer.getInteger("port", 8080).intValue();
-		  RestAssured.basePath = "/rest";
+		  RestAssured.basePath = "";
 		  
 		  
 	  }

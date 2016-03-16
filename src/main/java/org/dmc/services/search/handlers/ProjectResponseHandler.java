@@ -32,9 +32,8 @@ public class ProjectResponseHandler implements ResponseHandler<Project> {
     public static final String FIELD_UNIX_GROUP_NAME    = "unix_group_name";    public static final String FIELD_COMPONNET_NAME   = "component_name";
     public static final String FIELD_GROUP_ID           = "group_id";
 
-
     @Override
-    public List<Project> retrieve(QueryResponse queryResponse) {
+    public List<Project> retrieve(QueryResponse queryResponse, String userEPPN) {
 
         List<Project> l = null;
 
