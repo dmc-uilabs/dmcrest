@@ -39,6 +39,7 @@ public class ProjectDao {
 		int id = 0;
 		int num_tasks = 0, num_discussions = 0, num_services = 0, num_components = 0;
 		String title = "", description = "", query;
+		long due_date = 0;
 		String thumbnail = "";
 		String largeUrl = "";
 		FeatureImage image = new FeatureImage(thumbnail, largeUrl);
@@ -51,7 +52,7 @@ public class ProjectDao {
 		try {
 
 			query = "SELECT g.group_id AS id, g.group_name AS title, "
-				+ "g.short_description AS description, s.msg_posted AS count, "
+				+ "g.short_description AS description, g.due_date, s.msg_posted AS count, "
 				+"pt.taskCount AS taskCount, "
 				+"ss.servicesCount AS servicesCount, "
 				+"c.componentsCount AS componentsCount "
@@ -73,6 +74,7 @@ public class ProjectDao {
 				id = resultSet.getInt("id");
 				title = resultSet.getString("title");
 				description = resultSet.getString("description");
+				due_date = resultSet.getLong("due_date");
 
 				if (description == null)
 					description = "";
@@ -108,7 +110,10 @@ public class ProjectDao {
 					.task(task)
 					.service(service)
 					.discussion(discussion)
-					.component(component).projectManager(projectManager).build();
+					.component(component)
+					.projectManager(projectManager)
+					.dueDate(due_date)
+					.build();
 
 
 		} catch (SQLException e) {
@@ -117,7 +122,7 @@ public class ProjectDao {
 		return null;
 	}
 
-	public Id createProject(String projectname, String unixname, String description, String projectType, String userEPPN) throws SQLException, JSONException, Exception {
+	public Id createProject(String projectname, String unixname, String description, String projectType, String userEPPN, long dueDate) throws SQLException, JSONException, Exception {
 		Connection connection = DBConnector.connection();
         // let's start a transaction
 		connection.setAutoCommit(false);
@@ -129,7 +134,7 @@ public class ProjectDao {
         int isPublic = Project.IsPublic(projectType);
 
 		// create new project in groups table
-		String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id) values ( ?, ?, ?, ?, ?, ? )";
+		String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date) values ( ?, ?, ?, ?, ?, ?, ? )";
 		PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
 		preparedStatement.setString(1, projectname);
 		preparedStatement.setString(2, unixname);
@@ -137,6 +142,7 @@ public class ProjectDao {
 		preparedStatement.setString(4,  description);
 		preparedStatement.setInt(5,  isPublic);
 		preparedStatement.setInt(6, userID);
+		preparedStatement.setLong(7, dueDate);
 		preparedStatement.executeUpdate();
 
 		// since no parameters can use execute query safely
@@ -230,7 +236,7 @@ public class ProjectDao {
 		String projectname = json.getString("projectname");
 		String unixname = json.getString("unixname");
         
-        return createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN);
+        return createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, 0);
 	}
         
 	public Id createProject(ProjectCreateRequest json, String userEPPN) throws SQLException, JSONException, Exception {
@@ -238,8 +244,9 @@ public class ProjectDao {
 		String projectname = json.getTitle();
 		String unixname = json.getTitle();
 		String description = json.getDescription();
+		long dueDate = json.getDueDate();
 
-        return createProject(projectname, unixname, description, Project.PRIVATE, userEPPN);
+        return createProject(projectname, unixname, description, Project.PRIVATE, userEPPN, dueDate);
 	}
 
     void createProjectRole(String roleName, int projectId) throws SQLException {

@@ -58,8 +58,8 @@ public class ProjectController {
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
-    	
-        return project.createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN);
+        long dueDate = 0;
+        return project.createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, dueDate);
     }
     
     @RequestMapping(value = "/projects/oldcreate", method = RequestMethod.POST, headers = {"Content-type=text/plain"})

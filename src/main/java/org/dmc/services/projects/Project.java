@@ -1,7 +1,5 @@
 package org.dmc.services.projects;
 
-//import ProjectBuilder;
-
 import org.dmc.services.sharedattributes.FeatureImage;
 
 public class Project {
@@ -15,6 +13,7 @@ public class Project {
 	private final ProjectDiscussion discussion; 
 	private final ProjectComponent component;
 	private final String projectManager;
+	private final long dueDate;
 	
 	public static final String PUBLIC = "public";
 	public static final String PRIVATE = "private";
@@ -23,7 +22,7 @@ public class Project {
 	
 	public Project(int projectId, String title, String description, FeatureImage img, 
 			ProjectTask pTask, ProjectService pService,
-			ProjectDiscussion pDiscussion, ProjectComponent component, String projectManager){
+			ProjectDiscussion pDiscussion, ProjectComponent component, String projectManager, long dueDate){
 		
 		this.id = projectId;
 		this.title = title;
@@ -35,6 +34,7 @@ public class Project {
 		this.discussion = pDiscussion;
 		this.component = component;
 		this.projectManager = projectManager;
+		this.dueDate = dueDate;
 				
 	}
 
@@ -49,6 +49,7 @@ public class Project {
 		this.discussion = build.discussion;
 		this.component = build.component;
 		this.projectManager = build.projectManager;
+		this.dueDate = build.dueDate;
 	}
 	
 	public int getId(){
@@ -65,6 +66,10 @@ public class Project {
 	
 	public String getDescription(){
 		return description;
+	}
+	
+	public long getDueDate() {
+		return dueDate;
 	}
 	
 	public String getImages(){
@@ -110,6 +115,7 @@ public class Project {
     	private ProjectDiscussion discussion; 
     	private ProjectComponent component;
     	private String projectManager;
+    	private long dueDate;
 
     	public ProjectBuilder(int id, String title, String description) {
     		this.id = id;
@@ -162,7 +168,11 @@ public class Project {
     		return this;
     	}
     	
-    	public Project build() {
+    	public ProjectBuilder dueDate(long dueDate){
+    		this.dueDate = dueDate;
+    		return this;
+    	}
+    	    	public Project build() {
     		return new Project(this);
     	}
 
