@@ -53,11 +53,19 @@ public class CompanyResponseHandler implements ResponseHandler<Company> {
 //                    String tools_software_equip_mach = (String) doc.getFieldValue(FIELD_TOOLS_SOFTWARE_EQUIP_MACH);
 //                    String collaboration_interest = (String) doc.getFieldValue(FIELD_COLLABORATION_INTEREST);
 
-                    Company company = companyDao.getCompany(id, userEPPN);
-                    if (l == null) {
-                        l = new ArrayList<Company>();
+                    Company company = null;
+                    try {
+                        company = companyDao.getCompany(id, userEPPN);
+                    } catch (RuntimeException runEx) {
+                        company = null;
                     }
-                    l.add(company);
+
+                    if (company != null) {
+                        if (l == null) {
+                            l = new ArrayList<Company>();
+                        }
+                        l.add(company);
+                    }
                 }
             }
         }
