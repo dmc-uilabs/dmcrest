@@ -37,6 +37,10 @@
       "id": "http://dmc-dev.geinspire.com/project/description",
       "type": ["string","null"] 
     },
+    "dueDate": {
+      "id": "http://dmc-dev.geinspire.com/project/dueDate",
+      "type": ["integer","null"] 
+    },
     "tasks": {
       "id": "http://dmc-dev.geinspire.com/project/tasks",
       "type": "object",
@@ -101,6 +105,7 @@
     "featureImage",
     "images",
     "description",
+    "dueDate",
     "tasks",
     "discussions",
     "services",
