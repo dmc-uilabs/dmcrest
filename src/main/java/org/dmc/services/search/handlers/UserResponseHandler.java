@@ -50,7 +50,7 @@ public class UserResponseHandler implements ResponseHandler<User> {
                     String realname = (String) doc.getFieldValue(FIELD_REALNAME);
                     String user_name = (String) doc.getFieldValue(FIELD_USER_NAME);
                     String companyIdStr = (String) doc.getFieldValue(FIELD_ID);
-                    int companyId = (companyIdStr != null) ? Integer.parseInt(idStr) : -1;
+                    int companyId = (companyIdStr != null) ? Integer.parseInt(companyIdStr) : -1;
                     String company = (String) doc.getFieldValue(FIELD_COMPANY);
 
                     User user =  new User.UserBuilder(id, user_name, realname, companyId).build();

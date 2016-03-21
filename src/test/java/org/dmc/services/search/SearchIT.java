@@ -280,4 +280,40 @@ public class SearchIT {
         Assert.assertTrue("User: " + user.getDisplayName() + " does not match: " + queryString, user.getDisplayName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
     }
 
+    @Test
+    public void testSearchUsersCompany () {
+
+        String queryString = "Joe";
+
+        SearchController searchController = new SearchController();
+        List<User> users = null;
+        try {
+            users = searchController.searchUsers(queryString, USER_TEST_USER);
+        } catch (SearchException e) {
+            e.printStackTrace();
+        }
+
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String jsonString = null;
+        try {
+            jsonString = objectMapper.writeValueAsString(users);
+            ServiceLogger.log(logTag, jsonString);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertTrue(users != null);
+        Assert.assertTrue(users.size() > 0);
+
+        int expectedCompanyId = 1;
+
+        User user  = users.get(0);
+        Assert.assertTrue(user != null);
+        Assert.assertTrue(user.getDisplayName() != null);
+        Assert.assertTrue("User: " + user.getDisplayName() + " does not match: " + queryString, user.getDisplayName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
+        Assert.assertTrue("User: " + user.getDisplayName() + " companyId does not match: " + expectedCompanyId , user.getCompanyId() == expectedCompanyId);
+    }
+
 }
