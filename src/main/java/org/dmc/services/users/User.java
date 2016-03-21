@@ -57,7 +57,7 @@ public class User {
         this.displayName = userBuilder.realName;
         this.accountId = userBuilder.id;
         this.profileId = -1;
-        this.companyId = -1;
+        this.companyId = userBuilder.companyId;
         this.role = -1;
         this.termsConditions = false;
         this.notifications = new UserNotifications();

@@ -49,7 +49,7 @@ public class UserResponseHandler implements ResponseHandler<User> {
                     int id = Integer.parseInt(idStr);
                     String realname = (String) doc.getFieldValue(FIELD_REALNAME);
                     String user_name = (String) doc.getFieldValue(FIELD_USER_NAME);
-                    String companyIdStr = (String) doc.getFieldValue(FIELD_ID);
+                    String companyIdStr = (String) doc.getFieldValue(FIELD_COMPANY_ID);
                     int companyId = (companyIdStr != null) ? Integer.parseInt(companyIdStr) : -1;
                     String company = (String) doc.getFieldValue(FIELD_COMPANY);
 
