@@ -294,13 +294,14 @@ public class SearchIT {
             e.printStackTrace();
         }
 
+        ServiceLogger.log(logTag, "testSearchUsersCompany: searchUsers returns: " + ((users != null) ? users.size() : 0));
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         String jsonString = null;
         try {
             jsonString = objectMapper.writeValueAsString(users);
-            ServiceLogger.log(logTag, jsonString);
+            ServiceLogger.log(logTag, "testSearchUsersCompany: " + jsonString);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -313,6 +314,8 @@ public class SearchIT {
         User user  = users.get(0);
         Assert.assertTrue(user != null);
         Assert.assertTrue(user.getDisplayName() != null);
+        ServiceLogger.log(logTag, "testSearchUsersCompany: user.getDisplayName=" + user.getDisplayName());
+        ServiceLogger.log(logTag, "testSearchUsersCompany: user.getCompanyId=" + user.getCompanyId());
         Assert.assertTrue("User: " + user.getDisplayName() + " does not match: " + queryString, user.getDisplayName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
         Assert.assertTrue("User: " + user.getDisplayName() + " companyId does not match: " + expectedCompanyId , user.getCompanyId() == expectedCompanyId);
     }
