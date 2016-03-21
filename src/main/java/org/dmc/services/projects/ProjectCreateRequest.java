@@ -17,7 +17,7 @@ public class ProjectCreateRequest {
 	private String title = null;
 	private String description = null; 
 	private String projectType = null;
-	private int dueDate = 0;
+	private long dueDate = 0;
 	
 //	@JsonCreator
 //	public ProjectCreateRequest(@JsonProperty("name") String name, @JsonProperty("description") String description)
@@ -50,12 +50,12 @@ public class ProjectCreateRequest {
 	}
 
 	@JsonProperty("dueDate")
-	public int getDueDate(){
+	public long getDueDate(){
 		return dueDate;
 	}
 
 	@JsonProperty("dueDate")
-	public void setDueDate(int value){
+	public void setDueDate(long value){
 		dueDate = value;
 	}
 	@JsonProperty("type")
