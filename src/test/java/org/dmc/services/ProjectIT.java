@@ -236,4 +236,16 @@ public class ProjectIT extends BaseIT {
 		assertEquals(0, Project.IsPublic("PRIVATE"));
 	}
 
+    @Test
+	public void testGetProject6Tags() {
+		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(200).
+		when().
+			get("/projects/6/projects_tags").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/projectTagListSchema.json"));
+	}
+	
 }

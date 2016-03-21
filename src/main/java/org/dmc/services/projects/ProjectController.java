@@ -42,7 +42,6 @@ public class ProjectController {
     	return projectList.getProjectList(userEPPN);
     }
     
-
 	// leaving this as an example of how to work with parameters to URL
 	// instead of json, but json is probably preferable
     @RequestMapping(value = "/projects/createWithParameter", method = RequestMethod.POST)
@@ -103,6 +102,14 @@ public class ProjectController {
     	return RoleDao.updateRole(params);
     }
     */
+    
+    @RequestMapping(value = "/projects/{projectID}/projects_tags", method = RequestMethod.GET)
+    public ArrayList<ProjectTag> getProjectTagList(@PathVariable("projectID") int projectID,
+    			  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+    	ServiceLogger.log(logTag, "In getProjectTagList as user " + userEPPN);
+        
+    	return project.getProjectTagList(projectID, userEPPN);
+    }
     
 //    @ExceptionHandler(Exception.class)
 //    public ResponseEntity<String> handleException(Exception ex) {
