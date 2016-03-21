@@ -50,6 +50,7 @@ public class SearchIT {
 
     public static final String USER_TEST_USER = "testUser";
     public static final String USER_ACME_USER = "acmeUser";
+    public static final String USER_JOE_ENGINEER = "joeengineer";
 
     private final String logTag = SearchIT.class.getName();
 
@@ -180,7 +181,7 @@ public class SearchIT {
         SearchController searchController = new SearchController();
         List<Company> companies = null;
         try {
-            companies = searchController.searchCompanies(queryString, USER_TEST_USER);
+            companies = searchController.searchCompanies(queryString, USER_JOE_ENGINEER);
         } catch (HTTPException httpEX) {
             Assert.fail(httpEX.getMessage());
         }
