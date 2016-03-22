@@ -3,6 +3,8 @@ package org.dmc.services.company;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.projects.Project;
+import org.dmc.services.projects.ProjectDao;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 
 import javax.xml.ws.http.HTTPException;
@@ -79,4 +82,22 @@ public class CompanyController {
     	ServiceLogger.log(logTag, "deleteCompany, id: " + id);
     	return  companyDao.deleteCompany(id);
     }
+    
+	private CompanySkillDao skills = new CompanySkillDao(); 
+	
+    @RequestMapping(value = "/companies/{companyID}/company_skills", method = RequestMethod.GET)
+    public ArrayList<CompanySkill> getCompanySkills(@PathVariable("companyID") int companyID,
+    						  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+
+    	ServiceLogger.log(this.logTag, "In getCompanySkills, companyID: " + companyID + " as user " + userEPPN);
+    	return this.skills.getCompanySkills(userEPPN, companyID);
+    }
+    
+    @RequestMapping(value = "/company_skills", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    public int createCompanySkills(@RequestBody String payload, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
+    {
+    	return 0;
+    }
+
+
 }
