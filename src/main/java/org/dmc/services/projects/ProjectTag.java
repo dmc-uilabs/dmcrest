@@ -1,21 +1,26 @@
 package org.dmc.services.projects;
 
 public class ProjectTag {
-	private final int id;
-	private final String tag;
+	private int id;
+	private int projectId;
+	private String name;
 		
-	public ProjectTag(int id, String tag){
-		
+	public ProjectTag(int id, String projectId, String name){
 		this.id = id;
-		this.tag = tag;
+		this.projectId = Integer.parseInt(projectId);
+		this.name = name;
 	}
 
 	public int getId(){
 		return id;
 	}
 	
-	public String getTag(){
-		return tag;
+	public String getProjectId(){
+		return String.format("%d", projectId);
+	}
+	
+	public String getName(){
+		return name;
 	}
 	
 }
