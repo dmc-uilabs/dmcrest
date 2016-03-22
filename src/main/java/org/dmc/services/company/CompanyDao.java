@@ -28,7 +28,7 @@ public class CompanyDao {
 	// Instantiating here may cause NullPointer Exceptions
 	private Connection connection;
 	
-    public ArrayList<Company> getCompanies(String userEPPN) throws HTTPException{
+    public ArrayList<Company> getCompanies(String userEPPN) throws HTTPException {
         ArrayList<Company> companies = null;
         ServiceLogger.log(logTag, "User: " + userEPPN + " asking for all companies");
 		
@@ -333,14 +333,28 @@ public class CompanyDao {
 		.build();
 	}
 	
-	public Id updateCompany(int id, String jsonStr) {
+	public Id updateCompany(int id, /*Company company,*/ String jsonStr, String userEPPN) throws HTTPException {
 		 
 		connection = DBConnector.connection();
 		int companyId = id, commonAddressId, commonImageId;
 
 		try {
+			
+			// Ensure user is owner of company before patching
+			resultSet = DBConnector.executeQuery("SELECT owner FROM organization "
+					+ "WHERE organization_id = "  + id);
+			
+			if (resultSet.next()) {
+				String owner = resultSet.getString("owner");
+				if (!owner.equals(userEPPN)) {
+					ServiceLogger.log(logTag, "User is not owner of Company/Organization");
+					throw new HTTPException(HttpStatus.FORBIDDEN.value());
+				}
+			}
+			
+			connection.setAutoCommit(false);
+			
 			JSONObject json = new JSONObject(jsonStr);
-			       
 	        int accountId = json.getInt("accountId");    
 	        String name = json.getString("name");   
 	        String location =  json.getString("location");
@@ -377,7 +391,7 @@ public class CompanyDao {
 	        int favoratesCount = json.getInt("favoratesCount");
 	        boolean isOwner = json.getBoolean("isOwner");
 	        String owner =  json.getString("owner");
-	         
+	        
 	        // retrieve relational common_address and common_image
 			resultSet = DBConnector.executeQuery("SELECT a.id common_address_id, i.id common_image_id "
 					+ "FROM organization o "
@@ -468,15 +482,34 @@ public class CompanyDao {
 		        preparedStatement.setString(32, owner);
 		        preparedStatement.setInt(33, companyId);
 		        preparedStatement.executeUpdate();
+		        
+		        connection.commit();
 			}
 		}
 		catch (SQLException e) {
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag, "Transaction updateCompany Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
 		}
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
+		}
+		finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
 		}
 		return new Id.IdBuilder(companyId)
 		.build();

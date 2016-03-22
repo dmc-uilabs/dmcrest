@@ -23,7 +23,7 @@ public class CompanyIT extends BaseIT {
 	
 	private static final String COMPANY_GET_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_CREATE_RESOURCE = "/companies/create";
-	private static final String COMPANY_UPDATE_RESOURCE = "/companies/{id}/update";
+	private static final String COMPANY_UPDATE_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_DELETE_RESOURCE = "/companies/{id}/delete";
 	private static final String ALL_COMPANY_GET_RESOURCE = "/companies";
 
@@ -104,7 +104,6 @@ public class CompanyIT extends BaseIT {
         }
 	}
 
-    
 	@Test
 	public void testCompanyGet() {
 		if (this.createdId != null) {
@@ -137,12 +136,25 @@ public class CompanyIT extends BaseIT {
 		JSONObject json = updateFixture();
 		given()
 		.body(json.toString())
+		.header("AJP_eppn", randomEPPN)
 		.expect()
 		.statusCode(200)
 		.when()
-		.post(COMPANY_UPDATE_RESOURCE, this.createdId.toString())
+		.patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString())
 		.then()
 		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+	}
+	
+	@Test
+	public void testCompanyUpdateNotOwner() {
+		JSONObject json = updateFixture();
+		given()
+		.body(json.toString())
+		.header("AJP_eppn", randomEPPN + "-random")
+		.expect()
+		.statusCode(403)
+		.when()
+		.patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString());
 	}
 	
 	// Cleanup

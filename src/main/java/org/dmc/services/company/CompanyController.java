@@ -68,12 +68,27 @@ public class CompanyController {
     	return companyDao.createCompany(payload, userEPPN);
     }
 
-    @RequestMapping(value = "/companies/{id}/update", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    @ResponseBody
-    public Id updateCompany(@PathVariable("id") int id, @RequestBody String payload) {
-    	ServiceLogger.log(logTag, "UpdateCompany, ID: " + id + " Payload: " + payload);	
-    	return companyDao.updateCompany(id, payload);
+    @RequestMapping(value = "/companies/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
+    public ResponseEntity updateCompany(@PathVariable("id") int id,
+    					//@RequestBody Company company, 
+    					@RequestBody String payload, 
+    					@RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+    	
+    	ServiceLogger.log(logTag, "UpdateCompany, ID: " + id + " Payload: " + payload);
+
+        int statusCode = HttpStatus.OK.value();
+        Id retrievedId = null;
+        
+        try {
+            retrievedId = companyDao.updateCompany(id, /*company,*/ payload, userEPPN);
+            return new ResponseEntity<Id>(retrievedId, HttpStatus.valueOf(statusCode));
+        } catch(HTTPException e) {
+    		statusCode = e.getStatusCode();
+    		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+    		return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+        }  
     }
+    
     @RequestMapping(value = "/companies/{id}/delete", method = RequestMethod.GET)
     public Id deleteCompany(@PathVariable("id") int id) {
     	ServiceLogger.log(logTag, "deleteCompany, id: " + id);
