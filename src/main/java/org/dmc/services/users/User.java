@@ -57,7 +57,7 @@ public class User {
         this.displayName = userBuilder.realName;
         this.accountId = userBuilder.id;
         this.profileId = -1;
-        this.companyId = -1;
+        this.companyId = userBuilder.companyId;
         this.role = -1;
         this.termsConditions = false;
         this.notifications = new UserNotifications();
@@ -227,6 +227,7 @@ public class User {
         private int id;
         private String userName;
         private String realName;
+        private int companyId;
 
         public UserBuilder (int id) {
             this.id = id;
@@ -243,6 +244,13 @@ public class User {
             this.userName = userName;
         }
 
+        public UserBuilder (int id, String userName, String realName, int companyId) {
+            this.id = id;
+            this.realName = realName;
+            this.userName = userName;
+            this.companyId = companyId;
+        }
+
         public void userName (String userName) {
             this.userName = userName;
         }
@@ -254,6 +262,9 @@ public class User {
         public User build() {
             return new User(this);
         }
+
+        public void companyId (int companyId) { this.companyId = companyId; }
+
     }
 
 
