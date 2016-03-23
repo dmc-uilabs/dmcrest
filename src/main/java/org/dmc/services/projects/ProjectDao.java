@@ -1,5 +1,7 @@
 package org.dmc.services.projects;
 
+import java.util.ArrayList;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -288,5 +290,10 @@ public class ProjectDao {
 		} 
 		// else user has a role
     	return true;
+    }
+
+    public ArrayList<ProjectTag> getProjectTagList(int projectId, String userEPPN) {
+    	ServiceLogger.log(logTag, "WARNING: not yet implemented, so returning an empty list for testing/temporary front-end integration");
+    	return new ArrayList<ProjectTag>();
     }
 }

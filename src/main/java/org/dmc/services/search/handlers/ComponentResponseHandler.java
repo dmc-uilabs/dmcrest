@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.dmc.services.components.Component;
+import org.dmc.services.components.ComponentDao;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,8 +44,10 @@ public class ComponentResponseHandler implements ResponseHandler<Component> {
     public static final String FIELD_GROUP_NAME       = "group_name";
     public static final String FIELD_UNIX_GROUP_NAME  = "unix_group_name";
 
+    private ComponentDao componentDao = new ComponentDao();
+
     @Override
-    public List<Component> retrieve(QueryResponse queryResponse) {
+    public List<Component> retrieve(QueryResponse queryResponse, String userEPPN) {
 
         List<Component> l = null;
 
@@ -59,18 +62,18 @@ public class ComponentResponseHandler implements ResponseHandler<Component> {
 
                     String component_id = (String) doc.getFieldValue(FIELD_ID);
                     int comp_id = Integer.parseInt(component_id);
-                    String component_name = (String) doc.getFieldValue(FIELD_COMPONNET_NAME);
-                    String component_group_id = (String) doc.getFieldValue(FIELD_GROUP_ID);
-                    String group_name = (String) doc.getFieldValue(FIELD_GROUP_NAME);
-                    String unix_group_name = (String) doc.getFieldValue(FIELD_UNIX_GROUP_NAME);
-                    String component_description = "";
+//                    String component_name = (String) doc.getFieldValue(FIELD_COMPONNET_NAME);
+//                    String component_group_id = (String) doc.getFieldValue(FIELD_GROUP_ID);
+//                    String group_name = (String) doc.getFieldValue(FIELD_GROUP_NAME);
+//                    String unix_group_name = (String) doc.getFieldValue(FIELD_UNIX_GROUP_NAME);
+//                    String component_description = "";
+//                    Component component =  new Component.ComponentBuilder(comp_id, component_name, component_description).build();
 
-                    Component component =  new Component.ComponentBuilder(comp_id, component_name, component_description).build();
+                    Component component = componentDao.getComponent(comp_id);
                     if (l == null) {
                         l = new ArrayList<Component>();
                     }
                     l.add(component);
-
 
                 }
 

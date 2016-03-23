@@ -26,11 +26,13 @@ public class UserResponseHandler implements ResponseHandler<User> {
 
     public static final String FIELD_ID                 = "id";
     public static final String FIELD_REALNAME           = "realname";
-    public static final String FIELD_USER_NAME         = "user_name";
+    public static final String FIELD_USER_NAME          = "user_name";
+    public static final String FIELD_COMPANY_ID         = "company_id";
+    public static final String FIELD_COMPANY            = "company";
 
 
     @Override
-    public List<User> retrieve(QueryResponse queryResponse) {
+    public List<User> retrieve(QueryResponse queryResponse, String userEPPN) {
 
         List<User> l = null;
 
@@ -47,8 +49,12 @@ public class UserResponseHandler implements ResponseHandler<User> {
                     int id = Integer.parseInt(idStr);
                     String realname = (String) doc.getFieldValue(FIELD_REALNAME);
                     String user_name = (String) doc.getFieldValue(FIELD_USER_NAME);
+                    String companyIdStr = (String) doc.getFieldValue(FIELD_COMPANY_ID);
+                    int companyId = (companyIdStr != null) ? Integer.parseInt(companyIdStr) : -1;
+                    String company = (String) doc.getFieldValue(FIELD_COMPANY);
 
-                    User user =  new User.UserBuilder(id, user_name, realname).build();
+                    User user =  new User.UserBuilder(id, user_name, realname, companyId).build();
+
                     if (l == null) {
                         l = new ArrayList<User>();
                     }
