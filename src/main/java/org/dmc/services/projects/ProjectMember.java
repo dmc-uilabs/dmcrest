@@ -5,7 +5,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ProjectMember {
-	private String id;
+	private int id;
 	private int profileId;
 	private int projectId; 
 	private boolean accept;
@@ -19,7 +19,7 @@ public class ProjectMember {
 
 	@JsonProperty("id")
 	public String getId(){
-		return projectId + "-" + profileId;
+		return Integer.toString(id);
 	}
 	
 	@JsonProperty("profileId")

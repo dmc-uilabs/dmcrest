@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface ResponseHandler<T> {
 
-    public abstract List<T> retrieve(QueryResponse queryResponse);
+    public abstract List<T> retrieve(QueryResponse queryResponse, String userEPPN);
 }

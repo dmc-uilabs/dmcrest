@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/projects/0/project_members",
+  "type": "array",
+  "items": [
+    {
+      "id": "http://dmc-dev.geinspire.com/projects/0/project_members",
+      "type": "object",
+      "properties": {
+        "id": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_members/id",
+          "type": "string"
+        },
+        "profileId": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_members/profileId",
+          "type": "string"
+        },
+        "projectId": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_members/projectId",
+          "type": "string"
+        },
+        "accept": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_members/accept",
+          "type": "boolean"
+        },
+        "fromProfileId": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_members/fromProfileId",
+          "type": "string"
+        },
+        "from": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_members/from",
+          "type": "string"
+        },
+        "date": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_members/date",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "profileId",
+        "projectId",
+        "accept",
+        "fromProfileId",
+        "from",
+        "date"
+      ]
+    }
+  ]
+}

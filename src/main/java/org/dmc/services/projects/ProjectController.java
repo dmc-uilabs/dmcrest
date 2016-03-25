@@ -1,6 +1,7 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 import java.lang.Exception;
 
 import org.dmc.services.ErrorMessage;
@@ -41,7 +42,6 @@ public class ProjectController {
     	return projectList.getProjectList(userEPPN);
     }
     
-
 	// leaving this as an example of how to work with parameters to URL
 	// instead of json, but json is probably preferable
     @RequestMapping(value = "/projects/createWithParameter", method = RequestMethod.POST)
@@ -57,8 +57,8 @@ public class ProjectController {
     	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
-    	
-        return project.createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN);
+        long dueDate = 0;
+        return project.createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, dueDate);
     }
     
     @RequestMapping(value = "/projects/oldcreate", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
@@ -87,7 +87,22 @@ public class ProjectController {
 
         return new ResponseEntity<Id>(project.createProject(payload, userEPPN), HttpStatus.OK);
     }
-
+       /*
+    @RequestMapping(value = "/role/update", method = RequestMethod.POST)
+    @ResponseBody
+    public String updateRole(@RequestParam(value="id", defaultValue="-1") int id) {
+    	System.out.println("In createRole role: " + id);
+    	
+    	
+    	//RoleDao.createRole updates the Role in the database identified by id using the provided POST params
+    	//it creates an instance of this role i.e new Role(param.id, param.name, param.title.....)
+    	//this controller in turn returns this updated Role instance to the reques using spring's Jackson which
+    	//converts the response to JSON
+    	
+    	return RoleDao.updateRole(params);
+    }
+    */
+    
     @RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces="application/json")
     public ResponseEntity<ArrayList<ProjectMember>> getProjectMembers(
     		@RequestParam(value="projectId", required=false) String projectIdString,
@@ -122,7 +137,7 @@ public class ProjectController {
         return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectsForMember(memberId, userEPPN), HttpStatus.OK);
     }
     
-    @RequestMapping(value = "/projects_members/project/{projectId}", method = RequestMethod.GET, produces="application/json")
+    @RequestMapping(value = "/projects/{projectId}/projects_members", method = RequestMethod.GET, produces="application/json")
     public ResponseEntity<ArrayList<ProjectMember>> getMembersForProject(@PathVariable("projectId") String projectId, 
     																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In getMembersForProject: for project" + projectId + " as user " + userEPPN);
@@ -148,6 +163,14 @@ public class ProjectController {
         return new ResponseEntity<ProjectMember>(project.rejectMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
     }
 
+    
+    @RequestMapping(value = "/projects/{projectID}/projects_tags", method = RequestMethod.GET)
+    public ArrayList<ProjectTag> getProjectTagList(@PathVariable("projectID") int projectID,
+    			  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+    	ServiceLogger.log(logTag, "In getProjectTagList as user " + userEPPN);
+        
+    	return project.getProjectTagList(projectID, userEPPN);
+    }
     
 //    @ExceptionHandler(Exception.class)
 //    public ResponseEntity<String> handleException(Exception ex) {

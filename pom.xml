@@ -259,8 +259,17 @@
 						<configuration>
 							<skipTests>${integration-tests.skip}</skipTests>
 							<includes>
+								<!-- By default failsafe-plugin includes tests with IT suffix -->
+								<!--
+
 								<include>**/*IT.class</include>
+								-->
 							</includes>
+							<!-- Exclude search tests by default -->
+							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT verify -P  "integration" -->
+							<excludes>
+								<exclude>**/SearchIT.java</exclude>
+							</excludes>
 						</configuration>
 					</execution>
 				</executions>

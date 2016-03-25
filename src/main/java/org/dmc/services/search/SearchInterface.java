@@ -1,5 +1,6 @@
 package org.dmc.services.search;
 
+import org.dmc.services.company.Company;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
 import org.dmc.services.services.Service;
@@ -18,7 +19,7 @@ public interface SearchInterface {
      * @return
      * @throws SearchException
      */
-    public SearchResult search (String query) throws SearchException;
+    public SearchResult search (String query, String userEPPN) throws SearchException;
 
     /**
      * Search components
@@ -26,7 +27,7 @@ public interface SearchInterface {
      * @return
      * @throws SearchException
      */
-    public List<Component> searchComponents (String query) throws SearchException;
+    public List<Component> searchComponents (String query, String userEPPN) throws SearchException;
 
     /**
      * Search services
@@ -34,7 +35,7 @@ public interface SearchInterface {
      * @return
      * @throws SearchException
      */
-    public List<Service> searchServices (String query) throws SearchException;
+    public List<Service> searchServices (String query, String userEPPN) throws SearchException;
 
     /**
      * Search projects
@@ -42,7 +43,7 @@ public interface SearchInterface {
      * @return
      * @throws SearchException
      */
-    public List<Project> searchProjects (String query) throws SearchException;
+    public List<Project> searchProjects (String query, String userEPPN) throws SearchException;
 
     /**
      * Search users
@@ -50,5 +51,13 @@ public interface SearchInterface {
      * @return
      * @throws SearchException
      */
-    public List<User> searchUsers (String query) throws SearchException;
+    public List<User> searchUsers (String query, String userEPPN) throws SearchException;
+
+    /**
+     * Search companies
+     * @param query
+     * @return
+     * @throws SearchException
+     */
+    public List<Company> searchCompanies (String query, String userEPPN) throws SearchException;
 }

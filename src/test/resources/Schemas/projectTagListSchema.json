@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/projects/0/project_tags",
+  "type": "array",
+  "items": [
+    {
+      "id": "http://dmc-dev.geinspire.com/projects/0/project_tags",
+      "type": "object",
+      "properties": {
+        "id": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_tags/id",
+          "type": "integer"
+        },
+        "projectId": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_tags/projectId",
+          "type": "string"
+        },
+        "title": {
+          "id": "http://dmc-dev.geinspire.com/projects/0/project_tags/tag",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "tag"
+      ]
+    }
+  ]
+}

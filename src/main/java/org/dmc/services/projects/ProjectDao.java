@@ -1,11 +1,13 @@
 package org.dmc.services.projects;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
+import java.sql.Timestamp;
 
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
@@ -41,6 +43,7 @@ public class ProjectDao {
 		int id = 0;
 		int num_tasks = 0, num_discussions = 0, num_services = 0, num_components = 0;
 		String title = "", description = "", query;
+		long due_date = 0;
 		String thumbnail = "";
 		String largeUrl = "";
 		FeatureImage image = new FeatureImage(thumbnail, largeUrl);
@@ -53,7 +56,7 @@ public class ProjectDao {
 		try {
 
 			query = "SELECT g.group_id AS id, g.group_name AS title, "
-				+ "g.short_description AS description, s.msg_posted AS count, "
+				+ "g.short_description AS description, g.due_date, s.msg_posted AS count, "
 				+"pt.taskCount AS taskCount, "
 				+"ss.servicesCount AS servicesCount, "
 				+"c.componentsCount AS componentsCount "
@@ -75,6 +78,12 @@ public class ProjectDao {
 				id = resultSet.getInt("id");
 				title = resultSet.getString("title");
 				description = resultSet.getString("description");
+				Timestamp t = resultSet.getTimestamp("due_date");
+				if (null == t) {
+					due_date = 0;
+				} else {
+					due_date = t.getTime();
+				}
 
 				if (description == null)
 					description = "";
@@ -91,11 +100,18 @@ public class ProjectDao {
 
 			component = new ProjectComponent(num_components, projectId);
 
+			// sample query:			
+			//	SELECT u.firstname AS firstname, u.lastname AS lastname 
+			//	FROM pfo_user_roles ur 
+			//	JOIN users u ON u.user_id = r.user_id 
+			//	JOIN pfo_roles r ON r.role_id = ur.role_id
+			//	WHERE r.role_id = 1 AND 
+			//		ur.group_id = 5
 			query = "SELECT u.firstname AS firstname, u.lastname AS lastname "
 					+ "FROM pfo_user_role ur "
 					+ "JOIN users u ON u.user_id = ur.user_id "
 					+ "JOIN pfo_role r ON r.role_id = ur.role_id "
-					+ "WHERE r.role_id = 1 AND "
+					+ "WHERE r.role_name = 'Admin' AND "
 					+ "r.home_group_id = ?";
 			preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, projectId);
@@ -112,7 +128,10 @@ public class ProjectDao {
 					.task(task)
 					.service(service)
 					.discussion(discussion)
-					.component(component).projectManager(projectManager).build();
+					.component(component)
+					.projectManager(projectManager)
+					.dueDate(due_date)
+					.build();
 
 
 		} catch (SQLException e) {
@@ -121,7 +140,7 @@ public class ProjectDao {
 		return null;
 	}
 
-	public Id createProject(String projectname, String unixname, String description, String projectType, String userEPPN) throws SQLException, JSONException, Exception {
+	public Id createProject(String projectname, String unixname, String description, String projectType, String userEPPN, long dueDate) throws SQLException, JSONException, Exception {
 		Connection connection = DBConnector.connection();
         // let's start a transaction
 		connection.setAutoCommit(false);
@@ -133,7 +152,7 @@ public class ProjectDao {
         int isPublic = Project.IsPublic(projectType);
 
 		// create new project in groups table
-		String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id) values ( ?, ?, ?, ?, ?, ? )";
+		String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date) values ( ?, ?, ?, ?, ?, ?, ? )";
 		PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
 		preparedStatement.setString(1, projectname);
 		preparedStatement.setString(2, unixname);
@@ -141,6 +160,7 @@ public class ProjectDao {
 		preparedStatement.setString(4,  description);
 		preparedStatement.setInt(5,  isPublic);
 		preparedStatement.setInt(6, userID);
+		preparedStatement.setTimestamp(7, new Timestamp(dueDate));
 		preparedStatement.executeUpdate();
 
 		// since no parameters can use execute query safely
@@ -182,11 +202,10 @@ public class ProjectDao {
 		}
 		
 		//add user as admin of project
-		String setUserAsAdminQuery = "INSERT into pfo_user_role (user_id, group_id, role_id) values (?, ?, ?)";
+		String setUserAsAdminQuery = "INSERT into pfo_user_role (user_id, role_id) values (?, ?)";
 		preparedStatement = DBConnector.prepareStatement(setUserAsAdminQuery);
 		preparedStatement.setInt(1, userID);
-		preparedStatement.setInt(2,  projectId);
-		preparedStatement.setInt(3,projectAdminRoleId);
+		preparedStatement.setInt(2,projectAdminRoleId);
 		preparedStatement.executeUpdate();
 		
 		
@@ -235,7 +254,7 @@ public class ProjectDao {
 		String projectname = json.getString("projectname");
 		String unixname = json.getString("unixname");
         
-        return createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN);
+        return createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, 0);
 	}
         
 	public Id createProject(ProjectCreateRequest json, String userEPPN) throws SQLException, JSONException, Exception {
@@ -243,8 +262,9 @@ public class ProjectDao {
 		String projectname = json.getTitle();
 		String unixname = json.getTitle();
 		String description = json.getDescription();
+		long dueDate = json.getDueDate();
 
-        return createProject(projectname, unixname, description, Project.PRIVATE, userEPPN);
+        return createProject(projectname, unixname, description, Project.PRIVATE, userEPPN, dueDate);
 	}
 
     void createProjectRole(String roleName, int projectId) throws SQLException {
@@ -258,6 +278,17 @@ public class ProjectDao {
    		// TODO: check insert was successful
     }
     
+    //
+    // Sample query: 
+	//  SELECT
+	//	role_name
+	//	FROM  
+	//	  public.pfo_user_role, 
+	//	  public.pfo_role 
+	//	WHERE  
+	//	  pfo_user_role.role_id = pfo_role.role_id AND 
+	//	  pfo_role.home_group_id = 6 AND 
+	//	  pfo_user_role.user_id = 102    
     boolean hasProjectRole(int projectId, String userEPPN) throws SQLException {
     	int userId = UserDao.getUserID(userEPPN);
     	String findUsersRoleInProjectQuery = 	"SELECT "+
@@ -280,6 +311,17 @@ public class ProjectDao {
 		} 
 		// else user has a role
     	return true;
+    }
+
+    public ArrayList<ProjectMember> getProjectMemberList(int projectId, String userEPPN) {
+    	ServiceLogger.log(logTag, "WARNING: not yet implemented, so returning an empty list for testing/temporary front-end integration");
+    	return new ArrayList<ProjectMember>();
+    }
+    
+
+    public ArrayList<ProjectTag> getProjectTagList(int projectId, String userEPPN) {
+    	ServiceLogger.log(logTag, "WARNING: not yet implemented, so returning an empty list for testing/temporary front-end integration");
+    	return new ArrayList<ProjectTag>();
     }
 
 // sample query for fforgeadmin user (102)
