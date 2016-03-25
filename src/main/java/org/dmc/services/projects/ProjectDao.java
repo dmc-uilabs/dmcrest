@@ -354,10 +354,76 @@ public class ProjectDao {
 		return list;
 	}
 	
-	// sample query for member 111 by fforgeadmin user (102), If by and member are same, then do not use the AND clause.
-	public ArrayList<ProjectJoinRequest> getProjectJoinRequest(ArrayList<String> projects, ArrayList<String> profiles, String userEPPN){
-		
+	public ArrayList<ProjectJoinRequest> getProjectJoinRequest(ArrayList<String> projects, ArrayList<String> profiles, String userEPPN)
+		throws Exception
+	{
+		try {
+			int userId = UserDao.getUserID(userEPPN);
+
+			// requesting user must be administrator of the project to get the list of members.
+			String projectJoinRequestQuery = "SELECT gjr.group_id, gjr.user_id, gjr.requester_id "
+					+ "FROM group_join_request gjr ";
+			String projectsInClause = CreateInClause(projects);
+			String profilesInClause = CreateInClause(profiles);
+			if (projectsInClause.length() > 0 && profilesInClause.length() > 0) {
+				projectJoinRequestQuery += "WHERE gjr.group_id " + projectsInClause;
+				projectJoinRequestQuery += "AND gjr.user_id " + profilesInClause;
+			} else if (projectsInClause.length() > 0) {
+				projectJoinRequestQuery += "WHERE gjr.group_id " + projectsInClause;
+			} else if (profilesInClause.length() > 0) {
+				projectJoinRequestQuery += "WHERE gjr.user_id " + profilesInClause;				
+			}
+
+			return getProjectJoinRequestsFromQuery(projectJoinRequestQuery, userId);
+		} catch (SQLException se)
+		{
+			ServiceLogger.log(logTag, se.getMessage());
+		}
+		return null;
+	}
+
+	private String CreateInClause(ArrayList<String> listOfInts) 
+		throws Exception 
+	{
+		String clause = "";
+		if (null != listOfInts && listOfInts.size() > 0) {
+			clause = "IN (";
+			for (String item : listOfInts) {
+				clause += Integer.parseInt(item);
+				clause += ",";
+			}
+			clause = clause.substring(0,clause.length()-1);
+			clause += ")";
+		}
+		return clause;
+	}
+	
+	private ArrayList<ProjectJoinRequest> getProjectJoinRequestsFromQuery(String query, int userIdEPPN) {
 		ArrayList<ProjectJoinRequest> list = new ArrayList<ProjectJoinRequest>();
+		try {
+			ServiceLogger.log(logTag,  "project join request query: " + query);
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.execute();
+			// TODO: limit query by who is requesting
+	
+			resultSet = preparedStatement.getResultSet();
+			while (resultSet.next()) {
+				//id = resultSet.getString("id");
+				ProjectJoinRequest pjr = new ProjectJoinRequest();
+				String project = Integer.toString(resultSet.getInt("group_id"));
+				String profile = Integer.toString(resultSet.getInt("user_id"));
+				String requester = Integer.toString(resultSet.getInt("requester_id"));
+				pjr.setId(project + "-" + profile + "-" + requester);
+				pjr.setProjectId(project);
+				pjr.setProfileId(profile);
+				list.add(pjr);
+			}
+	
+		} catch (SQLException se)
+		{
+			ServiceLogger.log(logTag, se.getMessage());
+			return null;
+		}
 		return list;
 	}
 

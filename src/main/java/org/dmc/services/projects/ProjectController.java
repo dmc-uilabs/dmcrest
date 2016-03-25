@@ -230,7 +230,7 @@ public class ProjectController {
         // prepare responseEntity
     	ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage())
 		.build();
-    	System.out.print(result);
+    	ServiceLogger.log(logTag, result.getMessage());
     	return result;
     }
 }
