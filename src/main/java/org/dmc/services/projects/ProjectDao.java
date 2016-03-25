@@ -345,7 +345,7 @@ public class ProjectDao {
 					+ "WHERE r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId + " and adr.role_name = 'Admin') "
 					+ "order by role_name, lastname, firstname ";
 
-			list = getProjectsMembersFromQuery(projectMembersQuery, userId);
+			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException se)
 		{
 			ServiceLogger.log(logTag, se.getMessage());
@@ -354,6 +354,18 @@ public class ProjectDao {
 		return list;
 	}
 	
+	// sample query for member 111 by fforgeadmin user (102), If by and member are same, then do not use the AND clause.
+	public ArrayList<ProjectJoinRequest> getProjectJoinRequest(ArrayList<String> projects, ArrayList<String> profiles, String userEPPN){
+		
+		ArrayList<ProjectJoinRequest> list = new ArrayList<ProjectJoinRequest>();
+		return list;
+	}
+
+	// sample query for member 111 by fforgeadmin user (102), If by and member are same, then do not use the AND clause.
+	public boolean deleteProjectRequest(String id, String userEPPN){
+		return false;
+	}
+
 	// sample query for member 111 by fforgeadmin user (102), If by and member are same, then do not use the AND clause.
 //  SELECT r.role_name, u.user_id, u.lastname, u.firstname, u.user_name, r.home_group_id
 //  FROM pfo_user_role ur
@@ -381,7 +393,7 @@ public class ProjectDao {
 			}
 			projectMembersQuery += "order by role_name, lastname, firstname ";
 			
-			list = getProjectsMembersFromQuery(projectMembersQuery, userId);
+			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException se)
 		{
 			ServiceLogger.log(logTag, se.getMessage());
@@ -415,7 +427,7 @@ public class ProjectDao {
 					+ "AND r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId + " and adr.role_name = 'Admin') "
 					+ "order by role_name, lastname, firstname ";
 
-			list = getProjectsMembersFromQuery(projectMembersQuery, userId);
+			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException se)
 		{
 			ServiceLogger.log(logTag, se.getMessage());
@@ -424,7 +436,7 @@ public class ProjectDao {
 		return list;
 	}
 	
-	private ArrayList<ProjectMember> getProjectsMembersFromQuery(String query, int fromUserId) {
+	private ArrayList<ProjectMember> getProjectsMembersFromQuery(String query) {
 		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
 		try {
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
@@ -434,13 +446,12 @@ public class ProjectDao {
 			while (resultSet.next()) {
 				//id = resultSet.getString("id");
 				ProjectMember member = new ProjectMember();
-				member.setProfileId(Integer.toString(resultSet.getInt(2)));
-				member.setProjectId(Integer.toString(resultSet.getInt(6)));
+				member.setProfileId(Integer.toString(resultSet.getInt("user_id")));
+				member.setProjectId(Integer.toString(resultSet.getInt("home_group_id")));
 				member.setAccept(true);
-				member.setFromProfileId(Integer.toString(fromUserId));
-				member.setFrom("????");
-				Date now = new Date();
-				member.setDate(now.getTime());
+				member.setFromProfileId("-1");
+				member.setFrom("unknown");
+				member.setDate(0);
 				list.add(member);
 			}
 	
@@ -652,7 +663,7 @@ public class ProjectDao {
         // let's start a transaction
 		try {
 			// requesting user must be administrator of the project to get the list of members.
-			String acceptMemberQuery = "DELETE from pfo_user_role where user_id = ? and group_id = ?";
+			String acceptMemberQuery = "DELETE from pfo_user_role where user_id = ? and role_id in (select role_id from pfo_role where = home_group_id = ?)";
 	    	PreparedStatement preparedStatement = DBConnector.prepareStatement(acceptMemberQuery);
 	    	preparedStatement.setInt(1, memberId);
 	    	preparedStatement.setInt(2, projectId);

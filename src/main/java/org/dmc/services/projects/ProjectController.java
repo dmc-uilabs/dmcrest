@@ -103,6 +103,53 @@ public class ProjectController {
     }
     */
     
+    @RequestMapping(value = "/projects_join_requests", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectJoinRequest>> getProjectsJoinRequests(
+    		@RequestParam(value="projectId", required=false) ArrayList<String> projects,
+    		@RequestParam(value="profileId", required=false) ArrayList<String> profiles,
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectsJoinRequests: as user " + userEPPN);
+
+        return new ResponseEntity<ArrayList<ProjectJoinRequest>>(project.getProjectJoinRequest(projects, profiles, userEPPN), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{projectId}/projects_join_requests", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectJoinRequest>> getProjectJoinRequests(
+    		@PathVariable("projectId") String projectId,
+    		@RequestParam(value="profileId", required=false) ArrayList<String> profiles,
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectsJoinRequests: as user " + userEPPN);
+
+        ArrayList<String> projects = new ArrayList<String>();
+        projects.add(projectId);
+        return new ResponseEntity<ArrayList<ProjectJoinRequest>>(project.getProjectJoinRequest(projects, profiles, userEPPN), HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/profiles/{profileId}/projects_join_requests", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectJoinRequest>> getProfileJoinRequests(
+    		@PathVariable("profileId") String profileId,
+    		@RequestParam(value="projectId", required=false) ArrayList<String> projects,
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectsJoinRequests: as user " + userEPPN);
+
+        ArrayList<String> profiles = new ArrayList<String>();
+        projects.add(profileId);
+        return new ResponseEntity<ArrayList<ProjectJoinRequest>>(project.getProjectJoinRequest(projects, profiles, userEPPN), HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/projects_join_requests/{id}", method = RequestMethod.DELETE, produces="application/json")
+    public ResponseEntity deleteProjectJoinRequests(
+    		@PathVariable("id") String id,
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In deleteProjectJoinRequests: for id " + id + " as user " + userEPPN);
+
+        if (project.deleteProjectRequest(id, userEPPN)) {
+        	return new ResponseEntity<String>("project join request id " + id + " successfully deleted", HttpStatus.OK);
+        } else {
+        	return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete project join request"), HttpStatus.FORBIDDEN);
+        }
+    }
+    
     @RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces="application/json")
     public ResponseEntity<ArrayList<ProjectMember>> getProjectMembers(
     		@RequestParam(value="projectId", required=false) String projectIdString,
