@@ -279,7 +279,7 @@ public class ProjectIT extends BaseIT {
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 		
-		ServiceLogger.log(logTag, response.extract().asString());
+		ServiceLogger.log(logTag, "testProjectJoinRequests " + response.extract().asString());
 		// based on data loaded in gforge.psql
 		String expectedResponseAsString = "[{\"id\":\"6-102-102\",\"projectId\":\"6\",\"profileId\":\"102\"},{\"id\":\"6-111-102\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"6-111-111\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"4-111-111\",\"projectId\":\"4\",\"profileId\":\"111\"}]";
 		assertTrue(expectedResponseAsString.equals(response.extract().asString()));
@@ -314,4 +314,125 @@ public class ProjectIT extends BaseIT {
 		expected.setProfileId("111");
 		assertTrue(list.contains(expected));
 	}		
+
+	@Test
+	public void testProjectJoinRequestsWithParamList(){
+		ValidatableResponse response =  
+		given().
+			header("AJP_eppn", userEPPN).
+			param("projectId", "4,6").
+			param("profileId", "145").
+		expect().
+			statusCode(200).
+		when().
+			get("/projects_join_requests").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
+		
+		ServiceLogger.log(logTag, "testProjectJoinRequests " + response.extract().asString());
+		// based on data loaded in gforge.psql
+		String expectedResponseAsString = "[]";
+		assertTrue(expectedResponseAsString.equals(response.extract().asString()));
+
+		JSONArray jsonArray = new JSONArray(response.extract().asString());
+		assertTrue(0 == jsonArray.length());
+	}
+
+	@Test
+	public void testProjectJoinRequestsProject6(){
+		ValidatableResponse response =  
+		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(200).
+		when().
+			get("/projects/6/projects_join_requests").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
+		
+		ServiceLogger.log(logTag, "testProjectJoinRequestsProject6" + response.extract().asString());
+		// based on data loaded in gforge.psql
+		String expectedResponseAsString = "[{\"id\":\"6-102-102\",\"projectId\":\"6\",\"profileId\":\"102\"},{\"id\":\"6-111-102\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"6-111-111\",\"projectId\":\"6\",\"profileId\":\"111\"}]";
+		assertTrue(expectedResponseAsString.equals(response.extract().asString()));
+
+		JSONArray jsonArray = new JSONArray(response.extract().asString());
+	    ArrayList<ProjectJoinRequest> list = new ArrayList<ProjectJoinRequest>();
+
+	    for (int i = 0; i < jsonArray.length(); i++) {
+	    	JSONObject json = jsonArray.getJSONObject(i);
+	    	ProjectJoinRequest item = new ProjectJoinRequest();
+	    	item.setId(json.getString("id"));
+	    	item.setProjectId(json.getString("projectId"));
+	    	item.setProfileId(json.getString("profileId"));
+	    	list.add(item);
+	    }
+
+		ProjectJoinRequest expected = new ProjectJoinRequest();
+		expected.setId("6-102-102");
+		expected.setProjectId("6");
+		expected.setProfileId("102");
+		assertTrue(list.contains(expected));
+		expected.setId("6-111-102");
+		expected.setProjectId("6");
+		expected.setProfileId("111");
+		assertTrue(list.contains(expected));
+		expected.setId("6-111-111");
+		expected.setProjectId("6");
+		expected.setProfileId("111");
+		assertTrue(list.contains(expected));
+		// this one should not appear because it is project 4
+		expected.setId("4-111-111");
+		expected.setProjectId("4");
+		expected.setProfileId("111");
+		assertFalse(list.contains(expected));
+	}
+
+	@Test
+	public void testProjectJoinRequestsProfile111(){
+		ValidatableResponse response =  
+		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(200).
+		when().
+			get("/profiles/111/projects_join_requests").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
+		
+		ServiceLogger.log(logTag, "testProjectJoinRequestsProfile111" + response.extract().asString());
+		// based on data loaded in gforge.psql
+		String expectedResponseAsString = "[{\"id\":\"6-111-102\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"6-111-111\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"4-111-111\",\"projectId\":\"4\",\"profileId\":\"111\"}]";
+		assertTrue(expectedResponseAsString.equals(response.extract().asString()));
+
+		JSONArray jsonArray = new JSONArray(response.extract().asString());
+	    ArrayList<ProjectJoinRequest> list = new ArrayList<ProjectJoinRequest>();
+
+	    for (int i = 0; i < jsonArray.length(); i++) {
+	    	JSONObject json = jsonArray.getJSONObject(i);
+	    	ProjectJoinRequest item = new ProjectJoinRequest();
+	    	item.setId(json.getString("id"));
+	    	item.setProjectId(json.getString("projectId"));
+	    	item.setProfileId(json.getString("profileId"));
+	    	list.add(item);
+	    }
+
+		ProjectJoinRequest expected = new ProjectJoinRequest();
+		expected.setId("6-102-102");
+		expected.setProjectId("6");
+		expected.setProfileId("102");
+		// this one should not appear because it is profile 102
+		assertFalse(list.contains(expected));
+		expected.setId("6-111-102");
+		expected.setProjectId("6");
+		expected.setProfileId("111");
+		assertTrue(list.contains(expected));
+		expected.setId("6-111-111");
+		expected.setProjectId("6");
+		expected.setProfileId("111");
+		assertTrue(list.contains(expected));
+		expected.setId("4-111-111");
+		expected.setProjectId("4");
+		expected.setProfileId("111");
+		assertTrue(list.contains(expected));
+	}
 }
