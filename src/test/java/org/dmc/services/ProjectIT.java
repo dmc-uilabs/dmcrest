@@ -1,14 +1,17 @@
 package org.dmc.services;
 
 import java.util.Date;
+import java.util.ArrayList;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
+import com.jayway.restassured.response.ValidatableResponse;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.Assert.*;
@@ -16,7 +19,9 @@ import static org.hamcrest.CoreMatchers.*;
 
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.projects.ProjectCreateRequest;
+import org.dmc.services.users.User;
 import org.dmc.services.projects.Project;
+import org.dmc.services.projects.ProjectJoinRequest;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -262,4 +267,51 @@ public class ProjectIT extends BaseIT {
 		
 	}
 
+	@Test
+	public void testProjectJoinRequests(){
+		ValidatableResponse response =  
+		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(200).
+		when().
+			get("/projects_join_requests").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
+		
+		ServiceLogger.log(logTag, response.extract().asString());
+		// based on data loaded in gforge.psql
+		String expectedResponseAsString = "[{\"id\":\"6-102-102\",\"projectId\":\"6\",\"profileId\":\"102\"},{\"id\":\"6-111-102\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"6-111-111\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"4-111-111\",\"projectId\":\"4\",\"profileId\":\"111\"}]";
+		assertTrue(expectedResponseAsString.equals(response.extract().asString()));
+
+		JSONArray jsonArray = new JSONArray(response.extract().asString());
+	    ArrayList<ProjectJoinRequest> list = new ArrayList<ProjectJoinRequest>();
+
+	    for (int i = 0; i < jsonArray.length(); i++) {
+	    	JSONObject json = jsonArray.getJSONObject(i);
+	    	ProjectJoinRequest item = new ProjectJoinRequest();
+	    	item.setId(json.getString("id"));
+	    	item.setProjectId(json.getString("projectId"));
+	    	item.setProfileId(json.getString("profileId"));
+	    	list.add(item);
+	    }
+
+		ProjectJoinRequest expected = new ProjectJoinRequest();
+		expected.setId("6-102-102");
+		expected.setProjectId("6");
+		expected.setProfileId("102");
+		assertTrue(list.contains(expected));
+		expected.setId("6-111-102");
+		expected.setProjectId("6");
+		expected.setProfileId("111");
+		assertTrue(list.contains(expected));
+		expected.setId("6-111-111");
+		expected.setProjectId("6");
+		expected.setProfileId("111");
+		assertTrue(list.contains(expected));
+		expected.setId("4-111-111");
+		expected.setProjectId("4");
+		expected.setProfileId("111");
+		assertTrue(list.contains(expected));
+	}		
 }
