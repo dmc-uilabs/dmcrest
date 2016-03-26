@@ -149,10 +149,23 @@ public class ProjectController {
 			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In deleteProjectJoinRequests: for id " + id + " as user " + userEPPN);
 
-        if (project.deleteProjectRequest(id, userEPPN)) {
-        	return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
-        } else {
-        	return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete project join request"), HttpStatus.FORBIDDEN);
+        try {
+            ServiceLogger.log(logTag, "In deleteProjectJoinRequests: for id " + id + " as user " + userEPPN);
+        	boolean ok = project.deleteProjectRequest(id, userEPPN);
+        	if (ok) {
+        		return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+        	} else {
+        		return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete project join request"), HttpStatus.FORBIDDEN);
+        	}
+        } catch (Exception e) {
+            ServiceLogger.log(logTag, "caught exception: for id " + id + " as user " + userEPPN + " " + e.getMessage());
+        	if (e.getMessage().equals("you are not allowed to delete this request")) {
+        		return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.UNAUTHORIZED);
+        	} else if (e.getMessage().equals("invalid id")) {
+        		return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.FORBIDDEN);        		
+        	} else {
+        		throw e;
+        	}
         }
     }
     

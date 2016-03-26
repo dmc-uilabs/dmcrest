@@ -22,6 +22,7 @@ import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.users.User;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
+import org.dmc.services.projects.PostProjectJoinRequest;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -435,4 +436,61 @@ public class ProjectIT extends BaseIT {
 		expected.setProfileId("111");
 		assertTrue(list.contains(expected));
 	}
+	
+	@Test
+	public void testCreateAndDeleteProjectJoinRequests(){
+		PostProjectJoinRequest json = new PostProjectJoinRequest();
+		json.setProjectId("4");
+		json.setProfileId("110");
+
+		String id = 
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(json).
+		expect().
+			statusCode(200).
+		when().
+			post("/projects_join_requests").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestSchema.json")).
+			extract().path("id");
+
+		// forbidden
+		String invalid_id = "12-44-102-483";
+		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(403).
+		when().
+			delete("/projects_join_requests/" + invalid_id);
+
+		// unauthorized
+		given().
+			header("AJP_eppn", "testUser").
+		expect().
+			statusCode(401).
+		when().
+			delete("/projects_join_requests/" + id);
+
+		// should be successful
+		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(204).
+		when().
+			delete("/projects_join_requests/" + id);
+
+		// forbidden - because it is already deleted
+		given().
+			header("AJP_eppn", userEPPN).
+			param("id", id).
+		expect().
+			statusCode(403).
+		when().
+			delete("/projects_join_requests/" + id);
+
+	}
+
+	
 }
