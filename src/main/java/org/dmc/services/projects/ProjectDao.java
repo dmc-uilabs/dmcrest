@@ -427,9 +427,56 @@ public class ProjectDao {
 		return list;
 	}
 
+	public ProjectJoinRequest createProjectJoinRequest(PostProjectJoinRequest json, String userEPPN) throws SQLException, JSONException, Exception {
+
+		String projectId = json.getProjectId();
+		String profileId = json.getProfileId();
+		int userId = UserDao.getUserID(userEPPN);
+
+        return createProjectJoinRequest(projectId, profileId, userId);
+	}
+
+	private ProjectJoinRequest createProjectJoinRequest(String projectId, String profileId, int requesterId) throws SQLException, Exception {
+
+    	String createProjectJoinRequestQuery = "insert into group_join_request (group_id, user_id, requester_id, request_date) values (?, ?, ?, now())";
+    	PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectJoinRequestQuery);
+    	preparedStatement.setInt(1,Integer.parseInt(projectId));
+    	preparedStatement.setInt(2,Integer.parseInt(profileId));
+    	preparedStatement.setInt(3,requesterId);
+   		preparedStatement.executeUpdate();
+   		
+   		ArrayList<String> projects = new ArrayList<String>();
+   		projects.add(projectId);
+   		ArrayList<String> profiles = new ArrayList<String>();
+   		profiles.add(profileId);
+   		ArrayList<ProjectJoinRequest> requests = getProjectJoinRequest(projects, profiles, Integer.toString(requesterId));
+   		// TODO - should only be one, but we aren't restricting by requester in query, so need to do it here.
+   		for (ProjectJoinRequest pjr : requests) {
+   			if (pjr.getId().equals(projectId + "-" + profileId + "-" + Integer.toString(requesterId))) return pjr;
+   		}
+   		
+   		throw new Exception("Failed to create join request");
+	}
+
 	// sample query for member 111 by fforgeadmin user (102), If by and member are same, then do not use the AND clause.
-	public boolean deleteProjectRequest(String id, String userEPPN){
-		return false;
+	public boolean deleteProjectRequest(String id, String userEPPN)
+		throws SQLException, Exception {
+		String [] values = id.split("-");
+		if (values.length != 3) throw new Exception("invalid id");
+		// TODO: probably expand permission to other project admins
+		int deleteRequester = UserDao.getUserID(userEPPN);
+		int projectId = Integer.parseInt(values[0]);
+		int profileId = Integer.parseInt(values[1]);
+		int requesterId = Integer.parseInt(values[2]);
+		if (deleteRequester != profileId && deleteRequester != requesterId) throw new Exception("you are not allowed to delete this request");
+    	String createProjectJoinRequestQuery = "delete from group_join_request where group_id = ? and user_id = ? and requester_id = ?";
+    	PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectJoinRequestQuery);
+    	preparedStatement.setInt(1,projectId);
+    	preparedStatement.setInt(2,profileId);
+    	preparedStatement.setInt(3,requesterId);
+   		int count = preparedStatement.executeUpdate();
+   		if (count != 1) return false;
+   		else return true;
 	}
 
 	// sample query for member 111 by fforgeadmin user (102), If by and member are same, then do not use the AND clause.

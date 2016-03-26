@@ -1,7 +1,6 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicLong;
 import java.lang.Exception;
 
 import org.dmc.services.ErrorMessage;
@@ -113,6 +112,13 @@ public class ProjectController {
         return new ResponseEntity<ArrayList<ProjectJoinRequest>>(project.getProjectJoinRequest(projects, profiles, userEPPN), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/projects_join_requests", method = RequestMethod.POST, consumes="application/json", produces="application/json")
+    public ResponseEntity<ProjectJoinRequest> createProjectJoinRequest(@RequestBody PostProjectJoinRequest payload,
+                                @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In createProjectJoinRequest: " + payload + " as user " + userEPPN);
+        return new ResponseEntity<ProjectJoinRequest>(project.createProjectJoinRequest(payload, userEPPN), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/projects/{projectId}/projects_join_requests", method = RequestMethod.GET, produces="application/json")
     public ResponseEntity<ArrayList<ProjectJoinRequest>> getProjectJoinRequests(
     		@PathVariable("projectId") String projectId,
@@ -138,13 +144,13 @@ public class ProjectController {
     }
     
     @RequestMapping(value = "/projects_join_requests/{id}", method = RequestMethod.DELETE, produces="application/json")
-    public ResponseEntity deleteProjectJoinRequests(
+    public ResponseEntity<?> deleteProjectJoinRequests(
     		@PathVariable("id") String id,
 			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In deleteProjectJoinRequests: for id " + id + " as user " + userEPPN);
 
         if (project.deleteProjectRequest(id, userEPPN)) {
-        	return new ResponseEntity<String>("project join request id " + id + " successfully deleted", HttpStatus.OK);
+        	return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
         } else {
         	return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete project join request"), HttpStatus.FORBIDDEN);
         }
