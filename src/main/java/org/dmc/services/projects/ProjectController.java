@@ -133,7 +133,7 @@ public class ProjectController {
         ServiceLogger.log(logTag, "In getProjectsJoinRequests: as user " + userEPPN);
 
         ArrayList<String> profiles = new ArrayList<String>();
-        projects.add(profileId);
+        profiles.add(profileId);
         return new ResponseEntity<ArrayList<ProjectJoinRequest>>(project.getProjectJoinRequest(projects, profiles, userEPPN), HttpStatus.OK);
     }
     
