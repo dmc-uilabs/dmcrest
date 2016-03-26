@@ -2,6 +2,8 @@ package org.dmc.services.projects;
 
 //import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.dmc.services.EqualsUtil;
+import org.dmc.services.HashCodeUtil;
 
 // JSON sent by frontend as of 10-Mar-2016
 // {
@@ -14,7 +16,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 // }
 
 public class ProjectJoinRequest {
-	private String id = null;
+
+    private String id = null;
 	private String projectId = null; 
 	private String profileId = null;
 	
@@ -58,4 +61,23 @@ public class ProjectJoinRequest {
 		profileId = value;
 	}
 
+	public boolean equals(Object o) {
+		if (null == o) return false;
+		if (this == o) return true;
+		if (!(o instanceof ProjectJoinRequest)) return false;
+		
+		ProjectJoinRequest pjr = (ProjectJoinRequest) o;
+		if (!EqualsUtil.areEqual(this.id, pjr.id)) return false;
+		if (!EqualsUtil.areEqual(this.projectId, pjr.projectId)) return false;
+		if (!EqualsUtil.areEqual(this.profileId, pjr.profileId)) return false;
+		return true;
+	}
+
+	public int hashCode() {
+		int result = HashCodeUtil.SEED;
+		result = HashCodeUtil.hash(result, this.id);
+		result = HashCodeUtil.hash(result, this.projectId);
+		result = HashCodeUtil.hash(result, this.profileId);
+	    return result;
+	}
 }
