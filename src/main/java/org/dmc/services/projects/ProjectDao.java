@@ -72,7 +72,7 @@ public class ProjectDao {
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, projectId);
 
-			ServiceLogger.log(logTag, "getService, id: " + projectId);
+			ServiceLogger.log(logTag, "getProject, id: " + projectId);
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
 				id = resultSet.getInt("id");
@@ -313,47 +313,17 @@ public class ProjectDao {
     	return true;
     }
 
-    public ArrayList<ProjectMember> getProjectMemberList(int projectId, String userEPPN) {
-    	ServiceLogger.log(logTag, "WARNING: not yet implemented, so returning an empty list for testing/temporary front-end integration");
-    	return new ArrayList<ProjectMember>();
-    }
-    
+//    public ArrayList<ProjectMember> getProjectMemberList(int projectId, String userEPPN) {
+//    	ServiceLogger.log(logTag, "WARNING: not yet implemented, so returning an empty list for testing/temporary front-end integration");
+//    	return new ArrayList<ProjectMember>();
+//    }
+//    
 
     public ArrayList<ProjectTag> getProjectTagList(int projectId, String userEPPN) {
     	ServiceLogger.log(logTag, "WARNING: not yet implemented, so returning an empty list for testing/temporary front-end integration");
     	return new ArrayList<ProjectTag>();
     }
 
-// sample query for fforgeadmin user (102)
-//    SELECT r.role_name, u.user_id, u.lastname, u.firstname, u.user_name, r.home_group_id
-//    FROM pfo_user_role ur
-//    JOIN users u ON u.user_id = ur.user_id
-//    JOIN pfo_role r ON r.role_id = ur.role_id
-//    WHERE r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102 and adr.role_name = 'Admin')
-//    order by role_name, lastname, firstname
-	public ArrayList<ProjectMember> getProjectMembers(String userEPPN){
-		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
-
-		try {
-			int userId = UserDao.getUserID(userEPPN);
-
-			// requesting user must be administrator of the project to get the list of members.
-			String projectMembersQuery = "SELECT r.role_name, u.user_id, u.lastname, u.firstname, u.user_name, r.home_group_id "
-					+ "FROM pfo_user_role ur "
-					+ "JOIN users u ON u.user_id = ur.user_id "
-					+ "JOIN pfo_role r ON r.role_id = ur.role_id "
-					+ "WHERE r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId + " and adr.role_name = 'Admin') "
-					+ "order by role_name, lastname, firstname ";
-
-			list = getProjectsMembersFromQuery(projectMembersQuery);
-		} catch (SQLException se)
-		{
-			ServiceLogger.log(logTag, se.getMessage());
-			return null;
-		}
-		return list;
-	}
-	
 	public ArrayList<ProjectJoinRequest> getProjectJoinRequest(ArrayList<String> projects, ArrayList<String> profiles, String userEPPN)
 		throws Exception
 	{
@@ -401,7 +371,6 @@ public class ProjectDao {
 	private ArrayList<ProjectJoinRequest> getProjectJoinRequestsFromQuery(String query, int userIdEPPN) {
 		ArrayList<ProjectJoinRequest> list = new ArrayList<ProjectJoinRequest>();
 		try {
-			ServiceLogger.log(logTag,  "project join request query: " + query);
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.execute();
 			// TODO: limit query by who is requesting
@@ -478,15 +447,41 @@ public class ProjectDao {
    		if (count != 1) return false;
    		else return true;
 	}
+	
+	// sample query for fforgeadmin user (102)
+//  select gjr.group_id, gjr.user_id, gjr.request_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.firstname, u.lastname
+//	from group_join_request gjr
+//	join users u on gjr.user_id = u.user_id
+//  where gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
+	public ArrayList<ProjectMember> getProjectMembers(String userEPPN){
+		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
 
+		try {
+			int userId = UserDao.getUserID(userEPPN);
+
+			// requesting user must be administrator of the project to get the list of members.
+			// requesting user must be administrator of the project to get the list of members.
+			String projectMembersQuery = "SELECT gjr.group_id, gjr.user_id, gjr.requester_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.realname, ur.realname requester_name "
+					+ "FROM group_join_request gjr "
+					+ "JOIN users u ON gjr.user_id = u.user_id "
+					+ "JOIN users ur ON gjr.requester_id = ur.user_id "
+					+ "WHERE gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId + " and adr.role_name = 'Admin') ";
+
+			list = getProjectsMembersFromQuery(projectMembersQuery);
+		} catch (SQLException se)
+		{
+			ServiceLogger.log(logTag, se.getMessage());
+			return null;
+		}
+		return list;
+	}
+	
 	// sample query for member 111 by fforgeadmin user (102), If by and member are same, then do not use the AND clause.
-//  SELECT r.role_name, u.user_id, u.lastname, u.firstname, u.user_name, r.home_group_id
-//  FROM pfo_user_role ur
-//  JOIN users u ON u.user_id = ur.user_id
-//  JOIN pfo_role r ON r.role_id = ur.role_id
-//  WHERE ur.user_id = 111
-//  AND r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-//  order by role_name, lastname, firstname
+//  select gjr.group_id, gjr.user_id, gjr.request_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.firstname, u.lastname
+//	from group_join_request gjr
+//	join users u on gjr.user_id = u.user_id
+//  where u.user_id = 111
+//  AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
 	public ArrayList<ProjectMember> getProjectsForMember(String memberIdString, String userEPPN){
 		
 		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
@@ -496,15 +491,14 @@ public class ProjectDao {
 			int memberId = UserDao.getUserID(memberIdString);
 
 			// requesting user must be administrator of the project to get the list of members.
-			String projectMembersQuery = "SELECT r.role_name, u.user_id, u.lastname, u.firstname, u.user_name, r.home_group_id "
-					+ "FROM pfo_user_role ur "
-					+ "JOIN users u ON u.user_id = ur.user_id "
-					+ "JOIN pfo_role r ON r.role_id = ur.role_id "
-					+ "WHERE ur.user_id = " + memberId;
+			String projectMembersQuery = "SELECT gjr.group_id, gjr.user_id, gjr.requester_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.realname, ur.realname requester_name "
+					+ "FROM group_join_request gjr "
+					+ "JOIN users u ON gjr.user_id = u.user_id "
+					+ "JOIN users ur ON gjr.requester_id = ur.user_id "
+					+ "WHERE u.user_id = " + memberId + " ";
 			if (memberId != userId) {
-				projectMembersQuery += "AND r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId + " and adr.role_name = 'Admin') ";
+				projectMembersQuery += "AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId + " and adr.role_name = 'Admin') ";
 			}
-			projectMembersQuery += "order by role_name, lastname, firstname ";
 			
 			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException se)
@@ -516,12 +510,11 @@ public class ProjectDao {
 	}
 	
 	// sample query for fforgeadmin user (102)
-//  SELECT r.role_name, u.user_id, u.lastname, u.firstname, u.user_name, r.home_group_id
-//  FROM pfo_user_role ur
-//  JOIN users u ON u.user_id = ur.user_id
-//  JOIN pfo_role r ON r.role_id = ur.role_id
-//  WHERE r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102 and adr.role_name = 'Admin')
-//  order by role_name, lastname, firstname
+//  select gjr.group_id, gjr.user_id, gjr.request_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.firstname, u.lastname
+//	from group_join_request gjr
+//	join users u on gjr.user_id = u.user_id
+//  where gjr.group_id = 6
+//  AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
 	public ArrayList<ProjectMember> getMembersForProject(String projectIdString, String userEPPN)
 		throws Exception
 	{
@@ -532,14 +525,12 @@ public class ProjectDao {
 			int projectId = Integer.parseInt(projectIdString);
 
 			// requesting user must be administrator of the project to get the list of members.
-			String projectMembersQuery = "SELECT r.role_name, u.user_id, u.lastname, u.firstname, u.user_name, r.home_group_id "
-					+ "FROM pfo_user_role ur "
-					+ "JOIN users u ON u.user_id = ur.user_id "
-					+ "JOIN pfo_role r ON r.role_id = ur.role_id "
-					+ "WHERE r.home_group_id = " + projectId + " "
-					+ "AND r.home_group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId + " and adr.role_name = 'Admin') "
-					+ "order by role_name, lastname, firstname ";
-
+			String projectMembersQuery = "SELECT gjr.group_id, gjr.user_id, gjr.requester_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.realname, ur.realname requester_name "
+					+ "FROM group_join_request gjr "
+					+ "JOIN users u ON gjr.user_id = u.user_id "
+					+ "JOIN users ur ON gjr.requester_id = ur.user_id "
+					+ "WHERE gjr.group_id = " + projectId + " "
+					+ "AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId + " and adr.role_name = 'Admin') ";
 			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException se)
 		{
@@ -560,11 +551,17 @@ public class ProjectDao {
 				//id = resultSet.getString("id");
 				ProjectMember member = new ProjectMember();
 				member.setProfileId(Integer.toString(resultSet.getInt("user_id")));
-				member.setProjectId(Integer.toString(resultSet.getInt("home_group_id")));
-				member.setAccept(true);
-				member.setFromProfileId("-1");
-				member.setFrom("unknown");
-				member.setDate(0);
+				member.setProjectId(Integer.toString(resultSet.getInt("group_id")));
+				Timestamp timestamp = resultSet.getTimestamp("accept_date");
+				if (null != timestamp) {
+					member.setAccept(true);
+				} else {
+					member.setAccept(false);
+				}
+				member.setFromProfileId(Integer.toString(resultSet.getInt("requester_id")));
+				member.setFrom(resultSet.getString("requester_name"));
+				timestamp = resultSet.getTimestamp("request_date");
+				member.setDate(timestamp.getTime());
 				list.add(member);
 			}
 	
@@ -591,7 +588,7 @@ public class ProjectDao {
 		int userId = UserDao.getUserID(userEPPN);
 		int memberId = Integer.parseInt(member.getProfileId());
 		int projectId = Integer.parseInt(member.getProjectId());
-		return acceptMemberInProject(projectId, memberId, userId);
+		return acceptMemberInProject(projectId, memberId, userId, userEPPN);
 	}
 	public ProjectMember acceptMemberInProject(String projectIdString, String memberIdString, String userEPPN)
 		throws Exception 
@@ -599,7 +596,7 @@ public class ProjectDao {
 		int userId = UserDao.getUserID(userEPPN);
 		int memberId = UserDao.getUserID(memberIdString);
 		int projectId = Integer.parseInt(projectIdString);
-		return acceptMemberInProject(projectId, memberId, userId);
+		return acceptMemberInProject(projectId, memberId, userId, userEPPN);
 	}		
 	//
 	// sample queries for userEPPN = 102 (fforgeadmin), memberId = 111 (testUser), and projectId = 6
@@ -610,7 +607,7 @@ public class ProjectDao {
 	// then insert into the pfo_user_role table
 	// 		INSERT pfo_user_role (user_id, role_id) values (111, 27);
 	//
-	private ProjectMember acceptMemberInProject(int projectId, int memberId, int userId)
+	private ProjectMember acceptMemberInProject(int projectId, int memberId, int userId, String userName)
 			throws Exception 
 		{	
 		boolean ok = IsRequesterAdmin(projectId, userId);
@@ -620,7 +617,7 @@ public class ProjectDao {
 		
 		int roleId = GetRole(projectId, "Project Member");
 		
-		ProjectMember member = acceptMember(memberId, roleId, projectId, userId);
+		ProjectMember member = acceptMember(memberId, roleId, projectId, userId, userName);
 		
 		if (null == member) {
 			throw new Exception("problem adding user " + memberId + " from project " + projectId);
@@ -673,7 +670,7 @@ public class ProjectDao {
 		return roleId;
 	}
 	
-	private ProjectMember acceptMember(int memberId, int roleId, int projectId, int fromUserId)
+	private ProjectMember acceptMember(int memberId, int roleId, int projectId, int fromUserId, String userName)
 		throws Exception
 	{
 		Connection connection = DBConnector.connection();
@@ -681,28 +678,42 @@ public class ProjectDao {
         // let's start a transaction
 		try {
 			// requesting user must be administrator of the project to get the list of members.
-			String acceptMemberQuery = "INSERT into pfo_user_role (user_id, role_id, group_id) values ( ?, ?, ?)";
+			String acceptMemberQuery = "INSERT into pfo_user_role (user_id, role_id) values ( ?, ?)";
 	    	PreparedStatement preparedStatement = DBConnector.prepareStatement(acceptMemberQuery);
 	    	preparedStatement.setInt(1, memberId);
 	    	preparedStatement.setInt(2, roleId);
-	    	preparedStatement.setInt(3, projectId);
 	   		int rowsAffected = preparedStatement.executeUpdate();
-			if (rowsAffected == 1) {		   		
-				ProjectMember member = new ProjectMember();
-				member.setProfileId(Integer.toString(memberId));
-				member.setProjectId(Integer.toString(projectId));
-				member.setAccept(true);
-				member.setFromProfileId(Integer.toString(fromUserId));
-				member.setFrom("????");
-				Date now = new Date();
-				member.setDate(now.getTime());
-				return member;
-			} else {
+			if (rowsAffected != 1) {		   		
 				// if we have < 1, then nothing happened, probably member is already in the project
 				// so rollback shouldn't cost us anything.
 				// if we have > 1 that would be weird
 				connection.rollback();
+				throw new Exception("unable to assign " + memberId + " to Project Member role in project " + projectId);
 			}
+			
+			String updateGroupJoinRequest = "UPDATE group_join_request SET accept_date = now(), reject_date = null "
+					+ "WHERE user_id = ? "
+					+ "AND group_id = ? ";
+	    	preparedStatement = DBConnector.prepareStatement(updateGroupJoinRequest);
+	    	preparedStatement.setInt(1, memberId);
+	    	preparedStatement.setInt(2, projectId);
+	   		rowsAffected = preparedStatement.executeUpdate();
+			if (rowsAffected != 1) {		   		
+				// if we have < 1, then nothing happened, probably we didn't have a group_join_request
+				// so rollback shouldn't cost us anything.
+				// if we have > 1 that would be weird
+				connection.rollback();
+				throw new Exception("no existing request to join the project " + projectId + " for memberId " + memberId);
+			}
+			
+			ArrayList<ProjectMember> projectMemberList = getMembersForProject(Integer.toString(projectId), userName);
+			for (ProjectMember member : projectMemberList) {
+				if (member.getProfileId().equals(Integer.toString(memberId))) {
+					return member;
+				}
+			}
+			connection.rollback();
+			throw new Exception("expected to find project member " + memberId + " in list of members for project " + projectId + " and failed");
 		} catch (SQLException se)
 		{
 			ServiceLogger.log(logTag, se.getMessage());
@@ -712,7 +723,6 @@ public class ProjectDao {
 		} finally {
 			connection.setAutoCommit(true);
 		}
-		return null;
 	}
 	//
 	// sample queries for userEPPN = 102 (fforgeadmin), memberId = 111 (testUser), and projectId = 6
@@ -743,7 +753,7 @@ public class ProjectDao {
 			}
 		}
 		
-		ProjectMember member = deleteMember(memberId, projectId, userId);
+		ProjectMember member = deleteMember(memberId, projectId, userId, userEPPN);
 		if (null == member) {
 			throw new Exception("problem deleting user " + memberIdString + " from project " + projectIdString);
 		}
@@ -768,7 +778,7 @@ public class ProjectDao {
 		return -1;
 	}
 
-	private ProjectMember deleteMember(int memberId, int projectId, int fromUserId)
+	private ProjectMember deleteMember(int memberId, int projectId, int fromUserId, String fromUsername)
 		throws Exception
 	{
 		Connection connection = DBConnector.connection();
@@ -776,27 +786,40 @@ public class ProjectDao {
         // let's start a transaction
 		try {
 			// requesting user must be administrator of the project to get the list of members.
-			String acceptMemberQuery = "DELETE from pfo_user_role where user_id = ? and role_id in (select role_id from pfo_role where = home_group_id = ?)";
-	    	PreparedStatement preparedStatement = DBConnector.prepareStatement(acceptMemberQuery);
+			String deleteMemberQuery = "DELETE from pfo_user_role where user_id = ? and role_id in (select role_id from pfo_role where home_group_id = ?)";
+	    	PreparedStatement preparedStatement = DBConnector.prepareStatement(deleteMemberQuery);
 	    	preparedStatement.setInt(1, memberId);
 	    	preparedStatement.setInt(2, projectId);
 	   		int rowsAffected = preparedStatement.executeUpdate();
-			if (rowsAffected == 1) {		   		
-				ProjectMember member = new ProjectMember();
-				member.setProfileId(Integer.toString(memberId));
-				member.setProjectId(Integer.toString(projectId));
-				member.setAccept(false);
-				member.setFromProfileId(Integer.toString(fromUserId));
-				member.setFrom("????");
-				Date now = new Date();
-				member.setDate(now.getTime());
-				return member;
-			} else {
+			if (rowsAffected != 1) {
 				// if we have < 1, then nothing happened, probably member is not already in the project
 				// so rollback shouldn't cost us anything.
 				// if we have > 1 that would be weird
 				connection.rollback();
+				throw new Exception("error trying to remove user " + memberId + " from role in project " + projectId);
 			}
+
+			String recordRejectQuery = "UPDATE group_join_request SET accept_date = null, reject_date = now() where user_id = ? and group_id = ?";
+	    	preparedStatement = DBConnector.prepareStatement(recordRejectQuery);
+	    	preparedStatement.setInt(1, memberId);
+	    	preparedStatement.setInt(2, projectId);
+	   		rowsAffected = preparedStatement.executeUpdate();
+			if (rowsAffected != 1) {
+				// if we have < 1, then nothing happened, probably member is not already in the project
+				// so rollback shouldn't cost us anything.
+				// if we have > 1 that would be weird
+				connection.rollback();
+				throw new Exception("error updating group join request to show memberId " + memberId + " rejects request for project " + projectId);
+			}
+						
+			ArrayList<ProjectMember> projectMemberList = getMembersForProject(Integer.toString(projectId), fromUsername);
+			for (ProjectMember member : projectMemberList) {
+				if (member.getProfileId().equals(Integer.toString(memberId))) {
+					return member;
+				}
+			}			
+			connection.rollback();
+			throw new Exception("expected to find project member " + memberId + " in list of members (requests) for project " + projectId + " and failed");
 		} catch (SQLException se)
 		{
 			ServiceLogger.log(logTag, se.getMessage());
@@ -806,7 +829,6 @@ public class ProjectDao {
 		} finally {
 			connection.setAutoCommit(true);
 		}
-		return null;
 	}
 	
 }

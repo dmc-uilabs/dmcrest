@@ -182,6 +182,8 @@ public class ProjectController {
 
         if (null != projectIdString) {
         	return new ResponseEntity<ArrayList<ProjectMember>>(project.getMembersForProject(projectIdString, userEPPN), HttpStatus.OK);
+        } else if (null != profileIdString) {
+            	return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectsForMember(profileIdString, userEPPN), HttpStatus.OK);
         } else {
         	return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectMembers(userEPPN), HttpStatus.OK);
         }
