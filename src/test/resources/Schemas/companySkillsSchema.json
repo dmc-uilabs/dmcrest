@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/companySkills",
+  "type": "array",
+  "items": [
+    {
+      "id": "http://dmc-dev.geinspire.com/companySkills/0",
+      "type": "object",
+      "properties": {
+        "id": {
+          "id": "http://dmc-dev.geinspire.com/companySkills/0/id",
+          "type": "integer"
+        },
+        "companyId": {
+          "id": "http://dmc-dev.geinspire.com/companySkills/0/companyId",
+          "type": "integer"
+        },
+        "skill": {
+          "id": "http://dmc-dev.geinspire.com/companySkills/0/skill",
+          "type": "string"
+        }
+      }
+    }
+  ]
+}
