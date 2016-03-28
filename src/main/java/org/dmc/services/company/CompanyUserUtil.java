@@ -8,7 +8,7 @@ import org.dmc.services.sharedattributes.FeatureImage;
 
 public class CompanyUserUtil {
 
-    public boolean isAdmin(String user)
+    public static boolean isAdmin(String user)
     {
     	boolean results = false;
     	try {
@@ -29,9 +29,9 @@ public class CompanyUserUtil {
     		// TODO: check what to do when there is query error
     		results = false;
     	}
-    	return true;
+    	return results;
     }
-    public boolean isDMDIIMember(String user)
+    public static boolean isDMDIIMember(String user)
     {
     	boolean results = false;
     	try {
@@ -54,6 +54,31 @@ public class CompanyUserUtil {
     		// TODO: check what to do when there is query error
     		results = false;
     	}
-    	return true;
+    	return results;
+    }
+
+    public static int getUserId(String user)
+    {
+    	int results = -999;
+    	try {
+    	String queryAdmin = 
+    	 "select user_id from users "+
+    		"where "+
+    			"users.user_name = ? ";
+		PreparedStatement preparedStatement = DBConnector.prepareStatement(queryAdmin);
+		preparedStatement.setString(1, user);
+		ResultSet r = preparedStatement.executeQuery();
+		if (r != null) 
+			{
+			results = r.getInt("user_id");
+			}
+    	}
+    	catch (Exception e)
+    	{
+    		// TODO: check what to do when there is query error
+    		results = -999;
+    	}
+    	return results;
     }
 }
+
