@@ -1,7 +1,9 @@
 package org.dmc.services.discussions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Discussion  {
@@ -14,6 +16,16 @@ public class Discussion  {
   private String accountId = null;
   private String projectId = null;
 
+  public Discussion() {
+      this.id = new String();
+      this.title = new String();
+      this.message = new String();
+      this.createdBy = new String();
+      this.createdAt = new java.math.BigDecimal("11120000");
+      this.accountId = new String();
+      this.projectId = new String();
+  }
+  
   public Discussion(DiscussionBuilder builder) {
 	this.id = builder.id;
 	this.title = builder.title;
@@ -139,24 +151,29 @@ public class Discussion  {
           this.title = title;
       }
 
-      public void message (String message) {
+      public  DiscussionBuilder message (String message) {
           this.message = message;
+          return this;
       }
 
-      public void createdBy (String createdBy) {
+      public DiscussionBuilder createdBy (String createdBy) {
           this.createdBy = createdBy;
+          return this;
       }
       
-      public void createdAt (BigDecimal createdAt) {
+      public DiscussionBuilder createdAt (BigDecimal createdAt) {
           this.createdAt = createdAt;
+          return this;
       }
       
-      public void accounId (String accountId) {
+      public DiscussionBuilder accountId (String accountId) {
           this.accountId = accountId;
+          return this;
       }
       
-      public void projectId (String projectId) {
+      public DiscussionBuilder projectId (String projectId) {
           this.projectId = projectId;
+          return this;
       }
 
       public Discussion build() {

@@ -1,15 +1,13 @@
 package org.dmc.services.discussions;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.Company;
-
-import java.util.Date;
+import org.springframework.http.HttpStatus;
 
 import javax.xml.ws.http.HTTPException;
 
@@ -21,27 +19,35 @@ public class DiscussionListDao {
 	public ArrayList<Discussion> getDiscussionList(String userEPPN) throws HTTPException {
 
 		ArrayList<Discussion> discussions = new ArrayList<Discussion>();
-        return discussions;
-		/*
-		int id = 0;
-		String text = "";
-		String full_name = "";
-		String avatar = "";
-		int projectId = 0;
-		long dateInt = 0;
-		String date = "";
+        
+        try {
 
-		String query = "SELECT h.comment_id AS id, " + "h.comment AS text, h.time_posted AS time, u.realname AS name, " + "h.ref_id AS pid, g.group_name as title FROM home_comments h JOIN "
-				+ "users u ON u.user_id = h.user_id JOIN groups g ON h.ref_id = g.group_id";
+            resultSet = DBConnector.executeQuery("SELECT * FROM forum_messages");
 
-		try {
-			return discussions;
-		} catch (SQLException e) {
-			ServiceLogger.log(logTag, e.getMessage());
-		}
+            while (resultSet.next()) {
+                String id = String.valueOf(resultSet.getInt("message_id"));
+                String title  = resultSet.getString("body");
+                String message = resultSet.getString("body");
+                String createdBy = resultSet.getString("reply_to");
+                BigDecimal createdAt = new java.math.BigDecimal(String.valueOf(resultSet.getInt("time_posted")));
+                String accountId = String.valueOf(resultSet.getInt("user_id"));
+                String projectId = String.valueOf(resultSet.getInt("topic_id"));
 
-		return null;
-		*/
-
+                Discussion discussion = new Discussion.DiscussionBuilder(id, title)
+                	.message(message)
+                	.createdBy(createdBy)
+                	.createdAt(createdAt)
+                	.accountId(accountId)
+                	.projectId(projectId)
+                .build();
+                
+                discussions.add(discussion);
+            }
+        } catch (SQLException e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        
+        return discussions;		
 	}
 }
