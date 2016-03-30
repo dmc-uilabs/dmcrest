@@ -21,7 +21,7 @@ import javax.xml.ws.http.HTTPException;
 public class CompanyController {
 
 	private final String logTag = CompanyController.class.getName();
-	
+
     private CompanyDao companyDao = new CompanyDao(); 
 	
     /**
@@ -94,4 +94,53 @@ public class CompanyController {
     	ServiceLogger.log(logTag, "deleteCompany, id: " + id);
     	return  companyDao.deleteCompany(id);
     }
+
+	/**
+	 * Add an administrator for a company
+	 * @param id
+	 * @param userId
+	 * @param userEPPN
+     * @return id of the organization_admin entry or -9999
+     */
+	@RequestMapping(value = "/companies/{id}/admin/{userId}", method = RequestMethod.POST)
+	public ResponseEntity addCompanyAdministrator (@PathVariable("id") int id, @PathVariable("userId") int userId, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+		ServiceLogger.log(logTag, "addCompanyAdministrator, id: " + id + ", userId: " + userId);
+
+		int statusCode = HttpStatus.OK.value();
+		Id retrievedId = null;
+
+		try {
+			retrievedId = companyDao.addAdministrator(id, userId, userEPPN);
+			return new ResponseEntity<Id>(retrievedId, HttpStatus.valueOf(statusCode));
+		} catch (HTTPException e) {
+			statusCode = e.getStatusCode();
+			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+		}
+	}
+
+	/**
+	 * Add an member for a company
+	 * @param id
+	 * @param userId
+	 * @param userEPPN
+	 * @return id of the organization_user entry or -9999
+	 */
+	@RequestMapping(value = "/companies/{id}/member/{userId}", method = RequestMethod.POST)
+	public ResponseEntity addCompanyMember (@PathVariable("id") int id, @PathVariable("userId") int userId, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+		ServiceLogger.log(logTag, "addCompanyMember, id: " + id + ", userId: " + userId);
+
+		int statusCode = HttpStatus.OK.value();
+		Id retrievedId = null;
+
+		try {
+			retrievedId = companyDao.addMember(id, userId, userEPPN);
+			return new ResponseEntity<Id>(retrievedId, HttpStatus.valueOf(statusCode));
+		} catch (HTTPException e) {
+			statusCode = e.getStatusCode();
+			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+		}
+	}
+
 }
