@@ -75,7 +75,6 @@ public class DiscussionIT extends BaseIT {
 
 		       assertTrue("", newDiscussionList.size() == originalDiscussionList.size()+1);
     	}
-
 	}
 
 	public JSONObject createFixture() {
