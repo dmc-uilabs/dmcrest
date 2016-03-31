@@ -181,6 +181,8 @@ public class CompanyAdminIT  extends BaseIT {
 
     }
 
+    // This test ignored until since Checks for admins/members are disabled as of 3/31/2016 until members for companies are tracked
+    @Ignore
     @Test
     public void testAddAdminNonMember () {
 
@@ -216,6 +218,8 @@ public class CompanyAdminIT  extends BaseIT {
 
     }
 
+    // This test ignored until since Checks for admins/members are disabled as of 3/31/2016 until members for companies are tracked
+    @Ignore
     @Test
     public void testAddMemberFailNonAdmin () {
 

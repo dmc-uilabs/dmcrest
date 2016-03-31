@@ -716,20 +716,35 @@ public class CompanyDao {
 			}
 
 			// Check that the user adding the administrator is an administrator or the owner
+			/**
+			 ** Checks disabled as of 3/31/2016 until members for companies are tracked
+			 **
 			if (!(isOwnerOfCompany(companyId, userIdEPPN) || isAdminOfCompany(companyId, userIdEPPN))) {
 				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to add administrators for company " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
+			*/
 
 			// Check that the user being added as an administrator is a member of the company
+			/**
+			 ** Checks disabled as of 3/31/2016 until members for companies are tracked
+			 **
 			Id userOrganizationId =  this.getUserOrganizationId(companyId, userId);
 
 			if (userOrganizationId == null || userOrganizationId.getId() == -1) {
 				ServiceLogger.log(logTag, "User " + userId + " is not a member of company " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
+			 */
 
+			// Until checks are implemented, must ensure there is a record of user in OEGANIZATION_USER
+			// so that foreign key on ORGANIZATION_ADMIN is satisifed
+			Id userOrganizationId =  this.getUserOrganizationId(companyId, userId);
+			if (userOrganizationId == null || userOrganizationId.getId() == -1) {
+				userOrganizationId = addMember(companyId, userId, userEPPN);
+			}
 
+			connection.setAutoCommit(false);
 
 			// Now add the user to the ORGANIZATION_ADMIN table
 			Util util = Util.getInstance();
@@ -742,7 +757,7 @@ public class CompanyDao {
 			organizationAdminId = util.getGeneratedKey(pstmt, "id");
 			ServiceLogger.log(logTag, "ASSOCIATED ORGANIZATION_ADMIN ENTRY: " + organizationAdminId);
 
-			connection.commit();;
+			connection.commit();
 
 		}
 		catch (SQLException sqlEx) {
@@ -786,6 +801,10 @@ public class CompanyDao {
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
 
+			/**
+			 /**
+			 ** Checks disabled as of 3/31/2016 until members for companies are tracked
+			 **
 			// Check that the user adding the administrator is an administrator or owner
 			if (!(isOwnerOfCompany(companyId, userIdEPPN) || isAdminOfCompany(companyId, userIdEPPN))) {
 				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to add administrators for company " + companyId);
@@ -797,6 +816,7 @@ public class CompanyDao {
 				ServiceLogger.log(logTag, "User " + userId + " is already a member of comapny " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
+			*/
 
 			// Now add the user to the ORGANIZATION_USER table
 			Util util = Util.getInstance();
