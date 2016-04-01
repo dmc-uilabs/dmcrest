@@ -16,12 +16,18 @@ public class DiscussionListDao {
 	private final String logTag = DiscussionListDao.class.getName();
 	private ResultSet resultSet;
 
-	public ArrayList<Discussion> getDiscussionList(String userEPPN, int limit, String order, String sort) throws HTTPException {
+	public ArrayList<Discussion> getDiscussionList(String userEPPN, int projectIdFilter, int limit, String order, String sort) throws HTTPException {
 
 		ArrayList<Discussion> discussions = new ArrayList<Discussion>();
         
         try {
-            resultSet = DBConnector.executeQuery("SELECT * FROM forum_messages ORDER BY " + sort + " " + order + " LIMIT " + limit);
+        	
+        	String query = "SELECT * FROM forum_messages ";
+        	if (projectIdFilter != -1) {
+        		query += "WHERE topic_id = " + projectIdFilter;
+        	}
+        	query += "ORDER BY " + sort + " " + order + " LIMIT " + limit;
+            resultSet = DBConnector.executeQuery(query);
 
             while (resultSet.next()) {
                 String id = String.valueOf(resultSet.getInt("message_id"));

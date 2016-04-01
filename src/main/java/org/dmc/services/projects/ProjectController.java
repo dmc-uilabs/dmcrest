@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.lang.Exception;
 
+import javax.xml.ws.http.HTTPException;
+
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-
+import org.dmc.services.discussions.Discussion;
+import org.dmc.services.discussions.DiscussionListDao;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ProjectController {
 
 	private final String logTag = ProjectController.class.getName();
+	private DiscussionListDao discussionListDao = new DiscussionListDao();
 	
 	private ProjectDao project = new ProjectDao(); 
     @RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
@@ -52,11 +55,7 @@ public class ProjectController {
             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
         ServiceLogger.log(logTag, "In createProject: " + projectname + ", " + unixname + " as user " + userEPPN);
-    	
-    	//RoleDao.createRole creates a new Role in the database using the provided POST params
-    	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
-    	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
+
         long dueDate = 0;
         return project.createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, dueDate);
     }
@@ -66,12 +65,6 @@ public class ProjectController {
                             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
         ServiceLogger.log(logTag, "In createProject: " + payload + " as user " + userEPPN);
-    	
-    	//RoleDao.createRole creates a new Role in the database using the provided POST params
-    	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
-    	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
-    	
     	return project.createProject(payload, userEPPN);
     }
 
@@ -79,30 +72,9 @@ public class ProjectController {
     public ResponseEntity<Id> createProject(@RequestBody ProjectCreateRequest payload,
                                 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "**********In createProject: " + payload + " as user " + userEPPN);
-
-        //RoleDao.createRole creates a new Role in the database using the provided POST params
-        //it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
-        //this controller in turn returns this new Role instance to the reques using spring's Jackson which
-        //converts the response to JSON
-
         return new ResponseEntity<Id>(project.createProject(payload, userEPPN), HttpStatus.OK);
     }
-       /*
-    @RequestMapping(value = "/role/update", method = RequestMethod.POST)
-    @ResponseBody
-    public String updateRole(@RequestParam(value="id", defaultValue="-1") int id) {
-    	System.out.println("In createRole role: " + id);
-    	
-    	
-    	//RoleDao.createRole updates the Role in the database identified by id using the provided POST params
-    	//it creates an instance of this role i.e new Role(param.id, param.name, param.title.....)
-    	//this controller in turn returns this updated Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
-    	
-    	return RoleDao.updateRole(params);
-    }
-    */
-    
+
     @RequestMapping(value = "/projects/{projectID}/projects_tags", method = RequestMethod.GET)
     public ArrayList<ProjectTag> getProjectTagList(@PathVariable("projectID") int projectID,
     			  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
@@ -111,12 +83,31 @@ public class ProjectController {
     	return project.getProjectTagList(projectID, userEPPN);
     }
     
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<String> handleException(Exception ex) {
-//        // prepare responseEntity
-//		return new ResponseEntity(ex.getMessage(), HttpStatus.BAD_REQUEST);
-//    }
-
+    /**	
+    *Return Project Discussions
+    **/
+   @RequestMapping(value = "/projects/{projectID}/all-discussions", method = RequestMethod.GET, produces = { "application/json"})
+   public ResponseEntity getDiscussions(@PathVariable("projectID") int projectID,
+		   								@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
+		   								@RequestParam(value="_limit", defaultValue="100") int limit,
+		   								@RequestParam(value="_order", defaultValue="DESC") String order,
+		   								@RequestParam(value="_sort", defaultValue="time_posted") String sort) {
+	   
+   	ServiceLogger.log(logTag, "getDiscussions, userEPPN: " + userEPPN);
+   	int statusCode = HttpStatus.OK.value();
+   	ArrayList<Discussion> discussions = null;
+   	
+   	try {
+           discussions = discussionListDao.getDiscussionList(userEPPN, projectID, limit, order, sort);
+           return new ResponseEntity<ArrayList<Discussion>>(discussions, HttpStatus.valueOf(statusCode));
+   	} catch (HTTPException e) {
+   		ServiceLogger.log(logTag, e.getMessage());
+   		statusCode = e.getStatusCode();
+   		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+   		return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+   	}
+   }
+    
     @ExceptionHandler(Exception.class)
     public ErrorMessage handleException(Exception ex) {
         // prepare responseEntity

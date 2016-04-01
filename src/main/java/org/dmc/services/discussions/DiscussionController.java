@@ -48,7 +48,7 @@ public class DiscussionController {
    	ArrayList<Discussion> discussions = null;
    	
    	try {
-           discussions = discussionListDao.getDiscussionList(userEPPN, limit, order, sort);
+           discussions = discussionListDao.getDiscussionList(userEPPN, -1, limit, order, sort);
            return new ResponseEntity<ArrayList<Discussion>>(discussions, HttpStatus.valueOf(statusCode));
    	} catch (HTTPException e) {
    		ServiceLogger.log(logTag, e.getMessage());
