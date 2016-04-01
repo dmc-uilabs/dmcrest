@@ -95,11 +95,10 @@ public class ProjectIT extends BaseIT {
 
 	@Test
 	public void testProjectCreateJsonString() {
+		
+		String unique = UUID.randomUUID().toString().substring(0, 24);
+		
 		JSONObject json = new JSONObject();
-		Date date = new Date();
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-		String unique = format.format(date);
-
 		json.put("projectname", "junit" + unique);
 		json.put("unixname", "junit" + unique);
         ServiceLogger.log(logTag, "testProjectCreateJsonString: json = " + json.toString());
