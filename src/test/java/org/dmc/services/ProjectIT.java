@@ -35,7 +35,7 @@ public class ProjectIT extends BaseIT {
 	String randomEPPN = UUID.randomUUID().toString();
 	private static final String PROJECT_DISCUSSIONS_RESOURCE = "/projects/{projectID}/all-discussions";
 
-    //@Test
+    @Test
 	public void testProject6() {
 		given().
 			header("AJP_eppn", userEPPN).
@@ -47,7 +47,7 @@ public class ProjectIT extends BaseIT {
 			body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
 	}
 	
-	//@Test
+	@Test
 	public void testProject5(){
 		
 		//TODO: need to update to another demo project
@@ -61,7 +61,7 @@ public class ProjectIT extends BaseIT {
 			body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));		
 	}
 	
-	//@Test
+	@Test
 	public void testProjectList(){
 		given().
 			header("AJP_eppn", userEPPN).
@@ -76,7 +76,7 @@ public class ProjectIT extends BaseIT {
 
 	// leaving this as an example of how to work with parameters to URL
 	// instead of json, but json is probably preferable
-	//@Test
+	@Test
 	public void testProjectCreateParameter(){
 		Date date = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -118,7 +118,7 @@ public class ProjectIT extends BaseIT {
 	}
 
 	// see as an example to configure the object https://github.com/jayway/rest-assured/wiki/Usage#serialization
-	//@Test
+	@Test
 	public void testProjectCreateJsonObject()
 	  throws IOException {
 		//JSONObject json = new JSONObject();
@@ -145,7 +145,7 @@ public class ProjectIT extends BaseIT {
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 
-	//@Test
+	@Test
 	public void ftestProjectCreateFailOnDuplicate(){
 		JSONObject json = new JSONObject();
 		Date date = new Date();
@@ -183,7 +183,7 @@ public class ProjectIT extends BaseIT {
 			body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
 	}
 
-	//@Test
+	@Test
 	public void testProjectCreateFailOnDuplicateJson()
 	  throws IOException {
 		//JSONObject json = new JSONObject();
