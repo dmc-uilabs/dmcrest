@@ -13,6 +13,9 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.Id;
 import org.dmc.services.Config;
 import org.dmc.services.sharedattributes.Util;
+
+import org.dmc.services.company.CompanyDao;
+
 import org.dmc.solr.SolrUtils;
 
 import java.io.IOException;
@@ -48,18 +51,11 @@ public class UserBasicInformationDao {
 			JSONObject json = new JSONObject(jsonStr.trim());
 			String username = userEPPN;
 
-			// Update user company
-			if (json.has("company")) {
-				String company = json.getString("company");
-				json.remove("company");
-				if (!company.equals("")) {
-					query = "UPDATE organization SET name = ? WHERE owner = ?";
-					statement = DBConnector.prepareStatement(query);
-					statement.setString(1, company);
-					statement.setString(2, username);
-					statement.executeUpdate();
-				}
-			}
+            // add user to company
+            int companyId = Integer.parseInt(json.getString("company"));
+            int userId = UserDao.getUserID(userEPPN);
+            CompanyDao companyDao = new CompanyDao();
+            companyDao.addMember(companyId, userId, userEPPN);
 
 			// update the rest of the user fields
 			ArrayList<String> setKeys = new ArrayList<String>();

@@ -85,7 +85,27 @@ public class UserBasicInformationIT extends BaseIT {
 			.body("id", equalTo(this.createdId));
 		}	
 	}
-	
+
+    @Test
+	public void basicInformationMissingCompanyField() {
+		if (this.createdId != -1) {
+			JSONObject json = createFixture("missingCompany");
+			given()
+			.header("Content-type", "application/json")
+			.header("AJP_eppn", randomEPPN)
+			.body(json.toString())
+			.expect()
+			.statusCode(200)
+			.when()
+			.post(UPDATE_RESOURCE)
+			.then()
+			.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+			// Be sure we've updated the correct user
+			.body("id", equalTo(-99999));
+		}
+	}
+
+    
 	@Test
 	public void basicInformationEmptyFields() {
 		if (this.createdId != -1) {
@@ -129,14 +149,17 @@ public class UserBasicInformationIT extends BaseIT {
 			json.put("email", "test basic info email");
 			json.put("firstName", "test basic info first name");
 			json.put("lastName", "test basic info last name");
-			json.put("company", "test basic info company");	
+			json.put("company", "1");
 		} else if (type.equals("missing")) {
+			json.put("email", "test basic info email");
+			json.put("company", "1");
+        } else if (type.equals("missingCompany")) {
 			json.put("email", "test basic info email");
 		} else if(type.equals("empty")) {
 			json.put("email", "test basic info email");
 			json.put("firstName", "");
 			json.put("lastName", "test basic info last name");
-			json.put("company", "");	
+			json.put("company", "1");
 		}
 		
 		return json;
