@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.UUID;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.Before; 
@@ -12,6 +13,7 @@ import org.junit.After;
 import org.junit.Ignore;
 
 import org.dmc.services.company.Company;
+import org.dmc.services.company.CompanySkill;
 import java.util.ArrayList;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -26,6 +28,8 @@ public class CompanyIT extends BaseIT {
 	private static final String COMPANY_UPDATE_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_DELETE_RESOURCE = "/companies/{id}/delete";
 	private static final String ALL_COMPANY_GET_RESOURCE = "/companies";
+	private static final String COMPANY_CREATE_SKILLS = "/company_skills";
+	private static final String COMPANY_GET_SKILLS = "/companies/{companyID}/company_skills";
 
 	private Integer createdId = null;
 	String randomEPPN = UUID.randomUUID().toString();
@@ -156,7 +160,45 @@ public class CompanyIT extends BaseIT {
 		.when()
 		.patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString());
 	}
-	
+    
+	@Test
+	public void testCompanySkillCreate() {
+		JSONArray skills = createSkills();
+		given()
+			.header("AJP_eppn", "testUser")
+			.body(skills.toString())
+		.expect()
+			.statusCode(200)
+		.when()
+			.post(COMPANY_CREATE_SKILLS);
+		//.then()
+		//	.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+	}
+	@Test
+	public void testCompanySkillGet() {		
+		// Create company skills to start with
+		JSONArray skills = createSkills();
+		given()
+			.body(skills.toString())
+		.expect()
+			.statusCode(200)
+		.when()
+			.post(COMPANY_CREATE_SKILLS);
+		//.then()
+		//	.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+		
+		// Use the company skills for testing
+		given()
+			.param("companyID", "1")
+		.expect()
+			.statusCode(200)
+		.when()
+//			//.post(COMPANY_GET_SKILLS,this.createdId);	
+			.get(COMPANY_GET_SKILLS, "1")
+		.then()
+			.body(matchesJsonSchemaInClasspath("Schemas/companySkillsSchema.json"));	
+}
+
 	// Cleanup
 	@After  
 	public void testCompanyDelete() {
@@ -165,6 +207,22 @@ public class CompanyIT extends BaseIT {
 		.get(COMPANY_DELETE_RESOURCE, this.createdId.toString())
 		.then()
 		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+	}
+	
+	@After
+	public void testCompanySkilDelete() {
+		// Need to get all the skills first, then try to delete them one by one.
+		// Use the company skills for testing
+		ArrayList<CompanySkill> skills = given()
+			.param("companyID", "1")
+		.expect()
+			.statusCode(200)
+		.when()
+//			//.post(COMPANY_GET_SKILLS,this.createdId);	
+			.get(COMPANY_GET_SKILLS, "1").as(ArrayList.class);
+		//TODO -- continue testing here...
+//		.then()
+//			.body(matchesJsonSchemaInClasspath("Schemas/companySkillsSchema.json")).as(ArrayList.class);
 	}
 	
 	public JSONObject createFixture() {
@@ -254,5 +312,22 @@ public class CompanyIT extends BaseIT {
         
 		return json;
 	}
-	
+	public JSONArray createSkills() {
+		
+		JSONArray skills = new JSONArray();
+		JSONObject skill = new JSONObject();
+		int org_id = 1; // int org_id = this.createId();
+		skill.put("id", 1);
+		// skill.put("companyId", this.createdId);
+		skill.put("companyId", org_id);
+		skill.put("skill", "Company Skill new test");
+		skills.put(skill);
+		JSONObject skill2 = new JSONObject();
+		skill2.put("id", 2);
+		// skill2.put("companyId", this.createdId);
+		skill.put("companyId", org_id);
+		skill2.put("skill", "Company Skill new test");
+		skills.put(skill2);
+		return skills;
+	}
 }
