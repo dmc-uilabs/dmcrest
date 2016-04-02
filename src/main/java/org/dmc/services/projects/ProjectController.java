@@ -3,13 +3,15 @@ package org.dmc.services.projects;
 import java.util.ArrayList;
 import java.lang.Exception;
 
+import javax.xml.ws.http.HTTPException;
+
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-
+import org.dmc.services.discussions.Discussion;
+import org.dmc.services.discussions.DiscussionListDao;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ProjectController {
 
 	private final String logTag = ProjectController.class.getName();
+	private DiscussionListDao discussionListDao = new DiscussionListDao();
 	
 	private ProjectDao project = new ProjectDao(); 
     @RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
@@ -51,11 +54,7 @@ public class ProjectController {
             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
         ServiceLogger.log(logTag, "In createProject: " + projectname + ", " + unixname + " as user " + userEPPN);
-    	
-    	//RoleDao.createRole creates a new Role in the database using the provided POST params
-    	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
-    	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
+
         long dueDate = 0;
         return project.createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, dueDate);
     }
@@ -65,12 +64,6 @@ public class ProjectController {
                             @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws Exception {
     	
         ServiceLogger.log(logTag, "In createProject: " + payload + " as user " + userEPPN);
-    	
-    	//RoleDao.createRole creates a new Role in the database using the provided POST params
-    	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
-    	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
-    	
     	return project.createProject(payload, userEPPN);
     }
 
@@ -135,7 +128,7 @@ public class ProjectController {
     public ResponseEntity<ArrayList<ProjectJoinRequest>> getProfileJoinRequests(
     		@PathVariable("profileId") String profileId,
     		@RequestParam(value="projectId", required=false) ArrayList<String> projects,
-			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+	       	@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In getProjectsJoinRequests: as user " + userEPPN);
 
         ArrayList<String> profiles = new ArrayList<String>();
@@ -146,26 +139,28 @@ public class ProjectController {
     @RequestMapping(value = "/projects_join_requests/{id}", method = RequestMethod.DELETE, produces="application/json")
     public ResponseEntity<?> deleteProjectJoinRequests(
     		@PathVariable("id") String id,
-			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+		@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In deleteProjectJoinRequests: for id " + id + " as user " + userEPPN);
 
         try {
             ServiceLogger.log(logTag, "In deleteProjectJoinRequests: for id " + id + " as user " + userEPPN);
-        	boolean ok = project.deleteProjectRequest(id, userEPPN);
-        	if (ok) {
-        		return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
-        	} else {
-        		return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete project join request"), HttpStatus.FORBIDDEN);
-        	}
+            
+	    boolean ok = project.deleteProjectRequest(id, userEPPN);
+            if (ok) {
+		return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+            } else {
+               	return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete project join request"), HttpStatus.FORBIDDEN);
+            }
         } catch (Exception e) {
             ServiceLogger.log(logTag, "caught exception: for id " + id + " as user " + userEPPN + " " + e.getMessage());
-        	if (e.getMessage().equals("you are not allowed to delete this request")) {
-        		return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.UNAUTHORIZED);
-        	} else if (e.getMessage().equals("invalid id")) {
-        		return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.FORBIDDEN);        		
-        	} else {
-        		throw e;
-        	}
+            
+	    if (e.getMessage().equals("you are not allowed to delete this request")) {
+               	return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.UNAUTHORIZED);
+            } else if (e.getMessage().equals("invalid id")) {
+               	return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.FORBIDDEN);        		
+            } else {
+               	throw e;
+            }
         }
     }
     
@@ -199,7 +194,7 @@ public class ProjectController {
 
     @RequestMapping(value = "/projects_members/{memberId}", method = RequestMethod.GET, produces="application/json")
     public ResponseEntity<ArrayList<ProjectMember>> getProjectsForMember(@PathVariable("memberId") String memberId, 
-    																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+									 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In getProjectsForMember: for member" + memberId + " as user " + userEPPN);
 
         return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectsForMember(memberId, userEPPN), HttpStatus.OK);
@@ -207,7 +202,7 @@ public class ProjectController {
     
     @RequestMapping(value = "/projects/{projectId}/projects_members", method = RequestMethod.GET, produces="application/json")
     public ResponseEntity<ArrayList<ProjectMember>> getMembersForProject(@PathVariable("projectId") String projectId, 
-    																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+									 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In getMembersForProject: for project" + projectId + " as user " + userEPPN);
 
         return new ResponseEntity<ArrayList<ProjectMember>>(project.getMembersForProject(projectId, userEPPN), HttpStatus.OK);
@@ -215,8 +210,8 @@ public class ProjectController {
     
     @RequestMapping(value = "/projects/{projectId}/accept/{memberId}", method = RequestMethod.PATCH, produces="application/json")
     public ResponseEntity<ProjectMember> acceptMemberInProject(@PathVariable("projectId") String projectId,
-    																@PathVariable("memberId") String memberId, 
-    																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+							       @PathVariable("memberId") String memberId, 
+							       @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In acceptMemberInProject: for member" + memberId + " as user " + userEPPN);
 
         return new ResponseEntity<ProjectMember>(project.acceptMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
@@ -224,8 +219,8 @@ public class ProjectController {
 
     @RequestMapping(value = "/projects/{projectId}/reject/{memberId}", method = RequestMethod.DELETE, produces="application/json")
     public ResponseEntity<ProjectMember> rejectMemberInProject(@PathVariable("projectId") String projectId,
-    																@PathVariable("memberId") String memberId, 
-    																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+							       @PathVariable("memberId") String memberId, 
+							       @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
         ServiceLogger.log(logTag, "In rejectMemberInProject: for member" + memberId + " as user " + userEPPN);
 
         return new ResponseEntity<ProjectMember>(project.rejectMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
@@ -240,12 +235,31 @@ public class ProjectController {
     	return project.getProjectTagList(projectID, userEPPN);
     }
     
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<String> handleException(Exception ex) {
-//        // prepare responseEntity
-//		return new ResponseEntity(ex.getMessage(), HttpStatus.BAD_REQUEST);
-//    }
-
+    /**	
+    *Return Project Discussions
+    **/
+   @RequestMapping(value = "/projects/{projectID}/all-discussions", method = RequestMethod.GET, produces = { "application/json"})
+   public ResponseEntity getDiscussions(@PathVariable("projectID") int projectID,
+		   			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
+		       			@RequestParam(value="_limit", defaultValue="100") int limit,
+		   			@RequestParam(value="_order", defaultValue="DESC") String order,
+		   		      	@RequestParam(value="_sort", defaultValue="time_posted") String sort) {
+	   
+   	ServiceLogger.log(logTag, "getDiscussions, userEPPN: " + userEPPN);
+   	int statusCode = HttpStatus.OK.value();
+   	ArrayList<Discussion> discussions = null;
+   	
+   	try {
+           discussions = discussionListDao.getDiscussionList(userEPPN, projectID, limit, order, sort);
+           return new ResponseEntity<ArrayList<Discussion>>(discussions, HttpStatus.valueOf(statusCode));
+   	} catch (HTTPException e) {
+   		ServiceLogger.log(logTag, e.getMessage());
+   		statusCode = e.getStatusCode();
+   		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+   		return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+   	}
+   }
+    
     @ExceptionHandler(Exception.class)
     public ErrorMessage handleException(Exception ex) {
         // prepare responseEntity

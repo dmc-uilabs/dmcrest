@@ -31,19 +31,7 @@ public class DiscussionIT extends BaseIT {
 	
 	@Before
 	public void testDiscussionCreate() {
-		JSONObject json = createFixture();
-		this.createdId = given()
-				.header("Content-type", "application/json")
-				.header("AJP_eppn", randomEPPN)
-				.body(json.toString())
-				.expect()
-				.statusCode(200)
-				.when()
-				.post(DISCUSSION_CREATE_RESOURCE)
-				.then()
-				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-				.extract()
-				.path("id");
+		this.createdId = createDiscussion(null);
 	}
 	
     @Test
@@ -77,15 +65,35 @@ public class DiscussionIT extends BaseIT {
     	}
 	}
 
-	public JSONObject createFixture() {
+	public int createDiscussion(Integer projectId) {
+		
+		JSONObject json = createFixture(projectId);
+		this.createdId = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN)
+				.body(json.toString())
+				.expect()
+				.statusCode(200)
+				.when()
+				.post(DISCUSSION_CREATE_RESOURCE)
+				.then()
+				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+				.extract()
+				.path("id");
+		
+		return createdId;
+	}
+	
+	public JSONObject createFixture(Integer projectId) {
 			
+		String projId = (projectId != null) ? projectId.toString() : "123";
 		JSONObject json = new JSONObject();
 		json.put("title", "test discussion title");
 		json.put("message", "test discussion message");
 		json.put("createdBy", "test-disc-created-by");
 		json.put("createdAt", 1232000);
 		json.put("accountId", "123");
-		json.put("projectId", "123");
+		json.put("projectId", projId);
 		
 		return json;
 	}
