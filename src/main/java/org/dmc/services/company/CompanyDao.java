@@ -12,6 +12,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.users.UserDao;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -612,5 +613,238 @@ public class CompanyDao {
 		ResultSet result = statement.executeQuery();
 		return result.isBeforeFirst();
 	}
-	
+
+
+	/**
+	 * Retrieve the primary key of the organization_user table for the specifyed company and user
+	 * @param companyId the company id
+	 * @param userId the user id
+     * @return the id from the organization_user record if found, -1 otherwise
+     */
+	public Id getUserOrganizationId (int companyId, int userId)  {
+
+		int id = -1;
+		String query = "SELECT id FROM organization_user WHERE organization_id = " + companyId + " AND user_id = " + userId;
+		ResultSet rs = DBConnector.executeQuery(query);
+		try {
+			if (rs.next()) {
+				id = rs.getInt(1);
+			}
+
+		} catch (SQLException sqlEx) {
+			ServiceLogger.log(logTag, sqlEx.toString());
+		}
+
+		return new Id.IdBuilder(id).build();
+	}
+
+	/**
+	 * Check that user is a member of a company
+	 * @param companyId
+	 * @param userId
+	 * @return
+	 * @throws SQLException
+     */
+	public boolean isMemberOfCompany (int companyId, int userId) throws SQLException {
+
+		// Check ORGANIZATION_USER table to see if user is member of the company
+		String query = "SELECT id FROM organization_user WHERE organization_id = " + companyId + " AND user_id = " + userId;
+		ResultSet rs = DBConnector.executeQuery(query);
+		return rs.isBeforeFirst();
+	}
+
+	/**
+	 * Check that user is an admin of a company
+	 * @param companyId
+	 * @param userId
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean isAdminOfCompany (int companyId, int userId) throws SQLException {
+
+		// Check ORGANIZATION_ADMIN table to see if user is member of the company
+		String query = "SELECT id FROM organization_admin WHERE organization_id = " + companyId + " AND organization_user_id = " + userId;
+		ResultSet rs = DBConnector.executeQuery(query);
+		return rs.isBeforeFirst();
+	}
+
+	/**
+	 * Check that user is an owner of a company
+	 * @param companyId the company id
+	 * @param userId the user id of the user
+	 * @return true if the user is the owner of a company, false otherwise
+	 * @throws SQLException
+	 */
+	public boolean isOwnerOfCompany (int companyId, int userId) throws SQLException {
+
+		String query = "SELECT u.user_id FROM users u LEFT JOIN organization o ON o.owner = u.user_name WHERE o.organization_id = " + companyId;
+
+		boolean isOwner = false;
+		int ownerUserId = -1;
+		ResultSet rs = DBConnector.executeQuery(query);
+		if (rs.next()) {
+
+			ownerUserId = rs.getInt(1);
+			isOwner = ownerUserId == userId;
+		}
+		return isOwner;
+	}
+
+	/**
+	 * Add an administrator for a company
+	 * @param companyId the company id
+	 * @param userId the user id
+	 * @param userEPPN user name of the requestor
+	 * @return the id of the new organization_admin record
+	 * @throws HTTPException
+     */
+	public Id addAdministrator (int companyId, int userId, String userEPPN) throws HTTPException {
+
+		connection = DBConnector.connection();
+
+		int organizationAdminId = -9999;
+		int userIdEPPN = -1;
+		try {
+
+			connection.setAutoCommit(false);
+
+			// Look up userId of userEPPN
+			userIdEPPN = UserDao.getUserID(userEPPN);
+			if (userIdEPPN == -1) {
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not a valid user");
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+
+			// Check that the user adding the administrator is an administrator or the owner
+			/**
+			 ** Checks disabled as of 3/31/2016 until members for companies are tracked
+			 **
+			if (!(isOwnerOfCompany(companyId, userIdEPPN) || isAdminOfCompany(companyId, userIdEPPN))) {
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to add administrators for company " + companyId);
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+			*/
+
+			// Check that the user being added as an administrator is a member of the company
+			/**
+			 ** Checks disabled as of 3/31/2016 until members for companies are tracked
+			 **
+			Id userOrganizationId =  this.getUserOrganizationId(companyId, userId);
+
+			if (userOrganizationId == null || userOrganizationId.getId() == -1) {
+				ServiceLogger.log(logTag, "User " + userId + " is not a member of company " + companyId);
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+			 */
+
+			// Until checks are implemented, must ensure there is a record of user in OEGANIZATION_USER
+			// so that foreign key on ORGANIZATION_ADMIN is satisifed
+			Id userOrganizationId =  this.getUserOrganizationId(companyId, userId);
+			if (userOrganizationId == null || userOrganizationId.getId() == -1) {
+				userOrganizationId = addMember(companyId, userId, userEPPN);
+			}
+
+			connection.setAutoCommit(false);
+
+			// Now add the user to the ORGANIZATION_ADMIN table
+			Util util = Util.getInstance();
+
+			String insertSQL = "INSERT INTO organization_admin (organization_user_id, organization_id)  VALUES (?,?)";
+			PreparedStatement pstmt = DBConnector.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
+			pstmt.setInt(1, userOrganizationId.getId());
+			pstmt.setInt(2, companyId);
+			pstmt.executeUpdate();
+			organizationAdminId = util.getGeneratedKey(pstmt, "id");
+			ServiceLogger.log(logTag, "ASSOCIATED ORGANIZATION_ADMIN ENTRY: " + organizationAdminId);
+
+			connection.commit();
+
+		}
+		catch (SQLException sqlEx) {
+			throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+		}
+		finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
+		}
+		return new Id.IdBuilder(organizationAdminId).build();
+	}
+
+
+	/**
+	 * Add a member for a company
+	 * @param companyId the company id
+	 * @param userId the user id
+	 * @param userEPPN user name of the requestor
+	 * @return the id of the new organization_user record
+	 * @throws HTTPException
+	 */
+	public Id addMember (int companyId, int userId, String userEPPN) throws HTTPException {
+
+		connection = DBConnector.connection();
+
+		int organizationUserId = -9999;
+		int userIdEPPN = -1;
+		try {
+
+			connection.setAutoCommit(false);
+
+			// Look up userId of userEPPN
+			userIdEPPN = UserDao.getUserID(userEPPN);
+			if (userIdEPPN == -1) {
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not a valid user");
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+
+			/**
+			 /**
+			 ** Checks disabled as of 3/31/2016 until members for companies are tracked
+			 **
+			// Check that the user adding the administrator is an administrator or owner
+			if (!(isOwnerOfCompany(companyId, userIdEPPN) || isAdminOfCompany(companyId, userIdEPPN))) {
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to add administrators for company " + companyId);
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+
+			// Check that the user being added as a member is not already a member of the company
+			if (isMemberOfCompany(companyId, userId)) {
+				ServiceLogger.log(logTag, "User " + userId + " is already a member of comapny " + companyId);
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+			*/
+
+			// Now add the user to the ORGANIZATION_USER table
+			Util util = Util.getInstance();
+
+			String insertSQL = "INSERT INTO organization_user (user_id, organization_id)  VALUES (?,?)";
+			PreparedStatement pstmt = DBConnector.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
+			pstmt.setInt(1, userId);
+			pstmt.setInt(2, companyId);
+			pstmt.executeUpdate();
+			organizationUserId = util.getGeneratedKey(pstmt, "id");
+			ServiceLogger.log(logTag, "ASSOCIATED ORGANIZATION_USER ENTRY: " + organizationUserId);
+
+			connection.commit();;
+
+		}
+		catch (SQLException sqlEx) {
+			throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+		}
+		finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
+		}
+		return new Id.IdBuilder(organizationUserId).build();
+	}
+
 }
