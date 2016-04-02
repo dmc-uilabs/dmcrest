@@ -1,7 +1,6 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicLong;
 import java.lang.Exception;
 
 import org.dmc.services.ErrorMessage;
@@ -78,7 +77,7 @@ public class ProjectController {
     @RequestMapping(value = "/projects/create", method = RequestMethod.POST, consumes="application/json", produces="application/json")
     public ResponseEntity<Id> createProject(@RequestBody ProjectCreateRequest payload,
                                 @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
-        ServiceLogger.log(logTag, "**********In createProject: " + payload + " as user " + userEPPN);
+        ServiceLogger.log(logTag, "In createProject: " + payload + " as user " + userEPPN);
 
         //RoleDao.createRole creates a new Role in the database using the provided POST params
         //it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
@@ -103,6 +102,136 @@ public class ProjectController {
     }
     */
     
+    @RequestMapping(value = "/projects_join_requests", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectJoinRequest>> getProjectsJoinRequests(
+    		@RequestParam(value="projectId", required=false) ArrayList<String> projects,
+    		@RequestParam(value="profileId", required=false) ArrayList<String> profiles,
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectsJoinRequests: as user " + userEPPN);
+
+        return new ResponseEntity<ArrayList<ProjectJoinRequest>>(project.getProjectJoinRequest(projects, profiles, userEPPN), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects_join_requests", method = RequestMethod.POST, consumes="application/json", produces="application/json")
+    public ResponseEntity<ProjectJoinRequest> createProjectJoinRequest(@RequestBody PostProjectJoinRequest payload,
+                                @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In createProjectJoinRequest: " + payload + " as user " + userEPPN);
+        return new ResponseEntity<ProjectJoinRequest>(project.createProjectJoinRequest(payload, userEPPN), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{projectId}/projects_join_requests", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectJoinRequest>> getProjectJoinRequests(
+    		@PathVariable("projectId") String projectId,
+    		@RequestParam(value="profileId", required=false) ArrayList<String> profiles,
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectsJoinRequests: as user " + userEPPN);
+
+        ArrayList<String> projects = new ArrayList<String>();
+        projects.add(projectId);
+        return new ResponseEntity<ArrayList<ProjectJoinRequest>>(project.getProjectJoinRequest(projects, profiles, userEPPN), HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/profiles/{profileId}/projects_join_requests", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectJoinRequest>> getProfileJoinRequests(
+    		@PathVariable("profileId") String profileId,
+    		@RequestParam(value="projectId", required=false) ArrayList<String> projects,
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectsJoinRequests: as user " + userEPPN);
+
+        ArrayList<String> profiles = new ArrayList<String>();
+        profiles.add(profileId);
+        return new ResponseEntity<ArrayList<ProjectJoinRequest>>(project.getProjectJoinRequest(projects, profiles, userEPPN), HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/projects_join_requests/{id}", method = RequestMethod.DELETE, produces="application/json")
+    public ResponseEntity<?> deleteProjectJoinRequests(
+    		@PathVariable("id") String id,
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In deleteProjectJoinRequests: for id " + id + " as user " + userEPPN);
+
+        try {
+            ServiceLogger.log(logTag, "In deleteProjectJoinRequests: for id " + id + " as user " + userEPPN);
+        	boolean ok = project.deleteProjectRequest(id, userEPPN);
+        	if (ok) {
+        		return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+        	} else {
+        		return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete project join request"), HttpStatus.FORBIDDEN);
+        	}
+        } catch (Exception e) {
+            ServiceLogger.log(logTag, "caught exception: for id " + id + " as user " + userEPPN + " " + e.getMessage());
+        	if (e.getMessage().equals("you are not allowed to delete this request")) {
+        		return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.UNAUTHORIZED);
+        	} else if (e.getMessage().equals("invalid id")) {
+        		return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.FORBIDDEN);        		
+        	} else {
+        		throw e;
+        	}
+        }
+    }
+    
+    @RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectMember>> getProjectMembers(
+    		@RequestParam(value="projectId", required=false) String projectIdString,
+    		@RequestParam(value="profileId", required=false) String profileIdString,
+    		@RequestParam(value="accept", required=false) boolean accept,
+    		@RequestParam(value="_limit", required=false) int _limit,
+    		@RequestParam(value="_order", required=false) String _order,
+    		@RequestParam(value="_sort", required=false) String _sort,
+    		@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectMembers: as user " + userEPPN);
+
+        if (null != projectIdString) {
+        	return new ResponseEntity<ArrayList<ProjectMember>>(project.getMembersForProject(projectIdString, userEPPN), HttpStatus.OK);
+        } else if (null != profileIdString) {
+            	return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectsForMember(profileIdString, userEPPN), HttpStatus.OK);
+        } else {
+        	return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectMembers(userEPPN), HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(value = "/projects_members", method = RequestMethod.POST, produces="application/json")
+    public ResponseEntity<ProjectMember> addProjectMember(@RequestBody ProjectMember payload,
+    		@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In addProjectMember: as user " + userEPPN);
+
+        return new ResponseEntity<ProjectMember>(project.addProjectMember(payload, userEPPN), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects_members/{memberId}", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectMember>> getProjectsForMember(@PathVariable("memberId") String memberId, 
+    																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getProjectsForMember: for member" + memberId + " as user " + userEPPN);
+
+        return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectsForMember(memberId, userEPPN), HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/projects/{projectId}/projects_members", method = RequestMethod.GET, produces="application/json")
+    public ResponseEntity<ArrayList<ProjectMember>> getMembersForProject(@PathVariable("projectId") String projectId, 
+    																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In getMembersForProject: for project" + projectId + " as user " + userEPPN);
+
+        return new ResponseEntity<ArrayList<ProjectMember>>(project.getMembersForProject(projectId, userEPPN), HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/projects/{projectId}/accept/{memberId}", method = RequestMethod.PATCH, produces="application/json")
+    public ResponseEntity<ProjectMember> acceptMemberInProject(@PathVariable("projectId") String projectId,
+    																@PathVariable("memberId") String memberId, 
+    																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In acceptMemberInProject: for member" + memberId + " as user " + userEPPN);
+
+        return new ResponseEntity<ProjectMember>(project.acceptMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/projects/{projectId}/reject/{memberId}", method = RequestMethod.DELETE, produces="application/json")
+    public ResponseEntity<ProjectMember> rejectMemberInProject(@PathVariable("projectId") String projectId,
+    																@PathVariable("memberId") String memberId, 
+    																@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)  throws Exception {  	
+        ServiceLogger.log(logTag, "In rejectMemberInProject: for member" + memberId + " as user " + userEPPN);
+
+        return new ResponseEntity<ProjectMember>(project.rejectMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
+    }
+
+    
     @RequestMapping(value = "/projects/{projectID}/projects_tags", method = RequestMethod.GET)
     public ArrayList<ProjectTag> getProjectTagList(@PathVariable("projectID") int projectID,
     			  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
@@ -122,7 +251,7 @@ public class ProjectController {
         // prepare responseEntity
     	ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage())
 		.build();
-    	System.out.print(result);
+    	ServiceLogger.log(logTag, result.getMessage());
     	return result;
     }
 }

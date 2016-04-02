@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/projects_join_requests",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "http://dmc-dev.geinspire.com/projects_join_requests/id",
+      "type": "string"
+    },
+    "projectId": {
+      "id": "http://dmc-dev.geinspire.com/projects_join_requests/projectId",
+      "type": "string"
+    },
+    "profileId": {
+      "id": "http://dmc-dev.geinspire.com/projects_join_requests/profileId",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "projectId",
+    "profileId"
+  ]
+}
