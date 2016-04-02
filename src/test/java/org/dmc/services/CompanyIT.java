@@ -174,7 +174,8 @@ public class CompanyIT extends BaseIT {
 		//.then()
 		//	.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
-	@Test
+
+    //	@Test
 	public void testCompanySkillGet() {		
 		// Create company skills to start with
 		JSONArray skills = createSkills();
