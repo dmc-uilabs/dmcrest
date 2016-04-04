@@ -6,7 +6,7 @@ import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.UserDao;
-
+import org.dmc.services.users.UserOnboardingDao;
 
 import org.json.JSONException;
 
@@ -83,7 +83,16 @@ public class ProfileDao {
 	}
 
 	public Id createProfile(Profile profile, String userEPPN) {
-
+        int userId = -99999;
+        try {
+            userId = UserDao.getUserID(userEPPN);
+        } catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+		}
+        
+        updateProfile(userId, profile, userEPPN);
+        return new Id.IdBuilder(userId).build();
+        /*
 		Util util = Util.getInstance();
 		int userId = -9999;
 		Connection connection = DBConnector.connection();
@@ -161,7 +170,7 @@ public class ProfileDao {
 			}
 		}
 		return new Id.IdBuilder(userId).build();
-
+*/
 	}
 
 	public Id updateProfile(int id, Profile profile, String userEPPN) throws HTTPException {
@@ -194,6 +203,11 @@ public class ProfileDao {
             // ToDo: set company
 			statement.executeUpdate();
 
+            
+            // update onboarding status
+            UserOnboardingDao userOnboardingDao = new UserOnboardingDao();
+            userOnboardingDao.setProfile(id, true);
+            
 			if (Config.IS_TEST == null) {
 				//SolrUtils.invokeFulIndexingUsers();
 				ServiceLogger.log(logTag, "SolR indexing triggered for User: "
