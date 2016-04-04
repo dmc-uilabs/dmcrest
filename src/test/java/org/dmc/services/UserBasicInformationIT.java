@@ -23,17 +23,18 @@ public class UserBasicInformationIT extends BaseIT {
 	private static final String USER_CREATE_RESOURCE = "/users/create";
 	private static final String UPDATE_RESOURCE = "/user-basic-information";
 	private Integer createdId = -1;
+	private String testUser = null;
 	String randomEPPN = UUID.randomUUID().toString();
 
     @Before
 	public void testUserCreate(){
     	
 		String unique = TestUserUtil.generateTime();
-		
+		testUser = randomEPPN + "-" + unique;
         createdId =
         given().
         header("Content-type", "text/plain").
-        header("AJP_eppn", randomEPPN).
+        header("AJP_eppn", testUser).
         header("AJP_givenName", "userGivenName" + unique).
         header("AJP_sn", "userSurname" + unique).
         header("AJP_displayName", "userDisplayName" + unique).
@@ -53,7 +54,7 @@ public class UserBasicInformationIT extends BaseIT {
 			JSONObject json = createFixture("normal");
 			given()
 			.header("Content-type", "application/json")
-			.header("AJP_eppn", randomEPPN)
+			.header("AJP_eppn", testUser)
 			.body(json.toString())
 			.expect()
 			.statusCode(200)
@@ -72,7 +73,7 @@ public class UserBasicInformationIT extends BaseIT {
 			JSONObject json = createFixture("missing");
 			given()
 			.header("Content-type", "application/json")
-			.header("AJP_eppn", randomEPPN)
+			.header("AJP_eppn", testUser)
 			.body(json.toString())
 			.expect()
 			.statusCode(200)
@@ -91,7 +92,7 @@ public class UserBasicInformationIT extends BaseIT {
 			JSONObject json = createFixture("missingCompany");
 			given()
 			.header("Content-type", "application/json")
-			.header("AJP_eppn", randomEPPN)
+			.header("AJP_eppn", testUser)
 			.body(json.toString())
 			.expect()
 			.statusCode(200)
@@ -111,7 +112,7 @@ public class UserBasicInformationIT extends BaseIT {
 			JSONObject json = createFixture("empty");
 			given()
 			.header("Content-type", "application/json")
-			.header("AJP_eppn", randomEPPN)
+			.header("AJP_eppn", testUser)
 			.body(json.toString())
 			.expect()
 			.statusCode(200)
