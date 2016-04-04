@@ -55,6 +55,7 @@ public class UserBasicInformationDao {
             int companyId = Integer.parseInt(json.getString("company"));
             int userId = UserDao.getUserID(userEPPN);
             CompanyDao companyDao = new CompanyDao();
+			ServiceLogger.log(logTag, "preparing to add " + userId + " " + userEPPN + " to company " + companyId);
             companyDao.addMember(companyId, userId, userEPPN);
 			ServiceLogger.log(logTag, "added user " + userId + " " + userEPPN + " to company " + companyId);
 			// update the rest of the user fields
