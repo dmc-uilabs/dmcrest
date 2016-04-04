@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.Before; 
@@ -27,10 +28,8 @@ public class UserBasicInformationIT extends BaseIT {
     @Before
 	public void testUserCreate(){
     	
-		Date date = new Date();
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-		String unique = format.format(date);
-        
+		String unique = TestUserUtil.generateTime();
+		
         createdId =
         given().
         header("Content-type", "text/plain").
