@@ -56,7 +56,7 @@ public class UserBasicInformationDao {
             int userId = UserDao.getUserID(userEPPN);
             CompanyDao companyDao = new CompanyDao();
             companyDao.addMember(companyId, userId, userEPPN);
-
+			ServiceLogger.log(logTag, "added user " + userId + " " + userEPPN + " to company " + companyId);
 			// update the rest of the user fields
 			ArrayList<String> setKeys = new ArrayList<String>();
 			ArrayList<String> keys = new ArrayList<String>();
@@ -79,13 +79,17 @@ public class UserBasicInformationDao {
             query += ", accept_term_cond_time = now() ";  // set time when terms and conditions were accepted.
 			query += " WHERE user_name = ?";
 
+			ServiceLogger.log(logTag, "update user query: " + query);
+			
 			statement = DBConnector.prepareStatement(query, statement.RETURN_GENERATED_KEYS);
 			for (int i = 0; i < setKeys.size(); i++) {
 				statement.setString(i + 1, json.getString(setKeys.get(i)));
 			}
 			statement.setString(setKeys.size() + 1, username);
-			statement.executeUpdate();
+			int countAffected = statement.executeUpdate();
+			ServiceLogger.log(logTag, "executeUpdate affected " + countAffected + " rows");
 			id = util.getGeneratedKey(statement, "user_id");
+			ServiceLogger.log(logTag, "id generated key = " + id);
 			connection.commit();
 
 			ServiceLogger.log(logTag, "User Basic Information updated! User ID: " + id);
