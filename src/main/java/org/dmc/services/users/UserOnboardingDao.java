@@ -70,6 +70,28 @@ public class UserOnboardingDao {
     }
 
     
+    public boolean deleteUserOnboarding(int userId) {
+        ServiceLogger.log(logTag, "deleteUserOnboarding, user id: " + userId);
+        
+        try {
+            String deleteOnboardingStatus = "DELETE FROM onboarding_status WHERE user_id = ?";
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(deleteOnboardingStatus);
+            preparedStatement.setInt(1, userId);
+            
+            if(preparedStatement.executeUpdate() != 1) {
+                throw new SQLException("Unable to delete onboarding_status" +
+                                       " for user_id: " + userId);
+            }
+        } catch(SQLException e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            return false;
+        }
+        return true;
+    }
+    
+    
+    
+    
     public void setProfile(int userId, boolean value) throws HTTPException {
         ServiceLogger.log(logTag, "setProfile, user id: " + userId + " to " + value);
         setBoolean(userId, "profile", value);

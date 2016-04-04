@@ -115,7 +115,7 @@ public class ProfileIT extends BaseIT {
 	public void testProfileDelete() {
 		if (this.createdId > 0) {
 			given()
-			.header("AJP_eppn", randomEPPN)
+			.header("AJP_eppn", "userEPPN" + unique)
 			.expect().statusCode(200)
 			.when()
 			.get(PROFILE_DELETE_RESOURCE, this.createdId.toString())

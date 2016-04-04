@@ -256,6 +256,10 @@ public class ProfileDao {
 		}
 
 		try {
+            // update onboarding status
+            UserOnboardingDao userOnboardingDao = new UserOnboardingDao();
+            userOnboardingDao.deleteUserOnboarding(id);
+            
 			this.deleteSkills(id);
 			query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";
 			statement = DBConnector.prepareStatement(query);
