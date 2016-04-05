@@ -52,7 +52,7 @@ public class UserBasicInformationDao {
 			String username = userEPPN;
 
             // add user to company
-            int companyId = Integer.parseInt(json.getString("company"));
+            int companyId = json.getInt("company");
             int userId = UserDao.getUserID(userEPPN);
             CompanyDao companyDao = new CompanyDao();
             companyDao.addMember(companyId, userId, userEPPN);
