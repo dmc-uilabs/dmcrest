@@ -615,6 +615,30 @@ public class CompanyDao {
 	}
 
 
+    /**
+	 * Retrieve the organization_id from the organization_user table for the specifyed company and user
+	 * @param userId the user id
+     * @return the organization_id from the organization_user record if found, -1 otherwise
+     */
+	public int getUserCompanyId(int userId)  {
+		int id = -1;
+		String query = "SELECT organization_id FROM organization_user WHERE user_id = ?";
+        try {
+            PreparedStatement statement = DBConnector.prepareStatement(query);
+            statement.setInt(1, userId);
+            ResultSet rs = statement.executeQuery();
+		
+			if (rs.next()) {
+				id = rs.getInt(1);
+			}
+            
+		} catch (SQLException sqlEx) {
+			ServiceLogger.log(logTag, sqlEx.toString());
+		}
+        
+		return id;
+	}
+    
 	/**
 	 * Retrieve the primary key of the organization_user table for the specifyed company and user
 	 * @param companyId the company id
