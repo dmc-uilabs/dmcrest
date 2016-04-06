@@ -1,6 +1,7 @@
 package org.dmc.services.accounts;
 
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.junit.Assert.*;
@@ -56,6 +57,23 @@ public class AccountsIT extends BaseIT {
         // check results
 //        assertTrue(false);
 	}
+    
+    
+    /**
+    Tests for <code> get /accounts/{accountID}/account_servers </code>
+    **/
+   
+   @Test
+	public void testAccountGet_AccountServers(){
+		given().
+       header("AJP_eppn", knownUserEPPN).
+		expect().
+       statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().
+       get("/accounts/" + knownUserID +"/account_servers");
+
+	}
+    
 
     /**
      <code> testAccountGet_MismatchedUserEPPNAndUserId </code> Tests for mismatched user EPPN (from header) and user ID (from path)

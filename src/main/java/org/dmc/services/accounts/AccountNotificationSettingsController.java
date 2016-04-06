@@ -23,7 +23,7 @@ public class AccountNotificationSettingsController {
   public ResponseEntity<AccountNotificationSetting> accountNotificationSettingsNotificationSettingIDGet(
 @PathVariable("notificationSettingID") String notificationSettingID) {
       // do some magic!
-      return new ResponseEntity<AccountNotificationSetting>(HttpStatus.OK);
+      return new ResponseEntity<AccountNotificationSetting>(HttpStatus.NOT_IMPLEMENTED);
   }
 
 
@@ -37,7 +37,7 @@ public class AccountNotificationSettingsController {
 @RequestBody AccountNotificationSetting userNotificationSetting
 ) {
       // do some magic!
-      return new ResponseEntity<AccountNotificationSetting>(HttpStatus.OK);
+      return new ResponseEntity<AccountNotificationSetting>(HttpStatus.NOT_IMPLEMENTED);
   }
 
   
