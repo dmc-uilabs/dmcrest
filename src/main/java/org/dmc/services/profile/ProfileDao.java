@@ -7,6 +7,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.users.UserOnboardingDao;
+import org.dmc.services.company.CompanyDao;
 
 import org.json.JSONException;
 
@@ -44,8 +45,10 @@ public class ProfileDao {
                 //id = resultSet.getString("id");
                 profile.setDisplayName(resultSet.getString("realname"));
                 
-                // ToDo: need to get company;
-                profile.setCompany("unset");
+                // get company
+                CompanyDao companyDao = new CompanyDao();
+                int companyId = companyDao.getUserCompanyId(requestId);
+                profile.setCompany(Integer.toString(companyId));
                 
                 profile.setJobTitle(resultSet.getString("title"));
                 profile.setPhone(resultSet.getString("phone"));

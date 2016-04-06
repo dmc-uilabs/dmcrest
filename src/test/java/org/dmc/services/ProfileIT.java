@@ -133,6 +133,7 @@ public class ProfileIT extends BaseIT {
 		skills.add("Skill three " + type);
 		
 		json.put("displayName", "test displayName " + type);
+		json.put("company", "1");
 		json.put("jobTitle", "test jobTitle " + type);
 		json.put("phone", "test phone " + type);
 		json.put("email", "test email " + type);
