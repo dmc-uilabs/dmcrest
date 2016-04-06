@@ -114,15 +114,19 @@ public class AccountsController {
 	@RequestMapping(value = "/{accountID}/following_companies", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingCompany>> accountsAccountIDFollowingCompaniesGet(
-			@PathVariable("accountID") String accountID, @RequestParam(value = "limit", required = false) Integer limit,
+			@PathVariable("accountID") String accountID, 
+			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		// do some magic!
 		return new ResponseEntity<List<FollowingCompany>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@RequestMapping(value = "/{accountID}/follow_discussions", produces = { "application/json",
-			"text/html" }, consumes = { "application/json", "text/xml" }, method = RequestMethod.GET)
+	/**
+	 
+	 **/
+	@RequestMapping(value = "/{accountID}/follow_discussions", produces = { 
+			"application/json"}, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingIndividualDiscussion>> accountsAccountIDFollowDiscussionsGet(
 			@PathVariable("accountID") String accountID,
 			@RequestParam(value = "individualDiscussionId", required = true) String individualDiscussionId,
@@ -133,10 +137,14 @@ public class AccountsController {
 		return new ResponseEntity<List<FollowingIndividualDiscussion>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
+	/**
+	 
+	 **/
 	@RequestMapping(value = "/{accountId}/following_members", produces = { "application/json",
-			"text/html" }, consumes = { "application/json", "text/xml" }, method = RequestMethod.GET)
+			"text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingMemeber>> accountsAccountIdFollowingMembersGet(
-			@PathVariable("accountId") String accountId, @RequestParam(value = "limit", required = false) Integer limit,
+			@PathVariable("accountId") String accountId, 
+			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		// do some magic!
