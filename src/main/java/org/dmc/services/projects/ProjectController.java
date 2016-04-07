@@ -1,6 +1,7 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.lang.Exception;
 
 import javax.xml.ws.http.HTTPException;
@@ -268,4 +269,21 @@ public class ProjectController {
     	ServiceLogger.log(logTag, result.getMessage());
     	return result;
     }
+    
+    
+    /**	
+     *Return Project Documents
+     **/
+	@RequestMapping(value = "/{projectID}/project_documents", produces = { "application/json",
+	"text/html" }, consumes = { "application/json", "text/xml" }, method = RequestMethod.GET)
+public ResponseEntity<List<ProjectDocument>> projectsProjectIDProjectDocumentsGet(
+	@PathVariable("projectID") String projectID,
+	@RequestParam(value = "projectDocumentId", required = true) String projectDocumentId,
+	@RequestParam(value = "limit", required = false) Integer limit,
+	@RequestParam(value = "order", required = false) String order,
+	@RequestParam(value = "sort", required = false) String sort) {
+// do some magic!
+return new ResponseEntity<List<ProjectDocument>>(HttpStatus.NOT_IMPLEMENTED);
+}
+    
 }
