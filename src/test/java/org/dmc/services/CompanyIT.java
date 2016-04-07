@@ -14,8 +14,6 @@ import org.junit.Ignore;
 import org.dmc.services.company.Company;
 import org.dmc.services.company.CompanySkill;
 import org.dmc.services.company.CompanyVideo;
-import org.dmc.services.company.CompanyVideoIT;
-import org.dmc.services.discussions.Discussion;
 import org.dmc.services.utility.TestUserUtil;
 
 import com.fasterxml.jackson.core.type.TypeReference;
