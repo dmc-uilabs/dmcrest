@@ -243,10 +243,10 @@ public class AccountsIT extends BaseIT {
 	 * Tests for <code> get /accounts/{accountID}/follow_discussions </code>
 	 **/
 
-	/*@Test
+	@Test
 	public void testAccount_FollowDiscussions() {
 		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/accounts/" + knownUserID + "/follow_discussions");
-	}*/
+	}
 
 }

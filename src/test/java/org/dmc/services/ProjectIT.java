@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 import static com.jayway.restassured.RestAssured.*;
 import com.jayway.restassured.response.ValidatableResponse;
@@ -120,6 +121,7 @@ public class ProjectIT extends BaseIT {
 		extract().
 			path("id");
 	}
+	
 
 	// see as an example to configure the object https://github.com/jayway/rest-assured/wiki/Usage#serialization
 	@Test
@@ -313,6 +315,12 @@ public class ProjectIT extends BaseIT {
 			log().all().
 			body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));		
 		
+	}
+	
+	@Test
+	public void testProject6_ProjectDocuments() {
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when()
+		.get("/projects/6/project_documents");
 	}
 
 	@Test

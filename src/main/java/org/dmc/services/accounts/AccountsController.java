@@ -129,7 +129,7 @@ public class AccountsController {
 			"application/json"}, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingIndividualDiscussion>> accountsAccountIDFollowDiscussionsGet(
 			@PathVariable("accountID") String accountID,
-			@RequestParam(value = "individualDiscussionId", required = true) String individualDiscussionId,
+			@RequestParam(value = "individual-discussionId", required = true) String individualDiscussionId,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
