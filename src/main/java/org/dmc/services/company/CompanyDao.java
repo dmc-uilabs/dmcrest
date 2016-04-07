@@ -615,6 +615,30 @@ public class CompanyDao {
 	}
 
 
+    /**
+	 * Retrieve the organization_id from the organization_user table for the specifyed company and user
+	 * @param userId the user id
+     * @return the organization_id from the organization_user record if found, -1 otherwise
+     */
+	public int getUserCompanyId(int userId)  {
+		int id = -1;
+		String query = "SELECT organization_id FROM organization_user WHERE user_id = ?";
+        try {
+            PreparedStatement statement = DBConnector.prepareStatement(query);
+            statement.setInt(1, userId);
+            ResultSet rs = statement.executeQuery();
+		
+			if (rs.next()) {
+				id = rs.getInt(1);
+			}
+            
+		} catch (SQLException sqlEx) {
+			ServiceLogger.log(logTag, sqlEx.toString());
+		}
+        
+		return id;
+	}
+    
 	/**
 	 * Retrieve the primary key of the organization_user table for the specifyed company and user
 	 * @param companyId the company id
@@ -787,11 +811,16 @@ public class CompanyDao {
 	public Id addMember (int companyId, int userId, String userEPPN) throws HTTPException {
 
 		connection = DBConnector.connection();
+		boolean resetAutoCommit = true;
 
 		int organizationUserId = -9999;
 		int userIdEPPN = -1;
 		try {
 
+			// check if we are already in a transaction
+			if (!connection.getAutoCommit()) {
+				resetAutoCommit = false;
+			}
 			connection.setAutoCommit(false);
 
 			// Look up userId of userEPPN
@@ -838,7 +867,10 @@ public class CompanyDao {
 		finally {
 			if (connection != null) {
 				try {
-					connection.setAutoCommit(true);
+					// only reset if we were not already inside a transaction
+					if (resetAutoCommit) {
+						connection.setAutoCommit(true);
+					}
 				} catch (SQLException ex) {
 					ServiceLogger.log(logTag, ex.getMessage());
 				}

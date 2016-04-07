@@ -60,8 +60,8 @@ public class DiscussionIT extends BaseIT {
 		            statusCode(200).
 		        when().
 		            get(ALL_DISCUSSIONS_RESOURCE).as(ArrayList.class);
-
-		       assertTrue("", newDiscussionList.size() == originalDiscussionList.size()+1);
+            int LIMIT = 100;
+		       assertTrue("Returned discussion lists do not have acceptable sizes", newDiscussionList.size() == originalDiscussionList.size()+1 || newDiscussionList.size() == LIMIT);
     	}
 	}
 

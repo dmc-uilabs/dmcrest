@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
 public class Util {
 
 	private final String logTag = Util.class.getName();
@@ -25,6 +24,7 @@ public class Util {
 	public int getGeneratedKey(PreparedStatement statement, String column) throws SQLException {
     	ResultSet keys = statement.getGeneratedKeys();
         if (keys.next()) {
+
             return keys.getInt(column);
         }
         else {

@@ -8,8 +8,11 @@ import java.sql.PreparedStatement;
 import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
 
+import javax.xml.ws.http.HTTPException;
+import org.springframework.http.HttpStatus;
 
-class UserOnboardingDao {
+
+public class UserOnboardingDao {
     
     private static final String logTag = UserOnboardingDao.class.getName();
     
@@ -66,48 +69,73 @@ class UserOnboardingDao {
         return true;
     }
 
-    /*
-    public void setProfile(int userId, boolean value) {
-        ServiceLogger.log(logTag, "setProfile, user id: " + userId + " to " + value);
-        setBoolean(userId, "profile", value);
-    }
-
-    public void setAccount(int userId, boolean value) {
-        ServiceLogger.log(logTag, "setAccount, user id: " + userId + " to " + value);
-        setBoolean(userId, "account", value);
-    }
-
-    public void setCompany(int userId, boolean value) {
-        ServiceLogger.log(logTag, "setCompany, user id: " + userId + " to " + value);
-        setBoolean(userId, "company", value);
-    }
-
-    public void setStorefront(int userId, boolean value) {
-        ServiceLogger.log(logTag, "setStorefront, user id: " + userId + " to " + value);
-        setBoolean(userId, "storefront", value);
-    }
-
-    // The function below was a first attempt, but it only updates one field on a record.
-    // It is a helper function for the attribute setters.
-    // The actual use is to update 4 fields per record.  
-    private boolean setBoolean(int userId, String identifier, boolean value) {
-        ServiceLogger.log(logTag, "setBoolean, user id: " + userId);
+    
+    public boolean deleteUserOnboarding(int userId) {
+        ServiceLogger.log(logTag, "deleteUserOnboarding, user id: " + userId);
         
         try {
-            String getOnboardingStatus = "UPDATE onboarding_status SET ? = ? WHERE user_id = ?";
-            PreparedStatement preparedStatement = DBConnector.prepareStatement(getOnboardingStatus);
-            preparedStatement.setString(1, identifier);
-            preparedStatement.setBoolean(2, value);
-            preparedStatement.setInt(3, userId);
+            String deleteOnboardingStatus = "DELETE FROM onboarding_status WHERE user_id = ?";
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(deleteOnboardingStatus);
+            preparedStatement.setInt(1, userId);
+            
             if(preparedStatement.executeUpdate() != 1) {
-                throw new SQLException("Unable to update onboarding_status." + identifier +
-                                       " for user_id: " + userId + " to " + value);
+                throw new SQLException("Unable to delete onboarding_status" +
+                                       " for user_id: " + userId);
             }
         } catch(SQLException e) {
             ServiceLogger.log(logTag, e.getMessage());
             return false;
         }
         return true;
-    }*/
+    }
+    
+    
+    
+    
+    public void setProfile(int userId, boolean value) throws HTTPException {
+        ServiceLogger.log(logTag, "setProfile, user id: " + userId + " to " + value);
+        setBoolean(userId, "profile", value);
+    }
+
+    public void setAccount(int userId, boolean value) throws HTTPException {
+        ServiceLogger.log(logTag, "setAccount, user id: " + userId + " to " + value);
+        setBoolean(userId, "account", value);
+    }
+
+    public void setCompany(int userId, boolean value) throws HTTPException {
+        ServiceLogger.log(logTag, "setCompany, user id: " + userId + " to " + value);
+        setBoolean(userId, "company", value);
+    }
+
+    public void setStorefront(int userId, boolean value) throws HTTPException {
+        ServiceLogger.log(logTag, "setStorefront, user id: " + userId + " to " + value);
+        setBoolean(userId, "storefront", value);
+    }
+
+    // The function below only updates one field on a record.
+    // It is a helper function for the attribute setters.
+    private boolean setBoolean(int userId, String identifier, boolean value) throws HTTPException {
+        ServiceLogger.log(logTag, "setBoolean, user id: " + userId + " " + identifier + " = " + value);
+
+        int recordsUpdated = 0;
+        try {
+            String getOnboardingStatus = "UPDATE onboarding_status SET " + identifier + " = ? WHERE user_id = ?";
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(getOnboardingStatus);
+            preparedStatement.setBoolean(1, value);
+            preparedStatement.setInt(2, userId);
+            
+            recordsUpdated = preparedStatement.executeUpdate();
+            
+            if(recordsUpdated != 1) {
+                throw new SQLException("Unable to update onboarding_status." + identifier +
+                                       " for user_id: " + userId + " to " + value);
+            }
+        } catch(SQLException e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+//            return false;
+        }
+        return true;
+    }
 
 }
