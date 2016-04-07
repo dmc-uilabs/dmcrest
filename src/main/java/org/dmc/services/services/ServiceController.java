@@ -59,7 +59,7 @@ public class ServiceController {
     	return serviceListDao.getServiceByComponentList(componentId);
     }
     
-    
+    /*
     @RequestMapping(value = "/services", 
     	      produces = { "application/json", "text/html" }, 
     	      method = RequestMethod.POST)
@@ -191,5 +191,5 @@ public class ServiceController {
     	  }
     
     
-    
+    */
 }
