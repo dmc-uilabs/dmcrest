@@ -11,30 +11,47 @@ import org.junit.runner.RunWith;
 import org.junit.Before; 
 import org.junit.After;
 import org.junit.Ignore;
-
 import org.dmc.services.company.Company;
 import org.dmc.services.company.CompanySkill;
+import org.dmc.services.company.CompanyVideo;
+import org.dmc.services.company.CompanyVideoIT;
+import org.dmc.services.discussions.Discussion;
+import org.dmc.services.utility.TestUserUtil;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 
 import static com.jayway.restassured.RestAssured.*;
-
 import static org.hamcrest.Matchers.*;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 public class CompanyIT extends BaseIT {
 	
+	private final String logTag = CompanyIT.class.getName();
+	
+	//  company
 	private static final String COMPANY_GET_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_CREATE_RESOURCE = "/companies/create";
 	private static final String COMPANY_UPDATE_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_DELETE_RESOURCE = "/companies/{id}/delete";
 	private static final String ALL_COMPANY_GET_RESOURCE = "/companies";
+	
+	// skills
 	private static final String COMPANY_CREATE_SKILLS = "/company_skills";
 	private static final String COMPANY_GET_SKILLS = "/companies/{companyID}/company_skills";
+	
+	// videos
+	private static final String COMPANY_VIDEOS_GET_RESOURCE = "/companies/{companyID}/company_videos";
+	private static final String COMPANY_VIDEO_CREATE_RESOURCE = "/company_videos";
+	private static final String COMPANY_VIDEO_DELETE_RESOURCE = "/company_videos/{id}";
 
 	private Integer createdId = null;
-	String randomEPPN = UUID.randomUUID().toString();
+	private ArrayList<CompanyVideo> videos = null;
+	String randomEPPN = TestUserUtil.uniqueID();
 		
-	// Setup test data
 	@Before
 	public void testCompanyCreate() {
 		JSONObject json = createFixture();
@@ -200,10 +217,12 @@ public class CompanyIT extends BaseIT {
 			.body(matchesJsonSchemaInClasspath("Schemas/companySkillsSchema.json"));	
 }
 
-	// Cleanup
 	@After  
 	public void testCompanyDelete() {
-		expect().statusCode(200)
+		given()
+    	.header("Content-type", "application/json")
+    	.header("AJP_eppn", randomEPPN)
+		.expect().statusCode(200)
 		.when()
 		.get(COMPANY_DELETE_RESOURCE, this.createdId.toString())
 		.then()
@@ -224,6 +243,73 @@ public class CompanyIT extends BaseIT {
 		//TODO -- continue testing here...
 //		.then()
 //			.body(matchesJsonSchemaInClasspath("Schemas/companySkillsSchema.json")).as(ArrayList.class);
+	}
+	
+	@Test
+	public void testCompanyVideoCreate() {
+		
+		if (this.createdId != null) {
+			JSONObject json = new JSONObject();
+			json.put("title", "test video title");
+			json.put("link", "test video link");
+			json.put("companyId", this.createdId);
+			
+			given()
+            	.header("Content-type", "application/json")
+            	.header("AJP_eppn", randomEPPN)
+            	.body(json.toString())
+			.expect()
+				.statusCode(200)
+			.when()
+				.post(COMPANY_VIDEO_CREATE_RESOURCE)
+			.then()
+				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+			.extract()
+				.path("id");
+		}
+		
+	}
+
+    @Test
+	public void testCompanyVideosGet() {
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+        if (this.createdId != null) {
+        	testCompanyVideoCreate();
+			JsonNode vs =
+	            given().
+	                header("Content-type", "application/json").
+	                header("AJP_eppn", randomEPPN).
+	            expect().
+	                statusCode(200).
+	            when().
+	                get(COMPANY_VIDEOS_GET_RESOURCE, this.createdId).as(JsonNode.class);
+			
+			try {
+				this.videos = mapper.readValue(mapper.treeAsTokens(vs), new TypeReference<ArrayList<CompanyVideo>>() {});
+			} catch (Exception e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+        }
+	}
+    
+    @Test
+	public void testCompanyVideoDelete() {
+        if (this.createdId != null) {
+        	testCompanyVideosGet();
+            if (this.videos != null && this.videos.size() > 0) {
+            	int videoId = this.videos.get(0).getId();
+        		given()
+            	.header("Content-type", "application/json")
+            	.header("AJP_eppn", randomEPPN)
+        		.expect().statusCode(200)
+        		.when()
+        		.get(COMPANY_VIDEO_DELETE_RESOURCE, videoId)
+        		.then()
+        		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));	
+            }
+        }
 	}
 	
 	public JSONObject createFixture() {
@@ -313,6 +399,7 @@ public class CompanyIT extends BaseIT {
         
 		return json;
 	}
+	
 	public JSONArray createSkills() {
 		
 		JSONArray skills = new JSONArray();
