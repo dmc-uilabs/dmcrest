@@ -245,7 +245,7 @@ public class CompanyIT extends BaseIT {
 	
 	@Test
 	public void testCompanyVideoCreate() {
-		
+
 		if (this.createdId != null) {
 			JSONObject json = new JSONObject();
 			json.put("title", "test video title");
@@ -253,9 +253,9 @@ public class CompanyIT extends BaseIT {
 			json.put("companyId", this.createdId);
 			
 			given()
-            	.header("Content-type", "application/json")
-            	.header("AJP_eppn", randomEPPN)
-            	.body(json.toString())
+			.header("Content-type", "application/json")
+			.header("AJP_eppn", randomEPPN)
+				.body(json.toString())
 			.expect()
 				.statusCode(200)
 			.when()
@@ -265,31 +265,31 @@ public class CompanyIT extends BaseIT {
 			.extract()
 				.path("id");
 		}
-		
+
 	}
 
-    @Test
+	@Test
 	public void testCompanyVideosGet() {
-		
+
 		ObjectMapper mapper = new ObjectMapper();
-		
-        if (this.createdId != null) {
+
+		if (this.createdId != null) {
         	testCompanyVideoCreate();
 			JsonNode vs =
-	            given().
-	                header("Content-type", "application/json").
-	                header("AJP_eppn", randomEPPN).
+				given().
+	            	header("Content-type", "application/json").
+	            	header("AJP_eppn", randomEPPN).
 	            expect().
-	                statusCode(200).
+	            	statusCode(200).
 	            when().
-	                get(COMPANY_VIDEOS_GET_RESOURCE, this.createdId).as(JsonNode.class);
+	            	get(COMPANY_VIDEOS_GET_RESOURCE, this.createdId).as(JsonNode.class);
 			
 			try {
 				this.videos = mapper.readValue(mapper.treeAsTokens(vs), new TypeReference<ArrayList<CompanyVideo>>() {});
 			} catch (Exception e) {
 				ServiceLogger.log(logTag, e.getMessage());
 			}
-        }
+		}
 	}
     
     @Test
