@@ -99,4 +99,41 @@ public class ServiceIT extends BaseIT {
 	}
 	
 	
+	/**
+	 * test case for get /services/{serviceID}/service_documents
+	 */
+	@Test
+	public void testServiceGet_ServiceHistory(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_FOUND.value()).
+		when().get("/services" + serviceId + "/service_history");
+	}
+	
+	/**
+	 * test case for get /services/{serviceID}/service_images
+	 */
+	@Test
+	public void testServiceGet_ServiceImage(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_FOUND.value()).
+		when().get("/services" + serviceId + "/service_images");
+	}
+	
+	
+	/**
+	 * test case for get /services/{serviceID}/service_tags
+	 */
+	@Test
+	public void testServiceGet_ServiceTags(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_FOUND.value()).
+		when().get("/services" + serviceId + "/service_tags");
+	}
+	
 }

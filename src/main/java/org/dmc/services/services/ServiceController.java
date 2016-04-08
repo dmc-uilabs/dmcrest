@@ -103,7 +103,7 @@ public class ServiceController {
     	      // do some magic!
     	      return new ResponseEntity<List<ServiceDocument>>(HttpStatus.NOT_IMPLEMENTED);
     	  }
-    /*   
+      
     
     @RequestMapping(value = "/services/{serviceID}/service_history", 
     	    produces = { "application/json", "text/html" }, 
@@ -116,7 +116,7 @@ public class ServiceController {
     	      // do some magic!
     	      return new ResponseEntity<List<ServiceHistory>>(HttpStatus.NOT_IMPLEMENTED);
     	  }
-
+ 
     
     @RequestMapping(value = "/{serviceID}/service_images", 
     	    produces = { "application/json", "text/html" }, 
@@ -142,7 +142,7 @@ public class ServiceController {
     	      // do some magic!
     	      return new ResponseEntity<List<ServiceTag>>(HttpStatus.NOT_IMPLEMENTED);
     	  }
-    
+    /*  
     
     @RequestMapping(value = "/{serviceID}/services_statistic", 
     	    produces = { "application/json", "text/html" }, 
