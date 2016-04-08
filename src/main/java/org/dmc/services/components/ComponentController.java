@@ -1,7 +1,6 @@
 package org.dmc.services.components;
 
 import org.dmc.services.ServiceLogger;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.http.HttpStatus;
@@ -17,12 +16,6 @@ public class ComponentController {
 
 	private final String logTag = ComponentController.class.getName();
 
-	@RequestMapping(value = "/components", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<Void> postComponent(@RequestBody Component body) {
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
-	}
-
 	private ComponentDao component = new ComponentDao();
 
 	@RequestMapping(value = "/components/{componentID}", method = RequestMethod.GET)
@@ -33,15 +26,26 @@ public class ComponentController {
 	}
 
 	private ComponentListDao componentList = new ComponentListDao();
-	/*
-	 * @RequestMapping(value = "/components", method = RequestMethod.GET) public
-	 * ArrayList<Component> getComponentList() { ServiceLogger.log(logTag,
-	 * "In getcomponentList"); ServiceLogger.log(logTag,
-	 * "In getcomponentList, authorization: " + authorization); return
-	 * componentList.getComponentList();
-	 * 
-	 * }
-	 */
+
+	@RequestMapping(value = "/components", method = RequestMethod.GET)
+	public ArrayList<Component> getComponentList() {
+		ServiceLogger.log(logTag, "In getcomponentList");
+/*		ServiceLogger.log(logTag, "In getcomponentList, authorization: " + authorization);
+*/		return componentList.getComponentList();
+	}
+	
+	
+	@RequestMapping(value = "/components", 
+			produces = { "application/json", "text/html" },
+			method = RequestMethod.POST)
+	public ResponseEntity<Void> postComponent(@RequestBody Component body) {
+		// do some magic!
+		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+	}
+
+	
+
+	
 
 	@RequestMapping(value = "/projects/{projectId}/components", method = RequestMethod.GET)
 	public ArrayList<Component> getComponentList(@PathVariable("projectId") int projectId) {

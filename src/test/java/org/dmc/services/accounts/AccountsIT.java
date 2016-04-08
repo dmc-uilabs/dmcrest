@@ -3,6 +3,9 @@ package org.dmc.services.accounts;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static com.jayway.restassured.RestAssured.*;
 import static org.junit.Assert.*;
 
@@ -176,13 +179,40 @@ public class AccountsIT extends BaseIT {
 
 	/**
 	 * Tests for
-	 * <code> get /accounts/{accountID}/account-notification-settings/NotificationSettingID </code>
+	 * <code> GET /accounts/{accountID}/account-notification-settings/NotificationSettingID </code>
 	 **/
 
 	@Test
 	public void testAccountNotificationSettingGet_NotificationSettingID() {
-		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when()
-				.get("/accounts/" + knownUserID + "/account-notification-settings/" + notificationSettingID);
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+				.get("/account-notification-settings/" + notificationSettingID);
+
+	}
+	
+	
+	/**
+	 * Tests for
+	 * <code> PATCH /accounts/{accountID}/account-notification-settings/NotificationSettingID </code>
+	 **/
+
+	@Test
+	public void testAccountNotificationSettingPatch_NotificationSettingID() {
+		AccountNotificationSetting obj = new AccountNotificationSetting();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedNotificationSetting = null;
+		try {
+			postedNotificationSetting = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", knownUserEPPN).
+		body(postedNotificationSetting).
+		expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+				.patch("/account-notification-settings/" + notificationSettingID);
 
 	}
 
@@ -198,13 +228,50 @@ public class AccountsIT extends BaseIT {
 
 	/**
 	 * Tests for
-	 * <code> get /accounts/{accountID}/account-servers/{serverID} </code>
+	 * <code> get /account-servers/{serverID} </code>
 	 **/
 
 	@Test
 	public void testAccountGet_ServerID() {
-		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when()
-				.get("/accounts/" + knownUserID + "/account_servers/" + serverID);
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+				.get("/account_servers/" + serverID);
+	}
+	
+	
+	/**
+	 * Tests for
+	 * <code> DELETE /account-servers/{serverID} </code>
+	 **/
+
+	@Test
+	public void testAccountDelete_ServerID() {
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+				.delete("/account_servers/" + serverID);
+	}
+	
+	/**
+	 * Tests for
+	 * <code> PATCH /account-servers/{serverID} </code>
+	 **/
+
+	@Test
+	public void testAccountPatch_ServerID() {
+		UserAccountServer obj = new UserAccountServer();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedAccountServer = null;
+		
+		try {
+			patchedAccountServer = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", knownUserEPPN).
+		body(patchedAccountServer).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+				.patch("/account_servers/" + serverID);
 	}
 
 	/**

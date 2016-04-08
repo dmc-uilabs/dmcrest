@@ -3,7 +3,6 @@ package org.dmc.services;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.services.ServiceSpecifications;
-import org.dmc.services.users.User;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
