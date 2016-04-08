@@ -59,7 +59,7 @@ public class ServiceController {
     	return serviceListDao.getServiceByComponentList(componentId);
     }
     
- 
+   
     @RequestMapping(value = "/services", 
     	      produces = { "application/json", "text/html" }, 
     	      method = RequestMethod.POST)
@@ -69,7 +69,7 @@ public class ServiceController {
     	        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     	    }
     
-    @RequestMapping(value = "/{serviceID}", 
+    @RequestMapping(value = "/services/{serviceID}", 
     	    produces = { "application/json", "text/html" }, 
     	    method = RequestMethod.PATCH)
     	  public ResponseEntity<Service> servicesServiceIDPatch(
@@ -78,9 +78,8 @@ public class ServiceController {
     	      // do some magic!
     	      return new ResponseEntity<Service>(HttpStatus.NOT_IMPLEMENTED);
     	  }
-    
-    /* 
-    @RequestMapping(value = "/{serviceID}/service_authors", 
+ 
+    @RequestMapping(value = "/services/{serviceID}/service_authors", 
     	    produces = { "application/json", "text/html" }, 
     	    method = RequestMethod.GET)
     	  public ResponseEntity<List<ServiceAuthor>> servicesServiceIDServiceAuthorsGet(
@@ -89,8 +88,9 @@ public class ServiceController {
     	      return new ResponseEntity<List<ServiceAuthor>>(HttpStatus.NOT_IMPLEMENTED);
     	  }
     
+    /*
     
-    @RequestMapping(value = "/{serviceID}/service_documents", 
+    @RequestMapping(value = "/services/{serviceID}/service_documents", 
     	    produces = { "application/json", "text/html" }, 
     	    consumes = { "application/json", "text/xml" },
     	    method = RequestMethod.GET)

@@ -4,6 +4,7 @@ import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 import static com.jayway.restassured.RestAssured.*;
 
@@ -18,6 +19,7 @@ public class ServiceIT extends BaseIT {
     private ServiceDao serviceDao = new ServiceDao();
 	private Service service = null;
 	private Random r = new Random();
+	private String serviceId = "1"; // the serviceId need to be assigned new value
 	
 	@Test
 	public void getService() {	
@@ -53,5 +55,38 @@ public class ServiceIT extends BaseIT {
 		expect().statusCode(200).when().get("/components/" + (r.nextInt(190) + 30) + "/services").then().
         body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
 	}
+	
+	
+	/**
+	 * test case for patch /services/{serviceID}
+	 */
+	@Test
+	public void testServicePatch_ServiceId(){
+		//TBD
+	}
+	
+	/**
+	 * test case for post /services
+	 */
+	@Test
+	public void testServicePost(){
+		//TBD
+	}
+	
+	
+	/**
+	 * test case for get /services/{serviceID}/service_authors
+	 */
+	@Test
+	public void testServiceGet_ServiceAuthor(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_FOUND.value()).
+		when().get("/services" + serviceId + "/service_authors");
+	}
+	
+	
+	
 	
 }
