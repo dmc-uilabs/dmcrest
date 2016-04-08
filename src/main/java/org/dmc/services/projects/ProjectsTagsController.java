@@ -16,7 +16,6 @@ public class ProjectsTagsController {
   
   @RequestMapping(value = "/{projectTagid}", 
     produces = { "application/json", "text/html" }, 
-    consumes = { "application/json", "text/xml" },
     method = RequestMethod.DELETE)
   public ResponseEntity<Void> projectsTagsProjectTagidDelete(
 @PathVariable("projectTagid") String projectTagid){

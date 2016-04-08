@@ -6,7 +6,6 @@ import java.util.UUID;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -16,6 +15,7 @@ import com.jayway.restassured.response.ValidatableResponse;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,10 +27,10 @@ import static org.hamcrest.CoreMatchers.*;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.projects.ProjectCreateRequest;
-import org.dmc.services.users.User;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
+import org.dmc.services.projects.PostProjectTag;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -41,6 +41,7 @@ public class ProjectIT extends BaseIT {
 	String randomEPPN = UUID.randomUUID().toString();
 	private static final String PROJECT_DISCUSSIONS_RESOURCE = "/projects/{projectID}/all-discussions";
 
+	private String projectId = "1";
     @Test
 	public void testProject6() {
 		given().
@@ -317,12 +318,7 @@ public class ProjectIT extends BaseIT {
 		
 	}
 	
-	@Test
-	public void testProject6_ProjectDocuments() {
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when()
-		.get("/projects/6/project_documents");
-	}
-
+	
 	@Test
 	public void testProjectJoinRequests(){
 		ValidatableResponse response =  
@@ -550,4 +546,49 @@ public class ProjectIT extends BaseIT {
 	}
 
 	
+	
+	/**
+	 * test case for post /projects_tags
+	 */
+	@Test
+	public void testProjectPost_ProjectTag(){
+		PostProjectTag obj =null;
+		ObjectMapper mapper = new ObjectMapper();
+		String postedProjectTagsJSONString = null;
+		try {
+			postedProjectTagsJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(postedProjectTagsJSONString).
+	expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	when().
+        post("/projects_tags");
+	}
+	
+	
+	/**
+	 * test case for DELETE /projects_tags/{projectTagid}
+	 */
+	@Test
+	public void testProjectDelete_ProjectTag(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/projects_tags/" + projectId);
+	}
+	
+	@Test
+	public void testProject_ProjectDocuments() {
+		given().header("AJP_eppn", userEPPN).expect().statusCode(200).when()
+		.get("/projects/"+ projectId + "/project_documents");
+	}
+
 }

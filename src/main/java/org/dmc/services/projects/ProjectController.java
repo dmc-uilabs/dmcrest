@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @RestController
@@ -236,6 +237,19 @@ public class ProjectController {
     	return project.getProjectTagList(projectID, userEPPN);
     }
     
+    
+    @RequestMapping(value = "/projects_tags", 
+    	    produces = { "application/json", "text/html" }, 
+    	    method = RequestMethod.POST)
+    	  public ResponseEntity<GetProjectTag> projectsTagsPost(
+
+    	@RequestBody PostProjectTag body
+    	){
+    	      // do some magic!
+    	      return new ResponseEntity<GetProjectTag>(HttpStatus.NOT_IMPLEMENTED);
+    	  }
+    
+    
     /**	
     *Return Project Discussions
     **/
@@ -272,10 +286,10 @@ public class ProjectController {
     
     
     /**	
-     *Return Project Documents
+     *
      **/
-	@RequestMapping(value = "/{projectID}/project_documents", produces = { "application/json",
-	"text/html" }, consumes = { "application/json", "text/xml" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/projects/{projectID}/project_documents", produces = { "application/json",
+	"text/html" }, method = RequestMethod.GET)
 public ResponseEntity<List<ProjectDocument>> projectsProjectIDProjectDocumentsGet(
 	@PathVariable("projectID") String projectID,
 	@RequestParam(value = "projectDocumentId", required = true) String projectDocumentId,
@@ -285,5 +299,6 @@ public ResponseEntity<List<ProjectDocument>> projectsProjectIDProjectDocumentsGe
 // do some magic!
 return new ResponseEntity<List<ProjectDocument>>(HttpStatus.NOT_IMPLEMENTED);
 }
-    
+
+	
 }
