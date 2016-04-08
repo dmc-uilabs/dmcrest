@@ -30,34 +30,32 @@ public class CompanyVideoDao {
 	private final String logTag = CompanyVideoDao.class.getName();
 	private ResultSet resultSet;
 	private Connection connection;
-	
-    public ArrayList<CompanyVideo> getCompanyVideos(int companyID, String userEPPN) throws HTTPException {
-        ArrayList<CompanyVideo> videos = new ArrayList<CompanyVideo>();        
-        ServiceLogger.log(this.logTag, "User: " + userEPPN + " asking for all videos of the company: " + companyID);
-        try {
-        	String query = "SELECT c.id, c.caption title, c.video_link link, ov.organization_id "
-        			+ "FROM organization_video ov "
-        			+ "JOIN common_video c ON c.id = ov.video_id "
-        			+ "WHERE ov.organization_id = ?";
-        	
-        	PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+
+	public ArrayList<CompanyVideo> getCompanyVideos(int companyID, String userEPPN) throws HTTPException {
+		ArrayList<CompanyVideo> videos = new ArrayList<CompanyVideo>();
+		ServiceLogger.log(this.logTag, "User: " + userEPPN + " asking for all videos of the company: " + companyID);
+		try {
+			String query = "SELECT c.id, c.caption title, c.video_link link, ov.organization_id " + "FROM organization_video ov " + "JOIN common_video c ON c.id = ov.video_id "
+					+ "WHERE ov.organization_id = ?";
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, companyID);
 			this.resultSet = preparedStatement.executeQuery();
 
-            while (this.resultSet.next()) {
-            	int id = this.resultSet.getInt("id");
-            	int companyId = this.resultSet.getInt("organization_id");
-            	String title = this.resultSet.getString("title");
-            	String link = this.resultSet.getString("link");
-                CompanyVideo video = new CompanyVideo(id, companyId, title, link);
-                videos.add(video);
-            }
-        } catch (Exception e) {
-            throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value()); 
-        }
-        return videos;
+			while (this.resultSet.next()) {
+				int id = this.resultSet.getInt("id");
+				int companyId = this.resultSet.getInt("organization_id");
+				String title = this.resultSet.getString("title");
+				String link = this.resultSet.getString("link");
+				CompanyVideo video = new CompanyVideo(id, companyId, title, link);
+				videos.add(video);
+			}
+		} catch (Exception e) {
+			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		}
+		return videos;
 	}
-    
+
 	public Id createCompanyVideo(CompanyVideo video, String userEPPN) throws HTTPException {
 
 		String query;
@@ -67,7 +65,6 @@ public class CompanyVideoDao {
 
 		try {
 
-			
 			// Check that the user creating the companyVideo is an administrator or the owner
 			/**
 			 ** Checks disabled until members for companies are tracked
@@ -77,17 +74,17 @@ public class CompanyVideoDao {
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
 			*/
-			
+
 			Connection connection = DBConnector.connection();
 			connection.setAutoCommit(false);
-			
+
 			query = "SELECT id FROM common_video_image_type WHERE type_desc = ?";
-	        statement = DBConnector.prepareStatement(query);
-	        statement.setString(1, "organization_video"); 
-	        ResultSet resultSet  = statement.executeQuery();
-	        if (resultSet.next()) {
-	        	videoTypeId = resultSet.getInt("id");
-	        	
+			statement = DBConnector.prepareStatement(query);
+			statement.setString(1, "organization_video");
+			ResultSet resultSet = statement.executeQuery();
+			if (resultSet.next()) {
+				videoTypeId = resultSet.getInt("id");
+
 				query = "INSERT INTO common_video  (length, caption, video_link) VALUES (?, ?, ?)";
 				statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 				statement.setInt(1, 0);
@@ -100,16 +97,16 @@ public class CompanyVideoDao {
 
 				query = "INSERT INTO organization_video (organization_id, video_type, video_id) VALUES (?, ?, ?) ";
 				statement = DBConnector.prepareStatement(query);
-				
-				ServiceLogger.log(logTag,  "ORganization ID: " + video.getCompanyId());
-				
+
+				ServiceLogger.log(logTag, "ORganization ID: " + video.getCompanyId());
+
 				statement.setInt(1, video.getCompanyId());
 				statement.setInt(2, videoTypeId);
 				statement.setInt(3, videoId);
 				statement.executeUpdate();
-	        }
+			}
 
-	        connection.commit();
+			connection.commit();
 
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
@@ -128,37 +125,38 @@ public class CompanyVideoDao {
 			if (connection != null) {
 				try {
 					connection.setAutoCommit(true);
-				} catch (SQLException ex) {}
+				} catch (SQLException ex) {
+				}
 			}
 		}
 
 		return new Id.IdBuilder(videoId).build();
 	}
-    
+
 	public Id deleteCompanyVideo(int companyId, int videoId, String userEPPN) throws HTTPException {
-		
+
 		int id = -1;
 		String query;
 		connection = DBConnector.connection();
 		PreparedStatement statement;
 		Util util = Util.getInstance();
 		Boolean resetAutoCommit = true;
-		
+
 		try {
-			
+
 			if (!connection.getAutoCommit()) {
 				resetAutoCommit = false;
 			}
-			
+
 			if (videoId != -1) {
-				
+
 				query = "SELECT organization_id FROM organization_video WHERE video_id = ?";
-		        statement = DBConnector.prepareStatement(query);
-		        statement.setInt(1, videoId); 
-		        ResultSet resultSet  = statement.executeQuery();
-		        
-		        if (resultSet.next()) {
-		        	
+				statement = DBConnector.prepareStatement(query);
+				statement.setInt(1, videoId);
+				ResultSet resultSet = statement.executeQuery();
+
+				if (resultSet.next()) {
+
 					// Check that the user deleting the company video is an administrator or the owner
 					/**
 					 ** Checks disabled until members for companies are tracked
@@ -169,59 +167,59 @@ public class CompanyVideoDao {
 						throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 					}
 					*/
-		        	
+
 					query = "DELETE FROM organization_video WHERE video_id = ?";
-			        statement = DBConnector.prepareStatement(query);
-			        statement.setInt(1, videoId); 
-			        statement.executeUpdate();
-			        
+					statement = DBConnector.prepareStatement(query);
+					statement.setInt(1, videoId);
+					statement.executeUpdate();
+
 					query = "DELETE FROM common_video WHERE id = ?";
-			        statement = DBConnector.prepareStatement(query);
-			        statement.setInt(1, videoId); 
-			        statement.executeUpdate();
-		        }
-		        
+					statement = DBConnector.prepareStatement(query);
+					statement.setInt(1, videoId);
+					statement.executeUpdate();
+				}
+
 			} else if (companyId != -1) {
 				ArrayList<String> videoIds = new ArrayList<String>();
 				query = "SELECT video_id FROM organization_video WHERE organization_id = ?";
-		        statement = DBConnector.prepareStatement(query);
-		        statement.setInt(1, companyId); 
-		        
-		        ResultSet resultSet  = statement.executeQuery();
-		        
-		        String queryOrg = "DELETE FROM organization_video WHERE video_id IN (";
-		        query = "DELETE FROM common_video WHERE id IN (";
-		        Boolean firstAdd = true;
-		        while (resultSet.next()) {
-		        	videoIds.add(String.valueOf(resultSet.getInt("video_id")));
-		        	query += (firstAdd) ?  "?" : ", ?";
-		        	queryOrg += (firstAdd) ?  "?" : ", ?";
-		        	firstAdd = false;
-		        }
-		        query += ")";
-		        queryOrg += ")";
-		        
-		        String ids = StringUtils.join(videoIds.iterator(), ","); 
-		        
-		        if (videoIds.size() > 0) {
-		        	statement = DBConnector.prepareStatement(queryOrg);
-		        	for (int i=0; i<videoIds.size(); i++) {
-		        		statement.setInt(i+1, Integer.parseInt(videoIds.get(i))); 
-		        	}
-			        statement.executeUpdate();	
-			        
-		        	statement = DBConnector.prepareStatement(query);
-		        	for (int i=0; i<videoIds.size(); i++) {
-		        		statement.setInt(i+1, Integer.parseInt(videoIds.get(i))); 
-		        	}
-			        statement.executeUpdate();	
-		        }
+				statement = DBConnector.prepareStatement(query);
+				statement.setInt(1, companyId);
+
+				ResultSet resultSet = statement.executeQuery();
+
+				String queryOrg = "DELETE FROM organization_video WHERE video_id IN (";
+				query = "DELETE FROM common_video WHERE id IN (";
+				Boolean firstAdd = true;
+				while (resultSet.next()) {
+					videoIds.add(String.valueOf(resultSet.getInt("video_id")));
+					query += (firstAdd) ? "?" : ", ?";
+					queryOrg += (firstAdd) ? "?" : ", ?";
+					firstAdd = false;
+				}
+				query += ")";
+				queryOrg += ")";
+
+				String ids = StringUtils.join(videoIds.iterator(), ",");
+
+				if (videoIds.size() > 0) {
+					statement = DBConnector.prepareStatement(queryOrg);
+					for (int i = 0; i < videoIds.size(); i++) {
+						statement.setInt(i + 1, Integer.parseInt(videoIds.get(i)));
+					}
+					statement.executeUpdate();
+
+					statement = DBConnector.prepareStatement(query);
+					for (int i = 0; i < videoIds.size(); i++) {
+						statement.setInt(i + 1, Integer.parseInt(videoIds.get(i)));
+					}
+					statement.executeUpdate();
+				}
 			}
-	        
+
 			connection.commit();
-			
+
 		} catch (SQLException e) {
-			ServiceLogger.log(logTag, "EXCEPTION HER: " + e.getMessage());
+			ServiceLogger.log(logTag, e.getMessage());
 			if (connection != null) {
 				try {
 					ServiceLogger.log(logTag, "Transaction deleteCompanyVideo Rolled back");
@@ -245,5 +243,5 @@ public class CompanyVideoDao {
 
 		return new Id.IdBuilder(id).build();
 	}
-	
+
 }

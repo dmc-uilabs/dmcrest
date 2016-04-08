@@ -222,7 +222,7 @@ public class CompanyIT extends BaseIT {
     	.header("AJP_eppn", randomEPPN)
 		.expect().statusCode(200)
 		.when()
-		.get(COMPANY_DELETE_RESOURCE, this.createdId.toString())
+		.delete(COMPANY_DELETE_RESOURCE, this.createdId.toString())
 		.then()
 		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
@@ -303,7 +303,7 @@ public class CompanyIT extends BaseIT {
             	.header("AJP_eppn", randomEPPN)
         		.expect().statusCode(200)
         		.when()
-        		.get(COMPANY_VIDEO_DELETE_RESOURCE, videoId)
+        		.delete(COMPANY_VIDEO_DELETE_RESOURCE, videoId)
         		.then()
         		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));	
             }

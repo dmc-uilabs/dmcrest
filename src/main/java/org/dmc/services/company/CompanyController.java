@@ -95,7 +95,7 @@ public class CompanyController {
         }  
     }
     
-    @RequestMapping(value = "/companies/{id}/delete", method = RequestMethod.GET)
+    @RequestMapping(value = "/companies/{id}/delete", method = RequestMethod.DELETE)
     public Id deleteCompany(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "deleteCompany, id: " + id);
     	return  companyDao.deleteCompany(id, userEPPN);
@@ -180,7 +180,7 @@ public class CompanyController {
 	 * @param userEPPN
 	 * @return
 	 */
-	@RequestMapping(value = "/company_videos/{id}", method = RequestMethod.GET, produces = { "application/json" })
+	@RequestMapping(value = "/company_videos/{id}", method = RequestMethod.DELETE, produces = { "application/json" })
 	public ResponseEntity deleteCompanyVideos(@PathVariable("id") int videoId, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "deleteCompanyVideos, userEPPN: " + userEPPN);

@@ -527,11 +527,11 @@ public class CompanyDao {
 	    
 	    try {
 	    	
-			// Check that the user deleting the company is an administrator or the owner
+			// Check that the user deleting the company video is an administrator or the owner of the company
 			/**
 			 ** Checks disabled until members for companies are tracked
 			if (!(isOwnerOfCompany(companyId, userIdEPPN) || isAdminOfCompany(companyId, userIdEPPN))) {
-				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to add administrators for company " + companyId);
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to delete videos for company " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
 			*/
@@ -556,7 +556,7 @@ public class CompanyDao {
 		        statement.executeUpdate();
 		        
 				// delete organization_video
-                videoDao.deleteCompanyVideo(companyId, -1, userEPPN);
+				videoDao.deleteCompanyVideo(companyId, -1, userEPPN);
 		        
 				// delete organization
 		        query = "DELETE FROM organization WHERE organization_id = ?";
