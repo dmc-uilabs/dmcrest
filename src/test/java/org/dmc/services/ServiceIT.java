@@ -86,7 +86,17 @@ public class ServiceIT extends BaseIT {
 		when().get("/services" + serviceId + "/service_authors");
 	}
 	
-	
+	/**
+	 * test case for get /services/{serviceID}/service_documents
+	 */
+	@Test
+	public void testServiceGet_ServiceDocument(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_FOUND.value()).
+		when().get("/services" + serviceId + "/service_documents");
+	}
 	
 	
 }

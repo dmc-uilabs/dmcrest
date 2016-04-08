@@ -88,7 +88,7 @@ public class ServiceController {
     	      return new ResponseEntity<List<ServiceAuthor>>(HttpStatus.NOT_IMPLEMENTED);
     	  }
     
-    /*
+   
     
     @RequestMapping(value = "/services/{serviceID}/service_documents", 
     	    produces = { "application/json", "text/html" }, 
@@ -103,9 +103,9 @@ public class ServiceController {
     	      // do some magic!
     	      return new ResponseEntity<List<ServiceDocument>>(HttpStatus.NOT_IMPLEMENTED);
     	  }
+    /*   
     
-    
-    @RequestMapping(value = "/{serviceID}/service_history", 
+    @RequestMapping(value = "/services/{serviceID}/service_history", 
     	    produces = { "application/json", "text/html" }, 
     	    consumes = { "application/json", "text/xml" },
     	    method = RequestMethod.GET)
