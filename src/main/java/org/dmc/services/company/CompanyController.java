@@ -99,30 +99,7 @@ public class CompanyController {
     	ServiceLogger.log(logTag, "deleteCompany, id: " + id);
     	return  companyDao.deleteCompany(id);
     }
-
 	
-    @RequestMapping(value = "/companies/{companyID}/company_skills", method = RequestMethod.GET)
-    public ArrayList<CompanySkill> getCompanySkills(@PathVariable("companyID") int companyID,
-    						  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
-
-    	ServiceLogger.log(this.logTag, "In getCompanySkills, companyID: " + companyID + " as user " + userEPPN);
-    	return this.skillDao.getCompanySkills(userEPPN, companyID);
-    }
-    
-    
-    @RequestMapping(value = "/company_skills", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    public int createCompanySkills(@RequestBody String skills, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
-    {
-    	return this.skillDao.createCompanySkills(skills,userEPPN);
-    }
-
-    
-    @RequestMapping(value = "/company_skills/{skillID}", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    public int deleteCompanySkills(@PathVariable("skillID") int skillID, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
-    {
-    	return this.skillDao.deleteCompanySkills(new Integer(skillID),userEPPN);
-    }
-
     /**
      * Add an administrator for a company
      * @param id

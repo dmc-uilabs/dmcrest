@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/companySkill",
+  "type": "object",
+  "properties": 
+    {
+        "id": {
+          "id": "http://dmc-dev.geinspire.com/companySkill/id",
+          "type": "integer"
+        },
+        "companyId": {
+          "id": "http://dmc-dev.geinspire.com/companySkill/companyId",
+          "type": "integer"
+        },
+        "skill": {
+          "id": "http://dmc-dev.geinspire.com/companySkill/skill",
+          "type": "string"
+        }
+     }
+}
