@@ -251,19 +251,16 @@ public class CompanyIT extends BaseIT {
 			json.put("title", "test video title");
 			json.put("link", "test video link");
 			json.put("companyId", this.createdId);
-			
+
 			given()
-			.header("Content-type", "application/json")
-			.header("AJP_eppn", randomEPPN)
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN)
 				.body(json.toString())
 			.expect()
 				.statusCode(200)
 			.when()
-				.post(COMPANY_VIDEO_CREATE_RESOURCE)
-			.then()
-				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-			.extract()
-				.path("id");
+				.post(COMPANY_VIDEO_CREATE_RESOURCE).then()
+				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 		}
 
 	}
@@ -274,16 +271,17 @@ public class CompanyIT extends BaseIT {
 		ObjectMapper mapper = new ObjectMapper();
 
 		if (this.createdId != null) {
-        	testCompanyVideoCreate();
-			JsonNode vs =
-				given().
-	            	header("Content-type", "application/json").
-	            	header("AJP_eppn", randomEPPN).
-	            expect().
-	            	statusCode(200).
-	            when().
-	            	get(COMPANY_VIDEOS_GET_RESOURCE, this.createdId).as(JsonNode.class);
-			
+			testCompanyVideoCreate();
+			JsonNode vs = 
+				given()
+					.header("Content-type", "application/json")
+					.header("AJP_eppn", randomEPPN)
+				.expect()
+					.statusCode(200)
+				.when()
+					.get(COMPANY_VIDEOS_GET_RESOURCE, this.createdId)
+					.as(JsonNode.class);
+
 			try {
 				this.videos = mapper.readValue(mapper.treeAsTokens(vs), new TypeReference<ArrayList<CompanyVideo>>() {});
 			} catch (Exception e) {
@@ -292,22 +290,22 @@ public class CompanyIT extends BaseIT {
 		}
 	}
     
-    @Test
+	@Test
 	public void testCompanyVideoDelete() {
-        if (this.createdId != null) {
-        	testCompanyVideosGet();
-            if (this.videos != null && this.videos.size() > 0) {
-            	int videoId = this.videos.get(0).getId();
-        		given()
-            	.header("Content-type", "application/json")
-            	.header("AJP_eppn", randomEPPN)
-        		.expect().statusCode(200)
-        		.when()
-        		.delete(COMPANY_VIDEO_DELETE_RESOURCE, videoId)
-        		.then()
-        		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));	
-            }
-        }
+		if (this.createdId != null) {
+			testCompanyVideosGet();
+			if (this.videos != null && this.videos.size() > 0) {
+				int videoId = this.videos.get(0).getId();
+				given()
+					.header("Content-type", "application/json")
+					.header("AJP_eppn", randomEPPN)
+				.expect()
+					.statusCode(200)
+				.when()
+					.delete(COMPANY_VIDEO_DELETE_RESOURCE, videoId).then()
+					.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+			}
+		}
 	}
 	
 	public JSONObject createFixture() {
