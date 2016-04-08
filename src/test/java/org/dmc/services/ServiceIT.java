@@ -82,8 +82,8 @@ public class ServiceIT extends BaseIT {
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_FOUND.value()).
-		when().get("/services" + serviceId + "/service_authors");
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/services/" + serviceId + "/service_authors");
 	}
 	
 	/**
@@ -94,8 +94,8 @@ public class ServiceIT extends BaseIT {
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_FOUND.value()).
-		when().get("/services" + serviceId + "/service_documents");
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/services/" + serviceId + "/service_documents");
 	}
 	
 	
@@ -107,8 +107,8 @@ public class ServiceIT extends BaseIT {
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_FOUND.value()).
-		when().get("/services" + serviceId + "/service_history");
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/services/" + serviceId + "/service_history");
 	}
 	
 	/**
@@ -119,8 +119,8 @@ public class ServiceIT extends BaseIT {
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_FOUND.value()).
-		when().get("/services" + serviceId + "/service_images");
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/services/" + serviceId + "/service_images");
 	}
 	
 	
@@ -132,8 +132,8 @@ public class ServiceIT extends BaseIT {
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_FOUND.value()).
-		when().get("/services" + serviceId + "/service_tags");
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/services/" + serviceId + "/service_tags");
 	}
 	
 }

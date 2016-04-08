@@ -24,7 +24,7 @@ public class faqIT extends BaseIT {
 	 */
 	@Test
 	public void testfaqGet_ArticleId(){
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when().get("/faq_articles" + articleId);
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().get("/faq_articles/" + articleId);
 	}
 	
 	
@@ -41,7 +41,7 @@ public class faqIT extends BaseIT {
 	 */
 	@Test
 	public void testfaqGet_CategoryId(){
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when().get("/faq_categories" + categoryId);
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().get("/faq_categories/" + categoryId);
 	}
 	
 	
@@ -60,7 +60,7 @@ public class faqIT extends BaseIT {
 	 */
 	@Test
 	public void testfaqGet_SubCategoryId(){
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when().get("/faq_subcategories" + subCategoryId);
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().get("/faq_subcategories/" + subCategoryId);
 	}
 	
 	

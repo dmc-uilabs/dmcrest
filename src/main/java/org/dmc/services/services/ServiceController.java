@@ -92,7 +92,6 @@ public class ServiceController {
     
     @RequestMapping(value = "/services/{serviceID}/service_documents", 
     	    produces = { "application/json", "text/html" }, 
-    	    consumes = { "application/json", "text/xml" },
     	    method = RequestMethod.GET)
     	  public ResponseEntity<List<ServiceDocument>> servicesServiceIDServiceDocumentsGet(
     	@PathVariable("serviceID") String serviceID,
@@ -107,7 +106,6 @@ public class ServiceController {
     
     @RequestMapping(value = "/services/{serviceID}/service_history", 
     	    produces = { "application/json", "text/html" }, 
-    	    consumes = { "application/json", "text/xml" },
     	    method = RequestMethod.GET)
     	  public ResponseEntity<List<ServiceHistory>> servicesServiceIDServiceHistoryGet(
  @PathVariable("serviceID") String serviceID,
@@ -118,9 +116,8 @@ public class ServiceController {
     	  }
  
     
-    @RequestMapping(value = "/{serviceID}/service_images", 
+    @RequestMapping(value = "/services/{serviceID}/service_images", 
     	    produces = { "application/json", "text/html" }, 
-    	    consumes = { "application/json", "text/xml" },
     	    method = RequestMethod.GET)
     	  public ResponseEntity<List<ServiceImages>> servicesServiceIDServiceImagesGet(
     @PathVariable("serviceID") String serviceID){
@@ -130,9 +127,8 @@ public class ServiceController {
     
     
     
-    @RequestMapping(value = "/{serviceID}/service_tags", 
+    @RequestMapping(value = "/services/{serviceID}/service_tags", 
     	    produces = { "application/json", "text/html" }, 
-    	    consumes = { "application/json", "text/xml" },
     	    method = RequestMethod.GET)
     	  public ResponseEntity<List<ServiceTag>> servicesServiceIDServiceTagsGet(
 @PathVariable("serviceID") String serviceID,
