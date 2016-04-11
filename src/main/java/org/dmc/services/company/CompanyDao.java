@@ -58,7 +58,7 @@ public class CompanyDao {
 	public Company getCompany(int id, String userEPPN) throws HTTPException { 
 		
 		try {
-			if (!isDMDIIMember(id, userEPPN)) {
+			if (!CompanyUserUtil.isDMDIIMember(userEPPN)) {
 				ServiceLogger.log(logTag, "User Company/Organization is not DMDII Member");
 				throw new HTTPException(HttpStatus.FORBIDDEN.value());
 			}
@@ -595,26 +595,6 @@ public class CompanyDao {
 		.build();
 	}
 	
-	/**
-	 * 
-	 * @param companyId - Organization/Company for which to check memebership
-	 * @param owner - The logged-in user's username/EPPN 
-	 * @return boolean
-	 * @throws SQLException
-	 */
-	public boolean isDMDIIMember(int companyId, String owner) throws SQLException {
-		String query = "SELECT m.id FROM organization_dmdii_member m "
-				+ "JOIN organization o ON o.organization_id = m.organization_id "
-				+ "WHERE o.owner = ?"
-				+ "AND o.organization_id = ?";
-		PreparedStatement statement = DBConnector.prepareStatement(query);
-		statement.setString(1, owner);
-		statement.setInt(2, companyId);
-		ResultSet result = statement.executeQuery();
-		return result.isBeforeFirst();
-	}
-
-
     /**
 	 * Retrieve the organization_id from the organization_user table for the specifyed company and user
 	 * @param userId the user id
@@ -663,58 +643,6 @@ public class CompanyDao {
 	}
 
 	/**
-	 * Check that user is a member of a company
-	 * @param companyId
-	 * @param userId
-	 * @return
-	 * @throws SQLException
-     */
-	public boolean isMemberOfCompany (int companyId, int userId) throws SQLException {
-
-		// Check ORGANIZATION_USER table to see if user is member of the company
-		String query = "SELECT id FROM organization_user WHERE organization_id = " + companyId + " AND user_id = " + userId;
-		ResultSet rs = DBConnector.executeQuery(query);
-		return rs.isBeforeFirst();
-	}
-
-	/**
-	 * Check that user is an admin of a company
-	 * @param companyId
-	 * @param userId
-	 * @return
-	 * @throws SQLException
-	 */
-	public boolean isAdminOfCompany (int companyId, int userId) throws SQLException {
-
-		// Check ORGANIZATION_ADMIN table to see if user is member of the company
-		String query = "SELECT id FROM organization_admin WHERE organization_id = " + companyId + " AND organization_user_id = " + userId;
-		ResultSet rs = DBConnector.executeQuery(query);
-		return rs.isBeforeFirst();
-	}
-
-	/**
-	 * Check that user is an owner of a company
-	 * @param companyId the company id
-	 * @param userId the user id of the user
-	 * @return true if the user is the owner of a company, false otherwise
-	 * @throws SQLException
-	 */
-	public boolean isOwnerOfCompany (int companyId, int userId) throws SQLException {
-
-		String query = "SELECT u.user_id FROM users u LEFT JOIN organization o ON o.owner = u.user_name WHERE o.organization_id = " + companyId;
-
-		boolean isOwner = false;
-		int ownerUserId = -1;
-		ResultSet rs = DBConnector.executeQuery(query);
-		if (rs.next()) {
-
-			ownerUserId = rs.getInt(1);
-			isOwner = ownerUserId == userId;
-		}
-		return isOwner;
-	}
-
-	/**
 	 * Add an administrator for a company
 	 * @param companyId the company id
 	 * @param userId the user id
@@ -743,11 +671,11 @@ public class CompanyDao {
 			/**
 			 ** Checks disabled as of 3/31/2016 until members for companies are tracked
 			 **
-			if (!(isOwnerOfCompany(companyId, userIdEPPN) || isAdminOfCompany(companyId, userIdEPPN))) {
+			if (!(CompanyUserUtil.isOwnerOfCompany(companyId, userIdEPPN) || CompanyUserUtil.isAdminOfCompany(companyId, userIdEPPN))) {
 				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to add administrators for company " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
-			*/
+			 */
 
 			// Check that the user being added as an administrator is a member of the company
 			/**
@@ -835,17 +763,17 @@ public class CompanyDao {
 			 ** Checks disabled as of 3/31/2016 until members for companies are tracked
 			 **
 			// Check that the user adding the administrator is an administrator or owner
-			if (!(isOwnerOfCompany(companyId, userIdEPPN) || isAdminOfCompany(companyId, userIdEPPN))) {
+			if (!(CompanyUserUtil.isOwnerOfCompany(companyId, userIdEPPN) || CompanyUserUtil.isAdminOfCompany(companyId, userIdEPPN))) {
 				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to add administrators for company " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
 
 			// Check that the user being added as a member is not already a member of the company
-			if (isMemberOfCompany(companyId, userId)) {
+			if (CompanyUserUtil.isMemberOfCompany(companyId, userId)) {
 				ServiceLogger.log(logTag, "User " + userId + " is already a member of comapny " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
-			*/
+			 */
 
 			// Now add the user to the ORGANIZATION_USER table
 			Util util = Util.getInstance();
