@@ -1,6 +1,7 @@
 package org.dmc.services.company;
 
 import org.dmc.services.ErrorMessage;
+import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.DMCServiceException;
 import org.springframework.http.HttpStatus;
@@ -31,24 +32,27 @@ public class CompanySkillController {
 
 	@RequestMapping(value = "/company_skills", produces = { "application/json",
 			"text/html" }, consumes = { "application/json", "text/xml" }, method = RequestMethod.POST)
-	public ResponseEntity<?> companySkillsPost(
+	public Id companySkillsPost(
 			@RequestBody CompanySkill companySkill,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		try {
 			ServiceLogger.log(this.logTag, "Before create entry");
-			CompanySkill ck = this.skillDao.createCompanySkill(companySkill,
+			int id = this.skillDao.createCompanySkill(companySkill,
 					userEPPN);
 			ServiceLogger.log(this.logTag, "After create entry");
-			return new ResponseEntity<CompanySkill>(HttpStatus.OK);
+			//return new ResponseEntity<CompanySkill>(HttpStatus.OK);
+			return new Id.IdBuilder(id).build();
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(this.logTag, "Exception:" + e.getErrorMessage());
-			HttpHeaders headers = new HttpHeaders();
-			return new ResponseEntity<String>("DMCServerException:"
-					+ e.getErrorMessage(), headers, HttpStatus.BAD_REQUEST);
+			// HttpHeaders headers = new HttpHeaders();
+			//return new ResponseEntity<String>("DMCServerException:"
+			//		+ e.getErrorMessage(), headers, HttpStatus.BAD_REQUEST);
+			return null;
 		} catch (Exception e) {
 			ServiceLogger.log(this.logTag, "Exception:" + e.getMessage());
-			return new ResponseEntity<CompanySkill>(companySkill,
-					HttpStatus.BAD_REQUEST);
+			//return new ResponseEntity<CompanySkill>(companySkill,
+			//		HttpStatus.BAD_REQUEST);
+			return null;
 		}
 	}
 

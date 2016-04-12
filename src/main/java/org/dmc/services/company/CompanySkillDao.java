@@ -67,8 +67,9 @@ public class CompanySkillDao {
 		return skills;
 	}
 
-	public CompanySkill createCompanySkill(CompanySkill s, String userEPPN) throws DMCServiceException {
+	public int createCompanySkill(CompanySkill s, String userEPPN) throws DMCServiceException {
 		int org_id = new Integer(s.getCompanyId()).intValue();
+		int result=-1;
 		try {			
 			
 			if (!CompanyUserUtil.isAdmin(userEPPN, org_id)) {
@@ -84,14 +85,19 @@ public class CompanySkillDao {
 			preparedStatement.setInt(1,
 					(new Integer(s.getCompanyId())).intValue());
 			preparedStatement.setString(2, s.getName());
+			int rCreate = preparedStatement.executeUpdate();
 
-			
-			int result = preparedStatement.executeUpdate();
+			String queryId = "select max(id) max_id from organization_skill";
+			PreparedStatement preparedStatement1 = DBConnector
+					.prepareStatement(queryId);
+			ResultSet r=preparedStatement1.executeQuery();
+			r.next();
+			result=r.getInt("max_id");
 			
 			ServiceLogger.log(
 					this.logTag,
 					"User: " + userEPPN + " added skill set:"
-							+ s.getName() + " into:" + s.getCompanyId());
+							+ s.getName() + " into:" + s.getCompanyId() + " with id:" + result);
 			}
 		}
 
@@ -109,7 +115,7 @@ public class CompanySkillDao {
 			ServiceLogger.log(this.logTag, "Error in insert to change log: " + e.toString());
 			throw new DMCServiceException(DMCServiceException.CanNotInsertChangeLog, e.toString());
 		}
-		return s;
+		return result;
 	}
 
 	public int deleteCompanySkills(String sId, String userEPPN)
