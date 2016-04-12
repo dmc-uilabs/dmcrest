@@ -311,4 +311,89 @@ public class ServiceIT extends BaseIT {
 	when().
         post("/service/" + serviceId + "/specifications");
 	}
+	
+	
+	/**
+	 * test case for POST /service_runs
+	 */
+	@Test
+	public void testServicePost_ServiceRunId(){
+		ObjectMapper mapper = new ObjectMapper();
+		String postedServiceRunJSONString = null;
+		try {
+			postedServiceRunJSONString = mapper.writeValueAsString(service);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(postedServiceRunJSONString).
+	expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	when().
+        post("/service_runs/");
+	}
+	
+	
+
+	
+	/**
+	 * test case for GET /service_runs/{id}
+	 */
+	@Test
+	public void testServiceGet_ServiceRunId(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/service_runs/" + serviceId);
+	}
+	
+	/**
+	 * test case for PATCH /service_runs/{id}
+	 */
+	@Test
+	public void testServicePatch_ServiceRunId(){
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedServiceRunIdJSONString = null;
+		try {
+			patchedServiceRunIdJSONString = mapper.writeValueAsString(service);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(patchedServiceRunIdJSONString).
+	expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	when().
+        patch("/service_runs/" + serviceId);
+	}
+	
+	
+	
+	
+	/**
+	 * test case for DELETE /service_runs/{id}
+	 */
+	@Test
+	public void testServiceDelete_ServiceRunId(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/service_runs/" + serviceId);
+	}
+	
+	
+	
+	
+	
+	
 }
