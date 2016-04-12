@@ -2,8 +2,13 @@ package org.dmc.services;
 
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionController;
+import org.dmc.services.discussions.FollowingIndividualDiscussion;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.jayway.restassured.RestAssured.*;
 
@@ -25,6 +30,7 @@ public class DiscussionIT extends BaseIT {
 	private static final String PROFILE_CREATE_RESOURCE = "/profiles";
 	private static final String ALL_DISCUSSIONS_RESOURCE = "/all-discussions";
 	private static final String DISCUSSION_CREATE_RESOURCE = "/discussions/create";
+	private String followId = "1";
 	
 	private Integer createdId = null;
 	String randomEPPN = UUID.randomUUID().toString();
@@ -97,5 +103,82 @@ public class DiscussionIT extends BaseIT {
 		
 		return json;
 	}
+	
+	
+	/**
+	 * test case for get /popular_discussions
+	 */
+	@Test
+	public void testGet_PopularDiscussions(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/popular_discussions");
+	}
+	
+	/**
+	 * test case for get /follow_people_discussions
+	 */
+	@Test
+	public void testGet_FollowPeopleDiscussions(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/follow_people_discussions");
+	}
+	
+	
+	/**
+	 * test case for get /following_discussions
+	 */
+	@Test
+	public void testGet_FollowingDiscussions(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/following_discussions");
+	}
+	
+	
+	/**
+	 * test case for PATCH /follow_discussions
+	 */
+	@Test
+	public void testPatch_followDiscussion(){
+		FollowingIndividualDiscussion obj = new FollowingIndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedFollowDiscussionsJSONString = null;
+		try {
+			patchedFollowDiscussionsJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(patchedFollowDiscussionsJSONString).
+	expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	when().
+        patch("/follow_discussions");
+	}
 
+	
+	
+	/**
+	 * test case for DELETE /follow_discussions/{followID}
+	 */
+	@Test
+	public void testDelete_FollowDiscussions(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/follow_discussions/" + followId);
+	}
 }

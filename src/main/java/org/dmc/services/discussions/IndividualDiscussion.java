@@ -1,4 +1,4 @@
-package org.dmc.services.projects;
+package org.dmc.services.discussions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;

@@ -1,4 +1,4 @@
-package org.dmc.services.accounts;
+package org.dmc.services.discussions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;

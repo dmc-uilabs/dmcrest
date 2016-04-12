@@ -11,6 +11,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionListDao;
+import org.dmc.services.discussions.IndividualDiscussion;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;

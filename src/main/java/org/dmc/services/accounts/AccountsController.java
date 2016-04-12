@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import org.dmc.services.ServiceLogger;
-
+import org.dmc.services.discussions.FollowingIndividualDiscussion;
 
 import javax.xml.ws.http.HTTPException;
 import java.util.List;
