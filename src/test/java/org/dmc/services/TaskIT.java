@@ -1,14 +1,10 @@
 package org.dmc.services;
 
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 import static com.jayway.restassured.RestAssured.*;
-import com.jayway.restassured.RestAssured;
-
-import static org.hamcrest.Matchers.*;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-
-import java.util.Random;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
@@ -16,6 +12,8 @@ import org.json.JSONObject;
 
 //@Ignore
 public class TaskIT extends BaseIT {
+	
+	private String taskId ="1";
 
 	@Test
 	public void testTaskCreateAndGet() {
@@ -87,5 +85,18 @@ public class TaskIT extends BaseIT {
 		json.put("assignee", 103);    // from group table
 		json.put("projectId", 1);     // from group table and project_group_list, 1 is available in both
 		return json;
+	}
+	
+	
+	/**
+	 * test case for DELETE /tasks/{taskID}
+	 */
+	@Test
+	public void testDelete_FollowDiscussions(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/tasks/" + taskId);
 	}
 }
