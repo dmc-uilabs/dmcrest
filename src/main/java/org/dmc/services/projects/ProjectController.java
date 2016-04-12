@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @RestController
@@ -299,6 +300,21 @@ public ResponseEntity<List<ProjectDocument>> projectsProjectIDProjectDocumentsGe
 // do some magic!
 return new ResponseEntity<List<ProjectDocument>>(HttpStatus.NOT_IMPLEMENTED);
 }
+	
+	
+	 @RequestMapping(value = "/projects/{projectID}/following_discussions", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<IndividualDiscussion>> projectsProjectIDFollowingDiscussionsGet(
+			@PathVariable("projectID") String projectID,
+			 @RequestParam(value = "limit", required = false) Integer limit	,
+			@RequestParam(value = "order", required = false) String order,
+			@RequestParam(value = "sort", required = false) String sort
+			){
+			      // do some magic!
+			      return new ResponseEntity<List<IndividualDiscussion>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	
 
 	
 }

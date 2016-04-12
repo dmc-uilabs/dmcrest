@@ -585,10 +585,21 @@ public class ProjectIT extends BaseIT {
 		when().delete("/projects_tags/" + projectId);
 	}
 	
+	
 	@Test
 	public void testProject_ProjectDocuments() {
 		given().header("AJP_eppn", userEPPN).expect().statusCode(200).when()
 		.get("/projects/"+ projectId + "/project_documents");
+	}
+	
+	/**
+	 * test case for GET /projects/{projectID}/following_discussions
+	 */
+	
+	@Test
+	public void testProject_FollowingDiscussion() {
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+		.get("/projects/"+ projectId + "/following_discussions");
 	}
 
 }
