@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.services.ServiceSpecifications;
@@ -23,6 +24,7 @@ public class ServiceIT extends BaseIT {
 	private Service service = null;
 	private Random r = new Random();
 	private String serviceId = "1"; // the serviceId need to be assigned new value
+	private String domeInterfaceId = "1";
 	
 	@Test
 	public void getService() {	
@@ -197,6 +199,80 @@ public class ServiceIT extends BaseIT {
 		when().get("/services/" + serviceId + "/dome-interfaces");
 	}
 	
+	
+	/**
+	 * test case for POST /dome-interfaces
+	 */
+	@Test
+	public void testServicePost_DomeInterface(){
+		PostUpdateDomeInterface  obj = new PostUpdateDomeInterface();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedDomeInterfaceJSONString = null;
+		try {
+			postedDomeInterfaceJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(postedDomeInterfaceJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().post("/dome-interfaces");
+	}
+	
+	
+	/**
+	 * test case for PATCH /dome-interfaces/{domeInterfaceId}
+	 */
+	@Test
+	public void testServicePatch_DomeInterface(){
+		PostUpdateDomeInterface  obj = new PostUpdateDomeInterface();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedDomeInterfaceJSONString = null;
+		try {
+			patchedDomeInterfaceJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(patchedDomeInterfaceJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().patch("/dome-interfaces/" + domeInterfaceId);
+	}
+	
+	
+	/**
+	 * test case for DELETE /dome-interfaces/{domeInterfaceId}
+	 */
+	@Test
+	public void testServiceDelete_DomeInterface(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/dome-interfaces/" + domeInterfaceId);
+	}
+	
+	/**
+	 * test case for GET /dome-interfaces/{domeInterfaceId}
+	 */
+	@Test
+	public void testServiceGet_DomeInterfaceById(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/dome-interfaces/" + domeInterfaceId);
+	}
 	
 	/**
 	 * test case for get /services/{serviceID}/input-positions
