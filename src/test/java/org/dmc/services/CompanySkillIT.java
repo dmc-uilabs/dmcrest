@@ -4,6 +4,7 @@ import org.dmc.services.company.CompanyDao;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.*;
+import org.junit.Test;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -122,6 +123,7 @@ public class CompanySkillIT  extends BaseIT {
         ServiceLogger.log(logTag, "Created skill with id: " + skillId);
     }
     
+    //@Test
     @Test
     public void testGetSkill()
     {
