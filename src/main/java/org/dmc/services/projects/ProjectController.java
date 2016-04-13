@@ -1,6 +1,7 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.lang.Exception;
 
 import javax.xml.ws.http.HTTPException;
@@ -10,6 +11,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionListDao;
+import org.dmc.services.discussions.IndividualDiscussion;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @RestController
@@ -235,6 +239,19 @@ public class ProjectController {
     	return project.getProjectTagList(projectID, userEPPN);
     }
     
+    
+    @RequestMapping(value = "/projects_tags", 
+    	    produces = { "application/json", "text/html" }, 
+    	    method = RequestMethod.POST)
+    	  public ResponseEntity<GetProjectTag> projectsTagsPost(
+
+    	@RequestBody PostProjectTag body
+    	){
+    	      // do some magic!
+    	      return new ResponseEntity<GetProjectTag>(HttpStatus.NOT_IMPLEMENTED);
+    	  }
+    
+    
     /**	
     *Return Project Discussions
     **/
@@ -268,4 +285,37 @@ public class ProjectController {
     	ServiceLogger.log(logTag, result.getMessage());
     	return result;
     }
+    
+    
+    /**	
+     *
+     **/
+	@RequestMapping(value = "/projects/{projectID}/project_documents", produces = { "application/json",
+	"text/html" }, method = RequestMethod.GET)
+public ResponseEntity<List<ProjectDocument>> projectsProjectIDProjectDocumentsGet(
+	@PathVariable("projectID") String projectID,
+	@RequestParam(value = "projectDocumentId", required = true) String projectDocumentId,
+	@RequestParam(value = "limit", required = false) Integer limit,
+	@RequestParam(value = "order", required = false) String order,
+	@RequestParam(value = "sort", required = false) String sort) {
+// do some magic!
+return new ResponseEntity<List<ProjectDocument>>(HttpStatus.NOT_IMPLEMENTED);
+}
+	
+	
+	 @RequestMapping(value = "/projects/{projectID}/following_discussions", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<IndividualDiscussion>> projectsProjectIDFollowingDiscussionsGet(
+			@PathVariable("projectID") String projectID,
+			 @RequestParam(value = "limit", required = false) Integer limit	,
+			@RequestParam(value = "order", required = false) String order,
+			@RequestParam(value = "sort", required = false) String sort
+			){
+			      // do some magic!
+			      return new ResponseEntity<List<IndividualDiscussion>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	
+
+	
 }

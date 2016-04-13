@@ -1,3 +1,6 @@
 # ignore the generated target directory
 /target
 /bin/
+/.classpath
+/.project
+/.settings

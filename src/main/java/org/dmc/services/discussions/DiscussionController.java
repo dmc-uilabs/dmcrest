@@ -1,8 +1,6 @@
 package org.dmc.services.discussions;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.ws.http.HTTPException;
 
 import org.dmc.services.ErrorMessage;
