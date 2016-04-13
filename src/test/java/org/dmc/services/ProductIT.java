@@ -16,6 +16,7 @@ public class ProductIT extends BaseIT {
 	private String serviceId = "1";
 	private String reviewId = "1";
 	private String helpfulId = "1";
+	private Integer favoriteProductId = 1;
 
 	/*
 	 * test case for GET /product/{service_Id}/product_reviews
@@ -213,4 +214,34 @@ public class ProductIT extends BaseIT {
 		post("/product_reviews_flagged");
 	}
 
+	
+	/*
+	 * test case for DELETE /favorite_products/{favorite_productId}
+	 */
+	@Test
+	public void testProductDelete_FavoriteProductbyId() {
+		given().
+		header("AJP_eppn", "user_EPPN").
+		expect().
+		statusCode(400). // need figure out where the malformed syntax
+		when().
+		delete("/favorite_products/" + favoriteProductId);
+	}
+	
+	
+	/*
+	 * test case for POST /favorite_products
+	 */
+	@Test
+	public void testProductPost_FavoriteProduct() {		
+		given().
+		param("accountId", "1").
+		param("serviceId", "1").
+		header("AJP_eppn", "user_EPPN").
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().
+		post("/favorite_products");
+	}
+	
 }
