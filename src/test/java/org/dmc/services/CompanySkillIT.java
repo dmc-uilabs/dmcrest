@@ -34,10 +34,12 @@ public class CompanySkillIT  extends BaseIT {
     private int nonmemberUserId = -1;
     private String nonmemberEPPN;
     
+    private int skillId=-1;
+    
     private CompanyDao companyDao = new CompanyDao();
 
     @Before
-    public void setupData () {
+    public void setupDataAndCreateSkill () {
 
         ServiceLogger.log(logTag, "starting setupData");
         String unique = TestUserUtil.generateTime();
@@ -84,7 +86,7 @@ public class CompanySkillIT  extends BaseIT {
         String member4Email = "userEmail" + unique4;
         this.adminMemberUserId = createUser(this.adminMemberEPPN,member4GivenName, member4SurName, member4DisplayName, member4Email);
         this.companyDao.addMember(this.companyId, this.adminMemberUserId, this.ownerEPPN);
-        this.companyDao.addAdministrator(this.companyId, this.adminMemberUserId, this.memberEPPN);
+        this.companyDao.addAdministrator(this.companyId, this.adminMemberUserId, this.ownerEPPN);
         
         //Make sure the company is a DMDII member
         addToDMDII(this.companyId);
@@ -100,7 +102,47 @@ public class CompanySkillIT  extends BaseIT {
 
         this.nonmemberUserId = createUser(this.nonmemberEPPN,member3GivenName, member3SurName, member3DisplayName, member3Email);
         System.out.println("Nonmember user created: " + this.nonmemberUserId); 
+        
+        // After all this create a skill
+        JSONObject json = createFixture("create");
+        // Now create a skill for testing
+        skillId=
+       		    given()
+        	         	.header("Content-type", "application/json")
+        	         	.header("AJP_eppn", this.adminMemberEPPN)
+        	         	.body(json.toString())
+        			.expect()
+        	         	.statusCode(200)
+        			.when()
+        	         	.post("/company_skills")
+        	       .then()
+        	         	.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+        	         .extract()
+        	         	.path("id");
+        ServiceLogger.log(logTag, "Created skill with id: " + skillId);
     }
+    
+    @Test
+    public void testGetSkill()
+    {
+    	given().
+    		header("AJP_eppn",this.memberEPPN).
+    	expect().
+    		statusCode(200).
+    	when().
+    		get("/companies/"+this.companyId+"/company_skills");
+    }
+    @After
+    public void testDeleteSkillAndDelete()
+    {
+    	given().
+			header("AJP_eppn",this.adminMemberEPPN).
+		expect().
+			statusCode(200).
+		when().
+			delete("/company_skills/"+skillId);
+    }
+    
 
 
     public static int createUser(String userEPPN, String userGivenName, String userSurName, String userDisplayName, String userEmail){
@@ -190,7 +232,8 @@ public class CompanySkillIT  extends BaseIT {
 
         return json;
     }
-    
+
+        
     public void addToDMDII(int companyID)  {
     	String update = "insert into organization_dmdii_member " +
     			"(organization_id,dmdii_type_id,modification_date,start_date,expire_date) values "+
@@ -205,45 +248,13 @@ public class CompanySkillIT  extends BaseIT {
 			ServiceLogger.log(this.logTag, "SQL Error occurs: "+e.getMessage());
     	}
     }
-    //@Test
-    public void testCreateSkill()
-    {
-    	JSONObject json = createFixture("create");
-    	given()
-         	.header("Content-type", "application/json")
-         	.header("AJP_eppn", "testUser")
-         	.body(json.toString())
-		.expect()
-         	.statusCode(200)
-		.when()
-         	.post("/company_skills");
-    }  
-    //@Test
-    public void testGetSkill()
-    {
-    	given().
-    		header("AJP_eppn","testUser").
-    	expect().
-    		statusCode(200).
-    	when().
-    		get("/companies/1/company_skills");
-    }
-    //@Test
-    public void testDeleteSkill()
-    {
-    	given().
-			header("AJP_eppn","testUser").
-		expect().
-			statusCode(200).
-		when().
-			delete("/company_skills/119");
-    }
     
+
     private JSONObject createFixture(String s)
     {
     	JSONObject json = new JSONObject();
     	json.put("id", "1");
-    	json.put("companyId", "1");
+    	json.put("companyId", this.companyId);
     	json.put("name", "Test skill from Unit test");
     	return json;
     }
