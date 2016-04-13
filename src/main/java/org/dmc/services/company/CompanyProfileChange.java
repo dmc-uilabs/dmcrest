@@ -31,7 +31,7 @@ public class CompanyProfileChange {
     	int result=0;
     	int user_id = CompanyUserUtil.getUserId(user);
     	String updateQuery = 
-    			"insert into orgnization_profile_change (organization_id,user_id,change_timestamp,"
+    			"insert into organization_profile_change (organization_id,user_id,change_timestamp,"
     			+ "	change_type_id, table_or_field, new_value, old_value) values (?,?,?,2,?,?,?)";
 		PreparedStatement preparedStatement = DBConnector.prepareStatement(updateQuery);
 		preparedStatement.setInt(1,organization_id);
