@@ -1,6 +1,9 @@
 package org.dmc.services.company;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.dmc.services.DBConnector;
 
 public class CompanyProfileChange {

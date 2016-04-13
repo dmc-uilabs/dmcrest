@@ -1,5 +1,7 @@
 package org.dmc.services.company;
 
+import org.dmc.services.ErrorMessage;
+import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.DMCServiceException;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,8 @@ import org.springframework.http.HttpHeaders;
 
 import java.util.ArrayList;
 
+
+import static org.springframework.http.MediaType.*;
 
 @RestController
 public class CompanySkillController {

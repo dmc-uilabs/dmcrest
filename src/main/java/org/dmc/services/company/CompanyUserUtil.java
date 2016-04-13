@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.dmc.services.DBConnector;
 
+import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.ServiceLogger;
 
 public class CompanyUserUtil {
 
