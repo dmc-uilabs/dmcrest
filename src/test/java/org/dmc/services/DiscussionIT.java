@@ -5,6 +5,9 @@ import org.dmc.services.discussions.DiscussionController;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
 import org.dmc.services.discussions.IndividualDiscussion;
 import org.dmc.services.discussions.IndividualDiscussionComment;
+import org.dmc.services.discussions.IndividualDiscussionCommentFlagged;
+import org.dmc.services.discussions.IndividualDiscussionCommentHelpful;
+import org.dmc.services.discussions.IndividualDiscussionTag;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -30,6 +33,9 @@ public class DiscussionIT extends BaseIT {
 	private String followId = "1";
 	private String individualDiscussionID = "1";
 	private String commentId = "1";
+	private String helpfulId = "1";
+	private String disscusionTagId = "1";
+	private String accountId = "1";
 	
 	private Integer createdId = null;
 	String randomEPPN = UUID.randomUUID().toString();
@@ -314,4 +320,153 @@ public class DiscussionIT extends BaseIT {
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().delete("/individual-discussion-comments/" + commentId);
 	}
+	
+	
+	/*
+	 * test case for GET /individual-discussion-comments-helpful
+	 */
+	@Test
+	public void testGet_IndividualDiscussionCommentHelpful(){
+		given().
+		param("accountId", accountId).
+		param("commentId", commentId).
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/individual-discussion-comments-helpful");
+	}
+	
+	
+	/*
+	 * test case for POST /individual-discussion-comments-helpful
+	 */
+	@Test
+	public void testPost_IndividualDiscussionCommentHelpful(){
+		IndividualDiscussionCommentHelpful obj = new IndividualDiscussionCommentHelpful();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionCommentHelpfulJSONString = null;
+		
+		try {
+			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(postedIndividualDiscussionCommentHelpfulJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().post("/individual-discussion-comments-helpful");
+	}
+	
+	
+	/*
+	 * test case for PATCH /individual-discussion-comments-helpful/{helpfulID}
+	 */
+	@Test
+	public void testPatch_IndividualDiscussionCommentHelpfulById(){
+		IndividualDiscussionCommentHelpful obj = new IndividualDiscussionCommentHelpful();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedIndividualDiscussionCommentHelpfulJSONString = null;
+		
+		try {
+			patchedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(patchedIndividualDiscussionCommentHelpfulJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().patch("/individual-discussion-comments-helpful/" + helpfulId);
+	}
+	
+	
+	/*
+	 * test case for GET /individual-discussion-comments-flagged
+	 */
+	@Test
+	public void testGet_IndividualDiscussionCommentflagged(){
+		given().
+		param("accountId", accountId).
+		param("commentId", commentId).
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/individual-discussion-comments-flagged");
+	}
+	
+	
+	/*
+	 * test case for POST /individual-discussion-comments-flagged
+	 */
+	@Test
+	public void testPost_IndividualDiscussionCommentflagged(){
+		IndividualDiscussionCommentFlagged obj = new IndividualDiscussionCommentFlagged();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionCommentFlaggedJSONString = null;
+		
+		try {
+			postedIndividualDiscussionCommentFlaggedJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(postedIndividualDiscussionCommentFlaggedJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().post("/individual-discussion-comments-flagged");
+	}
+	
+	
+	
+	/*
+	 * test case for POST /individual-discussion-tags
+	 */
+	@Test
+	public void testPost_IndividualDiscussionTag(){
+		IndividualDiscussionTag obj = new IndividualDiscussionTag();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionTagJSONString = null;
+		
+		try {
+			postedIndividualDiscussionTagJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(postedIndividualDiscussionTagJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().post("/individual-discussion-tags");
+	}
+	
+	
+	/*
+	 * test case for DELETE /individual-discussion-tags/{disscusionTagID}
+	 */
+	@Test
+	public void testDelete_IndividualDiscussionTag(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/individual-discussion-tags/" + disscusionTagId);
+	}
+	
 }
