@@ -3,6 +3,7 @@ package org.dmc.services;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionController;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
+import org.dmc.services.discussions.IndividualDiscussion;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,8 @@ public class DiscussionIT extends BaseIT {
 	private static final String ALL_DISCUSSIONS_RESOURCE = "/all-discussions";
 	private static final String DISCUSSION_CREATE_RESOURCE = "/discussions/create";
 	private String followId = "1";
+	private String individualDiscussionID = "1";
+	private String commentId = "1";
 	
 	private Integer createdId = null;
 	String randomEPPN = UUID.randomUUID().toString();
@@ -112,7 +115,7 @@ public class DiscussionIT extends BaseIT {
 		when().get("/popular_discussions");
 	}
 	
-	/**
+	/*
 	 * test case for get /follow_people_discussions
 	 */
 	@Test
@@ -125,7 +128,7 @@ public class DiscussionIT extends BaseIT {
 	}
 	
 	
-	/**
+	/*
 	 * test case for get /following_discussions
 	 */
 	@Test
@@ -138,7 +141,7 @@ public class DiscussionIT extends BaseIT {
 	}
 	
 	
-	/**
+	/*
 	 * test case for PATCH /follow_discussions
 	 */
 	@Test
@@ -164,8 +167,7 @@ public class DiscussionIT extends BaseIT {
 	}
 
 	
-	
-	/**
+	/*
 	 * test case for DELETE /follow_discussions/{followID}
 	 */
 	@Test
@@ -176,4 +178,71 @@ public class DiscussionIT extends BaseIT {
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().delete("/follow_discussions/" + followId);
 	}
+	
+	
+	/*
+	 * test case for get /individual-discussion
+	 */
+	@Test
+	public void testGet_IndividualDiscussion(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/individual-discussion");
+	}
+	
+	
+	/*
+	 * test case for get /individual-discussion
+	 */
+	@Test
+	public void testPost_IndividualDiscussion(){
+		IndividualDiscussion obj = new IndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussion = null;
+		
+		try {
+			postedIndividualDiscussion = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP-eppn", userEPPN).
+		body(postedIndividualDiscussion).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().
+		post("/individual-discussion");
+	}
+	
+	
+	/*
+	 * test case for get /individual-discussion/{individualDiscussionID}/individual-discussion-comments
+	 */
+	@Test
+	public void testGet_IndividualDiscussionComment(){
+		given().param("commentId", commentId).
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/individual-discussion/" + individualDiscussionID + "/individual-discussion-comments");
+	}
+	
+	
+	/*
+	 * test case for get /individual-discussion/{individualDiscussionID}/individual-discussion-tags
+	 */
+	@Test
+	public void testGet_IndividualDiscussionTag(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/individual-discussion/" + individualDiscussionID + "/individual-discussion-tags");
+	}
+	
 }

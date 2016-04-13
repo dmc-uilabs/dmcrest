@@ -7,10 +7,8 @@ import java.util.UUID;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.junit.Before; 
 import org.junit.After;
-import org.junit.Ignore;
 
 import org.dmc.services.company.Company;
 import org.dmc.services.company.CompanySkill;
