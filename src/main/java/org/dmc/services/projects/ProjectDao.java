@@ -1,7 +1,6 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,7 +17,6 @@ import org.dmc.services.users.UserDao;
 
 import org.json.JSONObject;
 import org.json.JSONException;
-import org.dmc.solr.SolrUtils;
 
 public class ProjectDao {
 

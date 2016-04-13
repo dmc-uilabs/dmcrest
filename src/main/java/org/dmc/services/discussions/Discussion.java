@@ -3,7 +3,6 @@ package org.dmc.services.discussions;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class Discussion  {

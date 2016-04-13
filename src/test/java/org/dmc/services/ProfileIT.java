@@ -7,10 +7,7 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.junit.Before; 
 import org.junit.After;
-import org.junit.Ignore;
 import static org.junit.Assert.*;
-
-import java.util.UUID;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;

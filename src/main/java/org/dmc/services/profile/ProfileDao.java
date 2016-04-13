@@ -8,10 +8,7 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.users.UserOnboardingDao;
 import org.dmc.services.company.CompanyDao;
-
 import org.json.JSONException;
-
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -22,7 +19,6 @@ import java.util.ArrayList;
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
 
-import org.dmc.solr.SolrUtils;
 
 public class ProfileDao {
 

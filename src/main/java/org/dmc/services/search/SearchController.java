@@ -1,11 +1,9 @@
 package org.dmc.services.search;
 
-import org.apache.solr.client.solrj.response.QueryResponse;
+
 import org.dmc.services.company.Company;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
-import org.dmc.services.search.handlers.ComponentResponseHandler;
-import org.dmc.services.search.handlers.ResponseHandler;
 import org.dmc.services.services.Service;
 import org.dmc.services.users.User;
 import org.springframework.web.bind.annotation.*;

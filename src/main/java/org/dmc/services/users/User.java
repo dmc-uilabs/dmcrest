@@ -4,8 +4,6 @@ package org.dmc.services.users;
  * Created by 200005921 on 2/8/2016.
  */
 import java.util.Objects;
-
-import java.util.ArrayList;
 import org.dmc.services.ServiceLogger;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

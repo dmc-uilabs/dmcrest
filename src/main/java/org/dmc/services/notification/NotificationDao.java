@@ -1,18 +1,8 @@
 package org.dmc.services.notification;
 
-import java.sql.PreparedStatement;
+
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.text.ParseException;
-
-import org.json.JSONObject;
-import org.json.JSONException;
-
-import org.dmc.services.DBConnector;
-import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 
 public class NotificationDao {

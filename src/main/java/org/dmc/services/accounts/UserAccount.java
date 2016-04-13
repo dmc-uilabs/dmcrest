@@ -1,11 +1,8 @@
 package org.dmc.services.accounts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.Objects;
-
-import javax.validation.constraints.Min;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-02-22T14:57:06.776Z")
 public class UserAccount  {

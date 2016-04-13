@@ -3,9 +3,6 @@ package org.dmc.services.company;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.profile.Profile;
-import org.dmc.services.projects.Project;
-import org.dmc.services.projects.ProjectDao;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,8 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.AbstractList;
 import java.util.ArrayList;
 
 import javax.xml.ws.http.HTTPException;

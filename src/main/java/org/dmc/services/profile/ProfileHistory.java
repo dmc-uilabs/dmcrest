@@ -1,7 +1,6 @@
 package org.dmc.services.profile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.Objects;
 

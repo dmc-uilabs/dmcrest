@@ -1,9 +1,6 @@
 package org.dmc.services.accounts;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 

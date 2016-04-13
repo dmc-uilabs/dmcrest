@@ -3,9 +3,8 @@ package org.dmc.services.company;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
+
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.ServiceLogger;
 
