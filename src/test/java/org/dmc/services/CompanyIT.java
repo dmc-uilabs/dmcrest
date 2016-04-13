@@ -105,7 +105,7 @@ public class CompanyIT extends BaseIT {
             assertTrue("Could not create new company", false);
         }
 	}
-
+    @Ignore
 	@Test
 	public void testCompanyGet() {
 		if (this.createdId != null) {
