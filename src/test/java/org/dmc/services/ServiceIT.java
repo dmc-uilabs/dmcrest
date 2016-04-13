@@ -1,8 +1,10 @@
 package org.dmc.services;
 
+import org.dmc.services.services.PostServiceInputPosition;
 import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
+import org.dmc.services.services.ServiceInputPosition;
 import org.dmc.services.services.ServiceSpecifications;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.jayway.restassured.RestAssured.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -25,6 +29,7 @@ public class ServiceIT extends BaseIT {
 	private Random r = new Random();
 	private String serviceId = "1"; // the serviceId need to be assigned new value
 	private String domeInterfaceId = "1";
+	private String positionInputId = "1";
 	
 	@Test
 	public void getService() {	
@@ -379,7 +384,7 @@ public class ServiceIT extends BaseIT {
 	
 	
 	
-	/**
+	/*
 	 * test case for DELETE /service_runs/{id}
 	 */
 	@Test
@@ -391,8 +396,73 @@ public class ServiceIT extends BaseIT {
 		when().delete("/service_runs/" + serviceId);
 	}
 	
+	/*
+	 * test case for POST /input-positions
+	 */
+	@Test
+	public void testPost_InputPosition(){
+		List<PostServiceInputPosition> obj = new ArrayList<PostServiceInputPosition>();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedInputPositionJSONString = null;
+		
+		try {
+			postedInputPositionJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(postedInputPositionJSONString).
+	expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	when().
+        post("/input-positions");
+		
+	}
 	
 	
+	/*
+	 * test case for DELETE /input-positions/{positionInputId}
+	 */
+	@Test
+	public void testDelete_InputPositionByPositionInputId(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/input-positions/" + positionInputId);
+	}
+	
+	
+	/*
+	 * test case for PATCH /input-positions/{positionInputId}
+	 */
+	@Test
+	public void testPatch_InputPositionByPositionInputId(){
+		List<ServiceInputPosition> obj = new ArrayList<ServiceInputPosition>();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedServiceInputPositionJSONString = null;
+		
+		try {
+			patchedServiceInputPositionJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(patchedServiceInputPositionJSONString).
+	expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	when().
+        patch("/input-positions/" + positionInputId);
+		
+	}
 	
 	
 	
