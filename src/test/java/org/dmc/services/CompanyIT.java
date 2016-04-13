@@ -66,7 +66,7 @@ public class CompanyIT extends BaseIT {
         }
 	}
 
-    
+    @Ignore
     @Test
 	public void testCompaniesGet() {
 		if (this.createdId != null) {

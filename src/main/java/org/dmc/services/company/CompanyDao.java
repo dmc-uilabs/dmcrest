@@ -59,7 +59,7 @@ public class CompanyDao {
 		
 		try {
 			if (!CompanyUserUtil.isDMDIIMember(userEPPN)) {
-				ServiceLogger.log(logTag, "User Company/Organization is not DMDII Member");
+				ServiceLogger.log(logTag, "User: " + userEPPN + " is not DMDII Member");
 				throw new HTTPException(HttpStatus.FORBIDDEN.value());
 			}
 			

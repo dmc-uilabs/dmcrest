@@ -10,8 +10,6 @@ public class CompanySkill  {
   private String name = null;
 
   
-  /**
-   **/
   @JsonProperty("id")
   public String getId() {
     return this.id;
@@ -20,9 +18,7 @@ public class CompanySkill  {
     this.id = id;
   }
 
-  
-  /**
-   **/
+
   @JsonProperty("companyId")
   public String getCompanyId() {
     return this.companyId;
@@ -32,8 +28,6 @@ public class CompanySkill  {
   }
 
   
-  /**
-   **/
   @JsonProperty("name")
   public String getName() {
     return this.name;
