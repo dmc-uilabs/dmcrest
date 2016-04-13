@@ -26,22 +26,21 @@ import javax.xml.ws.http.HTTPException;
 import static org.springframework.http.MediaType.*;
 
 @RestController
-public class CompanySkillController {
-	private CompanySkillDao skillDao = new CompanySkillDao();
-	private final String logTag = CompanySkillController.class.getName();
 
-	@RequestMapping(value = "/company_skills", produces = { "application/json",
+public class CompanyKeyContactController {
+	private CompanyKeyContactDao keyContactDao = new CompanyKeyContactDao();
+	private final String logTag = CompanyKeyContactController.class.getName();
+
+	@RequestMapping(value = "/company_key_contacts", produces = { "application/json",
 			"text/html" }, consumes = { "application/json", "text/xml" }, method = RequestMethod.POST)
-	public Id companySkillsPost(
-			@RequestBody CompanySkill companySkill,
+	public ResponseEntity<CompanyKeyContact> companyKeyContactsPost(
+			@RequestBody CompanyKeyContact companyKeyContact,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		try {
-			ServiceLogger.log(this.logTag, "Before create entry");
-			int id = this.skillDao.createCompanySkill(companySkill,
+			int id = this.keyContactDao.createCompanyKeyContact(companyKeyContact,
 					userEPPN);
-			ServiceLogger.log(this.logTag, "After create entry");
-			//return new ResponseEntity<CompanySkill>(HttpStatus.OK);
-			return new Id.IdBuilder(id).build();
+			return new ResponseEntity<CompanyKeyContact>(companyKeyContact,HttpStatus.OK);
+			// return new Id.IdBuilder(id).build();
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(this.logTag, "Exception:" + e.getErrorMessage());
 			// HttpHeaders headers = new HttpHeaders();
@@ -56,32 +55,54 @@ public class CompanySkillController {
 		}
 	}
 
-	@RequestMapping(value = "/company_skills/{skillID}", produces = {
+	@RequestMapping(value = "/company_key_contacts/{contactID}", produces = {
 			"application/json", "text/html" }, method = RequestMethod.DELETE)
-	public ResponseEntity<String> companySkillDelete(
-			@PathVariable("skillID") String skillID,
+	public ResponseEntity<Void> companyKeyContactsContactIDDelete(
+			@PathVariable("contactID") String contactID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		try {
-			int status = this.skillDao.deleteCompanySkills(skillID, userEPPN);
+			int status = this.keyContactDao.deleteCompanyKeyContact(contactID, userEPPN);
 			ServiceLogger.log(this.logTag, "User: " + userEPPN
-					+ " deleted:" + skillID + "with Status:" + status);
-			return new ResponseEntity<String>("Delete succeeded.",
+					+ " deleted:" + contactID + "with Status:" + status);
+			return new ResponseEntity<Void>(
 					HttpStatus.OK);
 		} catch (Exception e) {
 			ServiceLogger.log(this.logTag, "Exception:" + e.getMessage());
 			// return new
 			// ResponseEntity<String>(HttpStatus.valueOf(e.getStatusCode()));
-			return new ResponseEntity<String>(e.getMessage(),
+			return new ResponseEntity<Void>(
 					HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@RequestMapping(value = "/company_key_contacts/{contactID}", produces = {
+			"application/json", "text/html" }, method = RequestMethod.PATCH)
+	public ResponseEntity<CompanyKeyContact> companyKeyContactsContactIDPatch(
+			@PathVariable("contactID") String contactID,
+			@RequestBody CompanyKeyContact contact,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		try {
+			int status = this.keyContactDao.updateCompanyKeyContact(contactID, contact, userEPPN);
+			ServiceLogger.log(this.logTag, "User: " + userEPPN
+					+ " deleted:" + contactID + "with Status:" + status);
+			return new ResponseEntity<CompanyKeyContact>(
+					HttpStatus.OK);
+		} catch (Exception e) {
+			ServiceLogger.log(this.logTag, "Exception:" + e.getMessage());
+			// return new
+			// ResponseEntity<String>(HttpStatus.valueOf(e.getStatusCode()));
+			return new ResponseEntity<CompanyKeyContact>(HttpStatus.BAD_REQUEST);
+		}
+	}
 
-	@RequestMapping(value = "/companies/{companyID}/company_skills", method = RequestMethod.GET)
-	public ArrayList<CompanySkill> getCompanySkills(
-			@PathVariable("companyID") int companyID,
+	@RequestMapping(value = "/companies/{companyID}/company_key_contacts", method = RequestMethod.GET)
+	public ResponseEntity<ArrayList<CompanyKeyContact>> getCompanyKeyContacts(
+			@PathVariable("companyID") String companyID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
 			throws Exception {
-
-		return this.skillDao.getCompanySkills(userEPPN, companyID);
+		int cID = new Integer(companyID);
+		return new ResponseEntity(this.keyContactDao.getCompanyKeyContacts(userEPPN, cID),HttpStatus.OK);
 	}
+	
+	
 }
