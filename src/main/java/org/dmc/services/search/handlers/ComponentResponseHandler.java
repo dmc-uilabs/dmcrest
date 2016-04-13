@@ -7,7 +7,6 @@ import org.dmc.services.components.Component;
 import org.dmc.services.components.ComponentDao;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 

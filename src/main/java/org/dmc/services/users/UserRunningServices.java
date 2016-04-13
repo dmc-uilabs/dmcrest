@@ -3,8 +3,6 @@ package org.dmc.services.users;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import org.dmc.services.services.Service;
-
 public class UserRunningServices {
 
     class RunningService {

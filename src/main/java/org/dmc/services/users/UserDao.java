@@ -8,20 +8,13 @@ import java.sql.Timestamp;
 import java.sql.Connection;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.text.ParseException;
-
-import org.json.JSONObject;
 import org.json.JSONException;
 import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.Id;
 import org.dmc.services.Config;
 import org.dmc.services.sharedattributes.Util;
-import org.dmc.solr.SolrUtils;
-
-import java.io.IOException;
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
 

@@ -10,7 +10,6 @@ import javax.xml.ws.http.HTTPException;
 import org.dmc.services.DBConnector;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.json.JSONException;
 import org.dmc.services.sharedattributes.Util;
 
 public class DiscussionDao {

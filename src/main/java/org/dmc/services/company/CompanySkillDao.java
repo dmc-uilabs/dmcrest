@@ -4,25 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCServiceException;
-import org.dmc.services.ErrorMessage;
-import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.sharedattributes.FeatureImage;
-import org.dmc.services.sharedattributes.Util;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONArray;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 
-import javax.xml.ws.http.HTTPException;
 
 public class CompanySkillDao {
 

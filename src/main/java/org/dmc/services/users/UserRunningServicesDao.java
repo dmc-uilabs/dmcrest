@@ -2,19 +2,9 @@ package org.dmc.services.users;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.text.ParseException;
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.Id;
-import org.dmc.services.Config;
-import org.dmc.solr.SolrUtils;
-import java.io.IOException;
+
 
 public class UserRunningServicesDao {
     

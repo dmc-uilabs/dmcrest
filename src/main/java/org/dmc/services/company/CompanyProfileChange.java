@@ -1,10 +1,7 @@
 package org.dmc.services.company;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
 import org.dmc.services.DBConnector;
-import org.dmc.services.sharedattributes.FeatureImage;
 
 public class CompanyProfileChange {
 

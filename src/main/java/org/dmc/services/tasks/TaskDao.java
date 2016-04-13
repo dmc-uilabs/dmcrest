@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.text.ParseException;
 
 import org.json.JSONObject;
 import org.json.JSONException;
