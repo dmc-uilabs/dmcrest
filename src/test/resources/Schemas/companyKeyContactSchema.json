@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/companyKeyConatact",
+  "type": "object",
+  "properties": 
+    {
+        "id": {
+          "id": "http://dmc-dev.geinspire.com/companyKeyContact/id",
+          "type": "integer"
+        },
+        "companyId": {
+          "id": "http://dmc-dev.geinspire.com/companyKeyContact/companyId",
+          "type": "integer"
+        },
+        "type": {
+          "id": "http://dmc-dev.geinspire.com/companyKeyContact/type",
+          "type": "integer"
+        },
+        "name": {
+          "id": "http://dmc-dev.geinspire.com/companyKeyContact/name",
+          "type": "string"
+        },
+        "phoneNumber": {
+          "id": "http://dmc-dev.geinspire.com/companyKeyContact/phoneNumber",
+          "type": "string"
+        },
+        "title": {
+          "id": "http://dmc-dev.geinspire.com/companyKeyContact/title",
+          "type": "string"
+        },
+        "email": {
+          "id": "http://dmc-dev.geinspire.com/companyKeyContact/email",
+          "type": "string"
+        }
+     }
+}
