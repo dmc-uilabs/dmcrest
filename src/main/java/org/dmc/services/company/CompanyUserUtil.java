@@ -7,8 +7,10 @@ import java.sql.SQLException;
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.ServiceLogger;
 
 public class CompanyUserUtil {
+	private final static String logTag = CompanyUserUtil.class.getName();
 
     public static boolean isAdmin(String user,int org_id) throws SQLException
     {
@@ -38,6 +40,7 @@ public class CompanyUserUtil {
     			"and users.user_id=orgu.user_id "+
     			"and orgu.organization_id = dmdii.organization_id "+
     			"and dmdii.expire_date >= now() ";
+    	//ServiceLogger.log(logTag, "isDMDIIMember query: " + queryAdmin + " for user " + user);
 		PreparedStatement preparedStatement = DBConnector.prepareStatement(queryAdmin);
 		preparedStatement.setString(1, user);
 		ResultSet r = preparedStatement.executeQuery();

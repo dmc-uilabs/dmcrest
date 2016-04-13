@@ -63,11 +63,13 @@ public class CompanyDao {
 				throw new HTTPException(HttpStatus.FORBIDDEN.value());
 			}
 			
-			resultSet = DBConnector.executeQuery("SELECT * FROM organization o "
+			String query = "SELECT * FROM organization o "
 					+ "JOIN common_address a ON o.addressId = a.id "
 					+ "JOIN common_image i ON o.feature_image = i.id "
-					+ "WHERE o.organization_id = "  + id);
-			
+					+ "WHERE o.organization_id = "  + id;
+			//ServiceLogger.log(logTag, "getCompany query: " + query);
+			resultSet = DBConnector.executeQuery(query);
+					
 			if (resultSet.next()) {
 				id = resultSet.getInt("organization_id");
 				int accountId = resultSet.getInt("accountId");

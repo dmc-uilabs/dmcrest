@@ -30,7 +30,8 @@ public class CompanyIT extends BaseIT {
 	private static final String ALL_COMPANY_GET_RESOURCE = "/companies";
 
 	private Integer createdId = null;
-	String randomEPPN = UUID.randomUUID().toString();
+	//String randomEPPN = UUID.randomUUID().toString();
+	String randomEPPN = "fforgeadmin";
 		
 	// Setup test data
 	@Before
@@ -66,7 +67,6 @@ public class CompanyIT extends BaseIT {
         }
 	}
 
-    @Ignore
     @Test
 	public void testCompaniesGet() {
 		if (this.createdId != null) {
@@ -105,19 +105,29 @@ public class CompanyIT extends BaseIT {
             assertTrue("Could not create new company", false);
         }
 	}
-    @Ignore
 	@Test
 	public void testCompanyGet() {
 		if (this.createdId != null) {
 			given().
             header("Content-type", "application/json").
-            header("AJP_eppn", "testUser").
+            header("AJP_eppn", randomEPPN).
             expect().statusCode(200).
             when().
             get(COMPANY_GET_RESOURCE, this.createdId.toString()).
     		then().
             body(matchesJsonSchemaInClasspath("Schemas/companySchema.json")).
             body("id", equalTo(this.createdId));	
+		}
+	}
+	@Test
+	public void testCompanyGetNoPermission() {
+		if (this.createdId != null) {
+			given().
+            header("Content-type", "application/json").
+            header("AJP_eppn", "testUser").
+            expect().statusCode(403).
+            when().
+            get(COMPANY_GET_RESOURCE, this.createdId.toString());	
 		}
 	}
 	
