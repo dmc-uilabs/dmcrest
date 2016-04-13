@@ -6,16 +6,11 @@ import org.dmc.services.discussions.FollowingIndividualDiscussion;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import static com.jayway.restassured.RestAssured.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.Date;
 import java.util.UUID;
 
 import org.json.JSONObject;
