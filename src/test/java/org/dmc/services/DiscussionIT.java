@@ -4,6 +4,7 @@ import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionController;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
 import org.dmc.services.discussions.IndividualDiscussion;
+import org.dmc.services.discussions.IndividualDiscussionComment;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -181,7 +182,7 @@ public class DiscussionIT extends BaseIT {
 	
 	
 	/*
-	 * test case for get /individual-discussion
+	 * test case for GET /individual-discussion
 	 */
 	@Test
 	public void testGet_IndividualDiscussion(){
@@ -194,7 +195,7 @@ public class DiscussionIT extends BaseIT {
 	
 	
 	/*
-	 * test case for get /individual-discussion
+	 * test case for GET /individual-discussion
 	 */
 	@Test
 	public void testPost_IndividualDiscussion(){
@@ -221,7 +222,7 @@ public class DiscussionIT extends BaseIT {
 	
 	
 	/*
-	 * test case for get /individual-discussion/{individualDiscussionID}/individual-discussion-comments
+	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-comments
 	 */
 	@Test
 	public void testGet_IndividualDiscussionComment(){
@@ -234,7 +235,7 @@ public class DiscussionIT extends BaseIT {
 	
 	
 	/*
-	 * test case for get /individual-discussion/{individualDiscussionID}/individual-discussion-tags
+	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-tags
 	 */
 	@Test
 	public void testGet_IndividualDiscussionTag(){
@@ -245,4 +246,72 @@ public class DiscussionIT extends BaseIT {
 		when().get("/individual-discussion/" + individualDiscussionID + "/individual-discussion-tags");
 	}
 	
+	
+	/*
+	 * test case for POST /individual-discussion-comments
+	 */
+	@Test
+	public void testPost_IndividualDiscussionComments(){
+		IndividualDiscussionComment obj = new IndividualDiscussionComment();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionCommentJSONString = null;
+		
+		try {
+			postedIndividualDiscussionCommentJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP-eppn", userEPPN).
+		body(postedIndividualDiscussionCommentJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().
+		post("/individual-discussion-comments");
+	}
+	
+	
+	/*
+	 * test case for PATCH /individual-discussion-comments/{commentID}
+	 */
+	
+	@Test
+	public void testPatch_IndividualDiscussionComments(){
+		IndividualDiscussionComment obj = new IndividualDiscussionComment();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedIndividualDiscussionCommentJSONString = null;
+		
+		try {
+			patchedIndividualDiscussionCommentJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP-eppn", userEPPN).
+		body(patchedIndividualDiscussionCommentJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().
+		patch("/individual-discussion-comments/" + commentId);
+	}
+	
+	
+	
+	/*
+	 * test case for DELETE /individual-discussion-comments/{commentID}
+	 */
+	@Test
+	public void testDelete_IndividualDiscussionComment(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/individual-discussion-comments/" + commentId);
+	}
 }
