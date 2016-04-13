@@ -137,6 +137,30 @@ public class CompanySkillIT  extends BaseIT {
     	when().
     		get("/companies/"+this.companyId+"/company_skills");
     }
+    @Test
+    public void testGetSkillNonMember()
+    {
+    	given().
+    		header("AJP_eppn",this.nonmemberEPPN).
+    	expect().
+    		statusCode(500).
+    	when().
+    		get("/companies/"+this.companyId+"/company_skills");
+    }
+    @Test
+    public void testPostSkillNonAdminMember()
+    {
+        JSONObject json = createFixture("create");
+        // Now create a skill for testing
+       		    given()
+        	         	.header("Content-type", "application/json")
+        	         	.header("AJP_eppn", this.nonmemberEPPN)
+        	         	.body(json.toString())
+        			.expect()
+        	         	.statusCode(400)
+        			.when()
+        	         	.post("/company_skills").getStatusCode();
+    }
     @After
     public void testDeleteSkillAndDelete()
     {
