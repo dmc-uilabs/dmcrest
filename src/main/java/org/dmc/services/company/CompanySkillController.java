@@ -26,7 +26,7 @@ public class CompanySkillController {
 
 	@RequestMapping(value = "/company_skills", produces = { "application/json",
 			"text/html" }, consumes = { "application/json", "text/xml" }, method = RequestMethod.POST)
-	public Id companySkillsPost(
+	public ResponseEntity<Id> companySkillsPost(
 			@RequestBody CompanySkill companySkill,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		try {
@@ -35,18 +35,18 @@ public class CompanySkillController {
 					userEPPN);
 			ServiceLogger.log(this.logTag, "After create entry");
 			//return new ResponseEntity<CompanySkill>(HttpStatus.OK);
-			return new Id.IdBuilder(id).build();
+			return new ResponseEntity<Id>(new Id.IdBuilder(id).build() ,HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(this.logTag, "Exception:" + e.getErrorMessage());
 			// HttpHeaders headers = new HttpHeaders();
 			//return new ResponseEntity<String>("DMCServerException:"
 			//		+ e.getErrorMessage(), headers, HttpStatus.BAD_REQUEST);
-			return null;
+			return new ResponseEntity<Id>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			ServiceLogger.log(this.logTag, "Exception:" + e.getMessage());
 			//return new ResponseEntity<CompanySkill>(companySkill,
 			//		HttpStatus.BAD_REQUEST);
-			return null;
+			return new ResponseEntity<Id>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -71,11 +71,11 @@ public class CompanySkillController {
 	}
 
 	@RequestMapping(value = "/companies/{companyID}/company_skills", method = RequestMethod.GET)
-	public ArrayList<CompanySkill> getCompanySkills(
+	public ResponseEntity<ArrayList<CompanySkill>> getCompanySkills(
 			@PathVariable("companyID") int companyID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
 			throws Exception {
 
-		return this.skillDao.getCompanySkills(userEPPN, companyID);
+		return new ResponseEntity<ArrayList<CompanySkill>>(this.skillDao.getCompanySkills(userEPPN, companyID), HttpStatus.OK);
 	}
 }

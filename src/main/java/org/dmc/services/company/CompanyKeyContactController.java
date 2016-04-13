@@ -46,12 +46,12 @@ public class CompanyKeyContactController {
 			// HttpHeaders headers = new HttpHeaders();
 			//return new ResponseEntity<String>("DMCServerException:"
 			//		+ e.getErrorMessage(), headers, HttpStatus.BAD_REQUEST);
-			return null;
+			return new ResponseEntity<CompanyKeyContact>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			ServiceLogger.log(this.logTag, "Exception:" + e.getMessage());
 			//return new ResponseEntity<CompanySkill>(companySkill,
 			//		HttpStatus.BAD_REQUEST);
-			return null;
+			return new ResponseEntity<CompanyKeyContact>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
