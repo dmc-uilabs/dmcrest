@@ -3,6 +3,7 @@ package org.dmc.services.company;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.users.User;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
@@ -216,4 +218,21 @@ public class CompanyController {
 	    return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
 	}
     }
+
+	// /companies/{companyID}/company_members
+	@RequestMapping(value = "/companies/{companyID}/company_members", method = RequestMethod.GET)
+	public ResponseEntity getCompanyMembers (@PathVariable("companyID") int companyID, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+		ServiceLogger.log(logTag, "getCompanyMembers, companyID: " + companyID);
+		int statusCode = HttpStatus.OK.value();
+
+		try {
+			List<User> members = companyDao.getCompanyMembers(companyID, userEPPN);
+			return new ResponseEntity<List<User>>(members, HttpStatus.valueOf(statusCode));
+		} catch (HTTPException e) {
+			statusCode = e.getStatusCode();
+			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+		}
+	}
+
 }
