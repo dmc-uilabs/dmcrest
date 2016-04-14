@@ -374,11 +374,14 @@ public class CompanyIT extends BaseIT {
 	public void testCompanyGetMembers() {
 
 		// Add 2 members to the company
-		int user1 = addMember(randomEPPN, this.createdId);
-		int user2 = addMember(randomEPPN, this.createdId);
+		String user1 = addMember(randomEPPN, this.createdId);
+		String user2 = addMember(randomEPPN, this.createdId);
+
+		// Test get all members using the first member id
+		String user1_eppn = "userEPPN" + user1;
 
 		ArrayList<User> allUsers = given().param("companyID", this.createdId.toString())
-				.header("AJP_eppn", randomEPPN)
+				.header("AJP_eppn", user1_eppn)
 				.expect()
 				.statusCode(200)
 				.when()
@@ -389,6 +392,24 @@ public class CompanyIT extends BaseIT {
 		Assert.assertTrue ("Company members list cannot be null", allUsers != null);
 		Assert.assertTrue ("Expected " + numUsers + " company members", allUsers.size() == numUsers);
 
+	}
+
+	@Test
+	public void testCompanyGetMembersNonMember() {
+
+		// Add 2 members to the company
+		String user1 = addMember(randomEPPN, this.createdId);
+		String user2 = addMember(randomEPPN, this.createdId);
+
+		String nonMemberEPPN = "testUser";
+
+		// testUser not a member of company, so expect to get 401 response (UNAUTHORIZED)
+		given().param("companyID", this.createdId.toString())
+				.header("AJP_eppn", nonMemberEPPN)
+				.expect()
+				.statusCode(401)
+				.when()
+				.get(COMPANY_GET_MEMBERS, this.createdId.toString());
 	}
 
 	public static int createUser(String userEPPN, String userGivenName, String userSurName, String userDisplayName, String userEmail){
@@ -425,7 +446,7 @@ public class CompanyIT extends BaseIT {
 		return json;
 	}
 
-	public int addMember (String ownerEPPN, int companyId ) {
+	public String addMember (String ownerEPPN, int companyId ) {
 
 		// Create a member user
 		String unique2 = TestUserUtil.generateTime();
@@ -444,7 +465,7 @@ public class CompanyIT extends BaseIT {
 				when().
 				post(COMPANY_ADD_MEMBER_RESOURCE, Integer.toString(companyId), Integer.toString(memberUserId));
 
-		return memberUserId;
+		return unique2;
 
 	}
 
