@@ -23,6 +23,7 @@ public class CompanyController {
 
     private CompanyDao companyDao = new CompanyDao();
     private CompanySkillDao skillDao = new CompanySkillDao();
+    private CompanyVideoDao videoDao = new CompanyVideoDao();
 
     /**
      Return a list of companies
@@ -89,12 +90,85 @@ public class CompanyController {
         }  
     }
     
-    @RequestMapping(value = "/companies/{id}/delete", method = RequestMethod.GET)
-    public Id deleteCompany(@PathVariable("id") int id) {
+    @RequestMapping(value = "/companies/{id}/delete", method = RequestMethod.DELETE)
+    public Id deleteCompany(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "deleteCompany, id: " + id);
-    	return  companyDao.deleteCompany(id);
+    	return  companyDao.deleteCompany(id, userEPPN);
     }
+
+    /**
+	 * Retrieve company videos
+	 * 
+	 * @param id
+	 * @param userEPPN
+	 * @return
+	 */
+	@RequestMapping(value = "/companies/{id}/company_videos", method = RequestMethod.GET, produces = { "application/json" })
+	public ResponseEntity getCompanyVideos(@PathVariable("id") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+		
+		ServiceLogger.log(logTag, "getCompanyVideos, userEPPN: " + userEPPN);
+		int statusCode = HttpStatus.OK.value();
+		ArrayList<CompanyVideo> videos = null;
+
+		try {
+			videos = videoDao.getCompanyVideos(id, userEPPN);
+			return new ResponseEntity<ArrayList<CompanyVideo>>(videos, HttpStatus.valueOf(statusCode));
+		} catch (HTTPException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			statusCode = e.getStatusCode();
+			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+		}
+	}
 	
+    /**
+	 * Create a company video
+	 * @param video
+	 * @param userEPPN
+	 * @return
+	 */
+	
+	@RequestMapping(value = "/company_videos", method = RequestMethod.POST, produces = { "application/json" })
+	@ResponseBody
+	public ResponseEntity createCompanyVideo(@RequestBody CompanyVideo video, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+		
+		ServiceLogger.log(logTag, "createCompanyVideo");
+		int statusCode = HttpStatus.OK.value();
+		Id id = null;
+
+		try {
+			id = videoDao.createCompanyVideo(video, userEPPN);
+			return new ResponseEntity<CompanyVideo>(video, HttpStatus.valueOf(statusCode));
+		} catch (HTTPException e) {
+			statusCode = e.getStatusCode();
+			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+		}
+	}
+	
+	/* Delete a company video
+	 * @param id
+	 * @param userEPPN
+	 * @return
+	 */
+	@RequestMapping(value = "/company_videos/{id}", method = RequestMethod.DELETE, produces = { "application/json" })
+	public ResponseEntity deleteCompanyVideos(@PathVariable("id") int videoId, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+		
+		ServiceLogger.log(logTag, "deleteCompanyVideos, userEPPN: " + userEPPN);
+		int statusCode = HttpStatus.OK.value();
+		Id id = null;
+
+		try {
+			id = videoDao.deleteCompanyVideo(-1, videoId, userEPPN);
+			return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
+		} catch (HTTPException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			statusCode = e.getStatusCode();
+			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+		}
+	}
+
     /**
      * Add an administrator for a company
      * @param id

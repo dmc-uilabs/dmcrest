@@ -519,14 +519,25 @@ public class CompanyDao {
 	}
 		
 	
-	public Id deleteCompany(int id) {
+	public Id deleteCompany(int id, String userEPPN) {
 		
+		CompanyVideoDao videoDao = new CompanyVideoDao();
 		connection = DBConnector.connection();
 		PreparedStatement statement;
 		String query;
-	    int organizationId = id, commonAddressId, commonImageId;
+	    int companyId = id, commonAddressId, commonImageId;
 	    
 	    try {
+	    	
+			// Check that the user deleting the company video is an administrator or the owner of the company
+			/**
+			 ** Checks disabled until members for companies are tracked
+			if (!(isOwnerOfCompany(companyId, userIdEPPN) || isAdminOfCompany(companyId, userIdEPPN))) {
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to delete videos for company " + companyId);
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+			*/
+	    	
 	    	connection.setAutoCommit(false);
 	    	
 	        // retrieve relational common_address and common_image
@@ -546,10 +557,13 @@ public class CompanyDao {
 		        statement.setInt(1, id);   
 		        statement.executeUpdate();
 		        
+				// delete organization_video
+				videoDao.deleteCompanyVideo(companyId, -1, userEPPN);
+		        
 				// delete organization
 		        query = "DELETE FROM organization WHERE organization_id = ?";
 		        statement = DBConnector.prepareStatement(query);
-		        statement.setInt(1, organizationId);   
+		        statement.setInt(1, companyId);   
 		        statement.executeUpdate();
 
 				// delete common_address
@@ -568,6 +582,7 @@ public class CompanyDao {
 			}
 	    }
 		catch (SQLException e) {
+			ServiceLogger.log(logTag, "ERROR IN DELETE COMPANY-------------------" + e.getMessage());
 			if (connection != null) {
 				try {
 					ServiceLogger.log(logTag, "Transaction deleteCompany Rolled back");
@@ -576,7 +591,6 @@ public class CompanyDao {
 					ServiceLogger.log(logTag, ex.getMessage());
 				}
 			}
-			ServiceLogger.log(logTag, e.getMessage());
 			return null;
 		}
 		catch (JSONException e) {
