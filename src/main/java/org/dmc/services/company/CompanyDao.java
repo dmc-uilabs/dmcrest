@@ -898,7 +898,7 @@ public class CompanyDao {
 
 		// Check that the user is a member of the company
 		try {
-			if (isMemberOfCompany(companyId, userIdEPPN)) {
+			if (!isMemberOfCompany(companyId, userIdEPPN)) {
 				ServiceLogger.log(logTag, "User " + userIdEPPN + " is not a member of comapny " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
