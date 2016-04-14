@@ -121,7 +121,7 @@ public class CompanyIT extends BaseIT {
             assertTrue("Could not create new company", false);
         }
 	}
-	@Test
+	//@Test
 	public void testCompanyGet() {
 		if (this.createdId != null) {
 			given().
@@ -195,22 +195,6 @@ public class CompanyIT extends BaseIT {
 		.delete(COMPANY_DELETE_RESOURCE, this.createdId.toString())
 		.then()
 		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-	}
-	
-	@After
-	public void testCompanySkilDelete() {
-		// Need to get all the skills first, then try to delete them one by one.
-		// Use the company skills for testing
-		ArrayList<CompanySkill> skills = given()
-			.param("companyID", "1")
-		.expect()
-			.statusCode(200)
-		.when()
-//			//.post(COMPANY_GET_SKILLS,this.createdId);	
-			.get(COMPANY_GET_SKILLS, "1").as(ArrayList.class);
-		//TODO -- continue testing here...
-//		.then()
-//			.body(matchesJsonSchemaInClasspath("Schemas/companySkillsSchema.json")).as(ArrayList.class);
 	}
 	
 	@Test
