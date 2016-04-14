@@ -1,8 +1,10 @@
 package org.dmc.services.company;
 
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.profile.Profile;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import java.util.ArrayList;
 
 import javax.xml.ws.http.HTTPException;
@@ -146,7 +149,8 @@ public class CompanyController {
 		}
 	}
 	
-	/* Delete a company video
+	/** 
+	 * Delete a company video
 	 * @param id
 	 * @param userEPPN
 	 * @return
@@ -168,6 +172,39 @@ public class CompanyController {
 			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
 		}
 	}
+	
+	/**
+	 * Update Company Video
+	 * @param id
+	 * @param video
+	 * @param userEPPN
+	 * @return
+	 */
+    @RequestMapping(value = "/company_videos/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
+    public ResponseEntity updateCompanyVideo(@PathVariable("id") int id,
+                            @RequestBody CompanyVideo video,
+                            @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+    	ServiceLogger.log(logTag, "updateCompanyVideo, video: " + video.toString());
+        
+    	HttpStatus status;
+        int httpStatusCode = HttpStatus.OK.value();
+        Id updatedId = null;
+        
+        try {
+            updatedId = videoDao.updateCompanyVideo(id, video, userEPPN);
+        } catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			// @todo - Consider usering an adapter class to convert DMCRestServices erroCodes to HttpStatus error codes
+			// this might provide more meaningful codes to the client as opposed to just 400 (Bad Request)
+			status = HttpStatus.BAD_REQUEST;
+			if (e.getErrorcode() == 1) {
+				status = HttpStatus.FORBIDDEN;
+			}
+			return new ResponseEntity<String>(e.getErrorMessage(), status);
+		} 
+        
+        return new ResponseEntity<Id>(updatedId, HttpStatus.valueOf(httpStatusCode));        
+    }
 
     /**
      * Add an administrator for a company

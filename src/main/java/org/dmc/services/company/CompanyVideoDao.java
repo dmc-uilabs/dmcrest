@@ -7,13 +7,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
+import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.profile.Profile;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.users.UserOnboardingDao;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -31,6 +35,14 @@ public class CompanyVideoDao {
 	private ResultSet resultSet;
 	private Connection connection;
 
+	
+	/**
+	 * Get comapny video
+	 * @param companyID
+	 * @param userEPPN
+	 * @return
+	 * @throws HTTPException
+	 */
 	public ArrayList<CompanyVideo> getCompanyVideos(int companyID, String userEPPN) throws HTTPException {
 		ArrayList<CompanyVideo> videos = new ArrayList<CompanyVideo>();
 		ServiceLogger.log(this.logTag, "User: " + userEPPN + " asking for all videos of the company: " + companyID);
@@ -56,7 +68,13 @@ public class CompanyVideoDao {
 		return videos;
 	}
 
-	public Id createCompanyVideo(CompanyVideo video, String userEPPN) throws HTTPException {
+	/**
+	 * Create Company Video
+	 * @param video
+	 * @param userEPPN
+	 * @return
+	 */
+	public Id createCompanyVideo(CompanyVideo video, String userEPPN) {
 
 		String query;
 		int videoId = -99999, videoTypeId = -1;
@@ -132,7 +150,90 @@ public class CompanyVideoDao {
 
 		return new Id.IdBuilder(videoId).build();
 	}
+	
 
+	/**
+	 * Update Company Video
+	 * @param id
+	 * @param video
+	 * @param userEPPN
+	 * @return
+	 * @throws DMCServiceException
+	 */
+	public Id updateCompanyVideo(int id, CompanyVideo video, String userEPPN) throws DMCServiceException {
+		
+		PreparedStatement statement;
+		String query;
+		int videoId = -9999;
+		int companyId = video.getCompanyId();
+		int userIdEPPN;
+		Util util = Util.getInstance();
+
+		Connection connection = DBConnector.connection();
+		try {
+			connection.setAutoCommit(false);
+		} catch (SQLException ex) {
+			throw new DMCServiceException(DMCServiceException.OtherSQLError, "An SQL exception has occured");
+		}
+
+		try {
+			
+			userIdEPPN = UserDao.getUserID(userEPPN);
+			
+			// @todo - these checks are subject to revision given all the changes lately
+			if (!CompanyUserUtil.isAdmin(userEPPN, companyId) && !CompanyUserUtil.isOwnerOfCompany(companyId, userIdEPPN)) {
+				ServiceLogger.log(this.logTag, "User: " + userEPPN + " is not admin user of org:." + companyId);
+				ServiceLogger.log(this.logTag, "======== NOT ADMIN OR OWNER :=====");
+				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN + " is not admin or owner of company:." + companyId);
+			}
+			
+			//Update Video
+			query = "UPDATE common_video  SET length = ?, caption = ?, video_link = ? "
+					+ "WHERE id = ?";
+			
+			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			statement.setInt(1, 0);
+			statement.setString(2, video.getTitle());
+			statement.setString(3, video.getLink());
+			statement.setInt(4, id);
+			statement.executeUpdate();
+			
+			videoId = util.getGeneratedKey(statement, "id");
+			ServiceLogger.log(logTag, "Updated Video Id: " + videoId);
+
+			connection.commit();
+			
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag, "Transaction updateCompanyVideo Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
+			throw new DMCServiceException(DMCServiceException.OtherSQLError, e.getMessage());
+		} finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {}
+			}
+		}
+
+		return new Id.IdBuilder(videoId).build();
+	}
+
+
+	/**
+	 * Delete Company Video
+	 * @param companyId
+	 * @param videoId
+	 * @param userEPPN
+	 * @return
+	 * @throws HTTPException
+	 */
 	public Id deleteCompanyVideo(int companyId, int videoId, String userEPPN) throws HTTPException {
 
 		int id = -1;
