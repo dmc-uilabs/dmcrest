@@ -80,19 +80,18 @@ public class CompanyVideoDao {
 		int videoId = -99999, videoTypeId = -1;
 		PreparedStatement statement;
 		Util util = Util.getInstance();
+		int companyId = video.getCompanyId();
 
 		try {
 
-			// Check that the user creating the companyVideo is an administrator or the owner
-			/**
-			 ** Checks disabled until members for companies are tracked
-			CompanyDao companyDao = new CompanyDao();
-			if (!(companyDao.isOwnerOfCompany(video.getCompanyId(), userIdEPPN) || companyDao.isAdminOfCompany(video.getCompanyId(), userIdEPPN))) {
-				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to add videos for company " + video.getCompanyId());
-				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			int userIdEPPN = UserDao.getUserID(userEPPN);
+			
+			// @todo - these checks are subject to revision given all the changes lately
+			if (!CompanyUserUtil.isAdmin(userEPPN, companyId) && !CompanyUserUtil.isOwnerOfCompany(companyId, userIdEPPN)) {
+				ServiceLogger.log(this.logTag, "User: " + userEPPN + " is not admin user of org:." + companyId);
+				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN + " is not admin or owner of company:." + companyId);
 			}
-			*/
-
+			
 			Connection connection = DBConnector.connection();
 			connection.setAutoCommit(false);
 
@@ -180,10 +179,8 @@ public class CompanyVideoDao {
 			
 			userIdEPPN = UserDao.getUserID(userEPPN);
 			
-			// @todo - these checks are subject to revision given all the changes lately
 			if (!CompanyUserUtil.isAdmin(userEPPN, companyId) && !CompanyUserUtil.isOwnerOfCompany(companyId, userIdEPPN)) {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN + " is not admin user of org:." + companyId);
-				ServiceLogger.log(this.logTag, "======== NOT ADMIN OR OWNER :=====");
 				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN + " is not admin or owner of company:." + companyId);
 			}
 			

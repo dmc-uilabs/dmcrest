@@ -141,7 +141,7 @@ public class CompanyController {
 
 		try {
 			id = videoDao.createCompanyVideo(video, userEPPN);
-			return new ResponseEntity<CompanyVideo>(video, HttpStatus.valueOf(statusCode));
+			return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
 		} catch (HTTPException e) {
 			statusCode = e.getStatusCode();
 			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
