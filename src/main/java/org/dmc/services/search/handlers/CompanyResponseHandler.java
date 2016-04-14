@@ -5,8 +5,6 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.dmc.services.company.Company;
 import org.dmc.services.company.CompanyDao;
-import org.dmc.services.users.User;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

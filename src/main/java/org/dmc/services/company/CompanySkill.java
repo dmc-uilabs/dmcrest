@@ -1,24 +1,39 @@
 package org.dmc.services.company;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CompanySkill {
-    private final String logTag = CompanySkill.class.getName();    
-    private final int id;  
-    private final int companyId;
-    private final String skillName;       
-    public CompanySkill(int i, int ci, String s) {
-    	this.id = i;
-    	this.companyId = ci;
-    	this.skillName = s;
-    }
-    public int getId() {
-        return this.id;
-    }
-    public int getCompanyId(){
-    	return this.companyId;
-    }
-    public String getSkill() {
-    	return this.skillName;
-    }
+
+public class CompanySkill  {
+  
+  private String id = null;
+  private String companyId = null;
+  private String name = null;
+
+  
+  @JsonProperty("id")
+  public String getId() {
+    return this.id;
+  }
+  public void setId(String id) {
+    this.id = id;
+  }
+
+
+  @JsonProperty("companyId")
+  public String getCompanyId() {
+    return this.companyId;
+  }
+  public void setCompanyId(String companyId) {
+    this.companyId = companyId;
+  }
+
+  
+  @JsonProperty("name")
+  public String getName() {
+    return this.name;
+  }
+  public void setName(String name) {
+    this.name = name;
+  }
+
 }

@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.junit.Before; 
 import org.junit.After;
 import org.junit.Ignore;
@@ -36,7 +35,7 @@ public class CompanyIT extends BaseIT {
 	private static final String COMPANY_UPDATE_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_DELETE_RESOURCE = "/companies/{id}/delete";
 	private static final String ALL_COMPANY_GET_RESOURCE = "/companies";
-	
+
 	// skills
 	private static final String COMPANY_CREATE_SKILLS = "/company_skills";
 	private static final String COMPANY_GET_SKILLS = "/companies/{companyID}/company_skills";
@@ -46,9 +45,10 @@ public class CompanyIT extends BaseIT {
 	private static final String COMPANY_VIDEO_CREATE_RESOURCE = "/company_videos";
 	private static final String COMPANY_VIDEO_DELETE_RESOURCE = "/company_videos/{id}";
 
-	private Integer createdId = null;
 	private ArrayList<CompanyVideo> videos = null;
-	String randomEPPN = TestUserUtil.uniqueID();
+	private Integer createdId = null;
+	//String randomEPPN = UUID.randomUUID().toString();
+	String randomEPPN = "fforgeadmin";
 		
 	@Before
 	public void testCompanyCreate() {
@@ -83,7 +83,6 @@ public class CompanyIT extends BaseIT {
         }
 	}
 
-    
     @Test
 	public void testCompaniesGet() {
 		if (this.createdId != null) {
@@ -122,7 +121,6 @@ public class CompanyIT extends BaseIT {
             assertTrue("Could not create new company", false);
         }
 	}
-
 	@Test
 	public void testCompanyGet() {
 		if (this.createdId != null) {
@@ -135,6 +133,17 @@ public class CompanyIT extends BaseIT {
     		then().
             body(matchesJsonSchemaInClasspath("Schemas/companySchema.json")).
             body("id", equalTo(this.createdId));	
+		}
+	}
+	@Test
+	public void testCompanyGetNoPermission() {
+		if (this.createdId != null) {
+			given().
+            header("Content-type", "application/json").
+            header("AJP_eppn", "testUser").
+            expect().statusCode(403).
+            when().
+            get(COMPANY_GET_RESOURCE, this.createdId.toString());	
 		}
 	}
 	
@@ -175,45 +184,6 @@ public class CompanyIT extends BaseIT {
 		.when()
 		.patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString());
 	}
-    
-	@Test
-	public void testCompanySkillCreate() {
-		JSONArray skills = createSkills();
-		given()
-			.header("AJP_eppn", "testUser")
-			.body(skills.toString())
-		.expect()
-			.statusCode(200)
-		.when()
-			.post(COMPANY_CREATE_SKILLS);
-		//.then()
-		//	.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-	}
-
-    //	@Test
-	public void testCompanySkillGet() {		
-		// Create company skills to start with
-		JSONArray skills = createSkills();
-		given()
-			.body(skills.toString())
-		.expect()
-			.statusCode(200)
-		.when()
-			.post(COMPANY_CREATE_SKILLS);
-		//.then()
-		//	.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-		
-		// Use the company skills for testing
-		given()
-			.param("companyID", "1")
-		.expect()
-			.statusCode(200)
-		.when()
-//			//.post(COMPANY_GET_SKILLS,this.createdId);	
-			.get(COMPANY_GET_SKILLS, "1")
-		.then()
-			.body(matchesJsonSchemaInClasspath("Schemas/companySkillsSchema.json"));	
-}
 
 	@After  
 	public void testCompanyDelete() {
@@ -414,4 +384,5 @@ public class CompanyIT extends BaseIT {
 		skills.put(skill2);
 		return skills;
 	}
+
 }

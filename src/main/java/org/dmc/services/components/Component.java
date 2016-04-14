@@ -1,6 +1,5 @@
 package org.dmc.services.components;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.services.Service;
 

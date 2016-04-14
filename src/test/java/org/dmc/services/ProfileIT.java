@@ -4,12 +4,10 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 import org.junit.Before; 
 import org.junit.After;
-import org.junit.Ignore;
 import static org.junit.Assert.*;
-
-import java.util.UUID;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -23,6 +21,8 @@ public class ProfileIT extends BaseIT {
 	private static final String PROFILE_READ_RESOURCE   = "/profiles/{id}";
 	private static final String PROFILE_UPDATE_RESOURCE = "/profiles/{id}";
 	private static final String PROFILE_DELETE_RESOURCE = "/profiles/{id}/delete";
+	private String profileId = "1";
+	
 	private Integer createdId = -1;
 //	String randomEPPN = UUID.randomUUID().toString();
     String unique = null;
@@ -144,5 +144,59 @@ public class ProfileIT extends BaseIT {
         
 		return json;
 	}
+	
+	
+	/**
+	 * test case for GET /profiles
+	 */
+	@Test
+	public void testProfileGet_Profiles(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get(PROFILE_CREATE_RESOURCE);
+	}
+	
+	
+	/**
+	 * test case for GET /profiles/{profileID}/profile_history
+	 */
+	@Test
+	public void testProfileGet_ProfileHistory(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/profiles/" + profileId +"/profile_history");
+	}
+	
+	/**
+	 * test case for GET /profiles/{profileID}/profile_reviews
+	 */
+	@Test
+	public void testProfileGet_ProfileReview(){
+		given().
+		header("AJP_eppn", userEPPN).
+		param("reviewId", "1").
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/profiles/" + profileId +"/profile_reviews");
+	}
 
+	
+	/**
+	 * test case for GET /profiles/{profileID}/following_members
+	 */
+	@Test
+	public void testProfileGet_ProfileFollowingMember(){
+		given().
+		header("AJP_eppn", userEPPN).
+		param("reviewId", "1").
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/profiles/" + profileId +"/following_members");
+	}
+	
+	
 }

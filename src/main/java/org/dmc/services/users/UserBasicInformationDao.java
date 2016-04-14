@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.util.ArrayList;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.dmc.services.DBConnector;
@@ -13,12 +12,8 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.Id;
 import org.dmc.services.Config;
 import org.dmc.services.sharedattributes.Util;
-
 import org.dmc.services.company.CompanyDao;
 
-import org.dmc.solr.SolrUtils;
-
-import java.io.IOException;
 
 public class UserBasicInformationDao {
 

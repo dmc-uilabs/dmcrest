@@ -7,7 +7,6 @@ import static org.junit.Assert.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import org.dmc.services.users.UserController;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 

@@ -4,17 +4,12 @@ import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.Before; 
-import org.junit.After;
-import org.junit.Ignore;
 
 import java.util.UUID;
-import java.util.Date;
-import java.text.SimpleDateFormat;
+
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.*;
-import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 

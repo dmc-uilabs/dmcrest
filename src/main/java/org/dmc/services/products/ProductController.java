@@ -1,69 +1,38 @@
 package org.dmc.services.products;
 
-import java.util.ArrayList;
-
-import org.dmc.services.ServiceLogger;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@RestController
+
+import java.util.List;
+
+import static org.springframework.http.MediaType.*;
+
+@Controller
+@RequestMapping(value = "/product", produces = {APPLICATION_JSON_VALUE})
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class ProductController {
 
-	private final String logTag = ProductController.class.getName();
-	
-    
-    private ProductListDao ProductList = new ProductListDao(); 
-    @RequestMapping(value = "/products", method = RequestMethod.GET)
-    public ArrayList<Product> getProductList() {
-    	ServiceLogger.log(logTag, "In getProductList");
-    	//ServiceLogger.log(logTag, "In getProductList, authorization: " + authorization);
-    	return ProductList.getProductList();
-    }
-	
-	/*
-	@RequestMapping(value = "/projects/{pid}/products", method = RequestMethod.GET)
-	public ArrayList<Product> getProductList(@PathVariable("pid") int pid){
-		ServiceLogger.log(logTag, "In getProductList with projectId: "+ pid);
-    	//ServiceLogger.log(logTag, "In getProductList, authorization: " + authorization);
-    	return ProductList.getProductList(pid);
-	}
-    
-    
-    @RequestMapping(value = "/products/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    
-    public Id createProduct(@RequestBody String payload) {
-    	//System.out.println("In createRole role: " + name);
-    	
-    	
-    	//RoleDao.createRole creates a new Role in the database using the provided POST params
-    	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
-    	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
-    	
-    	return Product.createProduct(payload);
-    	
-    	//Create role and update db through JDBC then return role using new role's id
-    	
-    	
-    	
-    }
+  @RequestMapping(value = "/{service_Id}/product_reviews", 
+    produces = { "application/json", "text/html" }, 
+    method = RequestMethod.GET)
+  public ResponseEntity<List<ProductReview>> productServiceIdProductReviewsGet(
+ @PathVariable("serviceId") String serviceId,
+@RequestParam(value = "reviewId", required = true) String reviewId,
+@RequestParam(value = "limit", required = false) Integer limit,
+@RequestParam(value = "order", required = false) String order,
+@RequestParam(value = "sort", required = false) String sort,
+@RequestParam(value = "rating", required = false) Integer rating,
+@RequestParam(value = "status", required = false) Boolean status){
+      // do some magic!
+      return new ResponseEntity<List<ProductReview>>(HttpStatus.NOT_IMPLEMENTED);
+  }
 
-    
-    /*
-    @RequestMapping(value = "/role/update", method = RequestMethod.POST)
-    @ResponseBody
-    public String updateRole(@RequestParam(value="id", defaultValue="-1") int id) {
-    	System.out.println("In createRole role: " + id);
-    	
-    	
-    	//RoleDao.createRole updates the Role in the database identified by id using the provided POST params
-    	//it creates an instance of this role i.e new Role(param.id, param.name, param.title.....)
-    	//this controller in turn returns this updated Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
-    	
-    	return RoleDao.updateRole(params);
-    }
-    */
+
+  
 }
