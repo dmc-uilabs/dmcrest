@@ -135,6 +135,7 @@ public class UserDao {
                 userName = resultSet.getString("user_name");
                 termsAndConditionsTimeStamp = resultSet.getTimestamp("accept_term_cond_time"); // get accept_term_cond_time time stamp
             }
+			
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
