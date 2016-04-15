@@ -43,11 +43,11 @@ public class CompanyIT extends BaseIT {
 	// videos
 	private static final String COMPANY_VIDEOS_GET_RESOURCE = "/companies/{companyID}/company_videos";
 	private static final String COMPANY_VIDEO_CREATE_RESOURCE = "/company_videos";
+	private static final String COMPANY_VIDEO_UPDATE_RESOURCE = "/company_videos/{id}";
 	private static final String COMPANY_VIDEO_DELETE_RESOURCE = "/company_videos/{id}";
 
 	private ArrayList<CompanyVideo> videos = null;
 	private Integer createdId = null;
-	//String randomEPPN = UUID.randomUUID().toString();
 	String randomEPPN = "fforgeadmin";
 		
 	@Before
@@ -184,18 +184,6 @@ public class CompanyIT extends BaseIT {
 		.when()
 		.patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString());
 	}
-
-	@After  
-	public void testCompanyDelete() {
-		given()
-    	.header("Content-type", "application/json")
-    	.header("AJP_eppn", randomEPPN)
-		.expect().statusCode(200)
-		.when()
-		.delete(COMPANY_DELETE_RESOURCE, this.createdId.toString())
-		.then()
-		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-	}
 	
 	@Test
 	public void testCompanyVideoCreate() {
@@ -217,6 +205,53 @@ public class CompanyIT extends BaseIT {
 				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 		}
 
+	}
+	
+	@Test
+	public void testCompanyVideoUpdate() {
+
+		Integer videoId = null;
+		testCompanyVideosGet();
+		if (this.videos != null && this.videos.size() > 0) {
+			videoId = this.videos.get(0).getId();
+			JSONObject json = new JSONObject();
+			json.put("title", "test video title update");
+			json.put("link", "test video link update");
+			json.put("companyId", this.createdId);
+
+			given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN)
+				.body(json.toString())
+			.expect()
+				.statusCode(200)
+			.when()
+				.patch(COMPANY_VIDEO_UPDATE_RESOURCE, videoId).then()
+				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+		}
+	}
+	
+	@Test
+	public void testCompanyVideoUpdateNotOwner() {
+
+		Integer videoId = null;
+		testCompanyVideosGet();
+		if (this.videos != null && this.videos.size() > 0) {
+			videoId = this.videos.get(0).getId();
+			JSONObject json = new JSONObject();
+			json.put("title", "test video title update");
+			json.put("link", "test video link update");
+			json.put("companyId", this.createdId);
+
+			given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN + "-not-owner")
+				.body(json.toString())
+			.expect()
+				.statusCode(403)
+			.when()
+				.patch(COMPANY_VIDEO_UPDATE_RESOURCE, videoId);
+		}
 	}
 
 	@Test
@@ -260,6 +295,18 @@ public class CompanyIT extends BaseIT {
 					.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 			}
 		}
+	}
+	
+	@After  
+	public void testCompanyDelete() {
+		given()
+    	.header("Content-type", "application/json")
+    	.header("AJP_eppn", randomEPPN)
+		.expect().statusCode(200)
+		.when()
+		.delete(COMPANY_DELETE_RESOURCE, this.createdId.toString())
+		.then()
+		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 	
 	public JSONObject createFixture() {
