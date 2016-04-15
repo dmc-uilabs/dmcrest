@@ -27,117 +27,159 @@ public class ProjectDao {
 
 	public ProjectDao(){}
 	
+	// get project info if user has a role in the project.
 	public Project getProject(int projectId, String userEPPN) {
 		
 		// check if user has a role in project
 		try {
+			resultSet = null;
 			if(!hasProjectRole(projectId, userEPPN)) {
 				return null;
 			}
-		} catch (SQLException e) {
-			ServiceLogger.log(logTag, e.getMessage());
-		}
-		
-		int id = 0;
-		int num_tasks = 0, num_discussions = 0, num_services = 0, num_components = 0;
-		String title = "", description = "", query;
-		long due_date = 0;
-		String thumbnail = "";
-		String largeUrl = "";
-		FeatureImage image = new FeatureImage(thumbnail, largeUrl);
-		ProjectDiscussion discussion;
-		ProjectService service;
-		ProjectTask task;
-		ProjectComponent component;
-		String projectManager = "None";
-
-		try {
-
-			query = "SELECT g.group_id AS id, g.group_name AS title, "
-				+ "g.short_description AS description, g.due_date, s.msg_posted AS count, "
-				+"pt.taskCount AS taskCount, "
-				+"ss.servicesCount AS servicesCount, "
-				+"c.componentsCount AS componentsCount "
- 				+ "FROM groups g LEFT JOIN stats_project s ON s.group_id = g.group_id LEFT JOIN "
- 				+ "(SELECT count(*) AS taskCount, group_project_id AS id FROM project_task"
- 				+ " GROUP BY group_project_id) AS pt ON pt.id = g.group_id LEFT JOIN "
- 				+ "(SELECT count(*) AS servicesCount, group_id AS id FROM service_subscriptions"
- 				+ " GROUP BY group_id) AS ss ON ss.id = g.group_id LEFT JOIN "
- 				+ "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects "
- 				+ "GROUP BY group_id) AS c ON c.id = g.group_id "
-				+ "WHERE g.group_id = ?";
-
+			String query = getSelectProjectQuery();
+			query += "WHERE g.group_id = ? ";
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, projectId);
 
 			ServiceLogger.log(logTag, "getProject, id: " + projectId);
 			resultSet = preparedStatement.executeQuery();
-			while (resultSet.next()) {
-				id = resultSet.getInt("id");
-				title = resultSet.getString("title");
-				description = resultSet.getString("description");
-				Timestamp t = resultSet.getTimestamp("due_date");
-				if (null == t) {
-					due_date = 0;
-				} else {
-					due_date = t.getTime();
-				}
-
-				if (description == null)
-					description = "";
-
-				num_discussions = resultSet.getInt("count");
-				num_components = resultSet.getInt("componentsCount");
+			if (resultSet.next()) {
+				return readProjectInfoFromResultSet(resultSet);
 			}
-
-			task = new ProjectTask(num_tasks, projectId);
-
-			service = new ProjectService(num_services, projectId);
-
-			discussion = new ProjectDiscussion(num_discussions, projectId);
-
-			component = new ProjectComponent(num_components, projectId);
-
-			// sample query:			
-			//	SELECT u.firstname AS firstname, u.lastname AS lastname 
-			//	FROM pfo_user_roles ur 
-			//	JOIN users u ON u.user_id = r.user_id 
-			//	JOIN pfo_roles r ON r.role_id = ur.role_id
-			//	WHERE r.role_id = 1 AND 
-			//		ur.group_id = 5
-			query = "SELECT u.firstname AS firstname, u.lastname AS lastname "
-					+ "FROM pfo_user_role ur "
-					+ "JOIN users u ON u.user_id = ur.user_id "
-					+ "JOIN pfo_role r ON r.role_id = ur.role_id "
-					+ "WHERE r.role_name = 'Admin' AND "
-					+ "r.home_group_id = ?";
-			preparedStatement = DBConnector.prepareStatement(query);
-			preparedStatement.setInt(1, projectId);
-			resultSet = preparedStatement.executeQuery();
-
-			while(resultSet.next()){
-				projectManager = resultSet.getString("firstname")
-						+ " " + resultSet.getString("lastname");
-			}
-
-			return new Project.ProjectBuilder(projectId, title, description)
-					.imgLink()
-					.image(image)
-					.task(task)
-					.service(service)
-					.discussion(discussion)
-					.component(component)
-					.projectManager(projectManager)
-					.dueDate(due_date)
-					.build();
-
 
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+		} finally {
+			try {
+				if (null != resultSet) {
+					resultSet.close();
+				}
+			} catch (Exception e2) {
+				// don't really care now.
+			}
 		}
 		return null;
 	}
 
+	// get any project the user is a member of
+	public ArrayList<Project> getProjectList(String userEPPN){
+		
+		ArrayList<Project> projects = new ArrayList<Project>();
+		
+		String query = getSelectProjectQuery();
+		String groupIdList = "select * from (" + query + ") as project_info, (SELECT pfo_role.home_group_id"+
+                                      " FROM  pfo_role,  pfo_user_role, users"+                                                                         
+                                      " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"+                                                           
+                                      " pfo_role.home_group_id IS NOT NULL AND"+                                                                        
+                                      " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"+                     
+		    " where project_info.id = project_id.home_group_id";
+		
+		ServiceLogger.log(logTag, "groupIdList: " + groupIdList);
+		try {
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(groupIdList);
+			preparedStatement.setString(1,  userEPPN);
+
+			resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				Project project = readProjectInfoFromResultSet(resultSet);
+				ServiceLogger.log(logTag, "adding project : " + project.getId());
+				projects.add(project);
+			}
+			return projects;
+		}
+		
+		catch(SQLException e){
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		catch(Exception e){
+		    ServiceLogger.log(logTag, e.getMessage());
+        }
+		finally {
+			if (null != resultSet) {
+				try {
+					resultSet.close();
+				} catch (Exception ex) {
+					// don't care
+				}
+			}
+		}
+		
+		return null;
+	}
+
+	protected String getSelectProjectQuery() 
+	{
+		String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, " 
+			+ "g.short_description AS description, g.due_date, s.msg_posted AS count, " 
+			+ "pt.taskCount AS taskCount, "
+			+ "ss.servicesCount AS servicesCount, " 
+			+ "c.componentsCount AS componentsCount " 
+			+ "FROM groups g " 
+			+ "JOIN (SELECT u.firstname AS firstname, u.lastname AS lastname , r.home_group_id "
+			+ "FROM pfo_user_role ur " 
+			+ "JOIN users u ON u.user_id = ur.user_id " 
+			+ "JOIN pfo_role r ON r.role_id = ur.role_id " 
+			+ "WHERE r.role_name = 'Admin') x on g.group_id = x.home_group_id "
+			+ "LEFT JOIN stats_project s ON s.group_id = g.group_id LEFT JOIN " 
+			+ "(SELECT count(*) AS taskCount, group_project_id AS id FROM project_task "
+			+ "GROUP BY group_project_id) AS pt ON pt.id = g.group_id LEFT JOIN " 
+			+ "(SELECT count(*) AS servicesCount, group_id AS id FROM service_subscriptions "
+			+ "GROUP BY group_id) AS ss ON ss.id = g.group_id LEFT JOIN " 
+			+ "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects " 
+			+ "GROUP BY group_id) AS c ON c.id = g.group_id ";
+		return query;
+	}
+
+	protected Project readProjectInfoFromResultSet(ResultSet resultSet)
+		throws SQLException
+	{
+		long due_date = 0;
+		String thumbnail = "";
+		String largeUrl = "";
+		FeatureImage image = new FeatureImage(thumbnail, largeUrl);
+
+		int projectId = resultSet.getInt("id");
+		String title = resultSet.getString("title");
+		String description = resultSet.getString("description");
+		Timestamp t = resultSet.getTimestamp("due_date");
+		if (null == t) {
+			due_date = 0;
+		} else {
+			due_date = t.getTime();
+		}
+
+		if (description == null)
+			description = "";
+
+		int num_discussions = resultSet.getInt("count");
+		int num_components = resultSet.getInt("componentsCount");
+		int num_tasks = resultSet.getInt("taskCount");
+		int num_services = resultSet.getInt("servicesCount");
+
+		ProjectTask task = new ProjectTask(num_tasks, projectId);
+		ProjectService service = new ProjectService(num_services, projectId);
+		ProjectDiscussion discussion = new ProjectDiscussion(num_discussions, projectId);
+		ProjectComponent component = new ProjectComponent(num_components, projectId);
+	
+		String projectManager = resultSet.getString("firstname")
+					+ " " + resultSet.getString("lastname");
+		ServiceLogger.log(logTag, "projectId: " + projectId + "num_discussions: " + num_discussions + 
+				   "num_components: " + num_components + "num_tasks: " + num_tasks + 
+				   "num_services: " + num_services + "description: " + description );
+
+		return new Project.ProjectBuilder(projectId, title, description)
+			.imgLink()
+			.image(image)
+			.task(task)
+			.service(service)
+			.discussion(discussion)
+			.component(component)
+			.projectManager(projectManager)
+			.dueDate(due_date)
+			.build();
+		
+	}
+		
 	public Id createProject(String projectname, String unixname, String description, String projectType, String userEPPN, long dueDate) throws SQLException, JSONException, Exception {
 		Connection connection = DBConnector.connection();
         // let's start a transaction
