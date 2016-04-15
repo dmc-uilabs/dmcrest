@@ -24,6 +24,63 @@ public class UserIT extends BaseIT {
     private static final String logTag = UserIT.class.getName();
 
 	@Test
+	public void testNewUserWithCompany() {
+        String unique = TestUserUtil.generateTime();
+
+		// create user; will not have company
+        User newUser =
+        given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", unique).
+			header("AJP_givenName",unique).
+			header("AJP_sn",unique).
+			header("AJP_displayName",unique).
+			header("AJP_givenName",unique).
+		expect().
+			statusCode(200).
+		when().
+			get("/user").as(User.class);
+        
+        // check; does not have have company
+        assertTrue("New user is assigned company " + newUser.getCompanyId() + " when the comapnay should be -1", newUser.getCompanyId() == -1);
+        
+		// add basis information
+		JSONObject json = new JSONObject();
+		json.put("email", "test basic info email");
+		json.put("firstName", "test basic info first name");
+		json.put("lastName", "test basic info last name");
+		json.put("company", "1");
+
+		given()
+			.header("Content-type", "application/json")
+			.header("AJP_eppn", unique)
+			.body(json.toString())
+		.expect()
+			.statusCode(200)
+		.when()
+		.post("/user-basic-information");//.as(Integer.class);
+		
+		User newUserGet =
+        given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", unique).
+			header("AJP_givenName",unique).
+			header("AJP_sn",unique).
+			header("AJP_displayName",unique).
+			header("AJP_givenName",unique).
+		expect().
+			statusCode(200).
+		when().
+			get("/user").as(User.class);
+		
+		// check user; should know have company
+		assertTrue("New user is assigned company " + newUser.getCompanyId() + " when the comapnay should be 1", newUserGet.getCompanyId() == 1);
+		
+	}
+	
+	
+	
+	@Test
 	public void testUserIncorrectInvocation(){
 		ServiceLogger.log(logTag, "starting testUserIncorrectInvocation");
 		JSONObject json = new JSONObject();
