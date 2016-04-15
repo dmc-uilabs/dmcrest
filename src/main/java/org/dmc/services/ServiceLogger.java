@@ -32,6 +32,27 @@ public class ServiceLogger {
 	    logger.info(logTag + ": " + message);	
 	}
 	
+	/**
+	 * Exception Logging
+	 * @param logTag
+	 * @param e
+	 */
+	public static void logException (String logTag, DMCServiceException e) {
+		String logMessage  = null;
+		if (serviceLoggerInstance == null) {
+			serviceLoggerInstance = new ServiceLogger();
+		}
+		
+		logMessage += "\n---------------------------------------------------------------------------------------------------------------\n";
+		logMessage +="EXCEPTION\n";
+		logMessage +="Class: " + logTag + "\n";
+		logMessage +="Code: " + e.getErrorcode() + "\n";
+		logMessage +="Message: " + e.getErrorMessage() + "\n";
+		logMessage += "---------------------------------------------------------------------------------------------------------------\n";
+		
+	    logger.info(logMessage);	
+	}
+	
 	private void setup() throws IOException {
 	    logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	    
