@@ -12,13 +12,17 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.users.User;
 import org.dmc.services.users.UserDao;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
+
+import static org.dmc.services.company.CompanyUserUtil.isMemberOfCompany;
 
 public class CompanyDao {
 
@@ -559,7 +563,21 @@ public class CompanyDao {
 		        
 				// delete organization_video
 				videoDao.deleteCompanyVideo(companyId, -1, userEPPN);
-		        
+
+				// delete organization_admin
+				query = "DELETE FROM organization_admin WHERE organization_id = ?";
+				statement = DBConnector.prepareStatement(query);
+				statement.setInt(1, id);
+				int numAdminsDeleted = statement.executeUpdate();
+				ServiceLogger.log(logTag, "Deleted " + numAdminsDeleted + " admins for organization_id=" + id);
+
+				// delete organization_user
+				query = "DELETE FROM organization_user WHERE organization_id = ?";
+				statement = DBConnector.prepareStatement(query);
+				statement.setInt(1, id);
+				int numUsersDeleted = statement.executeUpdate();
+				ServiceLogger.log(logTag, "Deleted " + numUsersDeleted + " users for organization_id=" + id);
+
 				// delete organization
 		        query = "DELETE FROM organization WHERE organization_id = ?";
 		        statement = DBConnector.prepareStatement(query);
@@ -577,7 +595,7 @@ public class CompanyDao {
 		        statement = DBConnector.prepareStatement(query);
 		        statement.setInt(1, commonImageId);   
 		        statement.executeUpdate();
-		        
+
 		        connection.commit();
 			}
 	    }
@@ -821,6 +839,110 @@ public class CompanyDao {
 			}
 		}
 		return new Id.IdBuilder(organizationUserId).build();
+	}
+
+	public List<Integer> getCompanyMemberIds(int companyId)  throws SQLException  {
+		List<Integer> memberIds = null;
+
+		String query = "SELECT user_id FROM organization_user WHERE organization_id = ?";
+		try {
+			PreparedStatement statement = DBConnector.prepareStatement(query);
+			statement.setInt(1, companyId);
+			ResultSet rs = statement.executeQuery();
+
+			memberIds = new ArrayList<Integer>();
+
+			while (rs.next()) {
+				int user_id = rs.getInt(1);
+				memberIds.add (new Integer(user_id));
+			}
+
+		} catch (SQLException sqlEx) {
+			ServiceLogger.log(logTag, sqlEx.toString());
+			throw sqlEx;
+		}
+
+		return memberIds;
+	}
+
+	public static String createINClause (List<Integer> ids) {
+
+		// IN ( 1, 2, 3, 4 )
+		StringBuffer sb = new StringBuffer();
+		sb.append("IN (");
+		if (ids != null ) {
+			for (int i=0; i < ids.size(); i++) {
+				if (i != 0) sb.append (",");
+				sb.append(ids.get(i));
+			}
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
+	public List<User> getCompanyMembers (int companyId, String userEPPN) throws HTTPException {
+
+		List<User> members = null;
+
+		int userIdEPPN = -1;
+
+		// Look up userId of userEPPN
+		try {
+			userIdEPPN = UserDao.getUserID(userEPPN);
+		} catch (SQLException e) {
+			if (userIdEPPN == -1) {
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not a valid user");
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+		}
+
+		// Check that the user is a member of the company
+		try {
+			if (!isMemberOfCompany(companyId, userIdEPPN)) {
+				ServiceLogger.log(logTag, "User " + userIdEPPN + " is not a member of comapny " + companyId);
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+		} catch (SQLException e) {
+			if (userIdEPPN == -1) {
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not a valid user");
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+		}
+
+		try {
+			List<Integer> memberIds = getCompanyMemberIds(companyId);
+			members = new ArrayList<User>();
+
+			//
+			String userIdIN = createINClause(memberIds);
+			String query = "select user_id, user_name, realname, accept_term_cond_time from users where user_id " + userIdIN;
+			ServiceLogger.log(logTag, "getCompanyMembers query:" + query);
+			ResultSet resultSet = DBConnector.executeQuery(query);
+
+			if (resultSet != null) {
+				while (resultSet.next()) {
+					int userId = resultSet.getInt("user_id");
+					String displayName = resultSet.getString("realname");
+					String userName = resultSet.getString("user_name");
+					Timestamp termsAndConditionsTimeStamp = resultSet.getTimestamp("accept_term_cond_time");
+					boolean termsAndConditions = false;
+					if(termsAndConditionsTimeStamp != null) {
+						termsAndConditions = true;
+					}
+					// public UserBuilder (int id, String userName, String realName, int companyId)
+					User user = new User.UserBuilder(userId, userName, displayName, companyId).build();
+					user.setTermsConditions(termsAndConditions);
+					members.add(user);
+				}
+			}
+
+
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new HTTPException(HttpStatus.FORBIDDEN.value());
+		}
+
+		return members;
 	}
 
 }
