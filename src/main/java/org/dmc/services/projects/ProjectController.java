@@ -41,11 +41,10 @@ public class ProjectController {
     	return project.getProject(projectID, userEPPN);
     }
     
-    private ProjectListDao projectList = new ProjectListDao(); 
     @RequestMapping(value = "/projects", method = RequestMethod.GET)
     public ArrayList<Project> getProjectList(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
     	ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
-    	return projectList.getProjectList(userEPPN);
+    	return project.getProjectList(userEPPN);
     }
     
 	// leaving this as an example of how to work with parameters to URL

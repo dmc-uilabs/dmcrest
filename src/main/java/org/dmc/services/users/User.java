@@ -6,6 +6,8 @@ package org.dmc.services.users;
 import java.util.Objects;
 import org.dmc.services.ServiceLogger;
 
+import org.dmc.services.company.CompanyDao;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 // This class' name should be changed to UserDetails to match yaml
@@ -42,7 +44,16 @@ public class User {
         this.displayName = realName;
         this.accountId = id;
         this.profileId = id;
-        this.companyId = -1;
+
+		// get company
+		CompanyDao companyDao = new CompanyDao();
+		int companyId = companyDao.getUserCompanyId(id);
+
+        this.companyId = companyId;
+		
+		
+
+		
         this.role = -1;
         this.termsConditions = termsConditions;
         this.notifications = new UserNotifications();
@@ -51,6 +62,12 @@ public class User {
         this.onboarding = UserOnboardingDao.getUserOnboarding(id);
     }
 
+	
+	public User (int id, String userName, String realName, boolean termsConditions, int companyId) {
+		this(id, userName, realName, termsConditions);
+        this.companyId = companyId;
+    }
+	
     public User (UserBuilder userBuilder) {
         this.displayName = userBuilder.realName;
         this.accountId = userBuilder.id;

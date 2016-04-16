@@ -68,6 +68,7 @@ public class ProjectIT extends BaseIT {
 			body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));		
 	}
 	
+	// this tests could do check more about what tests are returned
 	@Test
 	public void testProjectList(){
 		given().
