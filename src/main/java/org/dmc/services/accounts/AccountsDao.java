@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.company.CompanyDao;
 
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,8 @@ class AccountsDao {
         }
         
         UserAccount userAccount = new UserAccount();
+		CompanyDao companyDao = new CompanyDao();
+		int companyId = companyDao.getUserCompanyId(user_id);
         
         String query = "SELECT * FROM users WHERE user_id = ?";
         
@@ -47,7 +50,7 @@ class AccountsDao {
             if (resultSet.next()) {
                 // get results
                 userAccount.setId(Integer.toString(user_id)); //set in constructor
-                userAccount.setCompanyId(Integer.toString(-1)); // need to figure out company
+                userAccount.setCompanyId(Integer.toString(companyId));
                 userAccount.setProfileId(Integer.toString(user_id));
                 
                 userAccount.setDisplayName(resultSet.getString("realname"));
