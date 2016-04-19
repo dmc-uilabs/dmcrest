@@ -82,8 +82,19 @@ public class AccountServersController {
 	public ResponseEntity<UserAccountServer> accountServersServerIDPatch(@PathVariable("serverID") String serverID,
 																		 @RequestBody UserAccountServer server,
 																		 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-		// do some magic!
-		return new ResponseEntity<UserAccountServer>(HttpStatus.NOT_IMPLEMENTED);
+		
+		ServiceLogger.log(logTag, "accountServersServerIDPatch, userEPPN: " + userEPPN);
+		
+		int httpStatusCode = HttpStatus.OK.value();
+		UserAccountServer userAccountServer = null;
+		
+		try {
+			userAccountServer = accountServersDao.patchUserAccountServer(serverID, server, userEPPN);
+		} catch (HTTPException httpException) {
+			httpStatusCode = httpException.getStatusCode();
+		}
+		
+		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));
 	}
 
 }

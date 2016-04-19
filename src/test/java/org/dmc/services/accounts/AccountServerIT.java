@@ -142,23 +142,36 @@ public class AccountServerIT extends BaseIT {
 	
 	@Test
 	public void testAccountPatch_ServerID() {
-		UserAccountServer obj = new UserAccountServer();
+		UserAccountServer returnedUserAccountServer = createNewServer();
 		ObjectMapper mapper = new ObjectMapper();
-		String patchedAccountServer = null;
+		String userAccountServerString = null;
+		
+		returnedUserAccountServer.setName("patchedName");
+		returnedUserAccountServer.setIp("patchedIP");
 		
 		try {
-			patchedAccountServer = mapper.writeValueAsString(obj);
+			userAccountServerString = mapper.writeValueAsString(returnedUserAccountServer);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+		UserAccountServer patchedUserAccountServer =
 		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", "fforageadmin").
-		body(patchedAccountServer).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-		.patch("/account_servers/" + "2");
+			header("Content-type", "application/json").
+			header("AJP_eppn", newKnownUser).
+			body(userAccountServerString).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().
+			patch("/account_servers/" + returnedUserAccountServer.getId()).
+			as(UserAccountServer.class);
+		
+		// check returned and orginal UserAccountServer object is equal
+		assertTrue("Orginal modified UserAccountServer object is not equal to patched",
+				   returnedUserAccountServer.equals(patchedUserAccountServer));
+
 	}
+	
 	
 	private UserAccountServer createNewServer(UserAccountServer userAccountServer) {
 		ObjectMapper mapper = new ObjectMapper();

@@ -67,6 +67,58 @@ class AccountServersDao {
 	}
 	
 	
+	
+	
+	/**
+     Patch a record for an existing server registered by a user
+     @param UserAccountServer - information of server being patched
+	 @param String - user unique user name
+     @return UserAccountServer
+     @throws HTTPException
+     **/
+	public UserAccountServer patchUserAccountServer(String serverIdStr, UserAccountServer userAccountServer, String userEPPN) throws HTTPException {
+		int user_id_lookedup = -1;
+		int serverId = Integer.parseInt(serverIdStr);
+		Util util = Util.getInstance();
+		
+        ServiceLogger.log(logTag, "In patchUserAccountServer for userEPPN: " + userEPPN);
+        
+		user_id_lookedup = getAutorizedUserId(userAccountServer, userEPPN);
+        
+		// check if user can update the server
+		UserAccountServer autorizedUserAccountServer = getUserAccountServer(serverId, userEPPN);
+		if(!autorizedUserAccountServer.getId().equals(userAccountServer.getId()) ||  // server's ids don't match OR
+		   !autorizedUserAccountServer.getAccountId().equals(userAccountServer.getAccountId())) { // account ids don't match
+			throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+		}
+		
+        try {
+            // update user's record in users table
+            String createUserAccountServerQuery = "UPDATE servers SET url = ?, alias = ? WHERE user_id = ? AND server_id = ?";  // ToDo: update status
+			
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery);
+            preparedStatement.setString(1, userAccountServer.getIp());
+            preparedStatement.setString(2, userAccountServer.getName());
+            preparedStatement.setInt(3, user_id_lookedup);
+            preparedStatement.setInt(4, Integer.parseInt(userAccountServer.getId()));
+            // ToDo: need to add status update
+			
+			if(preparedStatement.executeUpdate() != 1) {
+                throw new SQLException("Unable to update servers" +
+                                       " for user_id: " + user_id_lookedup + " to " + userAccountServer.toString());
+            }
+			
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+            throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // ToDo need to determine what HTTP error to throw
+		}
+				
+        return userAccountServer;
+	}
+	
+	
+	
+	
 	public UserAccountServer getUserAccountServer(int serverID, String userEPPN) throws HTTPException {
         ServiceLogger.log(logTag, "In getUserAccountServer for userEPPN: " + userEPPN + " and server id " + serverID);
 
