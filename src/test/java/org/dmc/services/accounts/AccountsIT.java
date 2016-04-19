@@ -292,8 +292,61 @@ public class AccountsIT extends BaseIT {
 
 	@Test
 	public void testAccountGet_ServerID() {
-		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.get("/account_servers/" + serverID);
+		String newKnownUser = TestUserUtil.createNewUser();
+		String uniqueID = TestUserUtil.uniqueID();
+		String userAccountServerString = null;
+		UserAccountServer userAccountServer = new UserAccountServer();
+		ObjectMapper mapper = new ObjectMapper();
+		int user_id_lookedup = -1;
+		
+		try{
+            user_id_lookedup = UserDao.getUserID(newKnownUser);
+        } catch (SQLException e) {
+			assertTrue("Error looking up new user", false);
+        }
+		
+		// setup userAccountServer
+		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
+		userAccountServer.setName("ServerName" + uniqueID);
+		userAccountServer.setIp("ServerURL" + uniqueID);
+//		userAccountServer.setStatus("ServerStatus" + uniqueID);
+		
+		try {
+			userAccountServerString = mapper.writeValueAsString(userAccountServer);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		UserAccountServer returnedUserAccountServer =
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", newKnownUser).
+		body(userAccountServerString).
+		expect().
+		statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
+		when().
+		post("/account_servers").
+		as(UserAccountServer.class);
+		
+		
+		UserAccountServer getReturnedUserAccountServer =
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", newKnownUser).
+		expect().
+			statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
+		when().
+			get("/account_servers/" + returnedUserAccountServer.getId()).
+			as(UserAccountServer.class);
+		
+		System.out.println(returnedUserAccountServer.toString());
+		System.out.println(getReturnedUserAccountServer.toString());
+		
+		
+		// check returned and orginal UserAccountServer object is equal
+		assertTrue("Orginal and returned UserAccountServer objects are not equal",
+				   returnedUserAccountServer.equals(getReturnedUserAccountServer));
+
 	}
 	
 	

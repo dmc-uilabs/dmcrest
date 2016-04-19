@@ -43,22 +43,35 @@ public class AccountServersController {
 	
 	
 	@RequestMapping(value = "/{serverID}", produces = { "application/json", "text/html" }, method = RequestMethod.DELETE)
-	public ResponseEntity<Void> accountServersServerIDDelete(@PathVariable("serverID") String serverID) {
+	public ResponseEntity<Void> accountServersServerIDDelete(@PathVariable("serverID") String serverID,
+															 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		// do some magic!
 		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
+	
 	@RequestMapping(value = "/{serverID}", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<UserAccountServer> accountServersServerIDGet(@PathVariable("serverID") String serverID
-
-	) {
-		// do some magic!
-		return new ResponseEntity<UserAccountServer>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity<UserAccountServer> accountServersServerIDGet(@PathVariable("serverID") String serverID,
+																	   @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "accountServersServerIDGet, userEPPN: " + userEPPN + " and server id " + serverID);
+		
+		int httpStatusCode = HttpStatus.OK.value();
+		UserAccountServer userAccountServer = null;
+		
+		try {
+			userAccountServer = accountServersDao.getUserAccountServer(Integer.parseInt(serverID), userEPPN);
+		} catch (HTTPException httpException) {
+			httpStatusCode = httpException.getStatusCode();
+		}
+		
+		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));
 	}
 
+	
 	@RequestMapping(value = "/{serverID}", produces = { "application/json", "text/html" },method = RequestMethod.PATCH)
 	public ResponseEntity<UserAccountServer> accountServersServerIDPatch(@PathVariable("serverID") String serverID,
-			@RequestBody UserAccountServer server) {
+																		 @RequestBody UserAccountServer server,
+																		 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		// do some magic!
 		return new ResponseEntity<UserAccountServer>(HttpStatus.NOT_IMPLEMENTED);
 	}
