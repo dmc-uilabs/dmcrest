@@ -46,20 +46,17 @@ public class AccountServersController {
 	public ResponseEntity<Void> accountServersServerIDDelete(@PathVariable("serverID") String serverID,
 															 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		
-//		ServiceLogger.log(logTag, "accountServersServerIDDelete, userEPPN: " + userEPPN + " and server id " + serverID);
-//		
-//		int httpStatusCode = HttpStatus.OK.value();
-//		
-//		try {
-//			accountServersDao.deleteUserAccountServer(Integer.parseInt(serverID), userEPPN);
-//		} catch (HTTPException httpException) {
-//			httpStatusCode = httpException.getStatusCode();
-//		}
-//
-//		return new ResponseEntity<Void>(HttpStatus.valueOf(httpStatusCode));
+		ServiceLogger.log(logTag, "accountServersServerIDDelete, userEPPN: " + userEPPN + " and server id " + serverID);
 		
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+		int httpStatusCode = HttpStatus.OK.value();
+		
+		try {
+			accountServersDao.deleteUserAccountServer(Integer.parseInt(serverID), userEPPN);
+		} catch (HTTPException httpException) {
+			httpStatusCode = httpException.getStatusCode();
+		}
+
+		return new ResponseEntity<Void>(HttpStatus.valueOf(httpStatusCode));
 	}
 
 	

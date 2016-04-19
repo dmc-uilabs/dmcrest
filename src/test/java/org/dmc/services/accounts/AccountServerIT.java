@@ -1,6 +1,7 @@
 package org.dmc.services.accounts;
 
 import org.junit.Test;
+import org.junit.Before;
 import static org.junit.Assert.*;
 
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,23 @@ import org.dmc.services.users.UserDao;
 public class AccountServerIT extends BaseIT {
 	private final String logTag = AccountsIT.class.getName();
 	
+	private String newKnownUser;
+	private String uniqueID;
+	private int user_id_lookedup;
+	
+	@Before
+	public void setupData() {
+		newKnownUser = TestUserUtil.createNewUser();
+		uniqueID = TestUserUtil.uniqueID();
+		
+		try{
+            user_id_lookedup = UserDao.getUserID(newKnownUser);
+        } catch (SQLException e) {
+			assertTrue("Error looking up new user", false);
+        }
+	}
+	
+	
 	/**
 	 * Tests for
 	 * <code> post /account-servers </code>
@@ -31,42 +49,17 @@ public class AccountServerIT extends BaseIT {
 	
 	@Test
 	public void testAccountPost_NewServer() {
-		String newKnownUser = TestUserUtil.createNewUser();
-		String uniqueID = TestUserUtil.uniqueID();
-		String userAccountServerString = null;
 		UserAccountServer userAccountServer = new UserAccountServer();
-		ObjectMapper mapper = new ObjectMapper();
-		int user_id_lookedup = -1;
-		
-		try{
-            user_id_lookedup = UserDao.getUserID(newKnownUser);
-        } catch (SQLException e) {
-			assertTrue("Error looking up new user", false);
-        }
 		
 		// setup userAccountServer
 		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
 		userAccountServer.setName("ServerName" + uniqueID);
 		userAccountServer.setIp("ServerURL" + uniqueID);
-		userAccountServer.setStatus("ServerStatus" + uniqueID);
+		// ToDo: add server status to database
+//		userAccountServer.setStatus("ServerStatus" + uniqueID);
 		
-		try {
-			userAccountServerString = mapper.writeValueAsString(userAccountServer);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		
-		UserAccountServer returnedUserAccountServer =
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", newKnownUser).
-		body(userAccountServerString).
-		expect().
-		statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
-		when().
-		post("/account_servers").
-		as(UserAccountServer.class);
-		
+		UserAccountServer returnedUserAccountServer = createNewServer(userAccountServer);
+				
 		// check that the orginal UserAccountServer object does not have an id
 		assertTrue("Orginal server id is not null",
 				   userAccountServer.getId() == null);
@@ -86,53 +79,26 @@ public class AccountServerIT extends BaseIT {
 	
 	@Test
 	public void testAccountGet_ServerID() {
-		String newKnownUser = TestUserUtil.createNewUser();
-		String uniqueID = TestUserUtil.uniqueID();
-		String userAccountServerString = null;
 		UserAccountServer userAccountServer = new UserAccountServer();
-		ObjectMapper mapper = new ObjectMapper();
-		int user_id_lookedup = -1;
-		
-		try{
-            user_id_lookedup = UserDao.getUserID(newKnownUser);
-        } catch (SQLException e) {
-			assertTrue("Error looking up new user", false);
-        }
 		
 		// setup userAccountServer
 		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
 		userAccountServer.setName("ServerName" + uniqueID);
 		userAccountServer.setIp("ServerURL" + uniqueID);
-		//		userAccountServer.setStatus("ServerStatus" + uniqueID);
+//		userAccountServer.setStatus("ServerStatus" + uniqueID);
 		
-		try {
-			userAccountServerString = mapper.writeValueAsString(userAccountServer);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		
-		UserAccountServer returnedUserAccountServer =
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", newKnownUser).
-		body(userAccountServerString).
-		expect().
-		statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
-		when().
-		post("/account_servers").
-		as(UserAccountServer.class);
-		
+		UserAccountServer returnedUserAccountServer = createNewServer(userAccountServer);
 		
 		UserAccountServer getReturnedUserAccountServer =
 		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", newKnownUser).
+			header("Content-type", "application/json").
+			header("AJP_eppn", newKnownUser).
 		expect().
-		statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
+			statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
 		when().
-		get("/account_servers/" + returnedUserAccountServer.getId()).
-		as(UserAccountServer.class);
-		
+			get("/account_servers/" + returnedUserAccountServer.getId()).
+			as(UserAccountServer.class);
+				
 		// check returned and orginal UserAccountServer object is equal
 		assertTrue("Orginal and returned UserAccountServer objects are not equal",
 				   returnedUserAccountServer.equals(getReturnedUserAccountServer));
@@ -147,8 +113,26 @@ public class AccountServerIT extends BaseIT {
 	
 	@Test
 	public void testAccountDelete_ServerID() {
-		given().header("AJP_eppn", "fforageadmin").expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-		.delete("/account_servers/" + "2");
+		UserAccountServer returnedUserAccountServer = createNewServer();
+		
+		// delete server record
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", newKnownUser).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().
+			delete("/account_servers/" + returnedUserAccountServer.getId());
+		
+		// attempt to retrieve deleted record; fails
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", newKnownUser).
+		expect().
+			statusCode(HttpStatus.UNAUTHORIZED.value()).
+		when().
+			get("/account_servers/" + returnedUserAccountServer.getId());
+		
 	}
 	
 	/**
@@ -175,4 +159,41 @@ public class AccountServerIT extends BaseIT {
 		body(patchedAccountServer).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 		.patch("/account_servers/" + "2");
 	}
+	
+	private UserAccountServer createNewServer(UserAccountServer userAccountServer) {
+		ObjectMapper mapper = new ObjectMapper();
+		String userAccountServerString = null;
+		
+		try {
+			userAccountServerString = mapper.writeValueAsString(userAccountServer);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		UserAccountServer returnedUserAccountServer =
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", newKnownUser).
+		body(userAccountServerString).
+			expect().
+		statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
+			when().
+		post("/account_servers").
+			as(UserAccountServer.class);
+		
+		return returnedUserAccountServer;
+	}
+	
+	private UserAccountServer createNewServer() {
+		UserAccountServer userAccountServer = new UserAccountServer();
+		
+		// setup userAccountServer
+		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
+		userAccountServer.setName("ServerName" + uniqueID);
+		userAccountServer.setIp("ServerURL" + uniqueID);
+//		userAccountServer.setStatus("ServerStatus" + uniqueID);
+
+		return createNewServer(userAccountServer);
+	}
+	
 }

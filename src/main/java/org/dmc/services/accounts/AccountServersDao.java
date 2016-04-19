@@ -91,12 +91,14 @@ class AccountServersDao {
 			
 			ResultSet resultSet = preparedStatement.executeQuery();
 			if(resultSet.next()) {
-			userAccountServer.setId(Integer.toString(resultSet.getInt("server_id")));
-			userAccountServer.setIp(resultSet.getString("url"));
-			userAccountServer.setAccountId(Integer.toString(resultSet.getInt("user_id")));
-			userAccountServer.setName(resultSet.getString("alias"));
-			// ToDo set status
-//			userAccountServer.setStatus();
+				userAccountServer.setId(Integer.toString(resultSet.getInt("server_id")));
+				userAccountServer.setIp(resultSet.getString("url"));
+				userAccountServer.setAccountId(Integer.toString(resultSet.getInt("user_id")));
+				userAccountServer.setName(resultSet.getString("alias"));
+				// ToDo set status
+//				userAccountServer.setStatus();
+			} else {
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // no result set returned
 			}
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
