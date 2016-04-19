@@ -67,10 +67,6 @@ class AccountServersDao {
 	}
 	
 	
-	
-	
-	
-	
 	public UserAccountServer getUserAccountServer(int serverID, String userEPPN) throws HTTPException {
         ServiceLogger.log(logTag, "In getUserAccountServer for userEPPN: " + userEPPN + " and server id " + serverID);
 
@@ -84,7 +80,6 @@ class AccountServersDao {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // unknow user
         }
-		
 		
 		// update user's record in users table
 		String getUserAccountServerQuery = "SELECT * FROM servers WHERE user_id = ? AND server_id = ?";  // ToDo store status
@@ -110,7 +105,41 @@ class AccountServersDao {
 		
         return userAccountServer;
 	}
+
 	
+	
+	public void deleteUserAccountServer(int serverID, String userEPPN) throws HTTPException {
+        ServiceLogger.log(logTag, "In deleteUserAccountServer for userEPPN: " + userEPPN + " and server id " + serverID);
+		
+		Util util = Util.getInstance();
+		int user_id_lookedup = -1;
+		
+		try{
+            user_id_lookedup = UserDao.getUserID(userEPPN);
+        } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // unknow user
+        }
+				
+		// update user's record in users table
+		String deleteUserAccountServerQuery = "DELETE FROM servers WHERE user_id = ? AND server_id = ?";
+		
+		PreparedStatement preparedStatement = DBConnector.prepareStatement(deleteUserAccountServerQuery);
+		try {
+			preparedStatement.setInt(1, user_id_lookedup);
+			preparedStatement.setInt(2, serverID);
+			
+			if(preparedStatement.executeUpdate() != 1) {
+				throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value()); // single item not deleted
+			}
+			
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		}
+		
+        return;
+	}
 	
 	
 	private int getAutorizedUserId(UserAccountServer userAccountServer, String userEPPN) {
