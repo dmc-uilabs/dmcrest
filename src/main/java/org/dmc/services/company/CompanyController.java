@@ -187,8 +187,7 @@ public class CompanyController {
                             @RequestBody CompanyVideo video,
                             @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "updateCompanyVideo, video: " + video.toString());
-        
-    	HttpStatus status;
+
         int httpStatusCode = HttpStatus.OK.value();
         Id updatedId = null;
         
@@ -196,13 +195,7 @@ public class CompanyController {
             updatedId = videoDao.updateCompanyVideo(id, video, userEPPN);
         } catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			// @todo - Consider usering an adapter class to convert DMCRestServices erroCodes to HttpStatus error codes
-			// this might provide more meaningful codes to the client as opposed to just 400 (Bad Request)
-			status = HttpStatus.BAD_REQUEST;
-			if (e.getErrorcode() == 1) {
-				status = HttpStatus.FORBIDDEN;
-			}
-			return new ResponseEntity<String>(e.getErrorMessage(), status);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		} 
         
         return new ResponseEntity<Id>(updatedId, HttpStatus.valueOf(httpStatusCode));        
