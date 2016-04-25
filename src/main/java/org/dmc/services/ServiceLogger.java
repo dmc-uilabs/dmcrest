@@ -46,7 +46,8 @@ public class ServiceLogger {
 		logMessage += "\n---------------------------------------------------------------------------------------------------------------\n";
 		logMessage +="EXCEPTION\n";
 		logMessage +="Class: " + logTag + "\n";
-		logMessage +="Code: " + e.getErrorcode() + "\n";
+		logMessage +="Code: " + e.getErrorCode() + "\n";
+		logMessage +="HttpStatus Code: " + e.getHttpStatusCode() + "\n";
 		logMessage +="Message: " + e.getErrorMessage() + "\n";
 		logMessage += "---------------------------------------------------------------------------------------------------------------\n";
 		

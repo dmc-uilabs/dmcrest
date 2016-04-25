@@ -1,27 +1,29 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.UserDao;
-
 import org.json.JSONObject;
 import org.json.JSONException;
+
 
 public class ProjectDao {
 
 
-
+	private Connection connection;
 	private final String logTag = ProjectDao.class.getName();
 	private ResultSet resultSet;
 
@@ -130,9 +132,8 @@ public class ProjectDao {
 		return query;
 	}
 
-	protected Project readProjectInfoFromResultSet(ResultSet resultSet)
-		throws SQLException
-	{
+	protected Project readProjectInfoFromResultSet(ResultSet resultSet) throws SQLException {
+		Project project = new Project();
 		long due_date = 0;
 		String thumbnail = "";
 		String largeUrl = "";
@@ -166,18 +167,19 @@ public class ProjectDao {
 		ServiceLogger.log(logTag, "projectId: " + projectId + "num_discussions: " + num_discussions + 
 				   "num_components: " + num_components + "num_tasks: " + num_tasks + 
 				   "num_services: " + num_services + "description: " + description );
-
-		return new Project.ProjectBuilder(projectId, title, description)
-			.imgLink()
-			.image(image)
-			.task(task)
-			.service(service)
-			.discussion(discussion)
-			.component(component)
-			.projectManager(projectManager)
-			.dueDate(due_date)
-			.build();
 		
+		project.setImages("");
+		project.setFeatureImage(image);
+		project.setTasks(task);
+		project.setServices(service);
+		project.setDiscussions(discussion);
+		project.setComponents(component);
+		project.setProjectManager(projectManager);
+		project.setDueDate(due_date);
+
+		ServiceLogger.log(logTag, project.toString());
+		
+		return project;
 	}
 		
 	public Id createProject(String projectname, String unixname, String description, String projectType, String userEPPN, long dueDate) throws SQLException, JSONException, Exception {
@@ -297,14 +299,77 @@ public class ProjectDao {
         return createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, 0);
 	}
         
-	public Id createProject(ProjectCreateRequest json, String userEPPN) throws SQLException, JSONException, Exception {
+	public Id createProject(ProjectCreateRequest project, String userEPPN) throws SQLException, JSONException, Exception {
+		
+		String projectname = project.getTitle();
+		String unixname = project.getTitle();
+		String description = project.getDescription();
+		long dueDate = project.getDueDate();
 
-		String projectname = json.getTitle();
-		String unixname = json.getTitle();
-		String description = json.getDescription();
-		long dueDate = json.getDueDate();
 
         return createProject(projectname, unixname, description, Project.PRIVATE, userEPPN, dueDate);
+	}
+	
+	public Id updateProject(int id, Project project, String userEPPN) throws DMCServiceException {
+		 
+		Util util = Util.getInstance();
+		connection = DBConnector.connection();
+		String query;
+		PreparedStatement statement;
+		int projectId;
+		
+		Timestamp dueDate = new Timestamp(project.getDueDate());
+		
+		ServiceLogger.log(logTag, "Update Payload: \n" + project.toString());
+
+		try {
+			
+			connection.setAutoCommit(false);
+			
+	        // update the project
+			query =   "UPDATE groups SET group_name = ?, short_description = ?, due_date = ? "
+					+ "WHERE group_id = ?";
+			
+			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);			      
+			statement.setString(1, project.getTitle());  
+			statement.setString(2, project.getDescription()); 
+			statement.setTimestamp(3, dueDate); 
+			statement.setInt(4, id);
+			
+			statement.executeUpdate();
+			projectId = util.getGeneratedKey(statement, "group_id");
+			
+			connection.commit();
+		}
+		catch (SQLException e) {
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag, "Transaction updateProject Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+				throw new DMCServiceException(DMCServiceException.OtherSQLError, e.getMessage());
+			}
+			ServiceLogger.log(logTag, e.getMessage());
+			return null;
+		}
+		catch (JSONException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			return null;
+		}
+		finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
+		}
+		return new Id.IdBuilder(projectId)
+		.build();
+	
 	}
 
     void createProjectRole(String roleName, int projectId) throws SQLException {
