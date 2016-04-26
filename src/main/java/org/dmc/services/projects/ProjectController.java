@@ -33,6 +33,7 @@ public class ProjectController {
 	private DiscussionListDao discussionListDao = new DiscussionListDao();
 	private ProjectDao project = new ProjectDao();
 	private ProjectDao projectDao = new ProjectDao();
+	private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
 
 	@RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
 	public Project getProject(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -152,61 +153,6 @@ public class ProjectController {
 		}
 	}
 
-	@RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<ArrayList<ProjectMember>> getProjectMembers(@RequestParam(value = "projectId", required = false) String projectIdString,
-			@RequestParam(value = "profileId", required = false) String profileIdString, @RequestParam(value = "accept", required = false) boolean accept,
-			@RequestParam(value = "_limit", required = false) int _limit, @RequestParam(value = "_order", required = false) String _order,
-			@RequestParam(value = "_sort", required = false) String _sort, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
-		ServiceLogger.log(logTag, "In getProjectMembers: as user " + userEPPN);
-
-		if (null != projectIdString) {
-			return new ResponseEntity<ArrayList<ProjectMember>>(project.getMembersForProject(projectIdString, userEPPN), HttpStatus.OK);
-		} else if (null != profileIdString) {
-			return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectsForMember(profileIdString, userEPPN), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectMembers(userEPPN), HttpStatus.OK);
-		}
-	}
-
-	@RequestMapping(value = "/projects_members", method = RequestMethod.POST, produces = "application/json")
-	public ResponseEntity<ProjectMember> addProjectMember(@RequestBody ProjectMember payload, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
-		ServiceLogger.log(logTag, "In addProjectMember: as user " + userEPPN);
-
-		return new ResponseEntity<ProjectMember>(project.addProjectMember(payload, userEPPN), HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/projects_members/{memberId}", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<ArrayList<ProjectMember>> getProjectsForMember(@PathVariable("memberId") String memberId, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
-			throws Exception {
-		ServiceLogger.log(logTag, "In getProjectsForMember: for member" + memberId + " as user " + userEPPN);
-
-		return new ResponseEntity<ArrayList<ProjectMember>>(project.getProjectsForMember(memberId, userEPPN), HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/projects/{projectId}/projects_members", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<ArrayList<ProjectMember>> getMembersForProject(@PathVariable("projectId") String projectId, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
-			throws Exception {
-		ServiceLogger.log(logTag, "In getMembersForProject: for project" + projectId + " as user " + userEPPN);
-
-		return new ResponseEntity<ArrayList<ProjectMember>>(project.getMembersForProject(projectId, userEPPN), HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/projects/{projectId}/accept/{memberId}", method = RequestMethod.PATCH, produces = "application/json")
-	public ResponseEntity<ProjectMember> acceptMemberInProject(@PathVariable("projectId") String projectId, @PathVariable("memberId") String memberId,
-			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
-		ServiceLogger.log(logTag, "In acceptMemberInProject: for member" + memberId + " as user " + userEPPN);
-
-		return new ResponseEntity<ProjectMember>(project.acceptMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/projects/{projectId}/reject/{memberId}", method = RequestMethod.DELETE, produces = "application/json")
-	public ResponseEntity<ProjectMember> rejectMemberInProject(@PathVariable("projectId") String projectId, @PathVariable("memberId") String memberId,
-			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
-		ServiceLogger.log(logTag, "In rejectMemberInProject: for member" + memberId + " as user " + userEPPN);
-
-		return new ResponseEntity<ProjectMember>(project.rejectMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
-	}
-
 	@RequestMapping(value = "/projects/{projectID}/projects_tags", method = RequestMethod.GET)
 	public ArrayList<ProjectTag> getProjectTagList(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In getProjectTagList as user " + userEPPN);
@@ -284,7 +230,7 @@ public class ProjectController {
 
 		int httpStatusCode = HttpStatus.OK.value();
 		Id updatedId = null;
-
+		
 		try {
 			updatedId = projectDao.updateProject(id, project, userEPPN);
 		} catch (DMCServiceException e) {

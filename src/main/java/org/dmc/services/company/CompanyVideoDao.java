@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
@@ -89,7 +90,7 @@ public class CompanyVideoDao {
 			// @todo - these checks are subject to revision given all the changes lately
 			if (!CompanyUserUtil.isAdmin(userEPPN, companyId) && !CompanyUserUtil.isOwnerOfCompany(companyId, userIdEPPN)) {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN + " is not admin user of org:." + companyId);
-				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN + " is not admin or owner of company:." + companyId);
+				throw new DMCServiceException(DMCError.NotAdminUser, "User: " + userEPPN + " is not admin or owner of company:." + companyId);
 			}
 			
 			Connection connection = DBConnector.connection();
@@ -172,7 +173,7 @@ public class CompanyVideoDao {
 		try {
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
-			throw new DMCServiceException(DMCServiceException.OtherSQLError, "An SQL exception has occured");
+			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 		}
 
 		try {
@@ -181,7 +182,7 @@ public class CompanyVideoDao {
 			
 			if (!CompanyUserUtil.isAdmin(userEPPN, companyId) && !CompanyUserUtil.isOwnerOfCompany(companyId, userIdEPPN)) {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN + " is not admin user of org:." + companyId);
-				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN + " is not admin or owner of company:." + companyId);
+				throw new DMCServiceException(DMCError.NotAdminUser, "User: " + userEPPN + " is not admin or owner of company:." + companyId);
 			}
 			
 			//Update Video
@@ -210,7 +211,7 @@ public class CompanyVideoDao {
 					ServiceLogger.log(logTag, ex.getMessage());
 				}
 			}
-			throw new DMCServiceException(DMCServiceException.OtherSQLError, e.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		} finally {
 			if (connection != null) {
 				try {
