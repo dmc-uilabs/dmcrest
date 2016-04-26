@@ -1,6 +1,4 @@
 package org.dmc.services.company;
-
-import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.DMCServiceException;
@@ -12,20 +10,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.HttpHeaders;
-
 import java.util.ArrayList;
-
-
-import static org.springframework.http.MediaType.*;
 
 @RestController
 public class CompanySkillController {
 	private CompanySkillDao skillDao = new CompanySkillDao();
 	private final String logTag = CompanySkillController.class.getName();
 
-	@RequestMapping(value = "/company_skills", produces = { "application/json",
-			"text/html" }, consumes = { "application/json", "text/xml" }, method = RequestMethod.POST)
+	@RequestMapping(value = "/company_skills", produces = { "application/json"}, method = RequestMethod.POST)
 	public ResponseEntity<Id> companySkillsPost(
 			@RequestBody CompanySkill companySkill,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -51,7 +43,7 @@ public class CompanySkillController {
 	}
 
 	@RequestMapping(value = "/company_skills/{skillID}", produces = {
-			"application/json", "text/html" }, method = RequestMethod.DELETE)
+			"application/json"}, method = RequestMethod.DELETE)
 	public ResponseEntity<String> companySkillDelete(
 			@PathVariable("skillID") String skillID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {

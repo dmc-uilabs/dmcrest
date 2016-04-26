@@ -31,32 +31,32 @@ public class CompanyKeyContactController {
 	private CompanyKeyContactDao keyContactDao = new CompanyKeyContactDao();
 	private final String logTag = CompanyKeyContactController.class.getName();
 
-	@RequestMapping(value = "/company_key_contacts", produces = { "application/json",
-			"text/html" }, consumes = { "application/json", "text/xml" }, method = RequestMethod.POST)
-	public ResponseEntity<CompanyKeyContact> companyKeyContactsPost(
+	@RequestMapping(value = "/company_key_contacts", produces = { "application/json"}, method = RequestMethod.POST)
+	public ResponseEntity<Id> companyKeyContactsPost(
 			@RequestBody CompanyKeyContact companyKeyContact,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		try {
 			int id = this.keyContactDao.createCompanyKeyContact(companyKeyContact,
 					userEPPN);
-			return new ResponseEntity<CompanyKeyContact>(companyKeyContact,HttpStatus.OK);
-			// return new Id.IdBuilder(id).build();
+			Id retrunId = new Id.IdBuilder(id).build();
+			ServiceLogger.log(this.logTag,"Before return.  id=" + id);
+			int statusCode = HttpStatus.OK.value();
+			return new ResponseEntity<Id>(retrunId, HttpStatus.valueOf(statusCode));
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(this.logTag, "Exception:" + e.getErrorMessage());
 			// HttpHeaders headers = new HttpHeaders();
 			//return new ResponseEntity<String>("DMCServerException:"
 			//		+ e.getErrorMessage(), headers, HttpStatus.BAD_REQUEST);
-			return new ResponseEntity<CompanyKeyContact>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Id>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
 			ServiceLogger.log(this.logTag, "Exception:" + e.getMessage());
 			//return new ResponseEntity<CompanySkill>(companySkill,
 			//		HttpStatus.BAD_REQUEST);
-			return new ResponseEntity<CompanyKeyContact>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Id>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
-	@RequestMapping(value = "/company_key_contacts/{contactID}", produces = {
-			"application/json", "text/html" }, method = RequestMethod.DELETE)
+	@RequestMapping(value = "/company_key_contacts/{contactID}", produces = {"application/json"}, method = RequestMethod.DELETE)
 	public ResponseEntity<Void> companyKeyContactsContactIDDelete(
 			@PathVariable("contactID") String contactID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -76,7 +76,7 @@ public class CompanyKeyContactController {
 	}
 	
 	@RequestMapping(value = "/company_key_contacts/{contactID}", produces = {
-			"application/json", "text/html" }, method = RequestMethod.PATCH)
+			"application/json"}, method = RequestMethod.PATCH)
 	public ResponseEntity<CompanyKeyContact> companyKeyContactsContactIDPatch(
 			@PathVariable("contactID") String contactID,
 			@RequestBody CompanyKeyContact contact,
@@ -84,7 +84,7 @@ public class CompanyKeyContactController {
 		try {
 			int status = this.keyContactDao.updateCompanyKeyContact(contactID, contact, userEPPN);
 			ServiceLogger.log(this.logTag, "User: " + userEPPN
-					+ " deleted:" + contactID + "with Status:" + status);
+					+ " updated: " + contactID + " with Status: " + status);
 			return new ResponseEntity<CompanyKeyContact>(
 					HttpStatus.OK);
 		} catch (Exception e) {

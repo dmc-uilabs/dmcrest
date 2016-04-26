@@ -46,19 +46,22 @@ public class CompanyProfileChange {
 	// Change type 3
     public static int profChangeAddItem(String user, int organization_id, String tableName, String entryIndex, String valueToStore) throws SQLException
     {
+    	
     	int result=0;
     	int user_id = CompanyUserUtil.getUserId(user);
     	String updateQuery = 
     			"insert into organization_profile_change (organization_id,user_id,change_timestamp,"
     			+ "	change_type_id, table_or_field, new_value, old_value) values (?,?,?,3,?,?,?)";
-		PreparedStatement preparedStatement = DBConnector.prepareStatement(updateQuery);
+    	PreparedStatement preparedStatement = DBConnector.prepareStatement(updateQuery);
 		preparedStatement.setInt(1,organization_id);
 		preparedStatement.setInt(2,user_id);
 		preparedStatement.setTimestamp(3, getCurrentTimeStamp());
 		preparedStatement.setString(4, tableName);
 		preparedStatement.setString(5, entryIndex);
 		preparedStatement.setString(6, valueToStore);
+		
 		result = preparedStatement.executeUpdate();
+		
     	return result;
     }
 
