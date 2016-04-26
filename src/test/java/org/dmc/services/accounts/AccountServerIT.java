@@ -31,14 +31,14 @@ public class AccountServerIT extends BaseIT {
 	
 	@Before
 	public void setupData() {
-		newKnownUser = TestUserUtil.createNewUser();
-		uniqueID = TestUserUtil.uniqueID();
+	    newKnownUser = TestUserUtil.createNewUser();
+	    uniqueID = TestUserUtil.uniqueID();
 		
-		try{
-            user_id_lookedup = UserDao.getUserID(newKnownUser);
-        } catch (SQLException e) {
-			assertTrue("Error looking up new user", false);
-        }
+	    try{
+		user_id_lookedup = UserDao.getUserID(newKnownUser);
+	    } catch (SQLException e) {
+		assertTrue("Error looking up new user", false);
+	    }
 	}
 	
 	
@@ -101,8 +101,7 @@ public class AccountServerIT extends BaseIT {
 				
 		// check returned and orginal UserAccountServer object is equal
 		assertTrue("Orginal and returned UserAccountServer objects are not equal",
-				   returnedUserAccountServer.equals(getReturnedUserAccountServer));
-		
+		       	   returnedUserAccountServer.equals(getReturnedUserAccountServer));
 	}
 	
 	
@@ -168,8 +167,7 @@ public class AccountServerIT extends BaseIT {
 		
 		// check returned and orginal UserAccountServer object is equal
 		assertTrue("Orginal modified UserAccountServer object is not equal to patched",
-				   returnedUserAccountServer.equals(patchedUserAccountServer));
-
+       			   returnedUserAccountServer.equals(patchedUserAccountServer));
 	}
 	
 	
@@ -208,5 +206,4 @@ public class AccountServerIT extends BaseIT {
 
 		return createNewServer(userAccountServer);
 	}
-	
 }
