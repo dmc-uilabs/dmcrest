@@ -70,19 +70,10 @@ public class UserDao {
 			
 			id = util.getGeneratedKey(preparedStatement, "user_id");
 
-            String createOnboardingStatus = "INSERT INTO onboarding_status(user_id, profile, account, company, storefront) "
-            + "VALUES ( ?, ?, ?, ?, ? )";
-			PreparedStatement preparedStatementCreateOnboardingStatus = DBConnector.prepareStatement(createOnboardingStatus);
-			preparedStatementCreateOnboardingStatus.setInt(1, id);
-			preparedStatementCreateOnboardingStatus.setBoolean(2, false);
-			preparedStatementCreateOnboardingStatus.setBoolean(3, false);
-			preparedStatementCreateOnboardingStatus.setBoolean(4, false);
-			preparedStatementCreateOnboardingStatus.setBoolean(5, false);
-			preparedStatementCreateOnboardingStatus.executeUpdate();
-            // ToDo: check that record was created successfully.
-            
-			ServiceLogger.log(logTag, "User added and onboarded: " + id);
-			
+			// create onboarding status
+            UserOnboardingDao userOnboardingDao = new UserOnboardingDao();
+            userOnboardingDao.createUserOnboarding(id);
+
 			if (Config.IS_TEST == null){
 				String indexResponse = ""; //SolrUtils.invokeFulIndexingUsers();
 				ServiceLogger.log(logTag, "SolR indexing triggered for user: " + id);
@@ -144,6 +135,7 @@ public class UserDao {
                 userName = resultSet.getString("user_name");
                 termsAndConditionsTimeStamp = resultSet.getTimestamp("accept_term_cond_time"); // get accept_term_cond_time time stamp
             }
+			
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}

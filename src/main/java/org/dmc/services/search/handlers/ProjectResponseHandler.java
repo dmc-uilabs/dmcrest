@@ -52,7 +52,10 @@ public class ProjectResponseHandler implements ResponseHandler<Project> {
                     String group_name = (String) doc.getFieldValue(FIELD_GROUP_NAME);
                     String unix_group_name = (String) doc.getFieldValue(FIELD_UNIX_GROUP_NAME);
 
-                    Project project =  new Project.ProjectBuilder(id, group_name, null).build();
+                    Project project =  new Project();
+                    project.setId(id);
+                    project.setTitle(group_name);
+                    
                     if (l == null) {
                         l = new ArrayList<Project>();
                     }

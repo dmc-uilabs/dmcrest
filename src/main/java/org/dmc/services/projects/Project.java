@@ -1,99 +1,169 @@
 package org.dmc.services.projects;
-
 import org.dmc.services.sharedattributes.FeatureImage;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class Project {
-	private final int id;
-	private final String title;
-	private final String description; 
-	private final String imagesLink;
-	private final FeatureImage image;
-	private final ProjectTask task;
-	private final ProjectService service;
-	private final ProjectDiscussion discussion; 
-	private final ProjectComponent component;
-	private final String projectManager;
-	private final long dueDate;
+	
+	private  int id;
+	private  String title;
+	private  String projectManager;
+	private  String projectManagerId;
+	private  String companyId;
+	private  FeatureImage featureImage;
+	private  String images;
+	private  String description;
+	private  long dueDate;
+	private  ProjectTask task;
+	private  ProjectDiscussion discussion; 
+	private  ProjectService service;
+	private  ProjectComponent component;
+	private  String approvalOption;
+
+	private final String logTag = Project.class.getName();
 	
 	public static final String PUBLIC = "public";
 	public static final String PRIVATE = "private";
 
-	private final String logTag = Project.class.getName();
-	
-	public Project(int projectId, String title, String description, FeatureImage img, 
-			ProjectTask pTask, ProjectService pService,
-			ProjectDiscussion pDiscussion, ProjectComponent component, String projectManager, long dueDate){
-		
-		this.id = projectId;
-		this.title = title;
-		this.description = description;
-		this.imagesLink = "/project/" + projectId + "/images";
-		this.image = img;
-		this.task = pTask;
-		this.service = pService;
-		this.discussion = pDiscussion;
-		this.component = component;
-		this.projectManager = projectManager;
-		this.dueDate = dueDate;
-				
-	}
-
-	public Project(ProjectBuilder build){
-		this.id = build.id;
-		this.title = build.title;
-		this.description = build.description;
-		this.imagesLink = build.imagesLink;
-		this.image = build.image;
-		this.task = build.task;
-		this.service = build.service;
-		this.discussion = build.discussion;
-		this.component = build.component;
-		this.projectManager = build.projectManager;
-		this.dueDate = build.dueDate;
+	public Project() {
+		this.id = -1;
+		this.title = new String();
+		this.projectManager = new String();;
+		this.projectManagerId = new String();
+		this.companyId = new String();
+		this.featureImage = new FeatureImage("", "");
+		this.images = new String();
+		this.description = new String();
+		this.dueDate = -1;
+		this.task = new ProjectTask(0, id);
+		this.discussion = new ProjectDiscussion(0, id); 
+		this.service = new ProjectService(0, id);
+		this.component = new ProjectComponent(0, id);
+		this.approvalOption = null;
 	}
 	
+	@JsonProperty("id")
 	public int getId(){
 		return id;
 	}
-	
-	public String getProjectManager(){
-		return projectManager;
+	public void setId(int id){
+		this.id = id;
 	}
 	
+	@JsonProperty("title")
 	public String getTitle(){
 		return title;
 	}
+	public void setTitle(String title){
+		this.title = title;
+	}
 	
+	@JsonProperty("projectManager")
+	public String getProjectManager(){
+		return projectManager;
+	}
+	public void setProjectManager(String projectManager){
+		this.projectManager = projectManager;
+	}
+	
+	@JsonProperty("projectManagerId")
+	public String getProjectManagerId(){
+		return projectManagerId;
+	}
+	public void setProjectManagerId(String projectManagerId){
+		this.projectManagerId = projectManagerId;
+	}
+	
+	@JsonProperty("comapanyId")
+	public String getCompanyId(){
+		return companyId;
+	}
+	public void setCompanyId(String companyId){
+		this.companyId = companyId;
+	}
+	
+	@JsonProperty("description")
 	public String getDescription(){
 		return description;
 	}
+	public void setDescription(String description){
+		this.description = description;
+	}
 	
+	@JsonProperty("dueDate")
 	public long getDueDate() {
 		return dueDate;
 	}
+	public void setDueDate(long dueDate) {
+		this.dueDate = dueDate;
+	}
 	
+	@JsonProperty("images")
 	public String getImages(){
-		return imagesLink;
+		return images;
+	}
+	public void setImages(String images){
+		this.images = images;
 	}
 	
+	@JsonProperty("featureImage")
 	public FeatureImage getFeatureImage(){
-		return image;
+		return featureImage;
+	}
+	public void setFeatureImage(FeatureImage featureImage){
+		this.featureImage = featureImage;
 	}
 	
+	@JsonProperty("tasks")
 	public ProjectTask getTasks(){
 		return task;
 	}
+	public void setTasks(ProjectTask task){
+		this.task = task;
+	}
 	
+	@JsonProperty("services")
 	public ProjectService getServices(){
 		return service;
 	}
+	public void setServices(ProjectService service){
+		this.service = service;
+	}
 	
+	@JsonProperty("discussions")
 	public ProjectDiscussion getDiscussions(){
 		return discussion;
 	}
+	public void setDiscussions(ProjectDiscussion discussion){
+		this.discussion = discussion;
+	}
 	
+	@JsonProperty("components")
 	public ProjectComponent getComponents(){
 		return component;
+	}
+	public void setComponents(ProjectComponent component){
+		this.component = component;
+	}
+	
+	@JsonProperty("approvalOption")
+	public String getApprovalOption(){
+		return approvalOption;
+	}
+	public void setApprovalOption(String approvalOption){
+		this.approvalOption = approvalOption;
+	}
+	
+	@Override
+	public String toString() {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.writeValueAsString(this);
+		} catch (JsonProcessingException e) {}
+		
+		return null;
 	}
 	
 	public static int IsPublic(String projectType) {
@@ -102,80 +172,4 @@ public class Project {
 		if (projectType.toLowerCase().equals(PUBLIC)) return 1;
 		return 0;
 	}
-	//Service Builder
-    public static class ProjectBuilder {
-    	
-    	private int id;
-    	private String title;
-    	private String description; 
-    	private String imagesLink;
-    	private FeatureImage image;
-    	private ProjectTask task;
-    	private ProjectService service;
-    	private ProjectDiscussion discussion; 
-    	private ProjectComponent component;
-    	private String projectManager;
-    	private long dueDate;
-
-    	public ProjectBuilder(int id, String title, String description) {
-    		this.id = id;
-    		this.title = title;
-    		this.description = description;
-    	}  	
-    	
-    	public ProjectBuilder(int id, String title) {
-    		this.id = id;
-    		this.title = title;
-    	}
-    	
-    	public ProjectBuilder imgLink(){
-    		this.imagesLink = "/project/" + id + "/images";
-    		return this;
-    	}
-    	
-    	public ProjectBuilder imgLink(String link){
-    		imagesLink = link;
-    		return this;
-    	}
-    	
-    	public ProjectBuilder image(FeatureImage image) {
-    		this.image = image;
-    		return this;
-    	}
-    	
-    	public ProjectBuilder task(ProjectTask task) {
-    		this.task = task;
-    		return this;
-    	}
-    	
-    	public ProjectBuilder service(ProjectService service) {
-    		this.service = service;
-    		return this;
-    	}
-    	
-    	public ProjectBuilder discussion(ProjectDiscussion discussion) {
-    		this.discussion = discussion;
-    		return this;
-    	}
-    	
-    	public ProjectBuilder component(ProjectComponent component){
-    		this.component = component;
-    		return this;
-    	}
-    	
-    	public ProjectBuilder projectManager(String pm){
-    		this.projectManager = pm;
-    		return this;
-    	}
-    	
-    	public ProjectBuilder dueDate(long dueDate){
-    		this.dueDate = dueDate;
-    		return this;
-    	}
-    	    	public Project build() {
-    		return new Project(this);
-    	}
-
-    }
-
 }

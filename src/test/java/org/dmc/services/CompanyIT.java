@@ -4,12 +4,10 @@ import static org.junit.Assert.*;
 
 import java.util.UUID;
 
+import org.dmc.services.users.User;
 import org.json.JSONObject;
 import org.json.JSONArray;
-import org.junit.Test;
-import org.junit.Before; 
-import org.junit.After;
-import org.junit.Ignore;
+import org.junit.*;
 import org.dmc.services.company.Company;
 import org.dmc.services.company.CompanySkill;
 import org.dmc.services.company.CompanyVideo;
@@ -18,6 +16,7 @@ import org.dmc.services.utility.TestUserUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
@@ -35,6 +34,8 @@ public class CompanyIT extends BaseIT {
 	private static final String COMPANY_UPDATE_RESOURCE = "/companies/{id}";
 	private static final String COMPANY_DELETE_RESOURCE = "/companies/{id}/delete";
 	private static final String ALL_COMPANY_GET_RESOURCE = "/companies";
+	private static final String COMPANY_GET_MEMBERS = "/companies/{companyID}/company_members";
+	private static final String COMPANY_ADD_MEMBER_RESOURCE = "/companies/{id}/member/{userId}";
 
 	// skills
 	private static final String COMPANY_CREATE_SKILLS = "/company_skills";
@@ -43,11 +44,11 @@ public class CompanyIT extends BaseIT {
 	// videos
 	private static final String COMPANY_VIDEOS_GET_RESOURCE = "/companies/{companyID}/company_videos";
 	private static final String COMPANY_VIDEO_CREATE_RESOURCE = "/company_videos";
+	private static final String COMPANY_VIDEO_UPDATE_RESOURCE = "/company_videos/{id}";
 	private static final String COMPANY_VIDEO_DELETE_RESOURCE = "/company_videos/{id}";
 
 	private ArrayList<CompanyVideo> videos = null;
 	private Integer createdId = null;
-	//String randomEPPN = UUID.randomUUID().toString();
 	String randomEPPN = "fforgeadmin";
 		
 	@Before
@@ -184,18 +185,6 @@ public class CompanyIT extends BaseIT {
 		.when()
 		.patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString());
 	}
-
-	@After  
-	public void testCompanyDelete() {
-		given()
-    	.header("Content-type", "application/json")
-    	.header("AJP_eppn", randomEPPN)
-		.expect().statusCode(200)
-		.when()
-		.delete(COMPANY_DELETE_RESOURCE, this.createdId.toString())
-		.then()
-		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-	}
 	
 	@Test
 	public void testCompanyVideoCreate() {
@@ -217,6 +206,53 @@ public class CompanyIT extends BaseIT {
 				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 		}
 
+	}
+	
+	@Test
+	public void testCompanyVideoUpdate() {
+
+		Integer videoId = null;
+		testCompanyVideosGet();
+		if (this.videos != null && this.videos.size() > 0) {
+			videoId = this.videos.get(0).getId();
+			JSONObject json = new JSONObject();
+			json.put("title", "test video title update");
+			json.put("link", "test video link update");
+			json.put("companyId", this.createdId);
+
+			given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN)
+				.body(json.toString())
+			.expect()
+				.statusCode(200)
+			.when()
+				.patch(COMPANY_VIDEO_UPDATE_RESOURCE, videoId).then()
+				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+		}
+	}
+	
+	@Test
+	public void testCompanyVideoUpdateNotOwner() {
+
+		Integer videoId = null;
+		testCompanyVideosGet();
+		if (this.videos != null && this.videos.size() > 0) {
+			videoId = this.videos.get(0).getId();
+			JSONObject json = new JSONObject();
+			json.put("title", "test video title update");
+			json.put("link", "test video link update");
+			json.put("companyId", this.createdId);
+
+			given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN + "-not-owner")
+				.body(json.toString())
+			.expect()
+				.statusCode(403)
+			.when()
+				.patch(COMPANY_VIDEO_UPDATE_RESOURCE, videoId);
+		}
 	}
 
 	@Test
@@ -260,6 +296,18 @@ public class CompanyIT extends BaseIT {
 					.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 			}
 		}
+	}
+	
+	@After  
+	public void testCompanyDelete() {
+		given()
+    	.header("Content-type", "application/json")
+    	.header("AJP_eppn", randomEPPN)
+		.expect().statusCode(200)
+		.when()
+		.delete(COMPANY_DELETE_RESOURCE, this.createdId.toString())
+		.then()
+		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 	
 	public JSONObject createFixture() {
@@ -367,6 +415,105 @@ public class CompanyIT extends BaseIT {
 		skill2.put("skill", "Company Skill new test");
 		skills.put(skill2);
 		return skills;
+	}
+
+	@Test
+	public void testCompanyGetMembers() {
+
+		// Add 2 members to the company
+		String user1 = addMember(randomEPPN, this.createdId);
+		String user2 = addMember(randomEPPN, this.createdId);
+
+		// Test get all members using the first member id
+		String user1_eppn = "userEPPN" + user1;
+
+		ArrayList<User> allUsers = given().param("companyID", this.createdId.toString())
+				.header("AJP_eppn", user1_eppn)
+				.expect()
+				.statusCode(200)
+				.when()
+				.get(COMPANY_GET_MEMBERS, this.createdId.toString())
+				.andReturn().as(ArrayList.class);
+
+		int numUsers = 2;
+		Assert.assertTrue ("Company members list cannot be null", allUsers != null);
+		Assert.assertTrue ("Expected " + numUsers + " company members", allUsers.size() == numUsers);
+
+	}
+
+	@Test
+	public void testCompanyGetMembersNonMember() {
+
+		// Add 2 members to the company
+		String user1 = addMember(randomEPPN, this.createdId);
+		String user2 = addMember(randomEPPN, this.createdId);
+
+		String nonMemberEPPN = "testUser";
+
+		// testUser not a member of company, so expect to get 401 response (UNAUTHORIZED)
+		given().param("companyID", this.createdId.toString())
+				.header("AJP_eppn", nonMemberEPPN)
+				.expect()
+				.statusCode(401)
+				.when()
+				.get(COMPANY_GET_MEMBERS, this.createdId.toString());
+	}
+
+	public static int createUser(String userEPPN, String userGivenName, String userSurName, String userDisplayName, String userEmail){
+
+		Integer id =
+				given().
+						header("Content-type", "text/plain").
+						header("AJP_eppn", userEPPN).
+						header("AJP_givenName", userGivenName).
+						header("AJP_sn", userSurName).
+						header("AJP_displayName", userDisplayName).
+						header("AJP_mail", userEmail).
+						expect().
+						statusCode(200).
+						when().
+						post("/users/create").
+						then().
+						body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
+						extract().path("id");
+
+		// check return value > 0
+		assertTrue("Added user: " + "userEPPN" + userEPPN + " Valid user ID must be greater then zero.  Value is " + id + ".", id > 0);
+		// could also check email syntax
+
+		return id.intValue();
+	}
+
+	public JSONObject createAddMemberFixture() {
+
+		JSONObject json = new JSONObject();
+
+		// EMPTY
+
+		return json;
+	}
+
+	public String addMember (String ownerEPPN, int companyId ) {
+
+		// Create a member user
+		String unique2 = TestUserUtil.generateTime();
+		String memberEPPN = "userEPPN" + unique2;
+		String memberGivenName = "userGivenName" + unique2;
+		String memberSurName= "userSurName" + unique2;
+		String memberDisplayName = "userDisplayName" + unique2;
+		String memberEmail = "userEmail" + unique2;
+
+		int memberUserId = createUser(memberEPPN,memberGivenName, memberSurName, memberDisplayName, memberEmail);
+
+		given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", ownerEPPN).
+				expect().statusCode(200).
+				when().
+				post(COMPANY_ADD_MEMBER_RESOURCE, Integer.toString(companyId), Integer.toString(memberUserId));
+
+		return unique2;
+
 	}
 
 }

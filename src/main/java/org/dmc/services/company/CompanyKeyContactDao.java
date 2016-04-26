@@ -3,6 +3,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class CompanyKeyContactDao {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN
 						+ " is not DMDII org member.");
 				throw new DMCServiceException(
-						DMCServiceException.NotDMDIIMember, "User: " + userEPPN
+						DMCError.NotDMDIIMember, "User: " + userEPPN
 								+ " is not DMDII org member.");
 			} else {
 				String query = "select oc.id id, oc.organization_id companyId, oc.contact_type_id t, oc.name n, " +
@@ -55,7 +56,7 @@ public class CompanyKeyContactDao {
 			}
 		} catch (SQLException e) {
 			ServiceLogger.log(this.logTag, e.getMessage());
-			throw new DMCServiceException(DMCServiceException.OtherSQLError,
+			throw new DMCServiceException(DMCError.OtherSQLError,
 					"SQLException: \n" + e.getMessage());
 		}
 		return contacts;
@@ -67,7 +68,7 @@ public class CompanyKeyContactDao {
 		try {			
 			if (!CompanyUserUtil.isAdmin(userEPPN, org_id)) {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN + " is not admin user of org:." + org_id);
-				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN + " is not admin user of org:." + org_id);
+				throw new DMCServiceException(DMCError.NotAdminUser, "User: " + userEPPN + " is not admin user of org:." + org_id);
 			}
 			else
 			{
@@ -99,7 +100,7 @@ public class CompanyKeyContactDao {
 		catch (SQLException e) {
 
 			ServiceLogger.log(this.logTag, "SQLException: " + e.toString());
-			throw new DMCServiceException(DMCServiceException.OtherSQLError,"SQLException: " + e.toString());
+			throw new DMCServiceException(DMCError.OtherSQLError,"SQLException: " + e.toString());
 		}
 		
 		try {
@@ -108,7 +109,7 @@ public class CompanyKeyContactDao {
 		catch (Exception e)
 		{
 			ServiceLogger.log(this.logTag, "Error in insert to change log: " + e.toString());
-			throw new DMCServiceException(DMCServiceException.CanNotInsertChangeLog, e.toString());
+			throw new DMCServiceException(DMCError.CanNotInsertChangeLog, e.toString());
 		}
 		return result;
 	}
@@ -120,7 +121,7 @@ public class CompanyKeyContactDao {
 			
 			if (!CompanyUserUtil.isAdmin(userEPPN, org_id)) {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN + " is not admin user of org:." + org_id);
-				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN + " is not admin user of org:." + org_id);
+				throw new DMCServiceException(DMCError.NotAdminUser, "User: " + userEPPN + " is not admin user of org:." + org_id);
 			}
 			else
 			{
@@ -157,7 +158,7 @@ public class CompanyKeyContactDao {
 		}
 		catch (SQLException e) {
 			ServiceLogger.log(this.logTag, "SQLException: " + e.toString());
-			throw new DMCServiceException(DMCServiceException.OtherSQLError,"SQLException: " + e.toString());
+			throw new DMCServiceException(DMCError.OtherSQLError,"SQLException: " + e.toString());
 		}
 		
 		try {
@@ -166,7 +167,7 @@ public class CompanyKeyContactDao {
 		catch (Exception e)
 		{
 			ServiceLogger.log(this.logTag, "Error in insert to change log: " + e.toString());
-			throw new DMCServiceException(DMCServiceException.CanNotInsertChangeLog, e.toString());
+			throw new DMCServiceException(DMCError.CanNotInsertChangeLog, e.toString());
 		}
 		return result;
 	}
@@ -188,14 +189,14 @@ public class CompanyKeyContactDao {
 			if (!orgSet.next()) {
 				ServiceLogger.log(this.logTag, "Contact id: " + cId
 						+ " does not exist.");
-				throw new DMCServiceException(5,"Contact id: " + cId + " does not exist.");
+				throw new DMCServiceException(DMCError.CompanySkillSetNotExist,"Contact id: " + cId + " does not exist.");
 			} else
 				org_id = orgSet.getInt("organization_id");
 
 			if (!CompanyUserUtil.isAdmin(userEPPN, org_id)) {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN
 						+ " is not admin user of org:." + org_id);
-				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN
+				throw new DMCServiceException(DMCError.NotAdminUser, "User: " + userEPPN
 						+ " is not admin user of org:." + org_id);
 			}
 
@@ -209,7 +210,7 @@ public class CompanyKeyContactDao {
 			
 		} catch (SQLException e) {
 			ServiceLogger.log(this.logTag, e.getMessage());
-			throw new DMCServiceException(DMCServiceException.OtherSQLError,e.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError,e.getMessage());
 		}
         // Insert to change log
 		try {
@@ -217,7 +218,7 @@ public class CompanyKeyContactDao {
 		}
 		catch (SQLException e)
 		{
-			throw new DMCServiceException(DMCServiceException.CanNotInsertChangeLog, e.getMessage());
+			throw new DMCServiceException(DMCError.CanNotInsertChangeLog, e.getMessage());
 		}
 		return result;
 	}

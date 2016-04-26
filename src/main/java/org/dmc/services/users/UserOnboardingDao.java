@@ -43,6 +43,30 @@ public class UserOnboardingDao {
         return new UserOnboarding(profile, account, company, storefront);
     }
 
+	public boolean createUserOnboarding(int userId) {
+		String createOnboardingStatus = "INSERT INTO onboarding_status(user_id, profile, account, company, storefront) "
+		+ "VALUES ( ?, ?, ?, ?, ? )";
+		
+		try {
+			PreparedStatement preparedStatementCreateOnboardingStatus = DBConnector.prepareStatement(createOnboardingStatus);
+			preparedStatementCreateOnboardingStatus.setInt(1, userId);
+			preparedStatementCreateOnboardingStatus.setBoolean(2, false);
+			preparedStatementCreateOnboardingStatus.setBoolean(3, false);
+			preparedStatementCreateOnboardingStatus.setBoolean(4, false);
+			preparedStatementCreateOnboardingStatus.setBoolean(5, false);
+			preparedStatementCreateOnboardingStatus.executeUpdate();
+			// ToDo: check that record was created successfully.
+		
+		} catch(SQLException e) {
+            ServiceLogger.log(logTag, e.getMessage());
+			return false;
+        }
+		
+		ServiceLogger.log(logTag, "User added and onboarded: " + userId);
+
+		return true;
+	}
+	
     public boolean setUserOnboarding(int userId, UserOnboarding userOnboarding) {
         ServiceLogger.log(logTag, "setUserOnboarding, user id: " + userId + " to " + userOnboarding.toString());
         

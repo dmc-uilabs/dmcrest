@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
 import static com.jayway.restassured.RestAssured.*;
+
 import com.jayway.restassured.response.ValidatableResponse;
 
 import org.json.JSONObject;
@@ -31,17 +32,25 @@ import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.PostProjectTag;
+import org.dmc.services.projects.ProjectMember;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
 
+	private static final String PROJECT_DISCUSSIONS_RESOURCE = "/projects/{projectID}/all-discussions";
+	private static final String PROJECT_UPDATE_RESOURCE = "/projects/{id}";
+	
+	// Member  
+	private static final String MEMBER_ACCEPT_RESOURCE = "/projects/{projectId}/accept/{memberId}";
+	private static final String MEMBER_REJECT_RESOURCE = "/projects/{projectId}/reject/{memberId}";
+	
     private final String logTag = ProjectIT.class.getName();
     private DiscussionIT discussionIT = new DiscussionIT();
 	private Integer createdId = null;
 	String randomEPPN = UUID.randomUUID().toString();
-	private static final String PROJECT_DISCUSSIONS_RESOURCE = "/projects/{projectID}/all-discussions";
 
 	private String projectId = "1";
+	
     @Test
 	public void testProject6() {
 		given().
@@ -68,6 +77,7 @@ public class ProjectIT extends BaseIT {
 			body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));		
 	}
 	
+	// this tests could do check more about what tests are returned
 	@Test
 	public void testProjectList(){
 		given().
@@ -78,26 +88,6 @@ public class ProjectIT extends BaseIT {
 			get("/projects").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
-	}
-
-
-	// leaving this as an example of how to work with parameters to URL
-	// instead of json, but json is probably preferable
-	@Test
-	public void testProjectCreateParameter(){
-		Date date = new Date();
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-		String unique = format.format(date);
-		given().
-			header("AJP_eppn", userEPPN).
-			param("projectname", "junitTestParam" + unique).
-			param("unixname", "junitParam" + unique).
-		expect().
-			statusCode(200).
-		when().
-			post("/projects/createWithParameter").
-		then().
-			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 
 	@Test
@@ -231,24 +221,6 @@ public class ProjectIT extends BaseIT {
 		then().
 			log().all().
 			body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
-	}
-
-	// example of @JsonProperty from http://www.baeldung.com/jackson-annotations
-	@Test
-	public void whenUsingJsonProperty_thenCorrect()
-	  throws IOException {
-		ProjectCreateRequest bean = new ProjectCreateRequest();
-		bean.setTitle("projectname");
-		bean.setDescription("project description");
-
-	    String result = new ObjectMapper().writeValueAsString(bean);
-
-	    assertThat(result, containsString("projectname"));
-	    assertThat(result, containsString("project description"));
-
-	    ProjectCreateRequest resultBean = new ObjectMapper().reader(ProjectCreateRequest.class)
-	                                          .readValue(result);
-	    assertEquals("projectname", resultBean.getTitle());
 	}
 
 	@Test
@@ -600,6 +572,127 @@ public class ProjectIT extends BaseIT {
 	public void testProject_FollowingDiscussion() {
 		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 		.get("/projects/"+ projectId + "/following_discussions");
+	}
+	
+	/**
+	 * PATCH /projects/{projectId}
+	 */
+	@Test
+	public void testProjectPatch() {
+
+		int updatedId = -1;
+		
+		this.testProjectCreateJsonString();
+		if (this.createdId != null) {
+			JSONObject json = new JSONObject();
+			json.put("title", "test project title update");
+			json.put("description", "test project description update");
+			json.put("dueDate", 0);
+
+			updatedId = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN)
+				.body(json.toString())
+			.expect()
+				.statusCode(200)
+			.when()
+				.patch(PROJECT_UPDATE_RESOURCE, this.createdId).then()
+				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+			
+			assertTrue("Updated project is the one identified in URL param", updatedId == this.createdId);
+		}
+	}
+	
+	/**
+	 * PATCH /projects/{projectId}/accept/{memberId}
+	 */
+	@Test
+	public void testProjectMemberAcceptNoRequest() {
+
+		String adminUser = "fforgeadmin";
+		
+		this.testProjectCreateJsonString();
+		if (this.createdId != null) {
+			String response = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", adminUser)
+			.expect()
+				.statusCode(404)
+			.when()
+				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser)
+				.asString();
+			
+			assertTrue("No Existing Request", response.contains("no existing request to join the project"));
+		}
+	}
+	
+	/**
+	 * PATCH /projects/{projectId}/accept/{memberId}
+	 */
+	@Test
+	public void testProjectMemberAcceptNotAdmin() {
+
+		String adminUser = "fforgeadmin";
+		
+		this.testProjectCreateJsonString();
+		if (this.createdId != null) {
+			String response = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN)
+			.expect()
+				.statusCode(403)
+			.when()
+				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser)
+				.asString();
+			
+			assertTrue("Not Admin",response.contains("does not have permission to accept members"));
+		}
+	}
+	
+	/**
+	 * PATCH /projects/{projectId}/reject/{memberId}
+	 */
+	@Test
+	public void testProjectMemberRejectOnlyAdmin() {
+
+		String adminUser = "fforgeadmin";
+		
+		this.testProjectCreateJsonString();
+		if (this.createdId != null) {
+			String response = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", adminUser)
+			.expect()
+				.statusCode(403)
+			.when()
+				.delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser)
+				.asString();
+			
+			assertTrue("No Existing Request", response.contains("is the only Admin of project"));
+		}
+	}
+	
+	/**
+	 * PATCH /projects/{projectId}/reject/{memberId}
+	 */
+	@Test
+	public void testProjectMemberRejecttNotAdmin() {
+
+		String adminUser = "fforgeadmin";
+		
+		this.testProjectCreateJsonString();
+		if (this.createdId != null) {
+			String response = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN)
+			.expect()
+				.statusCode(403)
+			.when()
+				.delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser)
+				.asString();
+			
+			assertTrue("Not Admin", response.contains("not have permission to remove members"));
+		}
 	}
 
 }
