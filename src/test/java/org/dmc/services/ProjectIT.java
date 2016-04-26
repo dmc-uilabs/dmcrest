@@ -32,12 +32,17 @@ import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.PostProjectTag;
+import org.dmc.services.projects.ProjectMember;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
 
 	private static final String PROJECT_DISCUSSIONS_RESOURCE = "/projects/{projectID}/all-discussions";
 	private static final String PROJECT_UPDATE_RESOURCE = "/projects/{id}";
+	
+	// Member  
+	private static final String MEMBER_ACCEPT_RESOURCE = "/projects/{projectId}/accept/{memberId}";
+	private static final String MEMBER_REJECT_RESOURCE = "/projects/{projectId}/reject/{memberId}";
 	
     private final String logTag = ProjectIT.class.getName();
     private DiscussionIT discussionIT = new DiscussionIT();
@@ -595,6 +600,98 @@ public class ProjectIT extends BaseIT {
 				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 			
 			assertTrue("Updated project is the one identified in URL param", updatedId == this.createdId);
+		}
+	}
+	
+	/**
+	 * PATCH /projects/{projectId}/accept/{memberId}
+	 */
+	@Test
+	public void testProjectMemberAcceptNoRequest() {
+
+		String adminUser = "fforgeadmin";
+		
+		this.testProjectCreateJsonString();
+		if (this.createdId != null) {
+			String response = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", adminUser)
+			.expect()
+				.statusCode(404)
+			.when()
+				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser)
+				.asString();
+			
+			assertTrue("No Existing Request", response.contains("no existing request to join the project"));
+		}
+	}
+	
+	/**
+	 * PATCH /projects/{projectId}/accept/{memberId}
+	 */
+	@Test
+	public void testProjectMemberAcceptNotAdmin() {
+
+		String adminUser = "fforgeadmin";
+		
+		this.testProjectCreateJsonString();
+		if (this.createdId != null) {
+			String response = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN)
+			.expect()
+				.statusCode(403)
+			.when()
+				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser)
+				.asString();
+			
+			assertTrue("Not Admin",response.contains("does not have permission to accept members"));
+		}
+	}
+	
+	/**
+	 * PATCH /projects/{projectId}/reject/{memberId}
+	 */
+	@Test
+	public void testProjectMemberRejectOnlyAdmin() {
+
+		String adminUser = "fforgeadmin";
+		
+		this.testProjectCreateJsonString();
+		if (this.createdId != null) {
+			String response = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", adminUser)
+			.expect()
+				.statusCode(403)
+			.when()
+				.delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser)
+				.asString();
+			
+			assertTrue("No Existing Request", response.contains("is the only Admin of project"));
+		}
+	}
+	
+	/**
+	 * PATCH /projects/{projectId}/reject/{memberId}
+	 */
+	@Test
+	public void testProjectMemberRejecttNotAdmin() {
+
+		String adminUser = "fforgeadmin";
+		
+		this.testProjectCreateJsonString();
+		if (this.createdId != null) {
+			String response = given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", randomEPPN)
+			.expect()
+				.statusCode(403)
+			.when()
+				.delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser)
+				.asString();
+			
+			assertTrue("Not Admin", response.contains("not have permission to remove members"));
 		}
 	}
 

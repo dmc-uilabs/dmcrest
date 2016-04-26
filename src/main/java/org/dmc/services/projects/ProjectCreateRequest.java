@@ -2,6 +2,8 @@ package org.dmc.services.projects;
 
 //import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 // JSON sent by frontend as of 10-Mar-2016
 // {
@@ -66,5 +68,15 @@ public class ProjectCreateRequest {
 	@JsonProperty("type")
 	public void setProjectType(String value){
 		projectType = value;
+	}
+	
+	@Override
+	public String toString() {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			return mapper.writeValueAsString(this);
+		} catch (JsonProcessingException e) {}
+		
+		return null;
 	}
 }

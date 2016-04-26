@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 
@@ -25,7 +26,7 @@ public class CompanySkillDao {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN
 						+ " is not DMDII org member.");
 				throw new DMCServiceException(
-						DMCServiceException.NotDMDIIMember, "User: " + userEPPN
+						DMCError.NotDMDIIMember, "User: " + userEPPN
 								+ " is not DMDII org member.");
 			} else {
 				String query = "select * from organization_skill where organization_id = ?";
@@ -49,7 +50,7 @@ public class CompanySkillDao {
 			}
 		} catch (SQLException e) {
 			ServiceLogger.log(this.logTag, e.getMessage());
-			throw new DMCServiceException(DMCServiceException.OtherSQLError,
+			throw new DMCServiceException(DMCError.OtherSQLError,
 					"SQLException: \n" + e.getMessage());
 		}
 		return skills;
@@ -62,7 +63,7 @@ public class CompanySkillDao {
 			
 			if (!CompanyUserUtil.isAdmin(userEPPN, org_id)) {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN + " is not admin user of org:." + org_id);
-				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN + " is not admin user of org:." + org_id);
+				throw new DMCServiceException(DMCError.NotAdminUser, "User: " + userEPPN + " is not admin user of org:." + org_id);
 			}
 			else
 			{
@@ -91,7 +92,7 @@ public class CompanySkillDao {
 
 		catch (SQLException e) {
 			ServiceLogger.log(this.logTag, "SQLException: " + e.toString());
-			throw new DMCServiceException(DMCServiceException.OtherSQLError,"SQLException: " + e.toString());
+			throw new DMCServiceException(DMCError.OtherSQLError,"SQLException: " + e.toString());
 		}
 		
 		try {
@@ -101,7 +102,7 @@ public class CompanySkillDao {
 		catch (Exception e)
 		{
 			ServiceLogger.log(this.logTag, "Error in insert to change log: " + e.toString());
-			throw new DMCServiceException(DMCServiceException.CanNotInsertChangeLog, e.toString());
+			throw new DMCServiceException(DMCError.CanNotInsertChangeLog, e.toString());
 		}
 		return result;
 	}
@@ -122,14 +123,14 @@ public class CompanySkillDao {
 			if (!orgSet.next()) {
 				ServiceLogger.log(this.logTag, "Skill id: " + sId
 						+ " does not exist.");
-				throw new DMCServiceException(5,"Skill id: " + sId + " does not exist.");
+				throw new DMCServiceException(DMCError.CompanySkillSetNotExist, "Skill id: " + sId + " does not exist.");
 			} else
 				org_id = orgSet.getInt("organization_id");
 
 			if (!CompanyUserUtil.isAdmin(userEPPN, org_id)) {
 				ServiceLogger.log(this.logTag, "User: " + userEPPN
 						+ " is not admin user of org:." + org_id);
-				throw new DMCServiceException(DMCServiceException.NotAdminUser, "User: " + userEPPN
+				throw new DMCServiceException(DMCError.NotAdminUser, "User: " + userEPPN
 						+ " is not admin user of org:." + org_id);
 			}
 
@@ -143,7 +144,7 @@ public class CompanySkillDao {
 			
 		} catch (SQLException e) {
 			ServiceLogger.log(this.logTag, e.getMessage());
-			throw new DMCServiceException(DMCServiceException.OtherSQLError,e.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError,e.getMessage());
 		}
 		
         // Insert to change log
@@ -152,7 +153,7 @@ public class CompanySkillDao {
 		}
 		catch (SQLException e)
 		{
-			throw new DMCServiceException(DMCServiceException.CanNotInsertChangeLog, e.getMessage());
+			throw new DMCServiceException(DMCError.CanNotInsertChangeLog, e.getMessage());
 		}
 		return result;
 	}

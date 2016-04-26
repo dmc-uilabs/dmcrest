@@ -4,28 +4,22 @@ import org.springframework.http.HttpStatus;
 
 
 public class DMCServiceException extends Exception {
-	
-	public static final int NotAdminUser = 1;
-	public static final int NotDMDIIMember = 2;
-	public static final int CanNotInsertChangeLog = 3;
-	public static final int OtherSQLError = 4;
-	public static final int CompanySkillSetNotExist = 5;
-	
-	private int errorCode;
+
+	private DMCError error;
 	private String errorMessage;
 	
-	public DMCServiceException(int c, String m)
+	public DMCServiceException(DMCError e, String m)
 	{
-		this.errorCode = c;
+		this.error = e;
 		this.errorMessage = m;
 	}
 	
-	public int getErrorCode() {
-		return this.errorCode;
+	public DMCError getError() {
+		return this.error;
 	}
 	
-	public void setErrorCode(int errorcode) {
-		this.errorCode = errorcode;
+	public void setError(DMCError error) {
+		this.error = error;
 	}
 	
 	public String getErrorMessage() {
@@ -40,11 +34,13 @@ public class DMCServiceException extends Exception {
 		
 		HttpStatus status = HttpStatus.NOT_FOUND;
 		
-		switch(errorCode) {
+		switch(error) {
 			case NotAdminUser:
 				status = HttpStatus.FORBIDDEN; 
 				break;	
 			case NotDMDIIMember:
+			case NotProjectAdmin:
+			case OnlyProjectAdmin:
 				status = HttpStatus.FORBIDDEN;
 				break;
 			case OtherSQLError:
