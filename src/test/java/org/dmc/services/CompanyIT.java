@@ -9,14 +9,17 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.junit.*;
 import org.dmc.services.company.Company;
+import org.dmc.services.company.CompanyImage;
 import org.dmc.services.company.CompanySkill;
 import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.utility.TestUserUtil;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 
@@ -49,6 +52,8 @@ public class CompanyIT extends BaseIT {
 
 	private ArrayList<CompanyVideo> videos = null;
 	private Integer createdId = null;
+	private String imageId = "1";
+	String companyId = "1";
 	String randomEPPN = "fforgeadmin";
 		
 	@Before
@@ -515,5 +520,61 @@ public class CompanyIT extends BaseIT {
 		return unique2;
 
 	}
+	
+	
+	/**
+	 * test case for PATCH /campany_images/{imageID}
+	 */
+	@Test
+	public void testPath_CompanyImageById(){
+		CompanyImage object = new CompanyImage();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedCompanyImageJSONString = null;
+		try {
+			patchedCompanyImageJSONString = mapper.writeValueAsString(object);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(patchedCompanyImageJSONString).
+	expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	when().
+        patch("/company_images/" + imageId);
+	}
+	
+	
+	
+	/**
+	 * test case for GET /companies/{companyID}/company_images
+	 */
+	@Test
+	public void testCompanyGet_CompanyImage(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/companies/" + companyId + "/company_images");
+	}
+	
+	
+	/**
+	 * test case for GET /companies/{companyID}/company_history
+	 */
+	@Test
+	public void testCompanyGet_CompanyHistory(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/companies/" + companyId + "/company_history");
+	}
+	
+	
+	
 
 }

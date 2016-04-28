@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -66,6 +69,8 @@ public class CompanyController {
     		return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
     	}
     }
+    
+    
     
     @RequestMapping(value = "/companies/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     @ResponseBody
@@ -264,5 +269,38 @@ public class CompanyController {
 			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
 		}
 	}
+	
+	
+	 @RequestMapping(value = "/companies/{companyID}/company_images", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<CompanyImage>> companiesCompanyIDCompanyImagesGet(
+			@PathVariable("companyID") String companyID){
+			      // do some magic!
+			      return new ResponseEntity<List<CompanyImage>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	 @RequestMapping(value = "/company_images/{imageID}", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.PATCH)
+			  public ResponseEntity<CompanyImage> companyImagesImageIDPatch(
+			@PathVariable("imageID") String imageID,
+			@RequestBody CompanyImage image){
+			      // do some magic!
+			      return new ResponseEntity<CompanyImage>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	 
+	 
+	 @RequestMapping(value = "/companies/{companyID}/company_history", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<CompanyHistory>> companiesCompanyIDCompanyHistoryGet(
+			@PathVariable("companyID") String companyID){
+			      // do some magic!
+			      return new ResponseEntity<List<CompanyHistory>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	
 
 }
