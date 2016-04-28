@@ -1,6 +1,4 @@
 package org.dmc.services.company;
-
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,9 +6,7 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
-
 import java.util.ArrayList;
-
 
 public class CompanyKeyContactDao {
 
