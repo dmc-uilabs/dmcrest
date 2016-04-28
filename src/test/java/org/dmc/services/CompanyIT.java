@@ -10,7 +10,9 @@ import org.json.JSONArray;
 import org.junit.*;
 import org.dmc.services.company.Company;
 import org.dmc.services.company.CompanyImage;
+import org.dmc.services.company.CompanyReview;
 import org.dmc.services.company.CompanySkill;
+import org.dmc.services.company.CompanySkillImage;
 import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.utility.TestUserUtil;
 
@@ -53,6 +55,7 @@ public class CompanyIT extends BaseIT {
 	private ArrayList<CompanyVideo> videos = null;
 	private Integer createdId = null;
 	private String imageId = "1";
+	private String reviewId = "1";
 	String companyId = "1";
 	String randomEPPN = "fforgeadmin";
 		
@@ -574,6 +577,82 @@ public class CompanyIT extends BaseIT {
 		when().get("/companies/" + companyId + "/company_history");
 	}
 	
+	
+	/**
+	 * test case for GET /companies/{companyID}/company_skill_images
+	 */
+	@Test
+	public void testCompanyGet_CompanySkillImage(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/companies/" + companyId + "/company_skill_images");
+	}
+	
+	
+	/**
+	 * test case for PATCH /company_skill_images/{imageID}
+	 */
+	@Test
+	public void testCompanyPatch_CompanySkillImageById(){
+		CompanySkillImage obj = new CompanySkillImage();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedCompanySkillImageJSONString = null;
+		try {
+			patchedCompanySkillImageJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		 header("Content-type", "application/json").
+	        header("AJP_eppn", userEPPN).
+	        body(patchedCompanySkillImageJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().patch("/company_skill_images/" + imageId);
+	}
+	
+	
+	/**
+	 * test case for GET /companies/{companyID}/company_reviews
+	 */
+	@Test
+	public void testCompanyGet_CompanyReviews(){
+		given().param("reviewId", reviewId).
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/companies/" + companyId + "/company_reviews");
+	}
+	
+	
+	
+	/**
+	 * test case for POST /company_reviews/
+	 */
+	@Test
+	public void testCompanyPost_CompanyReview(){
+		CompanyReview obj = new CompanyReview();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedCompanyReviewJSONString = null;
+		try {
+			postedCompanyReviewJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+		 header("Content-type", "application/json").
+	        header("AJP_eppn", userEPPN).
+	        body(postedCompanyReviewJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().post("/company_reviews/");
+	}
 	
 	
 

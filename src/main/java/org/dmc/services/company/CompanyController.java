@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
 
 
 import org.springframework.http.HttpStatus;
@@ -301,6 +301,50 @@ public class CompanyController {
 			      return new ResponseEntity<List<CompanyHistory>>(HttpStatus.NOT_IMPLEMENTED);
 			  }
 	 
+	 
+	 @RequestMapping(value = "/companies/{companyID}/company_skill_images", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<CompanySkillImage>> companiesCompanyIDCompanySkillImagesGet(
+			@PathVariable("companyID") String companyID){
+			      // do some magic!
+			      return new ResponseEntity<List<CompanySkillImage>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	 @RequestMapping(value = "/company_skill_images/{imageID}", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.PATCH)
+			  public ResponseEntity<CompanySkillImage> companySkillImagesImageIDPatch(
+			@PathVariable("imageID") String imageID,
+			@RequestBody CompanySkillImage image){
+			      // do some magic!
+			      return new ResponseEntity<CompanySkillImage>(HttpStatus.NOT_IMPLEMENTED);
+			  }
 	
 
+	 @RequestMapping(value = "/companies/{companyID}/company_reviews", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<CompanyReview>> companiesCompanyIDCompanyReviewsGet(
+			@PathVariable("companyID") String companyID,
+			@RequestParam(value = "reviewId", required = true) String reviewId,
+			@RequestParam(value = "limit", required = false) Integer limit,
+			@RequestParam(value = "order", required = false) String order,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestParam(value = "rating", required = false) Integer rating,
+			@RequestParam(value = "status", required = false) Boolean status){
+			      // do some magic!
+			      return new ResponseEntity<List<CompanyReview>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	 @RequestMapping(value = "/company_reviews", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.POST)
+			  public ResponseEntity<CompanyReview> companyReviewsPost(
+					  @RequestBody CompanyReview body
+			){
+			      // do some magic!
+			      return new ResponseEntity<CompanyReview>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
 }
