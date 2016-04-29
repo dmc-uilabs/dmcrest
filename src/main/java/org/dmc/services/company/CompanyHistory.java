@@ -18,17 +18,17 @@ public class CompanyHistory  {
   private String user = null;
   private String link = null;
   public enum SectionEnum {
-     publicName,  mutual, 
+     publicName,  mutual
   };
   
   private SectionEnum section = null;
   public enum PeriodEnum {
-     today,  week, 
+     today,  week
   };
   
   private PeriodEnum period = null;
   public enum TypeEnum {
-     completed,  rated,  added,  worked, 
+     completed,  rated,  added,  worked 
   };
   
   private TypeEnum type = null;
