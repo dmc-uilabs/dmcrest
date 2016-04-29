@@ -4,8 +4,9 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.components.Component;
+import org.dmc.services.services.Service;
 import org.dmc.services.users.User;
-import org.dmc.services.profile.Profile;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 
 
 import org.springframework.http.HttpStatus;
@@ -345,6 +347,93 @@ public class CompanyController {
 			){
 			      // do some magic!
 			      return new ResponseEntity<CompanyReview>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	 
+	 @RequestMapping(value = "/companies/{companyID}/company_services", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<Service>> companiesCompanyIDCompanyServicesGet(
+			 @PathVariable("companyID") String companyID,
+			 @RequestParam(value = "limit", required = false) Integer limit,
+			 @RequestParam(value = "order", required = false) String order,
+			 @RequestParam(value = "start", required = false) Integer start,
+			 @RequestParam(value = "sort", required = false) String sort,
+			 @RequestParam(value = "titleLike", required = false) String titleLike,
+			 @RequestParam(value = "serviceType", required = false) String serviceType,
+			 @RequestParam(value = "authors", required = false) List<Integer> authors,
+			 @RequestParam(value = "ratings", required = false) List<String> ratings,
+			 @RequestParam(value = "favorites", required = false) String favorites,
+			 @RequestParam(value = "dates", required = false) List<String> dates)
+			 {
+			      // do some magic!
+			      return new ResponseEntity<List<Service>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+
+	 
+	 @RequestMapping(value = "/companies/{companyID}/company_components", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<Component>> companiesCompanyIDCompanyComponentsGet(
+			@PathVariable("companyID") String companyID,
+			@RequestParam(value = "limit", required = false) Integer limit,
+			@RequestParam(value = "order", required = false) String order,
+			@RequestParam(value = "start", required = false) Integer start,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestParam(value = "titleLike", required = false) String titleLike,
+			@RequestParam(value = "serviceType", required = false) String serviceType,
+			@RequestParam(value = "authors", required = false) List<Integer> authors,
+			@RequestParam(value = "ratings", required = false) List<String> ratings,
+			@RequestParam(value = "favorites", required = false) String favorites,
+			@RequestParam(value = "dates", required = false) List<String> dates){
+			      // do some magic!
+			      return new ResponseEntity<List<Component>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	 
+	 @RequestMapping(value = "/companies/{companyID}/company_featured", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<ServiceFeatured>> companiesCompanyIDCompanyFeaturedGet(
+			@PathVariable("companyID") String companyID,
+			@RequestParam(value = "order", required = true) String order,
+			@RequestParam(value = "sort", required = true) String sort){
+			      // do some magic!
+			      return new ResponseEntity<List<ServiceFeatured>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	 
+	 @RequestMapping(value = "/companies/{companyID}/new", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.GET)
+			  public ResponseEntity<List<Service>> companiesCompanyIDNewGet(
+			@PathVariable("companyID") String companyID,
+			@RequestParam(value = "order", required = true) String order,
+			@RequestParam(value = "sort", required = true) String sort,
+			@RequestParam(value = "limit", required = true) String limit){
+			      // do some magic!
+			      return new ResponseEntity<List<Service>>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	 
+	 @RequestMapping(value = "/company/follow", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.POST)
+			  public ResponseEntity<InlineResponse201> companyFollowPost(
+				@RequestParam(value = "accountId", required = true) Integer accountId,
+			    @RequestParam(value = "companyId", required = true) Integer companyId){
+			      // do some magic!
+			      return new ResponseEntity<InlineResponse201>(HttpStatus.NOT_IMPLEMENTED);
+			  }
+	 
+	 
+	 @RequestMapping(value = "/company/unfollow/{followed_companiId}", 
+			    produces = { "application/json", "text/html" }, 
+			    method = RequestMethod.DELETE)
+			  public ResponseEntity<Void> companyUnfollowFollowedCompaniIdDelete(
+			@PathVariable("followedCompaniId") Integer followedCompaniId){
+			      // do some magic!
+			      return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
 			  }
 	 
 }
