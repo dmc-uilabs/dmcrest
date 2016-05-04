@@ -1,128 +1,296 @@
 package org.dmc.services.services;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dmc.services.sharedattributes.FeatureImage;
-
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-public class Service {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    private final String logTag = Service.class.getName();
+import java.util.Objects;
+
+
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-05-03T15:13:20.207Z")
+public class Service  {
 	
-    private final int id;          
-    private final String title;    
-    private final String description;   
-    private final String owner;
-    private final String releaseDate;
-    private final ArrayList<String> tags;
-    private final String specifications;
-    private final FeatureImage featureImage;
-    private final ServiceCurrentStatus currentStatus;
-    private final String serviceType;
-    
-    private Service(ServiceBuilder builder) {
-        this.id = builder.id;
-        this.title = builder.title;
-        this.description = builder.description;
-        this.owner = builder.owner;
-        this.releaseDate = builder.releaseDate;
-        this.tags = builder.tags;
-        this.specifications = "/services/" + builder.id + "/specifications";
-        this.featureImage = builder.featureImage;
-        this.currentStatus = builder.currentStatus;
-        this.serviceType = builder.serviceType;
-    }
-    
-    public String getServiceType(){
-    	return serviceType;
-    }
-    
-    public int getId() {
-        return id;
-    }
-    
-    public String getTitle() {
-    	return title;
-    }
-    
-    public String getDescription() {
-    	return description;
-    }
-    
-    public String getOwner() {
-    	return owner;
-    }
-    
-    public String getReleaseDate() {
-    	return releaseDate;
-    }
-    
-    public ArrayList<String> getTags() {
-    	return tags;
-    }
-    
-    public String getSpecifications() {
-    	return specifications;
-    }
-    
-    public FeatureImage getFeatureImage() {
-    	return featureImage;
-    }
-    
-    public ServiceCurrentStatus getCurrentStatus() {
-    	return currentStatus;
-    }
-    
-    //Service Builder
-    public static class ServiceBuilder {
-    	
-    	private final int id;
-    	private final String title;
-    	private final String description;
-    	private String owner;
-    	private String releaseDate;
-    	private ArrayList<String> tags;
-    	private FeatureImage featureImage;
-    	private ServiceCurrentStatus currentStatus;
-    	private String serviceType;
-   
-    	public ServiceBuilder(int id, String title, String description) {
-    		this.id = id;
-    		this.title = title;
-    		this.description = description;
-    	}
-    	
-    	public ServiceBuilder serviceType(String type){
-    		serviceType = type;
-    		return this;
-    	}
-    	
-    	public ServiceBuilder owner(String owner) {
-    		this.owner = owner;
-    		return this;
-    	}
-    	
-    	public ServiceBuilder releaseDate(String releaseDate) {
-    		this.releaseDate = releaseDate;
-    		return this;
-    	}
-    	
-    	public ServiceBuilder tags(ArrayList<String> tags) {
-    		this.tags = tags;
-    		return this;
-    	}
-    	
-    	public ServiceBuilder featureImage(FeatureImage featureImage) {
-    		this.featureImage = featureImage;
-    		return this;
-    	}
-    	
-    	public ServiceBuilder currentStatus(ServiceCurrentStatus currentStatus) {
-    		this.currentStatus = currentStatus;
-    		return this;
-    	}
-    	
-    	public Service build() {
-    		return new Service(this);
-    	}
-    }
+	private String id = null;
+	private String companyId = null;
+	private String title = null;
+	private String description = null;
+	private String owner = null;
+	private String profileId = null;
+	private Date releaseDate = null;
+	private String serviceType = null;
+	private List<String> tags = new ArrayList<String>();
+	private String specifications = null;
+	private FeatureImage featureImage = null;
+	private ServiceCurrentStatus currentStatus = null;
+	private String projectId = null;
+	private String from = null;
+	private String type = null;
+	private String parent = null;
+	private Boolean published = null;
+	private String averageRun = null;
+	
+	
+	/**
+	 **/
+	@JsonProperty("id")
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("companyId")
+	public String getCompanyId() {
+		return companyId;
+	}
+	public void setCompanyId(String companyId) {
+		this.companyId = companyId;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("title")
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("description")
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("owner")
+	public String getOwner() {
+		return owner;
+	}
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("profileId")
+	public String getProfileId() {
+		return profileId;
+	}
+	public void setProfileId(String profileId) {
+		this.profileId = profileId;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("releaseDate")
+	public Date getReleaseDate() {
+		return releaseDate;
+	}
+	public void setReleaseDate(Date releaseDate) {
+		this.releaseDate = releaseDate;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("serviceType")
+	public String getServiceType() {
+		return serviceType;
+	}
+	public void setServiceType(String serviceType) {
+		this.serviceType = serviceType;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("tags")
+	public List<String> getTags() {
+		return tags;
+	}
+	public void setTags(List<String> tags) {
+		this.tags = tags;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("specifications")
+	public String getSpecifications() {
+		return specifications;
+	}
+	public void setSpecifications(String specifications) {
+		this.specifications = specifications;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("featureImage")
+	public FeatureImage getFeatureImage() {
+		return featureImage;
+	}
+	public void setFeatureImage(FeatureImage featureImage) {
+		this.featureImage = featureImage;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("currentStatus")
+	public ServiceCurrentStatus getCurrentStatus() {
+		return currentStatus;
+	}
+	public void setCurrentStatus(ServiceCurrentStatus currentStatus) {
+		this.currentStatus = currentStatus;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("projectId")
+	public String getProjectId() {
+		return projectId;
+	}
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("from")
+	public String getFrom() {
+		return from;
+	}
+	public void setFrom(String from) {
+		this.from = from;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("type")
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("parent")
+	public String getParent() {
+		return parent;
+	}
+	public void setParent(String parent) {
+		this.parent = parent;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("published")
+	public Boolean getPublished() {
+		return published;
+	}
+	public void setPublished(Boolean published) {
+		this.published = published;
+	}
+	
+	
+	/**
+	 **/
+	@JsonProperty("averageRun")
+	public String getAverageRun() {
+		return averageRun;
+	}
+	public void setAverageRun(String averageRun) {
+		this.averageRun = averageRun;
+	}
+	
+	
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		Service service = (Service) o;
+		return Objects.equals(id, service.id) &&
+        Objects.equals(companyId, service.companyId) &&
+        Objects.equals(title, service.title) &&
+        Objects.equals(description, service.description) &&
+        Objects.equals(owner, service.owner) &&
+        Objects.equals(profileId, service.profileId) &&
+        Objects.equals(releaseDate, service.releaseDate) &&
+        Objects.equals(serviceType, service.serviceType) &&
+        Objects.equals(tags, service.tags) &&
+        Objects.equals(specifications, service.specifications) &&
+        Objects.equals(featureImage, service.featureImage) &&
+        Objects.equals(currentStatus, service.currentStatus) &&
+        Objects.equals(projectId, service.projectId) &&
+        Objects.equals(from, service.from) &&
+        Objects.equals(type, service.type) &&
+        Objects.equals(parent, service.parent) &&
+        Objects.equals(published, service.published) &&
+        Objects.equals(averageRun, service.averageRun);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, companyId, title, description, owner, profileId, releaseDate, serviceType, tags, specifications, featureImage, currentStatus, projectId, from, type, parent, published, averageRun);
+	}
+	
+	@Override
+	public String toString()  {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class Service {\n");
+		
+		sb.append("  id: ").append(id).append("\n");
+		sb.append("  companyId: ").append(companyId).append("\n");
+		sb.append("  title: ").append(title).append("\n");
+		sb.append("  description: ").append(description).append("\n");
+		sb.append("  owner: ").append(owner).append("\n");
+		sb.append("  profileId: ").append(profileId).append("\n");
+		sb.append("  releaseDate: ").append(releaseDate).append("\n");
+		sb.append("  serviceType: ").append(serviceType).append("\n");
+		sb.append("  tags: ").append(tags).append("\n");
+		sb.append("  specifications: ").append(specifications).append("\n");
+		sb.append("  featureImage: ").append(featureImage).append("\n");
+		sb.append("  currentStatus: ").append(currentStatus).append("\n");
+		sb.append("  projectId: ").append(projectId).append("\n");
+		sb.append("  from: ").append(from).append("\n");
+		sb.append("  type: ").append(type).append("\n");
+		sb.append("  parent: ").append(parent).append("\n");
+		sb.append("  published: ").append(published).append("\n");
+		sb.append("  averageRun: ").append(averageRun).append("\n");
+		sb.append("}\n");
+		return sb.toString();
+	}
 }

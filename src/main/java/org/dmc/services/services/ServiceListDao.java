@@ -21,30 +21,34 @@ public class ServiceListDao {
 		
 		try {
 			
-			resultSet = DBConnector.executeQuery("SELECT "
-					+ "d.interface_id id, d.alias title, d.description, r.runtime, r.date_completed rundate, s.group_id, g.group_name "
-					+ "FROM dome_interfaces d "
-					+ "JOIN runnable_runtimes r "
-					+ "ON r.interface_id = d.interface_id "
-					+ "JOIN service_subscriptions s ON s.interface_id = d.interface_id "
-					+ "JOIN groups g ON g.group_id = s.group_id ");
+			resultSet = DBConnector.executeQuery("SELECT * FROM service");
 			
 			while (resultSet.next()) {
+				Service service = new Service();
 				
-				id = resultSet.getInt("id");
-				title = resultSet.getString("title");
-				description = resultSet.getString("description");
-				startDate = resultSet.getString("rundate");
-				startTime = resultSet.getString("runtime");
-				list.add( new 
-						Service.ServiceBuilder(id, title, description)
-						.featureImage(new FeatureImage("", "")).tags(tags)
-						.currentStatus(new ServiceCurrentStatus(0, startDate, startTime)).serviceType(serviceType)
-						.build());            
-				//we still need thumbnail, and large URLs from above query to construct the featureImage()
-						
-						
+				service.setId(Integer.toString(resultSet.getInt("service_id")));
+				service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
+				service.setTitle(resultSet.getString("title"));
+				service.setDescription(resultSet.getString("description"));
+				service.setOwner(resultSet.getString("owner_id"));
+				service.setProfileId(resultSet.getString("owner_id"));  // ToDo: up date
+				service.setReleaseDate(resultSet.getDate("release_date"));
+				service.setType(resultSet.getString("service_type"));
+				service.setTags(new ArrayList<String>()); // ToDo: up date
+				service.setSpecifications(resultSet.getString("specifications"));
 				
+				service.setFeatureImage(new FeatureImage("", ""));
+				service.setCurrentStatus(new ServiceCurrentStatus(0, "", ""));
+				
+				service.setProjectId(resultSet.getString("project_id"));
+				service.setFrom(resultSet.getString("from_location"));
+				service.setType(resultSet.getString("type"));
+				service.setParent(resultSet.getString("parent"));
+				service.setPublished(resultSet.getBoolean("published"));
+				
+				service.setAverageRun("");
+
+				list.add(service);
 			}
 			
 			return list;
@@ -64,29 +68,35 @@ public class ServiceListDao {
 		
 		try {
 			
-			resultSet = DBConnector.executeQuery("SELECT "
-					+ "d.interface_id id, d.alias title, d.description, r.runtime, r.date_completed rundate, s.group_id, g.group_name "
-					+ "FROM dome_interfaces d "
-					+ "JOIN runnable_runtimes r "
-					+ "ON r.interface_id = d.interface_id "
-					+ "JOIN service_subscriptions s ON s.interface_id = d.interface_id "
-					+ "JOIN groups g ON g.group_id = s.group_id WHERE s.group_id = " + projectId);
+			resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE project_id = " + projectId);
 			
 			while (resultSet.next()) {
 				
-				id = resultSet.getInt("id");
-				title = resultSet.getString("title");
-				description = resultSet.getString("description");
-				startDate = resultSet.getString("rundate");
-				startTime = resultSet.getString("runtime");
-				list.add( new 
-						Service.ServiceBuilder(id, title, description)
-						.featureImage(new FeatureImage("", "")).tags(tags)
-						.currentStatus(new ServiceCurrentStatus(0, startDate, startTime)).serviceType(serviceType)
-						.build());            
-				//we still need thumbnail, and large URLs from above query to construct the featureImage()
-						
-						
+				Service service = new Service();
+				
+				service.setId(Integer.toString(resultSet.getInt("service_id")));
+				service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
+				service.setTitle(resultSet.getString("title"));
+				service.setDescription(resultSet.getString("description"));
+				service.setOwner(resultSet.getString("owner_id"));
+				service.setProfileId(resultSet.getString("owner_id"));  // ToDo: up date
+				service.setReleaseDate(resultSet.getDate("release_date"));
+				service.setType(resultSet.getString("service_type"));
+				service.setTags(new ArrayList<String>()); // ToDo: up date
+				service.setSpecifications(resultSet.getString("specifications"));
+				
+				service.setFeatureImage(new FeatureImage("", ""));
+				service.setCurrentStatus(new ServiceCurrentStatus(0, "", ""));
+				
+				service.setProjectId(resultSet.getString("project_id"));
+				service.setFrom(resultSet.getString("from_location"));
+				service.setType(resultSet.getString("type"));
+				service.setParent(resultSet.getString("parent"));
+				service.setPublished(resultSet.getBoolean("published"));
+				
+				service.setAverageRun("");
+				
+				list.add(service);
 				
 			}
 			
@@ -104,30 +114,37 @@ public class ServiceListDao {
 		ArrayList<String> tags = new ArrayList<String>();
 		
 		try {
-			
-			resultSet = DBConnector.executeQuery("SELECT "
-					+ "d.interface_id id, d.alias title, d.description, r.runtime, r.date_completed rundate, s.group_id, g.group_name "
-					+ "FROM dome_interfaces d "
-					+ "JOIN runnable_runtimes r "
-					+ "ON r.interface_id = d.interface_id "
-					+ "JOIN service_subscriptions s ON s.interface_id = d.interface_id "
-					+ "JOIN groups g ON g.group_id = s.group_id WHERE d.cem_id = " + componentId);
+			//ToDo need to determine component ID
+			resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE project_id = " + componentId);
 			
 			while (resultSet.next()) {
 				
-				id = resultSet.getInt("id");
-				title = resultSet.getString("title");
-				description = resultSet.getString("description");
-				startDate = resultSet.getString("rundate");
-				startTime = resultSet.getString("runtime");
-				list.add( new 
-						Service.ServiceBuilder(id, title, description)
-						.featureImage(new FeatureImage("", "")).tags(tags)
-						.currentStatus(new ServiceCurrentStatus(0, startDate, startTime)).serviceType(serviceType)
-						.build());            
-				//we still need thumbnail, and large URLs from above query to construct the featureImage()
-						
-						
+				
+				Service service = new Service();
+				
+				service.setId(Integer.toString(resultSet.getInt("service_id")));
+				service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
+				service.setTitle(resultSet.getString("title"));
+				service.setDescription(resultSet.getString("description"));
+				service.setOwner(resultSet.getString("owner_id"));
+				service.setProfileId(resultSet.getString("owner_id"));  // ToDo: up date
+				service.setReleaseDate(resultSet.getDate("release_date"));
+				service.setType(resultSet.getString("service_type"));
+				service.setTags(new ArrayList<String>()); // ToDo: up date
+				service.setSpecifications(resultSet.getString("specifications"));
+				
+				service.setFeatureImage(new FeatureImage("", ""));
+				service.setCurrentStatus(new ServiceCurrentStatus(0, "", ""));
+				
+				service.setProjectId(resultSet.getString("project_id"));
+				service.setFrom(resultSet.getString("from_location"));
+				service.setType(resultSet.getString("type"));
+				service.setParent(resultSet.getString("parent"));
+				service.setPublished(resultSet.getBoolean("published"));
+				
+				service.setAverageRun("");
+				
+				list.add(service);
 				
 			}
 			

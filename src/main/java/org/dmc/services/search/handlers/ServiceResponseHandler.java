@@ -84,7 +84,11 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
 //                    ServiceLogger.log(logTag, "->title: " + title);
 //                    ServiceLogger.log(logTag, "->description: " + description);
 
-                    Service service =  new Service.ServiceBuilder(id, title, description).build();
+                    Service service =  new Service();
+					service.setId(Integer.toString(id));
+					service.setTitle(title);
+					service.setDescription(description);
+					
                     if (l == null) {
                         l = new ArrayList<Service>();
                     }

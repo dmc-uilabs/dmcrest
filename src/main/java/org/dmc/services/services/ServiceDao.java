@@ -7,6 +7,8 @@ import org.dmc.services.sharedattributes.FeatureImage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ServiceDao {
 
@@ -18,36 +20,40 @@ public class ServiceDao {
 		String serviceType = "", title = "", description = "", startDate = "", startTime = "";
 		ArrayList<String> tags = new ArrayList<String>();
 		
+		Service service = new Service();
+		
 		try {
 			
-			resultSet = DBConnector.executeQuery("SELECT "
-					+ "d.interface_id id, d.alias title, d.description, r.runtime, r.date_completed rundate, s.group_id, g.group_name "
-					+ "FROM dome_interfaces d "
-					+ "JOIN runnable_runtimes r "
-					+ "ON r.interface_id = d.interface_id "
-					+ "JOIN service_subscriptions s ON s.interface_id = d.interface_id "
-					+ "JOIN groups g ON g.group_id = s.group_id "
-					+ "WHERE d.interface_id = " 
-					+ requestId);
+			String query = "SELECT * FROM service WHERE service_id = " + requestId;
+
+			resultSet = DBConnector.executeQuery(query);
 			
 			while (resultSet.next()) {
 				
-				id = resultSet.getInt("id");
-				title = resultSet.getString("title");
-				description = resultSet.getString("description");
-				startDate = resultSet.getString("rundate");
-				startTime = resultSet.getString("runtime");
-				            
-				//we still need thumbnail, and large URLs from above query to construct the featureImage()
-						
-						
+				service.setId(Integer.toString(requestId));
+				service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
+				service.setTitle(resultSet.getString("title"));
+				service.setDescription(resultSet.getString("description"));
+				service.setOwner(resultSet.getString("owner_id"));
+				service.setProfileId(resultSet.getString("owner_id"));  // ToDo: up date
+				service.setReleaseDate(resultSet.getDate("release_date"));
+				service.setType(resultSet.getString("service_type"));
+				service.setTags(new ArrayList<String>()); // ToDo: up date
+				service.setSpecifications(resultSet.getString("specifications"));
+
+				service.setFeatureImage(new FeatureImage("", ""));
+				service.setCurrentStatus(new ServiceCurrentStatus(0, "", ""));
 				
+				service.setProjectId(resultSet.getString("project_id"));
+				service.setFrom(resultSet.getString("from_location"));
+				service.setType(resultSet.getString("type"));
+				service.setParent(resultSet.getString("parent"));
+				service.setPublished(resultSet.getBoolean("published"));
+
+				service.setAverageRun("");
+								
 			}
-			return new 
-						Service.ServiceBuilder(id, title, description)
-						.featureImage(new FeatureImage("", ""))
-						.currentStatus(new ServiceCurrentStatus(0, startDate, startTime)).serviceType(serviceType).tags(tags)
-						.build();
+			return service;
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
