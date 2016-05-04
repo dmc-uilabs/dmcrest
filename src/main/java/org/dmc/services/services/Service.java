@@ -14,7 +14,7 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-05-03T15:13:20.207Z")
 public class Service  {
 	
-	private String id = null;
+	private int id = -1;
 	private String companyId = null;
 	private String title = null;
 	private String description = null;
@@ -37,10 +37,10 @@ public class Service  {
 	/**
 	 **/
 	@JsonProperty("id")
-	public String getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	

@@ -26,7 +26,7 @@ public class ServiceListDao {
 			while (resultSet.next()) {
 				Service service = new Service();
 				
-				service.setId(Integer.toString(resultSet.getInt("service_id")));
+				service.setId(resultSet.getInt("service_id"));
 				service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
 				service.setTitle(resultSet.getString("title"));
 				service.setDescription(resultSet.getString("description"));
@@ -74,7 +74,7 @@ public class ServiceListDao {
 				
 				Service service = new Service();
 				
-				service.setId(Integer.toString(resultSet.getInt("service_id")));
+				service.setId(resultSet.getInt("service_id"));
 				service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
 				service.setTitle(resultSet.getString("title"));
 				service.setDescription(resultSet.getString("description"));
@@ -122,7 +122,7 @@ public class ServiceListDao {
 				
 				Service service = new Service();
 				
-				service.setId(Integer.toString(resultSet.getInt("service_id")));
+				service.setId(resultSet.getInt("service_id"));
 				service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
 				service.setTitle(resultSet.getString("title"));
 				service.setDescription(resultSet.getString("description"));

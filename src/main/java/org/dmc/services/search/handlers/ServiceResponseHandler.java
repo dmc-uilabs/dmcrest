@@ -85,7 +85,7 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
 //                    ServiceLogger.log(logTag, "->description: " + description);
 
                     Service service =  new Service();
-					service.setId(Integer.toString(id));
+					service.setId(id);
 					service.setTitle(title);
 					service.setDescription(description);
 					

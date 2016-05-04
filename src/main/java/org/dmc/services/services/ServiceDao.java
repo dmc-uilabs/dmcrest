@@ -30,7 +30,7 @@ public class ServiceDao {
 			
 			while (resultSet.next()) {
 				
-				service.setId(Integer.toString(requestId));
+				service.setId(requestId);
 				service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
 				service.setTitle(resultSet.getString("title"));
 				service.setDescription(resultSet.getString("description"));
