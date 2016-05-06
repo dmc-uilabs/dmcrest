@@ -3,6 +3,7 @@ package org.dmc.services;
 
 import org.dmc.services.services.specifications.ArraySpecifications;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,20 +16,22 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 //@Ignore
 public class SpecificationIT extends BaseIT {
 	
-//	@Test
-//	public void testSpecification13() {
-//	  expect().
-//	    statusCode(200).
-//	    when().
-//	    get("/services/12/specifications").then().
-//        body(matchesJsonSchemaInClasspath("Schemas/specificationSchema.json"));
-//	}
-//	
-//	@Test
-//	public void testSpecification1() {
-//		expect().statusCode(200).when().get("/services/1/specifications").then().
-//        body(matchesJsonSchemaInClasspath("Schemas/specificationSchema.json"));
-//	}
+	@Ignore
+	@Test
+	public void testSpecification13() {
+	  expect().
+	    statusCode(200).
+	    when().
+	    get("/services/12/specifications").then().
+        body(matchesJsonSchemaInClasspath("Schemas/specificationSchema.json"));
+	}
+	
+	@Ignore
+	@Test
+	public void testSpecification1() {
+		expect().statusCode(200).when().get("/services/1/specifications").then().
+        body(matchesJsonSchemaInClasspath("Schemas/specificationSchema.json"));
+	}
 	
 	/*
 	 * test GET /array_specifications
