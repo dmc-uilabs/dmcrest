@@ -31,14 +31,16 @@ public class DomeInterfacesController {
 	public ResponseEntity domeInterfacesPost(@RequestBody PostUpdateDomeInterface postUpdateDomeInterface,
 															   @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
 		
-		ServiceLogger.log(logTag, "In domeInterfacesPost: as user " + userEPPN);
-		
-		try {
-			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.createDomeInterface(postUpdateDomeInterface, userEPPN), HttpStatus.OK);
-		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
-		}
+//		ServiceLogger.log(logTag, "In domeInterfacesPost: as user " + userEPPN);
+//		
+//		try {
+//			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.createDomeInterface(postUpdateDomeInterface, userEPPN), HttpStatus.OK);
+//		} catch (DMCServiceException e) {
+//			ServiceLogger.logException(logTag, e);
+//			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+//		}
+		// do some magic!
+		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
 	
