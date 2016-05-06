@@ -2,17 +2,17 @@ package org.dmc.services.services;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dmc.services.sharedattributes.FeatureImage;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Objects;
-
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-05-03T15:13:20.207Z")
 public class Service  {
+
+    private final String logTag = Service.class.getName();
 	
 	private int id = -1;
 	private String companyId = null;
@@ -55,7 +55,13 @@ public class Service  {
 		this.companyId = companyId;
 	}
 	
-	
+	public Integer getCompanyIdAsInteger() {
+	    if (null != companyId) {
+	        return Integer.parseInt(companyId);
+	    } else {
+	        return null;
+	    }
+	}
 	/**
 	 **/
 	@JsonProperty("title")
@@ -110,7 +116,14 @@ public class Service  {
 		this.releaseDate = releaseDate;
 	}
 	
-	
+	public java.sql.Date getReleaseDateAsSqlDate()
+	{
+	    if (null != releaseDate) {
+	        return new java.sql.Date(releaseDate.getTime());
+	    } else {
+	        return null;
+	    }
+	}
 	/**
 	 **/
 	@JsonProperty("serviceType")
@@ -175,8 +188,14 @@ public class Service  {
 	public void setProjectId(String projectId) {
 		this.projectId = projectId;
 	}
-	
-	
+
+	public Integer getProjectIdAsInteger() {
+	    if (null != projectId) {
+	        return Integer.parseInt(projectId);
+	    } else {
+	        return null;
+	    }
+	}
 	/**
 	 **/
 	@JsonProperty("from")

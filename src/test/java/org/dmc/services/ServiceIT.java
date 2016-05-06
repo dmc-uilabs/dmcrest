@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import org.dmc.services.projects.ProjectController;
 import org.dmc.services.services.PostServiceInputPosition;
 import org.dmc.services.services.PostSharedService;
 import org.dmc.services.services.PostUpdateDomeInterface;
@@ -23,6 +24,7 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 
 //@Ignore
 public class ServiceIT extends BaseIT {
+    private final String logTag = ServiceIT.class.getName();
 	
 	private static final String SERVICE_RESOURCE = "/services/{id}";
     private ServiceDao serviceDao = new ServiceDao();
@@ -74,23 +76,39 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServicePatch_ServiceId(){
-		ObjectMapper mapper = new ObjectMapper();
-		String patchedServiceJSONString = null;
-		try {
-			patchedServiceJSONString = mapper.writeValueAsString(service);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(patchedServiceJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        patch("/services/" + serviceId);
+	    
+	    //TODO: Create a service
+	    //Change description and use PATCH
+	    // what other things can be changed?
+	    // service type
+	    // Publish a service - not sure if it calls patch or something else.
+        Service service = createNewServiceObjectToPost();    
+        given().
+	            header("Content-type", "application/json").
+	            header("AJP_eppn", userEPPN).
+	            body(service).
+	        expect().
+	            statusCode(HttpStatus.OK.value()).
+	        when().
+	            post("/services/");
+
+//	    ObjectMapper mapper = new ObjectMapper();
+//		String patchedServiceJSONString = null;
+//		try {
+//			patchedServiceJSONString = mapper.writeValueAsString(service);
+//		} catch (JsonProcessingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		given().
+//        header("Content-type", "application/json").
+//        header("AJP_eppn", userEPPN).
+//        body(patchedServiceJSONString).
+//	expect().
+//        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+//	when().
+//        patch("/services/" + serviceId);
 	}
 	
 	/**
@@ -98,24 +116,19 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServicePost(){
-		ObjectMapper mapper = new ObjectMapper();
-		String postedServiceJSONString = null;
-		try {
-			postedServiceJSONString = mapper.writeValueAsString(service);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+        Service service = createNewServiceObjectToPost();
+
 		given().
         header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
-        body(postedServiceJSONString).
+        body(service).
 	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+        statusCode(HttpStatus.OK.value()).
 	when().
-        post("/services/");
-	}
+        post("/services/").
+    then().
+        body(matchesJsonSchemaInClasspath("Schemas/ServiceSchema.json"));
+    }
 	
 	
 	/**
@@ -492,8 +505,6 @@ public class ServiceIT extends BaseIT {
 	when().
         post("/shared-services");	
 	}
-	
-	
 
 	/*
 	 * test case for GET /shared-services/{id}
@@ -507,5 +518,14 @@ public class ServiceIT extends BaseIT {
 		when().get("/shared-services/" + sharedServiceId);
 	}
 	
-	
+
+	// create a service object to use as body in post
+	private Service createNewServiceObjectToPost()
+	{
+	    Service service = new Service();
+	    service.setTitle("junit service test");
+	    service.setDescription("junit service test");
+	    service.setOwner(userEPPN);
+	    return service;
+	}
 }

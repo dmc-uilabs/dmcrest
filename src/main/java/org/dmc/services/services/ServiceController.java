@@ -4,7 +4,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.services.specifications.Specification;
 import org.dmc.services.services.specifications.SpecificationDao;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -59,9 +63,14 @@ public class ServiceController {
 	}
 
 	@RequestMapping(value = "/services", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<Void> postService(@RequestBody Service body) {
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity<?> postService(@RequestBody Service body,
+	        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        try {
+            return new ResponseEntity<Service>(serviceDao.createService(body, userEPPN), HttpStatus.OK);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+        }
 	}
 
 	@RequestMapping(value = "/services/{serviceID}", produces = { "application/json",
@@ -69,6 +78,7 @@ public class ServiceController {
 	public ResponseEntity<Service> servicesServiceIDPatch(@PathVariable("serviceID") String serviceID,
 			@RequestBody Service service) {
 		// do some magic!
+	    ServiceLogger.log(logTag, "so far so good, but going to fail now");
 		return new ResponseEntity<Service>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
