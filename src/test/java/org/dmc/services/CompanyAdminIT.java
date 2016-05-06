@@ -50,7 +50,7 @@ public class CompanyAdminIT  extends BaseIT {
         ownerUserId = createUser(ownerEPPN,ownerGivenName, ownerSurName, ownerDisplayName, ownerEmail);
 
         // add company
-       companyId =  createCompany(ownerEPPN);
+        companyId =  createCompany(ownerEPPN);
 
         // Create a member user
         String unique2 = TestUserUtil.generateTime();
