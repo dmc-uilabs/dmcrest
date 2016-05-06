@@ -75,4 +75,25 @@ public class ServiceAuthorsController {
 
 		return new ResponseEntity<ArrayList<ServiceAuthor>>(authors, HttpStatus.valueOf(httpStatusCode));
 	}
+	
+	/**
+	 * Delete Service Author
+	 * @param author
+	 * @param userEPPN
+	 * @return
+	 */
+	@RequestMapping(value = "/service_authors", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
+	public ResponseEntity serviceAuthorsDelete(@PathVariable("id") int authorId, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+		int httpStatusCode = HttpStatus.OK.value();
+		Id deletedId = null;
+		
+		try {
+			deletedId = serviceAuthorDao.deleteServiceAuthor(authorId, userEPPN);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+
+		return new ResponseEntity<Id>(deletedId, HttpStatus.valueOf(httpStatusCode));
+	}
 }

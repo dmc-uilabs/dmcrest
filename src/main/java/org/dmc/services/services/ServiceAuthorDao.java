@@ -60,7 +60,6 @@ public class ServiceAuthorDao {
 		}
 
 		try {
-			
 			userIdEPPN = UserDao.getUserID(userEPPN);
 	
 			//create Service Author
@@ -104,6 +103,13 @@ public class ServiceAuthorDao {
 		return new Id.IdBuilder(authorId).build();
 	}
 	
+	/**
+	 * Get Service Authors
+	 * @param serviceId
+	 * @param userEPPN
+	 * @return
+	 * @throws DMCServiceException
+	 */
 	public ArrayList<ServiceAuthor> getServiceAuthors(int serviceId, String userEPPN) throws DMCServiceException {
 		ArrayList<ServiceAuthor> authors = new ArrayList<ServiceAuthor>();
 		ServiceLogger.log(this.logTag, "User: " + userEPPN + " asking for all authors of the service: " + serviceId);
@@ -130,10 +136,57 @@ public class ServiceAuthorDao {
 				author.setCompany(company);
 				authors.add(author);
 			}
-		} catch (Exception e) {
-			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		} catch (SQLException e) {
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
+		
 		return authors;
+	}
+	
+	
+	/**
+	 * Delete Service Author
+	 * @param id
+	 * @param userEPPN
+	 * @return
+	 * @throws DMCServiceException
+	 */
+	public Id deleteServiceAuthor(int id, String userEPPN) throws DMCServiceException {
+		
+		int authorId = -99999;
+		Util util = Util.getInstance();
+		PreparedStatement statement;
+		String query;
+		
+		try {
+
+			connection.setAutoCommit(false);
+			
+			query = "DELETE FROM table WHERE id = ?";
+			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			statement.setInt(1, id);
+			statement.executeUpdate();
+			authorId = util.getGeneratedKey(statement, "id");
+			connection.commit();
+			
+		} catch (SQLException e) {
+			try {
+				if (connection != null) {
+					ServiceLogger.log(logTag, "Transaction deleteServiceAuthor rolled back");
+					connection.rollback();
+				}
+			} catch (SQLException ex) {}
+			
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		} finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {}
+			}
+		}
+		
+		return new Id.IdBuilder(authorId).build();
 	}
 
 }
