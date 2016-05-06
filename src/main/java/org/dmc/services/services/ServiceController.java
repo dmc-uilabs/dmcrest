@@ -28,9 +28,15 @@ public class ServiceController {
 	private ServiceDao serviceDao = new ServiceDao();
 
 	@RequestMapping(value = "/services/{id}", method = RequestMethod.GET)
-	public Service getService(@PathVariable("id") int id) {
+	public ResponseEntity<?> getService(@PathVariable("id") int id,
+	        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "getService, id: " + id);
-		return serviceDao.getService(id);
+		try {
+		    return new ResponseEntity<Service>(serviceDao.getService(id, userEPPN), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+		    ServiceLogger.logException(logTag, e);
+		    return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	private SpecificationDao specSearch = new SpecificationDao();
@@ -75,11 +81,15 @@ public class ServiceController {
 
 	@RequestMapping(value = "/services/{serviceID}", produces = { "application/json",
 			"text/html" }, method = RequestMethod.PATCH)
-	public ResponseEntity<Service> servicesServiceIDPatch(@PathVariable("serviceID") String serviceID,
-			@RequestBody Service service) {
-		// do some magic!
-	    ServiceLogger.log(logTag, "so far so good, but going to fail now");
-		return new ResponseEntity<Service>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity<?> servicesServiceIDPatch(@PathVariable("serviceID") String serviceID,
+			@RequestBody Service service,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        try {
+            return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+        }
 	}
 
 	@RequestMapping(value = "/services/{serviceID}/service_authors", produces = { "application/json",
