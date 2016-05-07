@@ -309,7 +309,7 @@ public class SearchIT {
         Assert.assertTrue(users != null);
         Assert.assertTrue(users.size() > 0);
 
-        int expectedCompanyId = 1;
+        int expectedCompanyId = 15;
 
         User user  = users.get(0);
         Assert.assertTrue(user != null);
