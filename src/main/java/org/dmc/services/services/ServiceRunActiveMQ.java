@@ -19,7 +19,7 @@ import org.dmc.services.DMCServiceException;
 
 public class ServiceRunActiveMQ {
 	
-    private String activeMQServer = "52.36.23.38";
+    private String activeMQServer; // = "52.36.23.38";
     private String activeMQServerPort = "61616";
     private String activeMQUser = "admin";
     private String activeMQUserPass = "asdfgqwer";
@@ -27,11 +27,12 @@ public class ServiceRunActiveMQ {
     private Boolean NON_TRANSACTED = false;
     private String activeMQServerURL;
 	
-	public ServiceRunActiveMQ()
+	public ServiceRunActiveMQ() throws DMCServiceException
 	{
 		// If these variables are set, use the ones, otherwise use default
 		String server = System.getenv("ActiveMQ_URL");
 		if (server != null)  activeMQServer = server;
+		else throw (new DMCServiceException(DMCError.ActiveMQServerURLNotSet, "The URL of ActiveMQ server is not set in the system environment."));
 		String port = System.getenv("ActiveMQ_Port");
 		if (port != null)  activeMQServerPort = port;
 		String user = System.getenv("ActiveMQ_User");
