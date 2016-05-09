@@ -134,7 +134,7 @@ public class ServiceIT extends BaseIT {
         when().
             post("/services/").
         then().
-            body(matchesJsonSchemaInClasspath("Schemas/ServiceSchema.json"));
+            body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
     }
 
     /**
