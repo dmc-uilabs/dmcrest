@@ -43,8 +43,8 @@ public class ServiceController {
 
 	@RequestMapping(value = "/services/{serviceID}/specifications", method = RequestMethod.GET)
 	public Specification getSpecification(@PathVariable("serviceID") int serviceID) {
-		ServiceLogger.log(logTag, "In getService");
-		ServiceLogger.log(logTag, "In getService, serviceID: " + serviceID);
+		ServiceLogger.log(logTag, "In getSpecification");
+		ServiceLogger.log(logTag, "In getSpecification, serviceID: " + serviceID);
 		return specSearch.getSpecification(serviceID);
 	}
 
@@ -52,19 +52,19 @@ public class ServiceController {
 
 	@RequestMapping(value = "/services", method = RequestMethod.GET)
 	public ArrayList<Service> getServiceList() {
-		ServiceLogger.log(logTag, "getService ");
+		ServiceLogger.log(logTag, "getServiceList ");
 		return serviceListDao.getServiceList();
 	}
 
 	@RequestMapping(value = "/projects/{projectId}/services", method = RequestMethod.GET)
 	public ArrayList<Service> getServiceList(@PathVariable("projectId") int projectId) {
-		ServiceLogger.log(logTag, "In getService, projectId = " + projectId);
+		ServiceLogger.log(logTag, "In getServiceList, projectId = " + projectId);
 		return serviceListDao.getServiceList(projectId);
 	}
 
 	@RequestMapping(value = "/components/{componentId}/services", method = RequestMethod.GET)
 	public ArrayList<Service> getServiceByComponentList(@PathVariable("componentId") int componentId) {
-		ServiceLogger.log(logTag, "In getService, componentId = " + componentId);
+		ServiceLogger.log(logTag, "In getServiceByComponentList, componentId = " + componentId);
 		return serviceListDao.getServiceByComponentList(componentId);
 	}
 
@@ -72,6 +72,7 @@ public class ServiceController {
 	public ResponseEntity<?> postService(@RequestBody Service body,
 	        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         try {
+            ServiceLogger.log(logTag, "In createService");
             return new ResponseEntity<Service>(serviceDao.createService(body, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
@@ -85,6 +86,7 @@ public class ServiceController {
 			@RequestBody Service service,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         try {
+            ServiceLogger.log(logTag, "In patchService, serviceID = " + serviceID);
             return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
