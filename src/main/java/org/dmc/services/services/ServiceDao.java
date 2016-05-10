@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.ArrayList;
 
 public class ServiceDao {
@@ -21,42 +22,16 @@ public class ServiceDao {
 	private ResultSet resultSet = null;
 
 	public Service getService(int requestId, String userEPPN) throws DMCServiceException {
-		Service service = new Service();
 		
 		try {
 			
 			String query = "SELECT * FROM service WHERE service_id = " + requestId;
-
+			Service service = null;
 			resultSet = DBConnector.executeQuery(query);
 			
 			while (resultSet.next()) {
 
-				service.setId(requestId);
-				service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
-				if (resultSet.wasNull()) service.setCompanyId(null);
-				service.setTitle(resultSet.getString("title"));
-				service.setDescription(resultSet.getString("description"));
-				service.setOwner(resultSet.getString("owner_id"));
-				service.setProfileId(resultSet.getString("owner_id"));  // ToDo: up date
-				service.setReleaseDate(resultSet.getDate("release_date"));
-                if (resultSet.wasNull()) service.setReleaseDate(null);
-				service.setType(resultSet.getString("service_type"));
-				service.setTags(new ArrayList<String>()); // ToDo: up date
-				service.setSpecifications(resultSet.getString("specifications"));
-
-				service.setFeatureImage(new FeatureImage("", ""));
-				service.setCurrentStatus(new ServiceCurrentStatus(0, "", ""));
-				
-				service.setProjectId(Integer.toString(resultSet.getInt("project_id")));
-				if (resultSet.wasNull()) {
-				    service.setProjectId(null);
-				}
-				service.setFrom(resultSet.getString("from_location"));
-				service.setType(resultSet.getString("type"));
-				service.setParent(resultSet.getString("parent"));
-				service.setPublished(resultSet.getBoolean("published"));
-
-				service.setAverageRun("");
+			    service = readServiceResultSet(resultSet);
 								
 			}
 			return service;
@@ -189,5 +164,155 @@ public class ServiceDao {
                 }
             }
         }
+    }
+    
+    public ArrayList<Service> getServiceList() throws DMCServiceException {
+        ArrayList<Service> list=new ArrayList<Service>();
+        try {
+            
+            resultSet = DBConnector.executeQuery("SELECT * FROM service");
+            
+            while (resultSet.next()) {
+                Service service = readServiceResultSet(resultSet);
+                list.add(service);
+            }
+            
+            return list;
+        } catch (Exception e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            throw new DMCServiceException(DMCError.OtherSQLError, "unable to get serviceList: " + e.getMessage());
+        } finally {
+            if (null != resultSet) {
+                try {
+                    resultSet.close();
+                } catch (Exception ex) {
+                    // don't care
+                }
+            }
+        }
+    }
+    
+    public ArrayList<Service> getServiceList(int projectId)  throws DMCServiceException {
+        ArrayList<Service> list=new ArrayList<Service>();
+        
+        try {
+            
+            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE project_id = " + projectId);
+            
+            while (resultSet.next()) {
+                Service service = readServiceResultSet(resultSet);
+                list.add(service);
+            }
+            
+            return list;
+
+        } catch (Exception e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            throw new DMCServiceException(DMCError.OtherSQLError, "unable to get services for project " + projectId + ": " + e.getMessage());
+        } finally {
+            if (null != resultSet) {
+                try {
+                    resultSet.close();
+                } catch (Exception ex) {
+                    // don't care
+                }
+            }
+        }
+    }
+    
+    public ArrayList<Service> getServiceByComponentList(int componentId) throws DMCServiceException {
+        ArrayList<Service> list=new ArrayList<Service>();
+        try {
+            //ToDo need to determine component ID
+            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE project_id = " + componentId);
+            
+            while (resultSet.next()) {
+                Service service = readServiceResultSet(resultSet);
+                list.add(service);
+            }
+            
+            return list;
+        } catch (Exception e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            throw new DMCServiceException(DMCError.OtherSQLError, "unable to get services by component: " + e.getMessage());
+        } finally {
+            if (null != resultSet) {
+                try {
+                    resultSet.close();
+                } catch (Exception ex) {
+                    // don't care
+                }
+            }
+        }
+    }
+    
+    public ArrayList<Service> getServices(Integer limit, 
+            String order, 
+            Integer start, 
+            String sort, 
+            String titleLike, 
+            String serviceType, 
+            List<Integer> authors, 
+            List<String>ratings, 
+            String favorites, 
+            List<String> dates, 
+            String userEPPN) 
+                throws DMCServiceException {
+        ArrayList<Service> list=new ArrayList<Service>();
+        
+        try {
+            
+            resultSet = DBConnector.executeQuery("SELECT * FROM service");
+            
+            while (resultSet.next()) {
+                Service service = readServiceResultSet(resultSet);
+                list.add(service);
+            }
+            
+            return list;
+        } catch (Exception e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            throw new DMCServiceException(DMCError.OtherSQLError, "unable to get services: " + e.getMessage());
+        } finally {
+            if (null != resultSet) {
+                try {
+                    resultSet.close();
+                } catch (Exception ex) {
+                    // don't care
+                }
+            }
+        }
+    }
+
+    private Service readServiceResultSet(ResultSet resultSet) throws SQLException
+    {
+        Service service = new Service();
+        service.setId(resultSet.getInt("service_id"));
+        service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
+        if (resultSet.wasNull()) service.setCompanyId(null);
+        service.setTitle(resultSet.getString("title"));
+        service.setDescription(resultSet.getString("description"));
+        service.setOwner(resultSet.getString("owner_id"));
+        service.setProfileId(resultSet.getString("owner_id"));  // ToDo: up date
+        service.setReleaseDate(resultSet.getDate("release_date"));
+        if (resultSet.wasNull()) service.setReleaseDate(null);
+        service.setType(resultSet.getString("service_type"));
+        service.setTags(new ArrayList<String>()); // ToDo: up date
+        service.setSpecifications(resultSet.getString("specifications"));
+
+        service.setFeatureImage(new FeatureImage("", ""));
+        service.setCurrentStatus(new ServiceCurrentStatus(0, "", ""));
+        
+        service.setProjectId(Integer.toString(resultSet.getInt("project_id")));
+        if (resultSet.wasNull()) {
+            service.setProjectId(null);
+        }
+        service.setFrom(resultSet.getString("from_location"));
+        service.setType(resultSet.getString("type"));
+        service.setParent(resultSet.getString("parent"));
+        service.setPublished(resultSet.getBoolean("published"));
+
+        service.setAverageRun("");
+        return service;
     }
 }

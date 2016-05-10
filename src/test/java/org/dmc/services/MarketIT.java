@@ -1,6 +1,7 @@
 package org.dmc.services;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -29,9 +30,11 @@ public class MarketIT extends BaseIT {
 		given().
 		header("AJP_eppn", "user_EPPN").
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
-		get("/market/services");
+		get("/market/services").
+        then().
+        body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
 	}
 	
 	
@@ -43,9 +46,11 @@ public class MarketIT extends BaseIT {
 		given().
 		header("AJP_eppn", "user_EPPN").
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
-		get("/market/new_services");
+		get("/market/new_services").
+        then().
+        body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
 	}
 	
 	
