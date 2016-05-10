@@ -824,6 +824,7 @@ public class CompanyDao {
 
 		}
 		catch (SQLException sqlEx) {
+			ServiceLogger.log(logTag, "User " + userEPPN + " generated SQL exception");
 			throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 		}
 		finally {

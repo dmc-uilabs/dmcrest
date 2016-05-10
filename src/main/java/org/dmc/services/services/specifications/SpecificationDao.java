@@ -27,7 +27,7 @@ public class SpecificationDao {
 				+ serviceID + ") AS membersCount, " + 
 				"(SELECT count(group_id) AS count FROM service_subscriptions WHERE interface_id = "
 				+ serviceID + ") AS projectsCount, " +
-				"d.interface_data, d.description FROM dome_interfaces d WHERE d.interface_id = "
+				"d.interface_data FROM dome_interfaces d WHERE d.interface_id = "
 					+ serviceID;
 		
 		
@@ -38,7 +38,7 @@ public class SpecificationDao {
 				//ServiceLogger.log(logTag, "Number of members - " + numMembers);
 				numProjects = resultSet.getInt("projectsCount");
 				//ServiceLogger.log(logTag, "Number of projects using service - " + numProjects);
-				description = resultSet.getString("description");
+				description = "dummy description; need to get description from service table";//resultSet.getString("description");
 				//ServiceLogger.log(logTag, "Description: " + description);
 				
 				try {

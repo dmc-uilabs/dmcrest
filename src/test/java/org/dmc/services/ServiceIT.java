@@ -44,7 +44,7 @@ public class ServiceIT extends BaseIT {
 	    expect().
 	      statusCode(200).
 	      when().
-	      get(SERVICE_RESOURCE, service.getId()).then().
+	      get(SERVICE_RESOURCE, Integer.toString(service.getId())).then().
           body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
 	  }
 	}
