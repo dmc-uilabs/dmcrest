@@ -17,36 +17,42 @@ import java.util.List;
 public class ServiceResponseHandler implements ResponseHandler<Service> {
 
     private final String logTag = ServiceResponseHandler.class.getName();
+//    "docs": [
 //    {
-//        "cem_id": "2",
+//        "parent": "parent 1",
+//            "project_id": "1",
+//            "owner_id": "102",
+//            "organization_id": "1",
+//            "description": "this is a demo service",
 //            "id": "1",
-//            "interface_data": "{\"interFace\":{\"version\":1,\"modelId\":\"995f865e-d90a-1004-8438-64281c6cab63\",\"interfaceId\":\"995f8660-d90a-1004-8438-64281c6cab63\",\"type\":\"interface\",\"name\":\"velocity interface\",\"path\":[33,34,35]},\"inParams\":{\"timeCopy\":{\"name\":\"timeCopy\",\"type\":\"Real\",\"unit\":\"second\",\"category\":\"time\",\"value\":2,\"parameterid\":\"0163d124-d8de-1004-8a2f-592d01a9bb93\"},\"distanceCopy\":{\"name\":\"distanceCopy\",\"type\":\"Real\",\"unit\":\"centimeter\",\"category\":\"length\",\"value\":3,\"parameterid\":\"0163d123-d8de-1004-8a2f-592d01a9bb93\"}},\"outParams\":{\"averageVelocity\":{\"name\":\"averageVelocity\",\"type\":\"Real\",\"unit\":\"centimeter per second\",\"category\":\"velocity\",\"value\":1.5,\"parameterid\":\"0163d125-d8de-1004-8a2f-592d01a9bb93\",\"instancename\":\"averageVelocity\"}},\"modelName\":\"velocity interface\",\"modelDescription\":\"\",\"server\":{\"name\":\"localhost\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed\",\"space\":\"USER\"}}",
-//            "server_id": "1",
-//            "interface_name": "velocity interface",
-//            "user_id": "102",
-//            "server_url": "http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/",
-//            "group_id": "6",
-//            "group_name": "Low Heat Loss Transformer",
-//            "is_public": false,
-//            "unix_group_name": "lowheatlosstran",
-//            "_version_": 1525642535312031700
-//    }
+//            "published": "true",
+//            "title": "demo service",
+//            "type": "type 1",
+//            "specifications": "specification1",
+//            "tags": "tag1",
+//            "company_name": "General Electric",
+//            "owner_user_name": "fforgeadmin",
+//            "owner_realname": "Forge Admin",
+//            "_version_": 1533878078556602400
+//    },
+//    // id, user_name, realname, skills_data.skill_keyword
 
-    // id, user_name, realname, skills_data.skill_keyword
+    public static final String FIELD_ID                  = "id";
+    public static final String FIELD_ORGANIZATION_ID     = "organization_id";
+    public static final String FIELD_TITLE               = "title";
+    public static final String FIELD_DESCRIPTION         = "description";
+    public static final String FIELD_OWNER_ID            = "owner_id";
+    public static final String FIELD_TAGS                = "tags";
+    public static final String FIELD_SPECIFICATIONS      = "specifications";
+    public static final String FIELD_PROJECT_ID          = "project_id";
+    public static final String FIELD_TYPE                = "type";
+    public static final String FIELD_PUBLISHED           = "published";
+    public static final String FIELD_COMPANY_NAME        = "company_name";
+    public static final String FIELD_COMPANY_DESCRIPTION = "company_description";
+    public static final String FIELD_OWNER_USER_NAME     = "owner_user_name";
+    public static final String FIELD_OWNER_REALNAME      = "owner_realname";
+    public static final String FIELD_SERVICE_INTERFACE_NAME      = "service_interface_name";
 
-    public static final String FIELD_ID                 = "id";
-    public static final String FIELD_CEM_ID             = "cem_id";
-    public static final String FIELD_INTERFACE_DATA     = "interface_data";
-    public static final String FIELD_SERVER_ID          = "server_id";
-    public static final String FIELD_INTERFACE_NAME     = "interface_name";
-    public static final String FIELD_USER_ID            = "user_id";
-    public static final String FIELD_SERVER_URL         = "server_url";
-    public static final String FIELD_GROUP_ID           = "group_id";
-    public static final String FIELD_GROUP_NAME         = "group_name";
-    public static final String FIELD_IS_PUBLIC          = "is_public";
-    public static final String FIELD_UNIX_GROUP_NAME    = "unix_group_name";
-    public static final String FIELD_TITLE              = "title";
-    public static final String FIELD_DESCRIPTION        = "description";
 
 
     @Override
@@ -66,13 +72,20 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
                     String idStr = (String) doc.getFieldValue(FIELD_ID);
                     int id = Integer.parseInt(idStr);
                     
-                    String interfaceData = (String) doc.getFieldValue(FIELD_INTERFACE_DATA);
-                    String interfaceName = (String) doc.getFieldValue(FIELD_INTERFACE_NAME);
-                    String serverUrl = (String) doc.getFieldValue(FIELD_SERVER_URL);
-                    String groupName = (String) doc.getFieldValue(FIELD_GROUP_NAME);
-                    String unixGroupName = (String) doc.getFieldValue(FIELD_UNIX_GROUP_NAME);
+                    String organizationIdStr = (String) doc.getFieldValue(FIELD_ORGANIZATION_ID);
                     String title = (String) doc.getFieldValue(FIELD_TITLE);
                     String description = (String) doc.getFieldValue(FIELD_DESCRIPTION);
+                    String ownerIdStr = (String) doc.getFieldValue(FIELD_OWNER_ID);
+                    String tags = (String) doc.getFieldValue(FIELD_TAGS);
+                    String specifications = (String) doc.getFieldValue(FIELD_SPECIFICATIONS);
+                    String projectIdStr = (String) doc.getFieldValue(FIELD_PROJECT_ID);
+                    String type = (String) doc.getFieldValue(FIELD_TYPE);
+                    String published = (String) doc.getFieldValue(FIELD_PUBLISHED);
+                    String companyName = (String) doc.getFieldValue(FIELD_COMPANY_NAME);
+                    String companyDescription = (String) doc.getFieldValue(FIELD_COMPANY_DESCRIPTION);
+                    String ownerUserName = (String) doc.getFieldValue(FIELD_OWNER_USER_NAME);
+                    String ownerRealName = (String) doc.getFieldValue(FIELD_OWNER_REALNAME);
+                    String serviceInterfaceName = (String) doc.getFieldValue(FIELD_SERVICE_INTERFACE_NAME);
 
 //                    ServiceLogger.log(logTag, "doc: " + doc);
 //                    ServiceLogger.log(logTag, "->id: " + id);
@@ -84,7 +97,10 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
 //                    ServiceLogger.log(logTag, "->title: " + title);
 //                    ServiceLogger.log(logTag, "->description: " + description);
 
-                    Service service =  new Service.ServiceBuilder(id, title, description).build();
+                    Service service =  new Service.ServiceBuilder(id, title, description)
+                            .owner(ownerUserName)
+                            .serviceType(type)
+                            .build();
                     if (l == null) {
                         l = new ArrayList<Service>();
                     }
