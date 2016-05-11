@@ -60,7 +60,13 @@ public class MarketController {
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         try {
             ServiceLogger.log(logTag, "In marketNewServicesGet");
-            return new ResponseEntity<ArrayList<Service>>(serviceDao.getServices(limit, order, start, sort, null, null, null, null, null, null, userEPPN), HttpStatus.OK);
+            ArrayList<String> fromLocations = new ArrayList<String>();
+            fromLocations.add("marketplace");
+            if (null == order && null == sort) {
+                order = "DESC";
+                sort = "release_date";
+            }
+            return new ResponseEntity<ArrayList<Service>>(serviceDao.getServices(limit, order, start, sort, null, null, null, null, null, null, fromLocations, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
@@ -96,9 +102,10 @@ public class MarketController {
             @RequestParam(value = "dates", required = false) List<String> dates,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         try {
-            // do some magic!
             ServiceLogger.log(logTag, "In marketServicesGet");
-            return new ResponseEntity<ArrayList<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, userEPPN), HttpStatus.OK);
+            ArrayList<String> fromLocations = new ArrayList<String>();
+            fromLocations.add("marketplace");
+            return new ResponseEntity<ArrayList<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());

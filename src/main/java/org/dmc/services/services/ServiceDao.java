@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ServiceDao {
 
@@ -256,13 +257,14 @@ public class ServiceDao {
             List<String>ratings, 
             String favorites, 
             List<String> dates, 
+            List<String> fromLocations,
             String userEPPN) 
                 throws DMCServiceException {
         ArrayList<Service> list=new ArrayList<Service>();
         
         try {
-            
-            resultSet = DBConnector.executeQuery("SELECT * FROM service");
+            PreparedStatement preparedStatement = setupGetServicesQuery(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN);
+            resultSet = preparedStatement.executeQuery();
             
             while (resultSet.next()) {
                 Service service = readServiceResultSet(resultSet);
@@ -282,6 +284,67 @@ public class ServiceDao {
                 }
             }
         }
+    }
+
+    private PreparedStatement setupGetServicesQuery(Integer limit, 
+            String order, 
+            Integer start, 
+            String sort, 
+            String titleLike, 
+            String serviceType, 
+            List<Integer> authors, 
+            List<String>ratings, 
+            String favorites, 
+            List<String> dates, 
+            List<String> fromLocations,
+            String userEPPN) 
+                throws Exception {
+        String query = "SELECT * FROM service";
+
+        ArrayList<String> whereClauses = new ArrayList<String>();
+        ArrayList<String> orderByClauses = new ArrayList<String>();
+        
+        if (null != fromLocations && fromLocations.size() > 0) {
+            String fromClause = " from_location in (?";
+            // already have first placeholder, so start count from 1 instead of 0
+            for (int i = 1; i < fromLocations.size(); ++i) {
+                fromClause += ", ?";
+            }
+            fromClause += ")";
+            whereClauses.add(fromClause);
+        }
+        
+        if (null != dates && dates.size() > 0) {
+            String datesClause = " ( ";
+            for (String dateItem : dates) {
+                datesClause += " release_date > now() - INTERVAL ";
+                char intervalType = dateItem.charAt(dateItem.length()-1);
+                Integer dateCount = Integer.parseInt(dateItem.substring(0, dateItem.length()-1));
+                String convertedIntervalType = convertIntervalType(intervalType);
+                datesClause += "'" + dateCount + convertedIntervalType + "'";
+                datesClause += " OR ";
+            }
+            if (datesClause.endsWith(" OR ")) {
+                datesClause = datesClause.substring(0, datesClause.length() - 4);
+            }
+            datesClause += ")";
+            whereClauses.add(datesClause);
+        }
+        query += addClauses(whereClauses, " WHERE ", " AND ");
+        query += addClauses(orderByClauses, " ORDER BY ", ", ");                    
+
+        ServiceLogger.log(logTag, "query: " + query);
+
+        PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+        int parameterIndex = 1;
+        for (String location : fromLocations) {
+            preparedStatement.setString(parameterIndex, location);
+            ServiceLogger.log(logTag, "  parameter " + parameterIndex + " : from " + location);            
+            parameterIndex++;
+        }
+        if (null != start) {
+        }
+        return preparedStatement;
     }
 
     private Service readServiceResultSet(ResultSet resultSet) throws SQLException
@@ -315,4 +378,39 @@ public class ServiceDao {
         service.setAverageRun("");
         return service;
     }
+    private String addClauses(ArrayList<String> clauses, String start, String connector) {
+        String queryClause = "";
+        if (clauses.size() > 0) {
+            queryClause += start;
+            for (String clause : clauses) {
+                queryClause += clause;
+                queryClause += connector;
+            }
+            // remove any trailing AND 
+            if (queryClause.endsWith(connector)) {
+                queryClause = queryClause.substring(0, queryClause.length() - connector.length());
+            }
+        }
+        return queryClause;
+    }
+
+    String convertIntervalType(char intervalType) {
+        String convertedIntervalType = "";
+        switch (intervalType) {
+            case 'd': 
+                convertedIntervalType = " day "; 
+                break;
+            case 'm': 
+                convertedIntervalType = " month ";
+                break;
+            case 'y': 
+                convertedIntervalType = " year ";
+                break;
+            default:
+                convertedIntervalType = " day ";
+                break;
+        }
+        return convertedIntervalType;
+    }
+    
 }
