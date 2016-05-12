@@ -224,6 +224,18 @@
 			<artifactId>json-schema-validator</artifactId>
 			<version>2.1.0</version>
 		</dependency>
+		
+		<!--  Dependency for ActiveMQ -->
+		<dependency>
+      		<groupId>org.apache.geronimo.specs</groupId>
+      		<artifactId>geronimo-jms_1.1_spec</artifactId>
+      		<version>1.1</version>
+    	</dependency>
+    	<dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>5.9.0</version>
+        </dependency>
 	</dependencies>
 
 
@@ -285,6 +297,11 @@
 			<id>spring-releases</id>
 			<url>https://repo.spring.io/libs-release</url>
 		</repository>
+		<!-- Repository for ActiveMQ -->
+		<repository>
+      		<id>Fusesource Snapshots</id>
+      		<url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
+    	</repository>
 	</repositories>
 
 	<!-- PLUGIN REPOSITORIES -->
@@ -294,5 +311,6 @@
 			<url>https://repo.spring.io/libs-release</url>
 		</pluginRepository>
 	</pluginRepositories>
+	
 
 </project>
