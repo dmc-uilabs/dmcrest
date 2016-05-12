@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.dmc.services.components.Component;
 import org.dmc.services.projects.Project;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import javax.xml.ws.http.HTTPException;
 import java.util.List;

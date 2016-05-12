@@ -23,5 +23,17 @@ public enum DMCError {
 	NotProjectAdmin,
 	OnlyProjectAdmin,
 	MemberNotAssignedToProject,
-	NoExistingRequest
+	NoExistingRequest,
+	
+	// ActiveMQ
+	ActiveMQServerURLNotSet,
+	CanNotCreateQueue,
+	CanNotCloseActiveMQConnection,
+	CanNotDeleteQueue,
+	CanNotReadMessage,
+	
+	// Service queries
+	ServiceInterfaceNotMatch
+	
+	
 }

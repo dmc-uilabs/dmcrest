@@ -44,6 +44,8 @@ public class DMCServiceException extends Exception {
 				status = HttpStatus.FORBIDDEN;
 				break;
 			case OtherSQLError:
+			case CanNotCreateQueue:
+			case CanNotCloseActiveMQConnection:
 				status = HttpStatus.INTERNAL_SERVER_ERROR;
 				break;
 		}
