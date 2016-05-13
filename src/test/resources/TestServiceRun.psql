@@ -1,11 +1,9 @@
 insert into servers (server_id, url, user_id, port, local_dome_user, local_dome_user_password, dome_user_space)
-	values (3, 'localhost', 111, 7795, 'ceed', 'ceed', 'USER'); 
+	values (3, '52.33.38.232', 111, 7795, 'ceed', 'ceed', 'USER'); 
 
 insert into service (service_id, organization_id, title, owner_id)
 	values (2,1,'Alpha service', 111);
 	
-
-
 insert into service_interface (version, model_id, interface_id_str, type, name, service_id, server_id)
 	values (1, 'aff647da-d82f-1004-8e7b-5de38b2eeb0f', 'aff647db-d82f-1004-8e7b-5de38b2eeb0f', 'interface',
 		'Default Interface', 3,3);

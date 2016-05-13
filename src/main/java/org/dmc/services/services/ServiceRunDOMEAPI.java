@@ -24,7 +24,8 @@ public class ServiceRunDOMEAPI {
 		try 
 		{
 			// This will create a service call return modelRunId
-			int modelRunId = instance.runModel(service_id,user_id);			
+			//int modelRunId = instance.runModel(service_id,user_id);	
+			int modelRunId = 57;
 			instance.pollService(modelRunId, service_id);
 			System.out.println("The model runID = " + modelRunId);
 		}
@@ -173,7 +174,7 @@ public class ServiceRunDOMEAPI {
 				}
 			}
 		}
-		if (serviceRun.getCollectedNumOutputPars()==numOutput || serviceRun.getStatus()==1)
+		if (serviceRun.getCollectedNumOutputPars()==numOutput && serviceRun.getStatus()==1)
 		{
 			// Delete queue from ActiveMQ
 			activeMQ.deleteQueue(queueName);
