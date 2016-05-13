@@ -174,7 +174,7 @@ public class ServiceRunDOMEAPI {
 				}
 			}
 		}
-		if (serviceRun.getCollectedNumOutputPars()==numOutput && serviceRun.getStatus()==1)
+		if (serviceRun.getCollectedNumOutputPars()==numOutput &&  serviceRun.getStatus()==1)
 		{
 			// Delete queue from ActiveMQ
 			activeMQ.deleteQueue(queueName);

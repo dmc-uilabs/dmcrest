@@ -162,7 +162,7 @@ public class ServiceRunServiceDAO {
 	public int getCollectedNumOutputPars() throws Exception
 	{
 		int result = 0;
-		String query = "select count(*) as num from service_run_parameter where run_id=?";
+		String query = "select count(*) as num from service_run_parameter run, service_interface_parameter int where run.parameter_id = int.parameter_id and int.input_parameter=false and run.run_id=?";
 		PreparedStatement queueStat = DBConnector.prepareStatement(query);
 		queueStat.setInt(1, run_id);
 		ResultSet rs = queueStat.executeQuery();
