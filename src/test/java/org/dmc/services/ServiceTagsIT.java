@@ -127,7 +127,7 @@ public class ServiceTagsIT extends BaseIT {
                 expect().
                 statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
                 when().
-                delete("/service_tags/" + serviceTagId);
+                delete(SERVICE_TAGS_DELETE, serviceTagId);
     }
 
     @Test
@@ -182,7 +182,7 @@ public class ServiceTagsIT extends BaseIT {
                 expect().
                 statusCode(HttpStatus.NO_CONTENT.value()).
                 when().
-                delete("/service_tags/" + serviceTagId);
+                delete(SERVICE_TAGS_DELETE, serviceTagId);
 
     }
 
