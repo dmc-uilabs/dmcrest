@@ -7,6 +7,7 @@ import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.services.ServiceInputPosition;
 import org.dmc.services.services.ServiceSpecifications;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -469,7 +470,10 @@ public class ServiceIT extends BaseIT {
 	
 	/*
 	 * test case for POST /shared-services
+	 *
+	 * Ignored here: Tests moved to SharedServiceIT
 	 */
+	@Ignore
 	@Test
 	public void testPost_SharedService(){
 		PostSharedService obj = new PostSharedService();
@@ -497,7 +501,10 @@ public class ServiceIT extends BaseIT {
 
 	/*
 	 * test case for GET /shared-services/{id}
+	 *
+	 * Ignored here: Tests moved to SharedServiceIT
 	 */
+	@Ignore
 	@Test
 	public void testGet_SharedService(){
 		given().
