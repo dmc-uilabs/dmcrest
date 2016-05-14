@@ -1,12 +1,6 @@
 package org.dmc.services;
 
-import org.dmc.services.services.PostServiceInputPosition;
-import org.dmc.services.services.PostSharedService;
-import org.dmc.services.services.PostUpdateDomeInterface;
-import org.dmc.services.services.Service;
-import org.dmc.services.services.ServiceDao;
-import org.dmc.services.services.ServiceInputPosition;
-import org.dmc.services.services.ServiceSpecifications;
+import org.dmc.services.services.*;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -20,11 +14,14 @@ import java.util.List;
 import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertTrue;
 
 //@Ignore
 public class ServiceIT extends BaseIT {
 	
 	private static final String SERVICE_RESOURCE = "/services/{id}";
+	private static final String SERVICE_TAGS_GET_BY_SERVICE_ID = "/services/{serviceID}/service_tags";
+
     private ServiceDao serviceDao = new ServiceDao();
 	private Service service = null;
 	private Random r = new Random();
@@ -174,11 +171,20 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServiceGet_ServiceTags(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/services/" + serviceId + "/service_tags");
+
+		Integer serviceId = new Integer(2);
+
+		ArrayList<ServiceTag> tags =
+				given().
+						header("AJP_eppn", userEPPN).
+						expect().
+						statusCode(200).
+						when().
+						get(SERVICE_TAGS_GET_BY_SERVICE_ID, serviceId).
+						as(ArrayList.class);
+
+		assertTrue(tags != null);
+		assertTrue(tags.size() > 0);
 	}
 	
 	/**
