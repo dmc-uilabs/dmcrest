@@ -1,6 +1,7 @@
 package org.dmc.services;
 
 import org.dmc.services.services.*;
+import org.dmc.services.utility.TestUserUtil;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -21,6 +22,7 @@ public class ServiceIT extends BaseIT {
 	
 	private static final String SERVICE_RESOURCE = "/services/{id}";
 	private static final String SERVICE_TAGS_GET_BY_SERVICE_ID = "/services/{serviceID}/service_tags";
+	private static final String SERVICE_TAGS_RESOURCE = "/service_tags";
 
     private ServiceDao serviceDao = new ServiceDao();
 	private Service service = null;
@@ -172,9 +174,23 @@ public class ServiceIT extends BaseIT {
 	@Test
 	public void testServiceGet_ServiceTags(){
 
-		Integer serviceId = new Integer(2);
+		int serviceId = 2;
+		String tag1 = "tag_" + TestUserUtil.generateTime();
 
-		ArrayList<ServiceTag> tags =
+		ServiceTag json = new ServiceTag();
+		json.setServiceId(Integer.toString(serviceId));
+		json.setName(tag1);
+
+		given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
+				body(json).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				post(SERVICE_TAGS_RESOURCE);
+
+				ArrayList<ServiceTag> tags =
 				given().
 						header("AJP_eppn", userEPPN).
 						expect().
