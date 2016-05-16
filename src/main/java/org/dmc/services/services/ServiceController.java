@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dmc.services.ErrorMessage;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.services.specifications.Specification;
 import org.dmc.services.services.specifications.SpecificationDao;
@@ -22,6 +23,7 @@ public class ServiceController {
 	private final String logTag = ServiceController.class.getName();
 
 	private ServiceDao serviceDao = new ServiceDao();
+	private ServiceTagsDao serviceTagsDao = new ServiceTagsDao();
 
 	@RequestMapping(value = "/services/{id}", method = RequestMethod.GET)
 	public Service getService(@PathVariable("id") int id) {
@@ -112,12 +114,25 @@ public class ServiceController {
 
 	@RequestMapping(value = "/services/{serviceID}/service_tags", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ServiceTag>> servicesServiceIDServiceTagsGet(@PathVariable("serviceID") String serviceID,
+	public ResponseEntity servicesServiceIDServiceTagsGet(@PathVariable("serviceID") String serviceID,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		// do some magic!
-		return new ResponseEntity<List<ServiceTag>>(HttpStatus.NOT_IMPLEMENTED);
+		int statusCode = HttpStatus.OK.value();
+
+		String userEPPN = null;
+		List<ServiceTag> tags = null;
+		try {
+			tags = serviceTagsDao.getServiceListByServiceId(Integer.parseInt(serviceID), userEPPN);
+		} catch (Exception ex) {
+			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
+			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+		}
+
+		return new ResponseEntity<List<ServiceTag>>(tags, HttpStatus.valueOf(statusCode));
+
 	}
 
 	@RequestMapping(value = "/services/{serviceID}/services_statistic", produces = { "application/json",
