@@ -467,52 +467,5 @@ public class ServiceIT extends BaseIT {
 		
 	}
 	
-	
-	/*
-	 * test case for POST /shared-services
-	 *
-	 * Ignored here: Tests moved to SharedServiceIT
-	 */
-	@Ignore
-	@Test
-	public void testPost_SharedService(){
-		PostSharedService obj = new PostSharedService();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedSharedServiceJSONString = null;
-		
-		try {
-			postedSharedServiceJSONString = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(postedSharedServiceJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        post("/shared-services");	
-	}
-	
-	
 
-	/*
-	 * test case for GET /shared-services/{id}
-	 *
-	 * Ignored here: Tests moved to SharedServiceIT
-	 */
-	@Ignore
-	@Test
-	public void testGet_SharedService(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/shared-services/" + sharedServiceId);
-	}
-	
-	
 }
