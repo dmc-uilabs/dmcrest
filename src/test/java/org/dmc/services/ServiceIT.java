@@ -1,12 +1,13 @@
 package org.dmc.services;
 
 import org.dmc.services.services.PostServiceInputPosition;
-import org.dmc.services.services.PostSharedService;
 import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.services.ServiceInputPosition;
 import org.dmc.services.services.ServiceSpecifications;
+import org.dmc.services.services.*;
+import org.dmc.services.utility.TestUserUtil;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.springframework.http.HttpStatus;
@@ -26,15 +27,17 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 //@Ignore
 public class ServiceIT extends BaseIT {
     private final String logTag = ServiceIT.class.getName();
+	
+	private static final String SERVICE_RESOURCE = "/services/{id}";
+	private static final String SERVICE_TAGS_GET_BY_SERVICE_ID = "/services/{serviceID}/service_tags";
+	private static final String SERVICE_TAGS_RESOURCE = "/service_tags";
 
-    private static final String SERVICE_RESOURCE = "/services/{id}";
     private ServiceDao serviceDao = new ServiceDao();
     private Service service = null;
     private Random r = new Random();
     private String serviceId = "1"; // the serviceId need to be assigned new value
     private String domeInterfaceId = "1";
     private String positionInputId = "1";
-    private String sharedServiceId = "1";
 
     @Test
     public void testService() {
@@ -190,13 +193,36 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceTags(){
-        given().
-        header("AJP_eppn", userEPPN).
-        expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/service_tags");
-    }
 
+        int serviceId = 2;
+        String tag1 = "tag_" + TestUserUtil.generateTime();
+
+        ServiceTag json = new ServiceTag();
+        json.setServiceId(Integer.toString(serviceId));
+        json.setName(tag1);
+
+        given().
+           header("Content-type", "application/json").
+           header("AJP_eppn", userEPPN).
+           body(json).
+        expect().
+           statusCode(HttpStatus.OK.value()).
+        when().
+           post(SERVICE_TAGS_RESOURCE);
+
+        ArrayList<ServiceTag> tags =
+           given().
+               header("AJP_eppn", userEPPN).
+           expect().
+               statusCode(200).
+           when().
+               get(SERVICE_TAGS_GET_BY_SERVICE_ID, serviceId).
+               as(ArrayList.class);
+
+        assertTrue(tags != null);
+        assertTrue(tags.size() > 0);
+    }
+	
     /**
      * test case for get /services/{serviceID}/services_statistic
      */
@@ -204,11 +230,11 @@ public class ServiceIT extends BaseIT {
     public void testServiceGet_ServiceStatistic(){
         given().
         header("AJP_eppn", userEPPN).
-        expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/services_statistic");
+	expect().
+	statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	when().get("/services/" + serviceId + "/services_statistic");
     }
-
+	
     /**
      * test case for get /services/{serviceID}/dome-interfaces
      */
@@ -222,288 +248,240 @@ public class ServiceIT extends BaseIT {
     }
 
     /**
-     * test case for POST /dome-interfaces
-     */
-    @Test
-    public void testServicePost_DomeInterface(){
-        PostUpdateDomeInterface  obj = new PostUpdateDomeInterface();
-        ObjectMapper mapper = new ObjectMapper();
-        String postedDomeInterfaceJSONString = null;
-        try {
-            postedDomeInterfaceJSONString = mapper.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(postedDomeInterfaceJSONString).
-        expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().post("/dome-interfaces");
-    }
-
-    /**
      * test case for PATCH /dome-interfaces/{domeInterfaceId}
      */
     @Test
     public void testServicePatch_DomeInterface(){
-        PostUpdateDomeInterface  obj = new PostUpdateDomeInterface();
-        ObjectMapper mapper = new ObjectMapper();
-        String patchedDomeInterfaceJSONString = null;
-        try {
-            patchedDomeInterfaceJSONString = mapper.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+	PostUpdateDomeInterface  obj = new PostUpdateDomeInterface();
+	ObjectMapper mapper = new ObjectMapper();
+	String patchedDomeInterfaceJSONString = null;
+	try {
+           patchedDomeInterfaceJSONString = mapper.writeValueAsString(obj);
+	} catch (JsonProcessingException e) {
+           // TODO Auto-generated catch block
+           e.printStackTrace();
         }
-        
-        given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(patchedDomeInterfaceJSONString).
+
+	given().
+            header("Content-type", "application/json").
+            header("AJP_eppn", userEPPN).
+            body(patchedDomeInterfaceJSONString).
         expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
         when().patch("/dome-interfaces/" + domeInterfaceId);
     }
-
-    /**
-     * test case for DELETE /dome-interfaces/{domeInterfaceId}
-     */
-    @Test
-    public void testServiceDelete_DomeInterface(){
-        given().
+	
+	
+	/**
+	 * test case for DELETE /dome-interfaces/{domeInterfaceId}
+	 */
+	@Test
+	public void testServiceDelete_DomeInterface(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/dome-interfaces/" + domeInterfaceId);
+	}
+	
+	/**
+	 * test case for GET /dome-interfaces/{domeInterfaceId}
+	 */
+	@Test
+	public void testServiceGet_DomeInterfaceById(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/dome-interfaces/" + domeInterfaceId);
+	}
+	
+	/**
+	 * test case for get /services/{serviceID}/input-positions
+	 */
+	@Test
+	public void testServiceGet_InputPositions(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/services/" + serviceId + "/input-positions");
+	}
+	
+	
+	/**
+	 * test case for POST /service/{serviceID}/specifications
+	 */
+	@Test
+	public void testServicePost_Specification(){
+		ServiceSpecifications specification = new ServiceSpecifications();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedSpecificationJSONString = null;
+		try {
+			postedSpecificationJSONString = mapper.writeValueAsString(specification);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
-        expect().
+        body(postedSpecificationJSONString).
+	expect().
         statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().delete("/dome-interfaces/" + domeInterfaceId);
-    }
-
-    /**
-     * test case for GET /dome-interfaces/{domeInterfaceId}
-     */
-    @Test
-    public void testServiceGet_DomeInterfaceById(){
-        given().
+	when().
+        post("/service/" + serviceId + "/specifications");
+	}
+	
+	
+	/**
+	 * test case for POST /service_runs
+	 */
+	@Test
+	public void testServicePost_ServiceRunId(){
+		ObjectMapper mapper = new ObjectMapper();
+		String postedServiceRunJSONString = null;
+		try {
+			postedServiceRunJSONString = mapper.writeValueAsString(service);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
-        expect().
+        body(postedServiceRunJSONString).
+	expect().
         statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/dome-interfaces/" + domeInterfaceId);
-    }
+	when().
+        post("/service_runs/");
+	}
+	
+	
 
-    /**
-     * test case for get /services/{serviceID}/input-positions
-     */
-    @Test
-    public void testServiceGet_InputPositions(){
-        given().
+	
+	/**
+	 * test case for GET /service_runs/{id}
+	 */
+	@Test
+	public void testServiceGet_ServiceRunId(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/service_runs/" + serviceId);
+	}
+	
+	/**
+	 * test case for PATCH /service_runs/{id}
+	 */
+	@Test
+	public void testServicePatch_ServiceRunId(){
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedServiceRunIdJSONString = null;
+		try {
+			patchedServiceRunIdJSONString = mapper.writeValueAsString(service);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
-        expect().
+        body(patchedServiceRunIdJSONString).
+	expect().
         statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/input-positions");
-    }
-
-    /**
-     * test case for POST /service/{serviceID}/specifications
-     */
-    @Test
-    public void testServicePost_Specification(){
-        ServiceSpecifications specification = new ServiceSpecifications();
-        ObjectMapper mapper = new ObjectMapper();
-        String postedSpecificationJSONString = null;
-        try {
-            postedSpecificationJSONString = mapper.writeValueAsString(specification);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(postedSpecificationJSONString).
-        expect().
-            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().
-            post("/service/" + serviceId + "/specifications");
-    }
-
-    /**
-     * test case for POST /service_runs
-     */
-    @Test
-    public void testServicePost_ServiceRunId(){
-        ObjectMapper mapper = new ObjectMapper();
-        String postedServiceRunJSONString = null;
-        try {
-            postedServiceRunJSONString = mapper.writeValueAsString(service);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(postedServiceRunJSONString).
-        expect().
-            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().
-            post("/service_runs/");
-    }
-
-    /**
-     * test case for GET /service_runs/{id}
-     */
-    @Test
-    public void testServiceGet_ServiceRunId(){
-        given().
+	when().
+        patch("/service_runs/" + serviceId);
+	}
+	
+	
+	
+	
+	/*
+	 * test case for DELETE /service_runs/{id}
+	 */
+	@Test
+	public void testServiceDelete_ServiceRunId(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/service_runs/" + serviceId);
+	}
+	
+	/*
+	 * test case for POST /input-positions
+	 */
+	@Test
+	public void testPost_InputPosition(){
+		List<PostServiceInputPosition> obj = new ArrayList<PostServiceInputPosition>();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedInputPositionJSONString = null;
+		
+		try {
+			postedInputPositionJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
-        expect().
+        body(postedInputPositionJSONString).
+	expect().
         statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/service_runs/" + serviceId);
-    }
-
-    /**
-     * test case for PATCH /service_runs/{id}
-     */
-    @Test
-    public void testServicePatch_ServiceRunId(){
-        ObjectMapper mapper = new ObjectMapper();
-        String patchedServiceRunIdJSONString = null;
-        try {
-            patchedServiceRunIdJSONString = mapper.writeValueAsString(service);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(patchedServiceRunIdJSONString).
-        expect().
-            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().
-            patch("/service_runs/" + serviceId);
-    }
-
-    /*
-     * test case for DELETE /service_runs/{id}
-     */
-    @Test
-    public void testServiceDelete_ServiceRunId(){
-        given().
-            header("AJP_eppn", userEPPN).
-        expect().
-            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().delete("/service_runs/" + serviceId);
-    }
-
-    /*
-     * test case for POST /input-positions
-     */
-    @Test
-    public void testPost_InputPosition(){
-        List<PostServiceInputPosition> obj = new ArrayList<PostServiceInputPosition>();
-        ObjectMapper mapper = new ObjectMapper();
-        String postedInputPositionJSONString = null;
-        
-        try {
-            postedInputPositionJSONString = mapper.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(postedInputPositionJSONString).
-        expect().
-            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().
-            post("/input-positions");
-    }
-
-    /*
-     * test case for DELETE /input-positions/{positionInputId}
-     */
-    @Test
-    public void testDelete_InputPositionByPositionInputId(){
-        given().
-            header("AJP_eppn", userEPPN).
-        expect().
-            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().delete("/input-positions/" + positionInputId);
-    }
-
-    /*
-     * test case for PATCH /input-positions/{positionInputId}
-     */
-    @Test
-    public void testPatch_InputPositionByPositionInputId(){
-        List<ServiceInputPosition> obj = new ArrayList<ServiceInputPosition>();
-        ObjectMapper mapper = new ObjectMapper();
-        String patchedServiceInputPositionJSONString = null;
-        
-        try {
-            patchedServiceInputPositionJSONString = mapper.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(patchedServiceInputPositionJSONString).
-        expect().
-            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().
-            patch("/input-positions/" + positionInputId);
-    }
-
-    /*
-     * test case for POST /shared-services
-     */
-    @Test
-    public void testPost_SharedService(){
-        PostSharedService obj = new PostSharedService();
-        ObjectMapper mapper = new ObjectMapper();
-        String postedSharedServiceJSONString = null;
-        
-        try {
-            postedSharedServiceJSONString = mapper.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(postedSharedServiceJSONString).
-        expect().
-            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().
-            post("/shared-services");    
-    }
-
-    /*
-     * test case for GET /shared-services/{id}
-     */
-    @Test
-    public void testGet_SharedService(){
-        given().
-            header("AJP_eppn", userEPPN).
-        expect().
-            statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/shared-services/" + sharedServiceId);
-    }
-
+	when().
+        post("/input-positions");
+		
+	}
+	
+	
+	/*
+	 * test case for DELETE /input-positions/{positionInputId}
+	 */
+	@Test
+	public void testDelete_InputPositionByPositionInputId(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().delete("/input-positions/" + positionInputId);
+	}
+	
+	
+	/*
+	 * test case for PATCH /input-positions/{positionInputId}
+	 */
+	@Test
+	public void testPatch_InputPositionByPositionInputId(){
+		List<ServiceInputPosition> obj = new ArrayList<ServiceInputPosition>();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedServiceInputPositionJSONString = null;
+		
+		try {
+			patchedServiceInputPositionJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(patchedServiceInputPositionJSONString).
+	expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	when().
+        patch("/input-positions/" + positionInputId);
+		
+	}
+	
+	
     // create a service object to use as body in post
     private Service createNewServiceObjectToPost()
     {
@@ -513,4 +491,5 @@ public class ServiceIT extends BaseIT {
         service.setOwner(userEPPN);
         return service;
     }
+	
 }
