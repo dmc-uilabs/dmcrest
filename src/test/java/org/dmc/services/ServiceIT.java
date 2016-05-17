@@ -285,7 +285,7 @@ public class ServiceIT extends BaseIT {
 		sentDomeInterface.setDomeServer("3");
 		sentDomeInterface.setName("Brian");
 		sentDomeInterface.setPath(null);
-		sentDomeInterface.setServiceId(9);
+		sentDomeInterface.setServiceId(1);
 		sentDomeInterface.setType("type");
 		ObjectMapper mapper = new ObjectMapper();
 		String postDomeInterfaceJSONString = null;
