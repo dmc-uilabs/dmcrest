@@ -196,6 +196,13 @@ public class ServiceIT extends BaseIT {
     @Test
     public void testServiceGet_ServiceTags(){
 
+        int serviceId = 2;
+        String tag1 = "tag_" + TestUserUtil.generateTime();
+
+        ServiceTag json = new ServiceTag();
+        json.setServiceId(Integer.toString(serviceId));
+        json.setName(tag1);
+
         given().
            header("Content-type", "application/json").
            header("AJP_eppn", userEPPN).
@@ -505,5 +512,14 @@ public class ServiceIT extends BaseIT {
 		when().get("/shared-services/" + sharedServiceId);
 	}
 	
+    // create a service object to use as body in post
+    private Service createNewServiceObjectToPost()
+    {
+        Service service = new Service();
+        service.setTitle("junit service test");
+        service.setDescription("junit service test");
+        service.setOwner(userEPPN);
+        return service;
+    }
 	
 }
