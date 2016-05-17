@@ -40,7 +40,7 @@ public class DomeInterfacesController {
 //			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 //		}
 		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 
 	
