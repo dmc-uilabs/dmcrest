@@ -1,5 +1,6 @@
 package org.dmc.services.services;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
@@ -23,6 +24,7 @@ class DomeInterfacesDao {
 	public GetDomeInterface createDomeInterface(PostUpdateDomeInterface postUpdateDomeInterface, String userEPPN) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
 		Util util = Util.getInstance();
+		GetDomeInterface retObj = new GetDomeInterface();
 				
 		try {
 			// let's start a transaction
@@ -30,7 +32,7 @@ class DomeInterfacesDao {
 
 			// requesting user must be administrator of the project to get the
 			// list of members.
-			String addDomeInterfaceQuery = "INSERT into dome_interfaces (version, model_id, interface_id_str, type, name, service_id, server_id) values ( ?, ?, ?, ?, ?, ?, ?, ? )";
+			String addDomeInterfaceQuery = "INSERT into service_interface (version, model_id, interface_id_str, type, name, service_id, server_id) values ( ?, ?, ?, ?, ?, ?, ? )";
 
 //			version integer NOT NULL,
 //			model_id text NOT NULL,
@@ -39,7 +41,6 @@ class DomeInterfacesDao {
 //			name text NOT NULL,
 //			service_id integer NOT NULL,
 //			server_id integer NOT NULL
-			
 			
 			PreparedStatement preparedStatementDomeInterfaceQuery = DBConnector.prepareStatement(addDomeInterfaceQuery, Statement.RETURN_GENERATED_KEYS);
 			preparedStatementDomeInterfaceQuery.setInt(1, postUpdateDomeInterface.getVersion());
@@ -52,9 +53,9 @@ class DomeInterfacesDao {
 			
 			preparedStatementDomeInterfaceQuery.setInt(6, postUpdateDomeInterface.getServiceId());
 			
-			//ToDo: deal with dome server ID
-			// find dome server ID == postUpdateDomeInterface.getDomeServer()
-			preparedStatementDomeInterfaceQuery.setInt(7, 1);
+
+			String domeServerStr = postUpdateDomeInterface.getDomeServer();
+			preparedStatementDomeInterfaceQuery.setInt(7, Integer.parseInt(domeServerStr));
 
 			int rowsAffected_interface = preparedStatementDomeInterfaceQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
@@ -62,9 +63,20 @@ class DomeInterfacesDao {
 				//ToDo: need to change error
 				throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "unable to add dome interface " + postUpdateDomeInterface.toString());
 			}
-			int interface_id = util.getGeneratedKey(preparedStatementDomeInterfaceQuery, "interface_id");
+			int id = util.getGeneratedKey(preparedStatementDomeInterfaceQuery, "interface_id");
+			
+			retObj.setId(Integer.toString(id));
+			retObj.setDomeServer(postUpdateDomeInterface.getDomeServer());
+			retObj.setInterfaceId(postUpdateDomeInterface.getInterfaceId());
+			retObj.setModelId(postUpdateDomeInterface.getModelId());
+			retObj.setName(postUpdateDomeInterface.getName());
+			//retObj.setPath(postUpdateDomeInterface.getPath());
+			retObj.setPath(null); //TO DO
+			retObj.setServiceId(new BigDecimal(Integer.toString(postUpdateDomeInterface.getServiceId())));
+			retObj.setType(postUpdateDomeInterface.getType());
+			retObj.setVersion(new BigDecimal(Integer.toString(postUpdateDomeInterface.getVersion())));
 
-			ListIterator<Integer> pathListIter = postUpdateDomeInterface.getPath().listIterator();
+			/*ListIterator<Integer> pathListIter = postUpdateDomeInterface.getPath().listIterator();
 			// may need to loop over the insert
 			String addDomeInterfacePathQuery = "INSERT into dome_interface_path (interface_id, path) values ( ?, ?)";
 			
@@ -82,7 +94,7 @@ class DomeInterfacesDao {
 					throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "unable to add dome interface " + postUpdateDomeInterface.toString());
 				}
 
-			}
+			}*/
 			
 			
 		} catch (SQLException se) {
@@ -99,6 +111,8 @@ class DomeInterfacesDao {
 
 		}
 		
-		return new GetDomeInterface();
+		
+		
+		return retObj;
 	}
 }
