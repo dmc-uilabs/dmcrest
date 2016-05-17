@@ -260,10 +260,35 @@ public class ServiceIT extends BaseIT {
                 when().
                 delete("service_images/{imageId}", imageId);
     }
+    
+    @Test
+    public void deleteNonExistingImage () {
+
+        int imageId = 1223456789;
+        given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.BAD_REQUEST.value()).
+                when().
+                delete("service_images/{imageId}", imageId);
+    }
+    
+    @Test
+    public void getNonExistingImage () {
+        int serviceId = 122345678;
+        given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.BAD_REQUEST.value()).
+                when().
+                get("/services/" + serviceId + "/service_images");
+    }
 
 
     
-    
+  
     
     /**
      * test case for get /services/{serviceID}/service_tags

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
-import org.dmc.services.services.ServiceTag.ServiceTagBuilder;
+import org.dmc.services.services.ServiceImages.ServiceImagesBuilder;
 
 
 /* 

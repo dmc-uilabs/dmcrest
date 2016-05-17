@@ -63,6 +63,9 @@ public class ServiceImagesController {
 			ArrayList<ServiceImages> imageList = null; 
 			try{ 
 				imageList = serviceImagesDao.getServiceImages(serviceId); 
+				if(imageList == null){ 
+	            	statusCode = HttpStatus.BAD_REQUEST.value(); 
+				}
 				return new ResponseEntity<ArrayList<ServiceImages>>(imageList, HttpStatus.valueOf(statusCode));
 			}
 			

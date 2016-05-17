@@ -279,6 +279,9 @@
 							</includes>
 							<!-- Exclude search tests by default -->
 							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT verify -P  "integration" -->
+							
+							<!--  Ignore above command for our specific build. To run all tests: mvn integration-test -P integration
+							To run a specific test: mvn-Dtest=ProjectIT test -->
 							<excludes>
 								<exclude>**/SearchIT.java</exclude>
 							</excludes>
