@@ -121,13 +121,18 @@ public class CompanyIT extends BaseIT {
 		}
 	}
 
-	// @Test
+	@Test
 	public void testCompanyGet() {
 		if (this.createdId != null) {
-			given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect().statusCode(200)
-					.when().get(COMPANY_GET_RESOURCE, this.createdId.toString()).then()
-					.body(matchesJsonSchemaInClasspath("Schemas/companySchema.json"))
-					.body("id", equalTo(this.createdId));
+			Company returnedCompany =
+			given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", randomEPPN).
+			expect().
+				statusCode(200).  //HttpStatus.OK.value()
+			when().
+				get(COMPANY_GET_RESOURCE, this.createdId.toString()).
+				as(Company.class);
 		}
 	}
 

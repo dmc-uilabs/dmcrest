@@ -7,6 +7,11 @@ public class FeatureImage {
     private final String thumbnail;    
     private final String large;   
     
+	public FeatureImage() {
+        this.thumbnail = "thumbnail";
+        this.large = "large";
+    }
+	
     public FeatureImage(String thumbnail, String large) {
         this.thumbnail = thumbnail;
         this.large = large;

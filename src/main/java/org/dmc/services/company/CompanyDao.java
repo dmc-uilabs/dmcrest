@@ -48,7 +48,10 @@ public class CompanyDao {
                 int accountId = resultSet.getInt("accountid");
                 String name = resultSet.getString("name");
 
-                Company company = new Company.CompanyBuilder(id, accountId, name).build();
+                Company company = new Company();
+				company.setId(Integer.toString(id));
+				company.setAccountId(Integer.toString(accountId));
+				company.setName(name);
                 companies.add(company);
             }
         } catch (SQLException e) {
@@ -119,48 +122,54 @@ public class CompanyDao {
 					throw new HTTPException(HttpStatus.FORBIDDEN.value());
 				}
 				
-				return new 
-					Company.CompanyBuilder(id, accountId, name)
-					.location(location)
-					.description(description)
-					.division(division)
-					.industry(industry)
-					.NAICSCode(NAICSCode)
-					.RDFocus(RDFocus)
-					.customers(customers)
-					.awardsReceived(awardsReceived)
-					.technicalExpertise(technicalExpertise)
-					.toolsSoftwareEquipmentMachines(toolsSoftwareEquipmentMachines)
-					.postCollaborations(postCollaborations)
-					.pastProjects(pastProjects)
-					.upcomingProjectInterests(upcomingProjectInterests)
-					.collaborationInterests(collaborationInterests)
-					.address(address +  ", " + address2)
-					.city(city)
-					.state(state)
-					.zipCode(zipCode)
-					.twitter(twitter)
-					.linkedIn(linkedIn)
-					.website(website)
-					.methodCommunication(methodCommunication)
-					.email(email)
-					.phone(phone)
-					.categoryTier(categoryTier)
-					.dateJoined(dateJoined)
-					.reasonJoining(reasonJoining)
-					.featureImage(new FeatureImage(featureImageThumb, featureImageLarge))
-					.logoImage(logoImage)
-					.follow(follow)
-					.favoratesCount(favoratesCount)
-					.isOwner(isOwner)
-					.owner(owner)
-					.build();
+				Company company = new Company();
+				company.setId(Integer.toString(id));
+				company.setAccountId(Integer.toString(accountId));
+				company.setName(name);
+				company.setLocation(location);
+				company.setDescription(description);
+				company.setDivision(division);
+				company.setIndustry(industry);
+				company.setNAICSCode(NAICSCode);
+				company.setRDFocus(RDFocus);
+				company.setCustomers(customers);
+				company.setAwardsReceived(awardsReceived);
+				company.setTechnicalExpertise(technicalExpertise);
+				company.setToolsSoftwareEquipmentMachines(toolsSoftwareEquipmentMachines);
+				company.setPastCollaborations(postCollaborations);
+				company.setPastProjects(pastProjects);
+				company.setUpcomingProjectInterests(upcomingProjectInterests);
+				company.setCollaborationInterests(collaborationInterests);
+				company.setAddress(address +  ", " + address2);
+				company.setCity(city);
+// Todo:				company.setState(state);
+				company.setZipCode(zipCode);
+				company.setTwitter(twitter);
+				company.setLinkedIn(linkedIn);
+				company.setWebsite(website);
+				company.setMethodCommunication(methodCommunication);
+				company.setEmail(email);
+				company.setPhone(phone);
+				company.setCategoryTier(categoryTier);
+				company.setDateJoined(dateJoined);
+				company.setReasonJoining(reasonJoining);
+				company.setFeatureImage(new FeatureImage(featureImageThumb, featureImageLarge));
+				company.setLogoImage(logoImage);
+				company.setFollow(follow);
+				company.setFavoritesCount(favoratesCount);
+				company.setIsOwner(isOwner);
+				company.setOwner(owner);
+
+				
+				return company;
+
 			}
 			
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+			throw new HTTPException(HttpStatus.FORBIDDEN.value());
 		}
-		return null;
+		throw new HTTPException(HttpStatus.FORBIDDEN.value());
 	}
 	
 	public Id createCompany(String jsonStr, String userEPPN) { 
