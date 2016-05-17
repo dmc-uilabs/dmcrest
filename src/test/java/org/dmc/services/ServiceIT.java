@@ -1,7 +1,6 @@
 package org.dmc.services;
 
 import org.dmc.services.services.PostServiceInputPosition;
-import org.dmc.services.services.PostSharedService;
 import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
@@ -39,7 +38,6 @@ public class ServiceIT extends BaseIT {
     private String serviceId = "1"; // the serviceId need to be assigned new value
     private String domeInterfaceId = "1";
     private String positionInputId = "1";
-    private String sharedServiceId = "1";
 
     @Test
     public void testService() {
@@ -234,9 +232,21 @@ public class ServiceIT extends BaseIT {
         header("AJP_eppn", userEPPN).
 	expect().
 	statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().post("/dome-interfaces");
+	when().get("/services/" + serviceId + "/services_statistic");
     }
 	
+    /**
+     * test case for get /services/{serviceID}/dome-interfaces
+     */
+    @Test
+    public void testServiceGet_DomeInterface(){
+        given().
+        header("AJP_eppn", userEPPN).
+        expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+        when().get("/services/" + serviceId + "/dome-interfaces");
+    }
+
     /**
      * test case for PATCH /dome-interfaces/{domeInterfaceId}
      */
@@ -471,46 +481,6 @@ public class ServiceIT extends BaseIT {
 		
 	}
 	
-	
-	/*
-	 * test case for POST /shared-services
-	 */
-	@Test
-	public void testPost_SharedService(){
-		PostSharedService obj = new PostSharedService();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedSharedServiceJSONString = null;
-		
-		try {
-			postedSharedServiceJSONString = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(postedSharedServiceJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        post("/shared-services");	
-	}
-	
-	
-
-	/*
-	 * test case for GET /shared-services/{id}
-	 */
-	@Test
-	public void testGet_SharedService(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/shared-services/" + sharedServiceId);
-	}
 	
     // create a service object to use as body in post
     private Service createNewServiceObjectToPost()
