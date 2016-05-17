@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.dmc.services.Id;
+import org.dmc.services.sharedattributes.Util;
 
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
@@ -28,15 +29,22 @@ public class ServiceImagesController {
 	private final String logTag = ServiceImagesController.class.getName();
 	private ServiceImagesDao serviceImagesDao = new ServiceImagesDao();
 
+	
+	/*Create a Service Image*/
+
 	@RequestMapping(value = "/service_images", method = RequestMethod.POST)
 	public ResponseEntity createServiceImages (@RequestBody ServiceImages payload, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "Create ServiceImages, userEPPN: " + userEPPN);
 		int statusCode = HttpStatus.OK.value(); 
-		ServiceImages image = new ServiceImages();
-		
+		Id imageId = null;	
       try {
-            image = serviceImagesDao.createServiceImages(payload, userEPPN);
-            return new ResponseEntity<ServiceImages>(image, HttpStatus.valueOf(statusCode));
+            imageId = serviceImagesDao.createServiceImages(payload, userEPPN);
+            //If the Given Service Id does not exist, return a -1 
+            if (imageId == null){
+            	imageId = new Id.IdBuilder(-1).build();
+            	statusCode = HttpStatus.BAD_REQUEST.value(); 
+            }
+            return new ResponseEntity<Id>(imageId, HttpStatus.valueOf(statusCode));
         } catch(HTTPException e) {
     		statusCode = e.getStatusCode();
     		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
@@ -44,22 +52,25 @@ public class ServiceImagesController {
         }  
 	}
 
-
-	@RequestMapping(value = "/service_images", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity getServiceImages(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-		ServiceLogger.log(logTag, "In GET ServiceImage as user " + userEPPN); 
+	
+	/*
+	 * Get all images for a part
+	 */
+	@RequestMapping(value = "/service_images/{serviceId}", produces = { "application/json" }, method = RequestMethod.GET)
+	public ResponseEntity getServiceImages(@PathVariable("serviceId") int serviceId,  @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "In GET ServiceImage by User " + userEPPN); 
 			int statusCode = HttpStatus.OK.value(); 
-			ArrayList<ServiceTag> imageList = null; 
+			ArrayList<ServiceImages> imageList = null; 
 			try{ 
-				imageList = serviceImagesDao.getServiceImages(); 
-				return new ResponseEntity<ArrayList<ServiceTag>>(imageList, HttpStatus.valueOf(statusCode));
+				imageList = serviceImagesDao.getServiceImages(serviceId); 
+				return new ResponseEntity<ArrayList<ServiceImages>>(imageList, HttpStatus.valueOf(statusCode));
 			}
 			
 			catch(HTTPException e) {
 	    		statusCode = e.getStatusCode();
 	    		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
 	    		return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-	        }  				
+	        }  			  
 	}
 
 	
@@ -67,13 +78,18 @@ public class ServiceImagesController {
 	DELETE /service_images/{imageId}
 	 */
 	@RequestMapping(value = "service_images/{imageId}", produces = { "application/json"}, method = RequestMethod.DELETE)
-	public ResponseEntity deleteServiceImages(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @PathVariable("imageId") String imageId) {
-
+	public ResponseEntity deleteServiceImages(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @PathVariable("imageId") int imageId) {
 		ServiceLogger.log(logTag, "DELETE ServiceImage, imageId: " + imageId);
 		int statusCode = HttpStatus.OK.value(); 
 		Id id = null; 
 		try{ 
 			id = serviceImagesDao.deleteServiceImages(imageId, userEPPN); 
+			
+			//If nothing was deleted, return -1
+			 if (id == null){
+	            	id = new Id.IdBuilder(-1).build();
+	            	statusCode = HttpStatus.BAD_REQUEST.value(); 
+	            }
 			return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
 		}
 		

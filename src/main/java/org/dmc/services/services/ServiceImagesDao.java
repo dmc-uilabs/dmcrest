@@ -3,16 +3,19 @@ package org.dmc.services.services;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.sql.ResultSet;
 
+import org.json.JSONException;
 
 import javax.xml.ws.http.HTTPException;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.UserDao;
 
@@ -21,84 +24,60 @@ public class ServiceImagesDao {
 	private final String logTag = ServiceImagesDao.class.getName();
 	private ResultSet resultSet;
 	private Connection connection;
-	private Util util;
 
+	public Id createServiceImages(ServiceImages payload, String userEPPN) {
+		
+		int userId = -99999;
+		connection = DBConnector.connection();
+		PreparedStatement statement;
+		Util util = Util.getInstance();
+		int id = -99999;
 	
-	public ServiceImages createServiceImages(ServiceImages payload, String userEPPN) throws HTTPException{
+		/* 
+		 * NEED TO PUT Get AWS URL FUNCTION
+		 */
 		
-		
-		String id = "TempID";
-        int userId = -99999;
-        String url = "This Is a Temp AWS URL"; 
-        
-        //Create return object
-		ServiceImages serviceImage = new ServiceImages();
-		
-		//Fill Object Intially
-		serviceImage.setServiceId(payload.getServiceId()); 
-		serviceImage.setId(id); 
-		serviceImage.setUrl(url); 
-       
-		
-        //Tests to see if valid user, exits function if so
-       /* try {
+	
+		  //Tests to see if valid user, exits function if so
+        try {
             userId = UserDao.getUserID(userEPPN);
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			return serviceImage; 
-		}*/ 
-	    
-	    //Set up connection   
-		// connection = DBConnector.connection();
-		//PreparedStatement statement;
-		 //util = Util.getInstance();
-		/*
-		//Query the DB
+			return null;
+		} 
+	  
+		try {
+			connection.setAutoCommit(false);
+		} catch (SQLException ex) {
+			return null;
+		}
+		
+
 		try {
 
-			//What does this do? 
-			connection.setAutoCommit(false);
-			
-			String query = "INSERT INTO ?? (id, service_id, url) VALUES ( ?, ?, ?)";
+			String query = "INSERT INTO service_images (service_id, url) VALUES (?, ?)";
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			statement.setString(1, payload.getId());
-			statement.setString(2, payload.getServiceId());
-			statement.setString(3, payload.getUrl());
+			statement.setInt(1, payload.getServiceId());
+			statement.setString(2, payload.getUrl());
 			statement.executeUpdate();
 
-			//create a unique image key for return
-			/*
-			//NEED TO FIX GENERATE KEY TO RETURN A STRING ID 
-			id = util.getGeneratedKey(statement, "image_id");
-			url = AWS_S3.getUrl(statement); 
-			*/
-			/*
-			
-			ServiceLogger.log(logTag, "Creating Service Image, returning ID: " + id);
-
-			//What does this do exactly? Execute the statement?
+			id = util.getGeneratedKey(statement, "id");
+			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
 			connection.commit();
+
 		} 
-		
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, "SQL EXCEPTION ----- " + e.getMessage());
-			
 			try {
-				
-				//What does this do..? 
 				if (connection != null) {
 					ServiceLogger.log(logTag, "createServiceImage transaction rolled back");
 					connection.rollback();
 				}
-			} 
-			
-			catch (SQLException ex) {
+			} catch (SQLException ex) {
 				ServiceLogger.log(logTag, ex.getMessage());
 			}
-			
-			return serviceImage;
+			return null;
 		} 
-		
 		finally {
 			try {
 				if (connection != null) {
@@ -109,88 +88,84 @@ public class ServiceImagesDao {
 			}
 		}
 
-		//Reset output 
-		serviceImage.setId(id); 
-		serviceImage.setUrl(url); 
-		*/
-		return serviceImage;
-		
-		
+		return new Id.IdBuilder(id).build();			
 	}//END POST 
 	
 	
-	public ArrayList<ServiceTag> getServiceImages() {
-		ArrayList<ServiceTag> list =new ArrayList<ServiceTag>();
-		String id = "Fake", serviceId = "Null", name = "Bob";
-		/*
-		try {
-			//Query! 
-			
-			resultSet = DBConnector.executeQuery("SELECT "
-					+ "d.interface_id id, d.alias title, d.description, r.runtime, r.date_completed rundate, s.group_id, g.group_name "
-					+ "FROM dome_interfaces d "
-					+ "JOIN runnable_runtimes r "
-					+ "ON r.interface_id = d.interface_id "
-					+ "JOIN service_subscriptions s ON s.interface_id = d.interface_id "
-					+ "JOIN groups g ON g.group_id = s.group_id ");
+	public ArrayList<ServiceImages> getServiceImages(int input) {
 
-			while (resultSet.next()) {
-				
-				
-				//Collect output and push to a list
-				id = resultSet.getString("id");
-				serviceId = resultSet.getString("serviceId");
-				name = resultSet.getString("name");
-				list.add(new ServiceTag.ServiceTagBuilder(id, serviceId, name).build());
-			}
-			return list;
+		ArrayList<ServiceImages> list =new ArrayList<ServiceImages>();
+		//connection = DBConnector.connection();
+		try {
+	
+			String query = "SELECT * FROM service_images WHERE service_id = " + input;
+			resultSet = DBConnector.executeQuery(query);
+
+				while (resultSet.next()) {
+					//Collect output and push to a list
+					int id = resultSet.getInt("id");
+					int serviceId = resultSet.getInt("service_id");
+					String url = resultSet.getString("url");
+					ServiceImages img = new ServiceImages(id, serviceId, url);
+					list.add(img);			
+				}
+		   // connection.commit();
 		} 
 		
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-		}*/
-		
-		list.add(new ServiceTag.ServiceTagBuilder(id, serviceId, name).build());
+			return null;
+		}
 		return list;
 
-		//return null;
 	}//END GET
 
-	public Id deleteServiceImages(String imageId, String userEPPN) {
+	
+	public Id deleteServiceImages(int imageId, String userEPPN) {
 
-		/*
+		//BEEF THIS UP!
         //Tests to see if valid user, exits function if so
         try {
-            userId = UserDao.getUserID(userEPPN);
+            int userId = UserDao.getUserID(userEPPN);
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null; 
-		}*/
-
-		//Connection connection = DBConnector.connection();
-		//PreparedStatement statement;
-		//String query;
-		int id = -99;
-		 
+		}
+		int rows; 
 		
-		/*
+		//Connect to DB
+		connection = DBConnector.connection();
+		PreparedStatement statement;
+		Boolean resetAutoCommit = true;
+		
+		 
 	    try {
-
-	    	connection.setAutoCommit(false);
 	    	
+	    	// Check that the user deleting the image is an administrator or the owner of the service
+			/**
+			 ** Checks disabled until user owners for services can be tracked
+			if (!(isOwnerOfService(userId)) {
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to delete videos for company " + companyId);
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+			*/
+			connection.setAutoCommit(false); 
+
+	   
 			// delete Image
-	        query = "DELETE FROM ##### WHERE ImageId = ?";
+	        String query = "DELETE FROM service_images WHERE id = ?";
 	        statement = DBConnector.prepareStatement(query);
-	        statement.setString(1, imageId);
-	        statement.executeUpdate();
-	        connection.commit();
+	        statement.setInt(1, imageId);   
+	        rows = statement.executeUpdate();
+			connection.commit();
+
 	    }
 		catch (SQLException e) {
-			ServiceLogger.log(logTag, "ERROR IN DELETE COMPANY-------------------" + e.getMessage());
+			ServiceLogger.log(logTag, "ERROR IN DELETE Service Images-------------------" + e.getMessage());
 			
 			if (connection != null) {
 				try {
-					ServiceLogger.log(logTag, "Transaction deleteCompany Rolled back");
+					ServiceLogger.log(logTag, "Transaction deleteServiceImages Rolled back");
 					connection.rollback();
 				} 
 				
@@ -205,19 +180,13 @@ public class ServiceImagesDao {
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return null;
-		}//Catch 
+		}
+	
 	    
-		finally {
-			if (connection != null) {
-				try {
-					connection.setAutoCommit(true);
-				} catch (SQLException ex) {
-					ServiceLogger.log(logTag, ex.getMessage());
-				}
-			}
-		}//finally*/
-
-		return new Id.IdBuilder(id).build();
+	    if(rows > 0){
+	    	return new Id.IdBuilder(imageId).build();
+	    }
+		return null;
 	}
 	
 } //END DAO class
