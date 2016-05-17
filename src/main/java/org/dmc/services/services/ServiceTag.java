@@ -2,23 +2,17 @@ package org.dmc.services.services;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-07T17:42:57.404Z")
 public class ServiceTag  {
-
+  
   private String id = null;
   private String serviceId = null;
   private String name = null;
 
-  private ServiceTag(ServiceTagBuilder builder) {
-      this.id = builder.id;
-      this.serviceId = builder.serviceId;
-      this.name = builder.name;
-  }
-
+  
   /**
    **/
   @JsonProperty("id")
@@ -29,7 +23,7 @@ public class ServiceTag  {
     this.id = id;
   }
 
-
+  
   /**
    **/
   @JsonProperty("serviceId")
@@ -40,7 +34,7 @@ public class ServiceTag  {
     this.serviceId = serviceId;
   }
 
-
+  
   /**
    **/
   @JsonProperty("name")
@@ -51,7 +45,7 @@ public class ServiceTag  {
     this.name = name;
   }
 
-
+  
 
   @Override
   public boolean equals(Object o) {
@@ -76,29 +70,11 @@ public class ServiceTag  {
   public String toString()  {
     StringBuilder sb = new StringBuilder();
     sb.append("class ServiceTag {\n");
-
+    
     sb.append("  id: ").append(id).append("\n");
     sb.append("  serviceId: ").append(serviceId).append("\n");
     sb.append("  name: ").append(name).append("\n");
     sb.append("}\n");
     return sb.toString();
-  }
-
-  //Service Tag Builder
-  public static class ServiceTagBuilder {
-
-		private final String id;
-    	private final String serviceId;
-    	private final String name;
-
-  	public ServiceTagBuilder(String id, String serviceId, String name) {
-  		this.id = id;
-  		this.serviceId = serviceId;
-  		this.name = name;
-  	}
-
-  	public ServiceTag build() {
-  		return new ServiceTag(this);
-  	}
   }
 }

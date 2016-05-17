@@ -1,11 +1,5 @@
 package org.dmc.services;
 
-import org.dmc.services.services.PostServiceInputPosition;
-import org.dmc.services.services.PostUpdateDomeInterface;
-import org.dmc.services.services.Service;
-import org.dmc.services.services.ServiceDao;
-import org.dmc.services.services.ServiceInputPosition;
-import org.dmc.services.services.ServiceSpecifications;
 import org.dmc.services.services.*;
 import org.dmc.services.utility.TestUserUtil;
 import org.junit.Test;
@@ -176,18 +170,101 @@ public class ServiceIT extends BaseIT {
         when().get("/services/" + serviceId + "/service_history");
     }
 
-    /**
-     * test case for get /services/{serviceID}/service_images
+   
+    /*
+     * Test Case for POST /services/service_images
+     * test case for GET /services/{serviceID}/service_images
+     * and DELETE /service_images/{imageId}
      */
     @Test
-    public void testServiceGet_ServiceImage(){
+    public void addAndGetAndDeleteServiceImages () {
+    	
+    	int serviceId = 2;
+    	
+        ArrayList<ServiceImages> originalImages =
+                given().
+                        header("AJP_eppn", userEPPN).
+                        expect().
+                        statusCode(200).
+                        when().
+                        get("/services/" + serviceId + "/service_images").
+                        as(ArrayList.class);
+
+
+        String url = "FakeUrl";
+        int serviceImageId = addImage(serviceId, url);
+        assertTrue(serviceImageId != -1);
+
+        ArrayList<ServiceTag> newImages =
+                given().
+                        header("AJP_eppn", userEPPN).
+                        expect().
+                        statusCode(200).
+                        when().
+                        get("/services/" + serviceId + "/service_images").
+                        as(ArrayList.class);
+
+        int numBefore = (originalImages != null) ? originalImages.size() : 0;
+        int numAfter  = (newImages != null) ? newImages.size() : 0;
+        int numExpected = numBefore + 1;
+        assertTrue (numAfter == numExpected);
+
+        deleteExistingImage(serviceImageId);
+
+        ArrayList<ServiceTag> afterDeleteTags =
+                given().
+                        header("AJP_eppn", userEPPN).
+                        expect().
+                        statusCode(200).
+                        when().
+                        get("/services/" + serviceId + "/service_images").
+                        as(ArrayList.class);
+
+        int numAfterDelete  = (afterDeleteTags != null) ? afterDeleteTags.size() : 0;
+        assertTrue (numAfterDelete == numBefore);
+
+    }
+    
+    
+    public int addImage (int serviceId, String url) {
+
+        int id = -1;
+        ServiceImages json = new ServiceImages();
+        json.setServiceId(serviceId);
+        json.setUrl(url);
+
+        Integer createdId  = given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+                body(json).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                post("/service_images").
+                then().
+                body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+                .extract().path("id");
+
+        id = (createdId != null) ? createdId.intValue() : -1;
+
+        return id;
+    }
+    
+    public void deleteExistingImage (int imageId) {
+
         given().
-        header("AJP_eppn", userEPPN).
-        expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/service_images");
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                delete("service_images/{imageId}", imageId);
     }
 
+
+    
+    
+    
     /**
      * test case for get /services/{serviceID}/service_tags
      */
