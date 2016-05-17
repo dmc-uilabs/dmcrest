@@ -1,12 +1,14 @@
 package org.dmc.services;
 
+import org.dmc.services.services.ServiceDao;
+
 import org.dmc.services.services.PostServiceInputPosition;
-import org.dmc.services.services.PostSharedService;
 import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.services.Service;
-import org.dmc.services.services.ServiceDao;
 import org.dmc.services.services.ServiceInputPosition;
 import org.dmc.services.services.ServiceSpecifications;
+import org.dmc.services.services.*;
+import org.dmc.services.utility.TestUserUtil;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -20,19 +22,22 @@ import java.util.List;
 import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertTrue;
 
 //@Ignore
 public class ServiceIT extends BaseIT {
 	
 	private static final String SERVICE_RESOURCE = "/services/{id}";
+	private static final String SERVICE_TAGS_GET_BY_SERVICE_ID = "/services/{serviceID}/service_tags";
+	private static final String SERVICE_TAGS_RESOURCE = "/service_tags";
+
     private ServiceDao serviceDao = new ServiceDao();
 	private Service service = null;
 	private Random r = new Random();
 	private String serviceId = "1"; // the serviceId need to be assigned new value
 	private String domeInterfaceId = "1";
 	private String positionInputId = "1";
-	private String sharedServiceId = "1";
-	
+
 	@Test
 	public void getService() {	
 	  // Get a random service to test againts	
@@ -44,7 +49,7 @@ public class ServiceIT extends BaseIT {
 	    expect().
 	      statusCode(200).
 	      when().
-	      get(SERVICE_RESOURCE, service.getId()).then().
+	      get(SERVICE_RESOURCE, Integer.toString(service.getId())).then().
           body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
 	  }
 	}
@@ -174,11 +179,34 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServiceGet_ServiceTags(){
+
+		int serviceId = 2;
+		String tag1 = "tag_" + TestUserUtil.generateTime();
+
+		ServiceTag json = new ServiceTag();
+		json.setServiceId(Integer.toString(serviceId));
+		json.setName(tag1);
+
 		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/services/" + serviceId + "/service_tags");
+				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
+				body(json).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				post(SERVICE_TAGS_RESOURCE);
+
+				ArrayList<ServiceTag> tags =
+				given().
+						header("AJP_eppn", userEPPN).
+						expect().
+						statusCode(200).
+						when().
+						get(SERVICE_TAGS_GET_BY_SERVICE_ID, serviceId).
+						as(ArrayList.class);
+
+		assertTrue(tags != null);
+		assertTrue(tags.size() > 0);
 	}
 	
 	/**
@@ -466,46 +494,5 @@ public class ServiceIT extends BaseIT {
 		
 	}
 	
-	
-	/*
-	 * test case for POST /shared-services
-	 */
-	@Test
-	public void testPost_SharedService(){
-		PostSharedService obj = new PostSharedService();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedSharedServiceJSONString = null;
-		
-		try {
-			postedSharedServiceJSONString = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(postedSharedServiceJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        post("/shared-services");	
-	}
-	
-	
 
-	/*
-	 * test case for GET /shared-services/{id}
-	 */
-	@Test
-	public void testGet_SharedService(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/shared-services/" + sharedServiceId);
-	}
-	
-	
 }

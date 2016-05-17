@@ -12,23 +12,23 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class PostUpdateDomeInterface  {
   
-  private BigDecimal version = null;
+  private Integer version = null;
   private String modelId = null;
   private String interfaceId = null;
   private String type = null;
   private String name = null;
-  private List<BigDecimal> path = new ArrayList<BigDecimal>();
-  private BigDecimal serviceId = null;
+  private List<Integer> path = new ArrayList<Integer>();
+  private Integer serviceId = null;
   private String domeServer = null;
 
   
   /**
    **/
   @JsonProperty("version")
-  public BigDecimal getVersion() {
+  public Integer getVersion() {
     return version;
   }
-  public void setVersion(BigDecimal version) {
+  public void setVersion(Integer version) {
     this.version = version;
   }
 
@@ -80,10 +80,10 @@ public class PostUpdateDomeInterface  {
   /**
    **/
   @JsonProperty("path")
-  public List<BigDecimal> getPath() {
+  public List<Integer> getPath() {
     return path;
   }
-  public void setPath(List<BigDecimal> path) {
+  public void setPath(List<Integer> path) {
     this.path = path;
   }
 
@@ -91,10 +91,10 @@ public class PostUpdateDomeInterface  {
   /**
    **/
   @JsonProperty("serviceId")
-  public BigDecimal getServiceId() {
+  public Integer getServiceId() {
     return serviceId;
   }
-  public void setServiceId(BigDecimal serviceId) {
+  public void setServiceId(Integer serviceId) {
     this.serviceId = serviceId;
   }
 

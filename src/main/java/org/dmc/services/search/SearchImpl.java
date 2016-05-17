@@ -73,13 +73,15 @@ public class SearchImpl implements SearchInterface {
         fieldMap.put(COLLECTION_USERS, fieldsUsers);
 
         List<String> fieldsServices = new ArrayList<String>();
-        fieldsServices.add("interface_name");
-        fieldsServices.add("interface_data");
-        fieldsServices.add("group_name");
-        fieldsServices.add("unix_group_name");
-        fieldsServices.add("server_url");
-        fieldsServices.add("title");
-        fieldsServices.add("description");
+        fieldsServices.add(ServiceResponseHandler.FIELD_COMPANY_NAME);
+        fieldsServices.add(ServiceResponseHandler.FIELD_COMPANY_DESCRIPTION);
+        fieldsServices.add(ServiceResponseHandler.FIELD_OWNER_USER_NAME);
+        fieldsServices.add(ServiceResponseHandler.FIELD_OWNER_REALNAME);
+        fieldsServices.add(ServiceResponseHandler.FIELD_TITLE);
+        fieldsServices.add(ServiceResponseHandler.FIELD_DESCRIPTION);
+        fieldsServices.add(ServiceResponseHandler.FIELD_SPECIFICATIONS);
+        fieldsServices.add(ServiceResponseHandler.FIELD_TAGS);
+        fieldsServices.add(ServiceResponseHandler.FIELD_SERVICE_INTERFACE_NAME);
         fieldMap.put(COLLECTION_SERVICES, fieldsServices);
 
         List<String> fieldCompanies = new ArrayList<String>();
