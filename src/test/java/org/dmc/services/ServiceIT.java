@@ -271,6 +271,32 @@ public class ServiceIT extends BaseIT {
         when().patch("/dome-interfaces/" + domeInterfaceId);
     }
 	
+    
+    /**
+	 * test case for POST /dome-interfaces
+	 */
+	@Test
+	public void testServicePost_DomeInterface(){
+		PostUpdateDomeInterface postUpdateDomeInterface = new PostUpdateDomeInterface();
+		ObjectMapper mapper = new ObjectMapper();
+		String postDomeInterfaceJSONString = null;
+		try {
+	           postDomeInterfaceJSONString = mapper.writeValueAsString(postUpdateDomeInterface);
+		} catch (JsonProcessingException e) {
+	           // TODO Auto-generated catch block
+	           e.printStackTrace();
+	        }
+		
+		//GetDomeInterface domeInterface =
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(postDomeInterfaceJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().post("/dome-interfaces");//.as(GetDomeInterface.class);
+	}
+    
 	
 	/**
 	 * test case for DELETE /dome-interfaces/{domeInterfaceId}
