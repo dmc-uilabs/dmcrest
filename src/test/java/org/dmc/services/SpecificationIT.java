@@ -13,6 +13,8 @@ import static com.jayway.restassured.RestAssured.*;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
+import java.util.ArrayList;
+
 //@Ignore
 public class SpecificationIT extends BaseIT {
 	
@@ -39,11 +41,11 @@ public class SpecificationIT extends BaseIT {
 	@Test
 	public void testGet_ArraySpecification(){
 		given().
-		header("AJP_eppn","user_EPPN").
+		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
-		get("array_specifications");	
+		get("/array_specifications");	
 	}
 	
 	
@@ -51,8 +53,8 @@ public class SpecificationIT extends BaseIT {
 	 * test case for POST /array_specifications
 	 */
 	@Test
-	public void testProductPost_ProductReview() {
-		ArraySpecifications obj = new ArraySpecifications();
+	public void testProductPost_ArraySpecification() {
+		ArrayList<ArraySpecifications> obj = new ArrayList<ArraySpecifications>();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedArraySpecificationJSONString = null;
 		try {

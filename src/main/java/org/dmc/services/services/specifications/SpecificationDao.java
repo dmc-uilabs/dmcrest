@@ -71,8 +71,8 @@ public class SpecificationDao {
 			
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			statement.setInt(1, serviceId);
-			statement.setBigDecimal(2, spec.getInput());
-			statement.setBigDecimal(3, spec.getOutput());
+			statement.setObject(2, spec.getInput(), java.sql.Types.INTEGER);
+			statement.setObject(3, spec.getOutput(), java.sql.Types.INTEGER);
 			statement.setString(4, special);
 			statement.setString(5, usageStats);
 			statement.setString(6, runStats);
@@ -93,6 +93,15 @@ public class SpecificationDao {
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		} catch (Exception e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            if (connection != null) {
+                try {
+                    ServiceLogger.log(logTag, "Transaction createServiceSpecification Rolled back");
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    ServiceLogger.log(logTag, ex.getMessage());
+                }
+            }
 			throw new DMCServiceException(DMCError.Generic, e.getMessage());
 		} finally {
 			if (connection != null) {
@@ -138,8 +147,8 @@ public class SpecificationDao {
 					+ "WHERE id = ?";
 			
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			statement.setBigDecimal(1, spec.getInput());
-			statement.setBigDecimal(2, spec.getOutput());
+			statement.setObject(1, spec.getInput(), java.sql.Types.INTEGER);
+			statement.setObject(2, spec.getOutput(), java.sql.Types.INTEGER);
 			statement.setString(3, special);
 			statement.setString(4, usageStats);
 			statement.setString(5, runStats);
@@ -194,7 +203,7 @@ public class SpecificationDao {
 			if (serviceId != -1) {
 				query += " WHERE service_id = " + serviceId;
 			} else {
-				query += " ORDER BY " + sort + " " + order + " LIMIT" + limit;
+				query += " ORDER BY " + sort + " " + order + " LIMIT " + limit;
 			}
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
@@ -209,8 +218,8 @@ public class SpecificationDao {
 				ServiceSpecifications spec = new ServiceSpecifications();
 				spec.setId(String.valueOf(this.resultSet.getInt("id")));
 				spec.setServiceId(String.valueOf(this.resultSet.getInt("service_id")));
-				spec.setInput(this.resultSet.getBigDecimal("input"));
-				spec.setOutput(this.resultSet.getBigDecimal("output"));
+				spec.setInput(this.resultSet.getObject("input", Integer.class));
+				spec.setOutput(this.resultSet.getObject("output", Integer.class));
 				spec.setSpecial(special);
 				spec.setUsageStats(usageStats);
 				spec.setRunStats(runStats);

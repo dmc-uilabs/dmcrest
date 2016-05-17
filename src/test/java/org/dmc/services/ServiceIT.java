@@ -6,7 +6,11 @@ import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.services.ServiceInputPosition;
+import org.dmc.services.services.ServiceSpecialSpecifications;
 import org.dmc.services.services.ServiceSpecifications;
+import org.dmc.services.services.RunStats;
+import org.dmc.services.services.UsageStats;
+
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -24,6 +28,7 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 //@Ignore
 public class ServiceIT extends BaseIT {
 	
+    private static final String logTag = ServiceIT.class.getName();
 	private static final String SERVICE_RESOURCE = "/services/{id}";
     private ServiceDao serviceDao = new ServiceDao();
 	private Service service = null;
@@ -300,6 +305,27 @@ public class ServiceIT extends BaseIT {
 	@Test
 	public void testServicePost_Specification(){
 		ServiceSpecifications specification = new ServiceSpecifications();
+		specification.setId("16703234");
+		specification.setServiceId(serviceId);
+		specification.setDescription("testing with junit");
+		specification.setInput(new Integer(1));
+		specification.setOutput(new Integer(1));
+		ServiceSpecialSpecifications special = new ServiceSpecialSpecifications();
+		special.setSpecification("stuck");
+		special.setSpecificationId("morejunk");
+		special.setData("this is the data");
+		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
+		specialList.add(special);
+		specification.setSpecial(specialList);
+		RunStats runstats = new RunStats();
+		runstats.setFail(new Integer(0));
+		runstats.setSuccess(new Integer(0));
+		specification.setRunStats(runstats);
+		UsageStats usagestats = new UsageStats();
+		usagestats.setAdded(new Integer(0));
+		usagestats.setMembers(new Integer(0));
+		specification.setUsageStats(usagestats);
+		
 		ObjectMapper mapper = new ObjectMapper();
 		String postedSpecificationJSONString = null;
 		try {
@@ -309,17 +335,46 @@ public class ServiceIT extends BaseIT {
 			e.printStackTrace();
 		}
 		
+        //pathParam("serviceID", serviceId).
+		ServiceLogger.log(logTag, "ServiceSpecifications object json = " + postedSpecificationJSONString);
+		ServiceLogger.log(logTag, "posting for serviceId = " + serviceId);
 		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(postedSpecificationJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        post("/service/" + serviceId + "/specifications");
+            header("Content-type", "application/json").
+            header("AJP_eppn", userEPPN).
+            body(postedSpecificationJSONString).
+    	expect().
+            statusCode(HttpStatus.OK.value()).
+    	when().
+            post("/service/" + serviceId + "/specifications");
 	}
 	
-	
+    /**
+     * test case for POST /service/{serviceID}/specifications
+     */
+    @Test
+    public void testServicePost_EmptySpecification(){
+        ServiceSpecifications specification = new ServiceSpecifications();
+        ObjectMapper mapper = new ObjectMapper();
+        String postedSpecificationJSONString = null;
+        try {
+            postedSpecificationJSONString = mapper.writeValueAsString(specification);
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        ServiceLogger.log(logTag, "ServiceSpecifications object json = " + postedSpecificationJSONString);
+        ServiceLogger.log(logTag, "posting for serviceId = " + serviceId);
+        given().
+            header("Content-type", "application/json").
+            header("AJP_eppn", userEPPN).
+            body(postedSpecificationJSONString).
+        expect().
+            statusCode(HttpStatus.OK.value()).
+        when().
+            post("/service/" + serviceId + "/specifications");
+    }
+    	
 	/**
 	 * test case for POST /service_runs
 	 */

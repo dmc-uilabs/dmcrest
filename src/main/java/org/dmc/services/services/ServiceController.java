@@ -6,11 +6,13 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
+import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyVideo;
+import org.dmc.services.services.specifications.ArraySpecifications;
 import org.dmc.services.services.specifications.Specification;
 import org.dmc.services.services.specifications.SpecificationDao;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -161,13 +163,20 @@ public class ServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/service/{serviceID}/specifications", method = RequestMethod.POST, produces = { "application/json", "text/html" })
-	@ResponseBody
-	public ResponseEntity createServiceSpecification(@PathVariable("id") int serviceId, @RequestBody ServiceSpecifications spec, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+	public ResponseEntity<?> createServiceSpecification(@PathVariable("serviceID") String serviceIdText, 
+	        @RequestBody ServiceSpecifications spec, 
+	        @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "createServiceSpecification");
 		Id id = null;
 
 		try {
+		    int serviceId = -1;
+		    try {
+		        serviceId = Integer.parseInt(serviceIdText);
+		    } catch (NumberFormatException e) {
+		        throw new DMCServiceException(DMCError.ServiceInterfaceNotMatch, "unable to parse " + serviceIdText + " as an integer");
+		    }
 			id = specificationDao.createServiceSpecification(serviceId, spec, userEPPN);
 			return new ResponseEntity<Id>(id, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
@@ -186,7 +195,7 @@ public class ServiceController {
 	@ResponseBody
 	public ResponseEntity updateServiceSpecification(@PathVariable("specificationId") int specId, @RequestBody ServiceSpecifications spec, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
-		ServiceLogger.log(logTag, "createServiceSpecification");
+		ServiceLogger.log(logTag, "updateServiceSpecification");
 		Id id = null;
 
 		try {
@@ -226,10 +235,10 @@ public class ServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/array_specifications", method = RequestMethod.GET, produces = { "application/json" })
-	public ResponseEntity getServiceSpecifications(@PathVariable("id") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN,
-				@RequestParam(value="_limit", defaultValue="1000") int limit,
-				@RequestParam(value="_order", defaultValue="DESC") String order,
-				@RequestParam(value="_sort", defaultValue="id") String sort) {
+	public ResponseEntity getServiceSpecifications(@RequestHeader(value = "AJP_eppn", required = true) String userEPPN,
+				@RequestParam(value="_limit", defaultValue="1000", required = false) int limit,
+				@RequestParam(value="_order", defaultValue="DESC", required = false) String order,
+				@RequestParam(value="_sort", defaultValue="id", required = false) String sort) {
 		
 		ServiceLogger.log(logTag, "getServiceSpecifications, userEPPN: " + userEPPN);
 		ArrayList<ServiceSpecifications> specs = null;
@@ -242,13 +251,12 @@ public class ServiceController {
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		} 
 	}
-	
-	@RequestMapping(value = "/service/{serviceID}/specifications", produces = { "application/json",
-			"text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<Void> postServiceSpecification(@PathVariable("serviceID") String serviceID,
-			@RequestBody ServiceSpecifications body) {
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
-	}
+
+	@RequestMapping(value = "/array_specifications", method = RequestMethod.POST, produces = { "application/json", "text/html" }) 
+    public ResponseEntity<?> arraySpecificationsPost(
+	       @RequestBody List<ArraySpecifications> body) {
+        // do some magic!
+        return new ResponseEntity<List<ArraySpecifications>>(HttpStatus.NOT_IMPLEMENTED);
+    }
 
 }

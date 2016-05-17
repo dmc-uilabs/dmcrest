@@ -1,7 +1,6 @@
 package org.dmc.services.services;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +14,8 @@ public class ServiceSpecifications  {
   private String id = null;
   private String serviceId = null;
   private String description = null;
-  private BigDecimal input = null;
-  private BigDecimal output = null;
+  private Integer input = null;
+  private Integer output = null;
   private List<ServiceSpecialSpecifications> special = new ArrayList<ServiceSpecialSpecifications>();
   private UsageStats usageStats = null;
   private RunStats runStats = null;
@@ -58,10 +57,10 @@ public class ServiceSpecifications  {
   /**
    **/
   @JsonProperty("input")
-  public BigDecimal getInput() {
+  public Integer getInput() {
     return input;
   }
-  public void setInput(BigDecimal input) {
+  public void setInput(Integer input) {
     this.input = input;
   }
 
@@ -69,10 +68,10 @@ public class ServiceSpecifications  {
   /**
    **/
   @JsonProperty("output")
-  public BigDecimal getOutput() {
+  public Integer getOutput() {
     return output;
   }
-  public void setOutput(BigDecimal output) {
+  public void setOutput(Integer output) {
     this.output = output;
   }
 
