@@ -127,31 +127,8 @@ public class ServiceController {
 		return new ResponseEntity<List<ServiceHistory>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	/*@RequestMapping(value = "/services/{serviceID}/service_images", produces = { "application/json",
-			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ServiceImages>> servicesServiceIDServiceImagesGet(
-			@PathVariable("serviceID") String serviceID) {
-		// do some magic!
-		return new ResponseEntity<List<ServiceImages>>(HttpStatus.NOT_IMPLEMENTED);
-	}*/
 	
-	@RequestMapping(value = "/services/{serviceID}/service_images", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity getServiceImages(@PathVariable("serviceID") int serviceID, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
-		ServiceLogger.log(logTag, "In GET ServiceImage by User " + userEPPN); 
-			int statusCode = HttpStatus.OK.value(); 
-			ArrayList<ServiceImages> imageList = null; 
-			try{ 
-				imageList = serviceImagesDao.getServiceImages(serviceID); 
-			}
-			
-			catch(Exception e) {
-				statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-	            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-	            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-	        }  	
-			return new ResponseEntity<ArrayList<ServiceImages>>(imageList, HttpStatus.valueOf(statusCode));
-
-	}
+	
 
 	@RequestMapping(value = "/services/{serviceID}/service_tags", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
@@ -173,6 +150,24 @@ public class ServiceController {
 		}
 
 		return new ResponseEntity<List<ServiceTag>>(tags, HttpStatus.valueOf(statusCode));
+
+	}
+	
+	@RequestMapping(value = "/services/{serviceID}/service_images", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+	public ResponseEntity getServiceImages(@PathVariable("serviceID") int serviceID, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "In GET ServiceImage by User " + userEPPN); 
+			int statusCode = HttpStatus.OK.value(); 
+			ArrayList<ServiceImages> imageList = null; 
+			try{ 
+				imageList = serviceImagesDao.getServiceImages(serviceID); 
+			}
+			
+			catch(Exception e) {
+				statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+	            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+	            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+	        }  	
+			return new ResponseEntity<ArrayList<ServiceImages>>(imageList, HttpStatus.valueOf(statusCode));
 
 	}
 

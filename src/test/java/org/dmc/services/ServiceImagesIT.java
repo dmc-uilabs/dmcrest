@@ -52,13 +52,20 @@ public class ServiceImagesIT extends BaseIT {
     public void addInvalidId () {
 
         int serviceID = 1223456789;
-        given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        expect().
-        statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
-        when().
-        get(SERVICE_IMAGES_GET, serviceID);
+        String url = "fake"; 
+        
+        ServiceImages json = new ServiceImages();
+        json.setServiceId(serviceId);
+        json.setUrl(url);
+        Integer createdId  = given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+                body(json).
+                expect().
+                statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
+                when().
+                post(SERVICE_IMAGES_POST);
+            
     }
     
     
