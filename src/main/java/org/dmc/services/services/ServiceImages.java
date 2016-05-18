@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
-import org.dmc.services.services.ServiceImages.ServiceImagesBuilder;
 
 
 /* 
@@ -26,20 +25,9 @@ public class ServiceImages  {
   	this.serviceId = -1;
   	this.url =  new String();
   }
+ 
   
-  public ServiceImages(int id, int serviceId, String url) {
-  	this.id = id;
-  	this.serviceId = serviceId;
-  	this.url = url;
-  } 
-  
-  
-  private ServiceImages(ServiceImagesBuilder builder) {
-      this.id = builder.id;
-      this.serviceId = builder.serviceId;
-      this.url = builder.url;
-  }
-
+ 
   /**
    **/
   @JsonProperty("id")
@@ -105,21 +93,5 @@ public class ServiceImages  {
     return sb.toString();
   }
   
-  //Service Tag Builder
-  public static class ServiceImagesBuilder {
 
-		private final int id;
-    	private final int serviceId;
-    	private final String url;
-
-  	public ServiceImagesBuilder(int id, int serviceId, String name) {
-  		this.id = id;
-  		this.serviceId = serviceId;
-  		this.url = name;
-  	}
-
-  	public ServiceImages build() {
-  		return new ServiceImages(this);
-  	}
-  }
 }

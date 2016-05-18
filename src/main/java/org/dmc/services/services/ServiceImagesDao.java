@@ -25,7 +25,7 @@ public class ServiceImagesDao {
 	private ResultSet resultSet;
 	private Connection connection;
 
-	public Id createServiceImages(ServiceImages payload, String userEPPN) {
+	public Id createServiceImages(ServiceImages payload, String userEPPN) throws SQLException {
 		
 		int userId = -99999;
 		connection = DBConnector.connection();
@@ -43,13 +43,14 @@ public class ServiceImagesDao {
             userId = UserDao.getUserID(userEPPN);
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			return null;
+			throw e;
 		} 
 	  
 		try {
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
-			return null;
+			ServiceLogger.log(logTag, ex.getMessage());
+			throw ex;
 		}
 		
 
@@ -75,16 +76,18 @@ public class ServiceImagesDao {
 				}
 			} catch (SQLException ex) {
 				ServiceLogger.log(logTag, ex.getMessage());
+				throw ex;
 			}
-			return null;
+			throw e;
 		} 
 		finally {
 			try {
 				if (connection != null) {
 					connection.setAutoCommit(true);
 				}
-			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+			} catch (SQLException et) {
+				ServiceLogger.log(logTag, et.getMessage());
+				throw et;
 			}
 		}
 
@@ -92,7 +95,7 @@ public class ServiceImagesDao {
 	}//END POST 
 	
 	
-	public ArrayList<ServiceImages> getServiceImages(int input) {
+	public ArrayList<ServiceImages> getServiceImages(int input) throws SQLException {
 
 		ArrayList<ServiceImages> list =new ArrayList<ServiceImages>();
 		//connection = DBConnector.connection();
@@ -100,13 +103,17 @@ public class ServiceImagesDao {
 	
 			String query = "SELECT * FROM service_images WHERE service_id = " + input;
 			resultSet = DBConnector.executeQuery(query);
-
+			
+	
 				while (resultSet.next()) {
 					//Collect output and push to a list
 					int id = resultSet.getInt("id");
 					int serviceId = resultSet.getInt("service_id");
 					String url = resultSet.getString("url");
-					ServiceImages img = new ServiceImages(id, serviceId, url);
+					ServiceImages img = new ServiceImages();
+					img.setId(id); 
+					img.setServiceId(serviceId); 
+					img.setUrl(url); 
 					list.add(img);			
 				}
 		   // connection.commit();
@@ -114,14 +121,14 @@ public class ServiceImagesDao {
 		
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			return null;
+			throw e;
 		}
 		return list;
 
 	}//END GET
 
 	
-	public Id deleteServiceImages(int imageId, String userEPPN) {
+	public boolean deleteServiceImages(int imageId, String userEPPN) throws SQLException {
 
 		//BEEF THIS UP!
         //Tests to see if valid user, exits function if so
@@ -129,7 +136,7 @@ public class ServiceImagesDao {
             int userId = UserDao.getUserID(userEPPN);
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			return null; 
+			throw e; 
 		}
 		int rows; 
 		
@@ -171,22 +178,23 @@ public class ServiceImagesDao {
 				
 				catch (SQLException ex) {
 					ServiceLogger.log(logTag, ex.getMessage());
+					throw ex;
 				}
 			}
-			return null;
+			throw e;
 		}//Catch 
 	    
 	    
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			return null;
+			throw e;
 		}
 	
-	    
-	    if(rows > 0){
-	    	return new Id.IdBuilder(imageId).build();
-	    }
-		return null;
+
+        if (rows > 0) return true;
+        else return false;
+        
+        
 	}
 	
 } //END DAO class

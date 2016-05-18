@@ -181,11 +181,13 @@ public class ServiceIT extends BaseIT {
     	
     	int serviceId = 2;
     	
+    	
+    	//Get a list of the current images
         ArrayList<ServiceImages> originalImages =
                 given().
                         header("AJP_eppn", userEPPN).
                         expect().
-                        statusCode(200).
+                        statusCode(HttpStatus.OK.value()).
                         when().
                         get("/services/" + serviceId + "/service_images").
                         as(ArrayList.class);
@@ -193,13 +195,16 @@ public class ServiceIT extends BaseIT {
 
         String url = "FakeUrl";
         int serviceImageId = addImage(serviceId, url);
+        
+        //Make sure the added image returns a valid id
         assertTrue(serviceImageId != -1);
 
+        //Get a list of the new images 
         ArrayList<ServiceTag> newImages =
                 given().
                         header("AJP_eppn", userEPPN).
                         expect().
-                        statusCode(200).
+                        statusCode(HttpStatus.OK.value()).
                         when().
                         get("/services/" + serviceId + "/service_images").
                         as(ArrayList.class);
@@ -207,6 +212,8 @@ public class ServiceIT extends BaseIT {
         int numBefore = (originalImages != null) ? originalImages.size() : 0;
         int numAfter  = (newImages != null) ? newImages.size() : 0;
         int numExpected = numBefore + 1;
+        
+        //the new list and old list should only differ by one
         assertTrue (numAfter == numExpected);
 
         deleteExistingImage(serviceImageId);
@@ -215,7 +222,7 @@ public class ServiceIT extends BaseIT {
                 given().
                         header("AJP_eppn", userEPPN).
                         expect().
-                        statusCode(200).
+                        statusCode(HttpStatus.OK.value()).
                         when().
                         get("/services/" + serviceId + "/service_images").
                         as(ArrayList.class);
@@ -256,7 +263,7 @@ public class ServiceIT extends BaseIT {
                 header("Content-type", "application/json").
                 header("AJP_eppn", userEPPN).
                 expect().
-                statusCode(HttpStatus.OK.value()).
+                statusCode(HttpStatus.NO_CONTENT.value()).
                 when().
                 delete("service_images/{imageId}", imageId);
     }
@@ -269,19 +276,33 @@ public class ServiceIT extends BaseIT {
                 header("Content-type", "application/json").
                 header("AJP_eppn", userEPPN).
                 expect().
-                statusCode(HttpStatus.BAD_REQUEST.value()).
+                statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
                 when().
                 delete("service_images/{imageId}", imageId);
     }
     
     @Test
-    public void getNonExistingImage () {
-        int serviceId = 122345678;
+    public void addInvalidId () {
+
+        int serviceId = 1223456789;
+        given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        expect().
+        statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
+        when().
+        get("/services/" + serviceId + "/service_images");
+    }
+    
+    
+    @Test
+    public void getImageUnit () {
+        int serviceId = 2;
         given().
                 header("Content-type", "application/json").
                 header("AJP_eppn", userEPPN).
                 expect().
-                statusCode(HttpStatus.BAD_REQUEST.value()).
+                statusCode(HttpStatus.OK.value()).
                 when().
                 get("/services/" + serviceId + "/service_images");
     }
