@@ -55,9 +55,9 @@ public class ServiceImagesIT extends BaseIT {
         String url = "fake"; 
         
         ServiceImages json = new ServiceImages();
-        json.setServiceId(serviceId);
+        json.setServiceId(serviceID);
         json.setUrl(url);
-        Integer createdId  = given().
+        given().
                 header("Content-type", "application/json").
                 header("AJP_eppn", userEPPN).
                 body(json).
