@@ -27,9 +27,8 @@ public class Application extends SpringBootServletInitializer {
         PGSimpleDataSource ds = new PGSimpleDataSource();
         ds.setUser(Config.DB_USER);
         ds.setPassword(Config.DB_PASS);
-        ds.setServerName(Config.DB_HOST);
-        ds.setPortNumber(Integer.parseInt(Config.DB_PORT));
-        ds.setDatabaseName(Config.DB_NAME);
+        String dbURL = Config.DB_HOST + ":" + Config.DB_PORT + "/" + Config.DB_NAME;
+        ds.setUrl(dbURL);
         return ds;
     }
 
