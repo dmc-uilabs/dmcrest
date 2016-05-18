@@ -135,13 +135,13 @@ public class ServiceController {
 		return new ResponseEntity<List<ServiceImages>>(HttpStatus.NOT_IMPLEMENTED);
 	}*/
 	
-	@RequestMapping(value = "/services/{serviceId}/service_images", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity getServiceImages(@PathVariable("serviceId") int serviceId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+	@RequestMapping(value = "/services/{serviceID}/service_images", produces = { "application/json" }, method = RequestMethod.GET)
+	public ResponseEntity getServiceImages(@PathVariable("serviceID") int serviceID, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In GET ServiceImage by User " + userEPPN); 
 			int statusCode = HttpStatus.OK.value(); 
 			ArrayList<ServiceImages> imageList = null; 
 			try{ 
-				imageList = serviceImagesDao.getServiceImages(serviceId); 
+				imageList = serviceImagesDao.getServiceImages(serviceID); 
 			}
 			
 			catch(Exception e) {
