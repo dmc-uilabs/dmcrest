@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
 
 import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -33,7 +32,45 @@ public class ServiceImagesIT extends BaseIT {
 
     public static final String userEPPN = "fforgeadmin";
 
+    @Test
+    public void deleteNonExistingImage () {
+
+        int imageID = 1223456789;
+        given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
+                when().
+                delete(SERVICE_IMAGES_DELETE, imageID);
+
+    }
     
+    @Test
+    public void addInvalidId () {
+
+        int serviceID = 1223456789;
+        given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        expect().
+        statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
+        when().
+        get(SERVICE_IMAGES_GET, serviceID);
+    }
+    
+    
+    @Test
+    public void getImageUnit () {
+        int serviceID = 2;
+        given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(SERVICE_IMAGES_GET, serviceID);
+    }
   
     /*
      * Test Case for POST /services/service_images
@@ -43,7 +80,7 @@ public class ServiceImagesIT extends BaseIT {
     @Test
     public void addAndGetAndDeleteServiceImages () {
     	
-    	int serviceId = 2;
+    	int serviceID = 2;
     	
     	
     	//Get a list of the current images
@@ -53,12 +90,12 @@ public class ServiceImagesIT extends BaseIT {
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
-                        get(SERVICE_IMAGES_GET).
+                        get(SERVICE_IMAGES_GET, serviceID).
                         as(ArrayList.class);
 
 
         String url = "FakeUrl";
-        int serviceImageId = addImage(serviceId, url);
+        int serviceImageId = addImage(serviceID, url);
         
         //Make sure the added image returns a valid id
         assertTrue(serviceImageId != -1);
@@ -70,7 +107,7 @@ public class ServiceImagesIT extends BaseIT {
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
-                        get(SERVICE_IMAGES_GET).
+                        get(SERVICE_IMAGES_GET, serviceID).
                         as(ArrayList.class);
 
         int numBefore = (originalImages != null) ? originalImages.size() : 0;
@@ -88,7 +125,7 @@ public class ServiceImagesIT extends BaseIT {
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
-                        get(SERVICE_IMAGES_GET).
+                        get(SERVICE_IMAGES_GET, serviceID).
                         as(ArrayList.class);
 
         int numAfterDelete  = (afterDeleteImages != null) ? afterDeleteImages.size() : 0;
@@ -129,46 +166,9 @@ public class ServiceImagesIT extends BaseIT {
                 expect().
                 statusCode(HttpStatus.NO_CONTENT.value()).
                 when().
-                delete(SERVICE_IMAGES_DELETE);
+                delete(SERVICE_IMAGES_DELETE, imageID);
     }
     
-    @Test
-    public void deleteNonExistingImage () {
 
-        int imageID = 1223456789;
-        given().
-                header("Content-type", "application/json").
-                header("AJP_eppn", userEPPN).
-                expect().
-                statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
-                when().
-                delete(SERVICE_IMAGES_DELETE);
-    }
-    
-    @Test
-    public void addInvalidId () {
-
-        int serviceId = 1223456789;
-        given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        expect().
-        statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
-        when().
-        get(SERVICE_IMAGES_GET);
-    }
-    
-    
-    @Test
-    public void getImageUnit () {
-        int serviceId = 2;
-        given().
-                header("Content-type", "application/json").
-                header("AJP_eppn", userEPPN).
-                expect().
-                statusCode(HttpStatus.OK.value()).
-                when().
-                get(SERVICE_IMAGES_GET);
-    }
 
 }
