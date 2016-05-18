@@ -273,20 +273,32 @@ public class ServiceIT extends BaseIT {
     }
 	
     
+    
+    
+    private PostUpdateDomeInterface createPostUpdateDomeInterface() {
+    	PostUpdateDomeInterface domeInterface = new PostUpdateDomeInterface();
+    	domeInterface.setVersion(20);
+		domeInterface.setModelId("1996");
+		domeInterface.setInterfaceId("John Wayne");
+		domeInterface.setDomeServer("1");
+		domeInterface.setName("Brian");
+		domeInterface.setPath(null);
+		domeInterface.setServiceId(1);
+		domeInterface.setType("type");
+		
+		return domeInterface;
+    }
+    
+    
+    
+    
     /**
 	 * test case for POST /dome-interfaces
 	 */
 	@Test
 	public void testServicePost_DomeInterface(){
-		PostUpdateDomeInterface sentDomeInterface = new PostUpdateDomeInterface();
-		sentDomeInterface.setVersion(20);
-		sentDomeInterface.setModelId("1996");
-		sentDomeInterface.setInterfaceId("John Wayne");
-		sentDomeInterface.setDomeServer("3");
-		sentDomeInterface.setName("Brian");
-		sentDomeInterface.setPath(null);
-		sentDomeInterface.setServiceId(1);
-		sentDomeInterface.setType("type");
+		PostUpdateDomeInterface sentDomeInterface = createPostUpdateDomeInterface();
+		
 		ObjectMapper mapper = new ObjectMapper();
 		String postDomeInterfaceJSONString = null;
 		try {
@@ -294,15 +306,15 @@ public class ServiceIT extends BaseIT {
 		} catch (JsonProcessingException e) {
 	           // TODO Auto-generated catch block
 	           e.printStackTrace();
-	        }
+	    }
 		
 		GetDomeInterface receivedDomeInterface =
 		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(postDomeInterfaceJSONString).
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(postDomeInterfaceJSONString).
 		expect().
-		statusCode(HttpStatus.OK.value()).
+			statusCode(HttpStatus.OK.value()).
 		when().post("/dome-interfaces").as(GetDomeInterface.class);
 		
 		BigDecimal postUpdateVersion = new BigDecimal(Integer.toString(sentDomeInterface.getVersion()));
@@ -337,11 +349,47 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServiceGet_DomeInterfaceById(){
+		
+		PostUpdateDomeInterface postDomeInterface = createPostUpdateDomeInterface();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String postDomeInterfaceJSONString = null;
+		try {
+	           postDomeInterfaceJSONString = mapper.writeValueAsString(postDomeInterface);
+		} catch (JsonProcessingException e) {
+	           // TODO Auto-generated catch block
+	           e.printStackTrace();
+	    }
+		
+		
+		GetDomeInterface postedDomeInterface =
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(postDomeInterfaceJSONString).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().post("/dome-interfaces").as(GetDomeInterface.class);
+		
+		
+		GetDomeInterface readDomeInterface =
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/dome-interfaces/" + domeInterfaceId);
+		statusCode(HttpStatus.OK.value()).
+		when().get("/dome-interfaces/" + postedDomeInterface.getId()).as(GetDomeInterface.class);
+		
+		BigDecimal postUpdateVersion = new BigDecimal(Integer.toString(postDomeInterface.getVersion()));
+		BigDecimal postUpdateServiceId = new BigDecimal(Integer.toString(postDomeInterface.getServiceId()));
+		
+		assertTrue("testServicePost_DomeInterface: Dome server values are not equal", (readDomeInterface.getDomeServer().equals(postDomeInterface.getDomeServer())));
+		assertTrue("testServicePost_DomeInterface: Version values are not equal", (readDomeInterface.getVersion().equals(postUpdateVersion)));
+		assertTrue("testServicePost_DomeInterface: Model ID values are not equal", (readDomeInterface.getModelId().equals(postDomeInterface.getModelId())));
+		assertTrue("testServicePost_DomeInterface: Interface ID values are not equal", (readDomeInterface.getInterfaceId().equals(postDomeInterface.getInterfaceId())));
+		assertTrue("testServicePost_DomeInterface: Type values are not equal", (readDomeInterface.getType().equals(postDomeInterface.getType())));
+		assertTrue("testServicePost_DomeInterface: Name values are not equal", (readDomeInterface.getName().equals(postDomeInterface.getName())));
+		//assertTrue("testServicePost_DomeInterface: Path values are not equal", (readDomeInterface.getPath().equals(postDomeInterface.getPath())));
+		assertTrue("testServicePost_DomeInterface: Dome server values are not equal", (readDomeInterface.getServiceId().equals(postUpdateServiceId)));
 	}
 	
 	/**

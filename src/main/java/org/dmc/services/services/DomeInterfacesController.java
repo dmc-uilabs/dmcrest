@@ -39,7 +39,6 @@ public class DomeInterfacesController {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
-		// do some magic!
 
 	}
 
@@ -53,9 +52,16 @@ public class DomeInterfacesController {
 	
 	
 	@RequestMapping(value = "/{domeInterfaceId}", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity<GetDomeInterface> domeInterfacesDomeInterfaceIdGet(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId){
-		// do some magic!
-		return new ResponseEntity<GetDomeInterface>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity domeInterfacesDomeInterfaceIdGet(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId ){
+		
+		
+		try {
+			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.getDomeInterface(domeInterfaceId), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+		
 	}
 	
 	

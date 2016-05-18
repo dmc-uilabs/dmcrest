@@ -4,11 +4,13 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
-
+import org.dmc.services.projects.ProjectMember;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.sharedattributes.Util;
@@ -20,7 +22,8 @@ class DomeInterfacesDao {
 	
 	private final String logTag = DomeInterfacesDao.class.getName();
 
-	
+	//used for POST
+	//stores PostUpdateDomeInterface into database and returns GetDomeInterface
 	public GetDomeInterface createDomeInterface(PostUpdateDomeInterface postUpdateDomeInterface, String userEPPN) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
 		Util util = Util.getInstance();
@@ -64,6 +67,7 @@ class DomeInterfacesDao {
 				throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "unable to add dome interface " + postUpdateDomeInterface.toString());
 			}
 			int id = util.getGeneratedKey(preparedStatementDomeInterfaceQuery, "interface_id");
+
 			
 			retObj.setId(Integer.toString(id));
 			retObj.setDomeServer(postUpdateDomeInterface.getDomeServer());
@@ -115,4 +119,71 @@ class DomeInterfacesDao {
 		
 		return retObj;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	//used for GET
+	//returns the GetDomeInterface pointed to by the domeInterfaceId
+	public GetDomeInterface getDomeInterface(BigDecimal domeInterfaceId) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		Util util = Util.getInstance();
+		GetDomeInterface retObj = new GetDomeInterface();
+
+				
+		try {
+			// let's start a transaction
+			connection.setAutoCommit(false);
+
+			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE interface_id=" + domeInterfaceId.toString();
+
+
+			
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			boolean completed = preparedStatement.execute();
+			
+			
+			ResultSet resultSet = preparedStatement.getResultSet();
+						
+			if(resultSet.next()) {
+			
+				retObj.setDomeServer(Integer.toString(resultSet.getInt("server_id")));
+				retObj.setId(Integer.toString(resultSet.getInt("interface_id")));
+				retObj.setInterfaceId(resultSet.getString("interface_id_str"));
+				retObj.setModelId(resultSet.getString("model_id"));
+				retObj.setName(resultSet.getString("name"));
+				retObj.setPath(null); //TO DO
+				retObj.setServiceId(new BigDecimal(resultSet.getInt("service_id")));
+				retObj.setType(resultSet.getString("type"));
+				retObj.setVersion(new BigDecimal(resultSet.getInt("version")));
+				
+			}
+				
+			
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+			
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {}
+
+		}
+		
+		
+		
+		
+		return retObj;
+	}
+	
 }
