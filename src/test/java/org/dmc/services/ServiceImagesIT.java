@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.dmc.services.company.Company;
-import org.dmc.services.services.ServiceTag;
+import org.dmc.services.services.ServiceImages;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -64,7 +64,7 @@ public class ServiceImagesIT extends BaseIT {
         assertTrue(serviceImageId != -1);
 
         //Get a list of the new images 
-        ArrayList<ServiceTag> newImages =
+        ArrayList<ServiceImages> newImages =
                 given().
                         header("AJP_eppn", userEPPN).
                         expect().
@@ -82,7 +82,7 @@ public class ServiceImagesIT extends BaseIT {
 
         deleteExistingImage(serviceImageId);
 
-        ArrayList<ServiceTag> afterDeleteTags =
+        ArrayList<ServiceImages> afterDeleteImages =
                 given().
                         header("AJP_eppn", userEPPN).
                         expect().
@@ -91,7 +91,7 @@ public class ServiceImagesIT extends BaseIT {
                         get(SERVICE_IMAGES_GET).
                         as(ArrayList.class);
 
-        int numAfterDelete  = (afterDeleteTags != null) ? afterDeleteTags.size() : 0;
+        int numAfterDelete  = (afterDeleteImages != null) ? afterDeleteImages.size() : 0;
         assertTrue (numAfterDelete == numBefore);
 
     }
