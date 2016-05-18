@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+
 import static org.junit.Assert.assertTrue;
 
 /**
