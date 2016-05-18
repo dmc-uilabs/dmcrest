@@ -52,7 +52,7 @@ public class ServiceImagesController {
 	/*
 	 * Get all images for a part
 	 */
-	@RequestMapping(value = "/{serviceId}/service_images", produces = { "application/json" }, method = RequestMethod.GET)
+ /*@RequestMapping(value = "/{serviceId}/service_images", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity getServiceImages(@PathVariable("serviceId") int serviceId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In GET ServiceImage by User " + userEPPN); 
 			int statusCode = HttpStatus.OK.value(); 
@@ -69,7 +69,7 @@ public class ServiceImagesController {
 			return new ResponseEntity<ArrayList<ServiceImages>>(imageList, HttpStatus.valueOf(statusCode));
 
 	}
-
+	*/
 	
 	/*
 	DELETE /service_images/{imageId}

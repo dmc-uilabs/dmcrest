@@ -224,7 +224,7 @@ public class ServiceIT extends BaseIT {
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
-                        get(serviceId + "/service_images").
+                        get("/services/" + serviceId + "/service_images").
                         as(ArrayList.class);
 
         int numAfterDelete  = (afterDeleteTags != null) ? afterDeleteTags.size() : 0;
@@ -291,7 +291,7 @@ public class ServiceIT extends BaseIT {
         expect().
         statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).
         when().
-        get(serviceId + "/service_images");
+        get("/services/" + serviceId + "/service_images");
     }
     
     
@@ -304,7 +304,7 @@ public class ServiceIT extends BaseIT {
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
-                get(serviceId + "/service_images");
+                get("/services/" + serviceId + "/service_images");
     }
 
 
