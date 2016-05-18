@@ -84,8 +84,7 @@ public class CompanyDao {
 				int accountId = resultSet.getInt("accountId");
 				String name = resultSet.getString("name");
 				String location = "Berkeley, California"; //resultSet.getString("location");
-				String description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud\
-				exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariaturd"; //resultSet.getString("description");
+				String description = "Lorem Ipsum is simply dummy text Lorem Ipsum is simply dummy text Lorem Ipsum is simply dummy text Lorem Ipsum is simply dummy text"; //resultSet.getString("description");
 				String division = "The Helicopter Company"; //resultSet.getString("division");
 				String industry = "The Helicopter Company"; //resultSet.getString("industry");
 				String NAICSCode = "1111111111";//resultSet.getString("naics_code");
