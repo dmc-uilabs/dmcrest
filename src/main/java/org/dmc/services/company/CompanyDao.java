@@ -63,7 +63,9 @@ public class CompanyDao {
 
     
 	public Company getCompany(int id, String userEPPN) throws HTTPException { 
+		ServiceLogger.log(logTag, "User: " + userEPPN + " asking company " + id);
 		
+		Company company = new Company();
 		try {
 			if (!CompanyUserUtil.isDMDIIMember(userEPPN)) {
 				ServiceLogger.log(logTag, "User: " + userEPPN + " is not DMDII Member");
@@ -117,12 +119,11 @@ public class CompanyDao {
 				boolean isOwner = Boolean.valueOf(resultSet.getString("is_owner"));
 				String owner = resultSet.getString("owner");
 				
-				if (!owner.equals(userEPPN)) {
-					ServiceLogger.log(logTag, "User is not owner of requested Company/Organization");
-					throw new HTTPException(HttpStatus.FORBIDDEN.value());
-				}
+//				if (!owner.equals(userEPPN)) {
+//					ServiceLogger.log(logTag, "User is not owner of requested Company/Organization");
+//					throw new HTTPException(HttpStatus.FORBIDDEN.value());
+//				}
 				
-				Company company = new Company();
 				company.setId(Integer.toString(id));
 				company.setAccountId(Integer.toString(accountId));
 				company.setName(name);
@@ -159,17 +160,13 @@ public class CompanyDao {
 				company.setFavoritesCount(favoratesCount);
 				company.setIsOwner(isOwner);
 				company.setOwner(owner);
-
-				
-				return company;
-
 			}
 			
 		} catch (SQLException e) {
-			ServiceLogger.log(logTag, e.getMessage());
+			ServiceLogger.log(logTag, "Error message " + e.getMessage());
 			throw new HTTPException(HttpStatus.FORBIDDEN.value());
 		}
-		throw new HTTPException(HttpStatus.FORBIDDEN.value());
+		return company;
 	}
 	
 	public Id createCompany(String jsonStr, String userEPPN) { 

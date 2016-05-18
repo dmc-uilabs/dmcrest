@@ -144,6 +144,7 @@ public class CompanyIT extends BaseIT {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testCompanyGetNotOwner() {
 		if (this.createdId != null) {
