@@ -74,9 +74,16 @@ public class DomeInterfacesController {
 	
 	
 	@RequestMapping(value = "/{domeInterfaceId}", produces = { "application/json" }, method = RequestMethod.PATCH)
-	public ResponseEntity<GetDomeInterface> domeInterfacesDomeInterfaceIdPatch(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId,
+	public ResponseEntity domeInterfacesDomeInterfaceIdPatch(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId,
 																			   @RequestBody PostUpdateDomeInterface domeInterface){
-		// do some magic!
-		return new ResponseEntity<GetDomeInterface>(HttpStatus.NOT_IMPLEMENTED);
+		
+		try {
+			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.updateDomeInterface(domeInterfaceId, domeInterface), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+		
 	}
+	
 }

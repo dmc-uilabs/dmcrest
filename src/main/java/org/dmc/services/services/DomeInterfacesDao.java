@@ -275,4 +275,92 @@ class DomeInterfacesDao {
 		
 	}
 	
+	
+	
+	
+	
+	
+	
+	//used for PATCH
+	//updates PostUpdateDomeInterface into database and returns GetDomeInterface
+	public GetDomeInterface updateDomeInterface(BigDecimal domeInterfaceId, PostUpdateDomeInterface postUpdateDomeInterface) throws DMCServiceException {
+		
+		Connection connection = DBConnector.connection();
+		Util util = Util.getInstance();
+		GetDomeInterface retObj = new GetDomeInterface();
+				
+		try {
+			// let's start a transaction
+			connection.setAutoCommit(false);
+			
+			// requesting user must be administrator of the project to get the
+			// list of members.
+			String updateQuery = "UPDATE service_interface SET version=?, model_id=?, interface_id_str=?, type=?, name=?, service_id=?, server_id=? WHERE interface_id = ?";
+
+			
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(updateQuery);
+			preparedStatement.setInt(1, postUpdateDomeInterface.getVersion());
+			preparedStatement.setString(2, postUpdateDomeInterface.getModelId());
+			preparedStatement.setString(3, postUpdateDomeInterface.getInterfaceId());
+			preparedStatement.setString(4, postUpdateDomeInterface.getType());
+			preparedStatement.setString(5, postUpdateDomeInterface.getName());
+			
+			preparedStatement.setInt(6, postUpdateDomeInterface.getServiceId());
+			
+
+			String domeServerStr = postUpdateDomeInterface.getDomeServer();
+			preparedStatement.setInt(7, Integer.parseInt(domeServerStr));
+			
+			preparedStatement.setInt(8, domeInterfaceId.intValue());
+
+			int rowsAffected_interface = preparedStatement.executeUpdate();
+			if (rowsAffected_interface != 1) {
+				connection.rollback();
+				//ToDo: need to change error
+				throw new DMCServiceException(DMCError.OtherSQLError, "unable to update dome interface " + postUpdateDomeInterface.toString());
+			}
+
+			
+			retObj.setId(domeInterfaceId.toString());
+			retObj.setDomeServer(postUpdateDomeInterface.getDomeServer());
+			retObj.setInterfaceId(postUpdateDomeInterface.getInterfaceId());
+			retObj.setModelId(postUpdateDomeInterface.getModelId());
+			retObj.setName(postUpdateDomeInterface.getName());
+			retObj.setServiceId(new BigDecimal(Integer.toString(postUpdateDomeInterface.getServiceId())));
+			retObj.setType(postUpdateDomeInterface.getType());
+			retObj.setVersion(new BigDecimal(Integer.toString(postUpdateDomeInterface.getVersion())));
+
+			/*
+			 * 
+			 * TO DO
+			 * 1. Delete old path values in service_interface_path
+			 * 2. Rewrite path values
+			 * 
+			 * */
+			
+			
+			retObj.setPath(null);
+			
+			
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+			
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {}
+
+		}
+		
+		
+		
+		return retObj;
+		
+		
+	}
+	
 }
