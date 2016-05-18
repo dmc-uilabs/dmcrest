@@ -8,9 +8,9 @@ public class Config {
     public static final String DB_NAME = "gforge";//"gforge";
  	public static final String DB_USER = "gforge"; //System.getenv("DBuser");//"gforge";//System.getenv("DBuser");
  	public static final String DB_PASS = "gforge"; //System.getenv("DBpass");//"gforge";//System.getenv("DBpass");
- 	
+
  	public static final String IS_TEST = System.getenv("isTest");
- 	
+
     // Documentation
     public static final String DOC_API_NAME = "DMC Rest Services";
     public static final String DOC_API_DESCRIPTION = "Serves the DMC Frontend Application";
