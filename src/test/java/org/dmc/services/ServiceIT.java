@@ -363,11 +363,43 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServiceDelete_DomeInterface(){
+		PostUpdateDomeInterface postDomeInterface = createPostUpdateDomeInterface();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String postDomeInterfaceJSONString = null;
+		try {
+	           postDomeInterfaceJSONString = mapper.writeValueAsString(postDomeInterface);
+		} catch (JsonProcessingException e) {
+	           // TODO Auto-generated catch block
+	           e.printStackTrace();
+	    }
+		
+		
+		GetDomeInterface postedDomeInterface =
 		given().
-		header("AJP_eppn", userEPPN).
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(postDomeInterfaceJSONString).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().delete("/dome-interfaces/" + domeInterfaceId);
+			statusCode(HttpStatus.OK.value()).
+		when().post("/dome-interfaces").as(GetDomeInterface.class);
+		
+		
+		/*
+		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().delete("/dome-interfaces/" + postedDomeInterface.getId());
+		
+		
+		
+		GetDomeInterface readDomeInterface =
+		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().get("/dome-interfaces/" + postedDomeInterface.getId()).as(GetDomeInterface.class);*/
 	}
 	
 	/**
@@ -400,9 +432,9 @@ public class ServiceIT extends BaseIT {
 		
 		GetDomeInterface readDomeInterface =
 		given().
-		header("AJP_eppn", userEPPN).
+			header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.OK.value()).
+			statusCode(HttpStatus.OK.value()).
 		when().get("/dome-interfaces/" + postedDomeInterface.getId()).as(GetDomeInterface.class);
 		
 		BigDecimal postUpdateVersion = new BigDecimal(Integer.toString(postDomeInterface.getVersion()));

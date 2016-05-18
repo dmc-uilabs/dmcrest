@@ -140,11 +140,12 @@ class DomeInterfacesDao {
 			// let's start a transaction
 			connection.setAutoCommit(false);
 
-			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE interface_id=" + domeInterfaceId.toString();
+			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE interface_id = ?";
 
 
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			preparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
 			boolean completed = preparedStatement.execute();
 			
 			
@@ -203,6 +204,75 @@ class DomeInterfacesDao {
 		
 		
 		return retObj;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	//used for DELETE
+	//deletes GetDomeInterface pointed to by domeInterfaceId
+	public void deleteDomeInterface(BigDecimal domeInterfaceId) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		Util util = Util.getInstance();
+
+				
+		try {
+			// let's start a transaction
+			connection.setAutoCommit(false);
+
+			String domeInterfacesQuery = "DELETE FROM service_interface WHERE interface_id = ?";
+			
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			preparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
+			int rowsAffected = preparedStatement.executeUpdate();
+
+			
+			
+			if (rowsAffected != 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
+			}
+			
+			
+
+			/*String query = "DELETE FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
+
+
+			
+			preparedStatement = DBConnector.prepareStatement(query);
+			rowsAffected = preparedStatement.executeUpdate();
+			
+			if (rowsAffected < 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
+			}
+			
+			*/
+			
+				
+			
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+			
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {}
+
+		}
+		
+		
+		
+		
+		
 	}
 	
 }
