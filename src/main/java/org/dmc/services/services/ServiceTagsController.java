@@ -46,7 +46,7 @@ public class ServiceTagsController {
         }
         return new ResponseEntity<List<ServiceTag>>(tags, HttpStatus.valueOf(statusCode));
     }
-/*
+
     @RequestMapping(value = "/service_tags", method = RequestMethod.POST, produces = { "application/json" })
     @ResponseBody
     public ResponseEntity insertServiceTag (@RequestBody ServiceTag payload, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -63,7 +63,7 @@ public class ServiceTagsController {
 
         }
         return new ResponseEntity<Id>(id, HttpStatus.OK);
-    }*/
+    }
 
     @RequestMapping(value = "/service_tags/{serviceTagID}", method = RequestMethod.DELETE, produces = "application/json")
     public ResponseEntity<?> deleteServiceTag(@PathVariable("serviceTagID") int serviceTagID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)  {
