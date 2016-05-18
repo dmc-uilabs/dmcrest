@@ -74,7 +74,7 @@ public class CompanyDao {
 			
 			String query = "SELECT * FROM organization o "
 					+ "JOIN common_address a ON o.addressId = a.id "
-					+ "JOIN common_image i ON o.feature_image = i.id "
+// 					+ "JOIN common_image i ON o.feature_image = i.id "
 					+ "WHERE o.organization_id = "  + id;
 			//ServiceLogger.log(logTag, "getCompany query: " + query);
 			resultSet = DBConnector.executeQuery(query);
@@ -111,8 +111,8 @@ public class CompanyDao {
 				int categoryTier = resultSet.getInt("category_tier");
 				String dateJoined = resultSet.getString("date_joining");
 				String reasonJoining = resultSet.getString("reason_joining");
-				String featureImageThumb = resultSet.getString("thumbnail");
-				String featureImageLarge = resultSet.getString("large_image");
+//				String featureImageThumb = resultSet.getString("thumbnail");
+//				String featureImageLarge = resultSet.getString("large_image");
 				String logoImage = resultSet.getString("logo_image");
 				boolean follow = Boolean.valueOf(resultSet.getString("follow"));
 				int favoratesCount = resultSet.getInt("favorates_count");
@@ -154,7 +154,7 @@ public class CompanyDao {
 				company.setCategoryTier(categoryTier);
 				company.setDateJoined(dateJoined);
 				company.setReasonJoining(reasonJoining);
-				company.setFeatureImage(new FeatureImage(featureImageThumb, featureImageLarge));
+//				company.setFeatureImage(new FeatureImage(featureImageThumb, featureImageLarge));
 				company.setLogoImage(logoImage);
 				company.setFollow(follow);
 				company.setFavoritesCount(favoratesCount);
