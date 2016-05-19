@@ -19,4 +19,13 @@ public class DMDIIMemberService {
 		return page.getContent();
 	}
 	
+	public DMDIIMember findOne(Integer id) {
+		return dmdiiMemberDao.findOne(id);
+	}
+	
+	public List<DMDIIMember> findByTypeId(Integer typeId, Integer pageNumber, Integer pageSize) {
+		Page<DMDIIMember> page = dmdiiMemberDao.findByDmdiiTypeId(new PageRequest(pageNumber, pageSize), typeId);
+		return page.getContent();
+	}
+	
 }

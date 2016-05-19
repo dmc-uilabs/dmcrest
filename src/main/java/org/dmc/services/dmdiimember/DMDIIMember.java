@@ -4,6 +4,8 @@ import java.sql.Date;
 
 import javax.persistence.*;
 
+import org.dmc.services.dmdiitype.DMDIIType;
+import org.dmc.services.organization.Organization;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
