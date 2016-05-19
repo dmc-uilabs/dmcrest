@@ -298,7 +298,7 @@ public class ServiceIT extends BaseIT {
 	 * test case for POST /dome-interfaces
 	 */
 	@Test
-	public void testServicePost_DomeInterface(){
+	public void testServicePost_DomeInterface_WhenValidInfoIsSent(){
 		PostUpdateDomeInterface sentDomeInterface = createPostUpdateDomeInterface();
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -422,6 +422,8 @@ public class ServiceIT extends BaseIT {
 	@Test
 	public void testServiceDelete_DomeInterface(){
 		PostUpdateDomeInterface postDomeInterface = createPostUpdateDomeInterface();
+		postDomeInterface.setInterfaceId("DELETE ME");
+		postDomeInterface.setName("DELETEEEEE");
 		
 		ObjectMapper mapper = new ObjectMapper();
 		String postDomeInterfaceJSONString = null;
@@ -443,8 +445,14 @@ public class ServiceIT extends BaseIT {
 		when().post("/dome-interfaces").as(GetDomeInterface.class);
 		
 		
-		/*
 		given().
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().get("/dome-interfaces/" + postedDomeInterface.getId());
+		
+		
+		/*given().
 			header("AJP_eppn", userEPPN).
 		expect().
 			statusCode(HttpStatus.OK.value()).
@@ -452,12 +460,12 @@ public class ServiceIT extends BaseIT {
 		
 		
 		
-		GetDomeInterface readDomeInterface =
+		
 		given().
 			header("AJP_eppn", userEPPN).
 		expect().
-			statusCode(HttpStatus.OK.value()).
-		when().get("/dome-interfaces/" + postedDomeInterface.getId()).as(GetDomeInterface.class);*/
+			statusCode(HttpStatus.NOT_FOUND.value()).
+		when().get("/dome-interfaces/" + postedDomeInterface.getId());*/
 	}
 	
 	/**

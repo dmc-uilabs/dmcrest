@@ -63,7 +63,12 @@ public class DomeInterfacesController {
 		
 		
 		try {
-			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.getDomeInterface(domeInterfaceId), HttpStatus.OK);
+			GetDomeInterface read = domeInterfacesDao.getDomeInterface(domeInterfaceId);
+			if (read == null) {
+				return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+			} else {
+				return new ResponseEntity<GetDomeInterface>(read, HttpStatus.OK);
+			}
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());

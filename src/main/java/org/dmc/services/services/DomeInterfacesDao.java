@@ -133,7 +133,8 @@ class DomeInterfacesDao {
 	public GetDomeInterface getDomeInterface(BigDecimal domeInterfaceId) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
 		Util util = Util.getInstance();
-		GetDomeInterface retObj = new GetDomeInterface();
+		GetDomeInterface retObj = null;
+		boolean readSomethingFromTable = false;
 
 				
 		try {
@@ -148,11 +149,16 @@ class DomeInterfacesDao {
 			preparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
 			boolean completed = preparedStatement.execute();
 			
+	
+				
+			
 			
 			ResultSet resultSet = preparedStatement.getResultSet();
 						
 			if(resultSet.next()) {
-			
+				retObj = new GetDomeInterface();
+				
+				
 				retObj.setDomeServer(Integer.toString(resultSet.getInt("server_id")));
 				retObj.setId(Integer.toString(resultSet.getInt("interface_id")));
 				retObj.setInterfaceId(resultSet.getString("interface_id_str"));
@@ -165,25 +171,26 @@ class DomeInterfacesDao {
 				
 			}
 			
-
+			if (readSomethingFromTable) {
+				/*String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
+	
+	
+				
+				preparedStatement = DBConnector.prepareStatement(query);
+				completed = preparedStatement.execute();
+	
+				
+				resultSet = preparedStatement.getResultSet();
+	
+				List<BigDecimal> newPath = new ArrayList<BigDecimal>();
+	
+				while(resultSet.next()) {
+					newPath.add(new BigDecimal(Integer.toString(resultSet.getInt("path"))));
+				}*/
+				
+				retObj.setPath(null);
+			}
 			
-			/*String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
-
-
-			
-			preparedStatement = DBConnector.prepareStatement(query);
-			completed = preparedStatement.execute();
-
-			
-			resultSet = preparedStatement.getResultSet();
-
-			List<BigDecimal> newPath = new ArrayList<BigDecimal>();
-
-			while(resultSet.next()) {
-				newPath.add(new BigDecimal(Integer.toString(resultSet.getInt("path"))));
-			}*/
-			
-			retObj.setPath(null);
 				
 			
 		} catch (SQLException se) {
@@ -224,11 +231,14 @@ class DomeInterfacesDao {
 			// let's start a transaction
 			connection.setAutoCommit(false);
 
+			
+			
 			String domeInterfacesQuery = "DELETE FROM service_interface WHERE interface_id = ?";
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
 			int rowsAffected = preparedStatement.executeUpdate();
+			
 
 			
 			
