@@ -10,7 +10,8 @@ import org.dmc.services.services.ServiceSpecialSpecifications;
 import org.dmc.services.services.ServiceSpecifications;
 import org.dmc.services.services.RunStats;
 import org.dmc.services.services.UsageStats;
-
+import org.dmc.services.services.specifications.ArraySpecifications;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -374,6 +375,45 @@ public class ServiceIT extends BaseIT {
         when().
             post("/service/" + serviceId + "/specifications");
     }
+    
+	/**
+	 * test GET /array_specifications
+	 */
+	@Test
+	public void testGet_ArraySpecification(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		get("/array_specifications");	
+	}
+	
+	/**
+	 * test case for POST /array_specifications
+	 */
+	@Test
+	public void testPost_ArraySpecification() {
+		ArrayList<ArraySpecifications> obj = new ArrayList<ArraySpecifications>();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedArraySpecificationJSONString = null;
+		try {
+			postedArraySpecificationJSONString = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", "user_EPPN").
+		body(postedArraySpecificationJSONString).
+		expect().
+		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().
+		post("/array_specifications");
+	}
     	
 	/**
 	 * test case for POST /service_runs
@@ -398,9 +438,6 @@ public class ServiceIT extends BaseIT {
 	when().
         post("/service_runs/");
 	}
-	
-	
-
 	
 	/**
 	 * test case for GET /service_runs/{id}

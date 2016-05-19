@@ -1,4 +1,4 @@
-package org.dmc.services.services.specifications;
+package org.dmc.services.services;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -17,10 +17,6 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyVideo;
-import org.dmc.services.services.RunStats;
-import org.dmc.services.services.ServiceSpecialSpecifications;
-import org.dmc.services.services.ServiceSpecifications;
-import org.dmc.services.services.UsageStats;
 import org.dmc.services.sharedattributes.Util;
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -29,12 +25,12 @@ import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class SpecificationDao {
+public class ServiceSpecificationDao {
 
-	private final String logTag = SpecificationDao.class.getName();
+	private final String logTag = ServiceSpecificationDao.class.getName();
 	private ResultSet resultSet; 
 
-	public SpecificationDao() {}
+	public ServiceSpecificationDao() {}
 
 	/**
 	 * Create Service Specification
@@ -211,99 +207,29 @@ public class SpecificationDao {
 			
 			while (this.resultSet.next()) {
 				List<ServiceSpecialSpecifications> special = mapper.readValue(this.resultSet.getString("special"), 
-						new TypeReference<ArrayList<CompanyVideo>>() {});
-				UsageStats usageStats = mapper.readValue(this.resultSet.getString("UsageStats"), UsageStats.class);
-				RunStats runStats = mapper.readValue(this.resultSet.getString("RunStats"), RunStats.class);
+						new TypeReference<ArrayList<ServiceSpecialSpecifications>>() {});
+				
+				UsageStats usageStats = mapper.readValue(this.resultSet.getString("usage_stats"), UsageStats.class);
+				RunStats runStats = mapper.readValue(this.resultSet.getString("run_stats"), RunStats.class);
 
 				ServiceSpecifications spec = new ServiceSpecifications();
 				spec.setId(String.valueOf(this.resultSet.getInt("id")));
 				spec.setServiceId(String.valueOf(this.resultSet.getInt("service_id")));
-				spec.setInput(this.resultSet.getObject("input", Integer.class));
-				spec.setOutput(this.resultSet.getObject("output", Integer.class));
+				spec.setInput(this.resultSet.getInt("input"));
+				spec.setOutput(this.resultSet.getInt("output"));
 				spec.setSpecial(special);
 				spec.setUsageStats(usageStats);
 				spec.setRunStats(runStats);
 				
 				specs.add(spec);
 			}
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		} catch (Exception e) {
 			throw new DMCServiceException(DMCError.Generic, e.getMessage());
 		}
 		return specs;
 	}
 	
-	public Specification getSpecification(int serviceID) {
-		//ServiceLogger.log(logTag, "In specification search with service id " + serviceID);
-		Trial trial = null;
-		int numMembers = 0, numProjects = 0, numSuccesses = 0, numFails = 0;
-		Usage usage = null;
-		int num_inputs = 0, num_outputs = 0;
-		String description = "";
-		
-		String query = "SELECT (SELECT count(owner_id) FROM cem_runnables_running WHERE interface_id = "
-				+ serviceID + ") AS membersCount, " + 
-				"(SELECT count(group_id) AS count FROM service_subscriptions WHERE interface_id = "
-				+ serviceID + ") AS projectsCount, " +
-				"d.interface_data FROM dome_interfaces d WHERE d.interface_id = "
-					+ serviceID;
-		
-		
-		try {
-			resultSet = DBConnector.executeQuery(query);
-			while (resultSet.next()) {
-				numMembers = resultSet.getInt("membersCount");
-				//ServiceLogger.log(logTag, "Number of members - " + numMembers);
-				numProjects = resultSet.getInt("projectsCount");
-				//ServiceLogger.log(logTag, "Number of projects using service - " + numProjects);
-				description = "dummy description; need to get description from service table";//resultSet.getString("description");
-				//ServiceLogger.log(logTag, "Description: " + description);
-				
-				try {
-					JSONObject json = new JSONObject(resultSet.getString("interface_data")); 
-					
-					if(json.has("inParams")){
-						JSONObject inputParams = json.getJSONObject("inParams");
-						num_inputs = inputParams.length();
-					}
-					
-					if(json.has("outParams")){
-						JSONObject outputParams = json.getJSONObject("outParams");
-						num_outputs = outputParams.length();
-					}
-				} catch (JSONException e) {
-					ServiceLogger.log(logTag, e.getMessage());
-				}
-				
-				//ServiceLogger.log(logTag, "Number of inputs for service - " + num_inputs);
-				//ServiceLogger.log(logTag, "Number of outputs for service - " + num_outputs);
-			}
-			
-			usage = new Usage(numMembers, numProjects);
-			//ServiceLogger.log(logTag, "" + usage);
-			
-			
-			resultSet = DBConnector.executeQuery("SELECT count(*) AS Fails FROM runnable_runtimes WHERE interface_id = "
-					+ serviceID + " AND date_completed = 0");
-			while (resultSet.next()) {
-				numFails = resultSet.getInt("Fails");
-				//ServiceLogger.log(logTag, "Number of failed tests: " + numFails);	
-			}
-			
-			resultSet = DBConnector.executeQuery("SELECT count(*) AS Successes FROM runnable_runtimes WHERE interface_id = "
-					+ serviceID + " AND date_completed != 0");
-			while (resultSet.next()) {
-				numSuccesses = resultSet.getInt("Successes");
-				//ServiceLogger.log(logTag, "Number of passed tests: " + numSuccesses);	
-			}
-			
-			trial = new Trial(numSuccesses, numFails);
-			
-			return new Specification(description, num_inputs, num_outputs, usage, trial);
-			
-		} catch (SQLException e) {
-			ServiceLogger.log(logTag, e.getMessage());
-		}
-		return null;
-	}
-
 }

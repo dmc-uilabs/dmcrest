@@ -4,17 +4,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.ws.http.HTTPException;
-
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
-import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.services.specifications.ArraySpecifications;
-import org.dmc.services.services.specifications.Specification;
-import org.dmc.services.services.specifications.SpecificationDao;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ServiceController {
 
 	private final String logTag = ServiceController.class.getName();
-	private SpecificationDao specificationDao = new SpecificationDao();
+	private ServiceSpecificationDao specificationDao = new ServiceSpecificationDao();
 
 	private ServiceDao serviceDao = new ServiceDao();
 
@@ -38,13 +32,6 @@ public class ServiceController {
 	public Service getService(@PathVariable("id") int id) {
 		ServiceLogger.log(logTag, "getService, id: " + id);
 		return serviceDao.getService(id);
-	}
-
-	@RequestMapping(value = "/services/{serviceID}/specifications", method = RequestMethod.GET)
-	public Specification getSpecification(@PathVariable("serviceID") int serviceID) {
-		ServiceLogger.log(logTag, "In getService");
-		ServiceLogger.log(logTag, "In getService, serviceID: " + serviceID);
-		return specificationDao.getSpecification(serviceID);
 	}
 
 	private ServiceListDao serviceListDao = new ServiceListDao();

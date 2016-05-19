@@ -19,7 +19,7 @@ public class ServiceSpecifications  {
   private List<ServiceSpecialSpecifications> special = new ArrayList<ServiceSpecialSpecifications>();
   private UsageStats usageStats = null;
   private RunStats runStats = null;
-
+  
   
   /**
    **/
