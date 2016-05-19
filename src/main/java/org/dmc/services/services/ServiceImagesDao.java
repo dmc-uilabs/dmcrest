@@ -42,6 +42,9 @@ public class ServiceImagesDao {
 		  //Tests to see if valid user, exits function if so
         try {
             int userId = UserDao.getUserID(userEPPN);
+            if(userId == -1){ 
+    			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
+            }
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
@@ -77,9 +80,9 @@ public class ServiceImagesDao {
 				}
 			} catch (SQLException ex) {
 				ServiceLogger.log(logTag, ex.getMessage());
-				throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
+				throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
 			}
-			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		} 
 		finally {
 			try {
@@ -88,7 +91,7 @@ public class ServiceImagesDao {
 				}
 			} catch (SQLException et) {
 				ServiceLogger.log(logTag, et.getMessage());
-				throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
+				throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
 			}
 		}
 
@@ -122,7 +125,7 @@ public class ServiceImagesDao {
 		
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
 		return list;
 
@@ -135,6 +138,9 @@ public class ServiceImagesDao {
         //Tests to see if valid user, exits function if so
         try {
             int userId = UserDao.getUserID(userEPPN);
+            if(userId == -1){ 
+    			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
+            }
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
@@ -178,15 +184,15 @@ public class ServiceImagesDao {
 				
 				catch (SQLException ex) {
 					ServiceLogger.log(logTag, ex.getMessage());
-					throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
+					throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
 				}
 			}
-			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}//Catch 
 	    	    
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new DMCServiceException(DMCError.Generic, "An SQL exception has occured");
+			throw new DMCServiceException(DMCError.Generic, e.getMessage());
 
 		}
 	
