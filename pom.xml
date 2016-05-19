@@ -129,6 +129,14 @@
 
 	<!-- DEPENDENCEIS -->
 	<dependencies>
+	
+		<!--FOR all AWS function calls -->
+	 	<dependency>
+    		<groupId>com.amazonaws</groupId>
+   			<artifactId>aws-java-sdk</artifactId>
+   			<version>1.11.0</version>
+		</dependency>
+
 
 		<!-- Postgres JDBC Driver -->
 		<dependency>

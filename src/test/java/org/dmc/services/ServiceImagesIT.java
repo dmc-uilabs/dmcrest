@@ -107,7 +107,7 @@ public class ServiceImagesIT extends BaseIT {
         int serviceImageId = addImage(serviceID, url);
         
         //Make sure the added image returns a valid id
-        assertTrue(serviceImageId != -1);
+        assertTrue("Image ID returned invalid", serviceImageId != -1);
 
         //Get a list of the new images 
         ArrayList<ServiceImages> newImages =
@@ -122,9 +122,8 @@ public class ServiceImagesIT extends BaseIT {
         int numBefore = (originalImages != null) ? originalImages.size() : 0;
         int numAfter  = (newImages != null) ? newImages.size() : 0;
         int numExpected = numBefore + 1;
-        
         //the new list and old list should only differ by one
-        assertTrue (numAfter == numExpected);
+        assertTrue ("Adding an image failed"  , numAfter == numExpected);
 
         deleteExistingImage(serviceImageId);
 
@@ -138,7 +137,7 @@ public class ServiceImagesIT extends BaseIT {
                         as(ArrayList.class);
 
         int numAfterDelete  = (afterDeleteImages != null) ? afterDeleteImages.size() : 0;
-        assertTrue (numAfterDelete == numBefore);
+        assertTrue ("Deleting an image failed", numAfterDelete == numBefore);
 
     }
     

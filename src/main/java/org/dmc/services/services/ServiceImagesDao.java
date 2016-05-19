@@ -13,6 +13,8 @@ import org.json.JSONException;
 import javax.xml.ws.http.HTTPException;
 
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
@@ -25,9 +27,8 @@ public class ServiceImagesDao {
 	private ResultSet resultSet;
 	private Connection connection;
 
-	public Id createServiceImages(ServiceImages payload, String userEPPN) throws SQLException {
+	public Id createServiceImages(ServiceImages payload, String userEPPN) throws DMCServiceException {
 		
-		int userId = -99999;
 		connection = DBConnector.connection();
 		PreparedStatement statement;
 		Util util = Util.getInstance();
@@ -40,17 +41,17 @@ public class ServiceImagesDao {
 	
 		  //Tests to see if valid user, exits function if so
         try {
-            userId = UserDao.getUserID(userEPPN);
+            int userId = UserDao.getUserID(userEPPN);
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw e;
+			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
 		} 
 	  
 		try {
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
 			ServiceLogger.log(logTag, ex.getMessage());
-			throw ex;
+			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 		}
 		
 
@@ -76,9 +77,9 @@ public class ServiceImagesDao {
 				}
 			} catch (SQLException ex) {
 				ServiceLogger.log(logTag, ex.getMessage());
-				throw ex;
+				throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 			}
-			throw e;
+			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 		} 
 		finally {
 			try {
@@ -87,7 +88,7 @@ public class ServiceImagesDao {
 				}
 			} catch (SQLException et) {
 				ServiceLogger.log(logTag, et.getMessage());
-				throw et;
+				throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 			}
 		}
 
@@ -95,7 +96,7 @@ public class ServiceImagesDao {
 	}//END POST 
 	
 	
-	public ArrayList<ServiceImages> getServiceImages(int input) throws SQLException {
+	public ArrayList<ServiceImages> getServiceImages(int input) throws DMCServiceException {
 
 		ArrayList<ServiceImages> list =new ArrayList<ServiceImages>();
 		//connection = DBConnector.connection();
@@ -121,14 +122,14 @@ public class ServiceImagesDao {
 		
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw e;
+			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 		}
 		return list;
 
 	}//END GET
 
 	
-	public boolean deleteServiceImages(int imageId, String userEPPN) throws SQLException {
+	public boolean deleteServiceImages(int imageId, String userEPPN) throws DMCServiceException {
 
 		//BEEF THIS UP!
         //Tests to see if valid user, exits function if so
@@ -136,14 +137,13 @@ public class ServiceImagesDao {
             int userId = UserDao.getUserID(userEPPN);
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw e; 
+			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
 		}
 		int rows; 
 		
 		//Connect to DB
 		connection = DBConnector.connection();
 		PreparedStatement statement;
-		Boolean resetAutoCommit = true;
 		
 		 
 	    try {
@@ -178,23 +178,20 @@ public class ServiceImagesDao {
 				
 				catch (SQLException ex) {
 					ServiceLogger.log(logTag, ex.getMessage());
-					throw ex;
+					throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 				}
 			}
-			throw e;
+			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 		}//Catch 
-	    
-	    
+	    	    
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw e;
+			throw new DMCServiceException(DMCError.Generic, "An SQL exception has occured");
+
 		}
 	
-
         if (rows > 0) return true;
         else return false;
-        
-        
 	}
 	
 } //END DAO class
