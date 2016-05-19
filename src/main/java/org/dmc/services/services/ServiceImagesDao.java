@@ -34,12 +34,9 @@ public class ServiceImagesDao {
 		Util util = Util.getInstance();
 		int id = -99999;
 	
-		/* 
-		 * NEED TO PUT Get AWS URL FUNCTION
-		 */
-		
-	
-		  //Tests to see if valid user, exits function if so
+		// NEED TO PUT Get AWS URL FUNCTION
+
+		//Tests to see if valid user, exits function if so
         try {
             int userId = UserDao.getUserID(userEPPN);
             if(userId == -1){ 
@@ -57,19 +54,15 @@ public class ServiceImagesDao {
 			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 		}
 		
-
 		try {
-
 			String query = "INSERT INTO service_images (service_id, url) VALUES (?, ?)";
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			statement.setInt(1, payload.getServiceId());
 			statement.setString(2, payload.getUrl());
 			statement.executeUpdate();
-
 			id = util.getGeneratedKey(statement, "id");
 			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
 			connection.commit();
-
 		} 
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, "SQL EXCEPTION ----- " + e.getMessage());
@@ -94,7 +87,6 @@ public class ServiceImagesDao {
 				throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
 			}
 		}
-
 		return new Id.IdBuilder(id).build();			
 	}//END POST 
 	
@@ -102,39 +94,31 @@ public class ServiceImagesDao {
 	public ArrayList<ServiceImages> getServiceImages(int input) throws DMCServiceException {
 
 		ArrayList<ServiceImages> list =new ArrayList<ServiceImages>();
-		//connection = DBConnector.connection();
 		try {
-	
+
 			String query = "SELECT * FROM service_images WHERE service_id = " + input;
 			resultSet = DBConnector.executeQuery(query);
-			
-	
-				while (resultSet.next()) {
-					//Collect output and push to a list
-					int id = resultSet.getInt("id");
-					int serviceId = resultSet.getInt("service_id");
-					String url = resultSet.getString("url");
-					ServiceImages img = new ServiceImages();
-					img.setId(id); 
-					img.setServiceId(serviceId); 
-					img.setUrl(url); 
-					list.add(img);			
-				}
-		   // connection.commit();
+			while (resultSet.next()) {
+				//Collect output and push to a list
+				int id = resultSet.getInt("id");
+				int serviceId = resultSet.getInt("service_id");
+				String url = resultSet.getString("url");
+				ServiceImages img = new ServiceImages();
+				img.setId(id); 
+				img.setServiceId(serviceId); 
+				img.setUrl(url); 
+				list.add(img);			
+			}
 		} 
-		
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
 		return list;
-
 	}//END GET
 
 	
 	public boolean deleteServiceImages(int imageId, String userEPPN) throws DMCServiceException {
-
-		//BEEF THIS UP!
         //Tests to see if valid user, exits function if so
         try {
             int userId = UserDao.getUserID(userEPPN);
@@ -145,13 +129,13 @@ public class ServiceImagesDao {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
 		}
-		int rows; 
+        
 		
 		//Connect to DB
+		int rows; 
 		connection = DBConnector.connection();
 		PreparedStatement statement;
 		
-		 
 	    try {
 	    	
 	    	// Check that the user deleting the image is an administrator or the owner of the service
@@ -162,16 +146,14 @@ public class ServiceImagesDao {
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
 			*/
-			connection.setAutoCommit(false); 
-
-	   
+	    	
 			// delete Image
+			connection.setAutoCommit(false); 
 	        String query = "DELETE FROM service_images WHERE id = ?";
 	        statement = DBConnector.prepareStatement(query);
 	        statement.setInt(1, imageId);   
 	        rows = statement.executeUpdate();
 			connection.commit();
-
 	    }
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, "ERROR IN DELETE Service Images-------------------" + e.getMessage());
@@ -181,19 +163,16 @@ public class ServiceImagesDao {
 					ServiceLogger.log(logTag, "Transaction deleteServiceImages Rolled back");
 					connection.rollback();
 				} 
-				
 				catch (SQLException ex) {
 					ServiceLogger.log(logTag, ex.getMessage());
 					throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
 				}
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
-		}//Catch 
-	    	    
+		}//Catch     
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.Generic, e.getMessage());
-
 		}
 	
         if (rows > 0) return true;

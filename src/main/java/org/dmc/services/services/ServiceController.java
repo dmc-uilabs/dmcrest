@@ -139,9 +139,7 @@ public class ServiceController {
 			}
 			
 			catch(DMCServiceException e) {
-				statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-	            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-	            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+                return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 	        }  	
 			return new ResponseEntity<ArrayList<ServiceImages>>(imageList, HttpStatus.valueOf(statusCode));
 

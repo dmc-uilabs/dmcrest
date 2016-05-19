@@ -28,9 +28,7 @@ public class ServiceImagesController {
 	private final String logTag = ServiceImagesController.class.getName();
 	private ServiceImagesDao serviceImagesDao = new ServiceImagesDao();
 
-
 	/*Create a Service Image*/
-
 	@RequestMapping(value = "/service_images", method = RequestMethod.POST)
 	public ResponseEntity createServiceImages (@RequestBody ServiceImages payload, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "Create ServiceImages, userEPPN: " + userEPPN);
@@ -39,45 +37,36 @@ public class ServiceImagesController {
       try {
             imageId = serviceImagesDao.createServiceImages(payload, userEPPN);
         } catch(DMCServiceException e) {
-
-            statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
       return new ResponseEntity<Id>(imageId, HttpStatus.valueOf(statusCode));
 
-	}
+	}//Create
 
-	/*
-	DELETE /service_images/{imageId}
-	 */
+	/*DELETE /service_images/{imageId}*/
 	@RequestMapping(value = "/service_images/{imageId}", produces = { "application/json"}, method = RequestMethod.DELETE)
 	public ResponseEntity deleteServiceImages(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @PathVariable("imageId") int imageId) {
 		ServiceLogger.log(logTag, "DELETE ServiceImage, imageId: " + imageId);
 		boolean response;
 		try{
 			response = serviceImagesDao.deleteServiceImages(imageId, userEPPN);
-
-			   if (response) {
-	                return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
-	            } else {
-	                return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete service tag"), HttpStatus.INTERNAL_SERVER_ERROR);
-	            }
+		    if (response) {
+                return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete service tag"), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
 		}
 
 		catch (DMCServiceException e) {
             ServiceLogger.log(logTag, "caught exception: for id " + imageId + " as user " + userEPPN + " " + e.getMessage());
-
             if (e.getMessage().equals("you are not allowed to delete this service image")) {
-                return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
             } else if (e.getMessage().equals("invalid id")) {
-                return new ResponseEntity<ErrorMessage>(new ErrorMessage(e.getMessage()), HttpStatus.FORBIDDEN);
+                return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
             } else {
-                int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-                ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-                return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+                return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
             }
-        }
+        }//Catch
 
-	}
+	}//Delete
 }

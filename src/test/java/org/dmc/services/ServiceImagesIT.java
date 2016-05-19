@@ -18,14 +18,15 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by 200005921 on 5/12/2016.
+ * Created by Josh Lustig on 5/15/2016.
  */
+//Tests for
+//    GET /services/{serviceID}/service_images
+//    POST /service_images
+//    DELETE /service_images/{imageID}
 public class ServiceImagesIT extends BaseIT {
 
-    //    GET /services/{serviceID}/service_tags
-    //    POST /service_tags
-    //    GET /service_tags
-    //    DELETE /service_tags/{serviceTagID}
+
 
     private static final String SERVICE_IMAGES_POST  = "/service_images";
     private static final String SERVICE_IMAGES_DELETE = "/service_images/{imageID}";
@@ -34,6 +35,7 @@ public class ServiceImagesIT extends BaseIT {
 
     public static final String userEPPN = "fforgeadmin";
 
+    //HTTP Status might have errors now/
     @Test
     public void deleteNonExistingImage () {
 
@@ -48,6 +50,8 @@ public class ServiceImagesIT extends BaseIT {
 
     }
     
+    
+    //HTTP Status might have errors now/
     @Test
     public void addInvalidId () {
 
@@ -67,7 +71,6 @@ public class ServiceImagesIT extends BaseIT {
                 post(SERVICE_IMAGES_POST);
             
     }
-    
     
     @Test
     public void getImageUnit () {
@@ -90,17 +93,16 @@ public class ServiceImagesIT extends BaseIT {
     public void addAndGetAndDeleteServiceImages () {
     	
     	int serviceID = 2;
-    	
-    	
+    
     	//Get a list of the current images
         ArrayList<ServiceImages> originalImages =
-                given().
-                        header("AJP_eppn", userEPPN).
-                        expect().
-                        statusCode(HttpStatus.OK.value()).
-                        when().
-                        get(SERVICE_IMAGES_GET, serviceID).
-                        as(ArrayList.class);
+        given().
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(SERVICE_IMAGES_GET, serviceID).
+                as(ArrayList.class);
 
 
         String url = "FakeUrl";
@@ -111,13 +113,13 @@ public class ServiceImagesIT extends BaseIT {
 
         //Get a list of the new images 
         ArrayList<ServiceImages> newImages =
-                given().
-                        header("AJP_eppn", userEPPN).
-                        expect().
-                        statusCode(HttpStatus.OK.value()).
-                        when().
-                        get(SERVICE_IMAGES_GET, serviceID).
-                        as(ArrayList.class);
+        given().
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(SERVICE_IMAGES_GET, serviceID).
+                as(ArrayList.class);
 
         int numBefore = (originalImages != null) ? originalImages.size() : 0;
         int numAfter  = (newImages != null) ? newImages.size() : 0;
@@ -128,13 +130,13 @@ public class ServiceImagesIT extends BaseIT {
         deleteExistingImage(serviceImageId);
 
         ArrayList<ServiceImages> afterDeleteImages =
-                given().
-                        header("AJP_eppn", userEPPN).
-                        expect().
-                        statusCode(HttpStatus.OK.value()).
-                        when().
-                        get(SERVICE_IMAGES_GET, serviceID).
-                        as(ArrayList.class);
+        given().
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(SERVICE_IMAGES_GET, serviceID).
+                as(ArrayList.class);
 
         int numAfterDelete  = (afterDeleteImages != null) ? afterDeleteImages.size() : 0;
         assertTrue ("Deleting an image failed", numAfterDelete == numBefore);
@@ -149,7 +151,8 @@ public class ServiceImagesIT extends BaseIT {
         json.setServiceId(serviceId);
         json.setUrl(url);
 
-        Integer createdId  = given().
+        Integer createdId  = 
+        given().
                 header("Content-type", "application/json").
                 header("AJP_eppn", userEPPN).
                 body(json).
