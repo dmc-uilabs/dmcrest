@@ -1,6 +1,5 @@
 package org.dmc.services.services;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,19 +7,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.ws.http.HTTPException;
-
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.sharedattributes.Util;
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +32,7 @@ public class ServiceSpecificationDao {
 	 * @return
 	 * @throws DMCServiceException
 	 */
-	public Id createServiceSpecification(int serviceId, ServiceSpecifications spec, String userEPPN) throws DMCServiceException {
+	public ArrayList<Integer> createServiceSpecifications(int serviceId, ArrayList<ServiceSpecifications> specs, String userEPPN) throws DMCServiceException {
 		
 		PreparedStatement statement;
 		Connection connection = DBConnector.connection();
@@ -48,37 +40,44 @@ public class ServiceSpecificationDao {
 		Util util = Util.getInstance();
 		String query;
 		String special, usageStats, runStats;
-		int specId = -9999;
+		ArrayList<Integer> ids = null;
 		
 		try {
 
-			special = mapper.writeValueAsString(spec.getSpecial());
-			usageStats = mapper.writeValueAsString(spec.getUsageStats());
-			runStats = mapper.writeValueAsString(spec.getRunStats());
-			ServiceLogger.log(logTag, "Special JSON: " + special);
-			ServiceLogger.log(logTag, "Usage Stats JSON: " + usageStats);
-			ServiceLogger.log(logTag, "Run Stats JSON: " + runStats);
-					
-			ServiceLogger.log(logTag, "SPECIAL JSON: " + special.toString());
 			connection.setAutoCommit(false);
 			
 			query = "INSERT INTO service_specifications (service_id, input, output, special, usage_stats, run_stats)"
-					+ "VALUES (?, ?, ?, ?, ?, ?)";
+					+ " VALUES (?, ?, ?, ?, ?, ?)";
 			
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			statement.setInt(1, serviceId);
-			statement.setObject(2, spec.getInput(), java.sql.Types.INTEGER);
-			statement.setObject(3, spec.getOutput(), java.sql.Types.INTEGER);
-			statement.setString(4, special);
-			statement.setString(5, usageStats);
-			statement.setString(6, runStats);
-			statement.executeUpdate();
 			
-			specId = util.getGeneratedKey(statement, "id");
-			ServiceLogger.log(logTag, "Created Service Specification: " + specId);
+			for (ServiceSpecifications spec : specs) {
+				
+				// when using POSt array_secifications, serviceId provided is -1, 
+				// the expectation is that the service Id will be contained in the specification object
+				serviceId = (serviceId == -1) ? Integer.parseInt(spec.getServiceId()) : 1;
+				
+				special = mapper.writeValueAsString(spec.getSpecial());
+				usageStats = mapper.writeValueAsString(spec.getUsageStats());
+				runStats = mapper.writeValueAsString(spec.getRunStats());
+				ServiceLogger.log(logTag, "Special JSON: " + special);
+				ServiceLogger.log(logTag, "Usage Stats JSON: " + usageStats);
+				ServiceLogger.log(logTag, "Run Stats JSON: " + runStats);
+				ServiceLogger.log(logTag, "special JSON: " + special.toString());
+				statement.setInt(1, serviceId);
+				statement.setObject(2, spec.getInput(), java.sql.Types.INTEGER);
+				statement.setObject(3, spec.getOutput(), java.sql.Types.INTEGER);
+				statement.setString(4, special);
+				statement.setString(5, usageStats);
+				statement.setString(6, runStats);
+				statement.addBatch();
+			}
+			
+			statement.executeBatch();
+			connection.commit();
+			ids = util.getGeneratedKeys(statement, "id");
 			
 		} catch (SQLException e) {
-			ServiceLogger.log(logTag, e.getMessage());
 			if (connection != null) {
 				try {
 					ServiceLogger.log(logTag, "Transaction createServiceSpecification Rolled back");
@@ -89,15 +88,6 @@ public class ServiceSpecificationDao {
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		} catch (Exception e) {
-            ServiceLogger.log(logTag, e.getMessage());
-            if (connection != null) {
-                try {
-                    ServiceLogger.log(logTag, "Transaction createServiceSpecification Rolled back");
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    ServiceLogger.log(logTag, ex.getMessage());
-                }
-            }
 			throw new DMCServiceException(DMCError.Generic, e.getMessage());
 		} finally {
 			if (connection != null) {
@@ -107,7 +97,7 @@ public class ServiceSpecificationDao {
 			}
 		}
 		
-		return new Id.IdBuilder(specId).build();
+		return ids;
 	}
 	
 	/**

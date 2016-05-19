@@ -13,7 +13,9 @@ import org.dmc.services.services.specifications.ArraySpecifications;
 import org.dmc.services.services.*;
 import org.dmc.services.utility.TestUserUtil;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -317,36 +319,7 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServicePost_Specification(){
-		ServiceSpecifications specification = new ServiceSpecifications();
-		specification.setId("16703234");
-		specification.setServiceId(serviceId);
-		specification.setDescription("testing with junit");
-		specification.setInput(new Integer(1));
-		specification.setOutput(new Integer(1));
-		ServiceSpecialSpecifications special = new ServiceSpecialSpecifications();
-		special.setSpecification("stuck");
-		special.setSpecificationId("morejunk");
-		special.setData("this is the data");
-		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
-		specialList.add(special);
-		specification.setSpecial(specialList);
-		RunStats runstats = new RunStats();
-		runstats.setFail(new Integer(0));
-		runstats.setSuccess(new Integer(0));
-		specification.setRunStats(runstats);
-		UsageStats usagestats = new UsageStats();
-		usagestats.setAdded(new Integer(0));
-		usagestats.setMembers(new Integer(0));
-		specification.setUsageStats(usagestats);
-		
-		ObjectMapper mapper = new ObjectMapper();
-		String postedSpecificationJSONString = null;
-		try {
-			postedSpecificationJSONString = mapper.writeValueAsString(specification);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		String postedSpecificationJSONString = getSpecJSONString();
 		
         //pathParam("serviceID", serviceId).
 		ServiceLogger.log(logTag, "ServiceSpecifications object json = " + postedSpecificationJSONString);
@@ -406,25 +379,20 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testPost_ArraySpecification() {
-		ArrayList<ArraySpecifications> obj = new ArrayList<ArraySpecifications>();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedArraySpecificationJSONString = null;
-		try {
-			postedArraySpecificationJSONString = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		int numSpecs = 2;
+		String postedSpecificationJSONString = getSpecsJSONString(numSpecs);
 		
-		
-		given().
+		ArrayList<ServiceSpecifications> specs = given().
 		header("Content-type", "application/json").
 		header("AJP_eppn", "user_EPPN").
-		body(postedArraySpecificationJSONString).
+		body(postedSpecificationJSONString).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
-		post("/array_specifications");
+		post("/array_specifications").
+		as(ArrayList.class);
+		
+		assertTrue("Number of Specifications created is number posted", specs.size() == numSpecs);
 	}
     	
 	/**
@@ -579,6 +547,87 @@ public class ServiceIT extends BaseIT {
         service.setDescription("junit service test");
         service.setOwner(userEPPN);
         return service;
+    }
+    
+    // create a specification JSON String 
+    private String getSpecJSONString() {
+    	ServiceSpecifications specification = new ServiceSpecifications();
+		specification.setId("16703234");
+		specification.setServiceId(serviceId);
+		specification.setDescription("testing with junit");
+		specification.setInput(new Integer(1));
+		specification.setOutput(new Integer(1));
+		ServiceSpecialSpecifications special = new ServiceSpecialSpecifications();
+		special.setSpecification("stuck");
+		special.setSpecificationId("morejunk");
+		special.setData("this is the data");
+		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
+		specialList.add(special);
+		specification.setSpecial(specialList);
+		RunStats runstats = new RunStats();
+		runstats.setFail(new Integer(0));
+		runstats.setSuccess(new Integer(0));
+		specification.setRunStats(runstats);
+		UsageStats usagestats = new UsageStats();
+		usagestats.setAdded(new Integer(0));
+		usagestats.setMembers(new Integer(0));
+		specification.setUsageStats(usagestats);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String postedSpecificationJSONString = null;
+		try {
+			postedSpecificationJSONString = mapper.writeValueAsString(specification);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return postedSpecificationJSONString;
+    }
+    
+    // create a multiple specification JSON String 
+    private String getSpecsJSONString(int num) {
+    	
+    	ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
+    	
+    	for  (int i=0; i<num; i++) {
+    		
+        	ServiceSpecifications specification = new ServiceSpecifications();
+    		specification.setId("16703234" + i);
+    		specification.setServiceId(serviceId);
+    		specification.setDescription("testing with junit" + i);
+    		specification.setInput(new Integer(1));
+    		specification.setOutput(new Integer(1));
+    		ServiceSpecialSpecifications special = new ServiceSpecialSpecifications();
+    		special.setSpecification("stuck");
+    		special.setSpecificationId("morejunk " + i);
+    		special.setData("this is the data " + i);
+    		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
+    		specialList.add(special);
+    		specification.setSpecial(specialList);
+    		RunStats runstats = new RunStats();
+    		runstats.setFail(new Integer(0));
+    		runstats.setSuccess(new Integer(0));
+    		specification.setRunStats(runstats);
+    		UsageStats usagestats = new UsageStats();
+    		usagestats.setAdded(new Integer(0));
+    		usagestats.setMembers(new Integer(0));
+    		specification.setUsageStats(usagestats);
+    		
+    		specs.add(specification);
+    	}
+
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String postedSpecificationJSONString = null;
+		try {
+			postedSpecificationJSONString = mapper.writeValueAsString(specs);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return postedSpecificationJSONString;
     }
 	
 }

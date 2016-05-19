@@ -188,7 +188,9 @@ public class ServiceController {
 	        @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "createServiceSpecification");
-		Id id = null;
+		ArrayList<Integer> ids = null;
+		ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
+		specs.add(spec);
 
 		try {
 		    int serviceId = -1;
@@ -197,10 +199,32 @@ public class ServiceController {
 		    } catch (NumberFormatException e) {
 		        throw new DMCServiceException(DMCError.ServiceInterfaceNotMatch, "unable to parse " + serviceIdText + " as an integer");
 		    }
-			id = specificationDao.createServiceSpecification(serviceId, spec, userEPPN);
-			return new ResponseEntity<Id>(id, HttpStatus.valueOf(HttpStatus.OK.value()));
+			ids = specificationDao.createServiceSpecifications(serviceId, specs, userEPPN);
+			return new ResponseEntity<ArrayList<Integer>>(ids, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		} 
+	}
+	
+    /**
+	 * Create Service Specifications
+	 * @param video
+	 * @param userEPPN
+	 * @return
+	 */
+	@RequestMapping(value = "/array_specifications", method = RequestMethod.POST, produces = { "application/json", "text/html" })
+	public ResponseEntity<?> createServiceSpecifications(@RequestBody ArrayList<ServiceSpecifications> specs, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+		
+		ServiceLogger.log(logTag, "createServiceSpecifications, Specs:" + specs);
+		ArrayList<Integer> ids = null;
+
+		try {
+			ids = specificationDao.createServiceSpecifications(-1, specs, userEPPN);
+			return new ResponseEntity<ArrayList<Integer>>(ids, HttpStatus.valueOf(HttpStatus.OK.value()));
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		} 
 	}
@@ -234,7 +258,7 @@ public class ServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/services/{serviceId}/specifications", method = RequestMethod.GET, produces = { "application/json" })
-	public ResponseEntity getServiceSpecifications(@PathVariable("id") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+	public ResponseEntity<?> getServiceSpecifications(@PathVariable("id") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "getServiceSpecifications, userEPPN: " + userEPPN);
 		ArrayList<ServiceSpecifications> specs = null;
@@ -255,7 +279,7 @@ public class ServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/array_specifications", method = RequestMethod.GET, produces = { "application/json" })
-	public ResponseEntity getServiceSpecifications(@RequestHeader(value = "AJP_eppn", required = true) String userEPPN,
+	public ResponseEntity<?> getServiceSpecifications(@RequestHeader(value = "AJP_eppn", required = true) String userEPPN,
 				@RequestParam(value="_limit", defaultValue="1000", required = false) int limit,
 				@RequestParam(value="_order", defaultValue="DESC", required = false) String order,
 				@RequestParam(value="_sort", defaultValue="id", required = false) String sort) {
@@ -271,12 +295,5 @@ public class ServiceController {
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		} 
 	}
-
-	@RequestMapping(value = "/array_specifications", method = RequestMethod.POST, produces = { "application/json", "text/html" }) 
-    public ResponseEntity<?> arraySpecificationsPost(
-	       @RequestBody List<ArraySpecifications> body) {
-        // do some magic!
-        return new ResponseEntity<List<ArraySpecifications>>(HttpStatus.NOT_IMPLEMENTED);
-    }
 
 }
