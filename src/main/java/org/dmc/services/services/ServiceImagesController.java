@@ -28,67 +28,44 @@ public class ServiceImagesController {
 	private final String logTag = ServiceImagesController.class.getName();
 	private ServiceImagesDao serviceImagesDao = new ServiceImagesDao();
 
-	
+
 	/*Create a Service Image*/
 
 	@RequestMapping(value = "/service_images", method = RequestMethod.POST)
 	public ResponseEntity createServiceImages (@RequestBody ServiceImages payload, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "Create ServiceImages, userEPPN: " + userEPPN);
-		int statusCode = HttpStatus.OK.value(); 
-		Id imageId = null;	
+		int statusCode = HttpStatus.OK.value();
+		Id imageId = null;
       try {
             imageId = serviceImagesDao.createServiceImages(payload, userEPPN);
-        } catch(Exception e) {
-        	
+        } catch(DMCServiceException e) {
+
             statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
             ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
             return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-        }  
+        }
       return new ResponseEntity<Id>(imageId, HttpStatus.valueOf(statusCode));
 
 	}
 
-	
-	/*
-	 * Get all images for a part
-	 */
- /*@RequestMapping(value = "/{serviceId}/service_images", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity getServiceImages(@PathVariable("serviceId") int serviceId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
-		ServiceLogger.log(logTag, "In GET ServiceImage by User " + userEPPN); 
-			int statusCode = HttpStatus.OK.value(); 
-			ArrayList<ServiceImages> imageList = null; 
-			try{ 
-				imageList = serviceImagesDao.getServiceImages(serviceId); 
-			}
-			
-			catch(Exception e) {
-				statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-	            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-	            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-	        }  	
-			return new ResponseEntity<ArrayList<ServiceImages>>(imageList, HttpStatus.valueOf(statusCode));
-
-	}
-	*/
-	
 	/*
 	DELETE /service_images/{imageId}
 	 */
 	@RequestMapping(value = "/service_images/{imageId}", produces = { "application/json"}, method = RequestMethod.DELETE)
 	public ResponseEntity deleteServiceImages(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @PathVariable("imageId") int imageId) {
 		ServiceLogger.log(logTag, "DELETE ServiceImage, imageId: " + imageId);
-		boolean response; 
-		try{ 
-			response = serviceImagesDao.deleteServiceImages(imageId, userEPPN); 
-			
+		boolean response;
+		try{
+			response = serviceImagesDao.deleteServiceImages(imageId, userEPPN);
+
 			   if (response) {
 	                return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 	            } else {
 	                return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete service tag"), HttpStatus.INTERNAL_SERVER_ERROR);
 	            }
 		}
-		
-		catch (Exception e) {
+
+		catch (DMCServiceException e) {
             ServiceLogger.log(logTag, "caught exception: for id " + imageId + " as user " + userEPPN + " " + e.getMessage());
 
             if (e.getMessage().equals("you are not allowed to delete this service image")) {
