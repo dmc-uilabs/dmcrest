@@ -1,4 +1,4 @@
-package org.dmc.services.services;
+package org.dmc.services.dmdiimember;
 
 import java.sql.Date;
 
@@ -18,6 +18,7 @@ public class DMDIIMember {
 	@JoinColumn(name = "dmdii_type_id")
 	private DMDIIType dmdiiType;
 	@ManyToOne
+	@JoinColumn(name = "organization_id")
 	private Organization organization;
 	@Column(name = "start_date")
 	private Date startDate;

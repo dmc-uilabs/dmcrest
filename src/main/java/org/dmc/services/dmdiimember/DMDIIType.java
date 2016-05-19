@@ -1,4 +1,4 @@
-package org.dmc.services.services;
+package org.dmc.services.dmdiimember;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
