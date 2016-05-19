@@ -18,6 +18,8 @@ import org.dmc.services.company.CompanySkillImage;
 import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.utility.TestUserUtil;
 
+import org.dmc.services.sharedattributes.FeatureImage;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -74,10 +76,23 @@ public class CompanyIT extends BaseIT {
 
 	@Before
 	public void testCompanyCreate() {
-		JSONObject json = createFixture();
-		this.createdId = given().body(json.toString()).header("AJP_eppn", randomEPPN).expect().statusCode(200).when()
-				.post(COMPANY_CREATE_RESOURCE).then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-				.extract().path("id");
+		String json = createFixture();
+		ServiceLogger.log(logTag, "Creating company");
+		this.createdId =
+			given().
+				body(json).
+				header("AJP_eppn", randomEPPN).
+				header("Content-type", "application/json").
+			expect().
+				statusCode(200).
+			when().
+				post(COMPANY_CREATE_RESOURCE).
+			then().
+				body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
+			extract().
+				path("id");
+		ServiceLogger.log(logTag, "Company created " + this.createdId);
+
 	}
 
 	@Test
@@ -101,21 +116,13 @@ public class CompanyIT extends BaseIT {
 					.as(ArrayList.class);
 
 			// add one company
-			String savedRandomEPPN = randomEPPN;
-			randomEPPN = UUID.randomUUID().toString();
 			testCompanyCreate();
-			randomEPPN = savedRandomEPPN;
 
 			ArrayList<Company> newCompanyList = given().header("Content-type", "application/json")
 					.header("AJP_eppn", randomEPPN).expect().statusCode(200).when().get(ALL_COMPANY_GET_RESOURCE)
 					.as(ArrayList.class);
 
 			assertTrue("", newCompanyList.size() == orginalCompanyList.size() + 1);
-
-			// then().
-			// body(matchesJsonSchemaInClasspath("Schemas/companySchema.json"));
-
-			// check JSON later
 		} else {
 			assertTrue("Could not create new company", false);
 		}
@@ -139,33 +146,56 @@ public class CompanyIT extends BaseIT {
 	@Test
 	public void testCompanyGetNoPermission() {
 		if (this.createdId != null) {
-			given().header("Content-type", "application/json").header("AJP_eppn", "testUser").expect().statusCode(403)
-					.when().get(COMPANY_GET_RESOURCE, this.createdId.toString());
+			given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", "testUser").
+			expect().
+				statusCode(403).
+			when().
+				get(COMPANY_GET_RESOURCE, this.createdId.toString());
 		}
 	}
 
-	@Ignore
+//	@Ignore
 	@Test
 	public void testCompanyGetNotOwner() {
 		if (this.createdId != null) {
-			given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN + "random").expect()
-					.statusCode(403).when().get(COMPANY_GET_RESOURCE, this.createdId.toString());
+			given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", randomEPPN + "random").
+			expect().
+				statusCode(403).
+			when().
+				get(COMPANY_GET_RESOURCE, this.createdId.toString());
 		}
 	}
 
 	@Test
 	public void testCompanyUpdate() {
-		JSONObject json = updateFixture();
-		given().body(json.toString()).header("AJP_eppn", randomEPPN).expect().statusCode(200).when()
-				.patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString()).then()
-				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+		String json = updateFixture();
+		given().
+			body(json).
+			header("AJP_eppn", randomEPPN).
+			header("Content-type", "application/json").
+		expect().
+			statusCode(200).
+		when().
+			patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString()).
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 
 	@Test
 	public void testCompanyUpdateNotOwner() {
-		JSONObject json = updateFixture();
-		given().body(json.toString()).header("AJP_eppn", randomEPPN + "-random").expect().statusCode(403).when()
-				.patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString());
+		String json = updateFixture();
+		given().
+			body(json).
+			header("AJP_eppn", randomEPPN + "-random").
+			header("Content-type", "application/json").
+		expect().
+			statusCode(403).
+		when().
+			patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString());
 	}
 
 	@Test
@@ -259,92 +289,113 @@ public class CompanyIT extends BaseIT {
 				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 
-	public JSONObject createFixture() {
+	public String createFixture() {
+		Company company = new Company();
+		
+//		company.setId(Integer.toString(id));
+		company.setAccountId(Integer.toString(1001));
+		company.setName("test name");
+		company.setLocation("test location");
+		company.setDescription("test description");
+		company.setDivision("test division");
+		company.setIndustry("test industry");
+		company.setNAICSCode("test NAICSCode");
+		company.setRDFocus("test RDFocus");
+		company.setCustomers("test customers");
+		company.setAwardsReceived("test awardsReceived");
+		company.setTechnicalExpertise("test technicalExpertise");
+		company.setToolsSoftwareEquipmentMachines("test toolsSoftwareEquipmentMachines");
+		company.setPastCollaborations("test postCollaborations");
+		company.setPastProjects("test pastProjects");
+		company.setUpcomingProjectInterests("test upcomingProjectInterests");
+		company.setCollaborationInterests("test collaborationInterests");
+		company.setAddress("test address , test address");
+		company.setCity("test city");
 
-		JSONObject json = new JSONObject();
+		// Todo:				company.setState(state);
+// 		json.put("state", "test state");
 
-		json.put("accountId", 1001);
-		json.put("name", "test name");
-		json.put("location", "test location");
-		json.put("description", "test description");
-		json.put("division", "test division");
-		json.put("industry", "test industry");
-		json.put("NAICSCode", "test NAICSCode");
-		json.put("RDFocus", "test RDFocus");
-		json.put("customers", "test customers");
-		json.put("awardsReceived", "test awardsReceived");
-		json.put("technicalExpertise", "test technicalExpertise");
-		json.put("toolsSoftwareEquipmentMachines", "test toolsSoftwareEquipmentMachines");
-		json.put("postCollaborations", "test postCollaborations");
-		json.put("collaborationInterests", "test collaborationInterests");
-		json.put("pastProjects", "test pastProjects");
-		json.put("upcomingProjectInterests", "test upcomingProjectInterests");
-		json.put("address", "test address");
-		json.put("city", "test city");
-		json.put("state", "test state");
-		json.put("zipCode", "test zipCode");
-		json.put("twitter", "test twitter");
-		json.put("linkedIn", "test linkedIn");
-		json.put("website", "test website");
-		json.put("methodCommunication", "test methodCommunication");
-		json.put("email", "test email");
-		json.put("phone", "test phone");
-		json.put("categoryTier", 30);
-		json.put("dateJoined", "test dateJoined");
-		json.put("reasonJoining", "test reasonJoining");
-		json.put("featureImageThumb", "feature_image_thumb.jpg");
-		json.put("featureImageLarge", "feature_image_large.jpg");
-		json.put("logoImage", "test logoImage");
-		json.put("follow", true);
-		json.put("favoratesCount", 1002);
-		json.put("isOwner", false);
-		json.put("owner", "test owner");
-
-		return json;
+		company.setZipCode("test zipCode");
+		company.setTwitter("test twitter");
+		company.setLinkedIn("test linkedIn");
+		company.setWebsite("test website");
+		company.setMethodCommunication("test methodCommunication");
+		company.setEmail("test email");
+		company.setPhone("test phone");
+		company.setCategoryTier(30);
+		company.setDateJoined("test dateJoined");
+		company.setReasonJoining("test reasonJoining");
+		company.setFeatureImage(new FeatureImage("feature_image_thumb.jpg", "feature_image_large.jpg"));
+		company.setLogoImage("test logoImage");
+		company.setFollow(true);
+		company.setFavoritesCount(1002);
+		company.setIsOwner(false);
+		company.setOwner("test owner");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String companyJSONString = null;
+		try {
+			companyJSONString = mapper.writeValueAsString(company);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return companyJSONString;
 	}
 
-	public JSONObject updateFixture() {
+	public String updateFixture() {
 
-		JSONObject json = new JSONObject();
-
-		json.put("accountId", 1001);
-		json.put("name", "test updated name");
-		json.put("location", "test updated location");
-		json.put("description", "test updated description");
-		json.put("division", "test updated division");
-		json.put("industry", "test updated industry");
-		json.put("NAICSCode", "test updated NAICSCode");
-		json.put("RDFocus", "test updated RDFocus");
-		json.put("customers", "test updated customers");
-		json.put("awardsReceived", "test updated awardsReceived");
-		json.put("technicalExpertise", "test updated technicalExpertise");
-		json.put("toolsSoftwareEquipmentMachines", "test updated toolsSoftwareEquipmentMachines");
-		json.put("postCollaborations", "test updated postCollaborations");
-		json.put("collaborationInterests", "test updated collaborationInterests");
-		json.put("pastProjects", "test updated pastProjects");
-		json.put("upcomingProjectInterests", "test updated upcomingProjectInterests");
-		json.put("address", "test updated address");
-		json.put("city", "test updated city");
-		json.put("state", "test updated state");
-		json.put("zipCode", "test updated zipCode");
-		json.put("twitter", "test updated twitter");
-		json.put("linkedIn", "test updated linkedIn");
-		json.put("website", "test updated website");
-		json.put("methodCommunication", "test updated methodCommunication");
-		json.put("email", "test updated email");
-		json.put("phone", "test updated phone");
-		json.put("categoryTier", 30);
-		json.put("dateJoined", "test updated dateJoined");
-		json.put("reasonJoining", "test updated reasonJoining");
-		json.put("featureImageThumb", "feature_image_thumb.jpg");
-		json.put("featureImageLarge", "feature_image_large.jpg");
-		json.put("logoImage", "test updated logoImage");
-		json.put("follow", true);
-		json.put("favoratesCount", 1002);
-		json.put("isOwner", false);
-		json.put("owner", "test updated owner");
-
-		return json;
+		Company company = new Company();
+		
+		//		company.setId(Integer.toString(id));
+		company.setAccountId(Integer.toString(1001));
+		company.setName("test updated name");
+		company.setLocation("test updated location");
+		company.setDescription("test updated description");
+		company.setDivision("test updated division");
+		company.setIndustry("test updated industry");
+		company.setNAICSCode("test updated NAICSCode");
+		company.setRDFocus("test updated RDFocus");
+		company.setCustomers("test updated customers");
+		company.setAwardsReceived("test updated awardsReceived");
+		company.setTechnicalExpertise("test updated technicalExpertise");
+		company.setToolsSoftwareEquipmentMachines("test updated toolsSoftwareEquipmentMachines");
+		company.setPastCollaborations("test updated postCollaborations");
+		company.setPastProjects("test updated pastProjects");
+		company.setUpcomingProjectInterests("test updated upcomingProjectInterests");
+		company.setCollaborationInterests("test updated collaborationInterests");
+		company.setAddress("test updated address");
+		company.setCity("test updated city");
+		
+		// Todo:				company.setState(state);
+		// 		json.put("state", "test updated state");
+		
+		company.setZipCode("test updated zipCode");
+		company.setTwitter("test updated twitter");
+		company.setLinkedIn("test updated linkedIn");
+		company.setWebsite("test updated website");
+		company.setMethodCommunication("test updated methodCommunication");
+		company.setEmail("test updated email");
+		company.setPhone("test updated phone");
+		company.setCategoryTier(30);
+		company.setDateJoined("test updated dateJoined");
+		company.setReasonJoining("test updated reasonJoining");
+		company.setFeatureImage(new FeatureImage("feature_image_thumb_updated.jpg", "feature_image_large_updated.jpg"));
+		company.setLogoImage("test updated logoImage");
+		company.setFollow(true);
+		company.setFavoritesCount(1002);
+		company.setIsOwner(false);
+		company.setOwner("test updated owner");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String companyJSONString = null;
+		try {
+			companyJSONString = mapper.writeValueAsString(company);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return companyJSONString;
 	}
 
 	public JSONArray createSkills() {
@@ -376,11 +427,18 @@ public class CompanyIT extends BaseIT {
 		// Test get all members using the first member id
 		String user1_eppn = "userEPPN" + user1;
 
-		ArrayList<User> allUsers = given().param("companyID", this.createdId.toString()).header("AJP_eppn", user1_eppn)
-				.expect().statusCode(200).when().get(COMPANY_GET_MEMBERS, this.createdId.toString()).andReturn()
-				.as(ArrayList.class);
+		ArrayList<User> allUsers =
+		given().
+			param("companyID", this.createdId.toString()).
+			header("AJP_eppn", user1_eppn).
+		expect().
+			statusCode(200).
+		when().
+			get(COMPANY_GET_MEMBERS, this.createdId.toString()).
+		andReturn().
+			as(ArrayList.class);
 
-		int numUsers = 2;
+		int numUsers = 3;  // 3rd user is the one who created the company
 		Assert.assertTrue("Company members list cannot be null", allUsers != null);
 		Assert.assertTrue("Expected " + numUsers + " company members", allUsers.size() == numUsers);
 

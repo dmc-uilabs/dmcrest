@@ -1,5 +1,7 @@
 package org.dmc.services.sharedattributes;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class FeatureImage {
 
     private final String logTag = FeatureImage.class.getName();
@@ -12,7 +14,8 @@ public class FeatureImage {
         this.large = "large";
     }
 	
-    public FeatureImage(String thumbnail, String large) {
+    public FeatureImage(@JsonProperty("thumbnail") String thumbnail,
+						@JsonProperty("large") String large) {
         this.thumbnail = thumbnail;
         this.large = large;
     }
