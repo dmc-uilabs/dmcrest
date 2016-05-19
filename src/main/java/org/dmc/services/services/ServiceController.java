@@ -3,13 +3,14 @@ package org.dmc.services.services;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.services.specifications.ArraySpecifications;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.dmc.services.ErrorMessage;
+import org.dmc.services.projects.ProjectJoinRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,45 +28,64 @@ public class ServiceController {
 	private ServiceSpecificationDao specificationDao = new ServiceSpecificationDao();
 
 	private ServiceDao serviceDao = new ServiceDao();
+	private ServiceTagsDao serviceTagsDao = new ServiceTagsDao();
 
 	@RequestMapping(value = "/services/{id}", method = RequestMethod.GET)
-	public Service getService(@PathVariable("id") int id) {
+	public ResponseEntity<?> getService(@PathVariable("id") int id,
+	        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "getService, id: " + id);
-		return serviceDao.getService(id);
+		try {
+		    return new ResponseEntity<Service>(serviceDao.getService(id, userEPPN), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+		    ServiceLogger.logException(logTag, e);
+		    return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	private ServiceListDao serviceListDao = new ServiceListDao();
 
 	@RequestMapping(value = "/services", method = RequestMethod.GET)
 	public ArrayList<Service> getServiceList() {
-		ServiceLogger.log(logTag, "getService ");
+		ServiceLogger.log(logTag, "getServiceList ");
 		return serviceListDao.getServiceList();
 	}
 
 	@RequestMapping(value = "/projects/{projectId}/services", method = RequestMethod.GET)
 	public ArrayList<Service> getServiceList(@PathVariable("projectId") int projectId) {
-		ServiceLogger.log(logTag, "In getService, projectId = " + projectId);
+		ServiceLogger.log(logTag, "In getServiceList, projectId = " + projectId);
 		return serviceListDao.getServiceList(projectId);
 	}
 
 	@RequestMapping(value = "/components/{componentId}/services", method = RequestMethod.GET)
 	public ArrayList<Service> getServiceByComponentList(@PathVariable("componentId") int componentId) {
-		ServiceLogger.log(logTag, "In getService, componentId = " + componentId);
+		ServiceLogger.log(logTag, "In getServiceByComponentList, componentId = " + componentId);
 		return serviceListDao.getServiceByComponentList(componentId);
 	}
 
 	@RequestMapping(value = "/services", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<Void> postService(@RequestBody Service body) {
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity<?> postService(@RequestBody Service body,
+	        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        try {
+            ServiceLogger.log(logTag, "In createService");
+            return new ResponseEntity<Service>(serviceDao.createService(body, userEPPN), HttpStatus.OK);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+        }
 	}
 
 	@RequestMapping(value = "/services/{serviceID}", produces = { "application/json",
 			"text/html" }, method = RequestMethod.PATCH)
-	public ResponseEntity<Service> servicesServiceIDPatch(@PathVariable("serviceID") String serviceID,
-			@RequestBody Service service) {
-		// do some magic!
-		return new ResponseEntity<Service>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity<?> servicesServiceIDPatch(@PathVariable("serviceID") String serviceID,
+			@RequestBody Service service,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        try {
+            ServiceLogger.log(logTag, "In patchService, serviceID = " + serviceID);
+            return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+        }
 	}
 
 	@RequestMapping(value = "/services/{serviceID}/service_authors", produces = { "application/json",
@@ -108,12 +128,25 @@ public class ServiceController {
 
 	@RequestMapping(value = "/services/{serviceID}/service_tags", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ServiceTag>> servicesServiceIDServiceTagsGet(@PathVariable("serviceID") String serviceID,
+	public ResponseEntity servicesServiceIDServiceTagsGet(@PathVariable("serviceID") String serviceID,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		// do some magic!
-		return new ResponseEntity<List<ServiceTag>>(HttpStatus.NOT_IMPLEMENTED);
+		int statusCode = HttpStatus.OK.value();
+
+		String userEPPN = null;
+		List<ServiceTag> tags = null;
+		try {
+			tags = serviceTagsDao.getServiceListByServiceId(Integer.parseInt(serviceID), userEPPN);
+		} catch (Exception ex) {
+			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
+			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+		}
+
+		return new ResponseEntity<List<ServiceTag>>(tags, HttpStatus.valueOf(statusCode));
+
 	}
 
 	@RequestMapping(value = "/services/{serviceID}/services_statistic", produces = { "application/json",
