@@ -470,7 +470,7 @@ public class ServiceIT extends BaseIT {
 			statusCode(HttpStatus.OK.value()).
 		when().get("/dome-interfaces/" + postedDomeInterface.getId());
 		
-		/*
+		
 		given().
 			header("AJP_eppn", userEPPN).
 		expect().
@@ -484,7 +484,7 @@ public class ServiceIT extends BaseIT {
 			header("AJP_eppn", userEPPN).
 		expect().
 			statusCode(HttpStatus.NOT_FOUND.value()).
-		when().get("/dome-interfaces/" + postedDomeInterface.getId());*/
+		when().get("/dome-interfaces/" + postedDomeInterface.getId());
 	}
 	
 	/**
@@ -535,11 +535,11 @@ public class ServiceIT extends BaseIT {
 		assertTrue("testServicePost_DomeInterface: Path values are not equal", (readDomeInterface.getPath().equals(convertIntegerListtoBigDecimalList(postDomeInterface.getPath()))));
 		assertTrue("testServicePost_DomeInterface: Dome server values are not equal", (readDomeInterface.getServiceId().equals(postUpdateServiceId)));
 	
-		/*given().
+		given().
 			header("AJP_eppn", userEPPN).
 		expect().
 			statusCode(HttpStatus.OK.value()).
-		when().delete("/dome-interfaces/" + postedDomeInterface.getId());*/
+		when().delete("/dome-interfaces/" + postedDomeInterface.getId());
 	
 	}
 	
