@@ -25,13 +25,13 @@ public class Util {
 	 * @throws SQLException
 	 */
 	public int getGeneratedKey(PreparedStatement statement, String column) throws SQLException {
-    	ResultSet keys = statement.getGeneratedKeys();
-        if (keys.next()) {
-            return keys.getInt(column);
-        }
-        else {
-            throw new SQLException("Could not retrieve generated key: " + column);
-        }
+		
+		ResultSet keys = statement.getGeneratedKeys();
+		if (keys.next()) {
+			return keys.getInt(column);
+		} else {
+			throw new SQLException("Could not retrieve generated key: " + column);
+		}
 	}
 	
 	/**
