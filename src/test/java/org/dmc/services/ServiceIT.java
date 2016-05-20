@@ -18,10 +18,8 @@ import com.jayway.restassured.response.ValidatableResponse;
 
 import static com.jayway.restassured.RestAssured.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -242,20 +240,13 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_DomeInterface(){
-        
         given().
-    		header("Content-type", "application/json").
-    		header("AJP_eppn", userEPPN).
-    		param("limit", 5).
-    		param("order", "DESC").
-    		param("sort", "server_id").
-    	expect().
-    		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-    	when().get("/services/" + serviceId + "/dome-interfaces");
-        
+        header("AJP_eppn", userEPPN).
+        expect().
+        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+        when().get("/services/" + serviceId + "/dome-interfaces");
     }
 
-  
     /**
      * test case for PATCH /dome-interfaces/{domeInterfaceId}
      */
