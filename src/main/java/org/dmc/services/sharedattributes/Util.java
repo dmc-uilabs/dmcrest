@@ -42,16 +42,17 @@ public class Util {
 	 */
 	public ArrayList<Integer> getGeneratedKeys(PreparedStatement statement, String column) throws SQLException {
 		ArrayList<Integer> keys = new ArrayList<Integer>();
-    	ResultSet rs = statement.getGeneratedKeys();
-    	
-    	while (rs.next()) {
-            keys.add(rs.getInt(column));
-        }
-        
-        if (keys.isEmpty()) {
-            throw new SQLException("Could not retrieve generated keys: " + column);
-        }
-        
-        return keys;
+
+		ResultSet rs = statement.getGeneratedKeys();
+
+		while (rs.next()) {
+			keys.add(rs.getInt(column));
+		}
+
+		if (keys.isEmpty()) {
+			throw new SQLException("Could not retrieve generated keys: " + column);
+		}
+
+		return keys;
 	}
 }
