@@ -10,6 +10,7 @@ import org.dmc.services.services.ServiceSpecifications;
 import org.dmc.services.services.RunStats;
 import org.dmc.services.services.UsageStats;
 import org.dmc.services.services.specifications.ArraySpecifications;
+import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.services.*;
 import org.dmc.services.utility.TestUserUtil;
 import org.junit.Test;
@@ -19,6 +20,8 @@ import static org.junit.Assert.*;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
 
@@ -365,13 +368,34 @@ public class ServiceIT extends BaseIT {
 	 * test GET /array_specifications
 	 */
 	@Test
-	public void testGet_ArraySpecification(){
-		given().
-		header("AJP_eppn", userEPPN).
+	public void testGet_ArraySpecification() {
+		
+		ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
+		int previousSpecId = 0;
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		JsonNode jsonSpecs = given().
+				param("_sort", "id").
+				param("_order", "ASC").
+				header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.OK.value()).
+			statusCode(HttpStatus.OK.value()).
 		when().
-		get("/array_specifications");	
+			get("/array_specifications").
+		as(JsonNode.class);
+		
+		try {
+			specs= mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ServiceSpecifications>>() {
+			});
+		} catch (Exception e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
+		// assert that items are ordered correctly
+		for (ServiceSpecifications spec : specs) {
+			assertTrue("Items are ordered by the id column ASC", Integer.parseInt(spec.getId()) > previousSpecId);
+		}
 	}
 	
 	/**
@@ -551,7 +575,8 @@ public class ServiceIT extends BaseIT {
     
     // create a specification JSON String 
     private String getSpecJSONString() {
-    	ServiceSpecifications specification = new ServiceSpecifications();
+    	
+		ServiceSpecifications specification = new ServiceSpecifications();
 		specification.setId("16703234");
 		specification.setServiceId(serviceId);
 		specification.setDescription("testing with junit");
@@ -585,7 +610,7 @@ public class ServiceIT extends BaseIT {
 		return postedSpecificationJSONString;
     }
     
-    // create a multiple specification JSON String 
+    // create multiple specifications JSON String 
     private String getSpecsJSONString(int num) {
     	
     	ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
