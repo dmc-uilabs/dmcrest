@@ -246,7 +246,7 @@ public class ServiceIT extends BaseIT {
         given().
     		header("Content-type", "application/json").
     		header("AJP_eppn", userEPPN).
-    		param("limit", -5).
+    		param("limit", 5).
     		param("order", "DESC").
     		param("sort", "server_id").
     	expect().

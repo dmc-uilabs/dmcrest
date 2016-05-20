@@ -196,6 +196,7 @@ public class ServiceDao {
     public List<GetDomeInterface> getServiceIdDomeInterfaces(BigDecimal serviceId, Integer limit, String order, String sort) throws DMCServiceException {
     	Connection connection = DBConnector.connection();
 		GetDomeInterface retObj = null;
+		List<GetDomeInterface> domeInterfaces = new ArrayList<GetDomeInterface>();
 		boolean readSomethingFromTable = false;
 		
 		try {
@@ -251,11 +252,9 @@ public class ServiceDao {
 			
 			preparedStatement.execute();
 			
-			/*
-			
 			ResultSet resultSet = preparedStatement.getResultSet();
 						
-			if(resultSet.next()) {
+			while (resultSet.next()) {
 				readSomethingFromTable = true;
 				retObj = new GetDomeInterface();
 				
@@ -272,7 +271,7 @@ public class ServiceDao {
 				
 			}
 			
-			if (readSomethingFromTable) {
+			/*if (readSomethingFromTable) {
 				String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
 	
 	
@@ -307,6 +306,6 @@ public class ServiceDao {
 		}
 
     	
-    	return new ArrayList<GetDomeInterface>();
+    	return domeInterfaces;
     }
 }
