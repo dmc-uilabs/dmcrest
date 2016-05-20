@@ -243,10 +243,14 @@ public class ServiceIT extends BaseIT {
     @Test
     public void testServiceGet_DomeInterface(){
         given().
-        header("AJP_eppn", userEPPN).
-        expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/dome-interfaces");
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			param("limit", 5).
+			param("order", "DESC").
+			param("sort", "server_id").
+		expect().
+			statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().get("/services/" + serviceId + "/dome-interfaces");
     }
    
 	private PostUpdateDomeInterface createPostUpdateDomeInterface() {
