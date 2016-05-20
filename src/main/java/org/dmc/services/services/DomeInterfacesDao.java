@@ -135,8 +135,7 @@ class DomeInterfacesDao {
 			if(resultSet.next()) {
 				readSomethingFromTable = true;
 				retObj = new GetDomeInterface();
-				
-				
+
 				retObj.setDomeServer(Integer.toString(resultSet.getInt("server_id")));
 				retObj.setId(Integer.toString(resultSet.getInt("interface_id")));
 				retObj.setInterfaceId(resultSet.getString("interface_id_str"));
@@ -150,10 +149,7 @@ class DomeInterfacesDao {
 			}
 			
 			if (readSomethingFromTable) {
-				String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
-	
-	
-				
+				String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();	
 				preparedStatement = DBConnector.prepareStatement(query);
 				preparedStatement.execute();
 	
@@ -207,8 +203,7 @@ class DomeInterfacesDao {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
 			}
-			
-			
+				
 			String domeInterfacesQuery = "DELETE FROM service_interface WHERE interface_id = ?";
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
@@ -334,10 +329,8 @@ class DomeInterfacesDao {
 				ServiceLogger.log(logTag, se.getMessage());
 			}
 
-		}
-		
+		}		
 		return retObj;
-
 	}
 	
 }
