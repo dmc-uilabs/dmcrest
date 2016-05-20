@@ -32,8 +32,7 @@ public class DomeInterfacesController {
 															   @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
 		
 		ServiceLogger.log(logTag, "In domeInterfacesPost: as user " + userEPPN);
-		
-		
+
 		try {
 			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.createDomeInterface(postUpdateDomeInterface, userEPPN), HttpStatus.OK);
 		} catch (DMCServiceException e) {
@@ -46,10 +45,8 @@ public class DomeInterfacesController {
 				return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 			}
 		}
-
 	}
 
-	
 	@RequestMapping(value = "/{domeInterfaceId}", produces = { "application/json" }, method = RequestMethod.DELETE)
 	public ResponseEntity domeInterfacesDomeInterfaceIdDelete(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId){
 
@@ -62,8 +59,6 @@ public class DomeInterfacesController {
 		}
 		
 	}
-	
-	
 	
 	@RequestMapping(value = "/{domeInterfaceId}", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity domeInterfacesDomeInterfaceIdGet(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId ){
@@ -82,8 +77,6 @@ public class DomeInterfacesController {
 		}
 		
 	}
-	
-	
 	
 	@RequestMapping(value = "/{domeInterfaceId}", produces = { "application/json" }, method = RequestMethod.PATCH)
 	public ResponseEntity domeInterfacesDomeInterfaceIdPatch(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId, @RequestBody PostUpdateDomeInterface domeInterface){

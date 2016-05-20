@@ -38,7 +38,6 @@ class DomeInterfacesDao {
 			// list of members.
 			String addDomeInterfaceQuery = "INSERT into service_interface (version, model_id, interface_id_str, type, name, service_id, server_id) values ( ?, ?, ?, ?, ?, ?, ? )";
 
-			
 			PreparedStatement preparedStatementDomeInterfaceQuery = DBConnector.prepareStatement(addDomeInterfaceQuery, Statement.RETURN_GENERATED_KEYS);
 			preparedStatementDomeInterfaceQuery.setInt(1, postUpdateDomeInterface.getVersion());
 			preparedStatementDomeInterfaceQuery.setString(2, postUpdateDomeInterface.getModelId());
@@ -47,7 +46,6 @@ class DomeInterfacesDao {
 			preparedStatementDomeInterfaceQuery.setString(5, postUpdateDomeInterface.getName());
 			
 			preparedStatementDomeInterfaceQuery.setInt(6, postUpdateDomeInterface.getServiceId());
-			
 
 			String domeServerStr = postUpdateDomeInterface.getDomeServer();
 			preparedStatementDomeInterfaceQuery.setInt(7, Integer.parseInt(domeServerStr));
@@ -55,12 +53,10 @@ class DomeInterfacesDao {
 			int rowsAffected_interface = preparedStatementDomeInterfaceQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
 				connection.rollback();
-				//ToDo: need to change error
 				throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
 			}
 			int id = util.getGeneratedKey(preparedStatementDomeInterfaceQuery, "interface_id");
 
-			
 			retObj.setId(Integer.toString(id));
 			retObj.setDomeServer(postUpdateDomeInterface.getDomeServer());
 			retObj.setInterfaceId(postUpdateDomeInterface.getInterfaceId());
@@ -74,8 +70,7 @@ class DomeInterfacesDao {
 			List<BigDecimal> retPathList = new ArrayList<BigDecimal>();
 			
 			String addDomeInterfacePathQuery = "INSERT into service_interface_path (interface_id, path) values ( ?, ?)";
-			
-			
+
 			while(pathListIter.hasNext()) {
 				//    interface_id integer NOT NULL,
 				//			path integer NOT NULL
@@ -90,7 +85,6 @@ class DomeInterfacesDao {
 				int rowsAffected_interfacePath = preparedStatement.executeUpdate();
 				if (rowsAffected_interfacePath != 1) {
 					connection.rollback();
-					//ToDo: need to change error
 					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
 				}
 
@@ -102,13 +96,17 @@ class DomeInterfacesDao {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
 				connection.rollback();
-			} catch (SQLException e) {}			
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}			
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			
 		} finally {
 			try {
 				connection.setAutoCommit(true);
-			} catch (SQLException se) {}
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
 
 		}
 	
@@ -121,8 +119,7 @@ class DomeInterfacesDao {
 		Connection connection = DBConnector.connection();
 		GetDomeInterface retObj = null;
 		boolean readSomethingFromTable = false;
-
-				
+		
 		try {
 			// let's start a transaction
 			connection.setAutoCommit(false);
@@ -176,13 +173,17 @@ class DomeInterfacesDao {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
 				connection.rollback();
-			} catch (SQLException e) {}
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			
 		} finally {
 			try {
 				connection.setAutoCommit(true);
-			} catch (SQLException se) {}
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
 
 		}
 		return retObj;
@@ -192,13 +193,11 @@ class DomeInterfacesDao {
 	//deletes GetDomeInterface pointed to by domeInterfaceId
 	public void deleteDomeInterface(BigDecimal domeInterfaceId) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
-
-				
+		
 		try {
 			// let's start a transaction
 			connection.setAutoCommit(false);
 
-			
 			String query = "DELETE FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
 
 			PreparedStatement pathPreparedStatement = DBConnector.prepareStatement(query);
@@ -220,25 +219,23 @@ class DomeInterfacesDao {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
 			}
-			
-			
-
-			
+				
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
 				connection.rollback();
-			} catch (SQLException e) {}
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			
 		} finally {
 			try {
 				connection.setAutoCommit(true);
-			} catch (SQLException se) {}
-
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
 		}
-		
-
 	}
 	
 	//used for PATCH
@@ -255,8 +252,7 @@ class DomeInterfacesDao {
 			// requesting user must be administrator of the project to get the
 			// list of members.
 			String updateQuery = "UPDATE service_interface SET version=?, model_id=?, interface_id_str=?, type=?, name=?, service_id=?, server_id=? WHERE interface_id = ?";
-
-			
+	
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(updateQuery);
 			preparedStatement.setInt(1, postUpdateDomeInterface.getVersion());
 			preparedStatement.setString(2, postUpdateDomeInterface.getModelId());
@@ -266,7 +262,6 @@ class DomeInterfacesDao {
 			
 			preparedStatement.setInt(6, postUpdateDomeInterface.getServiceId());
 			
-
 			String domeServerStr = postUpdateDomeInterface.getDomeServer();
 			preparedStatement.setInt(7, Integer.parseInt(domeServerStr));
 			
@@ -275,11 +270,9 @@ class DomeInterfacesDao {
 			int rowsAffected_interface = preparedStatement.executeUpdate();
 			if (rowsAffected_interface != 1) {
 				connection.rollback();
-				//ToDo: need to change error
 				throw new DMCServiceException(DMCError.OtherSQLError, "unable to update dome interface " + postUpdateDomeInterface.toString());
 			}
-
-			
+	
 			retObj.setId(domeInterfaceId.toString());
 			retObj.setDomeServer(postUpdateDomeInterface.getDomeServer());
 			retObj.setInterfaceId(postUpdateDomeInterface.getInterfaceId());
@@ -318,32 +311,33 @@ class DomeInterfacesDao {
 				int rowsAffected_interfacePath = preparedStatementPatchPath.executeUpdate();
 				if (rowsAffected_interfacePath != 1) {
 					connection.rollback();
-					//ToDo: need to change error
 					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
 				}
 
 			}
 
 			retObj.setPath(retPathList);
-			
-			
+
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
 				connection.rollback();
-			} catch (SQLException e) {}
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			
 		} finally {
 			try {
 				connection.setAutoCommit(true);
-			} catch (SQLException se) {}
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
 
 		}
 		
 		return retObj;
-		
-		
+
 	}
 	
 }
