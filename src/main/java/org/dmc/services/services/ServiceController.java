@@ -167,13 +167,20 @@ public class ServiceController {
 
 	@RequestMapping(value = "/services/{serviceId}/dome-interfaces", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<GetDomeInterface> servicesServiceIdDomeInterfacesGet(
+	public ResponseEntity servicesServiceIdDomeInterfacesGet(
 			@PathVariable("serviceId") BigDecimal serviceId,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<GetDomeInterface>(HttpStatus.NOT_IMPLEMENTED);
+		
+		try {
+            ServiceLogger.log(logTag, "In getServiceIdDomeInterfaces, serviceId = " + serviceId);
+            return new ResponseEntity<List<GetDomeInterface>>(serviceDao.getServiceIdDomeInterfaces(serviceId, limit, order, sort), HttpStatus.NOT_IMPLEMENTED);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+        }
+		
 	}
 
 	@RequestMapping(value = "/services/{serviceId}/input-positions", produces = { "application/json",

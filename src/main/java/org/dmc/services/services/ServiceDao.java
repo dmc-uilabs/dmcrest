@@ -8,11 +8,13 @@ import org.dmc.services.SqlTypeConverterUtility;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.users.UserDao;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ServiceDao {
 
@@ -189,5 +191,83 @@ public class ServiceDao {
                 }
             }
         }
+    }
+    
+    public List<GetDomeInterface> getServiceIdDomeInterfaces(BigDecimal serviceId, Integer limit, String order, String sort) throws DMCServiceException {
+    	Connection connection = DBConnector.connection();
+		GetDomeInterface retObj = null;
+		boolean readSomethingFromTable = false;
+
+				
+		try {
+			// let's start a transaction
+			connection.setAutoCommit(false);
+
+			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE service_id = ? ORDER BY ? ? LIMIT ?";
+	
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			preparedStatement.setInt(1, new Integer(serviceId.intValue()));
+			preparedStatement.setString(2, sort);
+			preparedStatement.setString(3, order);
+			preparedStatement.setInt(4, limit);
+			preparedStatement.execute();
+			
+			/*
+			
+			ResultSet resultSet = preparedStatement.getResultSet();
+						
+			if(resultSet.next()) {
+				readSomethingFromTable = true;
+				retObj = new GetDomeInterface();
+				
+				
+				retObj.setDomeServer(Integer.toString(resultSet.getInt("server_id")));
+				retObj.setId(Integer.toString(resultSet.getInt("interface_id")));
+				retObj.setInterfaceId(resultSet.getString("interface_id_str"));
+				retObj.setModelId(resultSet.getString("model_id"));
+				retObj.setName(resultSet.getString("name"));
+
+				retObj.setServiceId(new BigDecimal(resultSet.getInt("service_id")));
+				retObj.setType(resultSet.getString("type"));
+				retObj.setVersion(new BigDecimal(resultSet.getInt("version")));
+				
+			}
+			
+			if (readSomethingFromTable) {
+				String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
+	
+	
+				
+				preparedStatement = DBConnector.prepareStatement(query);
+				preparedStatement.execute();
+	
+				
+				resultSet = preparedStatement.getResultSet();
+	
+				List<BigDecimal> newPath = new ArrayList<BigDecimal>();
+	
+				while(resultSet.next()) {
+					newPath.add(new BigDecimal(Integer.toString(resultSet.getInt("path"))));
+				}
+				
+				retObj.setPath(newPath);
+			}		*/
+			
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+			
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {}
+
+		}
+
+    	
+    	return new ArrayList<GetDomeInterface>();
     }
 }
