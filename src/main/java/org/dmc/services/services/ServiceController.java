@@ -173,6 +173,18 @@ public class ServiceController {
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		
+		System.out.println("BEFORE DAO");
+		System.out.println("BEFORE DAO");
+		System.out.println("BEFORE DAO");
+		System.out.println("BEFORE DAO");
+		System.out.println("BEFORE DAO");
+		System.out.println("BEFORE DAO");
+		System.out.println("BEFORE DAO");
+		System.out.println(serviceId.toString());
+		System.out.println(limit);
+		System.out.println(order);
+		System.out.println(sort);
+		
 		try {
             ServiceLogger.log(logTag, "In getServiceIdDomeInterfaces, serviceId = " + serviceId);
             return new ResponseEntity<List<GetDomeInterface>>(serviceDao.getServiceIdDomeInterfaces(serviceId, limit, order, sort), HttpStatus.NOT_IMPLEMENTED);

@@ -246,9 +246,9 @@ public class ServiceIT extends BaseIT {
         given().
     		header("Content-type", "application/json").
     		header("AJP_eppn", userEPPN).
-    		header("limit", 3).
-    		header("order", "ASC").
-    		header("sort", "").
+    		param("limit", -5).
+    		param("order", "DESC").
+    		param("sort", "server_id").
     	expect().
     		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
     	when().get("/services/" + serviceId + "/dome-interfaces");

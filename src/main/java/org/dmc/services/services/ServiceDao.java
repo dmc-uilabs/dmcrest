@@ -197,19 +197,58 @@ public class ServiceDao {
     	Connection connection = DBConnector.connection();
 		GetDomeInterface retObj = null;
 		boolean readSomethingFromTable = false;
-
-				
+		
 		try {
 			// let's start a transaction
 			connection.setAutoCommit(false);
-
-			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE service_id = ? ORDER BY ? ? LIMIT ?";
-	
+			
+			ArrayList<String> columnsInServiceInterfaceTable = new ArrayList<String>();
+			columnsInServiceInterfaceTable.add("interface_id");
+			columnsInServiceInterfaceTable.add("version");
+			columnsInServiceInterfaceTable.add("model_id");
+			columnsInServiceInterfaceTable.add("interface_id_str");
+			columnsInServiceInterfaceTable.add("type");
+			columnsInServiceInterfaceTable.add("name");
+			columnsInServiceInterfaceTable.add("service_id");
+			columnsInServiceInterfaceTable.add("server_id");
+			
+			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE service_id = ?";
+			
+			if (sort == null) {
+				domeInterfacesQuery += " ORDER BY interface_id";
+			} else if (!columnsInServiceInterfaceTable.contains(sort)) {
+				domeInterfacesQuery += " ORDER BY interface_id";
+			} else {
+				domeInterfacesQuery += " ORDER BY " + sort;
+			}
+			
+			if (order == null) {
+				domeInterfacesQuery += " ASC";
+			} else if (!order.equals("ASC") && !order.equals("DESC")) {
+				domeInterfacesQuery += " ASC";
+			} else {
+				domeInterfacesQuery += " " + order;
+			}
+			
+			if (limit == null) {
+				domeInterfacesQuery += " LIMIT ALL";
+			} else if (limit < 0) {
+				domeInterfacesQuery += " LIMIT 0";
+			} else {
+				domeInterfacesQuery += " LIMIT " + limit;
+			}
+			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(serviceId.intValue()));
-			preparedStatement.setString(2, sort);
-			preparedStatement.setString(3, order);
-			preparedStatement.setInt(4, limit);
+			
+			System.out.println("BEFORE SQL EXECUTE");
+			System.out.println("BEFORE SQL EXECUTE");
+			System.out.println("BEFORE SQL EXECUTE");
+			System.out.println("BEFORE SQL EXECUTE");
+			System.out.println("BEFORE SQL EXECUTE");
+			System.out.println("BEFORE SQL EXECUTE");
+			System.out.println(preparedStatement.toString());
+			
 			preparedStatement.execute();
 			
 			/*
