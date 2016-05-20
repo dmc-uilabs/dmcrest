@@ -96,10 +96,8 @@ class DomeInterfacesDao {
 
 			}
 			
-			
 			retObj.setPath(retPathList);
-			
-			
+				
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
@@ -113,20 +111,9 @@ class DomeInterfacesDao {
 			} catch (SQLException se) {}
 
 		}
-		
-		
-		
+	
 		return retObj;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	//used for GET
 	//returns the GetDomeInterface pointed to by the domeInterfaceId
@@ -141,16 +128,10 @@ class DomeInterfacesDao {
 			connection.setAutoCommit(false);
 
 			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE interface_id = ?";
-
-
-			
+	
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
 			preparedStatement.execute();
-			
-	
-				
-			
 			
 			ResultSet resultSet = preparedStatement.getResultSet();
 						
@@ -189,9 +170,7 @@ class DomeInterfacesDao {
 				}
 				
 				retObj.setPath(newPath);
-			}
-			
-				
+			}		
 			
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
@@ -206,20 +185,9 @@ class DomeInterfacesDao {
 			} catch (SQLException se) {}
 
 		}
-		
-		
-		
-		
 		return retObj;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
+
 	//used for DELETE
 	//deletes GetDomeInterface pointed to by domeInterfaceId
 	public void deleteDomeInterface(BigDecimal domeInterfaceId) throws DMCServiceException {
@@ -233,8 +201,6 @@ class DomeInterfacesDao {
 			
 			String query = "DELETE FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
 
-
-			
 			PreparedStatement pathPreparedStatement = DBConnector.prepareStatement(query);
 			int pathRowsAffected = pathPreparedStatement.executeUpdate();
 			
@@ -249,10 +215,7 @@ class DomeInterfacesDao {
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
 			int rowsAffected = preparedStatement.executeUpdate();
-			
 
-			
-			
 			if (rowsAffected != 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
@@ -277,12 +240,6 @@ class DomeInterfacesDao {
 		
 
 	}
-	
-	
-	
-	
-	
-	
 	
 	//used for PATCH
 	//updates PostUpdateDomeInterface into database and returns GetDomeInterface
@@ -366,9 +323,7 @@ class DomeInterfacesDao {
 				}
 
 			}
-			
-			
-			
+
 			retObj.setPath(retPathList);
 			
 			
@@ -385,8 +340,6 @@ class DomeInterfacesDao {
 			} catch (SQLException se) {}
 
 		}
-		
-		
 		
 		return retObj;
 		
