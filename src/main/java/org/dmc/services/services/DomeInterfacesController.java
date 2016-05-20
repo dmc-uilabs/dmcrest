@@ -86,8 +86,7 @@ public class DomeInterfacesController {
 	
 	
 	@RequestMapping(value = "/{domeInterfaceId}", produces = { "application/json" }, method = RequestMethod.PATCH)
-	public ResponseEntity domeInterfacesDomeInterfaceIdPatch(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId,
-																			   @RequestBody PostUpdateDomeInterface domeInterface){
+	public ResponseEntity domeInterfacesDomeInterfaceIdPatch(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId, @RequestBody PostUpdateDomeInterface domeInterface){
 		
 		try {
 			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.updateDomeInterface(domeInterfaceId, domeInterface), HttpStatus.OK);
