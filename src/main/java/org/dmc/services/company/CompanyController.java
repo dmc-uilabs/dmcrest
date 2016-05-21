@@ -74,26 +74,25 @@ public class CompanyController {
     
     
     
-    @RequestMapping(value = "/companies/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @RequestMapping(value = "/companies/create", method = RequestMethod.POST, produces = {"application/json"})
     @ResponseBody
-    public Id createCompany(@RequestBody String payload, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
-    	ServiceLogger.log(logTag, "CreateCompany, Payload: " + payload);	
-    	return companyDao.createCompany(payload, userEPPN);
+    public Id createCompany(@RequestBody Company company, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+    	ServiceLogger.log(logTag, "CreateCompany, Payload: " + company);
+    	return companyDao.createCompany(company, userEPPN);
     }
 
     @RequestMapping(value = "/companies/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
     public ResponseEntity updateCompany(@PathVariable("id") int id,
-    					//@RequestBody Company company, 
-    					@RequestBody String payload, 
+    					@RequestBody Company company,
     					@RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	
-    	ServiceLogger.log(logTag, "UpdateCompany, ID: " + id + " Payload: " + payload);
+    	ServiceLogger.log(logTag, "UpdateCompany, ID: " + id + " Payload: " + company);
 
         int statusCode = HttpStatus.OK.value();
         Id retrievedId = null;
         
         try {
-            retrievedId = companyDao.updateCompany(id, /*company,*/ payload, userEPPN);
+            retrievedId = companyDao.updateCompany(id, company, userEPPN);
             return new ResponseEntity<Id>(retrievedId, HttpStatus.valueOf(statusCode));
         } catch(HTTPException e) {
     		statusCode = e.getStatusCode();
