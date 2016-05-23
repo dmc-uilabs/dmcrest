@@ -271,16 +271,16 @@ public class ServiceIT extends BaseIT {
 	        domeInterface.setType("type");
 	        
 	        ObjectMapper mapper = new ObjectMapper();
-			String postDomeInterfaceJSONString = null;
-			try {
-				postDomeInterfaceJSONString = mapper.writeValueAsString(domeInterface);
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
+	        String postDomeInterfaceJSONString = null;
+	        try {
+	        	postDomeInterfaceJSONString = mapper.writeValueAsString(domeInterface);
+	        } catch (JsonProcessingException e) {
+	        	e.printStackTrace();
+	        }
 	
-			given().header("Content-type", "application/json")
-					.header("AJP_eppn", userEPPN).body(postDomeInterfaceJSONString).expect()
-					.statusCode(HttpStatus.OK.value()).when().post("/dome-interfaces");
+	        given().header("Content-type", "application/json")
+	        	.header("AJP_eppn", userEPPN).body(postDomeInterfaceJSONString).expect()
+	        	.statusCode(HttpStatus.OK.value()).when().post("/dome-interfaces");
         }
     	
     	List<GetDomeInterface> receivedDomeInterfaces = 
