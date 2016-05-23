@@ -1,25 +1,36 @@
 package org.dmc.services;
 
-import org.dmc.services.services.*;
-import org.dmc.services.utility.TestUserUtil;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.springframework.http.HttpStatus;
 import org.dmc.services.services.PostServiceInputPosition;
 import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.services.ServiceInputPosition;
+import org.dmc.services.services.ServiceSpecialSpecifications;
 import org.dmc.services.services.ServiceSpecifications;
+import org.dmc.services.services.RunStats;
+import org.dmc.services.services.UsageStats;
+import org.dmc.services.services.specifications.ArraySpecifications;
+import org.dmc.services.company.CompanyVideo;
+import org.dmc.services.services.*;
+import org.dmc.services.utility.TestUserUtil;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
 
 import static com.jayway.restassured.RestAssured.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
