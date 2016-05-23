@@ -603,6 +603,28 @@ public class ProjectIT extends BaseIT {
 		}
 	}
 	
+    /**
+     * PATCH /projects/{projectId}/accept/{memberId}
+     */
+    @Test
+    public void testProjectMemberAcceptAfterProjectCreate() {
+
+        String adminUser = "fforgeadmin";
+
+        this.testProjectCreateJsonString();
+        if (this.createdId != null) {
+            given()
+                .header("Content-type", "application/json")
+                .header("AJP_eppn", adminUser)
+            .expect()
+                .statusCode(200)
+            .when()
+                .patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser)
+                .asString();
+
+        }
+    }
+
 	/**
 	 * PATCH /projects/{projectId}/accept/{memberId}
 	 */
