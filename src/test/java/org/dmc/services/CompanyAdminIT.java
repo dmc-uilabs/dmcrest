@@ -1,7 +1,10 @@
 package org.dmc.services;
 
 import org.dmc.services.company.CompanyDao;
+import org.dmc.services.company.Company;
 import org.dmc.services.utility.TestUserUtil;
+import org.dmc.services.sharedattributes.FeatureImage;
+
 import org.json.JSONObject;
 import org.junit.*;
 import org.junit.Test;
@@ -10,6 +13,10 @@ import org.junit.Test;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.Assert.assertTrue;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 
 /**
  * Created by 200005921 on 3/30/2016.
@@ -104,10 +111,11 @@ public class CompanyAdminIT  extends BaseIT {
     private int companyId = -1;
 
     public int  createCompany (String ownerEPPN ) {
-        JSONObject json = createCompanyFixture(ownerEPPN);
+        String json = createCompanyFixture(ownerEPPN);
         int companyId = given()
-                .body(json.toString())
+                .body(json)
                 .header("AJP_eppn", ownerEPPN)
+				.header("Content-type", "application/json")
                 .expect()
                 .statusCode(200)
                 .when()
@@ -120,48 +128,58 @@ public class CompanyAdminIT  extends BaseIT {
         return companyId;
     }
 
-    public JSONObject createCompanyFixture(String ownerName) {
-
-        JSONObject json = new JSONObject();
-
-        json.put("accountId", 1001);
-        json.put("name", "test name");
-        json.put("location", "test location");
-        json.put("description", "test description");
-        json.put("division", "test division");
-        json.put("industry", "test industry");
-        json.put("NAICSCode", "test NAICSCode");
-        json.put("RDFocus", "test RDFocus");
-        json.put("customers", "test customers");
-        json.put("awardsReceived", "test awardsReceived");
-        json.put("technicalExpertise", "test technicalExpertise");
-        json.put("toolsSoftwareEquipmentMachines", "test toolsSoftwareEquipmentMachines");
-        json.put("postCollaborations", "test postCollaborations");
-        json.put("collaborationInterests", "test collaborationInterests");
-        json.put("pastProjects", "test pastProjects");
-        json.put("upcomingProjectInterests", "test upcomingProjectInterests");
-        json.put("address", "test address");
-        json.put("city", "test city");
-        json.put("state", "test state");
-        json.put("zipCode", "test zipCode");
-        json.put("twitter", "test twitter");
-        json.put("linkedIn", "test linkedIn");
-        json.put("website", "test website");
-        json.put("methodCommunication", "test methodCommunication");
-        json.put("email", "test email");
-        json.put("phone", "test phone");
-        json.put("categoryTier", 30);
-        json.put("dateJoined", "test dateJoined");
-        json.put("reasonJoining", "test reasonJoining");
-        json.put("featureImageThumb", "feature_image_thumb.jpg");
-        json.put("featureImageLarge", "feature_image_large.jpg");
-        json.put("logoImage", "test logoImage");
-        json.put("follow", true);
-        json.put("favoratesCount", 1002);
-        json.put("isOwner", false);
-        json.put("owner", ownerName);
-
-        return json;
+    public String createCompanyFixture(String ownerName) {
+		Company company = new Company();
+		
+		//		company.setId(Integer.toString(id));
+		company.setAccountId(Integer.toString(1001));
+		company.setName("test name");
+		company.setLocation("test location");
+		company.setDescription("test description");
+		company.setDivision("test division");
+		company.setIndustry("test industry");
+		company.setNAICSCode("test NAICSCode");
+		company.setRDFocus("test RDFocus");
+		company.setCustomers("test customers");
+		company.setAwardsReceived("test awardsReceived");
+		company.setTechnicalExpertise("test technicalExpertise");
+		company.setToolsSoftwareEquipmentMachines("test toolsSoftwareEquipmentMachines");
+		company.setPastCollaborations("test postCollaborations");
+		company.setPastProjects("test pastProjects");
+		company.setUpcomingProjectInterests("test upcomingProjectInterests");
+		company.setCollaborationInterests("test collaborationInterests");
+		company.setAddress("test address , test address");
+		company.setCity("test city");
+		
+		// Todo:				company.setState(state);
+		// 		json.put("state", "test state");
+		
+		company.setZipCode("test zipCode");
+		company.setTwitter("test twitter");
+		company.setLinkedIn("test linkedIn");
+		company.setWebsite("test website");
+		company.setMethodCommunication("test methodCommunication");
+		company.setEmail("test email");
+		company.setPhone("test phone");
+		company.setCategoryTier(30);
+		company.setDateJoined("test dateJoined");
+		company.setReasonJoining("test reasonJoining");
+		company.setFeatureImage(new FeatureImage("feature_image_thumb.jpg", "feature_image_large.jpg"));
+		company.setLogoImage("test logoImage");
+		company.setFollow(true);
+		company.setFavoritesCount(1002);
+		company.setIsOwner(false);
+		company.setOwner(ownerName);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String companyJSONString = null;
+		try {
+			companyJSONString = mapper.writeValueAsString(company);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return companyJSONString;
     }
 
     @Test
