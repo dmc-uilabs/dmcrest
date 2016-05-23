@@ -380,14 +380,11 @@ public class DomeInterfacesDao {
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(serviceId.intValue()));
-			
 			preparedStatement.execute();
-			
 			ResultSet resultSet = preparedStatement.getResultSet();
 			
 			while (resultSet.next()) {
 				retObj = new GetDomeInterface();
-				
 				
 				retObj.setDomeServer(Integer.toString(resultSet.getInt("server_id")));
 				retObj.setId(Integer.toString(resultSet.getInt("interface_id")));
@@ -405,15 +402,12 @@ public class DomeInterfacesDao {
 				preparedStatementPath.execute();
 				
 				ResultSet resultSetPath = preparedStatementPath.getResultSet();
-	
 				List<BigDecimal> newPath = new ArrayList<BigDecimal>();
-	
 				while(resultSetPath.next()) {
 					newPath.add(new BigDecimal(Integer.toString(resultSetPath.getInt("path"))));
 				}
 				
 				retObj.setPath(newPath);
-				
 				domeInterfaces.add(retObj);
 			}
 			
@@ -452,21 +446,17 @@ public class DomeInterfacesDao {
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setString(1, interface_id_str);
-			
 			preparedStatement.execute();
-			
 			ResultSet resultSet = preparedStatement.getResultSet();
 			
 			while (resultSet.next()) {
 				retObj = new GetDomeInterface();
-				
 				
 				retObj.setDomeServer(Integer.toString(resultSet.getInt("server_id")));
 				retObj.setId(Integer.toString(resultSet.getInt("interface_id")));
 				retObj.setInterfaceId(resultSet.getString("interface_id_str"));
 				retObj.setModelId(resultSet.getString("model_id"));
 				retObj.setName(resultSet.getString("name"));
-
 				retObj.setServiceId(new BigDecimal(resultSet.getInt("service_id")));
 				retObj.setType(resultSet.getString("type"));
 				retObj.setVersion(new BigDecimal(resultSet.getInt("version")));
@@ -477,15 +467,12 @@ public class DomeInterfacesDao {
 				preparedStatementPath.execute();
 				
 				ResultSet resultSetPath = preparedStatementPath.getResultSet();
-	
 				List<BigDecimal> newPath = new ArrayList<BigDecimal>();
-	
 				while(resultSetPath.next()) {
 					newPath.add(new BigDecimal(Integer.toString(resultSetPath.getInt("path"))));
 				}
 				
 				retObj.setPath(newPath);
-				
 				domeInterfaces.add(retObj);
 			}
 			

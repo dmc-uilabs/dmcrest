@@ -168,12 +168,12 @@ public class ServiceController {
 		DomeInterfacesDao domeInterfacesDao = new DomeInterfacesDao();
 		
 		try {
-            ServiceLogger.log(logTag, "In getServiceIdDomeInterfaces, serviceId = " + serviceId);
-            return new ResponseEntity<List<GetDomeInterface>>(domeInterfacesDao.getDomeInterfacesFromServiceId(serviceId, limit, order, sort), HttpStatus.OK);
-        } catch (DMCServiceException e) {
-            ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
-        }
+			ServiceLogger.log(logTag, "In getServiceIdDomeInterfaces, serviceId = " + serviceId);
+			return new ResponseEntity<List<GetDomeInterface>>(domeInterfacesDao.getDomeInterfacesFromServiceId(serviceId, limit, order, sort), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
 		
 	}
 

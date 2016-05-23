@@ -254,21 +254,21 @@ public class ServiceIT extends BaseIT {
     public void testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven(){
     	
     	for (int i = 0; i < 5; i++) {  
-	        PostUpdateDomeInterface domeInterface = new PostUpdateDomeInterface();
-			domeInterface.setVersion(20);
-			domeInterface.setModelId((new Integer(i)).toString());
-			domeInterface.setInterfaceId("John Wayne");
-			domeInterface.setDomeServer("1");
-			domeInterface.setName("FOR /services/#/dome-interfaces TEST");
-			List<Integer> path = new ArrayList<Integer>();
-			path.add(new Integer(1+i));
-			path.add(new Integer(2+i));
-			path.add(new Integer(3+i));
-			path.add(new Integer(4+i));
-			path.add(new Integer(5+i));
-			domeInterface.setPath(path);
-			domeInterface.setServiceId(2);
-			domeInterface.setType("type");
+    		PostUpdateDomeInterface domeInterface = new PostUpdateDomeInterface();
+	        domeInterface.setVersion(20);
+	        domeInterface.setModelId((new Integer(i)).toString());
+	        domeInterface.setInterfaceId("John Wayne");
+	        domeInterface.setDomeServer("1");
+	        domeInterface.setName("FOR /services/#/dome-interfaces TEST");
+	        List<Integer> path = new ArrayList<Integer>();
+	        path.add(new Integer(1+i));
+	        path.add(new Integer(2+i));
+	        path.add(new Integer(3+i));
+	        path.add(new Integer(4+i));
+	        path.add(new Integer(5+i));
+	        domeInterface.setPath(path);
+	        domeInterface.setServiceId(2);
+	        domeInterface.setType("type");
 	        
 	        ObjectMapper mapper = new ObjectMapper();
 			String postDomeInterfaceJSONString = null;
@@ -306,21 +306,21 @@ public class ServiceIT extends BaseIT {
     	String testDomeServerNum = "2";
     	
     	for (int i = 0; i < 5; i++) {  
-	        PostUpdateDomeInterface domeInterface = new PostUpdateDomeInterface();
-			domeInterface.setVersion(20);
-			domeInterface.setModelId((new Integer(i)).toString());
-			domeInterface.setInterfaceId("John Wayne");
-			domeInterface.setDomeServer("1");
-			domeInterface.setName("FOR /services/#/dome-interfaces TEST");
-			List<Integer> path = new ArrayList<Integer>();
-			path.add(new Integer(1+i));
-			path.add(new Integer(2+i));
-			path.add(new Integer(3+i));
-			path.add(new Integer(4+i));
-			path.add(new Integer(5+i));
-			domeInterface.setPath(path);
-			domeInterface.setServiceId(new Integer(testDomeServerNum));
-			domeInterface.setType("type");
+    		PostUpdateDomeInterface domeInterface = new PostUpdateDomeInterface();
+    		domeInterface.setVersion(20);
+    		domeInterface.setModelId((new Integer(i)).toString());
+    		domeInterface.setInterfaceId("John Wayne");
+    		domeInterface.setDomeServer("1");
+    		domeInterface.setName("FOR /services/#/dome-interfaces TEST");
+    		List<Integer> path = new ArrayList<Integer>();
+    		path.add(new Integer(1+i));
+    		path.add(new Integer(2+i));
+    		path.add(new Integer(3+i));
+    		path.add(new Integer(4+i));
+    		path.add(new Integer(5+i));
+    		domeInterface.setPath(path);
+    		domeInterface.setServiceId(new Integer(testDomeServerNum));
+    		domeInterface.setType("type");
 	        
 	        ObjectMapper mapper = new ObjectMapper();
 			String postDomeInterfaceJSONString = null;
@@ -354,11 +354,11 @@ public class ServiceIT extends BaseIT {
     		
     		//Create this List to compare the tempDome path with this path
     		List<Integer> path = new ArrayList<Integer>();
-			path.add(new Integer(1+4-i));
-			path.add(new Integer(2+4-i));
-			path.add(new Integer(3+4-i));
-			path.add(new Integer(4+4-i));
-			path.add(new Integer(5+4-i));
+    		path.add(new Integer(1+4-i));
+    		path.add(new Integer(2+4-i));
+    		path.add(new Integer(3+4-i));
+    		path.add(new Integer(4+4-i));
+    		path.add(new Integer(5+4-i));
     		
     		assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal",
     				(tempDome.getDomeServer().equals("1")));
