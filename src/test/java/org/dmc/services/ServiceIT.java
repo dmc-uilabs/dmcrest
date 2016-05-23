@@ -5,14 +5,23 @@ import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.services.ServiceInputPosition;
+import org.dmc.services.services.ServiceSpecialSpecifications;
 import org.dmc.services.services.ServiceSpecifications;
+import org.dmc.services.services.RunStats;
+import org.dmc.services.services.UsageStats;
+import org.dmc.services.services.specifications.ArraySpecifications;
+import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.services.*;
 import org.dmc.services.utility.TestUserUtil;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
 
@@ -27,15 +36,14 @@ import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
-//@Ignore
 public class ServiceIT extends BaseIT {
-    private final String logTag = ServiceIT.class.getName();
 	
+    private final String logTag = ServiceIT.class.getName();
+
 	private static final String SERVICE_RESOURCE = "/services/{id}";
 	private static final String SERVICE_TAGS_GET_BY_SERVICE_ID = "/services/{serviceID}/service_tags";
 	private static final String SERVICE_TAGS_RESOURCE = "/service_tags";
 
-    private ServiceDao serviceDao = new ServiceDao();
     private Service service = null;
     private Random r = new Random();
     private String serviceId = "1"; // the serviceId need to be assigned new value
@@ -647,27 +655,103 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServicePost_Specification(){
-		ServiceSpecifications specification = new ServiceSpecifications();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedSpecificationJSONString = null;
-		try {
-			postedSpecificationJSONString = mapper.writeValueAsString(specification);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		String postedSpecificationJSONString = getSpecJSONString();
 		
+        //pathParam("serviceID", serviceId).
+		ServiceLogger.log(logTag, "ServiceSpecifications object json = " + postedSpecificationJSONString);
+		ServiceLogger.log(logTag, "posting for serviceId = " + serviceId);
 		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(postedSpecificationJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        post("/service/" + serviceId + "/specifications");
+            header("Content-type", "application/json").
+            header("AJP_eppn", userEPPN).
+            body(postedSpecificationJSONString).
+    	expect().
+            statusCode(HttpStatus.OK.value()).
+    	when().
+            post("/service/" + serviceId + "/specifications");
 	}
 	
+    /**
+     * test case for POST /service/{serviceID}/specifications
+     */
+    @Test
+    public void testServicePost_EmptySpecification(){
+        ServiceSpecifications specification = new ServiceSpecifications();
+        ObjectMapper mapper = new ObjectMapper();
+        String postedSpecificationJSONString = null;
+        try {
+            postedSpecificationJSONString = mapper.writeValueAsString(specification);
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        ServiceLogger.log(logTag, "ServiceSpecifications object json = " + postedSpecificationJSONString);
+        ServiceLogger.log(logTag, "posting for serviceId = " + serviceId);
+        given().
+            header("Content-type", "application/json").
+            header("AJP_eppn", userEPPN).
+            body(postedSpecificationJSONString).
+        expect().
+            statusCode(HttpStatus.OK.value()).
+        when().
+            post("/service/" + serviceId + "/specifications");
+    }
+    
+	/**
+	 * test GET /array_specifications
+	 */
+	@Test
+	public void testGet_ArraySpecification() {
+		
+		ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
+		int previousSpecId = 0;
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		JsonNode jsonSpecs = given().
+				param("_sort", "id").
+				param("_order", "ASC").
+				header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().
+			get("/array_specifications").
+		as(JsonNode.class);
+		
+		try {
+			specs= mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ServiceSpecifications>>() {
+			});
+		} catch (Exception e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
+		// assert that items are ordered correctly
+		for (ServiceSpecifications spec : specs) {
+			assertTrue("Items are ordered by the id column ASC", Integer.parseInt(spec.getId()) > previousSpecId);
+		}
+	}
 	
+	/**
+	 * test case for POST /array_specifications
+	 */
+	@Test
+	public void testPost_ArraySpecification() {
+		int numSpecs = 2;
+		String postedSpecificationJSONString = getSpecsJSONString(numSpecs);
+		
+		ArrayList<ServiceSpecifications> specs = given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", "user_EPPN").
+		body(postedSpecificationJSONString).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		post("/array_specifications").
+		as(ArrayList.class);
+		
+		assertTrue("Number of Specifications created is number posted", specs.size() == numSpecs);
+	}
+    	
 	/**
 	 * test case for POST /service_runs
 	 */
@@ -691,9 +775,6 @@ public class ServiceIT extends BaseIT {
 	when().
         post("/service_runs/");
 	}
-	
-	
-
 	
 	/**
 	 * test case for GET /service_runs/{id}
@@ -823,6 +904,88 @@ public class ServiceIT extends BaseIT {
         service.setDescription("junit service test");
         service.setOwner(userEPPN);
         return service;
+    }
+    
+    // create a specification JSON String 
+    private String getSpecJSONString() {
+    	
+		ServiceSpecifications specification = new ServiceSpecifications();
+		specification.setId("16703234");
+		specification.setServiceId(serviceId);
+		specification.setDescription("testing with junit");
+		specification.setInput(new Integer(1));
+		specification.setOutput(new Integer(1));
+		ServiceSpecialSpecifications special = new ServiceSpecialSpecifications();
+		special.setSpecification("stuck");
+		special.setSpecificationId("morejunk");
+		special.setData("this is the data");
+		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
+		specialList.add(special);
+		specification.setSpecial(specialList);
+		RunStats runstats = new RunStats();
+		runstats.setFail(new Integer(0));
+		runstats.setSuccess(new Integer(0));
+		specification.setRunStats(runstats);
+		UsageStats usagestats = new UsageStats();
+		usagestats.setAdded(new Integer(0));
+		usagestats.setMembers(new Integer(0));
+		specification.setUsageStats(usagestats);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String postedSpecificationJSONString = null;
+		try {
+			postedSpecificationJSONString = mapper.writeValueAsString(specification);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return postedSpecificationJSONString;
+    }
+    
+    // create multiple specifications JSON String 
+    private String getSpecsJSONString(int num) {
+    	
+    	ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
+    	
+    	for  (int i=0; i<num; i++) {
+    		
+        	ServiceSpecifications specification = new ServiceSpecifications();
+    		specification.setId("16703234" + i);
+    		specification.setServiceId(serviceId);
+    		specification.setDescription("testing with junit" + i);
+    		specification.setInput(new Integer(1));
+    		specification.setOutput(new Integer(1));
+    		ServiceSpecialSpecifications special = new ServiceSpecialSpecifications();
+    		special.setSpecification("stuck");
+    		special.setSpecificationId("morejunk " + i);
+    		special.setData("this is the data " + i);
+    		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
+    		specialList.add(special);
+    		specification.setSpecial(specialList);
+    		RunStats runstats = new RunStats();
+    		runstats.setFail(new Integer(0));
+    		runstats.setSuccess(new Integer(0));
+    		specification.setRunStats(runstats);
+    		UsageStats usagestats = new UsageStats();
+    		usagestats.setAdded(new Integer(0));
+    		usagestats.setMembers(new Integer(0));
+    		specification.setUsageStats(usagestats);
+    		
+    		specs.add(specification);
+    	}
+
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String postedSpecificationJSONString = null;
+		try {
+			postedSpecificationJSONString = mapper.writeValueAsString(specs);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return postedSpecificationJSONString;
     }
 	
 }
