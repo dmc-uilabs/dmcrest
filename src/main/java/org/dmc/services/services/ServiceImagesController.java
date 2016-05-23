@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.ws.http.HTTPException;
 
-
+/*
+ * Controller class to implement REST endpoints for service image uploads to AWS S3
+ */
 @RestController
 public class ServiceImagesController {
 

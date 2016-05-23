@@ -1,6 +1,8 @@
 package org.dmc.services.services;
 
-
+/* 
+ * DAO class to query DB and store presignedURL from AWS S3 
+ */
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
