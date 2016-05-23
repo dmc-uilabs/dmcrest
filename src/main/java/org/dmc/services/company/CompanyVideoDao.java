@@ -138,6 +138,7 @@ public class CompanyVideoDao {
 			}
 			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
 		} catch (Exception e) {
+			ServiceLogger.log(logTag, e.getMessage());
 			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
 		} finally {
 			if (connection != null) {

@@ -140,7 +140,8 @@ public class SolrUtils {
 
                     if (i > 0) solrQuery += " OR ";
 
-                    String Q = fields.get(i) + ":" + "\"" + query + "\"";
+                    //String Q = fields.get(i) + ":" + "\"" + query + "\"";
+                    String Q = fields.get(i) + ":" + query;
                     solrQuery += Q;
                 }
             } else {

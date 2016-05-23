@@ -141,11 +141,11 @@ public class SearchIT {
         Assert.assertTrue(component.getDescription() != null);
     }
 
-	@Ignore
     @Test
     public void testSearchServices () {
 
-        String queryString = "velocity";
+        String queryTerm = "demo";
+        String queryString = queryTerm + "*";
 
         SearchController searchController = new SearchController();
         List<Service> services = null;
@@ -166,13 +166,14 @@ public class SearchIT {
             e.printStackTrace();
         }
 
+        int numExpectedServices = 2;
         Assert.assertTrue(services != null);
-        Assert.assertTrue(services.size() == 1);
+        Assert.assertTrue("Found " + services.size() + " services; expected " + numExpectedServices, services.size() == numExpectedServices);
 
         Service service =services.get(0);
         Assert.assertTrue(service != null);
         Assert.assertTrue(service.getDescription() != null);
-        Assert.assertTrue("Description '" + service.getDescription() + "' does not match '" + queryString + "'", service.getDescription().toLowerCase().toString().indexOf(queryString.toLowerCase()) >= 0);
+        Assert.assertTrue("Description '" + service.getDescription() + "' does not match '" + queryString + "'", service.getDescription().toLowerCase().toString().indexOf(queryTerm.toLowerCase()) >= 0);
     }
 
     @Test
