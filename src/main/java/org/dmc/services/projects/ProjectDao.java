@@ -1,6 +1,7 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -251,6 +252,8 @@ public class ProjectDao {
 		preparedStatement.setInt(2,projectAdminRoleId);
 		preparedStatement.executeUpdate();
 		
+		// create user as a member of the project
+		createProjectJoinRequest(Integer.toString(projectId), Integer.toString(userID), userID);
 		
 		if (Config.IS_TEST == null){
             ServiceLogger.log(logTag, "SolR indexing turned off");

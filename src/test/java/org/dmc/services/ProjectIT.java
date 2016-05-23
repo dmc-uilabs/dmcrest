@@ -610,6 +610,7 @@ public class ProjectIT extends BaseIT {
 	public void testProjectMemberAcceptNoRequest() {
 
 		String adminUser = "fforgeadmin";
+		String testUser = "testUser";
 		
 		this.testProjectCreateJsonString();
 		if (this.createdId != null) {
@@ -619,7 +620,7 @@ public class ProjectIT extends BaseIT {
 			.expect()
 				.statusCode(404)
 			.when()
-				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser)
+				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, testUser)
 				.asString();
 			
 			assertTrue("No Existing Request", response.contains("no existing request to join the project"));
