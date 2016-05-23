@@ -36,6 +36,7 @@ import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
+
 public class ServiceIT extends BaseIT {
 	
     private final String logTag = ServiceIT.class.getName();
@@ -247,7 +248,7 @@ public class ServiceIT extends BaseIT {
     }
 	
     /**
-     * test cases for get /services/{serviceID}/dome-interfaces
+     * test case 1 of 3 for get /services/{serviceID}/dome-interfaces
      */
     @Test
     public void testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven(){
@@ -294,9 +295,12 @@ public class ServiceIT extends BaseIT {
     		assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Dome server values are not equal",
     				(receivedDomeInterfaces.get(i).getServiceId().equals(new BigDecimal(2))));
     	}
-    	
+		
     }
     
+    /**
+     * test case 2 of 3 for get /services/{serviceID}/dome-interfaces
+     */
     @Test
     public void testServiceGet_DomeInterfaceWhenSortParametersAreGiven(){
     	String testDomeServerNum = "2";
@@ -376,6 +380,9 @@ public class ServiceIT extends BaseIT {
     	}
     }
     
+    /**
+     * test case 3 of 3 for get /services/{serviceID}/dome-interfaces
+     */
     @Test
     public void testServiceGet_DomeInterfaceWhenNoObjectsInReturnEntity(){
         String testDomeServerNum = "2";
