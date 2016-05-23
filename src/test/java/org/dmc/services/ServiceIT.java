@@ -457,21 +457,21 @@ public class ServiceIT extends BaseIT {
 		BigDecimal postUpdateVersion = new BigDecimal(Integer.toString(sentDomeInterface.getVersion()));
 		BigDecimal postUpdateServiceId = new BigDecimal(Integer.toString(sentDomeInterface.getServiceId()));
 
-		assertTrue("testServicePost_DomeInterface: Dome server values are not equal",
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Dome server values are not equal",
 				(receivedDomeInterface.getDomeServer().equals(sentDomeInterface.getDomeServer())));
-		assertTrue("testServicePost_DomeInterface: Version values are not equal",
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Version values are not equal",
 				(receivedDomeInterface.getVersion().equals(postUpdateVersion)));
-		assertTrue("testServicePost_DomeInterface: Model ID values are not equal",
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Model ID values are not equal",
 				(receivedDomeInterface.getModelId().equals(sentDomeInterface.getModelId())));
-		assertTrue("testServicePost_DomeInterface: Interface ID values are not equal",
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Interface ID values are not equal",
 				(receivedDomeInterface.getInterfaceId().equals(sentDomeInterface.getInterfaceId())));
-		assertTrue("testServicePost_DomeInterface: Type values are not equal",
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Type values are not equal",
 				(receivedDomeInterface.getType().equals(sentDomeInterface.getType())));
-		assertTrue("testServicePost_DomeInterface: Name values are not equal",
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Name values are not equal",
 				(receivedDomeInterface.getName().equals(sentDomeInterface.getName())));
-		assertTrue("testServicePost_DomeInterface: Path values are not equal", (receivedDomeInterface.getPath()
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Path values are not equal", (receivedDomeInterface.getPath()
 				.equals(convertIntegerListtoBigDecimalList(sentDomeInterface.getPath()))));
-		assertTrue("testServicePost_DomeInterface: Dome server values are not equal",
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Dome server values are not equal",
 				(receivedDomeInterface.getServiceId().equals(postUpdateServiceId)));
 
 	}
@@ -529,21 +529,21 @@ public class ServiceIT extends BaseIT {
 		BigDecimal postUpdateVersion = new BigDecimal(Integer.toString(patchDomeInterface.getVersion()));
 		BigDecimal postUpdateServiceId = new BigDecimal(Integer.toString(patchDomeInterface.getServiceId()));
 
-		assertTrue("testServicePost_DomeInterface: Dome server values are not equal",
+		assertTrue("testServicePatch_DomeInterface: Dome server values are not equal",
 				(receivedDomeInterface.getDomeServer().equals(patchDomeInterface.getDomeServer())));
-		assertTrue("testServicePost_DomeInterface: Version values are not equal",
+		assertTrue("testServicePatch_DomeInterface: Version values are not equal",
 				(receivedDomeInterface.getVersion().equals(postUpdateVersion)));
-		assertTrue("testServicePost_DomeInterface: Model ID values are not equal",
+		assertTrue("testServicePatch_DomeInterface: Model ID values are not equal",
 				(receivedDomeInterface.getModelId().equals(patchDomeInterface.getModelId())));
-		assertTrue("testServicePost_DomeInterface: Interface ID values are not equal",
+		assertTrue("testServicePatch_DomeInterface: Interface ID values are not equal",
 				(receivedDomeInterface.getInterfaceId().equals(patchDomeInterface.getInterfaceId())));
-		assertTrue("testServicePost_DomeInterface: Type values are not equal",
+		assertTrue("testServicePatch_DomeInterface: Type values are not equal",
 				(receivedDomeInterface.getType().equals(patchDomeInterface.getType())));
-		assertTrue("testServicePost_DomeInterface: Name values are not equal",
+		assertTrue("testServicePatch_DomeInterface: Name values are not equal",
 				(receivedDomeInterface.getName().equals(patchDomeInterface.getName())));
-		assertTrue("testServicePost_DomeInterface: Path values are not equal", (receivedDomeInterface.getPath()
+		assertTrue("testServicePatch_DomeInterface: Path values are not equal", (receivedDomeInterface.getPath()
 				.equals(convertIntegerListtoBigDecimalList(patchDomeInterface.getPath()))));
-		assertTrue("testServicePost_DomeInterface: Dome server values are not equal",
+		assertTrue("testServicePatch_DomeInterface: Dome server values are not equal",
 				(receivedDomeInterface.getServiceId().equals(postUpdateServiceId)));
 	}
 
@@ -607,21 +607,21 @@ public class ServiceIT extends BaseIT {
 		BigDecimal postUpdateVersion = new BigDecimal(Integer.toString(postDomeInterface.getVersion()));
 		BigDecimal postUpdateServiceId = new BigDecimal(Integer.toString(postDomeInterface.getServiceId()));
 
-		assertTrue("testServicePost_DomeInterface: Dome server values are not equal",
+		assertTrue("testServiceGet_DomeInterfaceById: Dome server values are not equal",
 				(readDomeInterface.getDomeServer().equals(postDomeInterface.getDomeServer())));
-		assertTrue("testServicePost_DomeInterface: Version values are not equal",
+		assertTrue("testServiceGet_DomeInterfaceById: Version values are not equal",
 				(readDomeInterface.getVersion().equals(postUpdateVersion)));
-		assertTrue("testServicePost_DomeInterface: Model ID values are not equal",
+		assertTrue("testServiceGet_DomeInterfaceById: Model ID values are not equal",
 				(readDomeInterface.getModelId().equals(postDomeInterface.getModelId())));
-		assertTrue("testServicePost_DomeInterface: Interface ID values are not equal",
+		assertTrue("testServiceGet_DomeInterfaceById: Interface ID values are not equal",
 				(readDomeInterface.getInterfaceId().equals(postDomeInterface.getInterfaceId())));
-		assertTrue("testServicePost_DomeInterface: Type values are not equal",
+		assertTrue("testServiceGet_DomeInterfaceById: Type values are not equal",
 				(readDomeInterface.getType().equals(postDomeInterface.getType())));
-		assertTrue("testServicePost_DomeInterface: Name values are not equal",
+		assertTrue("testServiceGet_DomeInterfaceById: Name values are not equal",
 				(readDomeInterface.getName().equals(postDomeInterface.getName())));
-		assertTrue("testServicePost_DomeInterface: Path values are not equal",
+		assertTrue("testServiceGet_DomeInterfaceById: Path values are not equal",
 				(readDomeInterface.getPath().equals(convertIntegerListtoBigDecimalList(postDomeInterface.getPath()))));
-		assertTrue("testServicePost_DomeInterface: Dome server values are not equal",
+		assertTrue("testServiceGet_DomeInterfaceById: Dome server values are not equal",
 				(readDomeInterface.getServiceId().equals(postUpdateServiceId)));
 
 		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
