@@ -173,21 +173,11 @@ public class ServiceController {
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		
-		System.out.println("BEFORE DAO");
-		System.out.println("BEFORE DAO");
-		System.out.println("BEFORE DAO");
-		System.out.println("BEFORE DAO");
-		System.out.println("BEFORE DAO");
-		System.out.println("BEFORE DAO");
-		System.out.println("BEFORE DAO");
-		System.out.println(serviceId.toString());
-		System.out.println(limit);
-		System.out.println(order);
-		System.out.println(sort);
+		DomeInterfacesDao domeInterfacesDao = new DomeInterfacesDao();
 		
 		try {
             ServiceLogger.log(logTag, "In getServiceIdDomeInterfaces, serviceId = " + serviceId);
-            return new ResponseEntity<List<GetDomeInterface>>(serviceDao.getServiceIdDomeInterfaces(serviceId, limit, order, sort), HttpStatus.NOT_IMPLEMENTED);
+            return new ResponseEntity<List<GetDomeInterface>>(domeInterfacesDao.getDomeInterfacesFromServiceId(serviceId, limit, order, sort), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());

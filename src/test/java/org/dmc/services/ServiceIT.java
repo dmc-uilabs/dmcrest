@@ -20,6 +20,7 @@ import static com.jayway.restassured.RestAssured.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
@@ -238,19 +239,150 @@ public class ServiceIT extends BaseIT {
     }
 	
     /**
-     * test case for get /services/{serviceID}/dome-interfaces
+     * test cases for get /services/{serviceID}/dome-interfaces
      */
     @Test
-    public void testServiceGet_DomeInterface(){
-        given().
+    public void testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven(){
+    	
+    	for (int i = 0; i < 5; i++) {  
+	        PostUpdateDomeInterface domeInterface = new PostUpdateDomeInterface();
+			domeInterface.setVersion(20);
+			domeInterface.setModelId((new Integer(i)).toString());
+			domeInterface.setInterfaceId("John Wayne");
+			domeInterface.setDomeServer("1");
+			domeInterface.setName("FOR /services/#/dome-interfaces TEST");
+			List<Integer> path = new ArrayList<Integer>();
+			path.add(new Integer(1+i));
+			path.add(new Integer(2+i));
+			path.add(new Integer(3+i));
+			path.add(new Integer(4+i));
+			path.add(new Integer(5+i));
+			domeInterface.setPath(path);
+			domeInterface.setServiceId(2);
+			domeInterface.setType("type");
+	        
+	        ObjectMapper mapper = new ObjectMapper();
+			String postDomeInterfaceJSONString = null;
+			try {
+				postDomeInterfaceJSONString = mapper.writeValueAsString(domeInterface);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+	
+			given().header("Content-type", "application/json")
+					.header("AJP_eppn", userEPPN).body(postDomeInterfaceJSONString).expect()
+					.statusCode(HttpStatus.OK.value()).when().post("/dome-interfaces");
+        }
+    	
+    	List<GetDomeInterface> receivedDomeInterfaces = 
+    	Arrays.asList(given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().get("/services/" + 2 + "/dome-interfaces").as(GetDomeInterface[].class));
+    	
+    	for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
+    		assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Dome server values are not equal",
+    				(receivedDomeInterfaces.get(i).getServiceId().equals(new BigDecimal(2))));
+    	}
+    	
+    }
+    
+    @Test
+    public void testServiceGet_DomeInterfaceWhenSortParametersAreGiven(){
+    	String testDomeServerNum = "2";
+    	
+    	for (int i = 0; i < 5; i++) {  
+	        PostUpdateDomeInterface domeInterface = new PostUpdateDomeInterface();
+			domeInterface.setVersion(20);
+			domeInterface.setModelId((new Integer(i)).toString());
+			domeInterface.setInterfaceId("John Wayne");
+			domeInterface.setDomeServer("1");
+			domeInterface.setName("FOR /services/#/dome-interfaces TEST");
+			List<Integer> path = new ArrayList<Integer>();
+			path.add(new Integer(1+i));
+			path.add(new Integer(2+i));
+			path.add(new Integer(3+i));
+			path.add(new Integer(4+i));
+			path.add(new Integer(5+i));
+			domeInterface.setPath(path);
+			domeInterface.setServiceId(new Integer(testDomeServerNum));
+			domeInterface.setType("type");
+	        
+	        ObjectMapper mapper = new ObjectMapper();
+			String postDomeInterfaceJSONString = null;
+			try {
+				postDomeInterfaceJSONString = mapper.writeValueAsString(domeInterface);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+	
+			given().header("Content-type", "application/json")
+					.header("AJP_eppn", userEPPN).body(postDomeInterfaceJSONString).expect()
+					.statusCode(HttpStatus.OK.value()).when().post("/dome-interfaces");
+        }
+    	
+    	List<GetDomeInterface> receivedDomeInterfaces = 
+    	Arrays.asList(given().
 			header("Content-type", "application/json").
 			header("AJP_eppn", userEPPN).
 			param("limit", 5).
 			param("order", "DESC").
-			param("sort", "server_id").
+			param("sort", "interface_id").
 		expect().
-			statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/services/" + serviceId + "/dome-interfaces");
+			statusCode(HttpStatus.OK.value()).
+		when().get("/services/" + testDomeServerNum + "/dome-interfaces").as(GetDomeInterface[].class));
+    	
+    	assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: List is not correct size according to LIMIT",
+				(receivedDomeInterfaces.size() == 5));
+    	
+    	for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
+    		GetDomeInterface tempDome =  receivedDomeInterfaces.get(i);
+    		
+    		//Create this List to compare the tempDome path with this path
+    		List<Integer> path = new ArrayList<Integer>();
+			path.add(new Integer(1+4-i));
+			path.add(new Integer(2+4-i));
+			path.add(new Integer(3+4-i));
+			path.add(new Integer(4+4-i));
+			path.add(new Integer(5+4-i));
+    		
+    		assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal",
+    				(tempDome.getDomeServer().equals("1")));
+    		assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Version values are not equal",
+    				(tempDome.getVersion().equals(new BigDecimal(20))));
+    		assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Model ID values are not equal",
+    				(tempDome.getModelId().equals((new Integer(4-i)).toString())));
+    		assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Interface ID values are not equal",
+    				(tempDome.getInterfaceId().equals("John Wayne")));
+    		assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Type values are not equal",
+    				(tempDome.getType().equals("type")));
+    		assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Name values are not equal",
+    				(tempDome.getName().equals("FOR /services/#/dome-interfaces TEST")));
+    		assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Path values are not equal",
+    				(tempDome.getPath().equals(convertIntegerListtoBigDecimalList(path))));
+    		assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal",
+    				(tempDome.getServiceId().equals(new BigDecimal(testDomeServerNum))));
+    		 
+    	}
+    }
+    
+    @Test
+    public void testServiceGet_DomeInterfaceWhenNoObjectsInReturnEntity(){
+        String testDomeServerNum = "2";
+    	
+        List<GetDomeInterface> receivedDomeInterfaces = 
+        Arrays.asList(given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			param("limit", 0).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().get("/services/" + testDomeServerNum + "/dome-interfaces").as(GetDomeInterface[].class));
+        
+        assertTrue("testServiceGet_DomeInterfaceWhenNoObjectsInReturnEntity: List is not correct size according to LIMIT",
+				(receivedDomeInterfaces.size() == 0));
     }
    
 	private PostUpdateDomeInterface createPostUpdateDomeInterface() {
