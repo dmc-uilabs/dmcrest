@@ -48,6 +48,18 @@ public class ProjectController {
 		return project.getProjectList(userEPPN);
 	}
 
+	@RequestMapping(value = "projects/all", method = RequestMethod.GET)
+	public ArrayList<Project> getProjectList(
+	        @RequestParam(value="_order", required=false) String order,
+	        @RequestParam(value="_sort", required=false) String sort,
+            @RequestParam(value="_start", required=false) Integer start,
+            @RequestParam(value="_limit", required=false) Integer limit,
+	        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
+        // @TODO: expand to handle arguments and change return type to a ResponseEntity to match new approach for error handling
+        return project.getProjectList(userEPPN);
+	}
+	
 	// leaving this as an example of how to work with parameters to URL
 	// instead of json, but json is probably preferable
 	@RequestMapping(value = "/projects/createWithParameter", method = RequestMethod.POST)
