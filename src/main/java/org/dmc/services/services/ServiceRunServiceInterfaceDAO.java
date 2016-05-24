@@ -46,6 +46,31 @@ public class ServiceRunServiceInterfaceDAO {
 		return result;
 	}
 	
+	public static int getServiceId(String service_id_txt) throws DMCServiceException
+	{
+	    int result = -9;
+	    String query = "select service_id from service_interface where interface_id_str=?";
+	    try {
+	    PreparedStatement preparedStatement = DBConnector
+				.prepareStatement(query);
+		preparedStatement.setString(1,service_id_txt);
+		ResultSet rs = preparedStatement.executeQuery();		
+		if (!rs.next())
+			{
+				throw (new DMCServiceException(DMCError.ServiceIDNotExist, "For method id:" + service_id_txt +", serviceId not exist"));
+			}
+		else
+			{
+				result = rs.getInt("service_id");
+				return result;
+			}
+		}
+		catch (SQLException e)
+		{
+			throw (new DMCServiceException(DMCError.ServiceIDNotExist, e.toString()));
+		}
+	}
+	
 	public String printNameInt(String name, int value)
 	{
 		return  "\""+name+"\":" + value;
