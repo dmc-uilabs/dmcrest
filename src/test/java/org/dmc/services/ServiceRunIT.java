@@ -19,7 +19,7 @@ public class ServiceRunIT  extends BaseIT {
 
     private int serviceRunId;
 
-    @Ignore
+/*    @Ignore
     @Before
     public void runService () {
 
@@ -71,5 +71,5 @@ public class ServiceRunIT  extends BaseIT {
     	when().
     		get("/model_poll/"+serviceRunId);
     }
-
+*/
 }
