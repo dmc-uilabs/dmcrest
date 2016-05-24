@@ -283,13 +283,9 @@ public class ServiceIT extends BaseIT {
 	        	.statusCode(HttpStatus.OK.value()).when().post("/dome-interfaces");
         }
     	
-    	List<GetDomeInterface> receivedDomeInterfaces = 
-    	Arrays.asList(given().
-			header("Content-type", "application/json").
-			header("AJP_eppn", userEPPN).
-		expect().
-			statusCode(HttpStatus.OK.value()).
-		when().get("/services/" + 2 + "/dome-interfaces").as(GetDomeInterface[].class));
+    	List<GetDomeInterface> receivedDomeInterfaces = Arrays.asList(given().header("Content-type", "application/json")
+    			.header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
+    			.get("/services/" + 2 + "/dome-interfaces").as(GetDomeInterface[].class));
     	
     	for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
     		assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Dome server values are not equal",
@@ -335,19 +331,13 @@ public class ServiceIT extends BaseIT {
 	        	.statusCode(HttpStatus.OK.value()).when().post("/dome-interfaces");
         }
     	
-    	List<GetDomeInterface> receivedDomeInterfaces = 
-    	Arrays.asList(given().
-			header("Content-type", "application/json").
-			header("AJP_eppn", userEPPN).
-			param("limit", 5).
-			param("order", "DESC").
-			param("sort", "interface_id").
-		expect().
-			statusCode(HttpStatus.OK.value()).
-		when().get("/services/" + testDomeServerNum + "/dome-interfaces").as(GetDomeInterface[].class));
+    	List<GetDomeInterface> receivedDomeInterfaces = Arrays.asList(given().header("Content-type", "application/json")
+    			.header("AJP_eppn", userEPPN).param("limit", 4).param("order", "DESC").param("sort", "interface_id")
+    			.expect().statusCode(HttpStatus.OK.value()).when()
+    			.get("/services/" + testDomeServerNum + "/dome-interfaces").as(GetDomeInterface[].class));
     	
     	assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: List is not correct size according to LIMIT",
-				(receivedDomeInterfaces.size() == 5));
+				(receivedDomeInterfaces.size() == 4));
     	
     	for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
     		GetDomeInterface tempDome =  receivedDomeInterfaces.get(i);
