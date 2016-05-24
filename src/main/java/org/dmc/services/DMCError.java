@@ -33,7 +33,8 @@ public enum DMCError {
 	CanNotReadMessage,
 	
 	// Service queries
-	ServiceInterfaceNotMatch
+	ServiceInterfaceNotMatch,
+	ServiceIDNotExist
 	
 	
 }

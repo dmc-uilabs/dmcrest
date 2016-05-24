@@ -11,12 +11,13 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import org.dmc.services.ServiceLogger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ServiceRunDOMEAPI {
 		
-	public static void main(String[] args)
+/*	public static void main(String[] args)
 	{
 		int user_id = 111;
 		int service_id = 3;
@@ -24,16 +25,18 @@ public class ServiceRunDOMEAPI {
 		try 
 		{
 			// This will create a service call return modelRunId
-			//int modelRunId = instance.runModel(service_id,user_id);	
-			int modelRunId = 57;
-			instance.pollService(modelRunId, service_id);
+			int modelRunId = instance.runModel(service_id,user_id);	
+			//int modelRunId = 57;
+			//instance.pollService(modelRunId, service_id);
 			System.out.println("The model runID = " + modelRunId);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-	}
+	}*/
+	
+	private static final String logTag = ServiceRunDOMEAPI.class.getName();
 	
 	public int runModel(int service_id, int user_id) throws Exception
 	{
@@ -106,23 +109,42 @@ public class ServiceRunDOMEAPI {
 		  return modelRunID;
 	}
 	
-	public int pollService(int runId, int service_id) throws Exception
+	public ServiceRunResult pollService1(int runId, int user_id) throws Exception
 	{
+		ServiceLogger.log(logTag, "In pollService, runId: " + runId + ", user_id: " + user_id);
+		ServiceRunResult result = new ServiceRunResult();
+		return result;
+	}
+	
+	public ServiceRunResult pollService(int runId, int user_id) throws Exception
+	{
+		
+		ServiceLogger.log(logTag, "In pollService, runId: " + runId + ", user_id: " + user_id);
+		ServiceRunResult result = new ServiceRunResult();
 		// Return: 0 -- finished; 1 -- partial finished; 2 -- no new results found from the queue
-		int result=0;
+		//int result=0;
 		// Query database to decide if all the output parameters are collected. If so, return 0
 		ServiceRunServiceDAO serviceRun = new ServiceRunServiceDAO();
 		serviceRun.getData(runId);
 		int interfaceId = serviceRun.getIntefaceId();
+		int service_id = serviceRun.getServiceId();
 		ServiceRunServiceInterfaceDAO si = new ServiceRunServiceInterfaceDAO(service_id);
 		int numOutput =  si.getNumOutputPars(interfaceId);
 		int collectedOutput = serviceRun.getNumOutputPars(runId);
-		if (numOutput==collectedOutput) return 0;
+		if (numOutput==collectedOutput) 
+			{
+				result.setStatus(ServiceRunResult.COMPLETE);
+				return result;
+			}
 		// Otherwise try to find out if there is any new messages from ActiveMQ
 		String queueName = serviceRun.getQueueName();
 		ServiceRunActiveMQ activeMQ = new ServiceRunActiveMQ();
 		ArrayList<String> newResult = activeMQ.readMessageFromMQ(queueName);
-		if (newResult.size()==0) return 2;
+		if (newResult.size()==0) 
+			{
+				result.setStatus(ServiceRunResult.RUNNING);
+				return result;
+			}
 		// Now we need to parse the message, store them in DB, and also check if the service run finished, example messages:
 		// Example input parameters -- for a simple method.
 /*		Got 1. message: {"event":"class mit.cadlab.dome3.api.ParameterValueChangeEvent","param":"SpecimenWidth","id":{"idString":"d9f30f3a-d800-1004-8f53-704dbfababa8"},"old_val":[3.0],"new_val":[3.0],"occur":1462397804202}
@@ -145,6 +167,7 @@ public class ServiceRunDOMEAPI {
 		// Get message with:  "event":"class mit.cadlab.dome3.api.ParameterStatusChangeEvent"  || "param":8   (2*num of input + 3*num of output + 1), indication of finish of the run
 */
 		int msgNum = newResult.size();
+		ServiceRunOuts outs = new ServiceRunOuts();
 		for (int i=0;i<msgNum;i++)
 		{
 			JSONObject msgObj = new JSONObject(newResult.get(i));
@@ -171,18 +194,22 @@ public class ServiceRunDOMEAPI {
 							newValueString = newValueString + ","; 
 					}
 					serviceRun.addNewValue(id,newValueString);
+					ServiceRunOut r = new ServiceRunOut();
+					r.setParameterid(id);
+					r.setValue(newValueString);
+					outs.add(r);
 				}
 			}
 		}
-		if (serviceRun.getCollectedNumOutputPars()==numOutput &&  serviceRun.getStatus()==1)
+		if (serviceRun.getCollectedNumOutputPars()==numOutput && serviceRun.getStatus()==1)
 		{
 			// Delete queue from ActiveMQ
 			activeMQ.deleteQueue(queueName);
 			serviceRun.setEndOfRunTime();
-			result = 0;
+			result.setStatus(ServiceRunResult.COMPLETE);
 		}
-		else result = 1;
-		
+		else result.setStatus(ServiceRunResult.RUNNING);
+		result.setOuts(outs);
 		return result;
 	}	
 }
