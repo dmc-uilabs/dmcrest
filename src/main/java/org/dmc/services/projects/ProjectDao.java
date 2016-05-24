@@ -169,7 +169,10 @@ public class ProjectDao {
 		ServiceLogger.log(logTag, "projectId: " + projectId + "num_discussions: " + num_discussions + 
 				   "num_components: " + num_components + "num_tasks: " + num_tasks + 
 				   "num_services: " + num_services + "description: " + description );
-		
+
+		project.setId(projectId);
+		project.setTitle(title);
+		project.setDescription(description);
 		project.setImages("");
 		project.setFeatureImage(image);
 		project.setTasks(task);
