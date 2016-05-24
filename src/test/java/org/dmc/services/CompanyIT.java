@@ -111,6 +111,7 @@ public class CompanyIT extends BaseIT {
 	@Test
 	public void testCompaniesGet() {
 		if (this.createdId != null) {
+		    Integer saveCreatedId = createdId;
 			ArrayList<Company> orginalCompanyList = given().header("Content-type", "application/json")
 					.header("AJP_eppn", randomEPPN).expect().statusCode(200).when().get(ALL_COMPANY_GET_RESOURCE)
 					.as(ArrayList.class);
@@ -123,6 +124,9 @@ public class CompanyIT extends BaseIT {
 					.as(ArrayList.class);
 
 			assertTrue("", newCompanyList.size() == orginalCompanyList.size() + 1);
+			testCompanyDelete();
+
+			this.createdId = saveCreatedId;
 		} else {
 			assertTrue("Could not create new company", false);
 		}
