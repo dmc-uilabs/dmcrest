@@ -5,20 +5,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
-
-import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
-import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.sharedattributes.FeatureImage;
-import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.UserDao;
-import org.json.JSONObject;
-import org.json.JSONException;
+
 
 public class ProjectMemberDao {
 
@@ -36,16 +29,17 @@ public class ProjectMemberDao {
 	// join users u on gjr.user_id = u.user_id
 	// where gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join
 	// pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-	public ArrayList<ProjectMember> getProjectMembers(String userEPPN) {
+	public ArrayList<ProjectMember> getProjectMembers(String userEPPN) throws DMCServiceException {
+		
 		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
 
 		try {
+			
 			int userId = UserDao.getUserID(userEPPN);
 
 			// requesting user must be administrator of the project to get the
 			// list of members.
-			// requesting user must be administrator of the project to get the
-			// list of members.
+
 			String projectMembersQuery = "SELECT gjr.group_id, gjr.user_id, gjr.requester_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.realname, ur.realname requester_name "
 					+ "FROM group_join_request gjr " + "JOIN users u ON gjr.user_id = u.user_id " + "JOIN users ur ON gjr.requester_id = ur.user_id "
 					+ "WHERE gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId
@@ -53,8 +47,7 @@ public class ProjectMemberDao {
 
 			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
-			return null;
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 		}
 		return list;
 	}
@@ -68,7 +61,7 @@ public class ProjectMemberDao {
 	// where u.user_id = 111
 	// AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join
 	// pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-	public ArrayList<ProjectMember> getProjectsForMember(String memberIdString, String userEPPN) {
+	public ArrayList<ProjectMember> getProjectsForMember(String memberIdString, String userEPPN) throws DMCServiceException {
 
 		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
 
@@ -87,8 +80,7 @@ public class ProjectMemberDao {
 
 			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
-			return null;
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 		}
 		return list;
 	}
@@ -101,7 +93,7 @@ public class ProjectMemberDao {
 	// where gjr.group_id = 6
 	// AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join
 	// pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-	public ArrayList<ProjectMember> getMembersForProject(String projectIdString, String userEPPN) throws Exception {
+	public ArrayList<ProjectMember> getMembersForProject(String projectIdString, String userEPPN) throws DMCServiceException {
 		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
 
 		try {
@@ -115,9 +107,8 @@ public class ProjectMemberDao {
 					+ "AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId
 					+ " and adr.role_name = 'Admin') ";
 			list = getProjectsMembersFromQuery(projectMembersQuery);
-		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
-			return null;
+		} catch (SQLException e) {
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
 		return list;
 	}
@@ -167,11 +158,15 @@ public class ProjectMemberDao {
 	// then insert into the pfo_user_role table
 	// INSERT pfo_user_role (user_id, role_id) values (111, 27);
 	//
-	public ProjectMember addProjectMember(ProjectMember member, String userEPPN) throws Exception {
-		int userId = UserDao.getUserID(userEPPN);
-		int memberId = Integer.parseInt(member.getProfileId());
-		int projectId = Integer.parseInt(member.getProjectId());
-		return acceptMemberInProject(projectId, memberId, userId, userEPPN);
+	public ProjectMember addProjectMember(ProjectMember member, String userEPPN) throws DMCServiceException {
+		try {
+			int userId = UserDao.getUserID(userEPPN);
+			int memberId = Integer.parseInt(member.getProfileId());
+			int projectId = Integer.parseInt(member.getProjectId());
+			return acceptMemberInProject(projectId, memberId, userId, userEPPN);
+		} catch (SQLException e) {
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		}
 	}
 
 	public ProjectMember acceptMemberInProject(String projectIdString, String memberIdString, String userEPPN) throws DMCServiceException {
@@ -200,7 +195,7 @@ public class ProjectMemberDao {
 	// then insert into the pfo_user_role table
 	// INSERT pfo_user_role (user_id, role_id) values (111, 27);
 	//
-	private ProjectMember acceptMemberInProject(int projectId, int memberId, int userId, String userName) throws DMCServiceException, Exception {
+	private ProjectMember acceptMemberInProject(int projectId, int memberId, int userId, String userName) throws DMCServiceException {
 		boolean ok = IsRequesterAdmin(projectId, userId);
 		
 		if (!ok) {
@@ -217,8 +212,21 @@ public class ProjectMemberDao {
 		
 		return member;
 	}
+	
+	public ProjectMember updateProjectMember(String memberId, ProjectMember member, String userEPPN) throws DMCServiceException {
+		try {
+			int userId = UserDao.getUserID(userEPPN);
+			
+			// Update member in DB where Id = memberID
+			// Implementation pending, returning a new ProjectMember for now
+			return new ProjectMember();
+			
+		} catch (SQLException e) {
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		}
+	}
 
-	private boolean IsRequesterAdmin(int projectId, int userId) throws Exception {
+	private boolean IsRequesterAdmin(int projectId, int userId) throws DMCServiceException {
 		boolean isAdmin = false;
 		try {
 			String checkRequesterAuthority = "SELECT adr.home_group_id "
@@ -241,7 +249,7 @@ public class ProjectMemberDao {
 		return isAdmin;
 	}
 
-	private int GetRole(int projectId, String roleName) throws Exception {
+	private int GetRole(int projectId, String roleName) throws DMCServiceException {
 		int roleId = -1;
 		try {
 			String getRoleQuery = "SELECT role_id from pfo_role where role_name = ? and home_group_id = ?";
@@ -254,17 +262,17 @@ public class ProjectMemberDao {
 			}
 			resultSet.close();
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
-			throw new Exception("unable to query role: " + roleName + " for project " + projectId);
+			throw new DMCServiceException(DMCError.Generic, se.getMessage() + ": unable to query role: " + roleName + " for project " + projectId);
 		}
 		return roleId;
 	}
 
-	private ProjectMember acceptMember(int memberId, int roleId, int projectId, int fromUserId, String userName) throws DMCServiceException, Exception {
+	private ProjectMember acceptMember(int memberId, int roleId, int projectId, int fromUserId, String userName) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
-		connection.setAutoCommit(false);
+		
 		// let's start a transaction
 		try {
+			connection.setAutoCommit(false);
 			// requesting user must be administrator of the project to get the
 			// list of members.
 			String acceptMemberQuery = "INSERT into pfo_user_role (user_id, role_id) values ( ?, ?)";
@@ -302,14 +310,23 @@ public class ProjectMemberDao {
 				}
 			}
 			connection.rollback();
-			throw new Exception("expected to find project member " + memberId + " in list of members for project " + projectId + " and failed");
+			throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "expected to find project member " + memberId + " in list of members for project " + projectId + " and failed");
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
-			connection.rollback();
+			try {
+				if (connection != null) {
+					connection.rollback();
+				}
+			} catch (SQLException e) {}
+			
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
 		} finally {
-			connection.setAutoCommit(true);
+			try {
+				if (connection != null) {
+					connection.setAutoCommit(true);
+				}
+			} catch (SQLException e) {}
 		}
 	}
 
