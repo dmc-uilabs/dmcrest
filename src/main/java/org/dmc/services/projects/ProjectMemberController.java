@@ -76,7 +76,7 @@ public class ProjectMemberController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/projects_members/{memeberId}", method = RequestMethod.PATCH, produces = "application/json")
+    @RequestMapping(value = "/projects_members/{memberId}", method = RequestMethod.PATCH, produces = "application/json")
     public ResponseEntity updateProjectMember(@PathVariable("memberId") String memberId, @RequestBody ProjectMember member, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) throws Exception {
         ServiceLogger.log(logTag, "In addProjectMember: as user " + userEPPN);
 
