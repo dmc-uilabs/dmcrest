@@ -71,7 +71,7 @@ public class ProjectDao {
 		ArrayList<Project> projects = new ArrayList<Project>();
 		
 		String query = getSelectProjectQuery();
-		String groupIdList = "select * from (" + query + ") as project_info, (SELECT pfo_role.home_group_id"+
+		String groupIdList = "select * from (" + query + ") as project_info, (SELECT distinct pfo_role.home_group_id"+
                                       " FROM  pfo_role,  pfo_user_role, users"+                                                                         
                                       " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"+                                                           
                                       " pfo_role.home_group_id IS NOT NULL AND"+                                                                        
