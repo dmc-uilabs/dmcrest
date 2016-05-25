@@ -36,13 +36,12 @@ public class ServiceImagesController {
 		ServiceLogger.log(logTag, "Create ServiceImages, userEPPN: " + userEPPN);
 		int statusCode = HttpStatus.OK.value();
 		Id imageId = null;
-      try {
-            imageId = serviceImagesDao.createServiceImages(payload, userEPPN);
-        } catch(DMCServiceException e) {
-            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-        }
-      return new ResponseEntity<Id>(imageId, HttpStatus.valueOf(statusCode));
-
+  	try {
+        imageId = serviceImagesDao.createServiceImages(payload, userEPPN);
+    } catch(DMCServiceException e) {
+      	return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+    	}
+    return new ResponseEntity<Id>(imageId, HttpStatus.valueOf(statusCode));
 	}//Create
 
 	/*DELETE /service_images/{imageId}*/
@@ -57,9 +56,7 @@ public class ServiceImagesController {
             } else {
                 return new ResponseEntity<ErrorMessage>(new ErrorMessage("failure to delete service tag"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
-		}
-
-		catch (DMCServiceException e) {
+		} catch (DMCServiceException e) {
             ServiceLogger.log(logTag, "caught exception: for id " + imageId + " as user " + userEPPN + " " + e.getMessage());
             if (e.getMessage().equals("you are not allowed to delete this service image")) {
                 return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());

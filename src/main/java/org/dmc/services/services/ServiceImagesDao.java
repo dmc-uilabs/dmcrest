@@ -1,7 +1,7 @@
 package org.dmc.services.services;
 
-/* 
- * DAO class to query DB and store presignedURL from AWS S3 
+/*
+ * DAO class to query DB and store presignedURL from AWS S3
  */
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -30,32 +30,31 @@ public class ServiceImagesDao {
 	private Connection connection;
 
 	public Id createServiceImages(ServiceImages payload, String userEPPN) throws DMCServiceException {
-		
+
 		connection = DBConnector.connection();
 		PreparedStatement statement;
 		Util util = Util.getInstance();
 		int id = -99999;
-	
-		// NEED TO PUT Get AWS URL FUNCTION
 
+		// NEED TO PUT Get AWS URL FUNCTION
 		//Tests to see if valid user, exits function if so
-        try {
-            int userId = UserDao.getUserID(userEPPN);
-            if(userId == -1){ 
+    try {
+      int userId = UserDao.getUserID(userEPPN);
+      if(userId == -1){
     			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
-            }
-        } catch (SQLException e) {
+      }
+    } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
-		} 
-	  
+			}
+
 		try {
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
 			ServiceLogger.log(logTag, ex.getMessage());
 			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 		}
-		
+
 		try {
 			String query = "INSERT INTO service_images (service_id, url) VALUES (?, ?)";
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -65,7 +64,7 @@ public class ServiceImagesDao {
 			id = util.getGeneratedKey(statement, "id");
 			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
 			connection.commit();
-		} 
+		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, "SQL EXCEPTION ----- " + e.getMessage());
 			try {
@@ -78,7 +77,7 @@ public class ServiceImagesDao {
 				throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
-		} 
+		}
 		finally {
 			try {
 				if (connection != null) {
@@ -89,10 +88,10 @@ public class ServiceImagesDao {
 				throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
 			}
 		}
-		return new Id.IdBuilder(id).build();			
-	}//END POST 
-	
-	
+		return new Id.IdBuilder(id).build();
+	}//END Create
+
+
 	public ArrayList<ServiceImages> getServiceImages(int input) throws DMCServiceException {
 
 		ArrayList<ServiceImages> list =new ArrayList<ServiceImages>();
@@ -106,12 +105,12 @@ public class ServiceImagesDao {
 				int serviceId = resultSet.getInt("service_id");
 				String url = resultSet.getString("url");
 				ServiceImages img = new ServiceImages();
-				img.setId(id); 
-				img.setServiceId(serviceId); 
-				img.setUrl(url); 
-				list.add(img);			
+				img.setId(id);
+				img.setServiceId(serviceId);
+				img.setUrl(url);
+				list.add(img);
 			}
-		} 
+		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
@@ -119,66 +118,54 @@ public class ServiceImagesDao {
 		return list;
 	}//END GET
 
-	
+
 	public boolean deleteServiceImages(int imageId, String userEPPN) throws DMCServiceException {
         //Tests to see if valid user, exits function if so
-        try {
-            int userId = UserDao.getUserID(userEPPN);
-            if(userId == -1){ 
+    	try {
+      	int userId = UserDao.getUserID(userEPPN);
+      	if(userId == -1){
     			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
-            }
-        } catch (SQLException e) {
-			ServiceLogger.log(logTag, e.getMessage());
-			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
-		}
-        
-		
-		//Connect to DB
-		int rows; 
-		connection = DBConnector.connection();
-		PreparedStatement statement;
-		
-	    try {
-	    	
-	    	// Check that the user deleting the image is an administrator or the owner of the service
-			/**
-			 ** Checks disabled until user owners for services can be tracked
-			if (!(isOwnerOfService(userId)) {
-				ServiceLogger.log(logTag, "User " + userEPPN + " is not authorized to delete videos for company " + companyId);
-				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+      	}
+    	} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+				throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
 			}
-			*/
-	    	
+			//Connect to DB
+			int rows;
+			connection = DBConnector.connection();
+			PreparedStatement statement;
+
+	    try {
 			// delete Image
-			connection.setAutoCommit(false); 
+			connection.setAutoCommit(false);
 	        String query = "DELETE FROM service_images WHERE id = ?";
 	        statement = DBConnector.prepareStatement(query);
-	        statement.setInt(1, imageId);   
+	        statement.setInt(1, imageId);
 	        rows = statement.executeUpdate();
 			connection.commit();
 	    }
-		catch (SQLException e) {
+			catch (SQLException e) {
 			ServiceLogger.log(logTag, "ERROR IN DELETE Service Images-------------------" + e.getMessage());
-			
+
 			if (connection != null) {
 				try {
 					ServiceLogger.log(logTag, "Transaction deleteServiceImages Rolled back");
 					connection.rollback();
-				} 
+				}
 				catch (SQLException ex) {
 					ServiceLogger.log(logTag, ex.getMessage());
 					throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
 				}
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
-		}//Catch     
+		}//Catch
 		catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.Generic, e.getMessage());
 		}
-	
-        if (rows > 0) return true;
-        else return false;
+
+    if (rows > 0) return true;
+    else return false;
 	}
-	
+
 } //END DAO class
