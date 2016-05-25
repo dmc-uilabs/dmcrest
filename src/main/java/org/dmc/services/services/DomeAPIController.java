@@ -30,7 +30,9 @@ public class DomeAPIController {
 
 		ServiceLogger.log(logTag, "In childrenGet: as user " + userEPPN);
 
-		try {
+		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+		
+		/*try {
 			return new ResponseEntity<GetDomeInterface>(
 					domeInterfacesDao.createDomeInterface(postUpdateDomeInterface, userEPPN), HttpStatus.OK);
 		} catch (DMCServiceException e) {
@@ -41,7 +43,7 @@ public class DomeAPIController {
 				ServiceLogger.logException(logTag, e);
 				return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 			}
-		}
+		}*/
 
 	}
 }
