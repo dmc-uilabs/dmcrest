@@ -39,6 +39,7 @@ public class ProjectIT extends BaseIT {
 
 	private static final String PROJECT_DISCUSSIONS_RESOURCE = "/projects/{projectID}/all-discussions";
 	private static final String PROJECT_UPDATE_RESOURCE = "/projects/{id}";
+    private static final String PROJECT_GET_ALL_RESOURCE = "/projects/all";
 	
 	// Member  
 	private static final String MEMBER_ACCEPT_RESOURCE = "/projects/{projectId}/accept/{memberId}";
@@ -89,6 +90,22 @@ public class ProjectIT extends BaseIT {
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
 	}
+
+    // this tests could do check more about what tests are returned
+    @Test
+    public void testProjectListAll(){
+        given().
+            header("AJP_eppn", userEPPN).
+            param("_order", "ASC").
+            param("_sort", "most_recent").
+            param("_start", 0).
+        expect().
+            statusCode(200).
+        when().
+            get(PROJECT_GET_ALL_RESOURCE).
+        then().
+            body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
+    }
 
 	@Test
 	public void testProjectCreateJsonString() {
@@ -603,6 +620,28 @@ public class ProjectIT extends BaseIT {
 		}
 	}
 	
+    /**
+     * PATCH /projects/{projectId}/accept/{memberId}
+     */
+    @Test
+    public void testProjectMemberAcceptAfterProjectCreate() {
+
+        String adminUser = "fforgeadmin";
+
+        this.testProjectCreateJsonString();
+        if (this.createdId != null) {
+            given()
+                .header("Content-type", "application/json")
+                .header("AJP_eppn", adminUser)
+            .expect()
+                .statusCode(200)
+            .when()
+                .patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser)
+                .asString();
+
+        }
+    }
+
 	/**
 	 * PATCH /projects/{projectId}/accept/{memberId}
 	 */
@@ -610,6 +649,7 @@ public class ProjectIT extends BaseIT {
 	public void testProjectMemberAcceptNoRequest() {
 
 		String adminUser = "fforgeadmin";
+		String testUser = "testUser";
 		
 		this.testProjectCreateJsonString();
 		if (this.createdId != null) {
@@ -619,7 +659,7 @@ public class ProjectIT extends BaseIT {
 			.expect()
 				.statusCode(404)
 			.when()
-				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser)
+				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, testUser)
 				.asString();
 			
 			assertTrue("No Existing Request", response.contains("no existing request to join the project"));

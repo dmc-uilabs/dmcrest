@@ -31,39 +31,63 @@ public class DomeInterfacesController {
 	public ResponseEntity domeInterfacesPost(@RequestBody PostUpdateDomeInterface postUpdateDomeInterface,
 															   @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
 		
-//		ServiceLogger.log(logTag, "In domeInterfacesPost: as user " + userEPPN);
-//		
-//		try {
-//			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.createDomeInterface(postUpdateDomeInterface, userEPPN), HttpStatus.OK);
-//		} catch (DMCServiceException e) {
-//			ServiceLogger.logException(logTag, e);
-//			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
-//		}
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+		ServiceLogger.log(logTag, "In domeInterfacesPost: as user " + userEPPN);
+
+		try {
+			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.createDomeInterface(postUpdateDomeInterface, userEPPN), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			
+
+			if (e.getErrorMessage().startsWith("ERROR: insert or update on table \"service_interface\" violates foreign key constraint")) {
+				return new ResponseEntity<String>(HttpStatus.METHOD_NOT_ALLOWED);
+			} else {
+				ServiceLogger.logException(logTag, e);
+				return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			}
+		}
 	}
 
-	
 	@RequestMapping(value = "/{domeInterfaceId}", produces = { "application/json" }, method = RequestMethod.DELETE)
-	public ResponseEntity<Void> domeInterfacesDomeInterfaceIdDelete(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId){
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity domeInterfacesDomeInterfaceIdDelete(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId){
+
+		try {
+			domeInterfacesDao.deleteDomeInterface(domeInterfaceId);
+			return new ResponseEntity<Void>(HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+		
 	}
-	
-	
 	
 	@RequestMapping(value = "/{domeInterfaceId}", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity<GetDomeInterface> domeInterfacesDomeInterfaceIdGet(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId){
-		// do some magic!
-		return new ResponseEntity<GetDomeInterface>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity domeInterfacesDomeInterfaceIdGet(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId ){
+		
+		
+		try {
+			GetDomeInterface read = domeInterfacesDao.getDomeInterface(domeInterfaceId);
+			if (read == null) {
+				return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+			} else {
+				return new ResponseEntity<GetDomeInterface>(read, HttpStatus.OK);
+			}
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+		
 	}
-	
-	
 	
 	@RequestMapping(value = "/{domeInterfaceId}", produces = { "application/json" }, method = RequestMethod.PATCH)
-	public ResponseEntity<GetDomeInterface> domeInterfacesDomeInterfaceIdPatch(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId,
-																			   @RequestBody PostUpdateDomeInterface domeInterface){
-		// do some magic!
-		return new ResponseEntity<GetDomeInterface>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity domeInterfacesDomeInterfaceIdPatch(@PathVariable("domeInterfaceId") BigDecimal domeInterfaceId, @RequestBody PostUpdateDomeInterface domeInterface){
+		
+		try {
+			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.updateDomeInterface(domeInterfaceId, domeInterface), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+		
 	}
+	
 }
