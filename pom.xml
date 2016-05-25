@@ -17,7 +17,7 @@
 
 	<!-- PROPERTIES -->
 	<properties>
-		<java.version>1.6</java.version>
+		<java.version>1.8</java.version>
 	</properties>
 
 
@@ -30,7 +30,7 @@
 				<unit-tests.skip>true</unit-tests.skip>
 				<integration-tests.skip>false</integration-tests.skip>
 			</properties>
-			<!-- Exclude swagger during integration tests -->			
+			<!-- Exclude swagger during integration tests -->
 			<build>
 				<plugins>
 					<plugin>
@@ -53,7 +53,7 @@
 				<unit-tests.skip>false</unit-tests.skip>
 				<integration-tests.skip>true</integration-tests.skip>
 			</properties>
-			<!-- Exclude swagger during tests -->			
+			<!-- Exclude swagger during tests -->
 			<build>
 				<plugins>
 					<plugin>
@@ -69,7 +69,7 @@
 			</build>
 		</profile>
 
-		<!-- swaggerr -->
+		<!-- swagger -->
 		<profile>
 			<id>swagger</id>
 			<properties>
@@ -130,6 +130,14 @@
 	<!-- DEPENDENCEIS -->
 	<dependencies>
 
+		<!--FOR all AWS function calls -->
+	 	<dependency>
+    		<groupId>com.amazonaws</groupId>
+   			<artifactId>aws-java-sdk</artifactId>
+   			<version>1.11.0</version>
+		</dependency>
+
+
 		<!-- Postgres JDBC Driver -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -143,12 +151,17 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
 		</dependency>
 
-		<!-- prevents the tomcat servlet container from being included in the packaged 
+		<!-- prevents the tomcat servlet container from being included in the packaged
 			WAR. This way the local tomcat (not embedded) will be used instead -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -179,12 +192,7 @@
 			<artifactId>httpmime</artifactId>
 			<version>4.5.1</version>
 		</dependency>
-		
-		<dependency>
-		    <groupId>com.amazonaws</groupId>
-		    <artifactId>aws-java-sdk</artifactId>
-		    <version>1.11.2</version>
-		</dependency>
+
 
 		<dependency>
 			<artifactId>solr-solrj</artifactId>
@@ -229,7 +237,7 @@
 			<artifactId>json-schema-validator</artifactId>
 			<version>2.1.0</version>
 		</dependency>
-		
+
 		<!--  Dependency for ActiveMQ -->
 		<dependency>
       		<groupId>org.apache.geronimo.specs</groupId>
@@ -247,7 +255,7 @@
 	<!-- BUILD -->
 	<build>
 		<plugins>
-		
+
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
@@ -284,6 +292,9 @@
 							</includes>
 							<!-- Exclude search tests by default -->
 							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT verify -P  "integration" -->
+
+							<!--  Ignore above command for our specific build. To run all tests: mvn integration-test -P integration
+							To run a specific test: mvn-Dtest=ProjectIT test -->
 							<excludes>
 								<exclude>**/SearchIT.java</exclude>
 							</excludes>
@@ -316,6 +327,6 @@
 			<url>https://repo.spring.io/libs-release</url>
 		</pluginRepository>
 	</pluginRepositories>
-	
+
 
 </project>

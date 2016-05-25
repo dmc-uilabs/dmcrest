@@ -64,20 +64,20 @@ public class AWSConnector {
 
         //Throws error if file invalid
         if(filename == null || filename.length() == 0){
-        	throw new DMCServiceException(DMCError.Generic, "File from" + userEPPN + "is invalid ");
+        	throw new DMCServiceException(DMCError.AWSError, "File from" + userEPPN + "is invalid ");
         }
 
         //Throws error if source path invalid
         if (destPath == null || destPath.length() == 0){
         	//NEED to add DMC method for AWS exceptions
-        	throw new DMCServiceException(DMCError.Generic, "Source path from" + userEPPN + "is invalid ");
+        	throw new DMCServiceException(DMCError.AWSError, "Source path from" + userEPPN + "is invalid ");
         }
 
         int findDot = filename.lastIndexOf(".");
 
         if (findDot == -1){
         	//NEED to add DMC method for AWS exception
-        	throw new DMCServiceException(DMCError.Generic, "User " + userEPPN + "gave Invalid file extension name");
+        	throw new DMCServiceException(DMCError.AWSError, "User " + userEPPN + "gave Invalid file extension name");
         }
 
         //Rename and Parse
@@ -106,7 +106,7 @@ public class AWSConnector {
             ServiceLogger.log(logTag,"AWS Error Code:   " + ase.getErrorCode());
             ServiceLogger.log(logTag,"Error Type:       " + ase.getErrorType());
             ServiceLogger.log(logTag,"Request ID:       " + ase.getRequestId());
-			throw new DMCServiceException(DMCError.Generic, "AWS Upload Request from " + userEPPN + " made it, rejected do to: " + ase.getMessage());
+			throw new DMCServiceException(DMCError.AWSError, "AWS Upload Request from " + userEPPN + " made it, rejected do to: " + ase.getMessage());
 
         } catch (AmazonClientException ace) {
 
@@ -115,7 +115,7 @@ public class AWSConnector {
 
             //Detailed Error Logging
             ServiceLogger.log(logTag,"Error Message: " + ace.getMessage());
-			throw new DMCServiceException(DMCError.Generic, "AWS Upload Request from " + userEPPN + " encountered internal error with "
+			throw new DMCServiceException(DMCError.AWSError, "AWS Upload Request from " + userEPPN + " encountered internal error with "
 			+ "S3 and rejected do to: " + ace.getMessage());
         } try {
 
@@ -146,7 +146,7 @@ public class AWSConnector {
             ServiceLogger.log(logTag,"AWS Error Code:   " + ase.getErrorCode());
             ServiceLogger.log(logTag,"Error Type:       " + ase.getErrorType());
             ServiceLogger.log(logTag,"Request ID:       " + ase.getRequestId());
-			throw new DMCServiceException(DMCError.Generic, "AWS Upload Request from " + userEPPN + " made it, but rejected do to: " + ase.getMessage());
+			throw new DMCServiceException(DMCError.AWSError, "AWS Upload Request from " + userEPPN + " made it, but rejected do to: " + ase.getMessage());
 
 
 		} catch (AmazonClientException ace) {
@@ -156,7 +156,7 @@ public class AWSConnector {
 
 	        //Detailed Error Logging
             ServiceLogger.log(logTag,"Error Message: " + ace.getMessage());
-			throw new DMCServiceException(DMCError.Generic, "AWS Upload Request from " + userEPPN + " encountered internal error communication with "
+			throw new DMCServiceException(DMCError.AWSError, "AWS Upload Request from " + userEPPN + " encountered internal error communication with "
 			+ "S3 and rejected do to: " + ace.getMessage());
 		}
 		return preSignedURL;
@@ -190,14 +190,14 @@ public class AWSConnector {
             ServiceLogger.log(logTag,"Error Type:       " + ase.getErrorType());
             ServiceLogger.log(logTag,"Request ID:       " + ase.getRequestId());
 
-			throw new DMCServiceException(DMCError.Generic, "AWS Delete Request from " + userEPPN + " made it, but rejected do to: " + ase.getMessage());
+			throw new DMCServiceException(DMCError.AWSError, "AWS Delete Request from " + userEPPN + " made it, but rejected do to: " + ase.getMessage());
         } catch (AmazonClientException ace) {
         	ServiceLogger.log(logTag,"Caught an AmazonClientException, which means the client encountered an internal error"
             + " while trying to communicate with S3, such as not being able to access the network.");
 
 	        //Detailed Error Logging
             ServiceLogger.log(logTag,"Error Message: " + ace.getMessage());
-			throw new DMCServiceException(DMCError.Generic, "AWS Delete Request from " + userEPPN + " encountered internal error communication with "
+			throw new DMCServiceException(DMCError.AWSError, "AWS Delete Request from " + userEPPN + " encountered internal error communication with "
 		    + "S3 and rejected do to: " + ace.getMessage());
         }
 
