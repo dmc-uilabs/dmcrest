@@ -35,7 +35,7 @@ public class DomeAPIController {
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "path", required = false) List<BigDecimal> path,
 			@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "url", required = false) String url,
+			//@RequestParam(value = "url", required = false) String url,
 			@RequestParam(value = "version", required = false) String version,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 

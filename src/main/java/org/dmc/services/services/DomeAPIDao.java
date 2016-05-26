@@ -23,18 +23,18 @@ public class DomeAPIDao {
 
 	private final String logTag = DomeAPIDao.class.getName();
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		System.out.println("Starting...");
 		DomeAPIDao inst = new DomeAPIDao();
 		DomeEntity domeEntity = new DomeEntity();
 		
 		domeEntity.setDomeServer("http://localhost:8080/DOMEApiServicesV7");
 		
-		/*domeEntity.setName("Fracture-Mechanics");
-		List<BigDecimal> path = new ArrayList<BigDecimal>();
-		path.add(new BigDecimal(30));
-		domeEntity.setPath(path);
-		domeEntity.setType("folder"); */
+//		domeEntity.setName("Fracture-Mechanics");
+//		List<BigDecimal> path = new ArrayList<BigDecimal>();
+//		path.add(new BigDecimal(30));
+//		domeEntity.setPath(path);
+//		domeEntity.setType("folder");
 		
 		domeEntity.setVersion("1");
 		domeEntity.setModelId("aff647dc-d82f-1004-8e7b-5de38b2eeb0f");
@@ -59,7 +59,7 @@ public class DomeAPIDao {
 		}
 		
 		System.out.println(result);
-	}
+	}*/
 
 	private String printNameString(String name, String value) {
 		return  "\""+name+"\":\"" + value +"\"";
@@ -101,9 +101,6 @@ public class DomeAPIDao {
 
 			OutputStream out = conn.getOutputStream();
 			DataOutputStream writer =  new DataOutputStream(out);
-			
-			//OutputStream out = conn.getOutputStream();
-			//Writer writer = new OutputStreamWriter(out, "UTF-8");
 
 			StringBuilder urlStr = new StringBuilder();
 
@@ -149,8 +146,6 @@ public class DomeAPIDao {
 			System.out.println("REQUEST:");
 			System.out.println(urlStr.toString());
 			System.out.println();
-			
-			//writer.write(URLEncoder.encode(urlStr.toString(), "UTF-8"));
 			
 			writer.write(urlStr.toString().getBytes( StandardCharsets.UTF_8 ));
 
