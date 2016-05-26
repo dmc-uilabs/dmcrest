@@ -10,11 +10,13 @@ import java.util.List;
 import java.math.BigDecimal;
 import org.dmc.services.services.DomeAPIDao;
 import org.dmc.services.services.DomeEntity;
+import org.dmc.services.services.DomeFolderEntity;
+import org.dmc.services.services.DomeModelEntity;
 
 @Ignore
 public class DomeIT extends BaseIT {
 
-	private String domeServer = "http://localhost:8080/DOMEApiServicesV7";
+	private String domeServer = "http://localhost:8082/DOMEApiServicesV7";
 	private DomeAPIDao domeAPIDao = new DomeAPIDao();
 
 	@Test
@@ -38,6 +40,7 @@ public class DomeIT extends BaseIT {
 
 	}
 
+	@Ignore
 	@Test
 	public void testGetChildrenWhenTypeIsFolder() {
 		String name = "Fracture-Mechanics";
@@ -45,7 +48,7 @@ public class DomeIT extends BaseIT {
 		List<BigDecimal> path = new ArrayList<BigDecimal>();
 		path.add(new BigDecimal(30));
 
-		DomeEntity domeEntity = new DomeEntity();
+		DomeFolderEntity domeEntity = new DomeFolderEntity();
 		domeEntity.setDomeServer(domeServer);
 		domeEntity.setName(name);
 		domeEntity.setPath(path);
@@ -67,18 +70,19 @@ public class DomeIT extends BaseIT {
 				(resultFromDirectCommunication.equals(resultFromREST)));
 	}
 
+	@Ignore
 	@Test
 	public void testGetChildrenWhenTypeIsModel() {
-		String version = "1";
+		BigDecimal version = new BigDecimal(1);
 		String modelId = "aff647dc-d82f-1004-8e7b-5de38b2eeb0f";
 		String description = "";
-		String dateModified = "1416717627000";
+		BigDecimal dateModified = new BigDecimal("1416717627000");
 		String name = "AppliedLoad";
 		String type = "model";
 		List<BigDecimal> path = new ArrayList<BigDecimal>();
 		path.add(new BigDecimal(30));
 
-		DomeEntity domeEntity = new DomeEntity();
+		DomeModelEntity domeEntity = new DomeModelEntity();
 		domeEntity.setDomeServer(domeServer);
 		domeEntity.setVersion(version);
 		domeEntity.setModelId(modelId);
@@ -107,6 +111,7 @@ public class DomeIT extends BaseIT {
 
 	}
 
+	@Ignore
 	@Test
 	public void testGetChildrenWhenOtherType() {
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)

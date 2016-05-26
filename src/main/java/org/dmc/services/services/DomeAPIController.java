@@ -28,7 +28,7 @@ public class DomeAPIController {
 
 	@RequestMapping(value = "/get-children", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity childrenGet(
-			@RequestParam(value = "dateModified", required = false) String dateModified,
+			@RequestParam(value = "dateModified", required = false) BigDecimal dateModified,
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "domeServer", required = true) String domeServer,
 			@RequestParam(value = "modelId", required = false) String modelId,
@@ -36,23 +36,41 @@ public class DomeAPIController {
 			@RequestParam(value = "path", required = false) List<BigDecimal> path,
 			@RequestParam(value = "type", required = false) String type,
 			//@RequestParam(value = "url", required = false) String url,
-			@RequestParam(value = "version", required = false) String version,
+			@RequestParam(value = "version", required = false) BigDecimal version,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
 		ServiceLogger.log(logTag, "In childrenGet: as user " + userEPPN);
-		
-		DomeEntity domeEntity = new DomeEntity();
-		domeEntity.setDateModified(dateModified);
-		domeEntity.setDescription(description);
-		domeEntity.setDomeServer(domeServer);
-		domeEntity.setModelId(modelId);
-		domeEntity.setName(name);
-		domeEntity.setPath(path);
-		domeEntity.setType(type);
-		domeEntity.setVersion(version);
+		String temp = "";
 		
 		try {
-			return new ResponseEntity<String>(domeAPIDao.getChildren(domeEntity), HttpStatus.OK);
+			if (type == null) {
+				DomeEntity domeEntity = new DomeEntity();
+				domeEntity.setDomeServer(domeServer);
+				temp = domeAPIDao.getChildren(domeEntity);
+			} else if (type.equals("folder")) {
+				DomeFolderEntity domeFolderEntity = new DomeFolderEntity();
+				domeFolderEntity.setDomeServer(domeServer);
+				domeFolderEntity.setName(name);
+				domeFolderEntity.setPath(path);
+				domeFolderEntity.setType(type);
+				temp = domeAPIDao.getChildren(domeFolderEntity);
+			} else if (type.equals("model")) {
+				DomeModelEntity domeModelEntity = new DomeModelEntity();
+				domeModelEntity.setDateModified(dateModified);
+				domeModelEntity.setDescription(description);
+				domeModelEntity.setDomeServer(domeServer);
+				domeModelEntity.setModelId(modelId);
+				domeModelEntity.setName(name);
+				domeModelEntity.setPath(path);
+				domeModelEntity.setType(type);
+				domeModelEntity.setVersion(version);
+				temp = domeAPIDao.getChildren(domeModelEntity);
+			} else {
+				DomeEntity domeEntity = new DomeEntity();
+				domeEntity.setDomeServer(domeServer);
+				temp = domeAPIDao.getChildren(domeEntity);
+			}
+			return new ResponseEntity<String>(temp, HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());

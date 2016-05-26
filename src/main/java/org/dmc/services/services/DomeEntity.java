@@ -13,10 +13,11 @@ public class DomeEntity {
 	private String name = null;
 	private List<BigDecimal> path = new ArrayList<BigDecimal>();
 	private String domeServer = null;
-	private String dateModified = null;
+	private List<DomeEntity> children = new ArrayList<DomeEntity>();
+	private BigDecimal dateModified = null;
 	private String description = null;
 	private String modelId = null;
-	private String version = null;
+	private BigDecimal version = null;
 
 	/**
 	 **/
@@ -64,12 +65,23 @@ public class DomeEntity {
 	
 	/**
 	 **/
+	@JsonProperty("children")
+	public List<DomeEntity> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<DomeEntity> children) {
+		this.children = children;
+	}
+	
+	/**
+	 **/
 	@JsonProperty("dateModified")
-	public String getDateModified() {
+	public BigDecimal getDateModified() {
 		return dateModified;
 	}
 
-	public void setDateModified(String dateModified) {
+	public void setDateModified(BigDecimal dateModified) {
 		this.dateModified = dateModified;
 	}
 	
@@ -98,50 +110,24 @@ public class DomeEntity {
 	/**
 	 **/
 	@JsonProperty("version")
-	public String getVersion() {
+	public BigDecimal getVersion() {
 		return version;
 	}
 
-	public void setVersion(String version) {
+	public void setVersion(BigDecimal version) {
 		this.version = version;
 	}
 	
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		DomeEntity domeEntity = (DomeEntity) o;
-		return Objects.equals(type, domeEntity.type) && Objects.equals(name, domeEntity.name)
-				&& Objects.equals(path, domeEntity.path)
-				&& Objects.equals(domeServer, domeEntity.domeServer)
-				&& Objects.equals(dateModified, domeEntity.dateModified) && Objects.equals(description, domeEntity.description)
-				&& Objects.equals(modelId, domeEntity.modelId) && Objects.equals(version, domeEntity.version);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(type, name, path, domeServer, dateModified, description, modelId, version);
-	}
-
-	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("class DomeEntity {\n");
 
-		sb.append("  type: ").append(type).append("\n");
-		sb.append("  name: ").append(name).append("\n");
-		sb.append("  path: ").append(path).append("\n");
-		sb.append("  domeServer: ").append(domeServer).append("\n");
-		sb.append("  dateModified: ").append(dateModified).append("\n");
-		sb.append("  description: ").append(description).append("\n");
-		sb.append("  modelId: ").append(modelId).append("\n");
-		sb.append("  version: ").append(version).append("\n");
-		sb.append("}\n");
+//		sb.append("  type: ").append(getType()).append("\n");
+//		sb.append("  name: ").append(getName()).append("\n");
+//		sb.append("  path: ").append(getPath()).append("\n");
+//		sb.append("  domeServer: ").append(getDomeServer()).append("\n");
+//		sb.append("}\n");
 		return sb.toString();
 	}
+	
 }
