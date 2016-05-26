@@ -20,8 +20,8 @@ public class DomeIT extends BaseIT {
 	@Test
 	public void testGetChildrenWhenRootDirectory() {
 		DomeEntity domeEntity = new DomeEntity();
-		domeEntity.setDomeServer("http://localhost:8080/DOMEApiServicesV7");
-		String resultFromDirectCommunication = new String("");
+		domeEntity.setDomeServer(domeServer);
+		String resultFromDirectCommunication = new String();
 
 		try {
 			resultFromDirectCommunication = domeAPIDao.getChildren(domeEntity);
@@ -33,23 +33,25 @@ public class DomeIT extends BaseIT {
 				.param("domeServer", domeServer).expect().statusCode(HttpStatus.OK.value()).when().get("/get-children")
 				.as(String.class);
 
-		if (!resultFromDirectCommunication.equals("")) {
-			assertTrue("testGetChildrenWhenRootDirectory: Result from dome server does not match result from REST API",
-					(resultFromDirectCommunication.equals(resultFromREST)));
-		}
+		assertTrue("testGetChildrenWhenRootDirectory: Result from dome server does not match result from REST API",
+				(resultFromDirectCommunication.equals(resultFromREST)));
+
 	}
 
 	@Test
 	public void testGetChildrenWhenTypeIsFolder() {
-		DomeEntity domeEntity = new DomeEntity();
-		domeEntity.setDomeServer("http://localhost:8080/DOMEApiServicesV7");
-		domeEntity.setName("Fracture-Mechanics");
+		String name = "Fracture-Mechanics";
+		String type = "folder";
 		List<BigDecimal> path = new ArrayList<BigDecimal>();
 		path.add(new BigDecimal(30));
-		domeEntity.setPath(path);
-		domeEntity.setType("folder");
 
-		String resultFromDirectCommunication = new String("");
+		DomeEntity domeEntity = new DomeEntity();
+		domeEntity.setDomeServer(domeServer);
+		domeEntity.setName(name);
+		domeEntity.setPath(path);
+		domeEntity.setType(type);
+
+		String resultFromDirectCommunication = new String();
 
 		try {
 			resultFromDirectCommunication = domeAPIDao.getChildren(domeEntity);
@@ -58,9 +60,8 @@ public class DomeIT extends BaseIT {
 		}
 
 		String resultFromREST = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.param("domeServer", domeServer).param("name", "Fracture-Mechanics").param("path", path)
-				.param("type", "folder").expect().statusCode(HttpStatus.OK.value()).when().get("/get-children")
-				.as(String.class);
+				.param("domeServer", domeServer).param("name", name).param("path", path).param("type", type).expect()
+				.statusCode(HttpStatus.OK.value()).when().get("/get-children").as(String.class);
 
 		assertTrue("testGetChildrenWhenRootDirectory: Result from dome server does not match result from REST API",
 				(resultFromDirectCommunication.equals(resultFromREST)));
@@ -68,19 +69,26 @@ public class DomeIT extends BaseIT {
 
 	@Test
 	public void testGetChildrenWhenTypeIsModel() {
-		DomeEntity domeEntity = new DomeEntity();
-		domeEntity.setDomeServer("http://localhost:8080/DOMEApiServicesV7");
-		domeEntity.setVersion("1");
-		domeEntity.setModelId("aff647dc-d82f-1004-8e7b-5de38b2eeb0f");
-		domeEntity.setDescription("");
-		domeEntity.setDateModified("1416717627000");
-		domeEntity.setName("AppliedLoad");
+		String version = "1";
+		String modelId = "aff647dc-d82f-1004-8e7b-5de38b2eeb0f";
+		String description = "";
+		String dateModified = "1416717627000";
+		String name = "AppliedLoad";
+		String type = "model";
 		List<BigDecimal> path = new ArrayList<BigDecimal>();
 		path.add(new BigDecimal(30));
-		domeEntity.setPath(path);
-		domeEntity.setType("model");
 
-		String resultFromDirectCommunication = new String("");
+		DomeEntity domeEntity = new DomeEntity();
+		domeEntity.setDomeServer(domeServer);
+		domeEntity.setVersion(version);
+		domeEntity.setModelId(modelId);
+		domeEntity.setDescription(description);
+		domeEntity.setDateModified(dateModified);
+		domeEntity.setName(name);
+		domeEntity.setPath(path);
+		domeEntity.setType(type);
+
+		String resultFromDirectCommunication = new String();
 
 		try {
 			resultFromDirectCommunication = domeAPIDao.getChildren(domeEntity);
@@ -89,11 +97,10 @@ public class DomeIT extends BaseIT {
 		}
 
 		String resultFromREST = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.param("domeServer", domeServer).param("version", "1")
-				.param("modelId", "aff647dc-d82f-1004-8e7b-5de38b2eeb0f").param("description", "")
-				.param("dateModified", "1416717627000").param("name", "AppliedLoad").param("path", path)
-				.param("type", "model").expect().statusCode(HttpStatus.OK.value()).when().get("/get-children")
-				.as(String.class);
+				.param("domeServer", domeServer).param("version", version).param("modelId", modelId)
+				.param("description", description).param("dateModified", dateModified).param("name", name)
+				.param("path", path).param("type", type).expect().statusCode(HttpStatus.OK.value()).when()
+				.get("/get-children").as(String.class);
 
 		assertTrue("testGetChildrenWhenRootDirectory: Result from dome server does not match result from REST API",
 				(resultFromDirectCommunication.equals(resultFromREST)));
@@ -103,7 +110,7 @@ public class DomeIT extends BaseIT {
 	@Test
 	public void testGetChildrenWhenOtherType() {
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
-				.param("type", "otherType").expect().statusCode(HttpStatus.OK.value()).when().get("/get-children");
+				.param("type", "otherType").expect().statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).when().get("/get-children");
 	}
 
 }
