@@ -27,6 +27,7 @@ public class ServiceController {
 	private final String logTag = ServiceController.class.getName();
 
 	private ServiceDao serviceDao = new ServiceDao();
+	private ServiceImagesDao serviceImagesDao = new ServiceImagesDao();
 	private ServiceTagsDao serviceTagsDao = new ServiceTagsDao();
 	private ServiceSpecificationDao specificationDao = new ServiceSpecificationDao();
 
@@ -131,36 +132,42 @@ public class ServiceController {
 		return new ResponseEntity<List<ServiceHistory>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@RequestMapping(value = "/services/{serviceID}/service_images", produces = { "application/json",
-			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ServiceImages>> servicesServiceIDServiceImagesGet(
-			@PathVariable("serviceID") String serviceID) {
-		// do some magic!
-		return new ResponseEntity<List<ServiceImages>>(HttpStatus.NOT_IMPLEMENTED);
+	@RequestMapping(value = "/services/{serviceID}/service_images", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+	public ResponseEntity getServiceImages(@PathVariable("serviceID") int serviceID, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "In GET ServiceImage by User " + userEPPN);
+			int statusCode = HttpStatus.OK.value();
+			ArrayList<ServiceImages> imageList = null;
+			try{
+				imageList = serviceImagesDao.getServiceImages(serviceID);
+			} catch(DMCServiceException e) {
+                return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+	        }
+			return new ResponseEntity<ArrayList<ServiceImages>>(imageList, HttpStatus.valueOf(statusCode));
+
 	}
 
-	@RequestMapping(value = "/services/{serviceID}/service_tags", produces = { "application/json",
-			"text/html" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/services/{serviceID}/service_tags", produces = { "application/json","text/html" }, method = RequestMethod.GET)
 	public ResponseEntity servicesServiceIDServiceTagsGet(@PathVariable("serviceID") String serviceID,
-			@RequestParam(value = "limit", required = false) Integer limit,
-			@RequestParam(value = "order", required = false) String order,
-			@RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		int statusCode = HttpStatus.OK.value();
+		@RequestParam(value = "limit", required = false) Integer limit,
+		@RequestParam(value = "order", required = false) String order,
+		@RequestParam(value = "sort", required = false) String sort) {
+	// do some magic!
+	int statusCode = HttpStatus.OK.value();
+	String userEPPN = null;
+	List<ServiceTag> tags = null;
+	try {
+		tags = serviceTagsDao.getServiceListByServiceId(Integer.parseInt(serviceID), userEPPN);
+	} catch (Exception ex) {
+		statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
+		return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+	}
 
-		String userEPPN = null;
-		List<ServiceTag> tags = null;
-		try {
-			tags = serviceTagsDao.getServiceListByServiceId(Integer.parseInt(serviceID), userEPPN);
-		} catch (Exception ex) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
-			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-		}
-
-		return new ResponseEntity<List<ServiceTag>>(tags, HttpStatus.valueOf(statusCode));
+	return new ResponseEntity<List<ServiceTag>>(tags, HttpStatus.valueOf(statusCode));
 
 	}
+
+
 
 	@RequestMapping(value = "/services/{serviceID}/services_statistic", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
