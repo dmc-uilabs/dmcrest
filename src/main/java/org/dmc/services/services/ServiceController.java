@@ -309,7 +309,7 @@ public class ServiceController {
 	 */
 	@RequestMapping(value = "/array_specifications", method = RequestMethod.GET, produces = { "application/json" })
 	public ResponseEntity<?> getServiceSpecifications(@RequestHeader(value = "AJP_eppn", required = true) String userEPPN,
-				@RequestParam(value="_limit", defaultValue="1000", required = false) int limit,
+				@RequestParam(value="_limit", defaultValue="1000", required = false) Integer limit,
 				@RequestParam(value="_order", defaultValue="DESC", required = false) String order,
 				@RequestParam(value="_sort", defaultValue="id", required = false) String sort) {
 		

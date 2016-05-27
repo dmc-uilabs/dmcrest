@@ -142,13 +142,13 @@ public class AccountsController {
 	 **/
 	@RequestMapping(value = "/{accountId}/following_members", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<FollowingMemeber>> accountsAccountIdFollowingMembersGet(
+	public ResponseEntity<List<FollowingMember>> accountsAccountIdFollowingMembersGet(
 			@PathVariable("accountId") String accountId, 
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		// do some magic!
-		return new ResponseEntity<List<FollowingMemeber>>(HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<List<FollowingMember>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
 }
