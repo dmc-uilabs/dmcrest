@@ -1,5 +1,5 @@
 package org.dmc.services.partnerdmdiiprojects;
 
-public class PartnerDmdiiProject {
+public class PartnerDMDIIProjectDao {
 
 }

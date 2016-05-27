@@ -7,16 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DmdiiProjectManager {
+public class DMDIIProjectManager {
 
 	@Autowired
-	private DmdiiProjectRepository dmdiiProjectRepository;
+	private DMDIIProjectRepository dmdiiProjectRepository;
 	
 	@Autowired
-	private DmdiiProjectMapper dmdiiProjectMapper;
+	private DMDIIProjectMapper dmdiiProjectMapper;
 	
-	public List<DmdiiProject> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId) {
-		List<DmdiiProjectEntity> dmdiiProjects = Collections.emptyList();
+	public List<DMDIIProject> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId) {
+		List<DMDIIProjectEntity> dmdiiProjects = Collections.emptyList();
 		
 		if(primeOrganizationId != null) {
 			dmdiiProjects = dmdiiProjectRepository.findByPrimeOrganizationId(primeOrganizationId);

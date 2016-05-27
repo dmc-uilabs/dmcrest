@@ -14,14 +14,14 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="dmdii_project")
-public class DmdiiProjectEntity extends BaseEntity {
+public class DMDIIProjectEntity extends BaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "prime_organization_id", nullable = false)
 	private OrganizationEntity organizationEntity;
 	
 	@Column(name = "principal_investigator")
-	private UserEntity principalInvestigator;
+	private DMDIIUser principalInvestigator;
 	
 	@Column(name = "project_status")
 	@Enumerated(EnumType.STRING)
@@ -40,15 +40,15 @@ public class DmdiiProjectEntity extends BaseEntity {
 	private String projectSummary;
 	
 	@JoinColumn(name = "principal_point_of_contact_id")
-	private UserEntity principalPointOfContact;
+	private DMDIIUser principalPointOfContact;
 	
-	public DmdiiProjectEntity () {
+	public DMDIIProjectEntity () {
 		
 	}
 	
-	public DmdiiProjectEntity (OrganizationEntity organizationEntity, UserEntity principalInvestigator,
+	public DMDIIProjectEntity (OrganizationEntity organizationEntity, DMDIIUser principalInvestigator,
 			String projectStatus, Date awardedDate, String projectTitle, String projectSummary,
-			UserEntity principalPointOfContact) {
+			DMDIIUser principalPointOfContact) {
 		
 		this.organizationEntity = organizationEntity;
 		this.principalInvestigator = principalInvestigator;
