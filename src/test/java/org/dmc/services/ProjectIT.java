@@ -38,6 +38,7 @@ import org.dmc.services.projects.ProjectMember;
 public class ProjectIT extends BaseIT {
 
 	private static final String PROJECT_DISCUSSIONS_RESOURCE = "/projects/{projectID}/all-discussions";
+    private static final String PROJECT_INDIVIDUAL_DISCUSSION_RESOURCE = "/projects/{projectID}/individual-discussion";
 	private static final String PROJECT_UPDATE_RESOURCE = "/projects/{id}";
     private static final String PROJECT_GET_ALL_RESOURCE = "/projects/all";
 	
@@ -270,6 +271,7 @@ public class ProjectIT extends BaseIT {
 							mapper.readValue(mapper.treeAsTokens(discussions), 
 							new TypeReference<ArrayList<Discussion>>() {});
 
+                    assertEquals("should  only be one discussion that we created, found a different amount", 1, discussionList.size());
 					for (Discussion discussion : discussionList) {
 						assertTrue("Discussion belongs to project", discussion.getProjectId().equals(this.createdId.toString()));
 					}
@@ -280,6 +282,42 @@ public class ProjectIT extends BaseIT {
         	}
     	}
 	}
+
+    @Test
+    public void testIndividualProjectDiscussions() {
+        
+        ObjectMapper mapper = new ObjectMapper();
+        this.testProjectCreateJsonString();
+
+        if (this.createdId != null) {
+            Integer discussionId = discussionIT.createDiscussion(this.createdId);
+            if (discussionId != null) {
+                JsonNode discussions =
+                    given()
+                    .header("Content-type", "application/json")
+                    .header("AJP_eppn", randomEPPN)
+                    .expect()
+                    .statusCode(200)
+                    .when()
+                    .get(PROJECT_INDIVIDUAL_DISCUSSION_RESOURCE, this.createdId)
+                    .as(JsonNode.class);
+                
+                try {
+                    ArrayList<Discussion> discussionList = 
+                            mapper.readValue(mapper.treeAsTokens(discussions), 
+                            new TypeReference<ArrayList<Discussion>>() {});
+
+                    assertEquals("should  only be one discussion that we created, found a different amount", 1, discussionList.size());
+                    for (Discussion discussion : discussionList) {
+                        assertTrue("Discussion belongs to project", discussion.getProjectId().equals(this.createdId.toString()));
+                    }
+                    
+                } catch (Exception e) {
+                    ServiceLogger.log(logTag, e.getMessage());
+                }
+            }
+        }
+    }
 
     @Test
 	public void testGetProject6Tags() {
