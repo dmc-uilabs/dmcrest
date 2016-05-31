@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
+import org.dmc.services.services.DomeInterfacesDao;
+import org.dmc.services.services.GetDomeInterface;
 
 import javax.xml.ws.http.HTTPException;
 import java.util.List;
@@ -78,20 +80,25 @@ public class AccountsController {
 		return new ResponseEntity<List<AccountNotificationSetting>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-
 	/**
 	 
 	 **/
 	@RequestMapping(value = "/{accountID}/account_servers", produces = {
 			"application/json" }, method = RequestMethod.GET)
-	public ResponseEntity<List<UserAccountServer>> accountsAccountIDAccountServersGet(
+	public ResponseEntity accountsAccountIDAccountServersGet(
 			@PathVariable("accountID") String accountID) {
-		// do some magic!
-		return new ResponseEntity<List<UserAccountServer>>(HttpStatus.NOT_IMPLEMENTED);
+		
+		AccountsDao accountsDao = new AccountsDao();
+		
+		try {
+			ServiceLogger.log(logTag, "In accountsAccountIDAccountServersGet, accountID = " + accountID);
+			return new ResponseEntity<List<UserAccountServer>>(accountsDao.getAccountServersFromAccountID(accountID), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+		
 	}
-
-	
-	
 
 	/**
 	 
@@ -99,11 +106,9 @@ public class AccountsController {
 	@RequestMapping(value = "/{accountID}/favorite_products", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<List<InlineResponse200>> accountsAccountIDFavoriteProductsGet(
-			@PathVariable("accountID") String accountID,
-			@RequestParam(value = "limit", required = false) Integer limit,
+			@PathVariable("accountID") String accountID, @RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
-			@RequestParam(value = "sort", required = false) String sort
-	) {
+			@RequestParam(value = "sort", required = false) String sort) {
 		// do some magic!
 		return new ResponseEntity<List<InlineResponse200>>(HttpStatus.NOT_IMPLEMENTED);
 	}
@@ -114,8 +119,7 @@ public class AccountsController {
 	@RequestMapping(value = "/{accountID}/following_companies", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingCompany>> accountsAccountIDFollowingCompaniesGet(
-			@PathVariable("accountID") String accountID, 
-			@RequestParam(value = "limit", required = false) Integer limit,
+			@PathVariable("accountID") String accountID, @RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		// do some magic!
@@ -125,8 +129,8 @@ public class AccountsController {
 	/**
 	 
 	 **/
-	@RequestMapping(value = "/{accountID}/follow_discussions", produces = { 
-			"application/json"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/{accountID}/follow_discussions", produces = {
+			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingIndividualDiscussion>> accountsAccountIDFollowDiscussionsGet(
 			@PathVariable("accountID") String accountID,
 			@RequestParam(value = "individual-discussionId", required = true) String individualDiscussionId,
@@ -143,8 +147,7 @@ public class AccountsController {
 	@RequestMapping(value = "/{accountId}/following_members", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingMember>> accountsAccountIdFollowingMembersGet(
-			@PathVariable("accountId") String accountId, 
-			@RequestParam(value = "limit", required = false) Integer limit,
+			@PathVariable("accountId") String accountId, @RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		// do some magic!

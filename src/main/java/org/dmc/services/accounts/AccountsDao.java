@@ -1,14 +1,21 @@
 package org.dmc.services.accounts;
 
+import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 //import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.company.CompanyDao;
+import org.dmc.services.services.GetDomeInterface;
 
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
@@ -116,4 +123,56 @@ class AccountsDao {
 		}
         return account;
     }
+    
+    public List<UserAccountServer> getAccountServersFromAccountID(String accountID) throws DMCServiceException {
+    	Connection connection = DBConnector.connection();
+    	UserAccountServer retObj = null;
+		List<UserAccountServer> userAccountServers = new ArrayList<UserAccountServer>();
+		
+		try {
+			connection.setAutoCommit(false);
+			
+			String domeInterfacesQuery = "SELECT server_id, url, user_id, alias FROM servers WHERE user_id = ?";
+			//TO DO get status from table
+			
+			
+			
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			preparedStatement.setInt(1, new Integer(Integer.parseInt(accountID)));
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+			
+			while (resultSet.next()) {
+				retObj = new UserAccountServer();
+				
+				retObj.setId(Integer.toString(resultSet.getInt("server_id")));
+				retObj.setIp(resultSet.getString("url"));
+				retObj.setAccountId(Integer.toString(resultSet.getInt("user_id")));
+				retObj.setName(resultSet.getString("alias"));
+				//retObj.setStatus(resultSet.getString("status"));
+				
+				userAccountServers.add(retObj);
+			}
+			
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+			
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+		
+    	return userAccountServers;
+    }
+    
 }
