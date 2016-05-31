@@ -22,7 +22,7 @@ public class DomeResponseEntity {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
+
 	/**
 	 **/
 	@JsonProperty("pkg")
@@ -33,18 +33,28 @@ public class DomeResponseEntity {
 	public void setPkg(DomeEntity pkg) {
 		this.pkg = pkg;
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		DomeResponseEntity domeResponseEntity = (DomeResponseEntity) o;
+		return Objects.equals(status, domeResponseEntity.status) && Objects.equals(pkg, domeResponseEntity.pkg);
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("class DomeFolderEntity {\n");
+		sb.append("class DomeResponseEntity {\n");
 
 		sb.append("  status: ").append(status).append("\n");
 		sb.append("  pkg: ").append(pkg.toString()).append("\n");
 		sb.append("}\n");
 		return sb.toString();
 	}
-	
 
-	
 }

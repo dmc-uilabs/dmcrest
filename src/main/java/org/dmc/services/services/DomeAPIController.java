@@ -26,7 +26,7 @@ public class DomeAPIController {
 	private final String logTag = DomeAPIController.class.getName();
 	private DomeAPIDao domeAPIDao = new DomeAPIDao();
 
-	@RequestMapping(value = "/get-children", produces = { "application/json" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/getChildren", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity childrenGet(
 			@RequestParam(value = "dateModified", required = false) BigDecimal dateModified,
 			@RequestParam(value = "description", required = false) String description,
@@ -43,33 +43,16 @@ public class DomeAPIController {
 		String temp = "";
 		
 		try {
-			if (type == null) {
-				DomeEntity domeEntity = new DomeEntity();
-				domeEntity.setDomeServer(domeServer);
-				temp = domeAPIDao.getChildren(domeEntity);
-			} else if (type.equals("folder")) {
-				DomeFolderEntity domeFolderEntity = new DomeFolderEntity();
-				domeFolderEntity.setDomeServer(domeServer);
-				domeFolderEntity.setName(name);
-				domeFolderEntity.setPath(path);
-				domeFolderEntity.setType(type);
-				temp = domeAPIDao.getChildren(domeFolderEntity);
-			} else if (type.equals("model")) {
-				DomeModelEntity domeModelEntity = new DomeModelEntity();
-				domeModelEntity.setDateModified(dateModified);
-				domeModelEntity.setDescription(description);
-				domeModelEntity.setDomeServer(domeServer);
-				domeModelEntity.setModelId(modelId);
-				domeModelEntity.setName(name);
-				domeModelEntity.setPath(path);
-				domeModelEntity.setType(type);
-				domeModelEntity.setVersion(version);
-				temp = domeAPIDao.getChildren(domeModelEntity);
-			} else {
-				DomeEntity domeEntity = new DomeEntity();
-				domeEntity.setDomeServer(domeServer);
-				temp = domeAPIDao.getChildren(domeEntity);
-			}
+			DomeEntity domeEntity = new DomeEntity();
+			domeEntity.setDateModified(dateModified);
+			domeEntity.setDescription(description);
+			domeEntity.setDomeServer(domeServer);
+			domeEntity.setModelId(modelId);
+			domeEntity.setName(name);
+			domeEntity.setPath(path);
+			domeEntity.setType(type);
+			domeEntity.setVersion(version);
+			temp = domeAPIDao.getChildren(domeEntity);
 			return new ResponseEntity<String>(temp, HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
@@ -77,4 +60,42 @@ public class DomeAPIController {
 		}
 
 	}
+	
+	@RequestMapping(value = "/getModel", produces = { "application/json" }, method = RequestMethod.GET)
+	public ResponseEntity modelGet(
+			@RequestParam(value = "domeServer", required = true) String domeServer,
+			@RequestParam(value = "interfaceId", required = false) String interfaceId,
+			@RequestParam(value = "modelId", required = false) String modelId,
+			@RequestParam(value = "projectId", required = false) String projectId,
+			@RequestParam(value = "name", required = true) String name,
+			@RequestParam(value = "path", required = true) List<BigDecimal> path,
+			@RequestParam(value = "type", required = true) String type,
+			//@RequestParam(value = "dateModified", required = false) BigDecimal dateModified,
+			//@RequestParam(value = "description", required = false) String description,
+			//@RequestParam(value = "url", required = false) String url,
+			@RequestParam(value = "version", required = true) BigDecimal version,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+		ServiceLogger.log(logTag, "In modelGet: as user " + userEPPN);
+		String temp = "";
+		
+		try {
+			DomeModel domeModel = new DomeModel();
+			domeModel.setProjectId(projectId);
+			domeModel.setInterfaceId(interfaceId);
+			domeModel.setDomeServer(domeServer);
+			domeModel.setModelId(modelId);
+			domeModel.setName(name);
+			domeModel.setPath(path);
+			domeModel.setType(type);
+			domeModel.setVersion(version);
+			temp = domeAPIDao.getModel(domeModel);
+			return new ResponseEntity<String>(temp, HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+
+	}
+	
 }
