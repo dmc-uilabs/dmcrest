@@ -27,7 +27,6 @@ import org.dmc.services.DMCServiceException;
 public class AWSConnector {
 	private final String logTag = AWSConnector.class.getName();
 
-
 	//The Temp Bucket where resource is initially stored by FrontEnd Upload
 	//SOURCE AND DEST BUCKETS SHOULD BE ENV VARIABLES!
 	private static String sourceBucket = System.getenv("S3SourceBucket");
@@ -39,7 +38,6 @@ public class AWSConnector {
 	private static String accessKey = System.getenv("S3AccessKey");
 	private static String secretKey = System.getenv("S3SecretKey");
 
-	//var creds = {bucket: 'dmc-uploads2', access_key: 'AKIAJDE3BJULBHCYEX4Q',secret_key: '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'}
 	//Source is the path the the resource in the bucket
 	public String Upload(String tempURL, String Folder, String userEPPN, String ResourceType) throws DMCServiceException {
 	
