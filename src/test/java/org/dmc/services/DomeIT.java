@@ -16,15 +16,15 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import org.dmc.services.services.DomeAPIDao;
 import org.dmc.services.services.DomeEntity;
+import org.dmc.services.services.DomeModel;
 import org.dmc.services.services.DomeResponseEntity;
 
-@Ignore
+//@Ignore
 public class DomeIT extends BaseIT {
 
-	private String domeServer = "http://localhost:8082/DOMEApiServicesV7"; //System.getenv("DOME_SERVER");
+	private String domeServer = "http://localhost:8082/DOMEApiServicesV7"; // System.getenv("DOME_SERVER");
 	private DomeAPIDao domeAPIDao = new DomeAPIDao();
 	ObjectMapper mapper = new ObjectMapper();
-	
 
 	@Test
 	public void testGetChildrenWhenRootDirectory() {
@@ -46,10 +46,10 @@ public class DomeIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		DomeResponseEntity resultFromREST = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.param("domeServer", domeServer).expect().statusCode(HttpStatus.OK.value()).when().get("/getChildren")
-				.as(DomeResponseEntity.class);
-		
+		DomeResponseEntity resultFromREST = given().header("Content-type", "application/json")
+				.header("AJP_eppn", userEPPN).param("domeServer", domeServer).expect().statusCode(HttpStatus.OK.value())
+				.when().get("/getChildren").as(DomeResponseEntity.class);
+
 		assertTrue("testGetChildrenWhenRootDirectory: Result from dome server does not match result from REST API",
 				(resultFromDirectComm.equals(resultFromREST)));
 
@@ -84,11 +84,12 @@ public class DomeIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		DomeResponseEntity resultFromREST = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.param("domeServer", domeServer).param("name", name).param("path", path).param("type", type).expect()
-				.statusCode(HttpStatus.OK.value()).when().get("/getChildren").as(DomeResponseEntity.class);
+		DomeResponseEntity resultFromREST = given().header("Content-type", "application/json")
+				.header("AJP_eppn", userEPPN).param("domeServer", domeServer).param("name", name).param("path", path)
+				.param("type", type).expect().statusCode(HttpStatus.OK.value()).when().get("/getChildren")
+				.as(DomeResponseEntity.class);
 
-		assertTrue("testGetChildrenWhenRootDirectory: Result from dome server does not match result from REST API",
+		assertTrue("testGetChildrenWhenTypeIsFolder: Result from dome server does not match result from REST API",
 				(resultFromDirectComm.equals(resultFromREST)));
 	}
 
@@ -129,13 +130,13 @@ public class DomeIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		DomeResponseEntity resultFromREST = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.param("domeServer", domeServer).param("version", version).param("modelId", modelId)
-				.param("description", description).param("dateModified", dateModified).param("name", name)
-				.param("path", path).param("type", type).expect().statusCode(HttpStatus.OK.value()).when()
-				.get("/getChildren").as(DomeResponseEntity.class);
+		DomeResponseEntity resultFromREST = given().header("Content-type", "application/json")
+				.header("AJP_eppn", userEPPN).param("domeServer", domeServer).param("version", version)
+				.param("modelId", modelId).param("description", description).param("dateModified", dateModified)
+				.param("name", name).param("path", path).param("type", type).expect().statusCode(HttpStatus.OK.value())
+				.when().get("/getChildren").as(DomeResponseEntity.class);
 
-		assertTrue("testGetChildrenWhenRootDirectory: Result from dome server does not match result from REST API",
+		assertTrue("testGetChildrenWhenTypeIsModel: Result from dome server does not match result from REST API",
 				(resultFromDirectComm.equals(resultFromREST)));
 
 	}
@@ -143,7 +144,42 @@ public class DomeIT extends BaseIT {
 	@Test
 	public void testGetChildrenWhenOtherType() {
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
-				.param("type", "otherType").expect().statusCode(HttpStatus.NOT_FOUND.value()).when().get("/getChildren");
+				.param("type", "otherType").expect().statusCode(HttpStatus.NOT_FOUND.value()).when()
+				.get("/getChildren");
+	}
+
+	@Test
+	public void testGetModelWhenTypeIsInterface() {
+		BigDecimal version = new BigDecimal(1);
+		String interfaceId = "bd85f847-d8f4-1004-8f94-37c24b788523";
+		String modelId = "bd85f846-d8f4-1004-8f94-37c24b788523";
+		String name = "Upload+a+file+interface";
+		List<BigDecimal> path = new ArrayList<BigDecimal>();
+		path.add(new BigDecimal(31));
+		String type = "interface";
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
+				.param("interfaceId", interfaceId).param("modelId", modelId).param("name", name).param("path", path)
+				.param("type", type).param("version", version).expect().statusCode(HttpStatus.OK.value()).when()
+				.get("/getModel");
+
+	}
+
+	@Test
+	public void testGetModelWhenTypeIsProject() {
+		BigDecimal version = new BigDecimal(1);
+		String projectId = "Uploaded+File+Size";
+		String interfaceId = "3a2f15fd-d8f6-1004-85e6-e48afddadd5b";
+		String name = "Project+Interface";
+		List<BigDecimal> path = new ArrayList<BigDecimal>();
+		path.add(new BigDecimal(31));
+		String type = "interface";
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
+				.param("interfaceId", interfaceId).param("projectId", projectId).param("name", name).param("path", path)
+				.param("type", type).param("version", version).expect().statusCode(HttpStatus.OK.value()).when()
+				.get("/getModel");
+
 	}
 
 }

@@ -35,7 +35,6 @@ public class DomeAPIController {
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "path", required = false) List<BigDecimal> path,
 			@RequestParam(value = "type", required = false) String type,
-			//@RequestParam(value = "url", required = false) String url,
 			@RequestParam(value = "version", required = false) BigDecimal version,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
@@ -70,9 +69,6 @@ public class DomeAPIController {
 			@RequestParam(value = "name", required = true) String name,
 			@RequestParam(value = "path", required = true) List<BigDecimal> path,
 			@RequestParam(value = "type", required = true) String type,
-			//@RequestParam(value = "dateModified", required = false) BigDecimal dateModified,
-			//@RequestParam(value = "description", required = false) String description,
-			//@RequestParam(value = "url", required = false) String url,
 			@RequestParam(value = "version", required = true) BigDecimal version,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
@@ -87,7 +83,7 @@ public class DomeAPIController {
 			domeModel.setModelId(modelId);
 			domeModel.setName(name);
 			domeModel.setPath(path);
-			domeModel.setType(type);
+			domeModel.setType("interface"); //All getModel calls to API have type of interface (frontend may specify as 'project' but API needs type equal to 'interface')
 			domeModel.setVersion(version);
 			temp = domeAPIDao.getModel(domeModel);
 			return new ResponseEntity<String>(temp, HttpStatus.OK);

@@ -64,14 +64,21 @@ public class DomeAPIDao {
 		domeModel.setPath(path);
 		domeModel.setType("interface");
 		
+//		domeModel.setVersion(new BigDecimal(1));
+//		domeModel.setProjectId("Uploaded+File+Size");
+//		domeModel.setInterfaceId("3a2f15fd-d8f6-1004-85e6-e48afddadd5b");
+//		domeModel.setName("Project+Interface");
+//		List<BigDecimal> path = new ArrayList<BigDecimal>();
+//		path.add(new BigDecimal(31));
+//		domeModel.setPath(path);
+//		domeModel.setType("interface");
+		
 		System.out.println(domeModel.toString());
 		System.out.println();
 		
 		String result = new String();
 		
-		
 
-		
 		try {
 			//result = inst.getChildren(domeEntity);
 			result = inst.getModel(domeModel);
@@ -164,16 +171,11 @@ public class DomeAPIDao {
 				throw new DMCServiceException(DMCError.IncorrectType, "unable to communicate with Dome Server " + domeEntity.getDomeServer() + " - unknown type " + domeEntity.getType());
 			}
 			
-			System.out.println("REQUEST:");
-			System.out.println(urlStr.toString());
-			System.out.println();
-			
 			writer.write(urlStr.toString().getBytes( StandardCharsets.UTF_8 ));
 
 			writer.close();
 			out.close();
 
-			
 			if (conn.getResponseCode() != 200) {
 				throw new IOException(conn.getResponseMessage());
 			} else {
@@ -186,17 +188,12 @@ public class DomeAPIDao {
 					sb.append(line);
 				}
 				rd.close();
-				
 				conn.disconnect();
-
-//				ObjectMapper mapper = new ObjectMapper();
-//				DomeResponseEntity temp = mapper.readValue(sb.toString(), DomeResponseEntity.class);
 				
 				return sb.toString();
 			}
 
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
 			throw new DMCServiceException(DMCError.CanNotGetChildren, "unable to communicate with Dome Server " + domeEntity.getDomeServer());
 		}
 
@@ -221,7 +218,7 @@ public class DomeAPIDao {
 			StringBuilder urlStr = new StringBuilder();
 
 			// Create the form
-			if ((domeModel.getType()).equals("project")) {
+			if (domeModel.getProjectId() != null) {
 				// Sample string -->
 				// "data={"version":1,"interfaceId":"3a2f15fd-d8f6-1004-85e6-e48afddadd5b","projectId":"Uploaded+File+Size","type":"interface","name":"Project+Interface","path":[31]}"
 				urlStr.append("data");
@@ -239,7 +236,7 @@ public class DomeAPIDao {
 				urlStr.append(",");
 				urlStr.append(printNameList("path", domeModel.getPath()));
 				urlStr.append("}");
-			} else if ((domeModel.getType()).equals("interface")) {
+			} else if (domeModel.getModelId() != null) {
 				// Sample string -->
 				// "data={"version":1,"modelId":"bd85f846-d8f4-1004-8f94-37c24b788523","interfaceId":"bd85f847-d8f4-1004-8f94-37c24b788523","type":"interface","name":"Upload+a+file+interface","path":[31]}"
 				urlStr.append("data");
@@ -261,12 +258,7 @@ public class DomeAPIDao {
 				throw new DMCServiceException(DMCError.IncorrectType, "unable to communicate with Dome Server " + domeModel.getDomeServer() + " - unknown type " + domeModel.getType());
 			}
 			
-			System.out.println("REQUEST:");
-			System.out.println(urlStr.toString());
-			System.out.println();
-			
 			writer.write(urlStr.toString().getBytes( StandardCharsets.UTF_8 ));
-
 			writer.close();
 			out.close();
 
@@ -282,18 +274,12 @@ public class DomeAPIDao {
 					sb.append(line);
 				}
 				rd.close();
-				
-				conn.disconnect();
-
-//				ObjectMapper mapper = new ObjectMapper();
-//				DomeResponseEntity temp = mapper.readValue(sb.toString(), DomeResponseEntity.class);
-				
+				conn.disconnect();		
 				
 				return sb.toString();
 			}
 
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
 			throw new DMCServiceException(DMCError.CanNotGetModel, "unable to communicate with Dome Server " + domeModel.getDomeServer());
 		}
 
