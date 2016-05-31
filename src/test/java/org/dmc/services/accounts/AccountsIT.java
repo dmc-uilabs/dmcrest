@@ -182,6 +182,8 @@ public class AccountsIT extends BaseIT {
     			(receivedAccountServers.get(0).getIp().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
     	assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
     			(receivedAccountServers.get(0).getName().equals("baseDOME")));
+    	assertTrue("testAccountGet_AccountServers: Account server status values are not equal",
+    			(receivedAccountServers.get(0).getStatus().equals("offline")));
 	}
 
 	/**

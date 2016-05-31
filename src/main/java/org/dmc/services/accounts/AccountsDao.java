@@ -132,10 +132,7 @@ class AccountsDao {
 		try {
 			connection.setAutoCommit(false);
 			
-			String domeInterfacesQuery = "SELECT server_id, url, user_id, alias FROM servers WHERE user_id = ?";
-			//TO DO get status from table
-			
-			
+			String domeInterfacesQuery = "SELECT server_id, url, user_id, alias, status FROM servers WHERE user_id = ?";
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(Integer.parseInt(accountID)));
@@ -149,7 +146,7 @@ class AccountsDao {
 				retObj.setIp(resultSet.getString("url"));
 				retObj.setAccountId(Integer.toString(resultSet.getInt("user_id")));
 				retObj.setName(resultSet.getString("alias"));
-				//retObj.setStatus(resultSet.getString("status"));
+				retObj.setStatus(resultSet.getString("status"));
 				
 				userAccountServers.add(retObj);
 			}
