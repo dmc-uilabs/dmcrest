@@ -336,6 +336,13 @@ public class ProjectIT extends BaseIT {
                 get(GET_PROJECT_DOCS, projectId);
         
         //Make sure that URL to resource is valid 
+        //implement after POST method put into place. 
+       /* URL url = new URL("http://example.com");
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.connect();
+
+        int code = connection.getResponseCode();*/
         
     }
     

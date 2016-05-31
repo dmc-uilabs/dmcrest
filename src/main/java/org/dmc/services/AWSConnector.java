@@ -39,15 +39,19 @@ public class AWSConnector {
 	private static String secretKey = "kXFiF6gS+6IePo61wfSpwRCOPm4bS8za/1W2OyVk";//System.getenv("S3SecretKey");
 
 	//var creds = {bucket: 'dmc-uploads2', access_key: 'AKIAJDE3BJULBHCYEX4Q',secret_key: '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'}
-
 	//Source is the path the the resource in the bucket
-	public String Upload(String tempURL, String userEPPN) throws DMCServiceException {
-		String destPath = "testing";
+	public String Upload(String tempURL, String Folder, String userEPPN, String ResourceType) throws DMCServiceException {
+	
 		ServiceLogger.log(logTag, "User" + userEPPN + "uploading object from " + sourceBucket + " to S3 bucket " + destBucket);
 
 		BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
         AmazonS3 s3client = new AmazonS3Client(awsCreds);
         String preSignedURL = null;
+      
+        
+        
+        //Create the destPath 
+        String destPath = Folder + "/" + userEPPN + "/" + ResourceType; 
 
         //Convert temp URL to sourceKey
 		String sourceKey = tempURL.substring(tempURL.indexOf("com/") + 4, tempURL.length());
@@ -60,8 +64,10 @@ public class AWSConnector {
 
 
         //Using a General Hash Code Function for now. Future hash functions should generated unique hashes
-        String hashCode = Integer.toString(filename.hashCode()%10000);
-
+        String hashCode = Integer.toString(filename.hashCode()%1000000);
+        
+        //Get current time from system 
+        long unixTime = System.currentTimeMillis() / 1000L;
 
         //Throws error if file invalid
         if(filename == null || filename.length() == 0){
@@ -82,11 +88,11 @@ public class AWSConnector {
         }
 
         //Rename and Parse
-        String parsedSource = filename.substring(0, findDot) + hashCode + "-sanitized" + filename.substring(findDot, filename.length());
-
-
+        //filename.substring(0, findDot) + hashCode + "-sanitized" + filename.substring(findDot, filename.length());
+        String parsedSource = unixTime + "-" + hashCode + "-santized-" + filename; 
+        
         //String Concatenation for location // + destPath + "/" +
-        String destKey = "profiles/" + userEPPN + "/"  + parsedSource;
+        String destKey = destPath + "/" + parsedSource;
 
 
         try {

@@ -197,7 +197,7 @@ public class ProfileDao {
 		try {
 			//AWS Profile Picture Upload
 			String signedURL = "temp";
-			signedURL = AWS.Upload(profile.getImage(), userEPPN);
+			signedURL = AWS.Upload(profile.getImage(),"Profiles", userEPPN, "ProfilePictures");
 			
 			// update user
 			query = "UPDATE users SET "
