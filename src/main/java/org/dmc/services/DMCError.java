@@ -32,11 +32,6 @@ public enum DMCError {
 	CanNotDeleteQueue,
 	CanNotReadMessage,
 	
-	//DomeAPI
-	IncorrectType,
-	CanNotGetChildren,
-	CanNotGetModel,
-	
 	// Service queries
 	ServiceInterfaceNotMatch
 	
