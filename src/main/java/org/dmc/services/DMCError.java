@@ -34,6 +34,11 @@ public enum DMCError {
 	CanNotCloseActiveMQConnection,
 	CanNotDeleteQueue,
 	CanNotReadMessage,
+	
+	//DomeAPI
+	IncorrectType,
+	CanNotGetChildren,
+	CanNotGetModel,
 
 	// Service queries
 	ServiceInterfaceNotMatch
