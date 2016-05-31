@@ -330,6 +330,9 @@ public class ProjectIT extends BaseIT {
         given().
                 header("Content-type", "application/json").
                 header("AJP_eppn", userEPPN).
+                param("projectDocumentId", 1).
+                param("limit", 1).
+                param("order", "ASC").
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
