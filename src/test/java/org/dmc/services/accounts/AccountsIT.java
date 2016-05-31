@@ -9,6 +9,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+
 import org.json.JSONObject;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -165,8 +168,23 @@ public class AccountsIT extends BaseIT {
 	 **/
 	@Test
 	public void testAccountGet_AccountServers() {
-		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.get("/accounts/" + knownUserID + "/account_servers");
+		String accountID = "102"; //This is the accountID of alias=baseDOME in the servers table (first two entries)
+		  
+    	List<UserAccountServer> receivedAccountServers = Arrays.asList(given().header("Content-type", "application/json")
+    			.header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
+    			.get("/accounts/" + accountID + "/account_servers").as(UserAccountServer[].class));
+    	
+    	System.out.println("HERE");
+    	System.out.println("HERE");
+    	System.out.println("HERE");
+    	System.out.println("HERE");
+    	System.out.println("HERE");
+    	System.out.println(receivedAccountServers.toString());
+    	
+    	/*for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
+    		assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Dome server values are not equal",
+    				(receivedDomeInterfaces.get(i).getServiceId().equals(new BigDecimal(2))));
+    	}*/
 	}
 
 	/**

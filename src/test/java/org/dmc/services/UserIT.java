@@ -1,24 +1,15 @@
 package org.dmc.services;
 
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.junit.Assert.*;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
-import org.dmc.services.accounts.UserAccountServer;
-import org.dmc.services.services.GetDomeInterface;
-import org.dmc.services.services.PostUpdateDomeInterface;
+
 import org.dmc.services.users.User;
 import org.dmc.services.users.UserOnboarding;
 import org.dmc.services.users.UserNotifications;
@@ -328,31 +319,6 @@ public class UserIT extends BaseIT {
         // check results of PATCH
         assertTrue("knownUser and patchedKnownUser are not equal", patchedKnownUser.equals(knownUser));
 	}
-    
-    /**
-     * test case for get /accounts/{accountID}/account_servers
-     */
-    @Test
-    public void testUserGet_AccountServers(){
-    	String accountID = "102"; //This is the accountID of alias=baseDOME in the servers table (first two entries)
-  
-    	List<UserAccountServer> receivedAccountServers = Arrays.asList(given().header("Content-type", "application/json")
-    			.header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
-    			.get("/accounts/" + accountID + "/account_servers").as(UserAccountServer[].class));
-    	
-    	System.out.println("HERE");
-    	System.out.println("HERE");
-    	System.out.println("HERE");
-    	System.out.println("HERE");
-    	System.out.println("HERE");
-    	System.out.println(receivedAccountServers.toString());
-    	
-    	/*for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
-    		assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Dome server values are not equal",
-    				(receivedDomeInterfaces.get(i).getServiceId().equals(new BigDecimal(2))));
-    	}*/
-		
-    }
     
     private String createNewUser() {
         String unique = TestUserUtil.generateTime();
