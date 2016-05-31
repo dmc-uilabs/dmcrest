@@ -18,6 +18,7 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.services.GetDomeInterface;
+import org.dmc.services.services.ServiceImages;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.UserDao;
@@ -33,20 +34,16 @@ public class ProjectDocumentDao {
 	
 	private final String logTag = ProjectDocumentDao.class.getName();
 	private ResultSet resultSet;
+	private Connection connection;
 
-	//Default Constructor
-	public void ProjectDocumentDao() {
-	}
-	
+
 	public ArrayList<ProjectDocument> getProjectDocuments(int projectID, int projectDocumentId, int limit,String order,String sort) throws DMCServiceException {
 		
 		ArrayList<ProjectDocument> docs = new ArrayList<ProjectDocument>();
-		Connection connection = DBConnector.connection();
+		connection = DBConnector.connection();
 		
 		try {
-			connection.setAutoCommit(false);
 
-		
 			String projectDocsQuery = "SELECT * FROM doc2_files WHERE group_id = " + projectID + " AND doc_group_id = " + projectDocumentId; 
 			
 			if (sort == null) {
@@ -71,10 +68,8 @@ public class ProjectDocumentDao {
 				projectDocsQuery += " LIMIT ALL";
 			}
 			
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(projectDocsQuery);
-			preparedStatement.execute();
-			ResultSet resultSet = preparedStatement.getResultSet();
-			
+			ResultSet resultSet = DBConnector.executeQuery(projectDocsQuery);
+
 			while (resultSet.next()) {
 				ProjectDocument doc = new ProjectDocument();
 				doc.setId(resultSet.getInt("file_id"));
@@ -88,23 +83,10 @@ public class ProjectDocumentDao {
 				doc.setFile(resultSet.getString("filename"));
 				docs.add(doc);
 			}
-			
-		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
-			try {
-				connection.rollback();
-			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
-			}
-			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
-			
-		} finally {
-			try {
-				connection.setAutoCommit(true);
-			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
-			}
-
+					
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
 		return docs;	
 	}

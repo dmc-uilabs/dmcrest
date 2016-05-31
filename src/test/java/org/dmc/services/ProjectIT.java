@@ -46,6 +46,10 @@ public class ProjectIT extends BaseIT {
 	private static final String MEMBER_ACCEPT_RESOURCE = "/projects/{projectId}/accept/{memberId}";
 	private static final String MEMBER_REJECT_RESOURCE = "/projects/{projectId}/reject/{memberId}";
 	
+	//Documents
+	private static final String GET_PROJECT_DOCS = "/projects/{projectID}/project_documents/"; 
+	
+	
     private final String logTag = ProjectIT.class.getName();
     private DiscussionIT discussionIT = new DiscussionIT();
 	private Integer createdId = null;
@@ -319,6 +323,23 @@ public class ProjectIT extends BaseIT {
         }
     }
 
+    //Test for Project Documents 
+    @Test
+    public void getProjectDocuments () {
+        int projectId = 1;
+        given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(GET_PROJECT_DOCS, projectId);
+        
+        //Make sure that URL to resource is valid 
+        
+    }
+    
+    
     @Test
 	public void testGetProject6Tags() {
 		given().

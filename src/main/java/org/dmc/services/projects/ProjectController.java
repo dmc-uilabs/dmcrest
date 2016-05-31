@@ -243,20 +243,21 @@ public class ProjectController {
 	/**	
      *
      **/
-	@RequestMapping(value = "/projects/{projectID}/project_documents", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/projects/{projectID}/project_documents", produces = {"application/json"}, method = RequestMethod.GET)
 	public ResponseEntity projectsProjectIDProjectDocumentsGet(@PathVariable("projectID") int projectID,
 			@RequestParam(value = "projectDocumentId", required = true) int projectDocumentId, @RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
 		ServiceLogger.log(logTag, " GET ProjectDocuments by Project " + projectID);
 		int statusCode = HttpStatus.OK.value();
-		ArrayList<ProjectDocument> documentList = null;
+		ArrayList<ProjectDocument> documentList;
 		try{
 			documentList = projectDocumentDao.getProjectDocuments(projectID, projectDocumentId, limit, order, sort);
+			
 		} catch(DMCServiceException e) {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
+				
 		return new ResponseEntity<ArrayList<ProjectDocument>>(documentList, HttpStatus.valueOf(statusCode));
-
 	}
 
 	
