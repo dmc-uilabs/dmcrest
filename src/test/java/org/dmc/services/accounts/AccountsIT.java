@@ -174,17 +174,14 @@ public class AccountsIT extends BaseIT {
     			.header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
     			.get("/accounts/" + accountID + "/account_servers").as(UserAccountServer[].class));
     	
-    	System.out.println("HERE");
-    	System.out.println("HERE");
-    	System.out.println("HERE");
-    	System.out.println("HERE");
-    	System.out.println("HERE");
-    	System.out.println(receivedAccountServers.toString());
-    	
-    	/*for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
-    		assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Dome server values are not equal",
-    				(receivedDomeInterfaces.get(i).getServiceId().equals(new BigDecimal(2))));
-    	}*/
+    	assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
+    			(receivedAccountServers.get(0).getAccountId().equals(accountID)));
+    	assertTrue("testAccountGet_AccountServers: Account server server_id values are not equal",
+    			(receivedAccountServers.get(0).getId().equals("1")));
+    	assertTrue("testAccountGet_AccountServers: Account server url values are not equal",
+    			(receivedAccountServers.get(0).getIp().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
+    	assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
+    			(receivedAccountServers.get(0).getName().equals("baseDOME")));
 	}
 
 	/**
