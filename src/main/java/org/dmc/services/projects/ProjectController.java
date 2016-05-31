@@ -14,6 +14,8 @@ import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionListDao;
 import org.dmc.services.discussions.IndividualDiscussion;
+import org.dmc.services.services.GetDomeInterface;
+import org.dmc.services.services.ServiceImages;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +36,7 @@ public class ProjectController {
 	private ProjectDao project = new ProjectDao();
 	private ProjectDao projectDao = new ProjectDao();
 	private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
+	private ProjectDocumentDao projectDocumentDao = new ProjectDocumentDao(); 
 
 	@RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
 	public Project getProject(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -241,12 +244,22 @@ public class ProjectController {
      *
      **/
 	@RequestMapping(value = "/projects/{projectID}/project_documents", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ProjectDocument>> projectsProjectIDProjectDocumentsGet(@PathVariable("projectID") String projectID,
-			@RequestParam(value = "projectDocumentId", required = true) String projectDocumentId, @RequestParam(value = "limit", required = false) Integer limit,
+	public ResponseEntity projectsProjectIDProjectDocumentsGet(@PathVariable("projectID") int projectID,
+			@RequestParam(value = "projectDocumentId", required = true) int projectDocumentId, @RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<List<ProjectDocument>>(HttpStatus.NOT_IMPLEMENTED);
+		ServiceLogger.log(logTag, " GET ProjectDocuments by Project " + projectID);
+		int statusCode = HttpStatus.OK.value();
+		ArrayList<ProjectDocument> documentList = null;
+		try{
+			documentList = projectDocumentDao.getProjectDocuments(projectID, projectDocumentId, limit, order, sort);
+		} catch(DMCServiceException e) {
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+		return new ResponseEntity<ArrayList<ProjectDocument>>(documentList, HttpStatus.valueOf(statusCode));
+
 	}
+
+	
 
 	@RequestMapping(value = "/projects/{projectID}/following_discussions", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<IndividualDiscussion>> projectsProjectIDFollowingDiscussionsGet(@PathVariable("projectID") String projectID,
