@@ -63,7 +63,7 @@ public class DomeAPIController {
 	@RequestMapping(value = "/getModel", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity modelGet(
 			@RequestParam(value = "domeServer", required = true) String domeServer,
-			@RequestParam(value = "interfaceId", required = false) String interfaceId,
+			@RequestParam(value = "interfaceId", required = true) String interfaceId,
 			@RequestParam(value = "modelId", required = false) String modelId,
 			@RequestParam(value = "projectId", required = false) String projectId,
 			@RequestParam(value = "name", required = true) String name,

@@ -13,8 +13,6 @@ public class DomeModel {
 	private String name = null;
 	private List<BigDecimal> path = new ArrayList<BigDecimal>();
 	private String domeServer = null;
-	private BigDecimal dateModified = null;
-	private String description = null;
 	private String modelId = null;
 	private String interfaceId = null;
 	private String projectId = null;
@@ -62,28 +60,6 @@ public class DomeModel {
 
 	public void setDomeServer(String domeServer) {
 		this.domeServer = domeServer;
-	}
-	
-	/**
-	 **/
-	@JsonProperty("dateModified")
-	public BigDecimal getDateModified() {
-		return dateModified;
-	}
-
-	public void setDateModified(BigDecimal dateModified) {
-		this.dateModified = dateModified;
-	}
-	
-	/**
-	 **/
-	@JsonProperty("description")
-	public String getDescription() {
-		return description;
-	}
-	
-	public void setDescription(String description) {
-		this.description = description;
 	}
 	
 	/**
@@ -142,14 +118,13 @@ public class DomeModel {
 		return Objects.equals(type, domeModel.type) && Objects.equals(name, domeModel.name)
 				&& Objects.equals(path, domeModel.path)
 				&& Objects.equals(domeServer, domeModel.domeServer)
-				&& Objects.equals(dateModified, domeModel.dateModified) && Objects.equals(description, domeModel.description)
 				&& Objects.equals(modelId, domeModel.modelId) && Objects.equals(version, domeModel.version)  && Objects.equals(interfaceId, domeModel.interfaceId)
 				&& Objects.equals(projectId, domeModel.projectId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, name, path, domeServer, dateModified, description, modelId, interfaceId, projectId, version);
+		return Objects.hash(type, name, path, domeServer, modelId, interfaceId, projectId, version);
 	}
 
 	@Override
@@ -161,8 +136,6 @@ public class DomeModel {
 		sb.append("  name: ").append(name).append("\n");
 		sb.append("  path: ").append(path).append("\n");
 		sb.append("  domeServer: ").append(domeServer).append("\n");
-		sb.append("  dateModified: ").append(dateModified).append("\n");
-		sb.append("  description: ").append(description).append("\n");
 		sb.append("  modelId: ").append(modelId).append("\n");
 		sb.append("  version: ").append(version).append("\n");
 		sb.append("  interfaceId: ").append(interfaceId).append("\n");
