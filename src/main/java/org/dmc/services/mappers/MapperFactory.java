@@ -1,0 +1,100 @@
+package org.dmc.services.mappers;
+
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.dmc.services.entities.BaseEntity;
+import org.dmc.services.models.BaseModel;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+
+@Component
+public class MapperFactory {
+
+	private static final Logger LOGGER = Logger.getLogger("Mapper");
+
+	private List<Mapper<? extends BaseEntity, ? extends BaseModel>> mappers;
+
+	private Table<Class<? extends BaseEntity>, Class<? extends BaseModel>, Mapper<? extends BaseEntity, ? extends BaseModel>> mapperTable;
+
+	@Inject
+	public MapperFactory(List<Mapper<? extends BaseEntity, ? extends BaseModel>> mappers) {
+		this.mappers = mappers;
+	}
+	
+	@PostConstruct
+	public void postConstruct() {
+		mapperTable = HashBasedTable.create();
+		for (Mapper<? extends BaseEntity, ? extends BaseModel> mapper : mappers) {
+			mapperTable.put(mapper.supportsEntity(), mapper.supportsModel(), mapper);
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Mapper mapperFor(Class<? extends BaseEntity> entityClass, Class<? extends BaseModel> modelClass) {
+		Mapper<? extends BaseEntity, ? extends BaseModel> mapper = mapperTable.get(entityClass, modelClass);
+		if (mapper != null) {
+			return mapper;
+		} else {
+			LOGGER.info("No mapper found for entity " + entityClass.getName() + " and model " + modelClass.getName() + ". Returning default mapper.");
+			return new Mapper<BaseEntity, BaseModel>() {
+
+				@Override
+				public BaseEntity mapToEntity(BaseModel model) {
+					BaseEntity entity = null;
+					try {
+						entity = entityClass.newInstance();
+					} catch (InstantiationException | IllegalAccessException e) {
+						LOGGER.log(Level.SEVERE, "Attempt to instantiate " + entityClass.getName() + " in default mapper failed. Please ensure entity has default constructor");
+						throw new MapperInstantiationException(e);
+					}
+					BeanUtils.copyProperties(model, entity);
+					return entity;
+				}
+
+				@Override
+				public BaseModel mapToModel(BaseEntity entity) {
+					BaseModel model = null;
+					try {
+						model = modelClass.newInstance();
+					} catch (InstantiationException | IllegalAccessException e) {
+						LOGGER.log(Level.SEVERE, "Attempt to instantiate " + modelClass.getName() + " in default mapper failed. Please ensure model has default constructor");
+						throw new MapperInstantiationException(e);
+					}
+					BeanUtils.copyProperties(entity, model);
+					return model;
+				}
+
+				@SuppressWarnings("unchecked")
+				@Override
+				public Class supportsEntity() {
+					return entityClass;
+				}
+
+				@SuppressWarnings("unchecked")
+				@Override
+				public Class supportsModel() {
+					return modelClass;
+				}
+				
+			};
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class MapperInstantiationException extends Error {
+		
+		public MapperInstantiationException(Throwable t) {
+			super(t);
+		}
+		
+	}
+	
+}

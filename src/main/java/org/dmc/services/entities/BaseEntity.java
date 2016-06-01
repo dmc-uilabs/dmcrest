@@ -1,4 +1,4 @@
-package org.dmc.services.partnerdmdiiprojects;
+package org.dmc.services.entities;
 
 import java.io.Serializable;
 

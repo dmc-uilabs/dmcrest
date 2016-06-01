@@ -1,5 +1,7 @@
 package org.dmc.services.partnerdmdiiprojects;
 
+import org.dmc.services.models.BaseModel;
+
 public class DMDIIUser extends BaseModel {
 	
 	private String firstName;

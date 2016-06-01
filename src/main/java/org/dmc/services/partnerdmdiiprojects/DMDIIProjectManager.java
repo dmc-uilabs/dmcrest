@@ -3,17 +3,28 @@ package org.dmc.services.partnerdmdiiprojects;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.dmc.services.mappers.Mapper;
+import org.dmc.services.mappers.MapperFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DMDIIProjectManager {
 
-	@Autowired
+	@Inject
 	private DMDIIProjectRepository dmdiiProjectRepository;
 	
-	@Autowired
-	private DMDIIProjectMapper dmdiiProjectMapper;
+	@Inject
+	private MapperFactory mapperFactory;
+	
+	private Mapper<DMDIIProjectEntity, DMDIIProject> mapper;
+	
+	@PostConstruct
+	private void postConstruct() {
+		this.mapper = mapperFactory.mapperFor(DMDIIProjectEntity.class, DMDIIProject.class);
+	}
 	
 	public List<DMDIIProject> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId) {
 		List<DMDIIProjectEntity> dmdiiProjects = Collections.emptyList();
@@ -22,6 +33,6 @@ public class DMDIIProjectManager {
 			dmdiiProjects = dmdiiProjectRepository.findByPrimeOrganizationId(primeOrganizationId);
 		}
 		
-		return dmdiiProjectMapper.entitiesToModels(dmdiiProjects);
+		return (List<DMDIIProject>) mapper.mapToModel(dmdiiProjects);
 	}
 }
