@@ -18,6 +18,7 @@ public class DomeEntity {
 	private String description = null;
 	private String modelId = null;
 	private String interfaceId = null;
+	private String projectId = null;
 	private BigDecimal version = null;
 
 
@@ -109,6 +110,15 @@ public class DomeEntity {
 	public void setInterfaceId(String interfaceId) {
 		this.interfaceId = interfaceId;
 	}
+	
+	@JsonProperty("projectId")
+	public String getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
+	}
 
 
 	@JsonProperty("version")
@@ -133,12 +143,12 @@ public class DomeEntity {
 				&& Objects.equals(path, domeEntity.path)
 				&& Objects.equals(domeServer, domeEntity.domeServer)
 				&& Objects.equals(dateModified, domeEntity.dateModified) && Objects.equals(description, domeEntity.description)
-				&& Objects.equals(modelId, domeEntity.modelId) && Objects.equals(version, domeEntity.version) && Objects.equals(interfaceId, domeEntity.interfaceId);
+				&& Objects.equals(modelId, domeEntity.modelId)&& Objects.equals(projectId, domeEntity.projectId) && Objects.equals(version, domeEntity.version) && Objects.equals(interfaceId, domeEntity.interfaceId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(type, name, path, domeServer, dateModified, description, modelId, interfaceId, version);
+		return Objects.hash(type, name, path, domeServer, dateModified, description, modelId, interfaceId, projectId, version);
 	}
 
 	@Override
@@ -154,6 +164,7 @@ public class DomeEntity {
 		sb.append("  description: ").append(description).append("\n");
 		sb.append("  modelId: ").append(modelId).append("\n");
 		sb.append("  interfaceId: ").append(interfaceId).append("\n");
+		sb.append("  projectId: ").append(projectId).append("\n");
 		sb.append("  version: ").append(version).append("\n");
 		sb.append("  children: \n");
 		sb.append(children.toString()).append("\n");

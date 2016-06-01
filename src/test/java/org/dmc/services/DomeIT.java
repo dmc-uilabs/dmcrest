@@ -17,9 +17,10 @@ import java.math.BigDecimal;
 import org.dmc.services.services.DomeAPIDao;
 import org.dmc.services.services.DomeEntity;
 import org.dmc.services.services.DomeModel;
+import org.dmc.services.services.DomeModelResponse;
 import org.dmc.services.services.DomeResponseEntity;
 
-@Ignore
+//@Ignore
 public class DomeIT extends BaseIT {
 
 	private String domeServer = "http://localhost:8082/DOMEApiServicesV7"; // System.getenv("DOME_SERVER");
@@ -151,17 +152,24 @@ public class DomeIT extends BaseIT {
 	@Test
 	public void testGetModelWhenTypeIsInterface() {
 		BigDecimal version = new BigDecimal(1);
-		String interfaceId = "bd85f847-d8f4-1004-8f94-37c24b788523";
-		String modelId = "bd85f846-d8f4-1004-8f94-37c24b788523";
-		String name = "Upload+a+file+interface";
+		String interfaceId = "12bb9d5f-d8ec-1004-8394-4597bfb6a5f0";
+		String modelId = "12bb9d5e-d8ec-1004-8394-4597bfb6a5f0";
+		String name = "Default+Interface";
 		List<BigDecimal> path = new ArrayList<BigDecimal>();
-		path.add(new BigDecimal(31));
+		path.add(new BigDecimal(32));
 		String type = "interface";
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
+		DomeModelResponse received = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
 				.param("interfaceId", interfaceId).param("modelId", modelId).param("name", name).param("path", path)
 				.param("type", type).param("version", version).expect().statusCode(HttpStatus.OK.value()).when()
-				.get("/getModel");
+				.get("/getModel").as(DomeModelResponse.class);
+		
+		assertTrue("testGetModelWhenTypeIsInterface: Name from dome server does not match expected result",
+				(received.getPkg().getName().equals("Default Interface")));
+		assertTrue("testGetModelWhenTypeIsInterface: Description from dome server does not match expected result",
+				(received.getPkg().getDescription().equals("")));
+		assertTrue("testGetModelWhenTypeIsInterface: ModelId from dome server does not match expected result",
+				(received.getPkg().getInterface().getModelId().equals("12bb9d5e-d8ec-1004-8394-4597bfb6a5f0")));
 
 	}
 
@@ -175,10 +183,17 @@ public class DomeIT extends BaseIT {
 		path.add(new BigDecimal(31));
 		String type = "interface";
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
+		DomeModelResponse received = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
 				.param("interfaceId", interfaceId).param("projectId", projectId).param("name", name).param("path", path)
 				.param("type", type).param("version", version).expect().statusCode(HttpStatus.OK.value()).when()
-				.get("/getModel");
+				.get("/getModel").as(DomeModelResponse.class);
+		
+		assertTrue("testGetModelWhenTypeIsInterface: Name from dome server does not match expected result",
+				(received.getPkg().getName().equals("Project Interface")));
+		assertTrue("testGetModelWhenTypeIsInterface: Description from dome server does not match expected result",
+				(received.getPkg().getDescription().equals("")));
+		assertTrue("testGetModelWhenTypeIsInterface: ModelId from dome server does not match expected result",
+				(received.getPkg().getInterface().getInterfaceId().equals("3a2f15fd-d8f6-1004-85e6-e48afddadd5b")));
 
 	}
 
