@@ -1,4 +1,4 @@
-package org.dmc.services.dmdiimember;
+package org.dmc.services.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,8 +9,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "dmdii_member_award")
-public class DMDIIAward {
+@Table(name = "dmdii_area_of_expertise")
+public class DMDIIAreaOfExpertise {
 
 	@Id
 	@GeneratedValue(generator = "increment")
@@ -27,7 +27,7 @@ public class DMDIIAward {
 	private String link;
 
 	public Integer getId() {
-		return this.id;
+		return id;
 	}
 
 	public void setId(Integer id) {
@@ -35,23 +35,15 @@ public class DMDIIAward {
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public String getDescription() {
-		return this.description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
 	public String getLink() {
-		return this.link;
+		return link;
 	}
 
 	public void setLink(String link) {

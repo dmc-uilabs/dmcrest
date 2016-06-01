@@ -1,35 +1,31 @@
-package org.dmc.services.dmdiimember;
+package org.dmc.services.entities;
 
-import java.sql.Date;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "dmdii_member_institute_involvement")
-public class DMDIIInstituteInvolvement {
+@Table(name = "dmdii_member_user")
+public class DMDIIMemberUser {
 
 	@Id
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private Integer id;
 
-	@Column(name = "static_line_item")
-	private String staticLineItem;
-
-	@Column(name = "date")
-	private Date date;
-
 	@OneToOne
 	@JoinColumn(name = "user_id")
 	private User user;
+
+	@ManyToOne
+	@JoinColumn(name = "dmdii_role_id")
+	private DMDIIRole role;
 
 	public Integer getId() {
 		return id;
@@ -39,27 +35,19 @@ public class DMDIIInstituteInvolvement {
 		this.id = id;
 	}
 
-	public String getStaticLineItem() {
-		return staticLineItem;
-	}
-
-	public void setStaticLineItem(String staticLineItem) {
-		this.staticLineItem = staticLineItem;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
 	public User getUser() {
 		return user;
 	}
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public DMDIIRole getRole() {
+		return role;
+	}
+
+	public void setRole(DMDIIRole role) {
+		this.role = role;
 	}
 }
