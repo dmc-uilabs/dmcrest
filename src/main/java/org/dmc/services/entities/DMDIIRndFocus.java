@@ -1,33 +1,27 @@
-package org.dmc.services.dmdiimember;
+package org.dmc.services.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "dmdii_member_finance")
-public class DMDIIMemberFinance {
+@Table(name = "dmdii_rnd_focus")
+public class DMDIIRndFocus {
 
 	@Id
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private Integer id;
 
-	@OneToOne
-	@JoinColumn(name = "user_id")
-	private User dmdiiOwner;
-
 	@Column(name = "name")
 	private String name;
 
-	@Column(name = "asset_url")
-	private String assetUrl;
+	@Column(name = "description")
+	private String description;
 
 	public Integer getId() {
 		return id;
@@ -35,14 +29,6 @@ public class DMDIIMemberFinance {
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public User getDmdiiOwner() {
-		return dmdiiOwner;
-	}
-
-	public void setDmdiiOwner(User dmdiiOwner) {
-		this.dmdiiOwner = dmdiiOwner;
 	}
 
 	public String getName() {
@@ -53,13 +39,11 @@ public class DMDIIMemberFinance {
 		this.name = name;
 	}
 
-	public String getAssetUrl() {
-		return assetUrl;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setAssetUrl(String assetUrl) {
-		this.assetUrl = assetUrl;
+	public void setDescription(String description) {
+		this.description = description;
 	}
-
-
 }

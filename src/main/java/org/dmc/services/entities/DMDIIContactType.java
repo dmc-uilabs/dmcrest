@@ -1,4 +1,4 @@
-package org.dmc.services.dmdiimember;
+package org.dmc.services.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,19 +9,16 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "dmdii_rnd_focus")
-public class DMDIIRndFocus {
+@Table(name = "dmdii_contact_type")
+public class DMDIIContactType {
 
 	@Id
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private Integer id;
 
-	@Column(name = "name")
-	private String name;
-
-	@Column(name = "description")
-	private String description;
+	@Column(name = "type")
+	private String type;
 
 	public Integer getId() {
 		return id;
@@ -31,19 +28,11 @@ public class DMDIIRndFocus {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getType() {
+		return type;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
+	public void setType(String type) {
+		this.type = type;
 	}
 }

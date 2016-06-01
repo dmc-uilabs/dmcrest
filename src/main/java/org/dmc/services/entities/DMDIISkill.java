@@ -1,4 +1,4 @@
-package org.dmc.services.dmdiimember;
+package org.dmc.services.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,16 +9,19 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "dmdii_contact_type")
-public class DMDIIContactType {
+@Table(name = "dmdii_skill")
+public class DMDIISkill {
 
 	@Id
 	@GeneratedValue(generator = "increment")
 	@GenericGenerator(name = "increment", strategy = "increment")
 	private Integer id;
 
-	@Column(name = "type")
-	private String type;
+	@Column(name = "tag_name")
+	private String tagName;
+
+	@Column(name = "tag_link")
+	private String tagLink;
 
 	public Integer getId() {
 		return id;
@@ -28,11 +31,19 @@ public class DMDIIContactType {
 		this.id = id;
 	}
 
-	public String getType() {
-		return type;
+	public String getTagName() {
+		return tagName;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setTagName(String tagName) {
+		this.tagName = tagName;
+	}
+
+	public String getTagLink() {
+		return tagLink;
+	}
+
+	public void setTagLink(String tagLink) {
+		this.tagLink = tagLink;
 	}
 }

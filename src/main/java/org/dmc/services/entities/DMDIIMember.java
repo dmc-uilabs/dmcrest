@@ -1,4 +1,4 @@
-package org.dmc.services.dmdiimember;
+package org.dmc.services.entities;
 
 import java.sql.Date;
 import java.util.List;
@@ -15,7 +15,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.dmc.services.dmdiitype.DMDIIType;
-import org.dmc.services.organization.Organization;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
