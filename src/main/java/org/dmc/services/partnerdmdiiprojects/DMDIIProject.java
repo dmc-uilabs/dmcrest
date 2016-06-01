@@ -6,7 +6,9 @@ import org.dmc.services.dmdiimember.DMDIIMember;
 
 public class DMDIIProject extends BaseModel {
 	
-	private DMDIIMember primeCompany;
+	private DMDIIMember primeOrganization;
+	
+	private DMDIIUser principalInvestigator;
 	
 	private String projectStatus;
 	
@@ -18,12 +20,20 @@ public class DMDIIProject extends BaseModel {
 	
 	private DMDIIUser principalPointOfContact;
 
-	public DMDIIMember getPrimeCompany() {
-		return primeCompany;
+	public DMDIIMember getPrimeOrganization() {
+		return primeOrganization;
 	}
 
-	public void setPrimeCompany(DMDIIMember primeCompany) {
-		this.primeCompany = primeCompany;
+	public void setPrimeOrganization(DMDIIMember primeOrganization) {
+		this.primeOrganization = primeOrganization;
+	}
+
+	public DMDIIUser getPrincipalInvestigator() {
+		return principalInvestigator;
+	}
+
+	public void setPrincipalInvestigator(DMDIIUser principalInvestigator) {
+		this.principalInvestigator = principalInvestigator;
 	}
 
 	public String getProjectStatus() {
