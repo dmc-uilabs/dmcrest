@@ -1,26 +1,47 @@
 package org.dmc.services.projects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ProjectTag {
-	private int id;
-	private int projectId;
-	private String name;
-		
-	public ProjectTag(int id, String projectId, String name){
-		this.id = id;
-		this.projectId = Integer.parseInt(projectId);
+
+	private String id = null;
+	private String projectId = null;
+	private String name = null;
+
+	public ProjectTag(int id, String projectId, String name) {
+		this.id = String.valueOf(id);
+		this.projectId = projectId;
 		this.name = name;
 	}
 
-	public int getId(){
+	/**
+	 **/
+	@JsonProperty("id")
+	public String getId() {
 		return id;
 	}
-	
-	public String getProjectId(){
-		return String.format("%d", projectId);
+	public void setId(String id) {
+		this.id = id;
 	}
-	
-	public String getName(){
+
+	/**
+	 **/
+	@JsonProperty("projectId")
+	public String getProjectId() {
+		return projectId;
+	}
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
+	}
+
+	/**
+	 **/
+	@JsonProperty("name")
+	public String getName() {
 		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 }
