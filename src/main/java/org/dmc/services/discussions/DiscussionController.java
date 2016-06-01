@@ -37,9 +37,9 @@ public class DiscussionController {
     **/
    @RequestMapping(value = "/all-discussions", method = RequestMethod.GET, produces = { "application/json"})
    public ResponseEntity getDiscussions(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
-		   								@RequestParam(value="_limit", defaultValue="100") int limit,
-		   								@RequestParam(value="_order", defaultValue="DESC") String order,
-		   								@RequestParam(value="_sort", defaultValue="time_posted") String sort) {
+           @RequestParam(value="_limit", defaultValue="100") Integer limit,
+           @RequestParam(value="_order", defaultValue="DESC") String order,
+           @RequestParam(value="_sort", defaultValue="time_posted") String sort) {
 	   
    	ServiceLogger.log(logTag, "getDiscussions, userEPPN: " + userEPPN);
    	int statusCode = HttpStatus.OK.value();

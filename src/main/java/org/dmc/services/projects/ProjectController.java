@@ -48,6 +48,18 @@ public class ProjectController {
 		return project.getProjectList(userEPPN);
 	}
 
+	@RequestMapping(value = "projects/all", method = RequestMethod.GET)
+	public ArrayList<Project> getProjectList(
+	        @RequestParam(value="_order", required=false) String order,
+	        @RequestParam(value="_sort", required=false) String sort,
+            @RequestParam(value="_start", required=false) Integer start,
+            @RequestParam(value="_limit", required=false) Integer limit,
+	        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
+        // @TODO: expand to handle arguments and change return type to a ResponseEntity to match new approach for error handling
+        return project.getProjectList(userEPPN);
+	}
+	
 	// leaving this as an example of how to work with parameters to URL
 	// instead of json, but json is probably preferable
 	@RequestMapping(value = "/projects/createWithParameter", method = RequestMethod.POST)
@@ -171,10 +183,13 @@ public class ProjectController {
 	/**
 	 * Return Project Discussions
 	 **/
+    // this is same as below - yaml may be wrong as to what should be defined
 	@RequestMapping(value = "/projects/{projectID}/all-discussions", method = RequestMethod.GET, produces = { "application/json" })
-	public ResponseEntity getDiscussions(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
-			@RequestParam(value = "_limit", defaultValue = "100") int limit, @RequestParam(value = "_order", defaultValue = "DESC") String order,
-			@RequestParam(value = "_sort", defaultValue = "time_posted") String sort) {
+	public ResponseEntity getAllDiscussions(@PathVariable("projectID") int projectID,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
+            @RequestParam(value = "_limit", defaultValue = "100") Integer limit,
+            @RequestParam(value = "_order", defaultValue = "DESC") String order,
+            @RequestParam(value = "_sort", defaultValue = "time_posted") String sort) {
 
 		ServiceLogger.log(logTag, "getDiscussions, userEPPN: " + userEPPN);
 		int statusCode = HttpStatus.OK.value();
@@ -190,6 +205,29 @@ public class ProjectController {
 			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
 		}
 	}
+
+	// this is same as above - yaml may be wrong as to what should be defined
+    @RequestMapping(value = "/projects/{projectID}/individual-discussion", method = RequestMethod.GET, produces = { "application/json" })
+    public ResponseEntity getIndividualDiscussions(@PathVariable("projectID") int projectID,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
+            @RequestParam(value = "_limit", defaultValue = "100", required=false) Integer limit,
+            @RequestParam(value = "_order", defaultValue = "DESC", required=false) String order,
+            @RequestParam(value = "_sort", defaultValue = "time_posted", required=false) String sort) {
+
+        ServiceLogger.log(logTag, "getIndividualDiscussions, userEPPN: " + userEPPN);
+        int statusCode = HttpStatus.OK.value();
+        ArrayList<Discussion> discussions = null;
+
+        try {
+            discussions = discussionListDao.getDiscussionList(userEPPN, projectID, limit, order, sort);
+            return new ResponseEntity<ArrayList<Discussion>>(discussions, HttpStatus.valueOf(statusCode));
+        } catch (HTTPException e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            statusCode = e.getStatusCode();
+            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+        }
+    }
 
 	@ExceptionHandler(Exception.class)
 	public ErrorMessage handleException(Exception ex) {
