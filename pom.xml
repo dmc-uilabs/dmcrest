@@ -285,6 +285,7 @@
 							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT verify -P  "integration" -->
 							<excludes>
 								<exclude>**/SearchIT.java</exclude>
+								<exclude>**/ServiceRunIT.java</exclude>
 							</excludes>
 						</configuration>
 					</execution>
