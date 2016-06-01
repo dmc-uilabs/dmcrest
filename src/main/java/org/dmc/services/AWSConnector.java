@@ -1,8 +1,6 @@
 package org.dmc.services;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.Objects;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -17,7 +15,6 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 
 
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.services.ServiceController;
 import org.dmc.services.DMCServiceException;
 
 /*
@@ -39,7 +36,7 @@ public class AWSConnector {
 	private static String secretKey = System.getenv("S3SecretKey");
 
 	//Source is the path the the resource in the bucket
-	public String Upload(String tempURL, String Folder, String userEPPN, String ResourceType) throws DMCServiceException {
+	public String upload(String tempURL, String Folder, String userEPPN, String ResourceType) throws DMCServiceException {
 	
 		ServiceLogger.log(logTag, "User" + userEPPN + "uploading object from " + sourceBucket + " to S3 bucket " + destBucket);
 
@@ -47,52 +44,29 @@ public class AWSConnector {
         AmazonS3 s3client = new AmazonS3Client(awsCreds);
         String preSignedURL = null;
       
-        
-        
         //Create the destPath 
         String destPath = Folder + "/" + userEPPN + "/" + ResourceType; 
-
-        //Convert temp URL to sourceKey
-		String sourceKey = tempURL.substring(tempURL.indexOf("com/") + 4, tempURL.length());
-
-		//Remove bucket name
-		sourceKey = sourceKey.substring(sourceKey.indexOf('/') + 1 , sourceKey.length());
-
-        //Convert temp URL to filename
-        String filename = tempURL.substring(tempURL.lastIndexOf('/') + 1, tempURL.length());
-
-
-        //Using a General Hash Code Function for now. Future hash functions should generated unique hashes
-        String hashCode = Integer.toString(filename.hashCode()%1000000);
-        
-        //Get current time from system 
-        long unixTime = System.currentTimeMillis() / 1000L;
-
-        //Throws error if file invalid
-        if(filename == null || filename.length() == 0){
-        	throw new DMCServiceException(DMCError.AWSError, "File from" + userEPPN + "is invalid ");
-        }
 
         //Throws error if source path invalid
         if (destPath == null || destPath.length() == 0){
         	//NEED to add DMC method for AWS exceptions
         	throw new DMCServiceException(DMCError.AWSError, "Source path from" + userEPPN + "is invalid ");
         }
+        
+        //Convert temp URL to sourceKey
+		String sourceKey = tempURL.substring(tempURL.indexOf("com/") + 4, tempURL.length());
 
-        int findDot = filename.lastIndexOf(".");
+		//Remove bucket name
+		sourceKey = sourceKey.substring(sourceKey.indexOf('/') + 1 , sourceKey.length());
 
-        if (findDot == -1){
-        	//NEED to add DMC method for AWS exception
-        	throw new DMCServiceException(DMCError.AWSError, "User " + userEPPN + "gave Invalid file extension name");
+        String filename = tempURL.substring(tempURL.lastIndexOf('/') + 1, tempURL.length());
+
+        //Throws error if file invalid
+        if(!isFileNameValid(filename)){ 
+        	throw new DMCServiceException(DMCError.AWSError, "File from" + userEPPN + "is invalid ");
         }
 
-        //Rename and Parse
-        //filename.substring(0, findDot) + hashCode + "-sanitized" + filename.substring(findDot, filename.length());
-        String parsedSource = unixTime + "-" + hashCode + "-santized-" + filename; 
-        
-        //String Concatenation for location // + destPath + "/" +
-        String destKey = destPath + "/" + parsedSource;
-
+        String destKey = createDestKey(destPath,filename); 
 
         try {
 
@@ -168,7 +142,7 @@ public class AWSConnector {
 		return preSignedURL;
 	}
 
-	public String Remove (String URL, String userEPPN) throws DMCServiceException {
+	public String remove (String URL, String userEPPN) throws DMCServiceException {
 
 		//Parse URL to get Path
 		int ResourcePathStart = URL.indexOf("com/") + 4;
@@ -210,6 +184,32 @@ public class AWSConnector {
         return ResourcePath;
 
 	}//Remove
+	
+	
+	//Helper function to check Filename conventions
+	private boolean isFileNameValid(String filename){
+		
+		//Future validation checks for security will go here
+        if(filename == null || filename.length() == 0){
+        	return false; 
+        }
+        
+        return true; 
+	}
+	
+	private String createDestKey(String destPath, String filename){ 
+
+        //Using a General Hash Code Function for now. Future hash functions should generated unique hashes
+        String hashCode = Integer.toString(filename.hashCode()%1000000);
+ 
+        //Get current time from system 
+        long unixTime = System.currentTimeMillis() / 1000L;
+                
+        //String Concatenation for location // + destPath + "/" +
+        String destKey = destPath + "/" + unixTime + "-" + hashCode + "-sanitized-" + filename; ;
+        
+        return destKey;	
+	}
 
 
 }//End class

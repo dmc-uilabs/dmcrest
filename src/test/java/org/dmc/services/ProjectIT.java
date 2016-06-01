@@ -329,10 +329,7 @@ public class ProjectIT extends BaseIT {
         int projectId = 1;
         given().
                 header("Content-type", "application/json").
-                header("AJP_eppn", userEPPN).
-                param("projectDocumentId", 1).
-                param("limit", 1).
-                param("order", "ASC").
+                param("documentGroupId", 1).    
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -644,11 +641,11 @@ public class ProjectIT extends BaseIT {
 	}
 	
 	
-	@Test
+	/*@Test
 	public void testProject_ProjectDocuments() {
 		given().header("AJP_eppn", userEPPN).expect().statusCode(200).when()
 		.get("/projects/"+ projectId + "/project_documents");
-	}
+	}*/
 	
 	/**
 	 * test case for GET /projects/{projectID}/following_discussions

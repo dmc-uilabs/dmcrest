@@ -197,7 +197,7 @@ public class ProfileDao {
 		try {
 			//AWS Profile Picture Upload
 			String signedURL = "temp";
-			signedURL = AWS.Upload(profile.getImage(),"Profiles", userEPPN, "ProfilePictures");
+			signedURL = AWS.upload(profile.getImage(),"Profiles", userEPPN, "ProfilePictures");
 			
 			// update user
 			query = "UPDATE users SET "
@@ -289,7 +289,7 @@ public class ProfileDao {
             
             //Call function to delete 
             try{
-            	AWS.Remove(URL,  userEPPN);
+            	AWS.remove(URL,  userEPPN);
             }catch (DMCServiceException e){
             	return null;
             }
