@@ -3,6 +3,7 @@ package org.dmc.services.partnerdmdiiprojects;
 import java.util.Date;
 
 import org.dmc.services.dmdiimember.DMDIIMember;
+import org.dmc.services.models.BaseModel;
 
 public class DMDIIProject extends BaseModel {
 	

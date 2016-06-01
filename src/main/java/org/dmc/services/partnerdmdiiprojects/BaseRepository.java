@@ -3,6 +3,7 @@ package org.dmc.services.partnerdmdiiprojects;
 import java.io.Serializable;
 import java.util.List;
 
+import org.dmc.services.entities.BaseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 

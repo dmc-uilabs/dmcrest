@@ -1,7 +1,7 @@
 package org.dmc.services.partnerdmdiiprojects;
 
-import org.dmc.services.partnerdmdiiprojects.BaseEntity;
-import org.dmc.services.partnerdmdiiprojects.BaseModel;
+import org.dmc.services.entities.BaseEntity;
+import org.dmc.services.models.BaseModel;
 
 import java.util.Collection;
 import java.util.List;

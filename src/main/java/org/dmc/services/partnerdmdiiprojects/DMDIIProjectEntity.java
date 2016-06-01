@@ -12,6 +12,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.dmc.services.entities.BaseEntity;
+
 @Entity
 @Table(name="dmdii_project")
 public class DMDIIProjectEntity extends BaseEntity {
