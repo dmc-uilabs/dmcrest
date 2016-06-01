@@ -184,6 +184,7 @@ public class AccountsIT extends BaseIT {
     			(receivedAccountServers.get(0).getName().equals("baseDOME")));
     	assertTrue("testAccountGet_AccountServers: Account server status values are not equal",
     			(receivedAccountServers.get(0).getStatus().equals("offline")));
+    	
 	}
 
 	/**
