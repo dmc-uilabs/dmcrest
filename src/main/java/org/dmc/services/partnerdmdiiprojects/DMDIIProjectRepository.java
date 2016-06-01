@@ -2,9 +2,9 @@ package org.dmc.services.partnerdmdiiprojects;
 
 import java.util.List;
 
-import org.dmc.services.partnerdmdiiprojects.DMDIIProjectEntity;
+import org.dmc.services.entities.DMDIIProject;
 
-public interface DMDIIProjectRepository extends BaseRepository<DMDIIProjectEntity, Integer> {
+public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Integer> {
 
-	List<DMDIIProjectEntity> findByPrimeOrganizationId(Integer primeOrganizationId);
+	List<DMDIIProject> findByPrimeOrganizationId(Integer primeOrganizationId);
 }

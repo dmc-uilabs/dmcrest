@@ -6,8 +6,10 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.dmc.services.entities.DMDIIProject;
 import org.dmc.services.mappers.Mapper;
 import org.dmc.services.mappers.MapperFactory;
+import org.dmc.services.models.DMDIIProjectModel;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,20 +21,20 @@ public class DMDIIProjectManager {
 	@Inject
 	private MapperFactory mapperFactory;
 	
-	private Mapper<DMDIIProjectEntity, DMDIIProject> mapper;
+	private Mapper<DMDIIProject, DMDIIProjectModel> mapper;
 	
 	@PostConstruct
 	private void postConstruct() {
-		this.mapper = mapperFactory.mapperFor(DMDIIProjectEntity.class, DMDIIProject.class);
+		this.mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 	}
 	
-	public List<DMDIIProject> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId) {
-		List<DMDIIProjectEntity> dmdiiProjects = Collections.emptyList();
+	public List<DMDIIProjectModel> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId) {
+		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
 		
 		if(primeOrganizationId != null) {
 			dmdiiProjects = dmdiiProjectRepository.findByPrimeOrganizationId(primeOrganizationId);
 		}
 		
-		return (List<DMDIIProject>) mapper.mapToModel(dmdiiProjects);
+		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
 	}
 }

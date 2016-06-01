@@ -1,15 +1,14 @@
-package org.dmc.services.partnerdmdiiprojects;
+package org.dmc.services.models;
 
 import java.util.Date;
 
 import org.dmc.services.dmdiimember.DMDIIMember;
-import org.dmc.services.models.BaseModel;
 
-public class DMDIIProject extends BaseModel {
+public class DMDIIProjectModel extends BaseModel {
 	
 	private DMDIIMember primeOrganization;
 	
-	private DMDIIUser principalInvestigator;
+	private DMDIIUserModel principalInvestigator;
 	
 	private String projectStatus;
 	
@@ -19,7 +18,7 @@ public class DMDIIProject extends BaseModel {
 	
 	private String projectSummary;
 	
-	private DMDIIUser principalPointOfContact;
+	private DMDIIUserModel principalPointOfContact;
 
 	public DMDIIMember getPrimeOrganization() {
 		return primeOrganization;
@@ -29,11 +28,11 @@ public class DMDIIProject extends BaseModel {
 		this.primeOrganization = primeOrganization;
 	}
 
-	public DMDIIUser getPrincipalInvestigator() {
+	public DMDIIUserModel getPrincipalInvestigator() {
 		return principalInvestigator;
 	}
 
-	public void setPrincipalInvestigator(DMDIIUser principalInvestigator) {
+	public void setPrincipalInvestigator(DMDIIUserModel principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
 	}
 
@@ -69,11 +68,11 @@ public class DMDIIProject extends BaseModel {
 		this.projectSummary = projectSummary;
 	}
 
-	public DMDIIUser getPrincipalPointOfContact() {
+	public DMDIIUserModel getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(DMDIIUser principalPointOfContact) {
+	public void setPrincipalPointOfContact(DMDIIUserModel principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 

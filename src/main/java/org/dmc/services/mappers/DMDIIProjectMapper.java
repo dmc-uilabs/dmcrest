@@ -1,38 +1,38 @@
 package org.dmc.services.mappers;
 
-import org.dmc.services.partnerdmdiiprojects.DMDIIProject;
-import org.dmc.services.partnerdmdiiprojects.DMDIIProjectEntity;
+import org.dmc.services.entities.DMDIIProject;
+import org.dmc.services.models.DMDIIProjectModel;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-public class DMDIIProjectMapper implements Mapper<DMDIIProjectEntity, DMDIIProject> {
+public class DMDIIProjectMapper implements Mapper<DMDIIProject, DMDIIProjectModel> {
 
 	@Override
-	public DMDIIProjectEntity mapToEntity(DMDIIProject model) {
+	public DMDIIProject mapToEntity(DMDIIProjectModel model) {
 		Assert.notNull(model);
-		DMDIIProjectEntity entity = new DMDIIProjectEntity();
+		DMDIIProject entity = new DMDIIProject();
 		BeanUtils.copyProperties(model, entity);
 		return entity;
 	}
 
 	@Override
-	public DMDIIProject mapToModel(DMDIIProjectEntity entity) {
+	public DMDIIProjectModel mapToModel(DMDIIProject entity) {
 		Assert.notNull(entity);
-		DMDIIProject model = new DMDIIProject();
+		DMDIIProjectModel model = new DMDIIProjectModel();
 		BeanUtils.copyProperties(entity, model);
 		return model;
 	}
 
 	@Override
-	public Class<DMDIIProjectEntity> supportsEntity() {
-		return DMDIIProjectEntity.class;
+	public Class<DMDIIProject> supportsEntity() {
+		return DMDIIProject.class;
 	}
 
 	@Override
-	public Class<DMDIIProject> supportsModel() {
-		return DMDIIProject.class;
+	public Class<DMDIIProjectModel> supportsModel() {
+		return DMDIIProjectModel.class;
 	}
 
 }

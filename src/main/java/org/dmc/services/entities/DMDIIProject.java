@@ -1,4 +1,4 @@
-package org.dmc.services.partnerdmdiiprojects;
+package org.dmc.services.entities;
 
 import java.util.Date;
 
@@ -13,17 +13,18 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.dmc.services.dmdiimember.DMDIIMember;
+import org.dmc.services.models.DMDIIUserModel;
 
 @Entity
 @Table(name="dmdii_project")
-public class DMDIIProjectEntity extends BaseEntity {
+public class DMDIIProject extends BaseEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "prime_organization_id", nullable = false)
 	private DMDIIMember primeOrganization;
 	
 	@Column(name = "principal_investigator")
-	private DMDIIUser principalInvestigator;
+	private DMDIIUserModel principalInvestigator;
 	
 	@Column(name = "project_status")
 	@Enumerated(EnumType.STRING)
@@ -42,15 +43,15 @@ public class DMDIIProjectEntity extends BaseEntity {
 	private String projectSummary;
 	
 	@JoinColumn(name = "principal_point_of_contact_id")
-	private DMDIIUser principalPointOfContact;
+	private DMDIIUserModel principalPointOfContact;
 	
-	public DMDIIProjectEntity () {
+	public DMDIIProject () {
 		
 	}
 	
-	public DMDIIProjectEntity (DMDIIMember primeOrganization, DMDIIUser principalInvestigator,
+	public DMDIIProject (DMDIIMember primeOrganization, DMDIIUserModel principalInvestigator,
 			String projectStatus, Date awardedDate, String projectTitle, String projectSummary,
-			DMDIIUser principalPointOfContact) {
+			DMDIIUserModel principalPointOfContact) {
 		
 		this.primeOrganization = primeOrganization;
 		this.principalInvestigator = principalInvestigator;
@@ -69,11 +70,11 @@ public class DMDIIProjectEntity extends BaseEntity {
 		this.primeOrganization = primeOrganization;
 	}
 
-	public DMDIIUser getPrincipalInvestigator() {
+	public DMDIIUserModel getPrincipalInvestigator() {
 		return principalInvestigator;
 	}
 
-	public void setPrincipalInvestigator(DMDIIUser principalInvestigator) {
+	public void setPrincipalInvestigator(DMDIIUserModel principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
 	}
 
@@ -109,11 +110,11 @@ public class DMDIIProjectEntity extends BaseEntity {
 		this.projectSummary = projectSummary;
 	}
 
-	public DMDIIUser getPrincipalPointOfContact() {
+	public DMDIIUserModel getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(DMDIIUser principalPointOfContact) {
+	public void setPrincipalPointOfContact(DMDIIUserModel principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 }
