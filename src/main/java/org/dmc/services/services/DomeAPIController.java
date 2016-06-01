@@ -27,7 +27,7 @@ public class DomeAPIController {
 	private DomeAPIDao domeAPIDao = new DomeAPIDao();
 
 	@RequestMapping(value = "/getChildren", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity childrenGet(
+	public ResponseEntity getChildrenFromDome(
 			@RequestParam(value = "dateModified", required = false) BigDecimal dateModified,
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "domeServer", required = true) String domeServer,
@@ -39,7 +39,7 @@ public class DomeAPIController {
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
 		ServiceLogger.log(logTag, "In childrenGet: as user " + userEPPN);
-		String temp = "";
+		String children = "";
 		
 		try {
 			DomeEntity domeEntity = new DomeEntity();
@@ -51,17 +51,19 @@ public class DomeAPIController {
 			domeEntity.setPath(path);
 			domeEntity.setType(type);
 			domeEntity.setVersion(version);
-			temp = domeAPIDao.getChildren(domeEntity);
-			return new ResponseEntity<String>(temp, HttpStatus.OK);
+			children = domeAPIDao.getChildren(domeEntity);
+			return new ResponseEntity<String>(children, HttpStatus.OK);
 		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
+			if (!e.getError().equals(DMCError.IncorrectType)) {
+				ServiceLogger.logException(logTag, e);
+			}
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
 
 	}
 	
 	@RequestMapping(value = "/getModel", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity modelGet(
+	public ResponseEntity getModelFromDome(
 			@RequestParam(value = "domeServer", required = true) String domeServer,
 			@RequestParam(value = "interfaceId", required = true) String interfaceId,
 			@RequestParam(value = "modelId", required = false) String modelId,
@@ -73,7 +75,7 @@ public class DomeAPIController {
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
 		ServiceLogger.log(logTag, "In modelGet: as user " + userEPPN);
-		String temp = "";
+		String model = "";
 		
 		try {
 			DomeModel domeModel = new DomeModel();
@@ -85,10 +87,12 @@ public class DomeAPIController {
 			domeModel.setPath(path);
 			domeModel.setType("interface"); //All getModel calls to API have type of interface (frontend may specify as 'project' but API needs type equal to 'interface')
 			domeModel.setVersion(version);
-			temp = domeAPIDao.getModel(domeModel);
-			return new ResponseEntity<String>(temp, HttpStatus.OK);
+			model = domeAPIDao.getModel(domeModel);
+			return new ResponseEntity<String>(model, HttpStatus.OK);
 		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
+			if (!e.getError().equals(DMCError.IncorrectType)) {
+				ServiceLogger.logException(logTag, e);
+			}
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
 

@@ -39,6 +39,7 @@ public enum DMCError {
 	IncorrectType,
 	CanNotGetChildren,
 	CanNotGetModel,
+	CanNotConnectToDome,
 
 	// Service queries
 	ServiceInterfaceNotMatch

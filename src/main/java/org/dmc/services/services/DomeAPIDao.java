@@ -168,7 +168,7 @@ public class DomeAPIDao {
 				urlStr.append(printNameList("path", domeEntity.getPath()));
 				urlStr.append("}");
 			} else {
-				throw new DMCServiceException(DMCError.IncorrectType, "unable to communicate with Dome Server " + domeEntity.getDomeServer() + " - unknown type " + domeEntity.getType());
+				throw new DMCServiceException(DMCError.IncorrectType, "getChildren: unable to communicate with Dome Server " + domeEntity.getDomeServer() + " - unknown type " + domeEntity.getType());
 			}
 			
 			writer.write(urlStr.toString().getBytes( StandardCharsets.UTF_8 ));
@@ -177,7 +177,7 @@ public class DomeAPIDao {
 			out.close();
 
 			if (conn.getResponseCode() != 200) {
-				throw new IOException(conn.getResponseMessage());
+				throw new DMCServiceException(DMCError.CanNotConnectToDome, conn.getResponseMessage());
 			} else {
 
 				// Buffer the result into a string
@@ -194,11 +194,10 @@ public class DomeAPIDao {
 			}
 
 		} catch (IOException e) {
-			throw new DMCServiceException(DMCError.CanNotGetChildren, "unable to communicate with Dome Server " + domeEntity.getDomeServer());
+			throw new DMCServiceException(DMCError.CanNotGetChildren, "getChildren: unable to communicate with Dome Server " + domeEntity.getDomeServer());
 		}
 
 	}
-	
 	
 	public String getModel(DomeModel domeModel) throws DMCServiceException {
 
@@ -255,7 +254,7 @@ public class DomeAPIDao {
 				urlStr.append(printNameList("path", domeModel.getPath()));
 				urlStr.append("}");
 			} else {
-				throw new DMCServiceException(DMCError.IncorrectType, "unable to communicate with Dome Server " + domeModel.getDomeServer() + " - unknown type " + domeModel.getType());
+				throw new DMCServiceException(DMCError.IncorrectType, "getModel: unable to communicate with Dome Server " + domeModel.getDomeServer() + " - unknown type " + domeModel.getType());
 			}
 			
 			writer.write(urlStr.toString().getBytes( StandardCharsets.UTF_8 ));
@@ -263,7 +262,7 @@ public class DomeAPIDao {
 			out.close();
 
 			if (conn.getResponseCode() != 200) {
-				throw new IOException(conn.getResponseMessage());
+				throw new DMCServiceException(DMCError.CanNotConnectToDome, conn.getResponseMessage());
 			} else {
 
 				// Buffer the result into a string
@@ -280,7 +279,7 @@ public class DomeAPIDao {
 			}
 
 		} catch (IOException e) {
-			throw new DMCServiceException(DMCError.CanNotGetModel, "unable to communicate with Dome Server " + domeModel.getDomeServer());
+			throw new DMCServiceException(DMCError.CanNotGetModel, "getModel: unable to communicate with Dome Server " + domeModel.getDomeServer());
 		}
 
 	}

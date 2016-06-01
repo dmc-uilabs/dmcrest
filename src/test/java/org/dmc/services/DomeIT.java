@@ -19,7 +19,7 @@ import org.dmc.services.services.DomeEntity;
 import org.dmc.services.services.DomeModel;
 import org.dmc.services.services.DomeResponseEntity;
 
-@Ignore
+//@Ignore
 public class DomeIT extends BaseIT {
 
 	private String domeServer = "http://localhost:8082/DOMEApiServicesV7"; // System.getenv("DOME_SERVER");
@@ -144,7 +144,7 @@ public class DomeIT extends BaseIT {
 	@Test
 	public void testGetChildrenWhenOtherType() {
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
-				.param("type", "otherType").expect().statusCode(HttpStatus.NOT_FOUND.value()).when()
+				.param("type", "otherType").expect().statusCode(HttpStatus.BAD_REQUEST.value()).when()
 				.get("/getChildren");
 	}
 
@@ -178,6 +178,22 @@ public class DomeIT extends BaseIT {
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
 				.param("interfaceId", interfaceId).param("projectId", projectId).param("name", name).param("path", path)
 				.param("type", type).param("version", version).expect().statusCode(HttpStatus.OK.value()).when()
+				.get("/getModel");
+
+	}
+
+	@Test
+	public void testGetModelWhenTypeIsNotProjectOrInterface() {
+		BigDecimal version = null;
+		String interfaceId = null;
+		String name = null;
+		List<BigDecimal> path = new ArrayList<BigDecimal>();
+		path.add(new BigDecimal(31));
+		String type = "other";
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
+				.param("interfaceId", interfaceId).param("name", name).param("path", path)
+				.param("type", type).param("version", version).expect().statusCode(HttpStatus.BAD_REQUEST.value()).when()
 				.get("/getModel");
 
 	}

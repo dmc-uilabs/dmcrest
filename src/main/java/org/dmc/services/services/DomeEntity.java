@@ -20,8 +20,7 @@ public class DomeEntity {
 	private String interfaceId = null;
 	private BigDecimal version = null;
 
-	/**
-	 **/
+
 	@JsonProperty("type")
 	public String getType() {
 		return type;
@@ -31,8 +30,7 @@ public class DomeEntity {
 		this.type = type;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("name")
 	public String getName() {
 		return name;
@@ -42,8 +40,7 @@ public class DomeEntity {
 		this.name = name;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("path")
 	public List<BigDecimal> getPath() {
 		return path;
@@ -53,8 +50,7 @@ public class DomeEntity {
 		this.path = path;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("domeServer")
 	public String getDomeServer() {
 		return domeServer;
@@ -64,8 +60,7 @@ public class DomeEntity {
 		this.domeServer = domeServer;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("children")
 	public List<DomeEntity> getChildren() {
 		return children;
@@ -75,8 +70,7 @@ public class DomeEntity {
 		this.children = children;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("dateModified")
 	public BigDecimal getDateModified() {
 		return dateModified;
@@ -86,8 +80,7 @@ public class DomeEntity {
 		this.dateModified = dateModified;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("description")
 	public String getDescription() {
 		return description;
@@ -96,9 +89,8 @@ public class DomeEntity {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
 	
-	/**
-	 **/
 	@JsonProperty("modelId")
 	public String getModelId() {
 		return modelId;
@@ -108,8 +100,7 @@ public class DomeEntity {
 		this.modelId = modelId;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("interfaceId")
 	public String getInterfaceId() {
 		return interfaceId;
@@ -119,8 +110,7 @@ public class DomeEntity {
 		this.interfaceId = interfaceId;
 	}
 
-	/**
-	 **/
+
 	@JsonProperty("version")
 	public BigDecimal getVersion() {
 		return version;

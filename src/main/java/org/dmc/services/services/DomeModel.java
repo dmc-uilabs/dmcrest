@@ -18,8 +18,7 @@ public class DomeModel {
 	private String projectId = null;
 	private BigDecimal version = null;
 
-	/**
-	 **/
+
 	@JsonProperty("type")
 	public String getType() {
 		return type;
@@ -29,8 +28,7 @@ public class DomeModel {
 		this.type = type;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("name")
 	public String getName() {
 		return name;
@@ -40,8 +38,7 @@ public class DomeModel {
 		this.name = name;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("path")
 	public List<BigDecimal> getPath() {
 		return path;
@@ -51,8 +48,7 @@ public class DomeModel {
 		this.path = path;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("domeServer")
 	public String getDomeServer() {
 		return domeServer;
@@ -62,8 +58,7 @@ public class DomeModel {
 		this.domeServer = domeServer;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("modelId")
 	public String getModelId() {
 		return modelId;
@@ -73,8 +68,7 @@ public class DomeModel {
 		this.modelId = modelId;
 	}
 
-	/**
-	 **/
+
 	@JsonProperty("version")
 	public BigDecimal getVersion() {
 		return version;
@@ -84,8 +78,7 @@ public class DomeModel {
 		this.version = version;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("interfaceId")
 	public String getInterfaceId() {
 		return interfaceId;
@@ -95,8 +88,7 @@ public class DomeModel {
 		this.interfaceId = interfaceId;
 	}
 	
-	/**
-	 **/
+
 	@JsonProperty("projectId")
 	public String getProjectId() {
 		return projectId;

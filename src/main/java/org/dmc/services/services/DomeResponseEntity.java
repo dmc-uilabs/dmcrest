@@ -12,24 +12,22 @@ public class DomeResponseEntity {
 	private String status = null;
 	private DomeEntity pkg = null;
 
-	/**
-	 **/
+
 	@JsonProperty("status")
 	public String getStatus() {
 		return status;
 	}
-
+	
 	public void setStatus(String status) {
 		this.status = status;
 	}
 
-	/**
-	 **/
+
 	@JsonProperty("pkg")
 	public DomeEntity getPkg() {
 		return pkg;
 	}
-
+	
 	public void setPkg(DomeEntity pkg) {
 		this.pkg = pkg;
 	}
