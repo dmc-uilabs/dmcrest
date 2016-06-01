@@ -20,7 +20,7 @@ import org.dmc.services.services.DomeModel;
 import org.dmc.services.services.DomeModelResponse;
 import org.dmc.services.services.DomeResponseEntity;
 
-//@Ignore
+@Ignore
 public class DomeIT extends BaseIT {
 
 	private String domeServer = "http://localhost:8082/DOMEApiServicesV7"; // System.getenv("DOME_SERVER");
