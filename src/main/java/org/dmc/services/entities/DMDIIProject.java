@@ -4,8 +4,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -27,7 +25,6 @@ public class DMDIIProject extends BaseEntity {
 	private DMDIIUserModel principalInvestigator;
 	
 	@Column(name = "project_status")
-	@Enumerated(EnumType.STRING)
 	private String projectStatus;
 	
 	@Column(name = "awarded_date")
@@ -35,11 +32,9 @@ public class DMDIIProject extends BaseEntity {
 	private Date awardedDate;
 	
 	@Column(name = "project_title")
-	@Enumerated(EnumType.STRING)
 	private String projectTitle;
 	
 	@Column(name = "project_summary")
-	@Enumerated(EnumType.STRING)
 	private String projectSummary;
 	
 	@JoinColumn(name = "principal_point_of_contact_id")

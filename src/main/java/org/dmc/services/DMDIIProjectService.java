@@ -1,4 +1,4 @@
-package org.dmc.services.partnerdmdiiprojects;
+package org.dmc.services;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.dmc.services.models.DMDIIProjectModel;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DMDIIProjectManager {
+public class DMDIIProjectService {
 
 	@Inject
 	private DMDIIProjectRepository dmdiiProjectRepository;

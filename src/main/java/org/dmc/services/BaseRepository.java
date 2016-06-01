@@ -1,4 +1,4 @@
-package org.dmc.services.partnerdmdiiprojects;
+package org.dmc.services;
 
 import java.io.Serializable;
 import java.util.List;
