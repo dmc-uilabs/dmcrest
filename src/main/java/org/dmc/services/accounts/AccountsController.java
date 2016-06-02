@@ -28,9 +28,6 @@ public class AccountsController {
 	private final String logTag = AccountsController.class.getName();
 	private AccountsDao accounts = new AccountsDao();
 
-	/**
-	 
-	 **/
 	@RequestMapping(value = "/{accountID}", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<UserAccount> accountsAccountIDGet(@PathVariable("accountID") String accountID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -48,9 +45,6 @@ public class AccountsController {
 		return new ResponseEntity<UserAccount>(userAccount, HttpStatus.valueOf(httpStatusCode));
 	}
 
-	/**
-	 
-	 **/
 	@RequestMapping(value = "/{accountID}", produces = { "application/json" }, method = RequestMethod.PATCH)
 	public ResponseEntity<UserAccount> accountsAccountIDPatch(@PathVariable("accountID") String accountID,
 			@RequestBody UserAccount account,
@@ -69,9 +63,6 @@ public class AccountsController {
 		return new ResponseEntity<UserAccount>(userAccount, HttpStatus.valueOf(httpStatusCode));
 	}
 
-	/**
-	 
-	 **/
 	@RequestMapping(value = "/{accountID}/account-notification-settings", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<List<AccountNotificationSetting>> accountsAccountIDAccountNotificationSettingsGet(
@@ -80,9 +71,6 @@ public class AccountsController {
 		return new ResponseEntity<List<AccountNotificationSetting>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	/**
-	 
-	 **/
 	@RequestMapping(value = "/{accountID}/account_servers", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity accountsAccountIDAccountServersGet(
@@ -100,9 +88,6 @@ public class AccountsController {
 		
 	}
 
-	/**
-	 
-	 **/
 	@RequestMapping(value = "/{accountID}/favorite_products", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<List<InlineResponse200>> accountsAccountIDFavoriteProductsGet(
@@ -113,9 +98,6 @@ public class AccountsController {
 		return new ResponseEntity<List<InlineResponse200>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	/**
-	 
-	 **/
 	@RequestMapping(value = "/{accountID}/following_companies", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingCompany>> accountsAccountIDFollowingCompaniesGet(
@@ -126,9 +108,6 @@ public class AccountsController {
 		return new ResponseEntity<List<FollowingCompany>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	/**
-	 
-	 **/
 	@RequestMapping(value = "/{accountID}/follow_discussions", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingIndividualDiscussion>> accountsAccountIDFollowDiscussionsGet(
@@ -141,9 +120,6 @@ public class AccountsController {
 		return new ResponseEntity<List<FollowingIndividualDiscussion>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	/**
-	 
-	 **/
 	@RequestMapping(value = "/{accountId}/following_members", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<FollowingMember>> accountsAccountIdFollowingMembersGet(

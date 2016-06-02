@@ -124,33 +124,33 @@ class AccountsDao {
         return account;
     }
     
-    public List<UserAccountServer> getAccountServersFromAccountID(String accountID) throws DMCServiceException {
-    	Connection connection = DBConnector.connection();
-    	UserAccountServer retObj = null;
+	public List<UserAccountServer> getAccountServersFromAccountID(String accountID) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		UserAccountServer retObj = null;
 		List<UserAccountServer> userAccountServers = new ArrayList<UserAccountServer>();
-		
+
 		try {
 			connection.setAutoCommit(false);
-			
+
 			String domeInterfacesQuery = "SELECT server_id, url, user_id, alias, status FROM servers WHERE user_id = ?";
-			
+
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(Integer.parseInt(accountID)));
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
-			
+
 			while (resultSet.next()) {
 				retObj = new UserAccountServer();
-				
+
 				retObj.setId(Integer.toString(resultSet.getInt("server_id")));
 				retObj.setIp(resultSet.getString("url"));
 				retObj.setAccountId(Integer.toString(resultSet.getInt("user_id")));
 				retObj.setName(resultSet.getString("alias"));
 				retObj.setStatus(resultSet.getString("status"));
-				
+
 				userAccountServers.add(retObj);
 			}
-			
+
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
@@ -159,7 +159,7 @@ class AccountsDao {
 				ServiceLogger.log(logTag, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
-			
+
 		} finally {
 			try {
 				connection.setAutoCommit(true);
@@ -168,8 +168,8 @@ class AccountsDao {
 			}
 
 		}
-		
-    	return userAccountServers;
-    }
+
+		return userAccountServers;
+	}
     
 }
