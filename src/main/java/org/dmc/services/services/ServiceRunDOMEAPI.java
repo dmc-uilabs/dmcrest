@@ -16,24 +16,24 @@ import org.json.JSONObject;
 
 public class ServiceRunDOMEAPI {
 		
-	public static void main(String[] args)
-	{
-		int user_id = 111;
-		int service_id = 3;
-		ServiceRunDOMEAPI instance = new ServiceRunDOMEAPI();
-		try 
-		{
-			// This will create a service call return modelRunId
-			//int modelRunId = instance.runModel(service_id,user_id);	
-			int modelRunId = 57;
-			instance.pollService(modelRunId, service_id);
-			System.out.println("The model runID = " + modelRunId);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
+//	public static void main(String[] args)
+//	{
+//		int user_id = 111;
+//		int service_id = 3;
+//		ServiceRunDOMEAPI instance = new ServiceRunDOMEAPI();
+//		try 
+//		{
+//			// This will create a service call return modelRunId
+//			//int modelRunId = instance.runModel(service_id,user_id);	
+//			int modelRunId = 57;
+//			instance.pollService(modelRunId, service_id);
+//			System.out.println("The model runID = " + modelRunId);
+//		}
+//		catch (Exception e)
+//		{
+//			e.printStackTrace();
+//		}
+//	}
 	
 	public int runModel(int service_id, int user_id) throws Exception
 	{

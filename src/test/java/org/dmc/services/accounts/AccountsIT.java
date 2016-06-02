@@ -168,23 +168,22 @@ public class AccountsIT extends BaseIT {
 	 **/
 	@Test
 	public void testAccountGet_AccountServers() {
-		String accountID = "102"; //This is the accountID of alias=baseDOME in the servers table (first two entries)
-		  
-    	List<UserAccountServer> receivedAccountServers = Arrays.asList(given().header("Content-type", "application/json")
-    			.header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
-    			.get("/accounts/" + accountID + "/account_servers").as(UserAccountServer[].class));
-    	
-    	assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
-    			(receivedAccountServers.get(0).getAccountId().equals(accountID)));
-    	assertTrue("testAccountGet_AccountServers: Account server server_id values are not equal",
-    			(receivedAccountServers.get(0).getId().equals("1")));
-    	assertTrue("testAccountGet_AccountServers: Account server url values are not equal",
-    			(receivedAccountServers.get(0).getIp().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
-    	assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
-    			(receivedAccountServers.get(0).getName().equals("baseDOME")));
-    	assertTrue("testAccountGet_AccountServers: Account server status values are not equal",
-    			(receivedAccountServers.get(0).getStatus().equals("offline")));
-    	
+		String accountID = "102"; // This is the accountID of alias=baseDOME in the servers table (first two entries)
+
+		List<UserAccountServer> receivedAccountServers = Arrays.asList(given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
+				.expect().statusCode(HttpStatus.OK.value()).when().get("/accounts/" + accountID + "/account_servers").as(UserAccountServer[].class));
+
+		assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
+				(receivedAccountServers.get(0).getAccountId().equals(accountID)));
+		assertTrue("testAccountGet_AccountServers: Account server server_id values are not equal",
+				(receivedAccountServers.get(0).getId().equals("1")));
+		assertTrue("testAccountGet_AccountServers: Account server url values are not equal",
+				(receivedAccountServers.get(0).getIp().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
+		assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
+				(receivedAccountServers.get(0).getName().equals("baseDOME")));
+		assertTrue("testAccountGet_AccountServers: Account server status values are not equal",
+				(receivedAccountServers.get(0).getStatus().equals("offline")));
+
 	}
 
 	/**
