@@ -25,19 +25,19 @@ public class DOMEServerDAO {
 	private String userSpace;
 	private String userPass;
 	
-//	public static void main(String[] args)
-//	{ 
-//		try{
-//		int server_id = 3;
-//		DOMEServerDAO ds = new DOMEServerDAO(server_id);
-//		System.out.println("Server: " + ds.toDOMEString());
-//		}
-//		catch (Exception e)
-//		{
-//			e.printStackTrace();
-//		}
-//		
-//	}
+	public static void main(String[] args)
+	{ 
+		try{
+		int server_id = 3;
+		DOMEServerDAO ds = new DOMEServerDAO(server_id);
+		System.out.println("Server: " + ds.toDOMEString());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
 
 	public DOMEServerDAO(int serverId) throws DMCServiceException
 	{
