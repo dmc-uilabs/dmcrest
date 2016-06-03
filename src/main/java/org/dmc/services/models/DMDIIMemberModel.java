@@ -3,16 +3,6 @@ package org.dmc.services.models;
 import java.sql.Date;
 import java.util.List;
 
-import org.dmc.services.entities.DMDIIAreaOfExpertise;
-import org.dmc.services.entities.DMDIIAward;
-import org.dmc.services.entities.DMDIIInstituteInvolvement;
-import org.dmc.services.entities.DMDIIMemberContact;
-import org.dmc.services.entities.DMDIIMemberCustomer;
-import org.dmc.services.entities.DMDIIMemberFinance;
-import org.dmc.services.entities.DMDIIMemberUser;
-import org.dmc.services.entities.DMDIIRndFocus;
-import org.dmc.services.entities.DMDIISkill;
-
 public class DMDIIMemberModel extends BaseModel {
 
 	private DMDIITypeModel dmdiiType;
@@ -22,21 +12,21 @@ public class DMDIIMemberModel extends BaseModel {
 
 	private Date expireDate;
 
-	private List<DMDIIAward> awards;
+	private List<DMDIIAwardModel> awards;
 
-	private List<DMDIIAreaOfExpertise> areasOfExpertise;
+	private List<DMDIIAreaOfExpertiseModel> areasOfExpertise;
 
-	private List<DMDIIMemberContact> contacts;
+	private List<DMDIIMemberContactModel> contacts;
 
-	private List<DMDIIMemberCustomer> customers;
+	private List<DMDIIMemberCustomerModel> customers;
 
-	private List<DMDIIMemberFinance> finances;
+	private List<DMDIIMemberFinanceModel> finances;
 
-	private List<DMDIIInstituteInvolvement> instituteInvolvement;
+	private List<DMDIIInstituteInvolvementModel> instituteInvolvement;
 
-	private List<DMDIIRndFocus> rndFocus;
+	private List<DMDIIRndFocusModel> rndFocus;
 
-	private List<DMDIISkill> skills;
+	private List<DMDIISkillModel> skills;
 
-	private List<DMDIIMemberUser> users;
+	private List<DMDIIMemberUserModel> users;
 }

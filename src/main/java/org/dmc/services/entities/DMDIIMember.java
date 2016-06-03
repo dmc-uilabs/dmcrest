@@ -3,6 +3,7 @@ package org.dmc.services.entities;
 import java.sql.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,7 +31,7 @@ public class DMDIIMember {
 	@JoinColumn(name = "dmdii_type_id")
 	private DMDIIType dmdiiType;
 
-	@ManyToOne
+	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "organization_id")
 	private Organization organization;
 
@@ -44,10 +45,10 @@ public class DMDIIMember {
 	@JoinColumn(name = "organization_dmdii_member_id")
 	private List<DMDIIAward> awards;
 
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.DETACH})
 	@JoinTable(name = "dmdii_member_area_of_expertise",
 			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
-			   inverseJoinColumns = @JoinColumn(name="id"))
+			   inverseJoinColumns = @JoinColumn(name="dmdii_area_of_expertise_id"))
 	private List<DMDIIAreaOfExpertise> areasOfExpertise;
 
 	@OneToMany

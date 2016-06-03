@@ -1,6 +1,6 @@
 package org.dmc.services.models;
 
-public class DMDIIMemberContactTypeModel extends BaseModel {
+public class DMDIIContactTypeModel extends BaseModel {
 
 	private String type;
 

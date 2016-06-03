@@ -2,11 +2,9 @@ package org.dmc.services.models;
 
 import javax.persistence.Column;
 
-import org.dmc.services.entities.DMDIIContactType;
-
 public class DMDIIMemberContactModel extends BaseModel {
 
-	private DMDIIContactType contactType;
+	private DMDIIContactTypeModel contactType;
 
 	@Column(name = "first_name")
 	private String firstName;
@@ -17,11 +15,11 @@ public class DMDIIMemberContactModel extends BaseModel {
 	@Column(name = "email")
 	private String email;
 
-	public DMDIIContactType getContactType() {
+	public DMDIIContactTypeModel getContactType() {
 		return contactType;
 	}
 
-	public void setContactType(DMDIIContactType contactType) {
+	public void setContactType(DMDIIContactTypeModel contactType) {
 		this.contactType = contactType;
 	}
 
