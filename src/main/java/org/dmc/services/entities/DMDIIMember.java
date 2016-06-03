@@ -7,24 +7,25 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.dmc.services.dmdiitype.DMDIIType;
-import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "organization_dmdii_member")
-public class DMDIIMember {
-
+public class DMDIIMember extends BaseEntity {
+	
 	@Id
-	@GeneratedValue(generator = "increment")
-	@GenericGenerator(name = "increment", strategy = "increment")
+	@SequenceGenerator(name = "dmdiiMemberSeqGen", sequenceName = "organization_dmdii_member_id_seq")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dmdiiMemberSeqGen")
 	private Integer id;
 
 	@ManyToOne
@@ -84,16 +85,6 @@ public class DMDIIMember {
 			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
 			   inverseJoinColumns = @JoinColumn(name="id"))
 	private List<DMDIIMemberUser> users;
-
-
-	public Integer getId() {
-		return this.id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
 
 	public DMDIIType getDmdiiType() {
 		return this.dmdiiType;
@@ -198,6 +189,117 @@ public class DMDIIMember {
 
 	public void setUsers(List<DMDIIMemberUser> users) {
 		this.users = users;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((areasOfExpertise == null) ? 0 : areasOfExpertise.hashCode());
+		result = prime * result + ((awards == null) ? 0 : awards.hashCode());
+		result = prime * result + ((contacts == null) ? 0 : contacts.hashCode());
+		result = prime * result + ((customers == null) ? 0 : customers.hashCode());
+		result = prime * result + ((dmdiiType == null) ? 0 : dmdiiType.hashCode());
+		result = prime * result + ((expireDate == null) ? 0 : expireDate.hashCode());
+		result = prime * result + ((finances == null) ? 0 : finances.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((instituteInvolvement == null) ? 0 : instituteInvolvement.hashCode());
+		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
+		result = prime * result + ((rndFocus == null) ? 0 : rndFocus.hashCode());
+		result = prime * result + ((skills == null) ? 0 : skills.hashCode());
+		result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
+		result = prime * result + ((users == null) ? 0 : users.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DMDIIMember other = (DMDIIMember) obj;
+		if (areasOfExpertise == null) {
+			if (other.areasOfExpertise != null)
+				return false;
+		} else if (!areasOfExpertise.equals(other.areasOfExpertise))
+			return false;
+		if (awards == null) {
+			if (other.awards != null)
+				return false;
+		} else if (!awards.equals(other.awards))
+			return false;
+		if (contacts == null) {
+			if (other.contacts != null)
+				return false;
+		} else if (!contacts.equals(other.contacts))
+			return false;
+		if (customers == null) {
+			if (other.customers != null)
+				return false;
+		} else if (!customers.equals(other.customers))
+			return false;
+		if (dmdiiType == null) {
+			if (other.dmdiiType != null)
+				return false;
+		} else if (!dmdiiType.equals(other.dmdiiType))
+			return false;
+		if (expireDate == null) {
+			if (other.expireDate != null)
+				return false;
+		} else if (!expireDate.equals(other.expireDate))
+			return false;
+		if (finances == null) {
+			if (other.finances != null)
+				return false;
+		} else if (!finances.equals(other.finances))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (instituteInvolvement == null) {
+			if (other.instituteInvolvement != null)
+				return false;
+		} else if (!instituteInvolvement.equals(other.instituteInvolvement))
+			return false;
+		if (organization == null) {
+			if (other.organization != null)
+				return false;
+		} else if (!organization.equals(other.organization))
+			return false;
+		if (rndFocus == null) {
+			if (other.rndFocus != null)
+				return false;
+		} else if (!rndFocus.equals(other.rndFocus))
+			return false;
+		if (skills == null) {
+			if (other.skills != null)
+				return false;
+		} else if (!skills.equals(other.skills))
+			return false;
+		if (startDate == null) {
+			if (other.startDate != null)
+				return false;
+		} else if (!startDate.equals(other.startDate))
+			return false;
+		if (users == null) {
+			if (other.users != null)
+				return false;
+		} else if (!users.equals(other.users))
+			return false;
+		return true;
 	}
 
 }
