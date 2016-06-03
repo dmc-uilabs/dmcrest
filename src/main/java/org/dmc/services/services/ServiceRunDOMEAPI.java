@@ -16,7 +16,7 @@ import org.json.JSONObject;
 
 public class ServiceRunDOMEAPI {
 		
-	public static void main(String[] args)
+	/*public static void main(String[] args)
 	{
 		int user_id = 111;
 		int service_id = 3;
@@ -33,7 +33,7 @@ public class ServiceRunDOMEAPI {
 		{
 			e.printStackTrace();
 		}
-	}
+	}*/
 	
 	public int runModel(int service_id, int user_id) throws Exception
 	{
