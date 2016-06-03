@@ -28,9 +28,7 @@ import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.Company;
 import org.dmc.services.discussions.Discussion;
-import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
@@ -236,8 +234,20 @@ public class ProjectIT extends BaseIT {
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 		
 		
-		//Test GET and AWS URL Validity 
-
+        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicateJson: try to create again");
+        
+		// second time should fail, because unixname is a duplicate
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(json).
+		expect().
+			statusCode(200).
+		when().
+			post("/projects/create").
+		then().
+			log().all().
+			body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
 	
 	}
 
@@ -699,12 +709,6 @@ public class ProjectIT extends BaseIT {
 		when().delete("/projects_tags/" + projectId);
 	}
 	
-	
-	/*@Test
-	public void testProject_ProjectDocuments() {
-		given().header("AJP_eppn", userEPPN).expect().statusCode(200).when()
-		.get("/projects/"+ projectId + "/project_documents");
-	}*/
 	
 	/**
 	 * test case for GET /projects/{projectID}/following_discussions
