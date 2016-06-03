@@ -5,7 +5,9 @@ import org.dmc.services.entities.User;
 import org.dmc.services.models.DMDIIMemberFinanceModel;
 import org.dmc.services.models.UserModel;
 import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DMDIIMemberFinanceMapper extends AbstractMapper<DMDIIMemberFinance, DMDIIMemberFinanceModel> {
 
 	@Override

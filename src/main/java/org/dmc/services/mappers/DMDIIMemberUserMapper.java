@@ -7,7 +7,9 @@ import org.dmc.services.models.DMDIIMemberUserModel;
 import org.dmc.services.models.DMDIIRoleModel;
 import org.dmc.services.models.UserModel;
 import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DMDIIMemberUserMapper extends AbstractMapper<DMDIIMemberUser, DMDIIMemberUserModel> {
 
 	@Override
