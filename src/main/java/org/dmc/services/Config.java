@@ -24,3 +24,4 @@ public class Config {
  	public static final String LOG_FILE = "logs/dmc_site_services.log";
     public static final boolean CONSOLE_LOGGING = true;
 }
+

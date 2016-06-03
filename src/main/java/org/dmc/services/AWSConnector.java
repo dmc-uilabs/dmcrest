@@ -1,19 +1,19 @@
 package org.dmc.services;
 
 import java.net.URL;
+import java.sql.Timestamp;
+import java.util.Calendar;
+
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
-
-
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.DMCServiceException;
 
@@ -180,10 +180,62 @@ public class AWSConnector {
 			throw new DMCServiceException(DMCError.AWSError, "AWS Delete Request from " + userEPPN + " encountered internal error communication with "
 		    + "S3 and rejected do to: " + ace.getMessage());
         }
-
         return ResourcePath;
 
 	}//Remove
+	
+	
+	//Function to create a path to resource in S3 to store in DB for easy future references 
+	public String createPath (String URL) throws DMCServiceException {
+		//Parse URL to get Path
+		try{
+			int ResourcePathStart = URL.indexOf("com/") + 4;
+			int ResourcePathEnd = URL.indexOf("?A");
+			String ResourcePath = URL.substring(ResourcePathStart, ResourcePathEnd);
+	        return ResourcePath;
+		}catch(Exception e){ 
+			throw new DMCServiceException(DMCError.AWSError, "AWS create path from " + URL + "encountered internal error"); 
+		}
+	}//createPath
+	
+	public String refreshURL(String path) throws DMCServiceException{ 
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
+        AmazonS3 s3client = new AmazonS3Client(awsCreds);
+        
+    	ServiceLogger.log(logTag,"Refreshing pre-signed URL.");
+
+		//Parameters for Request, can change expiration time to any amount.
+		java.util.Date expiration = new java.util.Date();
+		long milliSeconds = expiration.getTime();
+		milliSeconds += 1000 * 60 * 60; // Add 1 hour.
+		expiration.setTime(milliSeconds);
+
+		GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(destBucket, path);
+		generatePresignedUrlRequest.setMethod(HttpMethod.GET);
+		generatePresignedUrlRequest.setExpiration(expiration);
+
+		URL url = s3client.generatePresignedUrl(generatePresignedUrlRequest);
+		String preSignedURL = url.toString();
+		return preSignedURL; 
+	}
+	
+	
+	//Helper function to check if timestamp expired
+	public boolean isTimeStampExpired(Timestamp expiration){
+		// create a java calendar instance
+		Calendar calendar = Calendar.getInstance();
+		 
+		// get a java.util.Date from the calendar instance.
+		java.util.Date now = calendar.getTime();
+		 
+		// a java current time (now) instance
+		java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
+		
+		if(expiration.after(currentTimestamp)){
+			return false; 
+		}
+		return true; 
+	}
 	
 	
 	//Helper function to check Filename conventions
@@ -197,6 +249,7 @@ public class AWSConnector {
         return true; 
 	}
 	
+	//helper function to create DestKeys
 	private String createDestKey(String destPath, String filename){ 
 
         //Using a General Hash Code Function for now. Future hash functions should generated unique hashes

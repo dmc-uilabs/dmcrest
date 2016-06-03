@@ -5,27 +5,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 
-//@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-07T17:42:57.404Z")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-07T17:42:57.404Z")
 public class ProjectDocument  {
   
-  private int id;
-  private int projectId;
-  private int projectDocumentId;
+  private String id = null;
+  private String projectId = null;
+  private String projectDocumentId = null;
   private String owner = null;
-  private int ownerId;
+  private String ownerId = null;
   private String title = null;
-  private int modifed;
-  private int size;
+  private String modifed = null;
+  private String size = null;
   private String file = null;
 
   
   /**
    **/
   @JsonProperty("id")
-  public int getId() {
+  public String getId() {
     return id;
   }
-  public void setId(int id) {
+  public void setId(String id) {
     this.id = id;
   }
 
@@ -33,10 +33,10 @@ public class ProjectDocument  {
   /**
    **/
   @JsonProperty("projectId")
-  public int getProjectId() {
+  public String getProjectId() {
     return projectId;
   }
-  public void setProjectId(int projectId) {
+  public void setProjectId(String projectId) {
     this.projectId = projectId;
   }
 
@@ -44,10 +44,10 @@ public class ProjectDocument  {
   /**
    **/
   @JsonProperty("project-documentId")
-  public int getProjectDocumentId() {
+  public String getProjectDocumentId() {
     return projectDocumentId;
   }
-  public void setProjectDocumentId(int projectDocumentId) {
+  public void setProjectDocumentId(String projectDocumentId) {
     this.projectDocumentId = projectDocumentId;
   }
 
@@ -66,10 +66,10 @@ public class ProjectDocument  {
   /**
    **/
   @JsonProperty("ownerId")
-  public int getOwnerId() {
+  public String getOwnerId() {
     return ownerId;
   }
-  public void setOwnerId(int ownerId) {
+  public void setOwnerId(String ownerId) {
     this.ownerId = ownerId;
   }
 
@@ -88,10 +88,10 @@ public class ProjectDocument  {
   /**
    **/
   @JsonProperty("modifed")
-  public int getModifed() {
+  public String getModifed() {
     return modifed;
   }
-  public void setModifed(int modifed) {
+  public void setModifed(String modifed) {
     this.modifed = modifed;
   }
 
@@ -99,10 +99,10 @@ public class ProjectDocument  {
   /**
    **/
   @JsonProperty("size")
-  public int getSize() {
+  public String getSize() {
     return size;
   }
-  public void setSize(int size) {
+  public void setSize(String size) {
     this.size = size;
   }
 

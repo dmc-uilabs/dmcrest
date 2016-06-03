@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
-
+import java.net.HttpURLConnection;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -26,13 +28,17 @@ import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.company.Company;
 import org.dmc.services.discussions.Discussion;
+import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.PostProjectTag;
 import org.dmc.services.projects.ProjectMember;
+import org.dmc.services.projects.ProjectDocument;
+
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -47,7 +53,7 @@ public class ProjectIT extends BaseIT {
 	private static final String MEMBER_REJECT_RESOURCE = "/projects/{projectId}/reject/{memberId}";
 	
 	//Documents
-	private static final String GET_PROJECT_DOCS = "/projects/{projectID}/project_documents/"; 
+	private static final String PROJECT_DOCS = "/projects/{projectID}/project_documents/"; 
 	
 	
     private final String logTag = ProjectIT.class.getName();
@@ -220,7 +226,6 @@ public class ProjectIT extends BaseIT {
 
 		// first time should work
 		given().
-			header("Content-type", "application/json").
 			header("AJP_eppn", userEPPN).
 			body(json).
 		expect().
@@ -229,20 +234,11 @@ public class ProjectIT extends BaseIT {
 			post("/projects/create").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+		
+		
+		//Test GET and AWS URL Validity 
 
-        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicateJson: try to create again");
-		// second time should fail, because unixname is a duplicate
-		given().
-			header("Content-type", "application/json").
-			header("AJP_eppn", userEPPN).
-			body(json).
-		expect().
-			statusCode(200).
-		when().
-			post("/projects/create").
-		then().
-			log().all().
-			body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
+	
 	}
 
 	@Test
@@ -323,27 +319,90 @@ public class ProjectIT extends BaseIT {
         }
     }
 
-    //Test for Project Documents 
+    //Test for Project Documents POST and GET
     @Test
-    public void getProjectDocuments () {
-        int projectId = 1;
-        given().
-                header("Content-type", "application/json").
-                param("documentGroupId", 1).    
-                expect().
-                statusCode(HttpStatus.OK.value()).
-                when().
-                get(GET_PROJECT_DOCS, projectId);
-        
-        //Make sure that URL to resource is valid 
-        //implement after POST method put into place. 
-       /* URL url = new URL("http://example.com");
-        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.connect();
+    public void testProjectDocuments () {
+        int projectId = 100;
 
-        int code = connection.getResponseCode();*/
-        
+    	//Adding test to get out preSignedURL 
+    	ArrayList<ProjectDocument> oldProjectDoc = given()
+               .param("documentGroupId", 100)    
+               .expect()
+               .statusCode(HttpStatus.OK.value())
+               .when()
+               .get(PROJECT_DOCS, projectId).as(ArrayList.class); 
+    	
+    	Date date = new Date();
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		String unique = format.format(date);
+
+		ProjectDocument json = new ProjectDocument();
+		json.setId("1");
+		json.setProjectId("100");
+		json.setProjectDocumentId("100");
+		json.setOwner("unixname" + unique);
+		json.setOwnerId("100");
+		json.setTitle("TestFile");
+		json.setModifed("100");
+		json.setSize("100");
+		json.setFile("file");		//Put AWS Test file here
+        ServiceLogger.log(logTag, "testProjectCreateJsonString: json = " + json.toString());
+    
+    	Integer DocId = null;
+
+		DocId = given().
+			header("AJP_eppn", userEPPN).
+			body(json.toString()).
+		expect().
+			statusCode(200).
+		when().
+			post(PROJECT_DOCS, projectId).
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
+		extract().
+			path("id");
+		 
+		//Do other GET with Added File 
+    	ArrayList<ProjectDocument> newProjectDoc = given()
+               .param("documentGroupId", 100)    
+               .expect()
+               .statusCode(HttpStatus.OK.value())
+               .when()
+               .get(PROJECT_DOCS, projectId).as(ArrayList.class); 
+		
+    	
+		assertTrue("", newProjectDoc.size() == oldProjectDoc.size() + 1);
+
+		//TESTING FOR VALID URL
+		String preSignedURL = null; 
+		
+		if (newProjectDoc != null && !newProjectDoc.isEmpty()) {
+			preSignedURL = newProjectDoc.get(newProjectDoc.size()-1).getFile();
+		}
+		
+		//Only test if preSigned URL is obtained 
+		if(preSignedURL != null){ 
+			URL url = null;
+			//Create URL object that is needed 
+			try{
+				url = new URL(preSignedURL);
+			}catch(Exception e){
+				assert(false); 
+			}
+			
+		    //Make sure that URL to resource is valid 
+			try{
+	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	        connection.setRequestMethod("GET");
+	        connection.connect();
+			}
+			catch(Exception e){ 
+				assert(false);
+			}
+			//Simple Url check test
+			String host = url.getHost();
+            assertTrue("S3 Host doesn't match", host.equals("dmc-profiletest.s3.amazonaws.com"));
+		}
     }
     
     
