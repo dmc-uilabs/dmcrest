@@ -224,6 +224,7 @@ public class ProjectIT extends BaseIT {
 
 		// first time should work
 		given().
+			header("Content-type", "application/json").
 			header("AJP_eppn", userEPPN).
 			body(json).
 		expect().
