@@ -355,7 +355,7 @@ public class ProjectIT extends BaseIT {
 		json.setTitle("TestFile");
 		json.setModifed("100");
 		json.setSize("100");
-		json.setFile("file");		//Put AWS Test file here
+		json.setFile("https://s3.amazonaws.com/dmc-uploads2/uilabs.jpeg");		//Put AWS Test file here
         ServiceLogger.log(logTag, "testProjectCreateJsonString: json = " + json.toString());
     
     	Integer DocId = null;

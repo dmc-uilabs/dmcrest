@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Connection;
+import java.util.Calendar;
+
 
 import org.dmc.services.AWSConnector;
 import org.dmc.services.DBConnector;
@@ -32,8 +34,19 @@ public class ProjectDocumentDao {
 		PreparedStatement statement;
 		int id = -999;
 		
-		long UnixTimeStamp = System.currentTimeMillis() / 1000L;
-		Timestamp expires = new java.sql.Timestamp(UnixTimeStamp + (1000*60*60*24*365*10)); 
+		// create a java calendar instance
+		Calendar calendar = Calendar.getInstance();
+		 
+		//  get a java.util.Date from the calendar instance.
+		java.util.Date now = calendar.getTime();
+		 
+		// a java current time (now) instance
+		java.sql.Timestamp expires = new java.sql.Timestamp(now.getTime());
+		//Timestamp expires = new java.sql.Timestamp(UnixTimeStamp + (1000*60*60*24*365*10)); 
+		
+		//Add an hour 
+		long duration = 1000 * 60 * 60; // Add 1 hour.
+		expires.setTime(expires.getTime() + duration);
 		
 		try {
 			connection.setAutoCommit(false);
@@ -124,21 +137,34 @@ public class ProjectDocumentDao {
 				//Refresh Check 
 				if(AWS.isTimeStampExpired(resultSet.getTimestamp("expiration_date"))){
 					//Refresh URL
-					filename = AWS.refreshURL(resultSet.getString("resource_path"));
-					
-		            // update the project
-		            String query = "UPDATE doc2_files SET filename = ? expiration_date = ? " + "WHERE file_id = ?";
-
+					filename =  AWS.refreshURL(resultSet.getString("resource_path"));
+			
+		            //update the project
+		            String query = "UPDATE doc2_files SET "
+			        		+ "filename = ?, "
+			        		+ "expiration_date = ? "
+			        		+ "WHERE file_id = ? ";
+			         
 		        	// create a java timestamp instance
-		            //NEED TO MAKE SURE THAT THE PRESIGNED URL EXPIRATION TIME MATCHES THIS TIMEa
-		        	long UnixTimeStamp = System.currentTimeMillis() / 1000L;
-		    		Timestamp expires = new java.sql.Timestamp(UnixTimeStamp + (1000*60*60*24*365*10)); 
+		            //NEED TO MAKE SURE THAT THE PRESIGNED URL EXPIRATION TIME MATCHES THIS 
+		        	// create a java calendar instance
+		    		Calendar calendar = Calendar.getInstance();
+		    		 
+		    		//  get a java.util.Date from the calendar instance.
+		    		java.util.Date now = calendar.getTime();
+		    		 
+		    		// a java current time (now) instance
+		    		java.sql.Timestamp expires = new java.sql.Timestamp(now.getTime()); 
 		    		
-		            statement = DBConnector.prepareStatement(query);
-		            statement.setString(1, filename);
-		            statement.setTimestamp(2, expires);
-		            statement.setInt(3, resultSet.getInt("file_id"));
-		            statement.executeUpdate();
+		    		//Add an hour 
+		    		long duration = 1000 * 60 * 60; // Add 1 hour.
+		    		expires.setTime(expires.getTime() + duration);
+		    		
+		            PreparedStatement update = DBConnector.prepareStatement(query);
+		            update.setString(1, filename);
+		            update.setTimestamp(2, expires);
+		            update.setInt(3, resultSet.getInt("file_id"));
+		            update.executeUpdate();
 			    } //end refresh check 
 				
 				doc.setFile(filename);
