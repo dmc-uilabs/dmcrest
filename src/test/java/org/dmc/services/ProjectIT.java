@@ -31,6 +31,7 @@ import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectTag;
+import org.dmc.services.services.ServiceSpecifications;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -318,15 +319,32 @@ public class ProjectIT extends BaseIT {
     }
 
     @Test
-	public void testGetProject6Tags() {
-		given().
+	public void testGetProject1Tags() {
+    	
+    	int projectId = 1;
+    	ArrayList<ProjectTag> tags = new ArrayList<ProjectTag>();
+    	
+		ObjectMapper mapper = new ObjectMapper();
+		
+		JsonNode jsonSpecs = given().
 			header("AJP_eppn", userEPPN).
 		expect().
 			statusCode(200).
 		when().
-			get("/projects/6/projects_tags").
-		then().
-			body(matchesJsonSchemaInClasspath("Schemas/projectTagListSchema.json"));
+			get("/projects/" + projectId +  "/projects_tags").
+		as(JsonNode.class);
+		
+		try {
+			tags = mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ProjectTag>>() {
+			});
+		} catch (Exception e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
+		// assert that we've received tags for the requested project ID
+		for (ProjectTag tag : tags) {
+			assertTrue("Project Tag is for the project ID requested", Integer.parseInt(tag.getProjectId()) == projectId);
+		}
 	}
 	
 	@Test
@@ -578,12 +596,13 @@ public class ProjectIT extends BaseIT {
 	@Test
 	public void testProjectPost_ProjectTag(){
 		
+		String tagName = "Test-tag-name";
 		this.testProjectCreateJsonString();
 		
 		if (this.createdId != null) {
 			ProjectTag obj = new ProjectTag();
 			obj.setProjectId(projectId);
-			obj.setName("Test");
+			obj.setName(tagName);
 			
 			ObjectMapper mapper = new ObjectMapper();
 			
@@ -595,14 +614,19 @@ public class ProjectIT extends BaseIT {
 				e.printStackTrace();
 			}
 			
-			given().
+			ProjectTag tag = given().
 	        header("Content-type", "application/json").
 	        header("AJP_eppn", userEPPN).
 	        body(postedProjectTagsJSONString).
 	        expect().
 	        statusCode(HttpStatus.OK.value()).
 	        when().
-	        post("/projects_tags");
+	        post("/projects_tags").
+	        as(ProjectTag.class);
+			
+			// assert some attributes on the created tag
+			assertTrue("Created Project Tag name is as requested", tag.getName().equals(tagName));
+			assertTrue("Created Project Project ID is as requested", tag.getProjectId().equals(projectId));
 		}
 
 	}
@@ -611,13 +635,16 @@ public class ProjectIT extends BaseIT {
 	/**
 	 * test case for DELETE /projects_tags/{projectTagid}
 	 */
-	//@Test
-	public void testProjectDelete_ProjectTag(){
+	@Test
+	public void testDelete_Project100Tag(){
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().delete("/projects_tags/" + projectId);
+		statusCode(HttpStatus.OK.value()).
+		when().
+		delete("/projects_tags/100").
+		then().
+		body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 	
 	

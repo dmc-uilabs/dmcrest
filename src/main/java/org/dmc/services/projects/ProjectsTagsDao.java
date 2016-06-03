@@ -91,6 +91,8 @@ public class ProjectsTagsDao {
 			
 		} catch (SQLException e) {
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		} catch (Exception e) {
+			throw new DMCServiceException(DMCError.Generic, e.getMessage());
 		}
 	}
 	

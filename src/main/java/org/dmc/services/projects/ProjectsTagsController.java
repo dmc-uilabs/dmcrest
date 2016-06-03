@@ -54,7 +54,7 @@ public class ProjectsTagsController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/projects/{projectId}/project_tags", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/projects/{projectId}/projects_tags", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<?> getProjectTags(@PathVariable("projectId") int projectId,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In getProjectTags: for project" + projectId + " as user " + userEPPN);
@@ -76,7 +76,7 @@ public class ProjectsTagsController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/projects_tags/{projectTagid}'", method = RequestMethod.DELETE, produces = "application/json")
+	@RequestMapping(value = "/projects_tags/{projectTagid}", method = RequestMethod.DELETE, produces = "application/json")
 	public ResponseEntity<?> deleteProjectTag(@PathVariable("projectTagid") int tagId,
 			@RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		ServiceLogger.log(logTag, "In delete ProjectTag: as user " + userEPPN);
