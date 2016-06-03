@@ -1,0 +1,51 @@
+package org.dmc.services.mappers;
+
+import org.dmc.services.entities.DMDIIMemberUser;
+import org.dmc.services.entities.DMDIIRole;
+import org.dmc.services.entities.User;
+import org.dmc.services.models.DMDIIMemberUserModel;
+import org.dmc.services.models.DMDIIRoleModel;
+import org.dmc.services.models.UserModel;
+import org.springframework.beans.BeanUtils;
+
+public class DMDIIMemberUserMapper extends AbstractMapper<DMDIIMemberUser, DMDIIMemberUserModel> {
+
+	@Override
+	public DMDIIMemberUser mapToEntity(DMDIIMemberUserModel model) {
+		DMDIIMemberUser entity = new DMDIIMemberUser();
+		BeanUtils.copyProperties(model, entity);
+		
+		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<DMDIIRole, DMDIIRoleModel> dmdiiRoleMapper = mapperFactory.mapperFor(DMDIIRole.class, DMDIIRoleModel.class);
+		
+		entity.setRole(dmdiiRoleMapper.mapToEntity(model.getRole()));
+		entity.setUser(userMapper.mapToEntity(model.getUser()));
+		
+		return entity;
+	}
+
+	@Override
+	public DMDIIMemberUserModel mapToModel(DMDIIMemberUser entity) {
+		DMDIIMemberUserModel model = new DMDIIMemberUserModel();
+		BeanUtils.copyProperties(entity, model);
+		
+		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<DMDIIRole, DMDIIRoleModel> dmdiiRoleMapper = mapperFactory.mapperFor(DMDIIRole.class, DMDIIRoleModel.class);
+		
+		model.setRole(dmdiiRoleMapper.mapToModel(entity.getRole()));
+		model.setUser(userMapper.mapToModel(entity.getUser()));
+		
+		return model;
+	}
+
+	@Override
+	public Class<DMDIIMemberUser> supportsEntity() {
+		return DMDIIMemberUser.class;
+	}
+
+	@Override
+	public Class<DMDIIMemberUserModel> supportsModel() {
+		return DMDIIMemberUserModel.class;
+	}
+
+}

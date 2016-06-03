@@ -10,7 +10,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "dmdii_skill")
-public class DMDIISkill {
+public class DMDIISkill extends BaseEntity {
 
 	@Id
 	@GeneratedValue(generator = "increment")
