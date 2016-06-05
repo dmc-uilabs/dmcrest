@@ -321,8 +321,8 @@ public class ProjectIT extends BaseIT {
     @Test
 	public void testGetProject1Tags() {
     	
-    	int projectId = 1;
-    	ArrayList<ProjectTag> tags = new ArrayList<ProjectTag>();
+		int projectId = 1;
+		ArrayList<ProjectTag> tags = new ArrayList<ProjectTag>();
     	
 		ObjectMapper mapper = new ObjectMapper();
 		
