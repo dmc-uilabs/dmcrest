@@ -9,6 +9,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+
 import org.json.JSONObject;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -165,8 +168,22 @@ public class AccountsIT extends BaseIT {
 	 **/
 	@Test
 	public void testAccountGet_AccountServers() {
-		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.get("/accounts/" + knownUserID + "/account_servers");
+		String accountID = "102"; // This is the accountID of alias=baseDOME in the servers table (first two entries)
+
+		List<UserAccountServer> receivedAccountServers = Arrays.asList(given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
+				.expect().statusCode(HttpStatus.OK.value()).when().get("/accounts/" + accountID + "/account_servers").as(UserAccountServer[].class));
+
+		assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
+				(receivedAccountServers.get(0).getAccountId().equals(accountID)));
+		assertTrue("testAccountGet_AccountServers: Account server server_id values are not equal",
+				(receivedAccountServers.get(0).getId().equals("1")));
+		assertTrue("testAccountGet_AccountServers: Account server url values are not equal",
+				(receivedAccountServers.get(0).getIp().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
+		assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
+				(receivedAccountServers.get(0).getName().equals("baseDOME")));
+		assertTrue("testAccountGet_AccountServers: Account server status values are not equal",
+				(receivedAccountServers.get(0).getStatus().equals("offline")));
+
 	}
 
 	/**
