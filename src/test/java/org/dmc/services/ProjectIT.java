@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
 
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.Discussion;
@@ -31,8 +30,8 @@ import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
-import org.dmc.services.projects.PostProjectTag;
-import org.dmc.services.projects.ProjectMember;
+import org.dmc.services.projects.ProjectTag;
+import org.dmc.services.services.ServiceSpecifications;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -320,15 +319,32 @@ public class ProjectIT extends BaseIT {
     }
 
     @Test
-	public void testGetProject6Tags() {
-		given().
+	public void testGetProject1Tags() {
+    	
+		int projectId = 1;
+		ArrayList<ProjectTag> tags = new ArrayList<ProjectTag>();
+    	
+		ObjectMapper mapper = new ObjectMapper();
+		
+		JsonNode jsonSpecs = given().
 			header("AJP_eppn", userEPPN).
 		expect().
 			statusCode(200).
 		when().
-			get("/projects/6/projects_tags").
-		then().
-			body(matchesJsonSchemaInClasspath("Schemas/projectTagListSchema.json"));
+			get("/projects/" + projectId +  "/projects_tags").
+		as(JsonNode.class);
+		
+		try {
+			tags = mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ProjectTag>>() {
+			});
+		} catch (Exception e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
+		// assert that we've received tags for the requested project ID
+		for (ProjectTag tag : tags) {
+			assertTrue("Project Tag is for the project ID requested", Integer.parseInt(tag.getProjectId()) == projectId);
+		}
 	}
 	
 	@Test
@@ -579,24 +595,40 @@ public class ProjectIT extends BaseIT {
 	 */
 	@Test
 	public void testProjectPost_ProjectTag(){
-		PostProjectTag obj =null;
-		ObjectMapper mapper = new ObjectMapper();
-		String postedProjectTagsJSONString = null;
-		try {
-			postedProjectTagsJSONString = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(postedProjectTagsJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        post("/projects_tags");
+		String tagName = "Test-tag-name";
+		this.testProjectCreateJsonString();
+		
+		if (this.createdId != null) {
+			ProjectTag obj = new ProjectTag();
+			obj.setProjectId(projectId);
+			obj.setName(tagName);
+			
+			ObjectMapper mapper = new ObjectMapper();
+			
+			String postedProjectTagsJSONString = null;
+			
+			try {
+				postedProjectTagsJSONString = mapper.writeValueAsString(obj);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+			
+			ProjectTag tag = given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(postedProjectTagsJSONString).
+			expect().
+			statusCode(HttpStatus.OK.value()).
+			when().
+			post("/projects_tags").
+			as(ProjectTag.class);
+			
+			// assert some attributes on the created tag
+			assertTrue("Created Project Tag name is as requested", tag.getName().equals(tagName));
+			assertTrue("Created Project Project ID is as requested", tag.getProjectId().equals(projectId));
+		}
+
 	}
 	
 	
@@ -604,12 +636,15 @@ public class ProjectIT extends BaseIT {
 	 * test case for DELETE /projects_tags/{projectTagid}
 	 */
 	@Test
-	public void testProjectDelete_ProjectTag(){
+	public void testDelete_Project100Tag(){
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().delete("/projects_tags/" + projectId);
+		statusCode(HttpStatus.OK.value()).
+		when().
+		delete("/projects_tags/100").
+		then().
+		body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 	
 	
@@ -772,5 +807,4 @@ public class ProjectIT extends BaseIT {
 			assertTrue("Not Admin", response.contains("not have permission to remove members"));
 		}
 	}
-
 }
