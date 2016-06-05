@@ -615,14 +615,14 @@ public class ProjectIT extends BaseIT {
 			}
 			
 			ProjectTag tag = given().
-	        header("Content-type", "application/json").
-	        header("AJP_eppn", userEPPN).
-	        body(postedProjectTagsJSONString).
-	        expect().
-	        statusCode(HttpStatus.OK.value()).
-	        when().
-	        post("/projects_tags").
-	        as(ProjectTag.class);
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(postedProjectTagsJSONString).
+			expect().
+			statusCode(HttpStatus.OK.value()).
+			when().
+			post("/projects_tags").
+			as(ProjectTag.class);
 			
 			// assert some attributes on the created tag
 			assertTrue("Created Project Tag name is as requested", tag.getName().equals(tagName));
