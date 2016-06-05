@@ -34,8 +34,8 @@ public class ProjectDocumentController {
 
 		} catch(DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-           return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
-        }		
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}		
 	}
 	
 	/* 
@@ -58,7 +58,7 @@ public class ProjectDocumentController {
 
 		} catch(DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-           return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
-        }		
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}		
 	}
 }
