@@ -1,5 +1,9 @@
 package org.dmc.services.accounts;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -141,9 +145,23 @@ class AccountServersDao {
 	       	ResultSet resultSet = preparedStatement.executeQuery();
 	       	if(resultSet.next()) {
 		    userAccountServer.setId(Integer.toString(resultSet.getInt("server_id")));
-		    userAccountServer.setIp(resultSet.getString("url"));
+		    String server = resultSet.getString("url");
+		    userAccountServer.setIp(server);
+		    String port = resultSet.getString("port");
 		    userAccountServer.setAccountId(Integer.toString(resultSet.getInt("user_id")));
 		    userAccountServer.setName(resultSet.getString("alias"));
+		    
+		    HttpURLConnection testConnection = (HttpURLConnection) new URL(server + ":" + port + "/DOMEApiServicesV7/getChildren")
+		    		.openConnection();
+		    
+		    testConnection.setRequestMethod("GET");
+		    
+		    if (testConnection.getResponseCode() == 200)
+		    	userAccountServer.setStatus("online");
+		    else
+		    	userAccountServer.setStatus("offline");
+		    
+		    
 		    // ToDo set status
 //		     	userAccountServer.setStatus();
 		} else {
@@ -152,7 +170,14 @@ class AccountServersDao {
 	    } catch (SQLException e) {
 		ServiceLogger.log(logTag, e.getMessage());
 	       	throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
-	    }
+	    } catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+	    	
+	    		throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value()); //This URL is invalid
+	    		
+		} catch (IOException e){
+			userAccountServer.setStatus("error connecting to DOME server");
+		}
 	    return userAccountServer;
 	}
 
