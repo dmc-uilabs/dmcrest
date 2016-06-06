@@ -33,6 +33,8 @@ import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
+import org.dmc.services.projects.ProjectTag;
+import org.dmc.services.services.ServiceSpecifications;
 import org.dmc.services.projects.PostProjectTag;
 import org.dmc.services.projects.ProjectMember;
 import org.dmc.services.projects.ProjectDocument;
@@ -45,22 +47,22 @@ public class ProjectIT extends BaseIT {
     private static final String PROJECT_INDIVIDUAL_DISCUSSION_RESOURCE = "/projects/{projectID}/individual-discussion";
 	private static final String PROJECT_UPDATE_RESOURCE = "/projects/{id}";
     private static final String PROJECT_GET_ALL_RESOURCE = "/projects/all";
-	
-	// Member  
+
+	// Member
 	private static final String MEMBER_ACCEPT_RESOURCE = "/projects/{projectId}/accept/{memberId}";
 	private static final String MEMBER_REJECT_RESOURCE = "/projects/{projectId}/reject/{memberId}";
-	
+
 	//Documents
-	private static final String PROJECT_DOCS = "/projects/{projectID}/project_documents/"; 
-	
-	
+	private static final String PROJECT_DOCS = "/projects/{projectID}/project_documents/";
+
+
     private final String logTag = ProjectIT.class.getName();
     private DiscussionIT discussionIT = new DiscussionIT();
 	private Integer createdId = null;
 	String randomEPPN = UUID.randomUUID().toString();
 
 	private String projectId = "1";
-	
+
     @Test
 	public void testProject6() {
 		given().
@@ -72,10 +74,10 @@ public class ProjectIT extends BaseIT {
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
 	}
-	
+
 	@Test
 	public void testProject5(){
-		
+
 		//TODO: need to update to another demo project
 		given().
 			header("AJP_eppn", userEPPN).
@@ -84,9 +86,9 @@ public class ProjectIT extends BaseIT {
 		when().
 			get("/projects/6").
 		then().
-			body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));		
+			body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
 	}
-	
+
 	// this tests could do check more about what tests are returned
 	@Test
 	public void testProjectList(){
@@ -118,14 +120,14 @@ public class ProjectIT extends BaseIT {
 
 	@Test
 	public void testProjectCreateJsonString() {
-		
+
 		String unique = UUID.randomUUID().toString().substring(0, 24);
-		
+
 		JSONObject json = new JSONObject();
 		json.put("projectname", "junit" + unique);
 		json.put("unixname", "junit" + unique);
         ServiceLogger.log(logTag, "testProjectCreateJsonString: json = " + json.toString());
-        
+
 		this.createdId = given().
 			header("AJP_eppn", userEPPN).
 			body(json.toString()).
@@ -138,7 +140,7 @@ public class ProjectIT extends BaseIT {
 		extract().
 			path("id");
 	}
-	
+
 
 	// see as an example to configure the object https://github.com/jayway/rest-assured/wiki/Usage#serialization
 	@Test
@@ -233,10 +235,10 @@ public class ProjectIT extends BaseIT {
 			post("/projects/create").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-		
-		
+
+
         ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicateJson: try to create again");
-        
+
 		// second time should fail, because unixname is a duplicate
 		given().
 			header("Content-type", "application/json").
@@ -249,7 +251,7 @@ public class ProjectIT extends BaseIT {
 		then().
 			log().all().
 			body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
-	
+
 	}
 
 	@Test
@@ -257,10 +259,10 @@ public class ProjectIT extends BaseIT {
 		assertEquals(1, Project.IsPublic("Public"));
 		assertEquals(0, Project.IsPublic("PRIVATE"));
 	}
-	
+
     @Test
 	public void testAllProjectDiscussions() {
-    	
+
     	ObjectMapper mapper = new ObjectMapper();
     	this.testProjectCreateJsonString();
 
@@ -276,17 +278,17 @@ public class ProjectIT extends BaseIT {
     		        .when()
     		        .get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
     		        .as(JsonNode.class);
-                
+
     			try {
-					ArrayList<Discussion> discussionList = 
-							mapper.readValue(mapper.treeAsTokens(discussions), 
+					ArrayList<Discussion> discussionList =
+							mapper.readValue(mapper.treeAsTokens(discussions),
 							new TypeReference<ArrayList<Discussion>>() {});
 
                     assertEquals("should  only be one discussion that we created, found a different amount", 1, discussionList.size());
 					for (Discussion discussion : discussionList) {
 						assertTrue("Discussion belongs to project", discussion.getProjectId().equals(this.createdId.toString()));
 					}
-					
+
     			} catch (Exception e) {
     				ServiceLogger.log(logTag, e.getMessage());
     			}
@@ -296,7 +298,7 @@ public class ProjectIT extends BaseIT {
 
     @Test
     public void testIndividualProjectDiscussions() {
-        
+
         ObjectMapper mapper = new ObjectMapper();
         this.testProjectCreateJsonString();
 
@@ -312,17 +314,17 @@ public class ProjectIT extends BaseIT {
                     .when()
                     .get(PROJECT_INDIVIDUAL_DISCUSSION_RESOURCE, this.createdId)
                     .as(JsonNode.class);
-                
+
                 try {
-                    ArrayList<Discussion> discussionList = 
-                            mapper.readValue(mapper.treeAsTokens(discussions), 
+                    ArrayList<Discussion> discussionList =
+                            mapper.readValue(mapper.treeAsTokens(discussions),
                             new TypeReference<ArrayList<Discussion>>() {});
 
                     assertEquals("should  only be one discussion that we created, found a different amount", 1, discussionList.size());
                     for (Discussion discussion : discussionList) {
                         assertTrue("Discussion belongs to project", discussion.getProjectId().equals(this.createdId.toString()));
                     }
-                    
+
                 } catch (Exception e) {
                     ServiceLogger.log(logTag, e.getMessage());
                 }
@@ -335,14 +337,14 @@ public class ProjectIT extends BaseIT {
     public void testProjectDocuments () {
         int projectId = 100;
 
-    	//Adding test to get out preSignedURL 
+    	//Adding test to get out preSignedURL
     	ArrayList<ProjectDocument> oldProjectDoc = given()
-               .param("documentGroupId", 100)    
+               .param("documentGroupId", 100)
                .expect()
                .statusCode(HttpStatus.OK.value())
                .when()
-               .get(PROJECT_DOCS, projectId).as(ArrayList.class); 
-    	
+               .get(PROJECT_DOCS, projectId).as(ArrayList.class);
+
     	Date date = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 		String unique = format.format(date);
@@ -350,7 +352,7 @@ public class ProjectIT extends BaseIT {
 		ProjectDocument json = new ProjectDocument();
 		/*
 		JSONObject json = new JSONObject();
-		  
+
 		json.put("id", "100");
 		json.put("projectId", "100");
 		json.put("projectDocumentId", "100");
@@ -360,8 +362,8 @@ public class ProjectIT extends BaseIT {
 		json.put("modifed", "100");
 		json.put("size", "100");
 		json.put("file", "https://s3.amazonaws.com/dmc-uploads2/uilabs.jpeg");*/
-        
-		
+
+
 		json.setId("100");
 		json.setProjectId("100");
 		json.setProjectDocumentId("100");
@@ -372,7 +374,7 @@ public class ProjectIT extends BaseIT {
 		json.setSize("100");
 		json.setFile("https://s3.amazonaws.com/dmc-uploads2/uilabs.jpeg");		//Put AWS Test file here
        // ServiceLogger.log(logTag, "testProjectCreateJsonString: json = " + json.toString());
-    
+
 		//POST
 		Integer DocId = given().
 			header("Content-type", "application/json").
@@ -385,44 +387,44 @@ public class ProjectIT extends BaseIT {
 			body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
 		extract().
 			path("id");
-		 
-		//Do other GET with Added File 
+
+		//Do other GET with Added File
     	ArrayList<ProjectDocument> newProjectDoc = given()
-               .param("documentGroupId", 100)    
+               .param("documentGroupId", 100)
                .expect()
                .statusCode(HttpStatus.OK.value())
                .when()
-               .get(PROJECT_DOCS, projectId).as(ArrayList.class); 
-		
-    	
+               .get(PROJECT_DOCS, projectId).as(ArrayList.class);
+
+
 		assertTrue("", newProjectDoc.size() == oldProjectDoc.size() + 1);
 
 		//TESTING FOR VALID URL
 		//COMMENTING OUT FOR NOW BECAUSE CANT MAP ARRAY TO PROJECT DOC CLASS
-		/*String preSignedURL = null; 
-		
+		/*String preSignedURL = null;
+
 		if (newProjectDoc != null && !newProjectDoc.isEmpty()) {
-			ProjectDocument temp = newProjectDoc.get(newProjectDoc.size() - 1); 
+			ProjectDocument temp = newProjectDoc.get(newProjectDoc.size() - 1);
 			preSignedURL = temp.getFile();
 		}
-		
-		//Only test if preSigned URL is obtained 
-		if(preSignedURL != null){ 
+
+		//Only test if preSigned URL is obtained
+		if(preSignedURL != null){
 			URL url = null;
-			//Create URL object that is needed 
+			//Create URL object that is needed
 			try{
 				url = new URL(preSignedURL);
 			}catch(Exception e){
-				assert(false); 
+				assert(false);
 			}
-			
-		    //Make sure that URL to resource is valid 
+
+		    //Make sure that URL to resource is valid
 			try{
 	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 	        connection.setRequestMethod("GET");
 	        connection.connect();
 			}
-			catch(Exception e){ 
+			catch(Exception e){
 				assert(false);
 			}
 			//Simple Url check test
@@ -430,8 +432,8 @@ public class ProjectIT extends BaseIT {
             assertTrue("S3 Host doesn't match", host.equals("dmc-profiletest.s3.amazonaws.com"));
 		}*/
     }
-    
-    
+
+
     @Test
 	public void testGetProject6Tags() {
 		given().
@@ -443,7 +445,7 @@ public class ProjectIT extends BaseIT {
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectTagListSchema.json"));
 	}
-	
+
 	@Test
 	public void testProject6Members(){
 		given().
@@ -454,14 +456,14 @@ public class ProjectIT extends BaseIT {
 			get("/projects/6/projects_members").
 		then().
 			log().all().
-			body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));		
-		
+			body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+
 	}
-	
-	
+
+
 	@Test
 	public void testProjectJoinRequests(){
-		ValidatableResponse response =  
+		ValidatableResponse response =
 		given().
 			header("AJP_eppn", userEPPN).
 		expect().
@@ -470,7 +472,7 @@ public class ProjectIT extends BaseIT {
 			get("/projects_join_requests").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
-		
+
 		ServiceLogger.log(logTag, "testProjectJoinRequests " + response.extract().asString());
 		// based on data loaded in gforge.psql
 		// this is true only for a clean db
@@ -506,11 +508,11 @@ public class ProjectIT extends BaseIT {
 		expected.setProjectId("4");
 		expected.setProfileId("111");
 		assertTrue(list.contains(expected));
-	}		
+	}
 
 	@Test
 	public void testProjectJoinRequestsWithParamList(){
-		ValidatableResponse response =  
+		ValidatableResponse response =
 		given().
 			header("AJP_eppn", userEPPN).
 			param("projectId", "4,6").
@@ -521,7 +523,7 @@ public class ProjectIT extends BaseIT {
 			get("/projects_join_requests").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
-		
+
 		ServiceLogger.log(logTag, "testProjectJoinRequests " + response.extract().asString());
 		// based on data loaded in gforge.psql
 		String expectedResponseAsString = "[]";
@@ -533,7 +535,7 @@ public class ProjectIT extends BaseIT {
 
 	@Test
 	public void testProjectJoinRequestsProject6(){
-		ValidatableResponse response =  
+		ValidatableResponse response =
 		given().
 			header("AJP_eppn", userEPPN).
 		expect().
@@ -542,10 +544,10 @@ public class ProjectIT extends BaseIT {
 			get("/projects/6/projects_join_requests").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
-		
+
 		ServiceLogger.log(logTag, "testProjectJoinRequestsProject6" + response.extract().asString());
 		// based on data loaded in gforge.psql
-		// this is only true for a clean db 
+		// this is only true for a clean db
 		//String expectedResponseAsString = "[{\"id\":\"6-102-102\",\"projectId\":\"6\",\"profileId\":\"102\"},{\"id\":\"6-111-102\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"6-111-111\",\"projectId\":\"6\",\"profileId\":\"111\"}]";
 		//assertTrue(expectedResponseAsString.equals(response.extract().asString()));
 
@@ -583,7 +585,7 @@ public class ProjectIT extends BaseIT {
 
 	@Test
 	public void testProjectJoinRequestsProfile111(){
-		ValidatableResponse response =  
+		ValidatableResponse response =
 		given().
 			header("AJP_eppn", userEPPN).
 		expect().
@@ -592,7 +594,7 @@ public class ProjectIT extends BaseIT {
 			get("/profiles/111/projects_join_requests").
 		then().
 			body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
-		
+
 		ServiceLogger.log(logTag, "testProjectJoinRequestsProfile111" + response.extract().asString());
 		// based on data loaded in gforge.psql
 		String expectedResponseAsString = "[{\"id\":\"6-111-102\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"6-111-111\",\"projectId\":\"6\",\"profileId\":\"111\"},{\"id\":\"4-111-111\",\"projectId\":\"4\",\"profileId\":\"111\"}]";
@@ -629,14 +631,14 @@ public class ProjectIT extends BaseIT {
 		expected.setProfileId("111");
 		assertTrue(list.contains(expected));
 	}
-	
+
 	@Test
 	public void testCreateAndDeleteProjectJoinRequests(){
 		PostProjectJoinRequest json = new PostProjectJoinRequest();
 		json.setProjectId("4");
 		json.setProfileId("110");
 
-		String id = 
+		String id =
 		given().
 			header("Content-type", "application/json").
 			header("AJP_eppn", userEPPN).
@@ -685,8 +687,8 @@ public class ProjectIT extends BaseIT {
 
 	}
 
-	
-	
+
+
 	/**
 	 * test case for post /projects_tags
 	 */
@@ -701,7 +703,7 @@ public class ProjectIT extends BaseIT {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		given().
         header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
@@ -711,8 +713,8 @@ public class ProjectIT extends BaseIT {
 	when().
         post("/projects_tags");
 	}
-	
-	
+
+
 	/**
 	 * test case for DELETE /projects_tags/{projectTagid}
 	 */
@@ -724,18 +726,18 @@ public class ProjectIT extends BaseIT {
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().delete("/projects_tags/" + projectId);
 	}
-	
-	
+
+
 	/**
 	 * test case for GET /projects/{projectID}/following_discussions
 	 */
-	
+
 	@Test
 	public void testProject_FollowingDiscussion() {
 		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 		.get("/projects/"+ projectId + "/following_discussions");
 	}
-	
+
 	/**
 	 * PATCH /projects/{projectId}
 	 */
@@ -743,7 +745,7 @@ public class ProjectIT extends BaseIT {
 	public void testProjectPatch() {
 
 		int updatedId = -1;
-		
+
 		this.testProjectCreateJsonString();
 		if (this.createdId != null) {
 			JSONObject json = new JSONObject();
@@ -760,11 +762,11 @@ public class ProjectIT extends BaseIT {
 			.when()
 				.patch(PROJECT_UPDATE_RESOURCE, this.createdId).then()
 				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
-			
+
 			assertTrue("Updated project is the one identified in URL param", updatedId == this.createdId);
 		}
 	}
-	
+
     /**
      * PATCH /projects/{projectId}/accept/{memberId}
      */
@@ -795,7 +797,7 @@ public class ProjectIT extends BaseIT {
 
 		String adminUser = "fforgeadmin";
 		String testUser = "testUser";
-		
+
 		this.testProjectCreateJsonString();
 		if (this.createdId != null) {
 			String response = given()
@@ -806,11 +808,11 @@ public class ProjectIT extends BaseIT {
 			.when()
 				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, testUser)
 				.asString();
-			
+
 			assertTrue("No Existing Request", response.contains("no existing request to join the project"));
 		}
 	}
-	
+
 	/**
 	 * PATCH /projects/{projectId}/accept/{memberId}
 	 */
@@ -818,7 +820,7 @@ public class ProjectIT extends BaseIT {
 	public void testProjectMemberAcceptNotAdmin() {
 
 		String adminUser = "fforgeadmin";
-		
+
 		this.testProjectCreateJsonString();
 		if (this.createdId != null) {
 			String response = given()
@@ -829,11 +831,11 @@ public class ProjectIT extends BaseIT {
 			.when()
 				.patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser)
 				.asString();
-			
+
 			assertTrue("Not Admin",response.contains("does not have permission to accept members"));
 		}
 	}
-	
+
 	/**
 	 * PATCH /projects/{projectId}/reject/{memberId}
 	 */
@@ -841,7 +843,7 @@ public class ProjectIT extends BaseIT {
 	public void testProjectMemberRejectOnlyAdmin() {
 
 		String adminUser = "fforgeadmin";
-		
+
 		this.testProjectCreateJsonString();
 		if (this.createdId != null) {
 			String response = given()
@@ -852,11 +854,11 @@ public class ProjectIT extends BaseIT {
 			.when()
 				.delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser)
 				.asString();
-			
+
 			assertTrue("No Existing Request", response.contains("is the only Admin of project"));
 		}
 	}
-	
+
 	/**
 	 * PATCH /projects/{projectId}/reject/{memberId}
 	 */
@@ -864,7 +866,7 @@ public class ProjectIT extends BaseIT {
 	public void testProjectMemberRejecttNotAdmin() {
 
 		String adminUser = "fforgeadmin";
-		
+
 		this.testProjectCreateJsonString();
 		if (this.createdId != null) {
 			String response = given()
@@ -875,7 +877,7 @@ public class ProjectIT extends BaseIT {
 			.when()
 				.delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser)
 				.asString();
-			
+
 			assertTrue("Not Admin", response.contains("not have permission to remove members"));
 		}
 	}
