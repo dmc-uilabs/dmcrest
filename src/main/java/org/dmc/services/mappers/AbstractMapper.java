@@ -40,4 +40,13 @@ public abstract class AbstractMapper<T extends BaseEntity, S extends BaseModel> 
 			return destination;
 		}
 	}
+	
+	protected T copyProperties(S source, T destination) {
+		if (source == null) {
+			return null;
+		} else {
+			BeanUtils.copyProperties(source, destination);
+			return destination;
+		}
+	}
 }
