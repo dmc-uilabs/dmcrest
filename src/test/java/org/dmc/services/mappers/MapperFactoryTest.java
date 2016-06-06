@@ -26,8 +26,16 @@ public class MapperFactoryTest {
 	private Mapper<TestBaseEntity1, TestBaseModel1> mockMapper1;
 	private Mapper<TestBaseEntity2, TestBaseModel2> mockMapper2;
 
-	private class TestBaseEntity1 extends BaseEntity{}
-	private class TestBaseEntity2 extends BaseEntity{}
+	private class TestBaseEntity1 extends BaseEntity{
+		public Integer getId() {
+			return 0;
+		}
+	}
+	private class TestBaseEntity2 extends BaseEntity{
+		public Integer getId() {
+			return 0;
+		}
+	}
 	
 	private class TestBaseModel1 extends BaseModel{}
 	private class TestBaseModel2 extends BaseModel{}

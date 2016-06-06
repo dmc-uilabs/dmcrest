@@ -38,6 +38,7 @@ public class MapperFactory {
 
 				@Override
 				public BaseEntity mapToEntity(BaseModel model) {
+					if (model == null) return null;
 					BaseEntity entity = null;
 					try {
 						entity = entityClass.newInstance();
@@ -51,6 +52,7 @@ public class MapperFactory {
 
 				@Override
 				public BaseModel mapToModel(BaseEntity entity) {
+					if (entity == null) return null;
 					BaseModel model = null;
 					try {
 						model = modelClass.newInstance();

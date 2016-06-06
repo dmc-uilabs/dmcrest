@@ -12,8 +12,7 @@ public class DMDIIInstituteInvolvementMapper extends AbstractMapper<DMDIIInstitu
 
 	@Override
 	public DMDIIInstituteInvolvement mapToEntity(DMDIIInstituteInvolvementModel model) {
-		DMDIIInstituteInvolvement entity = new DMDIIInstituteInvolvement();
-		BeanUtils.copyProperties(model, entity);
+		DMDIIInstituteInvolvement entity = copyProperties(model, new DMDIIInstituteInvolvement());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		entity.setUser(userMapper.mapToEntity(model.getUser()));

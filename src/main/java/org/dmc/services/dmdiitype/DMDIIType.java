@@ -6,11 +6,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.dmc.services.entities.BaseEntity;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "organization_dmdii_type")
-public class DMDIIType {
+public class DMDIIType extends BaseEntity {
 	
 	@Id
 	@GeneratedValue(generator = "increment")

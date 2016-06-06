@@ -12,8 +12,7 @@ public class DMDIIMemberContactMapper extends AbstractMapper<DMDIIMemberContact,
 
 	@Override
 	public DMDIIMemberContact mapToEntity(DMDIIMemberContactModel model) {
-		DMDIIMemberContact entity = new DMDIIMemberContact();
-		BeanUtils.copyProperties(model, entity);
+		DMDIIMemberContact entity = copyProperties(model, new DMDIIMemberContact());
 		Mapper<DMDIIContactType, DMDIIContactTypeModel> mapper = mapperFactory.mapperFor(DMDIIContactType.class, DMDIIContactTypeModel.class);
 
 		entity.setContactType(mapper.mapToEntity(model.getContactType()));
@@ -22,8 +21,7 @@ public class DMDIIMemberContactMapper extends AbstractMapper<DMDIIMemberContact,
 
 	@Override
 	public DMDIIMemberContactModel mapToModel(DMDIIMemberContact entity) {
-		DMDIIMemberContactModel model = new DMDIIMemberContactModel();
-		BeanUtils.copyProperties(entity, model);
+		DMDIIMemberContactModel model = copyProperties(entity, new DMDIIMemberContactModel());
 		Mapper<DMDIIContactType, DMDIIContactTypeModel> mapper = mapperFactory.mapperFor(DMDIIContactType.class, DMDIIContactTypeModel.class);
 
 		model.setContactType(mapper.mapToModel(entity.getContactType()));

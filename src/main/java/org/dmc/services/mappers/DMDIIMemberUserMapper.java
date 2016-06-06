@@ -14,8 +14,7 @@ public class DMDIIMemberUserMapper extends AbstractMapper<DMDIIMemberUser, DMDII
 
 	@Override
 	public DMDIIMemberUser mapToEntity(DMDIIMemberUserModel model) {
-		DMDIIMemberUser entity = new DMDIIMemberUser();
-		BeanUtils.copyProperties(model, entity);
+		DMDIIMemberUser entity = copyProperties(model, new DMDIIMemberUser());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIRole, DMDIIRoleModel> dmdiiRoleMapper = mapperFactory.mapperFor(DMDIIRole.class, DMDIIRoleModel.class);
@@ -28,8 +27,7 @@ public class DMDIIMemberUserMapper extends AbstractMapper<DMDIIMemberUser, DMDII
 
 	@Override
 	public DMDIIMemberUserModel mapToModel(DMDIIMemberUser entity) {
-		DMDIIMemberUserModel model = new DMDIIMemberUserModel();
-		BeanUtils.copyProperties(entity, model);
+		DMDIIMemberUserModel model = copyProperties(entity, new DMDIIMemberUserModel());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIRole, DMDIIRoleModel> dmdiiRoleMapper = mapperFactory.mapperFor(DMDIIRole.class, DMDIIRoleModel.class);

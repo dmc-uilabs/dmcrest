@@ -22,7 +22,7 @@ import org.dmc.services.dmdiitype.DMDIIType;
 @Entity
 @Table(name = "organization_dmdii_member")
 public class DMDIIMember extends BaseEntity {
-	
+
 	@Id
 	@SequenceGenerator(name = "dmdiiMemberSeqGen", sequenceName = "organization_dmdii_member_id_seq")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dmdiiMemberSeqGen")
@@ -46,7 +46,7 @@ public class DMDIIMember extends BaseEntity {
 	@JoinColumn(name = "organization_dmdii_member_id")
 	private List<DMDIIAward> awards;
 
-	@ManyToMany(cascade = {CascadeType.DETACH})
+	@ManyToMany
 	@JoinTable(name = "dmdii_member_area_of_expertise",
 			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
 			   inverseJoinColumns = @JoinColumn(name="dmdii_area_of_expertise_id"))
