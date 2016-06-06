@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
+import java.net.HttpURLConnection;
 
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -23,6 +26,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+
+import org.dmc.services.projects.PostProjectTag;
+import org.dmc.services.projects.ProjectMember;
+import org.dmc.services.projects.ProjectDocument;
 
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.Discussion;
@@ -32,9 +40,7 @@ import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectTag;
 import org.dmc.services.services.ServiceSpecifications;
-import org.dmc.services.projects.PostProjectTag;
-import org.dmc.services.projects.ProjectMember;
-import org.dmc.services.projects.ProjectDocument;
+
 
 //@Ignore
 public class ProjectIT extends BaseIT {
