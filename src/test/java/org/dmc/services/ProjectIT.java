@@ -41,7 +41,6 @@ import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectTag;
 import org.dmc.services.services.ServiceSpecifications;
 
-
 //@Ignore
 public class ProjectIT extends BaseIT {
 
