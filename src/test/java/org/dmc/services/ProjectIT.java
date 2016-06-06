@@ -27,11 +27,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.Assert.*;
 
-
-import org.dmc.services.projects.PostProjectTag;
-import org.dmc.services.projects.ProjectMember;
-import org.dmc.services.projects.ProjectDocument;
-
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.projects.ProjectCreateRequest;
@@ -40,6 +35,9 @@ import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectTag;
 import org.dmc.services.services.ServiceSpecifications;
+import org.dmc.services.projects.PostProjectTag;
+import org.dmc.services.projects.ProjectMember;
+import org.dmc.services.projects.ProjectDocument;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
