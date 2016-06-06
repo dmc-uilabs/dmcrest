@@ -12,8 +12,7 @@ public class DMDIIMemberFinanceMapper extends AbstractMapper<DMDIIMemberFinance,
 
 	@Override
 	public DMDIIMemberFinance mapToEntity(DMDIIMemberFinanceModel model) {
-		DMDIIMemberFinance entity = new DMDIIMemberFinance();
-		BeanUtils.copyProperties(model, entity);
+		DMDIIMemberFinance entity = copyProperties(model, new DMDIIMemberFinance());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		entity.setDmdiiOwner(userMapper.mapToEntity(model.getDmdiiOwner()));
@@ -23,8 +22,7 @@ public class DMDIIMemberFinanceMapper extends AbstractMapper<DMDIIMemberFinance,
 
 	@Override
 	public DMDIIMemberFinanceModel mapToModel(DMDIIMemberFinance entity) {
-		DMDIIMemberFinanceModel model = new DMDIIMemberFinanceModel();
-		BeanUtils.copyProperties(entity, model);
+		DMDIIMemberFinanceModel model = copyProperties(entity, new DMDIIMemberFinanceModel());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		model.setDmdiiOwner(userMapper.mapToModel(entity.getDmdiiOwner()));

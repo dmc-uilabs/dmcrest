@@ -32,7 +32,6 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 	@Override
 	public DMDIIMemberModel mapToModel(DMDIIMember entity) {
 		DMDIIMemberModel model = copyProperties(entity, new DMDIIMemberModel());
-		BeanUtils.copyProperties(model, entity);
 		
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
 		Mapper<DMDIIAreaOfExpertise, DMDIIAreaOfExpertiseModel> aoeMapper = mapperFactory.mapperFor(DMDIIAreaOfExpertise.class, DMDIIAreaOfExpertiseModel.class);
@@ -67,7 +66,7 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 		// Map member users
 		model.setUsers(userMapper.mapToModel(entity.getUsers()));
 		
-		return null;
+		return model;
 	}
 
 	@Override

@@ -8,9 +8,11 @@ import org.springframework.data.repository.CrudRepository;
 public interface DMDIIMemberDao extends CrudRepository<DMDIIMember, Integer> {
 
 	Page<DMDIIMember> findAll(Pageable pageable);
-	
+
 	DMDIIMember findOne(Integer id);
-	
+
 	Page<DMDIIMember> findByDmdiiTypeId(Pageable pageable, Integer dmdiiTypeId);
-	
+
+	DMDIIMember save(DMDIIMember member);
+
 }

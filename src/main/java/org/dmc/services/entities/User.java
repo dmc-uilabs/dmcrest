@@ -15,6 +15,7 @@ public class User extends BaseEntity {
 	@Id
 	@SequenceGenerator(name = "usersSeqGen", sequenceName = "users_pk_seq")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usersSeqGen")
+	@Column(name = "user_id")
 	private Integer id;
 
 	@Column(name = "user_name")
