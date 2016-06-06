@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class PartnerDMDIIProjectController {
+public class DMDIIProjectController {
 	
-	private final String logTag = PartnerDMDIIProjectController.class.getName();
+	private final String logTag = DMDIIProjectController.class.getName();
 	
 	DMDIIProjectService dmdiiProjectService;
 

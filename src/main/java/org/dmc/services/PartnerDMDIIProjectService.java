@@ -10,6 +10,7 @@ import org.dmc.services.entities.DMDIIProject;
 import org.dmc.services.mappers.Mapper;
 import org.dmc.services.mappers.MapperFactory;
 import org.dmc.services.models.DMDIIProjectModel;
+import org.dmc.services.repository.DMDIIProjectRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,11 +29,11 @@ public class PartnerDMDIIProjectService {
 		this.mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 	}
 	
-	public List<DMDIIProjectModel> findDmdiiProjectsByPartnerIdAndIsActive(Integer partnerId) {
+	public List<DMDIIProjectModel> findDMDIIProjectsByDMDIIMemberId(Integer dmdiiMemberId) {
 		List<DMDIIProject> dmdiiEntities = Collections.emptyList();
 		
-		if(partnerId != null) {
-			dmdiiEntities = dmdiiProjectRepository.findByPrimeOrganizationId(partnerId);
+		if(dmdiiMemberId != null) {
+			dmdiiEntities = dmdiiProjectRepository.findByPrimeOrganizationId(dmdiiMemberId);
 		}
 		
 		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiEntities);

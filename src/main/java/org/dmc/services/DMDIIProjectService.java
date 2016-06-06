@@ -10,6 +10,7 @@ import org.dmc.services.entities.DMDIIProject;
 import org.dmc.services.mappers.Mapper;
 import org.dmc.services.mappers.MapperFactory;
 import org.dmc.services.models.DMDIIProjectModel;
+import org.dmc.services.repository.DMDIIProjectRepository;
 import org.springframework.stereotype.Service;
 
 @Service

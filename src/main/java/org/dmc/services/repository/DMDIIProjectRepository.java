@@ -1,4 +1,4 @@
-package org.dmc.services;
+package org.dmc.services.repository;
 
 import java.util.List;
 
