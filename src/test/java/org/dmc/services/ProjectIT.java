@@ -24,7 +24,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.dmc.services.projects.PostProjectTag;
 import org.dmc.services.projects.ProjectMember;
 import org.dmc.services.projects.ProjectDocument;
 
