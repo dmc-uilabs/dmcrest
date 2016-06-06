@@ -9,7 +9,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 
 @NoRepositoryBean
-	interface BaseRepository<T extends BaseEntity, S extends Serializable> extends JpaRepository<T, S> {
+public interface BaseRepository<T extends BaseEntity, S extends Serializable> extends JpaRepository<T, S> {
 
 
 }
