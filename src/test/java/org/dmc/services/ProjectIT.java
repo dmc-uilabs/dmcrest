@@ -11,7 +11,7 @@ import java.net.HttpURLConnection;
 
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-
+import static org.hamcrest.CoreMatchers.*;
 import static com.jayway.restassured.RestAssured.*;
 
 import com.jayway.restassured.response.ValidatableResponse;
@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+
 
 import org.dmc.services.projects.PostProjectTag;
 import org.dmc.services.projects.ProjectMember;
