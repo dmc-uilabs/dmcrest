@@ -1,11 +1,7 @@
 package org.dmc.services.mappers;
 
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.dmc.services.entities.BaseEntity;
 import org.dmc.services.models.BaseModel;
@@ -20,21 +16,15 @@ public class MapperFactory {
 
 	private static final Logger LOGGER = Logger.getLogger("Mapper");
 
-	private List<Mapper<? extends BaseEntity, ? extends BaseModel>> mappers;
-
-	private Table<Class<? extends BaseEntity>, Class<? extends BaseModel>, Mapper<? extends BaseEntity, ? extends BaseModel>> mapperTable;
-
-	@Inject
-	public MapperFactory(List<Mapper<? extends BaseEntity, ? extends BaseModel>> mappers) {
-		this.mappers = mappers;
-	}
+	private Table<Class<? extends BaseEntity>, Class<? extends BaseModel>, Mapper<? extends BaseEntity, ? extends BaseModel>> mapperTable = HashBasedTable.create();
 	
-	@PostConstruct
-	public void postConstruct() {
-		mapperTable = HashBasedTable.create();
-		for (Mapper<? extends BaseEntity, ? extends BaseModel> mapper : mappers) {
-			mapperTable.put(mapper.supportsEntity(), mapper.supportsModel(), mapper);
+	public void registerMapper(Mapper<? extends BaseEntity, ? extends BaseModel> mapper) {
+		if (mapperTable.contains(mapper.supportsEntity(), mapper.supportsModel())) {
+			String msg = "Duplicate mapper registration for " + mapper.supportsEntity().getName() + " and " + mapper.supportsModel().getName();
+			LOGGER.log(Level.SEVERE, msg);
+			throw new MapperRegistrationException(msg);
 		}
+		mapperTable.put(mapper.supportsEntity(), mapper.supportsModel(), mapper);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -97,4 +87,11 @@ public class MapperFactory {
 		
 	}
 	
+	@SuppressWarnings("serial")
+	public class MapperRegistrationException extends Error {
+		
+		public MapperRegistrationException(String msg) {
+			super(msg);
+		}
+	}
 }

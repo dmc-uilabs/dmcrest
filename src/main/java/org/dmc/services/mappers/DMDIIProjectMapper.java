@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-public class DMDIIProjectMapper implements Mapper<DMDIIProject, DMDIIProjectModel> {
+public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjectModel> {
 
 	@Override
 	public DMDIIProject mapToEntity(DMDIIProjectModel model) {

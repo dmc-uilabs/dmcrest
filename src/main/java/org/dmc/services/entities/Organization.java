@@ -3,15 +3,17 @@ package org.dmc.services.entities;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
-import org.hibernate.annotations.GenericGenerator;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
 @Entity
-public class Organization {
+@Table(name = "organization")
+public class Organization extends BaseEntity {
 	@Id
-	@GeneratedValue(generator = "increment")
-	@GenericGenerator(name = "increment", strategy = "increment")
+	@SequenceGenerator(name = "organizationSeqGen", sequenceName = "organization_organization_id_seq")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "organizationSeqGen")
 	@Column(name = "organization_id")
 	private Integer id;
 	@Column(name = "accountid")
@@ -274,5 +276,226 @@ public class Organization {
 	}
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((accountId == null) ? 0 : accountId.hashCode());
+		result = prime * result + ((adressId == null) ? 0 : adressId.hashCode());
+		result = prime * result + ((awards == null) ? 0 : awards.hashCode());
+		result = prime * result + ((categoryTier == null) ? 0 : categoryTier.hashCode());
+		result = prime * result + ((collaborationInterest == null) ? 0 : collaborationInterest.hashCode());
+		result = prime * result + ((customers == null) ? 0 : customers.hashCode());
+		result = prime * result + ((dateJoining == null) ? 0 : dateJoining.hashCode());
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((division == null) ? 0 : division.hashCode());
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
+		result = prime * result + ((favoritesCount == null) ? 0 : favoritesCount.hashCode());
+		result = prime * result + ((featureImage == null) ? 0 : featureImage.hashCode());
+		result = prime * result + ((follow == null) ? 0 : follow.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((industry == null) ? 0 : industry.hashCode());
+		result = prime * result + ((isOwner == null) ? 0 : isOwner.hashCode());
+		result = prime * result + ((location == null) ? 0 : location.hashCode());
+		result = prime * result + ((logoImage == null) ? 0 : logoImage.hashCode());
+		result = prime * result + ((naicsCode == null) ? 0 : naicsCode.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+		result = prime * result + ((pastProjects == null) ? 0 : pastProjects.hashCode());
+		result = prime * result + ((perferedCommMethod == null) ? 0 : perferedCommMethod.hashCode());
+		result = prime * result + ((phone == null) ? 0 : phone.hashCode());
+		result = prime * result + ((postCollaboration == null) ? 0 : postCollaboration.hashCode());
+		result = prime * result + ((rdFocus == null) ? 0 : rdFocus.hashCode());
+		result = prime * result + ((reasonJoining == null) ? 0 : reasonJoining.hashCode());
+		result = prime * result + ((socialMediaInthenews == null) ? 0 : socialMediaInthenews.hashCode());
+		result = prime * result + ((socialMediaLinkedin == null) ? 0 : socialMediaLinkedin.hashCode());
+		result = prime * result + ((socialMediaTwitter == null) ? 0 : socialMediaTwitter.hashCode());
+		result = prime * result + ((techExpertise == null) ? 0 : techExpertise.hashCode());
+		result = prime * result + ((toolsSoftwareEquipMach == null) ? 0 : toolsSoftwareEquipMach.hashCode());
+		result = prime * result + ((upcomingProjectInterests == null) ? 0 : upcomingProjectInterests.hashCode());
+		result = prime * result + ((website == null) ? 0 : website.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Organization other = (Organization) obj;
+		if (accountId == null) {
+			if (other.accountId != null)
+				return false;
+		} else if (!accountId.equals(other.accountId))
+			return false;
+		if (adressId == null) {
+			if (other.adressId != null)
+				return false;
+		} else if (!adressId.equals(other.adressId))
+			return false;
+		if (awards == null) {
+			if (other.awards != null)
+				return false;
+		} else if (!awards.equals(other.awards))
+			return false;
+		if (categoryTier == null) {
+			if (other.categoryTier != null)
+				return false;
+		} else if (!categoryTier.equals(other.categoryTier))
+			return false;
+		if (collaborationInterest == null) {
+			if (other.collaborationInterest != null)
+				return false;
+		} else if (!collaborationInterest.equals(other.collaborationInterest))
+			return false;
+		if (customers == null) {
+			if (other.customers != null)
+				return false;
+		} else if (!customers.equals(other.customers))
+			return false;
+		if (dateJoining == null) {
+			if (other.dateJoining != null)
+				return false;
+		} else if (!dateJoining.equals(other.dateJoining))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (division == null) {
+			if (other.division != null)
+				return false;
+		} else if (!division.equals(other.division))
+			return false;
+		if (email == null) {
+			if (other.email != null)
+				return false;
+		} else if (!email.equals(other.email))
+			return false;
+		if (favoritesCount == null) {
+			if (other.favoritesCount != null)
+				return false;
+		} else if (!favoritesCount.equals(other.favoritesCount))
+			return false;
+		if (featureImage == null) {
+			if (other.featureImage != null)
+				return false;
+		} else if (!featureImage.equals(other.featureImage))
+			return false;
+		if (follow == null) {
+			if (other.follow != null)
+				return false;
+		} else if (!follow.equals(other.follow))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (industry == null) {
+			if (other.industry != null)
+				return false;
+		} else if (!industry.equals(other.industry))
+			return false;
+		if (isOwner == null) {
+			if (other.isOwner != null)
+				return false;
+		} else if (!isOwner.equals(other.isOwner))
+			return false;
+		if (location == null) {
+			if (other.location != null)
+				return false;
+		} else if (!location.equals(other.location))
+			return false;
+		if (logoImage == null) {
+			if (other.logoImage != null)
+				return false;
+		} else if (!logoImage.equals(other.logoImage))
+			return false;
+		if (naicsCode == null) {
+			if (other.naicsCode != null)
+				return false;
+		} else if (!naicsCode.equals(other.naicsCode))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (owner == null) {
+			if (other.owner != null)
+				return false;
+		} else if (!owner.equals(other.owner))
+			return false;
+		if (pastProjects == null) {
+			if (other.pastProjects != null)
+				return false;
+		} else if (!pastProjects.equals(other.pastProjects))
+			return false;
+		if (perferedCommMethod == null) {
+			if (other.perferedCommMethod != null)
+				return false;
+		} else if (!perferedCommMethod.equals(other.perferedCommMethod))
+			return false;
+		if (phone == null) {
+			if (other.phone != null)
+				return false;
+		} else if (!phone.equals(other.phone))
+			return false;
+		if (postCollaboration == null) {
+			if (other.postCollaboration != null)
+				return false;
+		} else if (!postCollaboration.equals(other.postCollaboration))
+			return false;
+		if (rdFocus == null) {
+			if (other.rdFocus != null)
+				return false;
+		} else if (!rdFocus.equals(other.rdFocus))
+			return false;
+		if (reasonJoining == null) {
+			if (other.reasonJoining != null)
+				return false;
+		} else if (!reasonJoining.equals(other.reasonJoining))
+			return false;
+		if (socialMediaInthenews == null) {
+			if (other.socialMediaInthenews != null)
+				return false;
+		} else if (!socialMediaInthenews.equals(other.socialMediaInthenews))
+			return false;
+		if (socialMediaLinkedin == null) {
+			if (other.socialMediaLinkedin != null)
+				return false;
+		} else if (!socialMediaLinkedin.equals(other.socialMediaLinkedin))
+			return false;
+		if (socialMediaTwitter == null) {
+			if (other.socialMediaTwitter != null)
+				return false;
+		} else if (!socialMediaTwitter.equals(other.socialMediaTwitter))
+			return false;
+		if (techExpertise == null) {
+			if (other.techExpertise != null)
+				return false;
+		} else if (!techExpertise.equals(other.techExpertise))
+			return false;
+		if (toolsSoftwareEquipMach == null) {
+			if (other.toolsSoftwareEquipMach != null)
+				return false;
+		} else if (!toolsSoftwareEquipMach.equals(other.toolsSoftwareEquipMach))
+			return false;
+		if (upcomingProjectInterests == null) {
+			if (other.upcomingProjectInterests != null)
+				return false;
+		} else if (!upcomingProjectInterests.equals(other.upcomingProjectInterests))
+			return false;
+		if (website == null) {
+			if (other.website != null)
+				return false;
+		} else if (!website.equals(other.website))
+			return false;
+		return true;
 	}
 }
