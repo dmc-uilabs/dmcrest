@@ -165,21 +165,6 @@ public class ProjectController {
 		}
 	}
 
-	@RequestMapping(value = "/projects/{projectID}/projects_tags", method = RequestMethod.GET)
-	public ArrayList<ProjectTag> getProjectTagList(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-		ServiceLogger.log(logTag, "In getProjectTagList as user " + userEPPN);
-
-		return project.getProjectTagList(projectID, userEPPN);
-	}
-
-	@RequestMapping(value = "/projects_tags", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<GetProjectTag> projectsTagsPost(
-
-	@RequestBody PostProjectTag body) {
-		// do some magic!
-		return new ResponseEntity<GetProjectTag>(HttpStatus.NOT_IMPLEMENTED);
-	}
-
 	/**
 	 * Return Project Discussions
 	 **/

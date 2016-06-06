@@ -434,15 +434,32 @@ public class ProjectIT extends BaseIT {
 
 
     @Test
-	public void testGetProject6Tags() {
-		given().
+	public void testGetProject1Tags() {
+    	
+		int projectId = 1;
+		ArrayList<ProjectTag> tags = new ArrayList<ProjectTag>();
+    	
+		ObjectMapper mapper = new ObjectMapper();
+		
+		JsonNode jsonSpecs = given().
 			header("AJP_eppn", userEPPN).
 		expect().
 			statusCode(200).
 		when().
-			get("/projects/6/projects_tags").
-		then().
-			body(matchesJsonSchemaInClasspath("Schemas/projectTagListSchema.json"));
+			get("/projects/" + projectId +  "/projects_tags").
+		as(JsonNode.class);
+		
+		try {
+			tags = mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ProjectTag>>() {
+			});
+		} catch (Exception e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
+		// assert that we've received tags for the requested project ID
+		for (ProjectTag tag : tags) {
+			assertTrue("Project Tag is for the project ID requested", Integer.parseInt(tag.getProjectId()) == projectId);
+		}
 	}
 
 	@Test
@@ -734,12 +751,15 @@ public class ProjectIT extends BaseIT {
 	 * test case for DELETE /projects_tags/{projectTagid}
 	 */
 	@Test
-	public void testProjectDelete_ProjectTag(){
+	public void testDelete_Project100Tag(){
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().delete("/projects_tags/" + projectId);
+		statusCode(HttpStatus.OK.value()).
+		when().
+		delete("/projects_tags/100").
+		then().
+		body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 	}
 
 
@@ -896,5 +916,4 @@ public class ProjectIT extends BaseIT {
 			assertTrue("Not Admin", response.contains("not have permission to remove members"));
 		}
 	}
-
 }
