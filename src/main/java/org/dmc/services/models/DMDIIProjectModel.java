@@ -14,11 +14,15 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	private Date awardedDate;
 	
+	private Date endDate;
+	
 	private String projectTitle;
 	
 	private String projectSummary;
 	
 	private DMDIIUserModel principalPointOfContact;
+	
+	
 
 	public DMDIIMember getPrimeOrganization() {
 		return primeOrganization;

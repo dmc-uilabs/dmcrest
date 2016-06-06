@@ -16,9 +16,9 @@ public class DMDIIProjectController {
 	DMDIIProjectService dmdiiProjectService;
 
 	@RequestMapping(value = "/partnerdmdiiprojects/{partnerID}", method = RequestMethod.GET)
-	public List<DMDIIProjectModel> getAllPartnerDmdiiProjects(@PathVariable("partnerID") Integer partnerID) {
-		ServiceLogger.log(logTag, "In getAllPartnerDmdiiProjects as partner " + partnerID);
+	public List<DMDIIProjectModel> getAllDmdiiProjectsByDMDIIMemberId(@PathVariable("memberID") Integer memberID) {
+		ServiceLogger.log(logTag, "In getAllDmdiiProjectsByDMDIIMemberId as member " + memberID);
 		
-		return dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(partnerID);
+		return dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(memberID);
 	}
 }

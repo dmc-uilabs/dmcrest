@@ -22,6 +22,8 @@ public class EntityTest {
 			"org.dmc.services.entities.DMDIIMemberFinance",
 			"org.dmc.services.entities.DMDIIMemberUser",
 			"org.dmc.services.entities.DMDIIProject",
+			"org.dmc.services.entities.DMDIIProjectFocusArea",
+			"org.dmc.services.entities.DMDIIProjectThrust",
 			"org.dmc.services.entities.DMDIIRndFocus",
 			"org.dmc.services.entities.DMDIIRole",
 			"org.dmc.services.entities.DMDIISkill",

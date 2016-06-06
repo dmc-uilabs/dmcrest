@@ -13,7 +13,24 @@ public class ModelTest {
 
 	private String[] classes = {
 			"org.dmc.services.models.DMDIIProjectModel",
-			"org.dmc.services.models.DMDIIUserModel"
+			"org.dmc.services.models.DMDIIUserModel",
+			"org.dmc.services.models.DMDIIAreaOfExpertiseModel",
+			"org.dmc.services.models.DMDIIAwardModel",
+			"org.dmc.services.models.DMDIIContactTypeModel",
+			"org.dmc.services.models.DMDIIInstituteInvolvementModel",
+			"org.dmc.services.models.DMDIIMemberContactModel",
+			"org.dmc.services.models.DMDIIMemberCustomerModel",
+			"org.dmc.services.models.DMDIIMemberFinanceModel",
+			"org.dmc.services.models.DMDIIMemberModel",
+			"org.dmc.services.models.DMDIIMemberUserModel",
+			"org.dmc.services.models.DMDIIProjectFocusAreaModel",
+			"org.dmc.services.models.DMDIIProjectThrustModel",
+			"org.dmc.services.models.DMDIIRndFocusModel",
+			"org.dmc.services.models.DMDIIRoleModel",
+			"org.dmc.services.models.DMDIISkillModel",
+			"org.dmc.services.models.DMDIITypeModel",
+			"org.dmc.services.models.OrganizationModel",
+			"org.dmc.services.models.UserModel"
 	};
 	
 	@Test
@@ -38,8 +55,6 @@ public class ModelTest {
 					
 					Assert.assertEquals("Failed on " + clazz.getSimpleName() + "." + descriptor.getName(), expected, actual);
 				}
-				
-				
 			}
 		}
 	}
