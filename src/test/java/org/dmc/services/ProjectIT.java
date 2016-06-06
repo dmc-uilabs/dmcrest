@@ -694,24 +694,40 @@ public class ProjectIT extends BaseIT {
 	 */
 	@Test
 	public void testProjectPost_ProjectTag(){
-		PostProjectTag obj =null;
-		ObjectMapper mapper = new ObjectMapper();
-		String postedProjectTagsJSONString = null;
-		try {
-			postedProjectTagsJSONString = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		String tagName = "Test-tag-name";
+		this.testProjectCreateJsonString();
+		
+		if (this.createdId != null) {
+			ProjectTag obj = new ProjectTag();
+			obj.setProjectId(projectId);
+			obj.setName(tagName);
+			
+			ObjectMapper mapper = new ObjectMapper();
+			
+			String postedProjectTagsJSONString = null;
+			
+			try {
+				postedProjectTagsJSONString = mapper.writeValueAsString(obj);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+			
+			ProjectTag tag = given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(postedProjectTagsJSONString).
+			expect().
+			statusCode(HttpStatus.OK.value()).
+			when().
+			post("/projects_tags").
+			as(ProjectTag.class);
+			
+			// assert some attributes on the created tag
+			assertTrue("Created Project Tag name is as requested", tag.getName().equals(tagName));
+			assertTrue("Created Project Project ID is as requested", tag.getProjectId().equals(projectId));
 		}
 
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(postedProjectTagsJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        post("/projects_tags");
 	}
 
 
