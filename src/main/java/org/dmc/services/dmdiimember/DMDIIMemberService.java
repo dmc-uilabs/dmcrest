@@ -17,7 +17,7 @@ public class DMDIIMemberService {
 
 	@Inject
 	private DMDIIMemberDao dmdiiMemberDao;
-	
+
 	@Inject
 	private MapperFactory mapperFactory;
 
@@ -36,9 +36,9 @@ public class DMDIIMemberService {
 		return page.getContent();
 	}
 
-	public DMDIIMember save(DMDIIMember member) {
-		//get all the areas of expertise
-		return dmdiiMemberDao.save(member);
+	public DMDIIMemberModel save(DMDIIMemberModel memberModel) {
+		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
+		return mapper.mapToModel(dmdiiMemberDao.save(mapper.mapToEntity(memberModel)));
 	}
 
 

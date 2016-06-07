@@ -37,7 +37,7 @@ public class DMDIIMemberController {
 	}
 
 	@RequestMapping(value = "/dmdiiMember/create", method = RequestMethod.POST)
-	public @ResponseBody DMDIIMember saveDmdiiMember(@RequestBody DMDIIMember member) {
+	public @ResponseBody DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
 		return dmdiiMemberService.save(member);
 	}
 
