@@ -50,11 +50,11 @@ public class DMDIIProjectService {
 		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
 	}
 
-	public List<DMDIIProjectModel> findDMDIIProjectsByStatusId(Integer statusId) {
+	public List<DMDIIProjectModel> findDMDIIProjectsByProjectStatusId(Integer projectStatusId) {
 		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
 		
-		if(statusId != null) {
-			dmdiiProjects = dmdiiProjectRepository.findByStatusId(statusId);
+		if(projectStatusId != null) {
+			dmdiiProjects = dmdiiProjectRepository.findByProjectStatusId(projectStatusId);
 		}
 		
 		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);

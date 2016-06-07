@@ -11,5 +11,5 @@ public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Int
 
 	List<DMDIIProject> findByStartDate(Date startDate);
 
-	List<DMDIIProject> findByStatusId(Integer statusId);
+	List<DMDIIProject> findByProjectStatusId(Integer projectStatusId);
 }
