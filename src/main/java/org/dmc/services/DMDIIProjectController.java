@@ -23,11 +23,11 @@ public class DMDIIProjectController {
 		return dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(memberID);
 	}
 	
-	@RequestMapping(value = "/dmdiiprojects/{startDate}", method = RequestMethod.GET)
-	public List<DMDIIProjectModel> getAllDMDIIProjectsByStartDate(@PathVariable("startDate") Date startDate) {
-		ServiceLogger.log(logTag, "In getAllDMDIIProjectsByStartDate: " + startDate);
+	@RequestMapping(value = "/dmdiiprojects/{awardedDate}", method = RequestMethod.GET)
+	public List<DMDIIProjectModel> getAllDMDIIProjectsByAwardedDate(@PathVariable("awardedDate") Date awardedDate) {
+		ServiceLogger.log(logTag, "In getAllDMDIIProjectsByStartDate: " + awardedDate);
 		
-		return dmdiiProjectService.findDMDIIProjectsByStartDate(startDate);
+		return dmdiiProjectService.findDMDIIProjectsByAwardedDate(awardedDate);
 	}
 	
 	@RequestMapping(value = "/dmdiiprojects/{projectStatusId}", method = RequestMethod.GET)

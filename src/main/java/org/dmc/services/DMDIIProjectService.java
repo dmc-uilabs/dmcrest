@@ -40,11 +40,11 @@ public class DMDIIProjectService {
 		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
 	}
 
-	public List<DMDIIProjectModel> findDMDIIProjectsByStartDate(Date startDate) {
+	public List<DMDIIProjectModel> findDMDIIProjectsByAwardedDate(Date awardedDate) {
 		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
 		
-		if(startDate != null) {
-			dmdiiProjects = dmdiiProjectRepository.findByStartDate(startDate);
+		if(awardedDate != null) {
+			dmdiiProjects = dmdiiProjectRepository.findByAwardedDate(awardedDate);
 		}
 		
 		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
