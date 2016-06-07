@@ -1,6 +1,8 @@
 package org.dmc.services.profile;
 
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.AWSConnector;
 import org.dmc.services.Config;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.Id;
@@ -18,10 +20,12 @@ import java.util.ArrayList;
 
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 
 public class ProfileDao {
-
+	
+	private AWSConnector AWS = new AWSConnector();
 	private final String logTag = ProfileDao.class.getName();
 
 	public Profile getProfile(int requestId) throws HTTPException {
@@ -81,7 +85,7 @@ public class ProfileDao {
 		return profile;
 	}
 
-	public Id createProfile(Profile profile, String userEPPN) {
+	public Id createProfile(Profile profile, String userEPPN) throws DMCServiceException {
         int userId = -99999;
         try {
             userId = UserDao.getUserID(userEPPN);
@@ -89,7 +93,11 @@ public class ProfileDao {
 			ServiceLogger.log(logTag, se.getMessage());
 		}
         
-        updateProfile(userId, profile, userEPPN);
+        try{
+        	updateProfile(userId, profile, userEPPN);
+        } catch (DMCServiceException e){
+        	throw e;
+        }
         return new Id.IdBuilder(userId).build();
         /*
 		Util util = Util.getInstance();
@@ -172,7 +180,7 @@ public class ProfileDao {
 */
 	}
 
-	public Id updateProfile(int id, Profile profile, String userEPPN) throws HTTPException {
+	public Id updateProfile(int id, Profile profile, String userEPPN) throws HTTPException, DMCServiceException {
 		PreparedStatement statement;
 		String query;
 
@@ -183,7 +191,14 @@ public class ProfileDao {
 			return null;
 		}
 
+		
+
+	      
 		try {
+			//AWS Profile Picture Upload
+			String signedURL = "temp";
+			signedURL = AWS.Upload(profile.getImage(), userEPPN);
+			
 			// update user
 			query = "UPDATE users SET "
 					+ "realname = ?, title = ?, phone = ?, email = ?, address = ?, image = ?, people_resume = ? "
@@ -195,12 +210,13 @@ public class ProfileDao {
 			statement.setString(3, profile.getPhone());
 			statement.setString(4, profile.getEmail());
 			statement.setString(5, profile.getLocation());
-			statement.setString(6, profile.getImage());
+			statement.setString(6, signedURL);
 			statement.setString(7, profile.getDescription());
 			statement.setInt(8, id);
 			statement.setString(9, userEPPN);
             // ToDo: set company
 			statement.executeUpdate();
+			
 
             
             // update onboarding status
@@ -258,6 +274,27 @@ public class ProfileDao {
             // update onboarding status
             UserOnboardingDao userOnboardingDao = new UserOnboardingDao();
             userOnboardingDao.deleteUserOnboarding(id);
+            
+            //Get the Image URL to delete 
+            String AWSquery = "SELECT image FROM users WHERE user_id = ? AND user_name = ?"; 
+            PreparedStatement AWSstatement = DBConnector.prepareStatement(AWSquery);
+            AWSstatement.setInt(1, id);
+            AWSstatement.setString(2, userEPPN);
+            ResultSet url = AWSstatement.executeQuery();
+            
+            String URL = null;
+            if(url.next()){
+            	URL = url.getString(1); 
+            }
+            
+            //Call function to delete 
+            try{
+            	AWS.Remove(URL,  userEPPN);
+            }catch (DMCServiceException e){
+            	return null;
+            }
+            
+                      
             
 			this.deleteSkills(id);
 			query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";

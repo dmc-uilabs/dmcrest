@@ -9,20 +9,20 @@
       "properties": {
         "id": {
           "id": "http://dmc-dev.geinspire.com/projects/0/project_tags/id",
-          "type": "integer"
+          "type": "string"
         },
         "projectId": {
           "id": "http://dmc-dev.geinspire.com/projects/0/project_tags/projectId",
           "type": "string"
         },
-        "title": {
+        "name": {
           "id": "http://dmc-dev.geinspire.com/projects/0/project_tags/tag",
           "type": "string"
         }
       },
       "required": [
         "id",
-        "tag"
+        "projectId"
       ]
     }
   ]

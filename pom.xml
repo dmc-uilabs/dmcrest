@@ -17,6 +17,8 @@
 
 	<!-- PROPERTIES -->
 	<properties>
+		<!-- The main class to start application execution, necessary if using spring-boot-starter-parent pom -->
+		<start-class>org.dmc.services.Application</start-class>
 		<java.version>1.8</java.version>
 	</properties>
 
@@ -192,6 +194,7 @@
 			<artifactId>httpmime</artifactId>
 			<version>4.5.1</version>
 		</dependency>
+
 
 		<dependency>
 			<artifactId>solr-solrj</artifactId>
