@@ -1,6 +1,7 @@
 package org.dmc.services;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -34,6 +35,26 @@ public class DMDIIProjectService {
 		
 		if(primeOrganizationId != null) {
 			dmdiiProjects = dmdiiProjectRepository.findByPrimeOrganizationId(primeOrganizationId);
+		}
+		
+		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
+	}
+
+	public List<DMDIIProjectModel> findDMDIIProjectsByStartDate(Date startDate) {
+		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
+		
+		if(startDate != null) {
+			dmdiiProjects = dmdiiProjectRepository.findByStartDate(startDate);
+		}
+		
+		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
+	}
+
+	public List<DMDIIProjectModel> findDMDIIProjectsByStatus(String status) {
+		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
+		
+		if(status != null) {
+			dmdiiProjects = dmdiiProjectRepository.findByStatus(status);
 		}
 		
 		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
