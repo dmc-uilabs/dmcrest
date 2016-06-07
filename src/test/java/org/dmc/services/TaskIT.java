@@ -30,23 +30,30 @@ public class TaskIT extends BaseIT {
 			.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
 		.extract().path("id");
 	  
-	  String newGetRequest = "/tasks/" + id.toString();
+		String newGetRequest = "/tasks/" + id.toString();
 	
-	  // let's query the newly created task and make sure we get it
-	  expect().
-	    statusCode(200).
+		// let's query the newly created task and make sure we get it
+		given().
+			header("Content-type", "application/json").
+		expect().
+			statusCode(200).
 	    when().
-	    get(newGetRequest).then().
-	    log().all().
-        body(matchesJsonSchemaInClasspath("Schemas/taskSchema.json"));
+			get(newGetRequest).
+		then().
+			log().all().body(matchesJsonSchemaInClasspath("Schemas/taskSchema.json"));
 	}
 	
 	// WARNING: this test is ok as long as our test db has task with id = 1
 	@Test
 	public void testTask1(){
-		expect().statusCode(200).when().get("/tasks/1").then().
-		log().all().
-        body(matchesJsonSchemaInClasspath("Schemas/taskSchema.json"));
+		given().
+			header("Content-type", "application/json").
+		expect().
+			statusCode(200).
+		when().
+			get("/tasks/1").
+		then().
+			log().all().body(matchesJsonSchemaInClasspath("Schemas/taskSchema.json"));
 	}
 	
 	@Test
@@ -96,6 +103,7 @@ public class TaskIT extends BaseIT {
 	@Test
 	public void testDelete_FollowDiscussions(){
 		given().
+		header("Content-type", "application/json").
 		header("AJP_eppn", userEPPN).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
