@@ -39,7 +39,7 @@ public class TaskController {
 	  }
 
 	
-    @RequestMapping(value = "/tasks/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @RequestMapping(value = "/tasks/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     @ResponseBody
     public Id createTask(@RequestBody String payload) {
     	ServiceLogger.log(logTag, "Payload: " + payload);

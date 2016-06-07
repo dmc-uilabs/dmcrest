@@ -20,6 +20,7 @@ public class TaskIT extends BaseIT {
       JSONObject json = createTaskJsonSample("testTaskCreateAndGet");
 	  Integer id = 
 	    given()
+			.header("Content-type", "application/json")
 			.body(json.toString())
 			.expect()
 			.statusCode(200)
@@ -60,6 +61,7 @@ public class TaskIT extends BaseIT {
 	    JSONObject json = createTaskJsonSample("testTaskCreate");
 		
 		given()
+			.header("Content-type", "application/json")
 			.body(json.toString())
 			.expect()
 			.statusCode(200)
