@@ -10,4 +10,6 @@ public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Int
 	List<DMDIIProject> findByPrimeOrganizationId(Integer primeOrganizationId);
 
 	List<DMDIIProject> findByStartDate(Date startDate);
+
+	List<DMDIIProject> findByStatus(String status);
 }

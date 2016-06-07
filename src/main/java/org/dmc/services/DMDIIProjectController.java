@@ -29,4 +29,11 @@ public class DMDIIProjectController {
 		
 		return dmdiiProjectService.findDMDIIProjectsByStartDate(startDate);
 	}
+	
+	@RequestMapping(value = "/dmdiiprojects/{status}", method = RequestMethod.GET)
+	public List<DMDIIProjectModel> getAllDMDIIProjectsByStatus(@PathVariable("status") String status) {
+		ServiceLogger.log(logTag, "In getAllDMDIIProjectsByStatus: " + status);
+		
+		return dmdiiProjectService.findDMDIIProjectsByStatus(status);
+	}
 }
