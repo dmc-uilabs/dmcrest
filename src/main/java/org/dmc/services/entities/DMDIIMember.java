@@ -14,7 +14,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.dmc.services.dmdiitype.DMDIIType;
@@ -24,8 +23,7 @@ import org.dmc.services.dmdiitype.DMDIIType;
 public class DMDIIMember extends BaseEntity {
 
 	@Id
-	@SequenceGenerator(name = "dmdiiMemberSeqGen", sequenceName = "organization_dmdii_member_id_seq")
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dmdiiMemberSeqGen")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer id;
 
 	@ManyToOne
