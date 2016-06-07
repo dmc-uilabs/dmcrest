@@ -42,7 +42,8 @@ public class TaskController {
     	
     	return task.createTask(payload);
     }
-	@RequestMapping(value = "tasks", method = RequestMethod.GET)
+	
+	@RequestMapping(value = "tasks", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
 	public ArrayList<Task> getTaskList() {
 		return task.getTaskList();
 	}

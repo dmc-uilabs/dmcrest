@@ -58,8 +58,14 @@ public class TaskIT extends BaseIT {
 	
 	@Test
 	public void testTaskList(){
-		expect().statusCode(200).when().get("/tasks").then().
-        body(matchesJsonSchemaInClasspath("Schemas/taskListSchema.json"));
+		given().
+			header("Content-type", "application/json").
+		expect().
+			statusCode(200).
+		when().
+			get("/tasks").
+		then().
+			body(matchesJsonSchemaInClasspath("Schemas/taskListSchema.json"));
 	}
 	
 	@Test
