@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import java.util.Date;
 import java.util.List;
 
 import org.dmc.services.models.DMDIIProjectModel;
@@ -15,10 +16,17 @@ public class DMDIIProjectController {
 	
 	DMDIIProjectService dmdiiProjectService;
 
-	@RequestMapping(value = "/partnerdmdiiprojects/{partnerID}", method = RequestMethod.GET)
+	@RequestMapping(value = "/dmdiiprojects/{partnerID}", method = RequestMethod.GET)
 	public List<DMDIIProjectModel> getAllDmdiiProjectsByDMDIIMemberId(@PathVariable("memberID") Integer memberID) {
 		ServiceLogger.log(logTag, "In getAllDmdiiProjectsByDMDIIMemberId as member " + memberID);
 		
 		return dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(memberID);
+	}
+	
+	@RequestMapping(value = "/dmdiiprojects/{startDate}", method = RequestMethod.GET)
+	public List<DMDIIProjectModel> getAllDMDIIProjectsByStartDate(@PathVariable("startDate") Date startDate) {
+		ServiceLogger.log(logTag, "In getAllDMDIIProjectsByStartDate: " + startDate);
+		
+		return dmdiiProjectService.findDMDIIProjectsByStartDate(startDate);
 	}
 }
