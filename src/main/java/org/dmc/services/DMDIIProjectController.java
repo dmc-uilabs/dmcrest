@@ -30,10 +30,10 @@ public class DMDIIProjectController {
 		return dmdiiProjectService.findDMDIIProjectsByStartDate(startDate);
 	}
 	
-	@RequestMapping(value = "/dmdiiprojects/{status}", method = RequestMethod.GET)
-	public List<DMDIIProjectModel> getAllDMDIIProjectsByStatus(@PathVariable("status") String status) {
-		ServiceLogger.log(logTag, "In getAllDMDIIProjectsByStatus: " + status);
+	@RequestMapping(value = "/dmdiiprojects/{statusId}", method = RequestMethod.GET)
+	public List<DMDIIProjectModel> getAllDMDIIProjectsByStatus(@PathVariable("statusId") Integer statusId) {
+		ServiceLogger.log(logTag, "In getAllDMDIIProjectsByStatusId: " + statusId);
 		
-		return dmdiiProjectService.findDMDIIProjectsByStatus(status);
+		return dmdiiProjectService.findDMDIIProjectsByStatusId(statusId);
 	}
 }
