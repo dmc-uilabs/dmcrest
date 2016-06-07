@@ -32,8 +32,8 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "principal_investigator")
 	private DMDIIUserModel principalInvestigator;
 	
-	@Column(name = "project_status")
-	private String projectStatus;
+	@Column(name = "project_status_id")
+	private Integer projectStatusId;
 	
 	@Column(name = "awarded_date")
 	@Temporal(TemporalType.DATE)
@@ -48,17 +48,23 @@ public class DMDIIProject extends BaseEntity {
 	@JoinColumn(name = "principal_point_of_contact_id")
 	private DMDIIUserModel principalPointOfContact;
 	
+	@Column(name = "focus_area_id")
+	private Integer focusAreaId;
+	
+	@Column(name = "thrust_id")
+	private Integer thrustId;
+	
 	public DMDIIProject () {
 		
 	}
 	
 	public DMDIIProject (DMDIIMember primeOrganization, DMDIIUserModel principalInvestigator,
-			String projectStatus, Date awardedDate, String projectTitle, String projectSummary,
+			Integer projectStatusId, Date awardedDate, String projectTitle, String projectSummary,
 			DMDIIUserModel principalPointOfContact) {
 		
 		this.primeOrganization = primeOrganization;
 		this.principalInvestigator = principalInvestigator;
-		this.projectStatus = projectStatus;
+		this.projectStatusId = projectStatusId;
 		this.awardedDate = awardedDate;
 		this.projectTitle = projectTitle;
 		this.projectSummary = projectSummary;
@@ -81,12 +87,12 @@ public class DMDIIProject extends BaseEntity {
 		this.principalInvestigator = principalInvestigator;
 	}
 
-	public String getProjectStatus() {
-		return projectStatus;
+	public Integer getProjectStatusId() {
+		return projectStatusId;
 	}
 
-	public void setProjectStatus(String projectStatus) {
-		this.projectStatus = projectStatus;
+	public void setProjectStatusId(Integer projectStatusId) {
+		this.projectStatusId = projectStatusId;
 	}
 
 	public Date getAwardedDate() {
@@ -129,6 +135,22 @@ public class DMDIIProject extends BaseEntity {
 		this.id = id;
 	}
 
+	public Integer getFocusAreaId() {
+		return focusAreaId;
+	}
+
+	public void setFocusAreaId(Integer focusAreaId) {
+		this.focusAreaId = focusAreaId;
+	}
+
+	public Integer getThrustId() {
+		return thrustId;
+	}
+
+	public void setThrustId(Integer thrustId) {
+		this.thrustId = thrustId;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -138,7 +160,7 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((primeOrganization == null) ? 0 : primeOrganization.hashCode());
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
 		result = prime * result + ((principalPointOfContact == null) ? 0 : principalPointOfContact.hashCode());
-		result = prime * result + ((projectStatus == null) ? 0 : projectStatus.hashCode());
+		result = prime * result + ((projectStatusId == null) ? 0 : projectStatusId.hashCode());
 		result = prime * result + ((projectSummary == null) ? 0 : projectSummary.hashCode());
 		result = prime * result + ((projectTitle == null) ? 0 : projectTitle.hashCode());
 		return result;
@@ -178,10 +200,10 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!principalPointOfContact.equals(other.principalPointOfContact))
 			return false;
-		if (projectStatus == null) {
-			if (other.projectStatus != null)
+		if (projectStatusId == null) {
+			if (other.projectStatusId != null)
 				return false;
-		} else if (!projectStatus.equals(other.projectStatus))
+		} else if (!projectStatusId.equals(other.projectStatusId))
 			return false;
 		if (projectSummary == null) {
 			if (other.projectSummary != null)
