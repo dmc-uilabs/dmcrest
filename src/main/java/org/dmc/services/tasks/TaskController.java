@@ -21,37 +21,34 @@ public class TaskController {
 	private final String logTag = "TASK_CONTROLLER";
 	private TaskDao task = new TaskDao();
 	
-	@RequestMapping(value = "/tasks/{taskID}", method = RequestMethod.GET)
+	@RequestMapping(value = "/tasks/{taskID}", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
 	public Task getTask(@PathVariable("taskID") String taskID, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "UserName: " + userEPPN);
 		return task.getTask(taskID);
 	}
 	
 	 
-	  @RequestMapping(value = "/tasks/{taskID}", 
-	    produces = { "application/json", "text/html" }, 
-	    method = RequestMethod.DELETE)
-	  public ResponseEntity<Void> tasksTaskIDDelete(
-	@PathVariable("taskID") String taskID
-	){
+	@RequestMapping(value = "/tasks/{taskID}", method = RequestMethod.DELETE, consumes = "application/json", produces = "application/json")
+	public ResponseEntity<Void> tasksTaskIDDelete(@PathVariable("taskID") String taskID){
 	      // do some magic!
 	      return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
-	  }
+	}
 
 	
-    @RequestMapping(value = "/tasks/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
+    @RequestMapping(value = "/tasks/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     @ResponseBody
     public Id createTask(@RequestBody String payload) {
     	ServiceLogger.log(logTag, "Payload: " + payload);
     	
     	return task.createTask(payload);
     }
-	@RequestMapping(value = "tasks", method = RequestMethod.GET)
+	
+	@RequestMapping(value = "tasks", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
 	public ArrayList<Task> getTaskList() {
 		return task.getTaskList();
 	}
 	
-	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET)
+	@RequestMapping(value = "/projects/{projectID}/tasks", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
 	public ArrayList<Task> getTaskList(@PathVariable("projectID") int projectId, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "UserName: " + userEPPN);
 		return task.getTaskList(projectId);
