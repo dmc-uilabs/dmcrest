@@ -86,13 +86,49 @@ class AccountServersDao {
 		Util util = Util.getInstance();
 		
 		ServiceLogger.log(logTag, "In patchUserAccountServer for userEPPN: " + userEPPN);
+		
+		try{
+				user_id_lookedup = UserDao.getUserID(userEPPN);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // unknown user
+		}
+			
         
-		user_id_lookedup = getAutorizedUserId(userAccountServer, userEPPN);
+		//user_id_lookedup = getAutorizedUserId(userAccountServer, userEPPN);
         
 		// check if user can update the server
-		UserAccountServer autorizedUserAccountServer = getUserAccountServer(serverId, userEPPN);
-		if(!autorizedUserAccountServer.getId().equals(userAccountServer.getId()) ||  // server's ids don't match OR
-		   !autorizedUserAccountServer.getAccountId().equals(userAccountServer.getAccountId())) { // account ids don't match
+		
+		
+		Integer auth_user_id = new Integer(-1), auth_server_id = new Integer(-1);	
+		  
+		String getUserAccountServerQuery = "SELECT user_id, server_id FROM servers WHERE user_id = ? AND server_id = ?";  // ToDo store status
+		
+		PreparedStatement checkAuthPreparedStatement = DBConnector.prepareStatement(getUserAccountServerQuery);
+	    try {
+	    	checkAuthPreparedStatement.setInt(1, user_id_lookedup);
+	    	checkAuthPreparedStatement.setInt(2, serverId);
+			
+	       	ResultSet resultSet = checkAuthPreparedStatement.executeQuery();
+	       	if(resultSet.next()) {
+		    auth_server_id = resultSet.getInt("server_id");
+		    auth_user_id = resultSet.getInt("user_id");
+		 
+	       	} else {
+	       		//ServiceLogger.log(logTag, "get in patch throwing error");
+	       		throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // no result set returned
+	       	}
+	    }catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		    throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		} 
+	    
+		//UserAccountServer autorizedUserAccountServer = getUserAccountServer(serverId, userEPPN);
+		if((auth_user_id.intValue() == -1 && auth_server_id.intValue() == -1) || 
+				auth_server_id.intValue() != Integer.valueOf(userAccountServer.getId()).intValue() ||  // server's ids don't match OR
+		   auth_user_id.intValue() != Integer.valueOf(userAccountServer.getAccountId()).intValue()) { // account ids don't match
+			ServiceLogger.log(logTag, "retrieved UID = " + auth_user_id.toString() + "\tretrieved server ID = " + auth_server_id.toString());
+			ServiceLogger.log(logTag, "expected UID = " + userAccountServer.getAccountId().toString() + "\texpected server ID = " + userAccountServer.getId().toString());
 			throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 		}
 		
@@ -106,6 +142,16 @@ class AccountServersDao {
 		    preparedStatement.setInt(3, user_id_lookedup);
 		    preparedStatement.setInt(4, Integer.parseInt(userAccountServer.getId()));
 		    // ToDo: need to add status update
+		    
+		    HttpURLConnection testConnection = (HttpURLConnection) new URL(userAccountServer.getIp() + "/DOMEApiServicesV7/getChildren")
+		    		.openConnection();
+		    
+		    testConnection.setRequestMethod("GET");
+		    
+		    if (testConnection.getResponseCode() == 200)
+		    	userAccountServer.setStatus("online");
+		    else
+		    	userAccountServer.setStatus("offline");
 			
 		    if(preparedStatement.executeUpdate() != 1) {
 			throw new SQLException("Unable to update servers" +
@@ -115,6 +161,15 @@ class AccountServersDao {
 		} catch (SQLException e) {
 		    ServiceLogger.log(logTag, e.getMessage());
 		    throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // ToDo need to determine what HTTP error to throw
+		}catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+	    	
+    		throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value()); //This URL is invalid, Error code 422 will mention
+    		//that there is a semantic error
+    		
+    		
+		} catch (IOException e){
+			userAccountServer.setStatus("error connecting to DOME server");
 		}
 		return userAccountServer;
 	}
@@ -147,11 +202,10 @@ class AccountServersDao {
 		    userAccountServer.setId(Integer.toString(resultSet.getInt("server_id")));
 		    String server = resultSet.getString("url");
 		    userAccountServer.setIp(server);
-		    String port = resultSet.getString("port");
 		    userAccountServer.setAccountId(Integer.toString(resultSet.getInt("user_id")));
 		    userAccountServer.setName(resultSet.getString("alias"));
 		    
-		    HttpURLConnection testConnection = (HttpURLConnection) new URL(server + ":" + port + "/DOMEApiServicesV7/getChildren")
+		    HttpURLConnection testConnection = (HttpURLConnection) new URL(server + "/DOMEApiServicesV7/getChildren")
 		    		.openConnection();
 		    
 		    testConnection.setRequestMethod("GET");
@@ -173,7 +227,9 @@ class AccountServersDao {
 	    } catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 	    	
-	    		throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value()); //This URL is invalid
+	    		throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value()); //This URL is invalid, Error code 422 will mention
+	    		//that there is a semantic error
+	    		
 	    		
 		} catch (IOException e){
 			userAccountServer.setStatus("error connecting to DOME server");

@@ -21,6 +21,7 @@ import org.dmc.services.accounts.UserAccount;
 import org.dmc.services.accounts.UserAccountServer;
 import org.dmc.services.users.User;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.ServiceLogger;
 
 public class AccountServerIT extends BaseIT {
 	private final String logTag = AccountsIT.class.getName();
@@ -78,14 +79,41 @@ public class AccountServerIT extends BaseIT {
 	 **/
 	
 	@Test
-	public void testAccountGet_ServerID() {
+	public void testAccountGet_ServerID_invalid_Server() {
 		UserAccountServer userAccountServer = new UserAccountServer();
 		
 		// setup userAccountServer
 		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
 		userAccountServer.setName("ServerName" + uniqueID);
-		userAccountServer.setIp("ServerURL" + uniqueID);
+		userAccountServer.setIp("ServerUrl" + uniqueID);
 //		userAccountServer.setStatus("ServerStatus" + uniqueID);
+		
+		UserAccountServer returnedUserAccountServer = createNewServer(userAccountServer);
+		
+		//UserAccountServer getReturnedUserAccountServer =
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", newKnownUser).
+		expect().
+			statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value()).  //ToDo should return 201 not 200 -- change: this returns 422
+		when().
+			get("/account_servers/" + returnedUserAccountServer.getId());//.
+			//as(UserAccountServer.class);
+				
+		// check returned and orginal UserAccountServer object is equal
+		//assertTrue("Orginal and returned UserAccountServer objects are not equal",
+		       	   //returnedUserAccountServer.equals(getReturnedUserAccountServer));
+	}
+	
+	@Test
+	public void testAccountGet_ServerID_valid_server() {
+		UserAccountServer userAccountServer = new UserAccountServer();
+		
+		// setup userAccountServer
+		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
+		userAccountServer.setName("ServerName" + uniqueID);
+		userAccountServer.setIp("http://52.33.38.232:8080"); 
+		userAccountServer.setStatus("online");
 		
 		UserAccountServer returnedUserAccountServer = createNewServer(userAccountServer);
 		
@@ -100,6 +128,8 @@ public class AccountServerIT extends BaseIT {
 			as(UserAccountServer.class);
 				
 		// check returned and orginal UserAccountServer object is equal
+		System.out.println("status for original server: " + returnedUserAccountServer.getStatus()
+		+ "\tstatus for getObject: " + getReturnedUserAccountServer.getStatus());
 		assertTrue("Orginal and returned UserAccountServer objects are not equal",
 		       	   returnedUserAccountServer.equals(getReturnedUserAccountServer));
 	}
@@ -140,13 +170,45 @@ public class AccountServerIT extends BaseIT {
 	 **/
 	
 	@Test
-	public void testAccountPatch_ServerID() {
+	public void testAccountPatch_ServerID_invalid_server() {
 		UserAccountServer returnedUserAccountServer = createNewServer();
 		ObjectMapper mapper = new ObjectMapper();
 		String userAccountServerString = null;
 		
 		returnedUserAccountServer.setName("patchedName");
 		returnedUserAccountServer.setIp("patchedIP");
+		
+		try {
+			userAccountServerString = mapper.writeValueAsString(returnedUserAccountServer);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		//UserAccountServer patchedUserAccountServer =
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", newKnownUser).
+			body(userAccountServerString).
+		expect().
+			statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value()).
+		when().
+			patch("/account_servers/" + returnedUserAccountServer.getId());//.
+			//as(UserAccountServer.class);
+		
+		// check returned and orginal UserAccountServer object is equal
+		//assertTrue("Orginal modified UserAccountServer object is not equal to patched",
+       			//   returnedUserAccountServer.equals(patchedUserAccountServer));
+	}
+	
+	@Test
+	public void testAccountPatch_ServerID_valid_server() {
+		UserAccountServer returnedUserAccountServer = createNewServer();
+		ObjectMapper mapper = new ObjectMapper();
+		String userAccountServerString = null;
+		
+		returnedUserAccountServer.setName("updatedWorkingName");
+		returnedUserAccountServer.setIp("http://52.33.38.232:8080");
+		returnedUserAccountServer.setStatus("online");
 		
 		try {
 			userAccountServerString = mapper.writeValueAsString(returnedUserAccountServer);
