@@ -1,5 +1,6 @@
 package org.dmc.services.profile;
 
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.member.FollowingMemeber;
@@ -44,7 +45,7 @@ public class ProfileController {
     
     @RequestMapping(value = "/profiles", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Id> createProfile(@RequestBody Profile profile,
+    public ResponseEntity createProfile(@RequestBody Profile profile,
                                             @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
         ServiceLogger.log(logTag, "createProfile, profile: " + profile.toString());
         
@@ -53,8 +54,8 @@ public class ProfileController {
         
         try{
             retrivedId = profileDao.createProfile(profile, userEPPN);
-        } catch(HTTPException httpException) {
-            httpStatusCode = httpException.getStatusCode();
+        } catch(DMCServiceException e) {
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
         
         return new ResponseEntity<Id>(retrivedId, HttpStatus.valueOf(httpStatusCode));
@@ -62,7 +63,7 @@ public class ProfileController {
     
     
     @RequestMapping(value = "/profiles/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
-    public ResponseEntity<Id> updateProfile(@PathVariable("id") int id,
+    public ResponseEntity updateProfile(@PathVariable("id") int id,
                             @RequestBody Profile profile,
                             @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "updateProfile, profile: " + profile.toString());
@@ -72,8 +73,8 @@ public class ProfileController {
         
         try{
             retrivedId = profileDao.updateProfile(id, profile, userEPPN);
-        } catch(HTTPException httpException) {
-            httpStatusCode = httpException.getStatusCode();
+        } catch(DMCServiceException e) {
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
         
         return new ResponseEntity<Id>(retrivedId, HttpStatus.valueOf(httpStatusCode));        
@@ -84,6 +85,7 @@ public class ProfileController {
     public Id deleteProfile(@PathVariable("id") int id,
                             @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
     	ServiceLogger.log(logTag, "deleteProfile, id: " + id);
+    	
     	return profileDao.deleteProfile(id, userEPPN);
     }
     

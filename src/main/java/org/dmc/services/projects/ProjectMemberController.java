@@ -25,9 +25,11 @@ public class ProjectMemberController {
     public ResponseEntity getProjectMembers(
             @RequestParam(value = "projectId", required = false) String projectIdString,
             @RequestParam(value = "profileId", required = false) String profileIdString, 
-            @RequestParam(value = "accept", required = false) boolean accept,
-            @RequestParam(value = "_limit", required = false) int _limit, @RequestParam(value = "_order", required = false) String _order,
-            @RequestParam(value = "_sort", required = false) String _sort, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
+            @RequestParam(value = "accept", required = false) Boolean accept,
+            @RequestParam(value = "_limit", required = false) Integer _limit,
+            @RequestParam(value = "_order", required = false) String _order,
+            @RequestParam(value = "_sort", required = false) String _sort,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
         
         ServiceLogger.log(logTag, "In getProjectMembers: as user " + userEPPN);
 
