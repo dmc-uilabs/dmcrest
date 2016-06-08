@@ -60,7 +60,7 @@ public class DBConnector {
 	
 	public static Connection connection() {
 		try {
-			if (connectorInstance == null || connectorInstance.conn.isClosed() || !connectorInstance.conn.isValid(0)) {
+			if (connectorInstance == null || !connectorInstance.conn.isValid(0)) {
 				connectorInstance = new DBConnector();
 			}
 			return connectorInstance.conn;
