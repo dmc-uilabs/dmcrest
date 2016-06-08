@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.dmc.services.entities.DMDIIMember;
 import org.dmc.services.models.DMDIIMemberModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +21,7 @@ public class DMDIIMemberController {
 	private DMDIIMemberService dmdiiMemberService;
 
 	@RequestMapping(value = "/dmdiiMember", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody List<DMDIIMember> getPage(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) {
+	public @ResponseBody List<DMDIIMemberModel> getPage(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) {
 		return dmdiiMemberService.findPage(page, pageSize);
 	}
 
@@ -32,7 +31,7 @@ public class DMDIIMemberController {
 	}
 
 	@RequestMapping(value = "/dmdiiMember/type/{typeId}", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody List<DMDIIMember> getMemberByType(@PathVariable Integer typeId, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) {
+	public @ResponseBody List<DMDIIMemberModel> getMemberByType(@PathVariable Integer typeId, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) {
 		return dmdiiMemberService.findByTypeId(typeId, page, pageSize);
 	}
 

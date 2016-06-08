@@ -8,7 +8,6 @@ import org.dmc.services.entities.DMDIIMember;
 import org.dmc.services.mappers.Mapper;
 import org.dmc.services.mappers.MapperFactory;
 import org.dmc.services.models.DMDIIMemberModel;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +20,10 @@ public class DMDIIMemberService {
 	@Inject
 	private MapperFactory mapperFactory;
 
-	public List<DMDIIMember> findPage(Integer pageNumber, Integer pageSize) {
-		Page<DMDIIMember> page = dmdiiMemberDao.findAll(new PageRequest(pageNumber, pageSize));
-		return page.getContent();
+	public List<DMDIIMemberModel> findPage(Integer pageNumber, Integer pageSize) {
+		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
+		List<DMDIIMember> members = dmdiiMemberDao.findAll(new PageRequest(pageNumber, pageSize)).getContent();
+		return mapper.mapToModel(members);
 	}
 
 	public DMDIIMemberModel findOne(Integer id) {
@@ -31,9 +31,10 @@ public class DMDIIMemberService {
 		return mapper.mapToModel(dmdiiMemberDao.findOne(id));
 	}
 
-	public List<DMDIIMember> findByTypeId(Integer typeId, Integer pageNumber, Integer pageSize) {
-		Page<DMDIIMember> page = dmdiiMemberDao.findByDmdiiTypeId(new PageRequest(pageNumber, pageSize), typeId);
-		return page.getContent();
+	public List<DMDIIMemberModel> findByTypeId(Integer typeId, Integer pageNumber, Integer pageSize) {
+		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
+		List<DMDIIMember> members = dmdiiMemberDao.findByDmdiiTypeId(new PageRequest(pageNumber, pageSize), typeId).getContent();
+		return mapper.mapToModel(members);
 	}
 
 	public DMDIIMemberModel save(DMDIIMemberModel memberModel) {
