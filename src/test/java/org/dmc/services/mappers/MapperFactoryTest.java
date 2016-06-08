@@ -6,9 +6,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 import org.dmc.services.TestConfig;
-import org.dmc.services.entities.BaseEntity;
-import org.dmc.services.mappers.MapperFactory.MapperRegistrationException;
-import org.dmc.services.models.BaseModel;
+import org.dmc.services.data.entities.BaseEntity;
+import org.dmc.services.data.mappers.Mapper;
+import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.mappers.MapperFactory.MapperRegistrationException;
+import org.dmc.services.data.models.BaseModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

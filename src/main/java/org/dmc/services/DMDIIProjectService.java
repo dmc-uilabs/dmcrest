@@ -7,11 +7,11 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.dmc.services.entities.DMDIIProject;
-import org.dmc.services.mappers.Mapper;
-import org.dmc.services.mappers.MapperFactory;
-import org.dmc.services.models.DMDIIProjectModel;
-import org.dmc.services.repository.DMDIIProjectRepository;
+import org.dmc.services.data.entities.DMDIIProject;
+import org.dmc.services.data.mappers.Mapper;
+import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.DMDIIProjectModel;
+import org.dmc.services.data.repositories.DMDIIProjectRepository;
 import org.springframework.stereotype.Service;
 
 @Service

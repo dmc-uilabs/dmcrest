@@ -6,7 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.dmc.services.entities.BaseEntity;
+import org.dmc.services.data.entities.BaseEntity;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
