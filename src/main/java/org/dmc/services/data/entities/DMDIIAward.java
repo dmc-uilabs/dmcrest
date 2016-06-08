@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -13,8 +12,7 @@ import javax.persistence.Table;
 public class DMDIIAward extends BaseEntity {
 	
 	@Id
-	@SequenceGenerator(name = "dmdiiAwardSeqGen", sequenceName = "dmdii_member_award_id_seq")
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dmdiiAwardSeqGen")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@Column(name = "name")

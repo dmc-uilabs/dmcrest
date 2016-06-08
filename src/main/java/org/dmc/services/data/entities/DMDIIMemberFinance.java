@@ -7,7 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -15,8 +14,7 @@ import javax.persistence.Table;
 public class DMDIIMemberFinance extends BaseEntity {
 	
 	@Id
-	@SequenceGenerator(name = "dmdiiMemberFinanceSeqGen", sequenceName = "dmdii_member_finance_id_seq")
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dmdiiMemberFinanceSeqGen")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@OneToOne

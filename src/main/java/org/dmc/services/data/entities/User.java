@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -13,8 +12,7 @@ import javax.persistence.Table;
 public class User extends BaseEntity {
 	
 	@Id
-	@SequenceGenerator(name = "usersSeqGen", sequenceName = "users_pk_seq")
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usersSeqGen")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")
 	private Integer id;
 
