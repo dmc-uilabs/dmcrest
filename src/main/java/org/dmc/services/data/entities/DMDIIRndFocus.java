@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -13,8 +12,7 @@ import javax.persistence.Table;
 public class DMDIIRndFocus  extends BaseEntity {
 
 	@Id
-	@SequenceGenerator(name = "dmdiiRndFocusSeqGen", sequenceName = "dmdii_rnd_focus_id_seq")
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dmdiiRndFocusSeqGen")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@Column(name = "name")

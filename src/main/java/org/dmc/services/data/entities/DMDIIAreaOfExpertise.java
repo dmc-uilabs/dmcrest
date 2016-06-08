@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -13,8 +12,7 @@ import javax.persistence.Table;
 public class DMDIIAreaOfExpertise extends BaseEntity{
 	
 	@Id
-	@SequenceGenerator(name = "dmdiiAreaOfExpertiseSeqGen", sequenceName = "dmdii_area_of_expertise_id_seq")
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dmdiiAreaOfExpertiseSeqGen")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@Column(name = "name")

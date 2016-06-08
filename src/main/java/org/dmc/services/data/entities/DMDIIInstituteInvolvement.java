@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -17,8 +16,7 @@ import javax.persistence.Table;
 public class DMDIIInstituteInvolvement extends BaseEntity {
 	
 	@Id
-	@SequenceGenerator(name = "dmdiiInstituteInvolvementSeqGen", sequenceName = "dmdii_member_institute_involvement_id_seq")
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dmdiiInstituteInvolvementSeqGen")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@Column(name = "static_line_item")
