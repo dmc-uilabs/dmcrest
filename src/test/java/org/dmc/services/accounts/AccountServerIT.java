@@ -28,6 +28,9 @@ public class AccountServerIT extends BaseIT {
 	
 	private String newKnownUser;
 	private String uniqueID;
+	private final String testDOMEServer = "http://52.33.38.232:8080/DOMEApiServicesV7"; //change this server IP to test other 
+	//versions of DOME, or if the one above is offline for maintenance or some other issue
+	
 	private int user_id_lookedup;
 	
 	@Before
@@ -112,7 +115,7 @@ public class AccountServerIT extends BaseIT {
 		// setup userAccountServer
 		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
 		userAccountServer.setName("ServerName" + uniqueID);
-		userAccountServer.setIp("http://52.33.38.232:8080"); 
+		userAccountServer.setIp(testDOMEServer); 
 		userAccountServer.setStatus("online");
 		
 		UserAccountServer returnedUserAccountServer = createNewServer(userAccountServer);
@@ -207,7 +210,7 @@ public class AccountServerIT extends BaseIT {
 		String userAccountServerString = null;
 		
 		returnedUserAccountServer.setName("updatedWorkingName");
-		returnedUserAccountServer.setIp("http://52.33.38.232:8080");
+		returnedUserAccountServer.setIp(testDOMEServer);
 		returnedUserAccountServer.setStatus("online");
 		
 		try {

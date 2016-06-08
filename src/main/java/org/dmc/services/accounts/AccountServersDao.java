@@ -38,11 +38,22 @@ class AccountServersDao {
         ServiceLogger.log(logTag, "In postUserAccountServer for userEPPN: " + userEPPN);
         
 		user_id_lookedup = getAutorizedUserId(userAccountServer, userEPPN);
-        
+		String createUserAccountServerQuery = "INSERT INTO servers (url, user_id, alias) VALUES (?, ?, ?)";
+		
         try {
             // update user's record in users table
-            String createUserAccountServerQuery = "INSERT INTO servers (url, user_id, alias) VALUES (?, ?, ?)";  // ToDo store status
+              // ToDo store status
 						
+            HttpURLConnection testConnection = (HttpURLConnection) new URL(userAccountServer.getIp() + "/getChildren")
+		    		.openConnection();
+		    
+		    testConnection.setRequestMethod("GET");
+		    
+		    if (testConnection.getResponseCode() == HttpStatus.OK.value())
+		    	userAccountServer.setStatus("online");
+		    else
+		    	userAccountServer.setStatus("offline");
+            
             PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, userAccountServer.getIp());
             preparedStatement.setInt(2, user_id_lookedup);
@@ -60,6 +71,29 @@ class AccountServersDao {
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
             throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // ToDo need to determine what HTTP error to throw
+		} catch (MalformedURLException e) {
+			throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			 PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery,
+					 Statement.RETURN_GENERATED_KEYS);
+			 try{
+	         preparedStatement.setString(1, userAccountServer.getIp());
+	         preparedStatement.setInt(2, user_id_lookedup);
+	         preparedStatement.setString(3, userAccountServer.getName());
+	            
+	         //preparedStatement.executeUpdate();
+				
+	         if(preparedStatement.executeUpdate() != 1) {
+	        	 throw new SQLException("Unable to update servers" +
+	                       " for user_id: " + user_id_lookedup + " to " + userAccountServer.toString());
+	            }
+				
+				serverId = util.getGeneratedKey(preparedStatement, "server_id");
+			 } catch(SQLException e1){
+				 ServiceLogger.log(logTag, e.getMessage());
+		         throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); 
+			 }
 		}
 		
 		userAccountServer.setId(Integer.toString(serverId));
@@ -143,12 +177,12 @@ class AccountServersDao {
 		    preparedStatement.setInt(4, Integer.parseInt(userAccountServer.getId()));
 		    // ToDo: need to add status update
 		    
-		    HttpURLConnection testConnection = (HttpURLConnection) new URL(userAccountServer.getIp() + "/DOMEApiServicesV7/getChildren")
+		    HttpURLConnection testConnection = (HttpURLConnection) new URL(userAccountServer.getIp() + "/getChildren")
 		    		.openConnection();
 		    
 		    testConnection.setRequestMethod("GET");
 		    
-		    if (testConnection.getResponseCode() == 200)
+		    if (testConnection.getResponseCode() == HttpStatus.OK.value())
 		    	userAccountServer.setStatus("online");
 		    else
 		    	userAccountServer.setStatus("offline");
@@ -169,7 +203,8 @@ class AccountServersDao {
     		
     		
 		} catch (IOException e){
-			userAccountServer.setStatus("error connecting to DOME server");
+			throw new HTTPException(HttpStatus.BAD_GATEWAY.value());
+			//the communication with the looked up DOME server timed out
 		}
 		return userAccountServer;
 	}
@@ -205,12 +240,12 @@ class AccountServersDao {
 		    userAccountServer.setAccountId(Integer.toString(resultSet.getInt("user_id")));
 		    userAccountServer.setName(resultSet.getString("alias"));
 		    
-		    HttpURLConnection testConnection = (HttpURLConnection) new URL(server + "/DOMEApiServicesV7/getChildren")
+		    HttpURLConnection testConnection = (HttpURLConnection) new URL(server + "/getChildren")
 		    		.openConnection();
 		    
 		    testConnection.setRequestMethod("GET");
 		    
-		    if (testConnection.getResponseCode() == 200)
+		    if (testConnection.getResponseCode() == HttpStatus.OK.value())
 		    	userAccountServer.setStatus("online");
 		    else
 		    	userAccountServer.setStatus("offline");
@@ -227,12 +262,13 @@ class AccountServersDao {
 	    } catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 	    	
-	    		throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value()); //This URL is invalid, Error code 422 will mention
+	    	throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value()); //This URL is invalid, Error code 422 will mention
 	    		//that there is a semantic error
 	    		
 	    		
 		} catch (IOException e){
-			userAccountServer.setStatus("error connecting to DOME server");
+			throw new HTTPException(HttpStatus.BAD_GATEWAY.value());
+			//The connection set up with the DOME server timed out
 		}
 	    return userAccountServer;
 	}
