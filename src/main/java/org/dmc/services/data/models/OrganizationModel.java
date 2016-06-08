@@ -20,7 +20,7 @@ public class OrganizationModel extends BaseModel {
 
 	private Integer featureImage;
 
-	private Integer addressId;
+	private AddressModel address;
 
 	public String getName() {
 		return name;
@@ -46,12 +46,12 @@ public class OrganizationModel extends BaseModel {
 		this.description = description;
 	}
 
-	public Integer getAddressId() {
-		return addressId;
+	public AddressModel getAddress() {
+		return address;
 	}
 
-	public void setAddressId(Integer adressId) {
-		this.addressId = adressId;
+	public void setAddress(AddressModel address) {
+		this.address = address;
 	}
 
 	public String getEmail() {

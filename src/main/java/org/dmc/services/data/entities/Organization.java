@@ -1,5 +1,6 @@
 package org.dmc.services.data.entities;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,34 +18,50 @@ public class Organization extends BaseEntity {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "organization_id")
 	private Integer id;
+
 	@Column(name = "accountid")
 	private Integer accountId;
+
 	private String name;
+
 	private String location;
+
 	private String description;
+
 	private String division;
+
 	private String industry;
+
 	@Column(name = "naics_code")
 	private String naicsCode;
+
 	@Column(name = "rd_focus")
 	private String rdFocus;
+
 	private String customers;
+
 	private String awards;
+
 	@Column(name = "tech_expertise")
 	private String techExpertise;
+
 	@Column(name = "tools_software_equip_mach")
 	private String toolsSoftwareEquipMach;
+
 	@Column(name = "post_collaboration")
 	private String postCollaboration;
+
 	@Column(name = "collaboration_interest")
 	private String collaborationInterest;
+
 	@Column(name = "past_projects")
 	private String pastProjects;
+
 	@Column(name = "upcoming_project_interests")
 	private String upcomingProjectInterests;
 
-	@OneToOne
-	@JoinColumn(name = "addressId")
+	@OneToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name = "addressid")
 	private Address address;
 
 	private String email;
@@ -230,7 +247,7 @@ public class Organization extends BaseEntity {
 		return address;
 	}
 
-	public void setAdressId(Integer address) {
+	public void setAddress(Address address) {
 		this.address = address;
 	}
 
@@ -367,7 +384,7 @@ public class Organization extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((accountId == null) ? 0 : accountId.hashCode());
-		result = prime * result + ((adressId == null) ? 0 : adressId.hashCode());
+		result = prime * result + ((address == null) ? 0 : address.hashCode());
 		result = prime * result + ((awards == null) ? 0 : awards.hashCode());
 		result = prime * result + ((categoryTier == null) ? 0 : categoryTier.hashCode());
 		result = prime * result + ((collaborationInterest == null) ? 0 : collaborationInterest.hashCode());
