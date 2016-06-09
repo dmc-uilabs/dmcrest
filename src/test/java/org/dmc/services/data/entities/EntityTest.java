@@ -1,42 +1,41 @@
-package org.dmc.services.entities;
+package org.dmc.services.data.entities;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.ClassPath;
+
 public class EntityTest {
 
-	private String[] classes = {
-			"org.dmc.services.entities.DMDIIAreaOfExpertise",
-			"org.dmc.services.entities.DMDIIAward",
-			"org.dmc.services.entities.DMDIIContactType",
-			"org.dmc.services.entities.DMDIIInstituteInvolvement",
-			"org.dmc.services.entities.DMDIIMember",
-			"org.dmc.services.entities.DMDIIMemberContact",
-			"org.dmc.services.entities.DMDIIMemberCustomer",
-			"org.dmc.services.entities.DMDIIMemberFinance",
-			"org.dmc.services.entities.DMDIIMemberUser",
-			"org.dmc.services.entities.DMDIIProject",
-			"org.dmc.services.entities.DMDIIProjectFocusArea",
-			"org.dmc.services.entities.DMDIIProjectThrust",
-			"org.dmc.services.entities.DMDIIRndFocus",
-			"org.dmc.services.entities.DMDIIRole",
-			"org.dmc.services.entities.DMDIISkill",
-			"org.dmc.services.entities.Organization",
-			"org.dmc.services.entities.User"
-	};
-	
 	@Test
 	public void testGettersAndSetters() throws Exception {
 		
-		for(String className : classes) {
+		ClassPath classPath = ClassPath.from(Thread.currentThread().getContextClassLoader());
+		ImmutableSet<ClassPath.ClassInfo> classes = classPath.getTopLevelClasses("org.dmc.services.data.entities");
+		
+		List<String> foundEntities = classes
+										.stream()
+										.filter(c -> {
+											if(!c.getSimpleName().equals("BaseEntity"))
+												return c.getName() != null;
+											return false;
+										})
+										.map(s -> s.getName())
+										.collect(Collectors.toList());
+		
+		
+		for(String name : foundEntities) {
 			Object obj = null;
-			Class<?> clazz = Class.forName(className);
+			Class<?> clazz = Class.forName(name);
 			
 			if(Modifier.isAbstract(clazz.getModifiers())) {
 				System.out.println("Skipped test for Abstract class: " + clazz.getName());

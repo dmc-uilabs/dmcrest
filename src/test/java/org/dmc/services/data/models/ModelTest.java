@@ -1,44 +1,41 @@
-package org.dmc.services.models;
+package org.dmc.services.data.models;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ModelTest {
+import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.ClassPath;
 
-	private String[] classes = {
-			"org.dmc.services.models.DMDIIProjectModel",
-			"org.dmc.services.models.DMDIIUserModel",
-			"org.dmc.services.models.DMDIIAreaOfExpertiseModel",
-			"org.dmc.services.models.DMDIIAwardModel",
-			"org.dmc.services.models.DMDIIContactTypeModel",
-			"org.dmc.services.models.DMDIIInstituteInvolvementModel",
-			"org.dmc.services.models.DMDIIMemberContactModel",
-			"org.dmc.services.models.DMDIIMemberCustomerModel",
-			"org.dmc.services.models.DMDIIMemberFinanceModel",
-			"org.dmc.services.models.DMDIIMemberModel",
-			"org.dmc.services.models.DMDIIMemberUserModel",
-			"org.dmc.services.models.DMDIIProjectFocusAreaModel",
-			"org.dmc.services.models.DMDIIProjectThrustModel",
-			"org.dmc.services.models.DMDIIRndFocusModel",
-			"org.dmc.services.models.DMDIIRoleModel",
-			"org.dmc.services.models.DMDIISkillModel",
-			"org.dmc.services.models.DMDIITypeModel",
-			"org.dmc.services.models.OrganizationModel",
-			"org.dmc.services.models.UserModel"
-	};
+public class ModelTest {
 	
 	@Test
 	public void testGettersAndSetters() throws Exception {
 		
-		for(String className : classes) {
+		ClassPath classPath = ClassPath.from(Thread.currentThread().getContextClassLoader());
+		ImmutableSet<ClassPath.ClassInfo> classes = classPath.getTopLevelClasses("org.dmc.services.data.models");
+		
+		List<String> foundModels = classes
+										.stream()
+										.filter(c -> {
+											if(!c.getSimpleName().equals("BaseModel"))
+												return c.getName() != null;
+											return false;
+										})
+										.map(s -> s.getName())
+										.collect(Collectors.toList());
+		
+		
+		for(String name : foundModels) {
 			Object obj = null;
-			Class<?> clazz = Class.forName(className);
+			Class<?> clazz = Class.forName(name);
 			
 			obj = clazz.newInstance();
 			
