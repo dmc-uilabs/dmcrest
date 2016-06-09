@@ -14,21 +14,21 @@ import org.dmc.services.data.entities.DMDIITypeCategory;
 @Entity
 @Table(name = "organization_dmdii_type")
 public class DMDIIType extends BaseEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
+
 	private Integer tier;
-	
+
 	@ManyToOne
-	@JoinColumn(name = "dmdii_type_category_id")
+	@JoinColumn(name = "organization_dmdii_type_category_id")
 	private DMDIITypeCategory dmdiiTypeCategory;
-	
+
 	public Integer getId() {
 		return this.id;
 	}
-	
+
 	public void setId(Integer id) {
 		this.id = id;
 	}
@@ -48,5 +48,5 @@ public class DMDIIType extends BaseEntity {
 	public void setTier(Integer tier) {
 		this.tier = tier;
 	}
-	
+
 }

@@ -4,7 +4,9 @@ import org.dmc.services.data.entities.DMDIITypeCategory;
 import org.dmc.services.data.models.DMDIITypeCategoryModel;
 import org.dmc.services.data.models.DMDIITypeModel;
 import org.dmc.services.dmdiitype.DMDIIType;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DMDIITypeMapper extends AbstractMapper<DMDIIType, DMDIITypeModel> {
 
 	@Override
@@ -32,7 +34,7 @@ public class DMDIITypeMapper extends AbstractMapper<DMDIIType, DMDIITypeModel> {
 	public Class<DMDIITypeModel> supportsModel() {
 		return DMDIITypeModel.class;
 	}
-	
+
 	private Mapper<DMDIITypeCategory, DMDIITypeCategoryModel> getCategoryMapper() {
 		return mapperFactory.mapperFor(DMDIITypeCategory.class, DMDIITypeCategoryModel.class);
 	}
