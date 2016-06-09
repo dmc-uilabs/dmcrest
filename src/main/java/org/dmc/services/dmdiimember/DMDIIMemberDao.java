@@ -12,6 +12,10 @@ public interface DMDIIMemberDao extends CrudRepository<DMDIIMember, Integer> {
 	DMDIIMember findOne(Integer id);
 
 	Page<DMDIIMember> findByDmdiiTypeId(Pageable pageable, Integer dmdiiTypeId);
+	
+	Page<DMDIIMember> findByDmdiiTypeDmdiiTypeCategoryId(Pageable pageable, Integer dmdiiTypeCategoryId);
+	
+	Page<DMDIIMember> findByDmdiiTypeTier(Pageable pageable, Integer dmdiiTypeTier);
 
 	DMDIIMember save(DMDIIMember member);
 

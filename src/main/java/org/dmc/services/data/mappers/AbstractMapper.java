@@ -21,17 +21,6 @@ public abstract class AbstractMapper<T extends BaseEntity, S extends BaseModel> 
 		mapperFactory.registerMapper(this);
 	}
 	
-	protected List<T> reattachEntities(List<T> entities, JpaRepository<T, Integer> dao) {
-		List<Integer> ids = entities.stream()
-			.filter((n) -> n.getId() != null)
-			.map((n) -> n.getId())
-			.collect(Collectors.toList());
-		List<T> reattached = dao.findAll(ids);
-		return entities.stream()
-			.map((n) -> n.getId() == null ? n : reattached.remove(0))
-			.collect(Collectors.toList());
-	}
-	
 	protected S copyProperties(T source, S destination) {
 		if (source == null) {
 			return null;

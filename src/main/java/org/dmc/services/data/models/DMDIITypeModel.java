@@ -2,14 +2,23 @@ package org.dmc.services.data.models;
 
 public class DMDIITypeModel extends BaseModel {
 
-	private String memberDescription;
+	private DMDIITypeCategoryModel dmdiiTypeCategory;
+	private Integer tier;
 
-	public String getMemberDescription() {
-		return memberDescription;
+	public DMDIITypeCategoryModel getDmdiiTypeCategory() {
+		return dmdiiTypeCategory;
 	}
 
-	public void setMemberDescription(String memberDescription) {
-		this.memberDescription = memberDescription;
+	public void setDmdiiTypeCategory(DMDIITypeCategoryModel dmdiiTypeCategory) {
+		this.dmdiiTypeCategory = dmdiiTypeCategory;
+	}
+
+	public Integer getTier() {
+		return tier;
+	}
+
+	public void setTier(Integer tier) {
+		this.tier = tier;
 	}
 
 

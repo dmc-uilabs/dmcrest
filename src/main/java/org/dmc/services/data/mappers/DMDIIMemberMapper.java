@@ -60,7 +60,7 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 	public DMDIIMemberModel mapToModel(DMDIIMember entity) {
 		DMDIIMemberModel model = copyProperties(entity, new DMDIIMemberModel());
 
-		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(Organization.class, DMDIITypeModel.class);
+		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class,	OrganizationModel.class);
 		Mapper<DMDIIAward, DMDIIAwardModel> awardMapper = mapperFactory.mapperFor(DMDIIAward.class, DMDIIAwardModel.class);
 		Mapper<DMDIIAreaOfExpertise, DMDIIAreaOfExpertiseModel> aoeMapper = mapperFactory.mapperFor(DMDIIAreaOfExpertise.class, DMDIIAreaOfExpertiseModel.class);
