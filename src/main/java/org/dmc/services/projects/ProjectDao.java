@@ -406,20 +406,6 @@ public class ProjectDao {
         return true;
     }
 
-    // public ArrayList<ProjectMember> getProjectMemberList(int projectId,
-    // String userEPPN) {
-    // ServiceLogger.log(logTag, "WARNING: not yet implemented, so returning an
-    // empty list for testing/temporary front-end integration");
-    // return new ArrayList<ProjectMember>();
-    // }
-    //
-
-    public ArrayList<ProjectTag> getProjectTagList(int projectId, String userEPPN) {
-        ServiceLogger.log(logTag,
-                "WARNING: not yet implemented, so returning an empty list for testing/temporary front-end integration");
-        return new ArrayList<ProjectTag>();
-    }
-
     public ArrayList<ProjectJoinRequest> getProjectJoinRequest(ArrayList<String> projects, ArrayList<String> profiles,
             String userEPPN) throws Exception {
         try {

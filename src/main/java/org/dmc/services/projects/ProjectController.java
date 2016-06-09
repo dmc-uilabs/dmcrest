@@ -10,7 +10,6 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionListDao;
 import org.dmc.services.discussions.IndividualDiscussion;
@@ -34,6 +33,7 @@ public class ProjectController {
 	private ProjectDao project = new ProjectDao();
 	private ProjectDao projectDao = new ProjectDao();
 	private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
+	private ProjectDocumentDao projectDocumentDao = new ProjectDocumentDao(); 
 
 	@RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
 	public Project getProject(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -165,21 +165,6 @@ public class ProjectController {
 		}
 	}
 
-	@RequestMapping(value = "/projects/{projectID}/projects_tags", method = RequestMethod.GET)
-	public ArrayList<ProjectTag> getProjectTagList(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-		ServiceLogger.log(logTag, "In getProjectTagList as user " + userEPPN);
-
-		return project.getProjectTagList(projectID, userEPPN);
-	}
-
-	@RequestMapping(value = "/projects_tags", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<GetProjectTag> projectsTagsPost(
-
-	@RequestBody PostProjectTag body) {
-		// do some magic!
-		return new ResponseEntity<GetProjectTag>(HttpStatus.NOT_IMPLEMENTED);
-	}
-
 	/**
 	 * Return Project Discussions
 	 **/
@@ -228,6 +213,7 @@ public class ProjectController {
             return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
         }
     }
+    
 
 	@ExceptionHandler(Exception.class)
 	public ErrorMessage handleException(Exception ex) {
@@ -237,16 +223,6 @@ public class ProjectController {
 		return result;
 	}
 
-	/**	
-     *
-     **/
-	@RequestMapping(value = "/projects/{projectID}/project_documents", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ProjectDocument>> projectsProjectIDProjectDocumentsGet(@PathVariable("projectID") String projectID,
-			@RequestParam(value = "projectDocumentId", required = true) String projectDocumentId, @RequestParam(value = "limit", required = false) Integer limit,
-			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<List<ProjectDocument>>(HttpStatus.NOT_IMPLEMENTED);
-	}
 
 	@RequestMapping(value = "/projects/{projectID}/following_discussions", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<IndividualDiscussion>> projectsProjectIDFollowingDiscussionsGet(@PathVariable("projectID") String projectID,
