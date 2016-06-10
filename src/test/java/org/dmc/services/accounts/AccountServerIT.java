@@ -105,7 +105,7 @@ public class AccountServerIT extends BaseIT {
 		
 	
 				given().
-					header("Content-type", "JSON").
+					header("Content-type", JSON).
 					header("AJP_eppn", newKnownUser).
 				body(userAccountServerString).
 					expect().
@@ -125,7 +125,7 @@ public class AccountServerIT extends BaseIT {
 		UserAccountServer returnedUserAccountServer = createNewServerNoCheck();
 	
 		given().
-			header("Content-type", "JSON").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		expect().
 			statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value()). 
@@ -147,7 +147,7 @@ public class AccountServerIT extends BaseIT {
 		
 		UserAccountServer getReturnedUserAccountServer =
 		given().
-			header("Content-type", "JSON").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		expect().
 			statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
@@ -174,7 +174,7 @@ public class AccountServerIT extends BaseIT {
 		
 		// delete server record
 		given().
-			header("Content-type", "JSON").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		expect().
 			statusCode(HttpStatus.OK.value()).
@@ -183,7 +183,7 @@ public class AccountServerIT extends BaseIT {
 		
 		// attempt to retrieve deleted record; fails
 		given().
-			header("Content-type", "JSON").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		expect().
 			statusCode(HttpStatus.NO_CONTENT.value()).
@@ -213,7 +213,7 @@ public class AccountServerIT extends BaseIT {
 		}
 		
 		given().
-			header("Content-type", "JSON").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 			body(userAccountServerString).
 		expect().
@@ -240,7 +240,7 @@ public class AccountServerIT extends BaseIT {
 		
 		UserAccountServer patchedUserAccountServer =
 		given().
-			header("Content-type", "JSON").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 			body(userAccountServerString).
 		expect().
@@ -272,7 +272,7 @@ public class AccountServerIT extends BaseIT {
 		
 		UserAccountServer returnedUserAccountServer =
 		given().
-			header("Content-type", "JSON").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		body(userAccountServerString).
 			expect().
@@ -313,7 +313,7 @@ public class AccountServerIT extends BaseIT {
 		
 	
 		given().
-			header("Content-type", "JSON").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		body(userAccountServerString).
 			expect().
