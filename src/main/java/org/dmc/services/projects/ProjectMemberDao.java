@@ -24,50 +24,51 @@ public class ProjectMemberDao {
 	}
 
 	/**
-	 * Get Members - Currently returning all members' Profiles who are part of a DMDII Company
+	 * Get Members - Currently returning all members' Profiles who are part of a
+	 * DMDII Company
+	 * 
 	 * @param userEPPN
 	 * @return
 	 * @throws DMCServiceException
 	 */
 	public ArrayList<Profile> getMembers(String userEPPN) throws DMCServiceException {
-		
+
 		ArrayList<Profile> members = new ArrayList<Profile>();
 
 		try {
 			String query = "SELECT u.user_id, u.user_name, u.realname, u.title, u.phone, "
 					+ "u.email, u.address, u.image, u.people_resume "
 					+ "FROM organization_dmdii_member dmdii, organization_user orgu, users u "
-					+ "WHERE u.user_id = orgu.user_id "
-					+ "AND orgu.organization_id = dmdii.organization_id "
+					+ "WHERE u.user_id = orgu.user_id " + "AND orgu.organization_id = dmdii.organization_id "
 					+ "AND dmdii.expire_date >= now()";
-			
+
 			resultSet = DBConnector.executeQuery(query);
 
 			while (resultSet.next()) {
-				
+
 				Profile profile = new Profile();
-				
+
 				String userId = resultSet.getString("user_id");
 				profile.setId(userId);
 				profile.setDisplayName(resultSet.getString("user_name"));
-                profile.setJobTitle(resultSet.getString("title"));
-                profile.setPhone(resultSet.getString("phone"));
-                profile.setEmail(resultSet.getString("email"));
-                profile.setLocation(resultSet.getString("address"));
-                profile.setImage(resultSet.getString("image"));
-                profile.setDescription(resultSet.getString("people_resume"));
-                
-                // get company
-                CompanyDao companyDao = new CompanyDao();
-                int companyId = companyDao.getUserCompanyId(Integer.parseInt(userId));
-                profile.setCompany(Integer.toString(companyId));
-                
+				profile.setJobTitle(resultSet.getString("title"));
+				profile.setPhone(resultSet.getString("phone"));
+				profile.setEmail(resultSet.getString("email"));
+				profile.setLocation(resultSet.getString("address"));
+				profile.setImage(resultSet.getString("image"));
+				profile.setDescription(resultSet.getString("people_resume"));
+
+				// get company
+				CompanyDao companyDao = new CompanyDao();
+				int companyId = companyDao.getUserCompanyId(Integer.parseInt(userId));
+				profile.setCompany(Integer.toString(companyId));
+
 				members.add(profile);
 			}
 		} catch (SQLException se) {
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 		}
-		
+
 		ServiceLogger.log(logTag, members.toString());
 		return members;
 	}
