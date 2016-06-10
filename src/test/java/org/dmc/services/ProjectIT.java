@@ -3,6 +3,9 @@ package org.dmc.services;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
+
+import javax.xml.ws.http.HTTPException;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -31,7 +34,9 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 import static org.junit.Assert.*;
 
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.company.CompanyUserUtil;
 import org.dmc.services.discussions.Discussion;
+import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
@@ -914,6 +919,38 @@ public class ProjectIT extends BaseIT {
 				.asString();
 
 			assertTrue("Not Admin", response.contains("not have permission to remove members"));
+		}
+	}
+	
+	/**
+	 * GET /memgers
+	 */
+    @Test
+	public void testGetMembers() {
+    	String userName;
+    	ObjectMapper mapper = new ObjectMapper();
+		JsonNode members =
+	        given()
+	        .header("Content-type", "application/json")
+	        .header("AJP_eppn", randomEPPN)
+	        .expect()
+	        .statusCode(200)
+	        .when()
+	        .get("/members")
+	        .as(JsonNode.class);
+
+		try {
+			ArrayList<Profile> membersList =
+					mapper.readValue(mapper.treeAsTokens(members),
+					new TypeReference<ArrayList<Profile>>() {});
+
+			for (Profile profile : membersList) {
+				userName = profile.getDisplayName();
+				assertTrue("Member " + userName + " is DMDII Member", CompanyUserUtil.isDMDIIMember(userName));
+			}
+
+		} catch (Exception e) {
+			ServiceLogger.log(logTag, e.getMessage());
 		}
 	}
 }
