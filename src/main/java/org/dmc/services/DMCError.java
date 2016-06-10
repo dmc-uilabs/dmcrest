@@ -15,6 +15,7 @@ public enum DMCError {
 
 	// Company
 	NotAdminUser,
+	UserNoCompany,
 	NotDMDIIMember,
 	CanNotInsertChangeLog,
 	CompanySkillSetNotExist,

@@ -932,7 +932,7 @@ public class ProjectIT extends BaseIT {
 		JsonNode members =
 	        given()
 	        .header("Content-type", "application/json")
-	        .header("AJP_eppn", randomEPPN)
+	        .header("AJP_eppn", "fforgeadmin")
 	        .expect()
 	        .statusCode(200)
 	        .when()
