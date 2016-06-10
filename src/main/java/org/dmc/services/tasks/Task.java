@@ -1,72 +1,87 @@
 package org.dmc.services.tasks;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Task {
-	private final String logTag = Task.class.getName();
-	private final int id;
-	private final String title;
-	private final TaskProject tProject;
-	private final String assignee;
-	private final String reporter;
-	private final String dueDate;
-	private final int priority;
-	private final String summary;
-	private final String details;
+    private final String id;
+    private final String title;
+    private final TaskProject taskProject;
+    private final String assignee;
+    private final String assigneeId;
+    private final String reporter;
+    private final String reporterId;
+    private final long dueDate;
+    private final String additionalDetails;
+    private final String status;
+    private final int priority;
 
-	public Task(int id, String title, TaskProject taskProject, String assignee, String reporter, String dueDate,
-			int priority, String summary, String details) {
-		this.id = id;
-		this.title = title;
-		this.tProject = taskProject;
-		this.assignee = assignee;
-		this.reporter = reporter;
-		this.dueDate = dueDate;
-		this.priority = priority;
-		this.summary = summary;
-		this.details = details;
-	}
-
-	public int getId()
-    {
-    	return id;
+    public Task(String id, String title, TaskProject taskProject, String assignee, String assigneeId, 
+            String reporter, String reporterId, long dueDate,
+            String additionalDetails, String status, int priority) {
+        this.id = id;
+        this.title = title;
+        this.taskProject = taskProject;
+        this.assignee = assignee;
+        this.assigneeId = assigneeId;
+        this.reporter = reporter;
+        this.reporterId = reporterId;
+        this.dueDate = dueDate;
+        this.additionalDetails = additionalDetails;
+        this.status = status;
+        this.priority = priority;
     }
 
-	public String getTitle()
-    {
-    	return title;
+    @JsonProperty("id")
+    public String getId() {
+        return id;
     }
 
-	public TaskProject getProject()
-    {
-    	return tProject;
+    @JsonProperty("title")
+    public String getTitle() {
+        return title;
     }
 
-	public String getAssignee() 
-	{
-		return assignee;
-	}
+    @JsonProperty("taskProject")
+    public TaskProject getProject() {
+        return taskProject;
+    }
 
-	public String getReporter() 
-	{
-		return reporter;
-	}
+    @JsonProperty("assignee")
+    public String getAssignee() {
+        return assignee;
+    }
 
-	public String getDueDate() 
-	{
-		return dueDate;
-	}
- 
-	public int getPriority() 
-	{
-		return priority;
-	}
-	
-	public String getSummary() 
-	{
-		return summary;
-	}
-	
-	public String getDetails() 
-	{
-		return details;
-	}
+    @JsonProperty("assigneeId")
+    public String getAssigneeId() {
+        return assigneeId;
+    }
+
+    @JsonProperty("reporter")
+    public String getReporter() {
+        return reporter;
+    }
+
+    @JsonProperty("reporterId")
+    public String getReporterId() {
+        return reporterId;
+    }
+
+    @JsonProperty("dueDate")
+    public long getDueDate() {
+        return dueDate;
+    }
+
+    @JsonProperty("additionalDetails")
+    public String getAdditionalDetails() {
+        return additionalDetails;
+    }
+    @JsonProperty("status")
+    public String getStatus() {
+        return status;
+    }
+    @JsonProperty("priority")
+    public int getPriority() {
+        return priority;
+    }
+
 }
