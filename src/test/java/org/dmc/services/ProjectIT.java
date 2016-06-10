@@ -925,17 +925,15 @@ public class ProjectIT extends BaseIT {
 		String userName;
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode members = given()
-				.header("Content-type", APPLICATION_JSON_VALUE)
-				.header("AJP_eppn", adminUser)
-				.expect()
-				.statusCode(HttpStatus.OK.value())
-				.when()
-				.get(MEMBERS_RESOURCE)
-				.as(JsonNode.class);
+			.header("Content-type", APPLICATION_JSON_VALUE)
+			.header("AJP_eppn", adminUser)
+			.expect()
+			.statusCode(HttpStatus.OK.value())
+			.when()
+			.get(MEMBERS_RESOURCE)
+			.as(JsonNode.class);
 
-		ArrayList<Profile> membersList = mapper.readValue(mapper.treeAsTokens(members),
-				new TypeReference<ArrayList<Profile>>() {
-				});
+		ArrayList<Profile> membersList = mapper.readValue(mapper.treeAsTokens(members), new TypeReference<ArrayList<Profile>>() {});
 
 		for (Profile profile : membersList) {
 			userName = profile.getDisplayName();
