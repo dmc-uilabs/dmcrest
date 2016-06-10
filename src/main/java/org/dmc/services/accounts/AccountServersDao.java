@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 
 
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.sharedattributes.Util;
@@ -22,9 +24,71 @@ import org.springframework.http.HttpStatus;
 import javax.xml.ws.http.HTTPException;
 
 class AccountServersDao {
-	private final String logTag = AccountServersDao.class.getName();
-	
-	private final int TIMEOUT = 5000; //timeout in milliseconds for servers
+	private static final String logTag = AccountServersDao.class.getName();
+	private static final String GET = org.springframework.web.bind.annotation.RequestMethod.GET.toString(); // default for GET
+
+	private static final int TIMEOUT = 5000; //timeout in milliseconds for servers
+
+
+	/**
+	 * 
+	 * @param userAccountServer -- the server data, along with some user account data
+	 * @return whether or not the server is online or offline -- @IMPROVEMENT get more detailed server usage information
+	 * @throws IOException -- HTTPUrlConnections are only meant to properly handle 200 and 401 responses
+	 * TODO: look into using Apache HTTPClient for more thorough usage, HTTPUrlConnection does not handle many error codes
+	 * which we may face, due to DOME server issues
+	 * @throws DMCServiceException 
+	 * @throws MalformedURLException 
+	 */
+	private static String serverStatus(UserAccountServer userAccountServer) throws DMCServiceException, 
+	MalformedURLException, IOException{
+		String errorHeader = "In TEST SERVER STATUS: ";
+		HttpURLConnection testConnection = (HttpURLConnection) new URL(userAccountServer.getIp())
+				.openConnection();
+
+		testConnection.setConnectTimeout(TIMEOUT); 
+		;
+		testConnection.setRequestMethod(GET);
+		int responseCode = 0;
+		String responseMsg = null;
+		try{
+			responseCode = testConnection.getResponseCode();
+		}
+		catch (IOException responseCodeException){
+			ServiceLogger.log(logTag, "RESPONSE_CODE caused IO error for user "  + userAccountServer.getAccountId() 
+			+ ", ip " + userAccountServer.getIp());
+			throw new DMCServiceException(DMCError.UnexceptedDOMEConnectionError, errorHeader + "I/O Exception from RESPONSE_CODE "
+					+ "when attempting to connect to DOME Server " + userAccountServer.getIp());
+		}
+		try{
+			responseMsg = testConnection.getResponseMessage();
+		} catch (IOException responseMsgException){
+			ServiceLogger.log(logTag, "RESPONSE_MESSAGE caused IO error for user "  + userAccountServer.getAccountId() 
+			+ ", ip " + userAccountServer.getIp());
+			throw new DMCServiceException(DMCError.UnexceptedDOMEConnectionError, errorHeader + "I/O Exception from RESPONSE_MESSAGE "
+					+ "when attempting to connect to DOME Server " + userAccountServer.getIp());
+		}
+
+		ServiceLogger.log(logTag, "testing connection to server: " + userAccountServer.getIp()
+		+ "\tResponse code: " + responseCode + "\tResponse Message: " + responseMsg);
+
+
+		if (responseCode == HttpStatus.OK.value())
+			return "online";
+		else if (responseCode == HttpStatus.GATEWAY_TIMEOUT.value())
+			return "offline"; //server IP not resolved
+		else if (responseCode == HttpStatus.NOT_FOUND.value())
+			return "server online, DOME not running"; //server is on, but DOME not running
+		else{
+			ServiceLogger.log(logTag, userAccountServer.getIp() + " -- Response code: " + responseCode
+					+"\tResponse Message: " + responseMsg);
+			throw new DMCServiceException(DMCError.UnexpectedDOMEError, errorHeader + "Unexpected error from DOME running on "
+					+ userAccountServer.getIp() + " -- Response code: " + responseCode
+					+"\tResponse Message: " + responseMsg);
+		}
+
+
+	}
 
 	/**
      Create a new record for a new server registered by a user
@@ -32,11 +96,13 @@ class AccountServersDao {
 	 @param String - user unique user name
      @return UserAccountServer
      @throws HTTPException
+	 * @throws DMCServiceException 
 	 **/
-	public UserAccountServer postUserAccountServer(UserAccountServer userAccountServer, String userEPPN) throws HTTPException {
+	public UserAccountServer postUserAccountServer(UserAccountServer userAccountServer, String userEPPN) throws DMCServiceException {
 		int user_id_lookedup = -1;
 		int serverId = -1;
 		Util util = Util.getInstance();
+		String errorHeader = "IN POST ACCOUNT SERVER: ";
 
 		ServiceLogger.log(logTag, "In postUserAccountServer for userEPPN: " + userEPPN);
 
@@ -56,65 +122,36 @@ class AccountServersDao {
 			//preparedStatement.executeUpdate();
 
 			if(preparedStatement.executeUpdate() != 1) {
-				throw new SQLException("Unable to update servers" +
-						" for user_id: " + user_id_lookedup + " to " + userAccountServer.toString());
+				throw new DMCServiceException(DMCError.OtherSQLError, errorHeader 
+						+ "Unable to add requested server for user " + userEPPN);
 			}
-			
+
 			//HttpClient DOMEconnect =  HttpClientBuilder.create().build();
-			
-			HttpURLConnection testConnection = (HttpURLConnection) new URL(userAccountServer.getIp())
-					.openConnection();
-			
-			testConnection.setConnectTimeout(TIMEOUT); 
 
-			testConnection.setRequestMethod("GET");
-			int responseCode = 0;
-			String responseMsg = null;
-			try{
-				responseCode = testConnection.getResponseCode();
-			}
-			catch (IOException responseCodeException){
-				ServiceLogger.log(logTag, "RESPCODE caused IO error");
-			}
-			try{
-				responseMsg = testConnection.getResponseMessage();
-			} catch (IOException responseMsgException){
-				ServiceLogger.log(logTag, "RESPMSG caused IO error");
-			}
-			
-			System.out.println("POSTCODE: In POST, connection response code: " 
-					+ responseCode + "\tConnection Message: " + responseMsg);
 
-					if (responseCode == HttpStatus.OK.value())
-						userAccountServer.setStatus("online");
-					else if (responseCode == HttpStatus.GATEWAY_TIMEOUT.value())
-						throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value()); //server IP not resolved
-					else if (responseCode == HttpStatus.NOT_FOUND.value())
-						throw new HTTPException(HttpStatus.BAD_GATEWAY.value()); //server is on, but DOME not running
-					else{
-						ServiceLogger.log(logTag, "POST_INCODE, caught 500 error");
-						throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
-					}
-					
+			userAccountServer.setStatus(AccountServersDao.serverStatus(userAccountServer));
+
+
+
 			serverId = util.getGeneratedKey(preparedStatement, "server_id");
 
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value()); // ToDo need to determine what HTTP error to throw
+			throw new DMCServiceException(DMCError.OtherSQLError, errorHeader 
+					+ e.getMessage()); // ToDo need to determine what HTTP error to throw
 		} catch (SocketTimeoutException e){
-			throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value()); //response from DOME timed out
+			throw new DMCServiceException(DMCError.CannotConnectToDome, errorHeader + "connection to URL " 
+					+ userAccountServer.getIp() + " timed out."); //response from DOME timed out
 		}
-		  catch (MalformedURLException e) {
-			throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value()); //bad URL
+		catch (MalformedURLException e) {
+			throw new DMCServiceException(DMCError.BadURL, errorHeader + "Malformed DOME Server URL submitted"); //bad URL
 		} catch (IOException e) {
-			ServiceLogger.log(logTag, "POST_OUTCODE, caught 500 error");
-			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value()); //other IO error
+			ServiceLogger.log(logTag, errorHeader + "caught 500 error -- details: " + e.getMessage());
+			throw new DMCServiceException(DMCError.UnexceptedDOMEConnectionError, e.getMessage()); //other IO error
 		}
 
 		userAccountServer.setId(Integer.toString(serverId));
 
-		// ToDo: need to set status
-		//userAccountServer.setStatus("");
 
 		return userAccountServer;
 	}
@@ -128,11 +165,14 @@ class AccountServersDao {
      @param String - user unique user name
      @return UserAccountServer
      @throws HTTPException
+	 * @throws DMCServiceException 
 	 **/
-	public UserAccountServer patchUserAccountServer(String serverIdStr, UserAccountServer userAccountServer, String userEPPN) throws HTTPException {
+	public UserAccountServer patchUserAccountServer(String serverIdStr, UserAccountServer userAccountServer, String userEPPN) 
+			throws DMCServiceException {
 		int user_id_lookedup = -1;
 		int serverId = Integer.parseInt(serverIdStr);
 		Util util = Util.getInstance();
+		String errorHeader = "IN PATCH ACCOUNT SERVER: ";
 
 		ServiceLogger.log(logTag, "In patchUserAccountServer for userEPPN: " + userEPPN);
 
@@ -140,18 +180,17 @@ class AccountServersDao {
 			user_id_lookedup = UserDao.getUserID(userEPPN);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // unknown user
+			throw new DMCServiceException(DMCError.UnknownUser, errorHeader + "unknown user");
 		}
 
-
-		//user_id_lookedup = getAuthorizedUserId(userAccountServer, userEPPN);
 
 		// check if user can update the server
 
 
-		Integer auth_user_id = new Integer(-1), auth_server_id = new Integer(-1);	
+		int auth_user_id = -1, auth_server_id = -1;	
 
-		String getUserAccountServerQuery = "SELECT user_id, server_id FROM servers WHERE user_id = ? AND server_id = ?";  // ToDo store status
+		String getUserAccountServerQuery = "SELECT user_id, server_id FROM servers WHERE user_id = ? AND server_id = ?"; 
+		// ToDo store status
 
 		PreparedStatement checkAuthPreparedStatement = DBConnector.prepareStatement(getUserAccountServerQuery);
 		try {
@@ -164,26 +203,29 @@ class AccountServersDao {
 				auth_user_id = resultSet.getInt("user_id");
 
 			} else {
-				//ServiceLogger.log(logTag, "get in patch throwing error");
-				throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // no result set returned
+				ServiceLogger.log(logTag, "in patch, no record for user " + user_id_lookedup);
+				throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, errorHeader + "No server record found");
+				// no result set returned
 			}
 		}catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			throw new DMCServiceException(DMCError.OtherSQLError, errorHeader + e.getMessage()); 
 		} 
 
-		//UserAccountServer AuthorizedUserAccountServer = getUserAccountServer(serverId, userEPPN);
-		if((auth_user_id.intValue() == -1 && auth_server_id.intValue() == -1) || 
-				auth_server_id.intValue() != Integer.valueOf(userAccountServer.getId()).intValue() ||  // server's ids don't match OR
-				auth_user_id.intValue() != Integer.valueOf(userAccountServer.getAccountId()).intValue()) { // account ids don't match
-			//ServiceLogger.log(logTag, "retrieved UID = " + auth_user_id.toString() + "\tretrieved server ID = " + auth_server_id.toString());
-			//ServiceLogger.log(logTag, "expected UID = " + userAccountServer.getAccountId().toString() + "\texpected server ID = " + userAccountServer.getId().toString());
-			throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+
+		if(auth_server_id != Integer.parseInt(userAccountServer.getId()) ||
+				auth_user_id != Integer.parseInt(userAccountServer.getAccountId())) { 
+			ServiceLogger.log(logTag, "retrieved UID = " + auth_user_id + "\tretrieved server ID = " + auth_server_id);
+			ServiceLogger.log(logTag, "expected UID = " + userAccountServer.getAccountId() 
+			+ "\texpected server ID = " + userAccountServer.getId());
+
+			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, errorHeader + "unauthorized user");
 		}
 
 		try {
 			// update user's record in users table
-			String createUserAccountServerQuery = "UPDATE servers SET url = ?, alias = ? WHERE user_id = ? AND server_id = ?";  // ToDo: update status
+			String createUserAccountServerQuery = "UPDATE servers SET url = ?, "
+					+ "alias = ? WHERE user_id = ? AND server_id = ?";  // ToDo: update status
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery);
 			preparedStatement.setString(1, userAccountServer.getIp());
@@ -192,56 +234,50 @@ class AccountServersDao {
 			preparedStatement.setInt(4, Integer.parseInt(userAccountServer.getId()));
 			// ToDo: need to add status update
 
-			HttpURLConnection testConnection = (HttpURLConnection) new URL(userAccountServer.getIp())
-					.openConnection();
+			userAccountServer.setStatus(AccountServersDao.serverStatus(userAccountServer));
 
-			testConnection.setRequestMethod("GET");
-
-			if (testConnection.getResponseCode() == HttpStatus.OK.value())
-				userAccountServer.setStatus("online");
-			else if (testConnection.getResponseCode() == HttpStatus.GATEWAY_TIMEOUT.value())
-				throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value()); //server IP not resolved
-			else if (testConnection.getResponseCode() == HttpStatus.NOT_FOUND.value())
-				throw new HTTPException(HttpStatus.BAD_GATEWAY.value()); //server is on, but DOME not running
-			else
-				throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			if(preparedStatement.executeUpdate() != 1) {
-				throw new SQLException("Unable to update servers" +
+				throw new DMCServiceException(DMCError.CannotPatchDOMEServerEntry,errorHeader + "Unable to update servers" +
 						" for user_id: " + user_id_lookedup + 
 						" to " + userAccountServer.toString());
 			}
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // ToDo need to determine what HTTP error to throw
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+			// ToDo need to determine what HTTP error to throw
 		} catch (SocketTimeoutException e){
-			throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value()); //response from DOME timed out
-		} catch (MalformedURLException e) {
-			throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value()); //This URL is invalid, Error code 422 will mention
-			//that there is a semantic error
-			} catch (IOException e){
-			throw new HTTPException(HttpStatus.BAD_GATEWAY.value());
-			//the communication with the looked up DOME server timed out
+			throw new DMCServiceException(DMCError.CannotConnectToDome, errorHeader + "connection to URL " 
+					+ userAccountServer.getIp() + " timed out."); //response from DOME timed out
 		}
+		catch (MalformedURLException e) {
+			throw new DMCServiceException(DMCError.BadURL, errorHeader + "Malformed DOME Server URL submitted"); //bad URL
+		} catch (IOException e) {
+			ServiceLogger.log(logTag, errorHeader + "caught 500 error -- details: " + e.getMessage());
+			throw new DMCServiceException(DMCError.UnexceptedDOMEConnectionError, e.getMessage()); //other IO error
+		}
+
 		return userAccountServer;
 	}
 
 
-	public UserAccountServer getUserAccountServer(int serverID, String userEPPN) throws HTTPException {
+	public UserAccountServer getUserAccountServer(int serverID, String userEPPN) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In getUserAccountServer for userEPPN: " + userEPPN + " and server id " + serverID);
 
 		Util util = Util.getInstance();
 		UserAccountServer userAccountServer = new UserAccountServer();
 		int user_id_lookedup = -1;
+		String errorHeader = "GET ACCOUNT SERVER: ";
 
 		try{
 			user_id_lookedup = UserDao.getUserID(userEPPN);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // unknown user
+			throw new DMCServiceException(DMCError.UnknownUser, errorHeader + "unknown user"); // unknown user
 		}
 
 		// update user's record in users table
-		String getUserAccountServerQuery = "SELECT * FROM servers WHERE user_id = ? AND server_id = ?";  // ToDo store status
+		String getUserAccountServerQuery = "SELECT user_id, server_id, alias, url FROM servers "
+				+ "WHERE user_id = ? AND server_id = ?";  // ToDo get status
 
 		PreparedStatement preparedStatement = DBConnector.prepareStatement(getUserAccountServerQuery);
 		try {
@@ -250,62 +286,44 @@ class AccountServersDao {
 
 			ResultSet resultSet = preparedStatement.executeQuery();
 			if(resultSet.next()) {
+
 				userAccountServer.setId(Integer.toString(resultSet.getInt("server_id")));
 				String server = resultSet.getString("url");
 				userAccountServer.setIp(server);
 				userAccountServer.setAccountId(Integer.toString(resultSet.getInt("user_id")));
 				userAccountServer.setName(resultSet.getString("alias"));
 
-				HttpURLConnection testConnection = (HttpURLConnection) new URL(server)
-						.openConnection();
-
-				testConnection.setRequestMethod("GET");
-				int responseCode = 0;
-				String responseMsg = null;
-				try{
-					responseCode = testConnection.getResponseCode();
-					responseMsg = testConnection.getResponseMessage();
-				} catch (IOException exception){
-					ServiceLogger.log(logTag, "Error is in attempted connection");
-				}
-				ServiceLogger.log(logTag, "In Account Server GET, connection response code: " 
-				+ responseCode + "\tConnection Message: " + responseMsg);
-
-				if (responseCode == HttpStatus.OK.value())
-					userAccountServer.setStatus("online");
-				else if (responseCode == HttpStatus.GATEWAY_TIMEOUT.value())
-					throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value()); //server IP not resolved
-				else if (responseCode == HttpStatus.NOT_FOUND.value())
-					throw new HTTPException(HttpStatus.BAD_GATEWAY.value()); //server is on, but DOME not running
-				else
-					throw new HTTPException(HttpStatus.OK.value());
+				userAccountServer.setStatus(AccountServersDao.serverStatus(userAccountServer));
 
 
-				// ToDo set status
-				//		     	userAccountServer.setStatus();
+
 			} else {
-				throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // no result set returned
+				throw new DMCServiceException(DMCError.NoContentInQuery, "No content in query"); // no result set returned
 			}
 		} catch (SQLException e) {
-			ServiceLogger.log(logTag, "Account Server GET SQLEXCEPTION");
-			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError, errorHeader + e.getMessage());
+			// ToDo need to determine what HTTP error to throw
 		} catch (SocketTimeoutException e){
-			throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value()); //response from DOME timed out
-		} catch (MalformedURLException e) {
-			throw new HTTPException(HttpStatus.UNPROCESSABLE_ENTITY.value()); //This URL is invalid, Error code 422 will mention
-			//that there is a semantic error
-		} catch (IOException e){
-			throw new HTTPException(HttpStatus.BAD_GATEWAY.value());
-			//The connection set up with the DOME server timed out
+			throw new DMCServiceException(DMCError.CannotConnectToDome, errorHeader + "-- connection to URL " 
+					+ userAccountServer.getIp() + " timed out."); //response from DOME timed out
 		}
+		catch (MalformedURLException e) {
+			throw new DMCServiceException(DMCError.BadURL, errorHeader + "-- Malformed DOME Server URL submitted"); //bad URL
+		} catch (IOException e) {
+			ServiceLogger.log(logTag, errorHeader + "-- caught 500 error -- details: " + e.getMessage());
+			throw new DMCServiceException(DMCError.UnexceptedDOMEConnectionError, errorHeader 
+					+ e.getMessage()); //other IO error
+		}
+
 		return userAccountServer;
 	}
 
 
 
-	public void deleteUserAccountServer(int serverID, String userEPPN) throws HTTPException {
+	public void deleteUserAccountServer(int serverID, String userEPPN) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In deleteUserAccountServer for userEPPN: " + userEPPN + " and server id " + serverID);
-
+		String errorHeader = "DELETE ACCOUNT SERVER: ";
 		Util util = Util.getInstance();
 		int user_id_lookedup = -1;
 
@@ -313,7 +331,7 @@ class AccountServersDao {
 			user_id_lookedup = UserDao.getUserID(userEPPN);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // unknown user
+			throw new DMCServiceException(DMCError.UnknownUser, errorHeader + "unknown user"); // unknown user
 		}
 
 		// update user's record in users table
@@ -323,34 +341,39 @@ class AccountServersDao {
 		try {
 			preparedStatement.setInt(1, user_id_lookedup);
 			preparedStatement.setInt(2, serverID);
-
-			if(preparedStatement.executeUpdate() != 1) {
-				throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value()); // single item not deleted
+			int change = preparedStatement.executeUpdate();
+			if(change != 1) {
+				throw new DMCServiceException(DMCError.CannotDeleteDOMEServerEntry, errorHeader 
+						+ "number of changes were: " + change); // single item not deleted
 			}
 
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new HTTPException(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			throw new DMCServiceException(DMCError.OtherSQLError, errorHeader + e.getMessage());
+			// ToDo need to determine what HTTP error to throw
 		}
 		return;
 	}
 
 
-	private int getAuthorizedUserId(UserAccountServer userAccountServer, String userEPPN) {
+	private int getAuthorizedUserId(UserAccountServer userAccountServer, String userEPPN) throws DMCServiceException {
 		int user_id_lookedup = -1;
-
+		String errorHeader = "ACCOUNT SERVERS GET AUTHORIZED USER ID: ";
 		try{
 			user_id_lookedup = UserDao.getUserID(userEPPN);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // unknow user
+			throw new DMCServiceException(DMCError.UnknownUser, errorHeader + e.getMessage()); // unknown user
 		}
 
 		// check if user has permission to update account
 		if(user_id_lookedup != Integer.parseInt(userAccountServer.getAccountId())) {
 			ServiceLogger.log(logTag, "Looked up user id " + user_id_lookedup +
 					" does not match account id of server " + userAccountServer.getAccountId());
-			throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // account id and user id do not match
+			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, errorHeader 
+					+ "Looked up user id " + user_id_lookedup +
+					" does not match account id of server " + userAccountServer.getAccountId());
+			// account id and user id do not match
 		}
 		return user_id_lookedup;
 	}
