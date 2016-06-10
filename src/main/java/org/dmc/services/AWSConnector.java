@@ -38,6 +38,10 @@ public class AWSConnector {
 	//Source is the path the the resource in the bucket
 	public String upload(String tempURL, String Folder, String userEPPN, String ResourceType) throws DMCServiceException {
 
+	    if (null == tempURL) {
+	        ServiceLogger.log(logTag, "User" + userEPPN + " - no item to upload, returning");
+	        return null;
+	    }
 	   ServiceLogger.log(logTag, "User" + userEPPN + "uploading object from " + sourceBucket + " to S3 bucket " + destBucket);
 
 	   BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
@@ -143,6 +147,10 @@ public class AWSConnector {
 
 	public String remove (String URL, String userEPPN) throws DMCServiceException {
 
+	    if (null == URL) {
+	        ServiceLogger.log(logTag, "User: " + userEPPN + " path to resource is null, returning");
+	        return null;
+	    }
 		//Parse URL to get Path
 		int ResourcePathStart = URL.indexOf("com/") + 4;
 		int ResourcePathEnd = URL.indexOf("?A");
