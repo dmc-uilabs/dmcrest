@@ -7,6 +7,7 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.components.Component;
 import org.dmc.services.services.Service;
 import org.dmc.services.users.User;
+import org.springframework.format.annotation.NumberFormat;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,7 @@ public class CompanyController {
     private CompanyDao companyDao = new CompanyDao();
     private CompanySkillDao skillDao = new CompanySkillDao();
     private CompanyVideoDao videoDao = new CompanyVideoDao();
+	private CompanyReviewDao reviewDao = new CompanyReviewDao();
 
     /**
      Return a list of companies
@@ -303,8 +305,8 @@ public class CompanyController {
 			  }
 	 
 	 
-	 @RequestMapping(value = "/companies/{companyID}/company_skill_images", 
-			    produces = { "application/json", "text/html" }, 
+	 @RequestMapping(value = "/companies/{companyID}/company_skill_images",
+			    produces = { "application/json", "text/html" },
 			    method = RequestMethod.GET)
 			  public ResponseEntity<List<CompanySkillImage>> companiesCompanyIDCompanySkillImagesGet(
 			@PathVariable("companyID") String companyID){
@@ -323,30 +325,49 @@ public class CompanyController {
 			  }
 	
 
-	 @RequestMapping(value = "/companies/{companyID}/company_reviews", 
-			    produces = { "application/json", "text/html" }, 
-			    method = RequestMethod.GET)
-			  public ResponseEntity<List<CompanyReview>> companiesCompanyIDCompanyReviewsGet(
+	 @RequestMapping(value = "/companies/{companyID}/company_reviews", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+	 public ResponseEntity companiesCompanyIDCompanyReviewsGet (
 			@PathVariable("companyID") String companyID,
 			@RequestParam(value = "reviewId", required = true) String reviewId,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "rating", required = false) Integer rating,
-			@RequestParam(value = "status", required = false) Boolean status){
-			      // do some magic!
-			      return new ResponseEntity<List<CompanyReview>>(HttpStatus.NOT_IMPLEMENTED);
-			  }
+			@RequestParam(value = "status", required = false) Boolean status,
+			@RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+
+		 List<CompanyReview> reviews = null;
+		 int statusCode = HttpStatus.OK.value();
+
+		 try {
+				int companyIdInt = Integer.parseInt(companyID);
+				reviews = reviewDao.getReviews(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN);
+			 	return new ResponseEntity<List<CompanyReview>>(reviews, HttpStatus.valueOf(statusCode));
+			} catch (NumberFormatException nfe) {
+				ServiceLogger.log(logTag, "Invalid companyId: " + companyID + ": " + nfe.getMessage());
+				return new ResponseEntity<String>("Invalid companyId: " + companyID, HttpStatus.BAD_REQUEST);
+			} catch (DMCServiceException e) {
+				ServiceLogger.logException(logTag, e);
+				return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			}
+	  }
 	 
-	 @RequestMapping(value = "/company_reviews", 
-			    produces = { "application/json", "text/html" }, 
-			    method = RequestMethod.POST)
-			  public ResponseEntity<CompanyReview> companyReviewsPost(
-					  @RequestBody CompanyReview body
-			){
-			      // do some magic!
-			      return new ResponseEntity<CompanyReview>(HttpStatus.NOT_IMPLEMENTED);
-			  }
+	 @RequestMapping(value = "/company_reviews", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
+	  public ResponseEntity companyReviewsPost(
+			 @RequestBody CompanyReview companyReview,
+			 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+
+		 int statusCode = HttpStatus.OK.value();
+
+		 try {
+			 Id id = reviewDao.createCompanyReview(companyReview, userEPPN);
+			 return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
+		 } catch (DMCServiceException e) {
+			 ServiceLogger.logException(logTag, e);
+			 return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		 }
+
+	 }
 	 
 	 
 	 @RequestMapping(value = "/companies/{companyID}/company_services", 
