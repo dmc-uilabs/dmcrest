@@ -51,6 +51,9 @@ public class DMCServiceException extends Exception {
 			case CanNotCloseActiveMQConnection:
 				status = HttpStatus.INTERNAL_SERVER_ERROR;
 				break;
+			case IncorrectType:
+				status = HttpStatus.BAD_REQUEST;
+				break;
 		}
 		return status;
 	}

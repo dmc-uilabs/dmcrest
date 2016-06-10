@@ -24,8 +24,8 @@ public class DOMEServerDAO {
 	private String userName;
 	private String userSpace;
 	private String userPass;
-	
-/*	public static void main(String[] args)
+
+	/*public static void main(String[] args)
 	{ 
 		try{
 		int server_id = 3;

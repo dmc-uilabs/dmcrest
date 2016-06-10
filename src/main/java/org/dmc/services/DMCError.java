@@ -15,6 +15,7 @@ public enum DMCError {
 
 	// Company
 	NotAdminUser,
+	UserNoCompany,
 	NotDMDIIMember,
 	CanNotInsertChangeLog,
 	CompanySkillSetNotExist,
@@ -34,6 +35,12 @@ public enum DMCError {
 	CanNotCloseActiveMQConnection,
 	CanNotDeleteQueue,
 	CanNotReadMessage,
+	
+	//DomeAPI
+	IncorrectType,
+	CanNotGetChildren,
+	CanNotGetModel,
+	CanNotConnectToDome,
 
 	// Service queries
 	ServiceInterfaceNotMatch,

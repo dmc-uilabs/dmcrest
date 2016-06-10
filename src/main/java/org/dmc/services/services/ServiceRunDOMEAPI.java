@@ -17,7 +17,8 @@ import org.json.JSONObject;
 
 public class ServiceRunDOMEAPI {
 		
-/*	public static void main(String[] args)
+
+	/*public static void main(String[] args)
 	{
 		int user_id = 111;
 		int service_id = 3;
@@ -35,9 +36,7 @@ public class ServiceRunDOMEAPI {
 			e.printStackTrace();
 		}
 	}*/
-	
-	private static final String logTag = ServiceRunDOMEAPI.class.getName();
-	
+
 	public int runModel(int service_id, int user_id) throws Exception
 	{
 		// TODO: Leave checking if user_id can run the model here.
@@ -109,17 +108,9 @@ public class ServiceRunDOMEAPI {
 		  return modelRunID;
 	}
 	
-	public ServiceRunResult pollService1(int runId, int user_id) throws Exception
-	{
-		ServiceLogger.log(logTag, "In pollService, runId: " + runId + ", user_id: " + user_id);
-		ServiceRunResult result = new ServiceRunResult();
-		return result;
-	}
-	
 	public ServiceRunResult pollService(int runId, int user_id) throws Exception
 	{
 		
-		ServiceLogger.log(logTag, "In pollService, runId: " + runId + ", user_id: " + user_id);
 		ServiceRunResult result = new ServiceRunResult();
 		// Return: 0 -- finished; 1 -- partial finished; 2 -- no new results found from the queue
 		//int result=0;
