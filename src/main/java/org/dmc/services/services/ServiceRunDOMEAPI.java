@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.dmc.services.ServiceLogger;
 import org.json.JSONArray;
@@ -46,6 +47,79 @@ public class ServiceRunDOMEAPI {
 		int server_id = dInterface.getDOMEServer().getServerID();
 		int interface_id = dInterface.getInterfaceID();
 		String domeJSonPars = dInterface.toDOMEString();
+		// Get information of the DOMEServer
+		DOMEServerDAO dServer = new DOMEServerDAO(server_id);
+		// Get the unique queue id based on interface name and current time.
+		String queue = dInterface.getName().replace(' ', '_')+"_"+System.currentTimeMillis();
+
+		// Create database entry for this run.
+		ServiceRunServiceDAO serviceRun = new ServiceRunServiceDAO();
+		int modelRunID = serviceRun.createModelRunDBEntry(user_id, server_id, interface_id, queue);
+			
+		// Create a queue in the activeMQ server
+		ServiceRunActiveMQ activeMQ = new ServiceRunActiveMQ();
+		activeMQ.createQueue(queue);
+			
+		// Run model
+		//TODO
+		// Note that these information are different from port information provided in the database
+		// Database information for DOME server is provided for local execution, 8080/DOMEApiServicesV7/runModel need to be parameterized later.
+		String servicePath = "http://" + dServer.getServerURL() + ":8080/DOMEApiServicesV7/runModel";
+		  URL url = new URL(servicePath);
+		  HttpURLConnection conn =
+		      (HttpURLConnection) url.openConnection();
+		  conn.setRequestMethod("POST");
+		  conn.setDoOutput(true);
+		  conn.setDoInput(true);
+		  conn.setUseCaches(false);
+		  conn.setAllowUserInteraction(false);
+		  conn.setRequestProperty("Content-Type",
+		      "application/x-www-form-urlencoded");
+
+		  // Create the form content
+		  OutputStream out = conn.getOutputStream();
+		  Writer writer = new OutputStreamWriter(out, "UTF-8");
+		  writer.write("data");
+		  writer.write("=");
+		  writer.write(URLEncoder.encode(domeJSonPars, "UTF-8"));
+		  writer.write("&");
+		  writer.write("queue");
+		  writer.write("=");
+		  writer.write(URLEncoder.encode(queue, "UTF-8"));
+		  
+		  writer.close();
+		  out.close();
+
+		  if (conn.getResponseCode() != 200) {
+		    throw new IOException(conn.getResponseMessage());
+		  }
+
+		  // Buffer the result into a string
+		  BufferedReader rd = new BufferedReader(
+		      new InputStreamReader(conn.getInputStream()));
+		  StringBuilder sb = new StringBuilder();
+		  String line;
+		  while ((line = rd.readLine()) != null) {
+		    sb.append(line);
+		  }
+		  rd.close();
+
+		  conn.disconnect();
+		  
+		  return modelRunID;
+	}
+	
+	public int runModel(String interfaceIdStr, Map inPars, int user_id) throws Exception
+	{
+		// TODO: Leave checking if user_id can run the model here.
+
+		// Get DOMEInterface information
+		ServiceRunServiceInterfaceDAO dInterface = new ServiceRunServiceInterfaceDAO(interfaceIdStr);
+		int server_id = dInterface.getDOMEServer().getServerID();
+		int interface_id = dInterface.getInterfaceID();
+		
+		// Print the required call string with values from the page 
+		String domeJSonPars = dInterface.toDOMEStringInPars(inPars);
 		// Get information of the DOMEServer
 		DOMEServerDAO dServer = new DOMEServerDAO(server_id);
 		// Get the unique queue id based on interface name and current time.
