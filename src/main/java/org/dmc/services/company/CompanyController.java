@@ -27,6 +27,9 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
+
 @RestController
 public class CompanyController {
 
@@ -40,7 +43,7 @@ public class CompanyController {
     /**
      Return a list of companies
      **/
-    @RequestMapping(value = "/companies", method = RequestMethod.GET, produces = { "application/json"})
+    @RequestMapping(value = "/companies", method = RequestMethod.GET, produces = {APPLICATION_JSON_VALUE})
     public ResponseEntity getCompanies(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
     	ServiceLogger.log(logTag, "getCompanys, userEPPN: " + userEPPN);
     	int statusCode = HttpStatus.OK.value();
@@ -57,7 +60,7 @@ public class CompanyController {
     	}
     }
     
-    @RequestMapping(value = "/companies/{id}", method = RequestMethod.GET, produces = { "application/json"})
+    @RequestMapping(value = "/companies/{id}", method = RequestMethod.GET, produces = { APPLICATION_JSON_VALUE})
     public ResponseEntity getCompany(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
     	ServiceLogger.log(logTag, "getCompany, id: " + id);
     	int statusCode = HttpStatus.OK.value();
@@ -76,14 +79,14 @@ public class CompanyController {
     
     
     
-    @RequestMapping(value = "/companies/create", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/companies/create", method = RequestMethod.POST, produces = {APPLICATION_JSON_VALUE})
     @ResponseBody
     public Id createCompany(@RequestBody Company company, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
     	ServiceLogger.log(logTag, "CreateCompany, Payload: " + company);
     	return companyDao.createCompany(company, userEPPN);
     }
 
-    @RequestMapping(value = "/companies/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
+    @RequestMapping(value = "/companies/{id}", method = RequestMethod.PATCH, produces = { APPLICATION_JSON_VALUE })
     public ResponseEntity updateCompany(@PathVariable("id") int id,
     					@RequestBody Company company,
     					@RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
@@ -116,7 +119,7 @@ public class CompanyController {
 	 * @param userEPPN
 	 * @return
 	 */
-	@RequestMapping(value = "/companies/{id}/company_videos", method = RequestMethod.GET, produces = { "application/json" })
+	@RequestMapping(value = "/companies/{id}/company_videos", method = RequestMethod.GET, produces = { APPLICATION_JSON_VALUE })
 	public ResponseEntity getCompanyVideos(@PathVariable("id") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "getCompanyVideos, userEPPN: " + userEPPN);
@@ -141,7 +144,7 @@ public class CompanyController {
 	 * @return
 	 */
 	
-	@RequestMapping(value = "/company_videos", method = RequestMethod.POST, produces = { "application/json" })
+	@RequestMapping(value = "/company_videos", method = RequestMethod.POST, produces = { APPLICATION_JSON_VALUE })
 	@ResponseBody
 	public ResponseEntity createCompanyVideo(@RequestBody CompanyVideo video, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
@@ -165,7 +168,7 @@ public class CompanyController {
 	 * @param userEPPN
 	 * @return
 	 */
-	@RequestMapping(value = "/company_videos/{id}", method = RequestMethod.DELETE, produces = { "application/json" })
+	@RequestMapping(value = "/company_videos/{id}", method = RequestMethod.DELETE, produces = { APPLICATION_JSON_VALUE })
 	public ResponseEntity deleteCompanyVideos(@PathVariable("id") int videoId, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "deleteCompanyVideos, userEPPN: " + userEPPN);
@@ -190,7 +193,7 @@ public class CompanyController {
 	 * @param userEPPN
 	 * @return
 	 */
-    @RequestMapping(value = "/company_videos/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
+    @RequestMapping(value = "/company_videos/{id}", method = RequestMethod.PATCH, produces = { APPLICATION_JSON_VALUE })
     public ResponseEntity updateCompanyVideo(@PathVariable("id") int id,
                             @RequestBody CompanyVideo video,
                             @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
@@ -275,7 +278,7 @@ public class CompanyController {
 	
 	
 	 @RequestMapping(value = "/companies/{companyID}/company_images", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.GET)
 			  public ResponseEntity<List<CompanyImage>> companiesCompanyIDCompanyImagesGet(
 			@PathVariable("companyID") String companyID){
@@ -284,7 +287,7 @@ public class CompanyController {
 			  }
 	 
 	 @RequestMapping(value = "/company_images/{imageID}", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.PATCH)
 			  public ResponseEntity<CompanyImage> companyImagesImageIDPatch(
 			@PathVariable("imageID") String imageID,
@@ -296,7 +299,7 @@ public class CompanyController {
 	 
 	 
 	 @RequestMapping(value = "/companies/{companyID}/company_history", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = {APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.GET)
 			  public ResponseEntity<List<CompanyHistory>> companiesCompanyIDCompanyHistoryGet(
 			@PathVariable("companyID") String companyID){
@@ -306,7 +309,7 @@ public class CompanyController {
 	 
 	 
 	 @RequestMapping(value = "/companies/{companyID}/company_skill_images",
-			    produces = { "application/json", "text/html" },
+			    produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.GET)
 			  public ResponseEntity<List<CompanySkillImage>> companiesCompanyIDCompanySkillImagesGet(
 			@PathVariable("companyID") String companyID){
@@ -315,7 +318,7 @@ public class CompanyController {
 			  }
 	 
 	 @RequestMapping(value = "/company_skill_images/{imageID}", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.PATCH)
 			  public ResponseEntity<CompanySkillImage> companySkillImagesImageIDPatch(
 			@PathVariable("imageID") String imageID,
@@ -325,7 +328,7 @@ public class CompanyController {
 			  }
 	
 
-	 @RequestMapping(value = "/companies/{companyID}/company_reviews", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+	 @RequestMapping(value = "/companies/{companyID}/company_reviews", produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE }, method = RequestMethod.GET)
 	 public ResponseEntity companiesCompanyIDCompanyReviewsGet (
 			@PathVariable("companyID") String companyID,
 			@RequestParam(value = "reviewId", required = true) String reviewId,
@@ -352,7 +355,7 @@ public class CompanyController {
 			}
 	  }
 	 
-	 @RequestMapping(value = "/company_reviews", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
+	 @RequestMapping(value = "/company_reviews", produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE }, method = RequestMethod.POST)
 	  public ResponseEntity companyReviewsPost(
 			 @RequestBody CompanyReview companyReview,
 			 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
@@ -371,7 +374,7 @@ public class CompanyController {
 	 
 	 
 	 @RequestMapping(value = "/companies/{companyID}/company_services", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.GET)
 			  public ResponseEntity<List<Service>> companiesCompanyIDCompanyServicesGet(
 			 @PathVariable("companyID") String companyID,
@@ -392,7 +395,7 @@ public class CompanyController {
 
 	 
 	 @RequestMapping(value = "/companies/{companyID}/company_components", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = {APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.GET)
 			  public ResponseEntity<List<Component>> companiesCompanyIDCompanyComponentsGet(
 			@PathVariable("companyID") String companyID,
@@ -412,7 +415,7 @@ public class CompanyController {
 	 
 	 
 	 @RequestMapping(value = "/companies/{companyID}/company_featured", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.GET)
 			  public ResponseEntity<List<ServiceFeatured>> companiesCompanyIDCompanyFeaturedGet(
 			@PathVariable("companyID") String companyID,
@@ -424,7 +427,7 @@ public class CompanyController {
 	 
 	 
 	 @RequestMapping(value = "/companies/{companyID}/new", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.GET)
 			  public ResponseEntity<List<Service>> companiesCompanyIDNewGet(
 			@PathVariable("companyID") String companyID,
@@ -437,7 +440,7 @@ public class CompanyController {
 	 
 	 
 	 @RequestMapping(value = "/company/follow", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.POST)
 			  public ResponseEntity<InlineResponse201> companyFollowPost(
 				@RequestParam(value = "accountId", required = true) Integer accountId,
@@ -448,7 +451,7 @@ public class CompanyController {
 	 
 	 
 	 @RequestMapping(value = "/company/unfollow/{followed_companiId}", 
-			    produces = { "application/json", "text/html" }, 
+			    produces = {APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
 			    method = RequestMethod.DELETE)
 			  public ResponseEntity<Void> companyUnfollowFollowedCompaniIdDelete(
 			@PathVariable("followedCompaniId") Integer followedCompaniId){
