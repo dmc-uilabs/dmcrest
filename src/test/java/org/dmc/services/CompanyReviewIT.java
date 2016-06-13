@@ -114,6 +114,22 @@ public class CompanyReviewIT {
         assertTrue("Expected 1 company review, got" + companyReviewList.size(), companyReviewList.size() == 1);
     }
 
+    @Test
+    public void testGetReviewsMemberSpecificReview () {
+        ArrayList<CompanyReview> companyReviewList =
+                given()
+                        .header("Content-type", "application/json")
+                        .header("AJP_eppn", memberEPPN)
+                        .parameters("reviewId", Integer.toString(reviewId))
+                        .expect()
+                        .statusCode(200)
+                        .when()
+                        .get(COMPANY_REVIEW_GET_RESOURCE, companyId)
+                        .as(ArrayList.class);
+
+        assertTrue("Company review list cannot be null", companyReviewList != null);
+        assertTrue("Expected 1 company review, got" + companyReviewList.size(), companyReviewList.size() == 1);
+    }
 
     @Test
     public void testAddReviewNonMember () {
