@@ -1,6 +1,7 @@
 package org.dmc.services.company;
 
 import org.dmc.services.*;
+import org.dmc.services.utils.SQLUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -76,26 +77,20 @@ public class CompanyReviewDao {
             }
 
             // "ORDER BY " + sort + " " + order + " LIMIT " + limit;
-            String orderByClause = "";
-            if (sort != null) {
-
-                orderByClause = " ORDER BY " + sort;
-                if (order != null) {
-                    orderByClause += " " + order;
-                }
-            }
-
-            String limitClause = "";
-            if (limit != null) {
-                limitClause= " LIMIT " + limit;
-            }
-
+            String orderByClause = SQLUtils.buildOrderByClause(order, sort);
+            String limitClause = SQLUtils.buildLimitClause(limit);
 
             String query =
                     "select r.*, o.accountid AS accountid from organization_review r LEFT JOIN organization o ON o.organization_id = r.organization_id " +
-                    whereClause +
-                    orderByClause +
-                    limitClause;
+                    whereClause;
+
+            if (orderByClause != null) {
+                query += " " + orderByClause;
+            }
+
+            if (limitClause != null) {
+                query += limitClause;
+            }
 
             ServiceLogger.log(logTag, "Get company reviews sql=" + query);
 
