@@ -32,7 +32,7 @@ public class AccountServerIT extends BaseIT {
 	private String newKnownUser;
 	private String uniqueID;
 	private String JSON = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-	private final String validURL = "http://52.39.238.20:8080/DOMEApiServicesV7/";
+	private final String validURL = System.getenv("RunningDOMEip");
 	private final String urlOff = "http://52.41.12.6:8080/DOMEApiServicesV7/";
 	private final String tomcatIsOff = "http://52.41.39.215:8080/DOMEApiServicesV7/";
 	
