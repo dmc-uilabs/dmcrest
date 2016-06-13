@@ -33,8 +33,10 @@ public class AccountServerIT extends BaseIT {
 	private String uniqueID;
 	private String JSON = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 	private final String validURL = System.getenv("RunningDOMEip");
-	private final String urlOff = "http://52.41.12.6:8080/DOMEApiServicesV7/";
-	private final String tomcatIsOff = "http://52.41.39.215:8080/DOMEApiServicesV7/";
+	
+	//These can be used when the Apache http client is used to test connections instead of the Sun/Oracle HTTP client
+	//private final String urlOff = System.getenv("ServerIsOff");
+	//private final String tomcatIsOff = System.getenv("TestDOMEnotRunning");
 	
 	
 	private int user_id_lookedup;
