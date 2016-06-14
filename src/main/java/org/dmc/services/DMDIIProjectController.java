@@ -36,4 +36,11 @@ public class DMDIIProjectController {
 		
 		return dmdiiProjectService.findDMDIIProjectsByProjectStatusId(projectStatusId);
 	}
+	
+	@RequestMapping(value = "/dmdiiprojects", method = RequestMethod.GET)
+	public List<DMDIIProjectModel> getAllDMDIIProjects() {
+		ServiceLogger.log(logTag, "In getAllDMDIIProjects");
+		
+		return dmdiiProjectService.getAllDMDIIProjects();
+	}
 }
