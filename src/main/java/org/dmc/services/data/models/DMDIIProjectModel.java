@@ -2,16 +2,13 @@ package org.dmc.services.data.models;
 
 import java.util.Date;
 
-import org.dmc.services.data.entities.DMDIIMember;
-import org.dmc.services.data.entities.User;
-
 public class DMDIIProjectModel extends BaseModel {
 	
-	private DMDIIMember primeOrganization;
+	private DMDIIMemberModel primeOrganization;
 	
-	private User principalInvestigator;
+	private UserModel principalInvestigator;
 	
-	private String projectStatus;
+	private Integer projectStatusId;
 	
 	private Date awardedDate;
 	
@@ -21,35 +18,35 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	private String projectSummary;
 	
-	private User principalPointOfContact;
+	private UserModel principalPointOfContact;
 	
 	private Integer focusAreaId;
 	
 	private Integer thrustId;	
 	
 
-	public DMDIIMember getPrimeOrganization() {
+	public DMDIIMemberModel getPrimeOrganization() {
 		return primeOrganization;
 	}
 
-	public void setPrimeOrganization(DMDIIMember primeOrganization) {
+	public void setPrimeOrganization(DMDIIMemberModel primeOrganization) {
 		this.primeOrganization = primeOrganization;
 	}
 
-	public User getPrincipalInvestigator() {
+	public UserModel getPrincipalInvestigator() {
 		return principalInvestigator;
 	}
 
-	public void setPrincipalInvestigator(User principalInvestigator) {
+	public void setPrincipalInvestigator(UserModel principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
 	}
 
-	public String getProjectStatus() {
-		return projectStatus;
+	public Integer getProjectStatusId() {
+		return projectStatusId;
 	}
 
-	public void setProjectStatus(String projectStatus) {
-		this.projectStatus = projectStatus;
+	public void setProjectStatusId(Integer projectStatusId) {
+		this.projectStatusId = projectStatusId;
 	}
 
 	public Date getAwardedDate() {
@@ -84,11 +81,11 @@ public class DMDIIProjectModel extends BaseModel {
 		this.projectSummary = projectSummary;
 	}
 
-	public User getPrincipalPointOfContact() {
+	public UserModel getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(User principalPointOfContact) {
+	public void setPrincipalPointOfContact(UserModel principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 

@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -26,10 +27,11 @@ public class DMDIIProject extends BaseEntity {
 	@JoinColumn(name = "prime_organization_id", nullable = false)
 	private DMDIIMember primeOrganization;
 	
+	@OneToOne
 	@JoinColumn(name = "principal_investigator_id")
 	private User principalInvestigator;
 	
-	@JoinColumn(name = "project_status_id")
+	@Column(name = "status_id")
 	private Integer projectStatusId;
 	
 	@Column(name = "awarded_date")
@@ -46,6 +48,7 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "project_summary")
 	private String projectSummary;
 	
+	@OneToOne
 	@JoinColumn(name = "principal_point_of_contact_id")
 	private User principalPointOfContact;
 	
@@ -158,6 +161,7 @@ public class DMDIIProject extends BaseEntity {
 		int result = 1;
 		result = prime * result + ((awardedDate == null) ? 0 : awardedDate.hashCode());
 		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
+		result = prime * result + ((focusAreaId == null) ? 0 : focusAreaId.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((primeOrganization == null) ? 0 : primeOrganization.hashCode());
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
@@ -165,7 +169,6 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((projectStatusId == null) ? 0 : projectStatusId.hashCode());
 		result = prime * result + ((projectSummary == null) ? 0 : projectSummary.hashCode());
 		result = prime * result + ((projectTitle == null) ? 0 : projectTitle.hashCode());
-		result = prime * result + ((focusAreaId == null) ? 0 : focusAreaId.hashCode());
 		result = prime * result + ((thrustId == null) ? 0 : thrustId.hashCode());
 		return result;
 	}
@@ -184,15 +187,20 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!awardedDate.equals(other.awardedDate))
 			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
 		if (endDate == null) {
 			if (other.endDate != null)
 				return false;
 		} else if (!endDate.equals(other.endDate))
+			return false;
+		if (focusAreaId == null) {
+			if (other.focusAreaId != null)
+				return false;
+		} else if (!focusAreaId.equals(other.focusAreaId))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
 			return false;
 		if (primeOrganization == null) {
 			if (other.primeOrganization != null)
@@ -224,11 +232,6 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!projectTitle.equals(other.projectTitle))
 			return false;
-		if (focusAreaId == null) {
-			if (other.focusAreaId != null)
-				return false;
-		} else if (!focusAreaId.equals(other.focusAreaId))
-			return false;
 		if (thrustId == null) {
 			if (other.thrustId != null)
 				return false;
@@ -236,4 +239,6 @@ public class DMDIIProject extends BaseEntity {
 			return false;
 		return true;
 	}
+
+	
 }
