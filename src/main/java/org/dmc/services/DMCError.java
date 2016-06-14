@@ -49,7 +49,7 @@ public enum DMCError {
 	CannotCreateDOMEServerEntry, 
 	UnknownSQLError,
 	UnexpectedDOMEError,
-	UnexceptedDOMEConnectionError, 
+	UnexpectedDOMEConnectionError, 
 	BadURL,
 	UnauthorizedAccessAttempt, 
 	CannotPatchDOMEServerEntry,

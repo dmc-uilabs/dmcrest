@@ -50,7 +50,7 @@ public class DMCServiceException extends Exception {
 				break;
 			case AWSError:
 			case UnexpectedDOMEError:
-			case UnexceptedDOMEConnectionError:
+			case UnexpectedDOMEConnectionError:
 				status = HttpStatus.INTERNAL_SERVER_ERROR;
 				break;
 			case NotDMDIIMember:

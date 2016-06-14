@@ -152,7 +152,7 @@ public class AccountServerIT extends BaseIT {
 			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		expect().
-			statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
+			statusCode(HttpStatus.OK.value()).  
 		when().
 			get("/account_servers/" + returnedUserAccountServer.getId()).
 			as(UserAccountServer.class);
@@ -278,7 +278,7 @@ public class AccountServerIT extends BaseIT {
 			header("AJP_eppn", newKnownUser).
 		body(userAccountServerString).
 			expect().
-		statusCode(HttpStatus.CREATED.value()).  //ToDo should return 201 not 200
+		statusCode(HttpStatus.CREATED.value()). 
 			when().
 		post("/account_servers"). //IMPROVEMENT allow forced user input for testing purposes
 			as(UserAccountServer.class);
@@ -319,7 +319,7 @@ public class AccountServerIT extends BaseIT {
 			header("AJP_eppn", newKnownUser).
 		body(userAccountServerString).
 			expect().
-		statusCode(422).  
+		statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value()).  
 			when().
 		post("/account_servers"); //IMPROVEMENT allow forced user input for testing purposes
 		
