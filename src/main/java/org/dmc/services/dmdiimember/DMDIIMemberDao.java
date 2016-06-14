@@ -16,6 +16,8 @@ public interface DMDIIMemberDao extends CrudRepository<DMDIIMember, Integer> {
 	Page<DMDIIMember> findByDmdiiTypeDmdiiTypeCategoryId(Pageable pageable, Integer dmdiiTypeCategoryId);
 	
 	Page<DMDIIMember> findByDmdiiTypeTier(Pageable pageable, Integer dmdiiTypeTier);
+	
+	Page<DMDIIMember> findByOrganizationNameLikeIgnoreCase(Pageable pageable, String name);
 
 	DMDIIMember save(DMDIIMember member);
 
