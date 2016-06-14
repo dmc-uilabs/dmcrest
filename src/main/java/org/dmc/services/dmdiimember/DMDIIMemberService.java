@@ -30,10 +30,20 @@ public class DMDIIMemberService {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findOne(id));
 	}
-
-	public List<DMDIIMemberModel> findByTypeId(Integer typeId, Integer pageNumber, Integer pageSize) {
+	
+	public List<DMDIIMemberModel> findByType(Integer categoryId, Integer tier, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		List<DMDIIMember> members = dmdiiMemberDao.findByDmdiiTypeId(new PageRequest(pageNumber, pageSize), typeId).getContent();
+		List<DMDIIMember> members;
+		PageRequest page = new PageRequest(pageNumber, pageSize);
+		
+		if (categoryId != null && tier != null) {
+			members = dmdiiMemberDao.findByDmdiiTypeDmdiiTypeCategoryIdAndDmdiiTypeTier(page, categoryId, tier).getContent();
+		} else if (categoryId != null) {
+			members = dmdiiMemberDao.findByDmdiiTypeDmdiiTypeCategoryId(page, categoryId).getContent();
+		} else {
+			members = dmdiiMemberDao.findByDmdiiTypeTier(page, tier).getContent();
+		}
+		
 		return mapper.mapToModel(members);
 	}
 
