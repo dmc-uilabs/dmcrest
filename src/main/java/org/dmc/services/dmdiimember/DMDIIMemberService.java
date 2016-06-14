@@ -46,6 +46,11 @@ public class DMDIIMemberService {
 		
 		return mapper.mapToModel(members);
 	}
+	
+	public List<DMDIIMemberModel> findByName(String name, Integer pageNumber, Integer pageSize) {
+		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
+		return mapper.mapToModel(dmdiiMemberDao.findByOrganizationNameLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%").getContent());
+	}
 
 	public DMDIIMemberModel save(DMDIIMemberModel memberModel) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);

@@ -47,5 +47,12 @@ public class DMDIIMemberController {
 	public @ResponseBody DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
 		return dmdiiMemberService.save(member);
 	}
+	
+	@RequestMapping(value = "/dmdiiMember/search", method = RequestMethod.GET,params = {"page", "pageSize", "name"})
+	public @ResponseBody List<DMDIIMemberModel> findMembersByName(@RequestParam("page") Integer page,
+																@RequestParam("pageSize") Integer pageSize,
+																@RequestParam("name") String name) {
+		return dmdiiMemberService.findByName(name, page, pageSize);
+	}
 
 }
