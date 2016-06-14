@@ -59,4 +59,12 @@ public class DMDIIProjectService {
 		
 		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
 	}
+
+	public List<DMDIIProjectModel> getAllDMDIIProjects() {
+		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
+		
+		dmdiiProjects = dmdiiProjectRepository.findAll();
+		
+		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
+	}
 }
