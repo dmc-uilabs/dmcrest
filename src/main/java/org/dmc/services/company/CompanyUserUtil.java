@@ -94,7 +94,9 @@ public class CompanyUserUtil {
 		PreparedStatement preparedStatement = DBConnector.prepareStatement(queryAdmin);
 		preparedStatement.setInt(1, user_id);
 		ResultSet r = preparedStatement.executeQuery();
-		if (r != null) results = r.getInt("organization_id");
+		if (r.next()) {
+			results = r.getInt("organization_id");
+		}
     	return results;
     }
 
