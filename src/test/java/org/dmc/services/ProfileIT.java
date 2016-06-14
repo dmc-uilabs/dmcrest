@@ -156,7 +156,36 @@ public class ProfileIT extends BaseIT {
 			}
 	}
 	
-	// Cleanup
+    @Test
+    public void testProfilePatchWithNullValues() {
+        final JSONObject json = createFixture("update");
+        json.put("jobTitle", JSONObject.NULL);
+        json.put("phone", JSONObject.NULL);
+        json.put("location", JSONObject.NULL);
+        json.put("image", JSONObject.NULL);
+        json.put("description", "");
+        json.put("skills", new ArrayList<String>());
+            if (this.createdId > 0) {
+                final Integer retrivedId =
+                given()
+                    .header("Content-type", "application/json")
+                    .header("AJP_eppn", "userEPPN" + unique)
+                    .body(json.toString())
+                .expect()
+                    .statusCode(200)
+                .when()
+                    .patch(PROFILE_UPDATE_RESOURCE, this.createdId.toString())
+                .then()
+                    .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+                    .extract()
+                    .path("id");
+
+                assertTrue("Retrieved Id is not the same as newly created user's id", this.createdId.equals(retrivedId));
+                assertTrue("Retrieved Id is " + retrivedId, retrivedId > 0);
+            }
+    }
+
+    // Cleanup
 	@After  
 	public void testProfileDelete() {
 		if (this.createdId > 0) {
