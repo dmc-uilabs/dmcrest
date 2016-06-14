@@ -201,7 +201,7 @@ public class DiscussionIT extends BaseIT {
 	
 	
 	/*
-	 * test case for GET /individual-discussion
+	 * test case for POST /individual-discussion
 	 */
 	@Test
 	public void testPost_IndividualDiscussion(){

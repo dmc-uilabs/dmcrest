@@ -1,6 +1,9 @@
 package org.dmc.services.discussions;
 
-
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.services.GetDomeInterface;
+import org.dmc.services.services.ServiceController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,60 +17,52 @@ import java.util.List;
 import static org.springframework.http.MediaType.*;
 
 @Controller
-@RequestMapping(value = "/individual-discussion", produces = {APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/individual-discussion", produces = { APPLICATION_JSON_VALUE })
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class IndividualDiscussionController {
-  
 
-  @RequestMapping(value = "", 
-    produces = { "application/json", "text/html" }, 
-    method = RequestMethod.GET)
-  public ResponseEntity<List<IndividualDiscussion>> individualDiscussionGet(
-		  @RequestParam(value = "limit", required = false) Integer limit,
-@RequestParam(value = "order", required = false) String order,
-@RequestParam(value = "sort", required = false) String sort){
-      // do some magic!
-      return new ResponseEntity<List<IndividualDiscussion>>(HttpStatus.NOT_IMPLEMENTED);
-  }
+	private final String logTag = IndividualDiscussionController.class.getName();
 
-  
-  @RequestMapping(value = "", 
-    produces = { "application/json", "text/html" }, 
-    method = RequestMethod.POST)
-  public ResponseEntity<IndividualDiscussion> individualDiscussionPost(
-@RequestBody IndividualDiscussion discussion){
-      // do some magic!
-      return new ResponseEntity<IndividualDiscussion>(HttpStatus.NOT_IMPLEMENTED);
-  }
+	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+	public ResponseEntity getIndividualDiscussion(
+			@RequestParam(value = "limit", required = false) Integer limit,
+			@RequestParam(value = "order", required = false) String order,
+			@RequestParam(value = "sort", required = false) String sort) {
 
-  
+		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		try {
+			ServiceLogger.log(logTag, "In getIndividualDiscussion");
+			return new ResponseEntity<List<IndividualDiscussion>>(individualDiscussionDao.getListOfCommunityIndividualDiscussions(limit, order, sort),
+					HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+	}
 
-  @RequestMapping(value = "/{individualDiscussionID}/individual-discussion-comments", 
-    produces = { "application/json", "text/html" }, 
-    method = RequestMethod.GET)
-  public ResponseEntity<List<IndividualDiscussionComment>> individualDiscussionIndividualDiscussionIDIndividualDiscussionCommentsGet(
-@PathVariable("individualDiscussionID") String individualDiscussionID,
-@RequestParam(value = "commentId", required = true) String commentId,
-@RequestParam(value = "order", required = false) String order,
-@RequestParam(value = "sort", required = false) String sort){
-      // do some magic!
-      return new ResponseEntity<List<IndividualDiscussionComment>>(HttpStatus.NOT_IMPLEMENTED);
-  }
+	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
+	public ResponseEntity<IndividualDiscussion> individualDiscussionPost(@RequestBody IndividualDiscussion discussion) {
+		// do some magic!
+		return new ResponseEntity<IndividualDiscussion>(HttpStatus.NOT_IMPLEMENTED);
+	}
 
-  
-  
+	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-comments", produces = { "application/json",
+			"text/html" }, method = RequestMethod.GET)
+	public ResponseEntity<List<IndividualDiscussionComment>> individualDiscussionIndividualDiscussionIDIndividualDiscussionCommentsGet(
+			@PathVariable("individualDiscussionID") String individualDiscussionID,
+			@RequestParam(value = "commentId", required = true) String commentId, @RequestParam(value = "order", required = false) String order,
+			@RequestParam(value = "sort", required = false) String sort) {
+		// do some magic!
+		return new ResponseEntity<List<IndividualDiscussionComment>>(HttpStatus.NOT_IMPLEMENTED);
+	}
 
-  @RequestMapping(value = "/{individualDiscussionID}/individual-discussion-tags", 
-    produces = { "application/json", "text/html" }, 
-    method = RequestMethod.GET)
-  public ResponseEntity<List<IndividualDiscussionTag>> individualDiscussionIndividualDiscussionIDIndividualDiscussionTagsGet(
-@PathVariable("individualDiscussionID") String individualDiscussionID,
-@RequestParam(value = "limit", required = false) Integer limit,
-@RequestParam(value = "order", required = false) String order,
-@RequestParam(value = "sort", required = false) String sort){
-      // do some magic!
-      return new ResponseEntity<List<IndividualDiscussionTag>>(HttpStatus.NOT_IMPLEMENTED);
-  }
+	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-tags", produces = { "application/json",
+			"text/html" }, method = RequestMethod.GET)
+	public ResponseEntity<List<IndividualDiscussionTag>> individualDiscussionIndividualDiscussionIDIndividualDiscussionTagsGet(
+			@PathVariable("individualDiscussionID") String individualDiscussionID, @RequestParam(value = "limit", required = false) Integer limit,
+			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
+		// do some magic!
+		return new ResponseEntity<List<IndividualDiscussionTag>>(HttpStatus.NOT_IMPLEMENTED);
+	}
 
-  
 }
