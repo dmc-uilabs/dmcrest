@@ -3,12 +3,13 @@ package org.dmc.services.data.models;
 import java.util.Date;
 
 import org.dmc.services.data.entities.DMDIIMember;
+import org.dmc.services.data.entities.User;
 
 public class DMDIIProjectModel extends BaseModel {
 	
 	private DMDIIMember primeOrganization;
 	
-	private DMDIIUserModel principalInvestigator;
+	private User principalInvestigator;
 	
 	private String projectStatus;
 	
@@ -20,8 +21,11 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	private String projectSummary;
 	
-	private DMDIIUserModel principalPointOfContact;
+	private User principalPointOfContact;
 	
+	private Integer focusAreaId;
+	
+	private Integer thrustId;	
 	
 
 	public DMDIIMember getPrimeOrganization() {
@@ -32,11 +36,11 @@ public class DMDIIProjectModel extends BaseModel {
 		this.primeOrganization = primeOrganization;
 	}
 
-	public DMDIIUserModel getPrincipalInvestigator() {
+	public User getPrincipalInvestigator() {
 		return principalInvestigator;
 	}
 
-	public void setPrincipalInvestigator(DMDIIUserModel principalInvestigator) {
+	public void setPrincipalInvestigator(User principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
 	}
 
@@ -56,6 +60,14 @@ public class DMDIIProjectModel extends BaseModel {
 		this.awardedDate = awardedDate;
 	}
 
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
 	public String getProjectTitle() {
 		return projectTitle;
 	}
@@ -72,12 +84,28 @@ public class DMDIIProjectModel extends BaseModel {
 		this.projectSummary = projectSummary;
 	}
 
-	public DMDIIUserModel getPrincipalPointOfContact() {
+	public User getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(DMDIIUserModel principalPointOfContact) {
+	public void setPrincipalPointOfContact(User principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
+	}
+
+	public Integer getFocusAreaId() {
+		return focusAreaId;
+	}
+
+	public void setFocusAreaId(Integer focusAreaId) {
+		this.focusAreaId = focusAreaId;
+	}
+
+	public Integer getThrustId() {
+		return thrustId;
+	}
+
+	public void setThrustId(Integer thrustId) {
+		this.thrustId = thrustId;
 	}
 
 }

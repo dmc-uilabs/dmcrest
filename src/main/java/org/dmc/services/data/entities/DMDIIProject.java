@@ -13,7 +13,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.dmc.services.data.models.DMDIIUserModel;
 
 @Entity
 @Table(name="dmdii_project")
@@ -27,15 +26,19 @@ public class DMDIIProject extends BaseEntity {
 	@JoinColumn(name = "prime_organization_id", nullable = false)
 	private DMDIIMember primeOrganization;
 	
-	@Column(name = "principal_investigator")
-	private DMDIIUserModel principalInvestigator;
+	@JoinColumn(name = "principal_investigator_id")
+	private User principalInvestigator;
 	
-	@Column(name = "project_status_id")
+	@JoinColumn(name = "project_status_id")
 	private Integer projectStatusId;
 	
 	@Column(name = "awarded_date")
 	@Temporal(TemporalType.DATE)
 	private Date awardedDate;
+	
+	@Column(name = "end_date")
+	@Temporal(TemporalType.DATE)
+	private Date endDate;
 	
 	@Column(name = "project_title")
 	private String projectTitle;
@@ -44,21 +47,21 @@ public class DMDIIProject extends BaseEntity {
 	private String projectSummary;
 	
 	@JoinColumn(name = "principal_point_of_contact_id")
-	private DMDIIUserModel principalPointOfContact;
+	private User principalPointOfContact;
 	
-	@Column(name = "focus_area_id")
+	@JoinColumn(name = "focus_area_id")
 	private Integer focusAreaId;
 	
-	@Column(name = "thrust_id")
+	@JoinColumn(name = "thrust_id")
 	private Integer thrustId;
 	
 	public DMDIIProject () {
 		
 	}
 	
-	public DMDIIProject (DMDIIMember primeOrganization, DMDIIUserModel principalInvestigator,
+	public DMDIIProject (DMDIIMember primeOrganization, User principalInvestigator,
 			Integer projectStatusId, Date awardedDate, String projectTitle, String projectSummary,
-			DMDIIUserModel principalPointOfContact) {
+			User principalPointOfContact) {
 		
 		this.primeOrganization = primeOrganization;
 		this.principalInvestigator = principalInvestigator;
@@ -77,11 +80,11 @@ public class DMDIIProject extends BaseEntity {
 		this.primeOrganization = primeOrganization;
 	}
 
-	public DMDIIUserModel getPrincipalInvestigator() {
+	public User getPrincipalInvestigator() {
 		return principalInvestigator;
 	}
 
-	public void setPrincipalInvestigator(DMDIIUserModel principalInvestigator) {
+	public void setPrincipalInvestigator(User principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
 	}
 
@@ -117,11 +120,11 @@ public class DMDIIProject extends BaseEntity {
 		this.projectSummary = projectSummary;
 	}
 
-	public DMDIIUserModel getPrincipalPointOfContact() {
+	public User getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(DMDIIUserModel principalPointOfContact) {
+	public void setPrincipalPointOfContact(User principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 
@@ -154,6 +157,7 @@ public class DMDIIProject extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((awardedDate == null) ? 0 : awardedDate.hashCode());
+		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((primeOrganization == null) ? 0 : primeOrganization.hashCode());
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
@@ -161,6 +165,8 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((projectStatusId == null) ? 0 : projectStatusId.hashCode());
 		result = prime * result + ((projectSummary == null) ? 0 : projectSummary.hashCode());
 		result = prime * result + ((projectTitle == null) ? 0 : projectTitle.hashCode());
+		result = prime * result + ((focusAreaId == null) ? 0 : focusAreaId.hashCode());
+		result = prime * result + ((thrustId == null) ? 0 : thrustId.hashCode());
 		return result;
 	}
 
@@ -182,6 +188,11 @@ public class DMDIIProject extends BaseEntity {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (endDate == null) {
+			if (other.endDate != null)
+				return false;
+		} else if (!endDate.equals(other.endDate))
 			return false;
 		if (primeOrganization == null) {
 			if (other.primeOrganization != null)
@@ -212,6 +223,16 @@ public class DMDIIProject extends BaseEntity {
 			if (other.projectTitle != null)
 				return false;
 		} else if (!projectTitle.equals(other.projectTitle))
+			return false;
+		if (focusAreaId == null) {
+			if (other.focusAreaId != null)
+				return false;
+		} else if (!focusAreaId.equals(other.focusAreaId))
+			return false;
+		if (thrustId == null) {
+			if (other.thrustId != null)
+				return false;
+		} else if (!thrustId.equals(other.thrustId))
 			return false;
 		return true;
 	}
