@@ -72,15 +72,15 @@ public class IndividualDiscussionDao {
 			ResultSet resultSet = preparedStatement.getResultSet();
 
 			while (resultSet.next()) {
-				if (new BigDecimal(resultSet.getInt("projectId")) != null) {
+				if (new BigDecimal(resultSet.getInt("project_id")) != null) {
 					retObj = new IndividualDiscussion();
 
 					retObj.setId(Integer.toString(resultSet.getInt("id")));
 					retObj.setTitle(resultSet.getString("title"));
 					retObj.setCreatedBy(resultSet.getString("created_by"));
 					retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
-					retObj.setAccountId(new BigDecimal(resultSet.getString("account_id")));
-					retObj.setProjectId(new BigDecimal(resultSet.getString("project_id")));
+					retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
+					retObj.setProjectId(new BigDecimal(resultSet.getInt("project_id")));
 
 					individualDiscussions.add(retObj);
 				}
@@ -121,8 +121,8 @@ public class IndividualDiscussionDao {
 			preparedStatementDomeInterfaceQuery.setString(1, discussion.getTitle());
 			preparedStatementDomeInterfaceQuery.setString(2, discussion.getCreatedBy());
 			preparedStatementDomeInterfaceQuery.setString(3, discussion.getCreatedAt().toString());
-			preparedStatementDomeInterfaceQuery.setString(4, discussion.getAccountId().toString());
-			preparedStatementDomeInterfaceQuery.setString(5, discussion.getProjectId().toString());
+			preparedStatementDomeInterfaceQuery.setInt(4, discussion.getAccountId().intValue());
+			preparedStatementDomeInterfaceQuery.setInt(5, discussion.getProjectId().intValue());
 
 			int rowsAffected_interface = preparedStatementDomeInterfaceQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {

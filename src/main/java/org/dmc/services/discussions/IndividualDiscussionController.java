@@ -24,9 +24,7 @@ public class IndividualDiscussionController {
 	private final String logTag = IndividualDiscussionController.class.getName();
 
 	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity getIndividualDiscussion(
-			@RequestParam(value = "limit", required = false) Integer limit,
-			@RequestParam(value = "order", required = false) String order,
+	public ResponseEntity getIndividualDiscussion(@RequestParam(value = "limit", required = false) Integer limit, @RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 
 		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
@@ -51,18 +49,15 @@ public class IndividualDiscussionController {
 		}
 	}
 
-	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-comments", produces = { "application/json",
-			"text/html" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-comments", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<IndividualDiscussionComment>> individualDiscussionIndividualDiscussionIDIndividualDiscussionCommentsGet(
-			@PathVariable("individualDiscussionID") String individualDiscussionID,
-			@RequestParam(value = "commentId", required = true) String commentId, @RequestParam(value = "order", required = false) String order,
-			@RequestParam(value = "sort", required = false) String sort) {
+			@PathVariable("individualDiscussionID") String individualDiscussionID, @RequestParam(value = "commentId", required = true) String commentId,
+			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
 		// do some magic!
 		return new ResponseEntity<List<IndividualDiscussionComment>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-tags", produces = { "application/json",
-			"text/html" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-tags", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<IndividualDiscussionTag>> individualDiscussionIndividualDiscussionIDIndividualDiscussionTagsGet(
 			@PathVariable("individualDiscussionID") String individualDiscussionID, @RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {

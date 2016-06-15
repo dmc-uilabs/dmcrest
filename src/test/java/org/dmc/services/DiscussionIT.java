@@ -16,7 +16,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.jayway.restassured.RestAssured.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import org.json.JSONObject;
@@ -191,42 +194,82 @@ public class DiscussionIT extends BaseIT {
 	/*
 	 * test case for GET /individual-discussion
 	 */
-	@Ignore
 	@Test
-	public void testGet_IndividualDiscussion(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/individual-discussion");
-	}
-	
-	
-	/*
-	 * test case for POST /individual-discussion
-	 */
-	@Ignore
-	@Test
-	public void testPost_IndividualDiscussion(){
+	public void testGet_IndividualDiscussion() {
 		IndividualDiscussion obj = new IndividualDiscussion();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussion = null;
-		
+
+		String title = "Title";
+		String createdBy = "John Wayne";
+		BigDecimal createdAt = new BigDecimal(12301293);
+		BigDecimal accountId = new BigDecimal(550);
+		BigDecimal projectId = new BigDecimal(12);
+
+		obj.setTitle(title);
+		obj.setCreatedBy(createdBy);
+		obj.setCreatedAt(createdAt);
+		obj.setAccountId(accountId);
+		obj.setProjectId(projectId);
+
+		for (int i = 0; i < 5; i++) {
+			try {
+				postedIndividualDiscussion = mapper.writeValueAsString(obj);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+
+			given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect().statusCode(HttpStatus.OK.value()).when()
+					.post("/individual-discussion");
+		}
+
+		List<IndividualDiscussion> received = Arrays.asList(given().header("AJP_eppn", userEPPN).param("limit", 3).param("order", "DESC").expect().statusCode(HttpStatus.OK.value())
+				.when().get("/individual-discussion").as(IndividualDiscussion[].class));
+
+		assertTrue("testGet_IndividualDiscussion: limit parameter did not work", received.size() == 3);
+
+		assertTrue("testGet_IndividualDiscussion: title values are not equal", (received.get(0).getTitle().equals(title)));
+		assertTrue("testGet_IndividualDiscussion: createdBy values are not equal", (received.get(0).getCreatedBy().equals(createdBy)));
+		assertTrue("testGet_IndividualDiscussion: createdAt values are not equal", (received.get(0).getCreatedAt().equals(createdAt)));
+		assertTrue("testGet_IndividualDiscussion: accountId values are not equal", (received.get(0).getAccountId().equals(accountId)));
+		assertTrue("testGet_IndividualDiscussion: projectId values are not equal", (received.get(0).getProjectId().equals(projectId)));
+	}
+
+	/*
+	 * test case for POST /individual-discussion
+	 */
+	@Test
+	public void testPost_IndividualDiscussion() {
+		IndividualDiscussion obj = new IndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussion = null;
+
+		String title = "Title";
+		String createdBy = "John Wayne";
+		BigDecimal createdAt = new BigDecimal(12301293);
+		BigDecimal accountId = new BigDecimal(550);
+		BigDecimal projectId = new BigDecimal(12);
+
+		obj.setTitle(title);
+		obj.setCreatedBy(createdBy);
+		obj.setCreatedAt(createdAt);
+		obj.setAccountId(accountId);
+		obj.setProjectId(projectId);
+
 		try {
 			postedIndividualDiscussion = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP-eppn", userEPPN).
-		body(postedIndividualDiscussion).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().
-		post("/individual-discussion");
+
+		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
+				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
+
+		assertTrue("testPost_IndividualDiscussion: title values are not equal", (posted.getTitle().equals(title)));
+		assertTrue("testPost_IndividualDiscussion: createdBy values are not equal", (posted.getCreatedBy().equals(createdBy)));
+		assertTrue("testPost_IndividualDiscussion: createdAt values are not equal", (posted.getCreatedAt().equals(createdAt)));
+		assertTrue("testPost_IndividualDiscussion: accountId values are not equal", (posted.getAccountId().equals(accountId)));
+		assertTrue("testPost_IndividualDiscussion: projectId values are not equal", (posted.getProjectId().equals(projectId)));
 	}
 	
 	
