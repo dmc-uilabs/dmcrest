@@ -69,7 +69,7 @@ public class EventsController
 
 		try
 		{
-			id = EventsDao.createCommuityEvent(event);
+			id = EventsDao.createCommunityEvent(event);
 			
 		}
 		catch(DMCServiceException e) {

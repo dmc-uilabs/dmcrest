@@ -8,9 +8,12 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.Company;
+import org.dmc.services.services.ServiceImages;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.User;
@@ -31,9 +34,144 @@ public class EventsDao
 	private final String logTag = EventsDao.class.getName();
 	private ResultSet resultSet;
 	
+	
 	// Only declare here and instantiate in method where it is used
 	// Instantiating here may cause NullPointer Exceptions
 	private Connection connection;
+	
+	public Id createCommunityEvent(CommunityEvent event) throws DMCServiceException
+	{
+		connection = DBConnector.connection();
+		PreparedStatement statement;
+		Util util = Util.getInstance();
+		int id = -99999;
+
+		// NEED TO PUT Get AWS URL FUNCTION
+		//Tests to see if valid user, exits function if so
+
+		try {
+			connection.setAutoCommit(false);
+		} catch (SQLException ex) {
+			ServiceLogger.log(logTag, ex.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
+		}
+
+		try
+		{
+			String query = "INSERT INTO community_events (title, date, startTime, endTime, address, description) VALUES (?, ?, ?, ?, ?, ?)";
+			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			statement.setString(1, event.getTitle());
+			statement.setString(2, event.getDate());
+			statement.setString(3, event.getStartTime());
+			statement.setString(4, event.getEndTime());
+			statement.setString(5, event.getAddress());
+			statement.setString(6, event.getDescription());
+			statement.executeUpdate();
+			id = util.getGeneratedKey(statement, "id");
+			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
+			connection.commit();
+		}
+		catch (SQLException e)
+		{
+			ServiceLogger.log(logTag, "SQL EXCEPTION ----- " + e.getMessage());
+			try
+			{
+				if (connection != null)
+				{
+					ServiceLogger.log(logTag, "createServiceImage transaction rolled back");
+					connection.rollback();
+				}
+			}
+			catch (SQLException ex)
+			{
+				ServiceLogger.log(logTag, ex.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		}
+		
+		finally
+		{
+			try
+			{
+				if (connection != null)
+				{
+					connection.setAutoCommit(true);
+				}
+			}
+			catch (SQLException et)
+			{
+				ServiceLogger.log(logTag, et.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
+			}
+		}
+		
+		return new Id.IdBuilder(id).build();
+	}
+	
+	/*
+	 public Id createServiceImages(ServiceImages payload, String userEPPN) throws DMCServiceException {
+
+		connection = DBConnector.connection();
+		PreparedStatement statement;
+		Util util = Util.getInstance();
+		int id = -99999;
+
+		// NEED TO PUT Get AWS URL FUNCTION
+		//Tests to see if valid user, exits function if so
+    try {
+      int userId = UserDao.getUserID(userEPPN);
+      if(userId == -1){
+    			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
+      }
+    } catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
+			}
+
+		try {
+			connection.setAutoCommit(false);
+		} catch (SQLException ex) {
+			ServiceLogger.log(logTag, ex.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
+		}
+
+		try {
+			String query = "INSERT INTO service_images (service_id, url) VALUES (?, ?)";
+			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			statement.setInt(1, payload.getServiceId());
+			statement.setString(2, payload.getUrl());
+			statement.executeUpdate();
+			id = util.getGeneratedKey(statement, "id");
+			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
+			connection.commit();
+		}
+		catch (SQLException e) {
+			ServiceLogger.log(logTag, "SQL EXCEPTION ----- " + e.getMessage());
+			try {
+				if (connection != null) {
+					ServiceLogger.log(logTag, "createServiceImage transaction rolled back");
+					connection.rollback();
+				}
+			} catch (SQLException ex) {
+				ServiceLogger.log(logTag, ex.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		}
+		finally {
+			try {
+				if (connection != null) {
+					connection.setAutoCommit(true);
+				}
+			} catch (SQLException et) {
+				ServiceLogger.log(logTag, et.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
+			}
+		}
+		return new Id.IdBuilder(id).build();
+	}
+	 */
 	
     public ArrayList<CommunityEvent> getEvents() throws HTTPException {
         ArrayList<CommunityEvent> events = null;
@@ -48,7 +186,14 @@ public class EventsDao
 		event.setAddress("f");
 		event.setDescription("g");
         events.add(event);
-/*
+        
+        return events;
+	}
+        //createCommunityEvent function
+        
+        
+        
+        /*
 			//For GET Event
 	        try {
             // get events;
@@ -80,11 +225,12 @@ public class EventsDao
         return companies;
 	}
 			//For POST Event
+			 * 
 			//For PATCH Event
 			//For DELETE Event
  */
 
-      
+     
 
         
         
@@ -113,8 +259,7 @@ public class EventsDao
             throw new HTTPException(HttpStatus.FORBIDDEN.value());  // ToDo: what error should this be?
         }
         */
-        return events;
-	}
+        
 }
 
 
