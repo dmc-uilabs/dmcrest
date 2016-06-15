@@ -1,5 +1,7 @@
 package org.dmc.services.data.mappers;
 
+import java.util.HashSet;
+
 import org.dmc.services.data.entities.DMDIIAreaOfExpertise;
 import org.dmc.services.data.entities.DMDIIAward;
 import org.dmc.services.data.entities.DMDIIInstituteInvolvement;
@@ -44,7 +46,7 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 
 		entity.setDmdiiType(typeMapper.mapToEntity(model.getDmdiiType()));
 		entity.setOrganization(orgMapper.mapToEntity(model.getOrganization()));
-		entity.setAwards(awardMapper.mapToEntity(model.getAwards()));
+		entity.setAwards(new HashSet(awardMapper.mapToEntity(model.getAwards())));
 		entity.setAreasOfExpertise(aoeMapper.mapToEntity(model.getAreasOfExpertise()));
 		entity.setContacts(contactMapper.mapToEntity(model.getContacts()));
 		entity.setFinances(financeMapper.mapToEntity(model.getFinances()));

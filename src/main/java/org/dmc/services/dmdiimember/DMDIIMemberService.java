@@ -3,6 +3,7 @@ package org.dmc.services.dmdiimember;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.mappers.Mapper;
@@ -20,6 +21,9 @@ public class DMDIIMemberService {
 	@Inject
 	private MapperFactory mapperFactory;
 
+	@Inject
+	private OrganizationService organizationService;
+
 	public List<DMDIIMemberModel> findPage(Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		List<DMDIIMember> members = dmdiiMemberDao.findAll(new PageRequest(pageNumber, pageSize)).getContent();
@@ -28,7 +32,8 @@ public class DMDIIMemberService {
 
 	public DMDIIMemberModel findOne(Integer id) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		return mapper.mapToModel(dmdiiMemberDao.findOne(id));
+		DMDIIMember test = dmdiiMemberDao.findOne(id);
+		return mapper.mapToModel(test);
 	}
 	
 	public List<DMDIIMemberModel> findByType(Integer categoryId, Integer tier, Integer pageNumber, Integer pageSize) {
@@ -52,16 +57,24 @@ public class DMDIIMemberService {
 		return mapper.mapToModel(dmdiiMemberDao.findByOrganizationNameLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%").getContent());
 	}
 
-	public DMDIIMemberModel save(DMDIIMemberModel memberModel) {
-		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		return mapper.mapToModel(dmdiiMemberDao.save(mapper.mapToEntity(memberModel)));
+	@Transactional
+	public DMDIIMember save(DMDIIMember member) {
+//		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
+
+		// save organization separately
+		organizationService.save(member.getOrganization());
+//		DMDIIMember memberEntity = mapper.mapToEntity(memberModel);
+
+//		memberEntity.setOrganization(orgEntity);
+		return dmdiiMemberDao.save(member);
+//		return mapper.mapToModel(dmdiiMemberDao.save(memberEntity));
 	}
 
 	public List<DMDIIMemberModel> findByCategoryId(Integer categoryId, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findByDmdiiTypeDmdiiTypeCategoryId(new PageRequest(pageNumber, pageSize), categoryId).getContent());
 	}
-	
+
 	public List<DMDIIMemberModel> findByTier(Integer tier, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findByDmdiiTypeTier(new PageRequest(pageNumber, pageSize), tier).getContent());

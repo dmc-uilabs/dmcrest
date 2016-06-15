@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -14,6 +15,9 @@ public class Address extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer id;
+
+	@OneToOne(mappedBy = "address")
+	private Organization organization;
 
 	@Column(name = "street_address1")
 	private String streetAddress1;

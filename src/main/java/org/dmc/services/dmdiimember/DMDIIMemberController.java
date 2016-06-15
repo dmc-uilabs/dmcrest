@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.exceptions.MissingParameterException;
 import org.springframework.http.MediaType;
@@ -30,7 +31,7 @@ public class DMDIIMemberController {
 	public @ResponseBody DMDIIMemberModel getMember(@PathVariable Integer id) {
 		return dmdiiMemberService.findOne(id);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/type", method = RequestMethod.GET, params = {"page", "pageSize"})
 	public @ResponseBody List<DMDIIMemberModel> getMembersByType(@RequestParam(value = "categoryId", required = false) Integer categoryId,
 																@RequestParam(value = "tier", required = false) Integer tier,
@@ -43,11 +44,11 @@ public class DMDIIMemberController {
 		return dmdiiMemberService.findByType(categoryId, tier, page, pageSize);
 	}
 
-	@RequestMapping(value = "/dmdiiMember/create", method = RequestMethod.POST)
-	public @ResponseBody DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
+	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
+	public @ResponseBody DMDIIMember saveDmdiiMember(@RequestBody DMDIIMember member) {
 		return dmdiiMemberService.save(member);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/search", method = RequestMethod.GET,params = {"page", "pageSize", "name"})
 	public @ResponseBody List<DMDIIMemberModel> findMembersByName(@RequestParam("page") Integer page,
 																@RequestParam("pageSize") Integer pageSize,
