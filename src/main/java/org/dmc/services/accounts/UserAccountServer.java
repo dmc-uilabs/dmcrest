@@ -24,6 +24,9 @@ public class UserAccountServer  {
   public void setId(String id) {
     this.id = id;
   }
+  
+  
+ 
 
   
   /**
@@ -97,11 +100,11 @@ public class UserAccountServer  {
     StringBuilder sb = new StringBuilder();
     sb.append("class UserAccountServer {\n");
     
-    sb.append("  id: ").append(id).append("\n");
-    sb.append("  accountId: ").append(accountId).append("\n");
-    sb.append("  name: ").append(name).append("\n");
-    sb.append("  ip: ").append(ip).append("\n");
-    sb.append("  status: ").append(status).append("\n");
+    sb.append("  \"id\": \"").append(id).append("\"\n");
+    sb.append("  \"accountId\": \"").append(accountId).append("\"\n");
+    sb.append("  \"name\": \"").append(name).append("\"\n");
+    sb.append("  \"ip\": \"").append(ip).append("\"\n");
+    sb.append("  \"status\": \"").append(status).append("\"\n");
     sb.append("}\n");
     return sb.toString();
   }
