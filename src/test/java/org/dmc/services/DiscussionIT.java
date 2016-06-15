@@ -9,6 +9,7 @@ import org.dmc.services.discussions.IndividualDiscussionCommentFlagged;
 import org.dmc.services.discussions.IndividualDiscussionCommentHelpful;
 import org.dmc.services.discussions.IndividualDiscussionTag;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -190,6 +191,7 @@ public class DiscussionIT extends BaseIT {
 	/*
 	 * test case for GET /individual-discussion
 	 */
+	@Ignore
 	@Test
 	public void testGet_IndividualDiscussion(){
 		given().
