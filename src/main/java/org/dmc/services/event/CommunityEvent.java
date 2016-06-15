@@ -16,7 +16,7 @@ public class CommunityEvent  {
   private String address = null;
   private String description = null;
 
-  
+ 
   /**
    **/
   @JsonProperty("id")
