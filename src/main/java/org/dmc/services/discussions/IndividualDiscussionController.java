@@ -48,6 +48,20 @@ public class IndividualDiscussionController {
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
 	}
+	
+	@RequestMapping(value = "/{individualDiscussionID}", produces = { "application/json" }, method = RequestMethod.GET)
+	public ResponseEntity getSingleIndividualDiscussion(@PathVariable("individualDiscussionID") String individualDiscussionID) {
+
+		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		try {
+			ServiceLogger.log(logTag, "In getSingleIndividualDiscussion");
+			return new ResponseEntity<IndividualDiscussion>(individualDiscussionDao.getSingleIndividualDiscussionFromId(individualDiscussionID), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+	}
+
 
 	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-comments", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<IndividualDiscussionComment>> individualDiscussionIndividualDiscussionIDIndividualDiscussionCommentsGet(

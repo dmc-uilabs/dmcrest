@@ -272,6 +272,45 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testPost_IndividualDiscussion: projectId values are not equal", (posted.getProjectId().equals(projectId)));
 	}
 	
+	/*
+	 * test case for GET /individual-discussion/{individualDiscussionID}
+	 */
+	@Test
+	public void testGet_IndividualDiscussionFromId(){
+		IndividualDiscussion obj = new IndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussion = null;
+
+		String title = "Title";
+		String createdBy = "John Wayne";
+		BigDecimal createdAt = new BigDecimal(12301293);
+		BigDecimal accountId = new BigDecimal(550);
+		BigDecimal projectId = new BigDecimal(12);
+
+		obj.setTitle(title);
+		obj.setCreatedBy(createdBy);
+		obj.setCreatedAt(createdAt);
+		obj.setAccountId(accountId);
+		obj.setProjectId(projectId);
+
+		try {
+			postedIndividualDiscussion = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
+				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
+
+		IndividualDiscussion read = given().param("commentId", commentId).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
+				.get("/individual-discussion/" + posted.getId()).as(IndividualDiscussion.class);
+
+		assertTrue("testPost_IndividualDiscussion: title values are not equal", (posted.getTitle().equals(read.getTitle())));
+		assertTrue("testPost_IndividualDiscussion: createdBy values are not equal", (posted.getCreatedBy().equals(read.getCreatedBy())));
+		assertTrue("testPost_IndividualDiscussion: createdAt values are not equal", (posted.getCreatedAt().equals(read.getCreatedAt())));
+		assertTrue("testPost_IndividualDiscussion: accountId values are not equal", (posted.getAccountId().equals(read.getAccountId())));
+		assertTrue("testPost_IndividualDiscussion: projectId values are not equal", (posted.getProjectId().equals(read.getProjectId())));
+	}
 	
 	/*
 	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-comments

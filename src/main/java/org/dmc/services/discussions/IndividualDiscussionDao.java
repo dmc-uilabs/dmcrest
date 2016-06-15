@@ -30,7 +30,6 @@ public class IndividualDiscussionDao {
 		List<IndividualDiscussion> individualDiscussions = new ArrayList<IndividualDiscussion>();
 
 		try {
-			// let's start a transaction
 			connection.setAutoCommit(false);
 
 			ArrayList<String> columnsInIndividualDiscussionTable = new ArrayList<String>();
@@ -137,6 +136,51 @@ public class IndividualDiscussionDao {
 			retObj.setCreatedAt(discussion.getCreatedAt());
 			retObj.setAccountId(discussion.getAccountId());
 			retObj.setProjectId(discussion.getProjectId());
+
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+
+		return retObj;
+	}
+	
+	public IndividualDiscussion getSingleIndividualDiscussionFromId(String id) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		IndividualDiscussion retObj = null;
+
+		try {
+			connection.setAutoCommit(false);
+			String domeInterfacesQuery = "SELECT * FROM individual_discussions WHERE id = ?";
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			preparedStatement.setInt(1, Integer.parseInt(id));
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+
+			if (resultSet.next()) {
+				retObj = new IndividualDiscussion();
+
+				retObj.setId(Integer.toString(resultSet.getInt("id")));
+				retObj.setTitle(resultSet.getString("title"));
+				retObj.setCreatedBy(resultSet.getString("created_by"));
+				retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
+				retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
+				retObj.setProjectId(new BigDecimal(resultSet.getInt("project_id")));
+			}
 
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
