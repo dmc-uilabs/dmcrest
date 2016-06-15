@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 
 import javax.xml.ws.http.HTTPException;
@@ -24,18 +24,19 @@ public class AccountServersController {
 	private AccountServersDao accountServersDao = new AccountServersDao();
 	
 	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<UserAccountServer> accountServersServerIDPost(@RequestBody UserAccountServer accountServer,
+	public ResponseEntity<?> accountServersServerIDPost(@RequestBody UserAccountServer accountServer,
 																		@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
 		ServiceLogger.log(logTag, "accountServersServerIDPost, userEPPN: " + userEPPN);
 		
-		int httpStatusCode = HttpStatus.OK.value();
+		int httpStatusCode = HttpStatus.CREATED.value();
 		UserAccountServer userAccountServer = null;
 		
 		try {
 			userAccountServer = accountServersDao.postUserAccountServer(accountServer, userEPPN);
-		} catch (HTTPException httpException) {
-			httpStatusCode = httpException.getStatusCode();
+		} catch (DMCServiceException e) {
+			ServiceLogger.log(logTag, e.getErrorMessage());
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
 		
 		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));
@@ -43,7 +44,7 @@ public class AccountServersController {
 	
 	
 	@RequestMapping(value = "/{serverID}", produces = { "application/json", "text/html" }, method = RequestMethod.DELETE)
-	public ResponseEntity<Void> accountServersServerIDDelete(@PathVariable("serverID") String serverID,
+	public ResponseEntity<?> accountServersServerIDDelete(@PathVariable("serverID") String serverID,
 															 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		
 		ServiceLogger.log(logTag, "accountServersServerIDDelete, userEPPN: " + userEPPN + " and server id " + serverID);
@@ -52,8 +53,9 @@ public class AccountServersController {
 		
 		try {
 			accountServersDao.deleteUserAccountServer(Integer.parseInt(serverID), userEPPN);
-		} catch (HTTPException httpException) {
-			httpStatusCode = httpException.getStatusCode();
+		} catch (DMCServiceException e) {
+			ServiceLogger.log(logTag, e.getErrorMessage());
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
 
 		return new ResponseEntity<Void>(HttpStatus.valueOf(httpStatusCode));
@@ -61,7 +63,7 @@ public class AccountServersController {
 
 	
 	@RequestMapping(value = "/{serverID}", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<UserAccountServer> accountServersServerIDGet(@PathVariable("serverID") String serverID,
+	public ResponseEntity<?> accountServersServerIDGet(@PathVariable("serverID") String serverID,
 																	   @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "accountServersServerIDGet, userEPPN: " + userEPPN + " and server id " + serverID);
 		
@@ -70,8 +72,9 @@ public class AccountServersController {
 		
 		try {
 			userAccountServer = accountServersDao.getUserAccountServer(Integer.parseInt(serverID), userEPPN);
-		} catch (HTTPException httpException) {
-			httpStatusCode = httpException.getStatusCode();
+		} catch (DMCServiceException e) {
+			ServiceLogger.log(logTag, e.getErrorMessage());
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
 		
 		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));
@@ -79,7 +82,7 @@ public class AccountServersController {
 
 	
 	@RequestMapping(value = "/{serverID}", produces = { "application/json", "text/html" },method = RequestMethod.PATCH)
-	public ResponseEntity<UserAccountServer> accountServersServerIDPatch(@PathVariable("serverID") String serverID,
+	public ResponseEntity<?> accountServersServerIDPatch(@PathVariable("serverID") String serverID,
 																		 @RequestBody UserAccountServer server,
 																		 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		
@@ -90,8 +93,9 @@ public class AccountServersController {
 		
 		try {
 			userAccountServer = accountServersDao.patchUserAccountServer(serverID, server, userEPPN);
-		} catch (HTTPException httpException) {
-			httpStatusCode = httpException.getStatusCode();
+		} catch (DMCServiceException e) {
+			ServiceLogger.log(logTag, e.getErrorMessage());
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
 		
 		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));
