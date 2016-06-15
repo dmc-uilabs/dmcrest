@@ -2,6 +2,8 @@ package org.dmc.services.accounts;
 
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.Ignore;
+
 import static org.junit.Assert.*;
 
 import org.springframework.http.HttpStatus;
@@ -21,12 +23,22 @@ import org.dmc.services.accounts.UserAccount;
 import org.dmc.services.accounts.UserAccountServer;
 import org.dmc.services.users.User;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.ServiceLogger;
 
+@SuppressWarnings("unused")
 public class AccountServerIT extends BaseIT {
 	private final String logTag = AccountsIT.class.getName();
 	
 	private String newKnownUser;
 	private String uniqueID;
+	private String JSON = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+	private final String validURL = System.getenv("RunningDOMEip");
+	
+	//These can be used when the Apache http client is used to test connections instead of the Sun/Oracle HTTP client
+	//private final String urlOff = System.getenv("ServerIsOff");
+	//private final String tomcatIsOff = System.getenv("TestDOMEnotRunning");
+	
+	
 	private int user_id_lookedup;
 	
 	@Before
@@ -48,13 +60,14 @@ public class AccountServerIT extends BaseIT {
 	 **/
 	
 	@Test
-	public void testAccountPost_NewServer() {
+	public void testAccountPost_NewServer_valid_server() {
 		UserAccountServer userAccountServer = new UserAccountServer();
 		
 		// setup userAccountServer
 		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
 		userAccountServer.setName("ServerName" + uniqueID);
-		userAccountServer.setIp("ServerURL" + uniqueID);
+		userAccountServer.setIp(validURL);
+		userAccountServer.setStatus("online");
 		// ToDo: add server status to database
 //		userAccountServer.setStatus("ServerStatus" + uniqueID);
 		
@@ -72,34 +85,81 @@ public class AccountServerIT extends BaseIT {
 				   returnedUserAccountServer.equals(userAccountServer));
 	}
 	
-	/**
-	 * Tests for
-	 * <code> get /account-servers/{serverID} </code>
-	 **/
-	
 	@Test
-	public void testAccountGet_ServerID() {
+	public void testAccountPost_NewServer_invalid_server() {
 		UserAccountServer userAccountServer = new UserAccountServer();
 		
 		// setup userAccountServer
 		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
 		userAccountServer.setName("ServerName" + uniqueID);
 		userAccountServer.setIp("ServerURL" + uniqueID);
+		// ToDo: add server status to database
 //		userAccountServer.setStatus("ServerStatus" + uniqueID);
+		ObjectMapper mapper = new ObjectMapper();
+		String userAccountServerString = null;
+		
+		try {
+			userAccountServerString = mapper.writeValueAsString(userAccountServer);
+		} catch (JsonProcessingException e) {
+			
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
+	
+				given().
+					header("Content-type", JSON).
+					header("AJP_eppn", newKnownUser).
+				body(userAccountServerString).
+					expect().
+				statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value()). 
+				post("/account_servers");
+	}
+	
+	/**
+	 * Tests for
+	 * <code> get /account-servers/{serverID} </code>
+	 **/
+	@Ignore //this test requires some extra functionality allowing a tester to enter invalid data into the database
+	//due to the existing POST requests performing checks that disallow this, this test must currently be ignored 
+	
+	@Test
+	public void testAccountGet_ServerID_invalid_Server() {
+		UserAccountServer returnedUserAccountServer = createNewServerNoCheck();
+	
+		given().
+			header("Content-type", JSON).
+			header("AJP_eppn", newKnownUser).
+		expect().
+			statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value()). 
+		when().
+			get("/account_servers/" + returnedUserAccountServer.getId());
+	}
+	
+	@Test
+	public void testAccountGet_ServerID_valid_server() {
+		UserAccountServer userAccountServer = new UserAccountServer();
+		
+		// setup userAccountServer
+		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
+		userAccountServer.setName("ServerName" + uniqueID);
+		userAccountServer.setIp(validURL); 
+		userAccountServer.setStatus("online");
 		
 		UserAccountServer returnedUserAccountServer = createNewServer(userAccountServer);
 		
 		UserAccountServer getReturnedUserAccountServer =
 		given().
-			header("Content-type", "application/json").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		expect().
-			statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
+			statusCode(HttpStatus.OK.value()).  
 		when().
 			get("/account_servers/" + returnedUserAccountServer.getId()).
 			as(UserAccountServer.class);
 				
 		// check returned and orginal UserAccountServer object is equal
+		ServiceLogger.log(logTag, "status for original server: " + returnedUserAccountServer.getStatus()
+		+ "\tstatus for getObject: " + getReturnedUserAccountServer.getStatus());
 		assertTrue("Orginal and returned UserAccountServer objects are not equal",
 		       	   returnedUserAccountServer.equals(getReturnedUserAccountServer));
 	}
@@ -116,7 +176,7 @@ public class AccountServerIT extends BaseIT {
 		
 		// delete server record
 		given().
-			header("Content-type", "application/json").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		expect().
 			statusCode(HttpStatus.OK.value()).
@@ -125,10 +185,10 @@ public class AccountServerIT extends BaseIT {
 		
 		// attempt to retrieve deleted record; fails
 		given().
-			header("Content-type", "application/json").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		expect().
-			statusCode(HttpStatus.UNAUTHORIZED.value()).
+			statusCode(HttpStatus.NO_CONTENT.value()).
 		when().
 			get("/account_servers/" + returnedUserAccountServer.getId());
 		
@@ -140,7 +200,7 @@ public class AccountServerIT extends BaseIT {
 	 **/
 	
 	@Test
-	public void testAccountPatch_ServerID() {
+	public void testAccountPatch_ServerID_invalid_server() {
 		UserAccountServer returnedUserAccountServer = createNewServer();
 		ObjectMapper mapper = new ObjectMapper();
 		String userAccountServerString = null;
@@ -151,12 +211,38 @@ public class AccountServerIT extends BaseIT {
 		try {
 			userAccountServerString = mapper.writeValueAsString(returnedUserAccountServer);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
+		given().
+			header("Content-type", JSON).
+			header("AJP_eppn", newKnownUser).
+			body(userAccountServerString).
+		expect().
+			statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value()).
+		when().
+			patch("/account_servers/" + returnedUserAccountServer.getId());
+	}
+	
+	@Test
+	public void testAccountPatch_ServerID_valid_server() {
+		UserAccountServer returnedUserAccountServer = createNewServer();
+		ObjectMapper mapper = new ObjectMapper();
+		String userAccountServerString = null;
+		
+		returnedUserAccountServer.setName("updatedWorkingName");
+		returnedUserAccountServer.setIp(validURL);
+		returnedUserAccountServer.setStatus("online");
+		
+		try {
+			userAccountServerString = mapper.writeValueAsString(returnedUserAccountServer);
+		} catch (JsonProcessingException e) {
+			ServiceLogger.log(logTag, e.getMessage());
 		}
 		
 		UserAccountServer patchedUserAccountServer =
 		given().
-			header("Content-type", "application/json").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 			body(userAccountServerString).
 		expect().
@@ -174,22 +260,27 @@ public class AccountServerIT extends BaseIT {
 	private UserAccountServer createNewServer(UserAccountServer userAccountServer) {
 		ObjectMapper mapper = new ObjectMapper();
 		String userAccountServerString = null;
+		String jsonString = "unset", error = "unset";
 		
 		try {
 			userAccountServerString = mapper.writeValueAsString(userAccountServer);
+			jsonString = userAccountServer.toString();
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			error = e.getMessage();
+			ServiceLogger.log(logTag, e.getMessage());
 		}
+		
+		
 		
 		UserAccountServer returnedUserAccountServer =
 		given().
-			header("Content-type", "application/json").
+			header("Content-type", JSON).
 			header("AJP_eppn", newKnownUser).
 		body(userAccountServerString).
 			expect().
-		statusCode(HttpStatus.OK.value()).  //ToDo should return 201 not 200
+		statusCode(HttpStatus.CREATED.value()). 
 			when().
-		post("/account_servers").
+		post("/account_servers"). //IMPROVEMENT allow forced user input for testing purposes
 			as(UserAccountServer.class);
 		
 		return returnedUserAccountServer;
@@ -201,9 +292,38 @@ public class AccountServerIT extends BaseIT {
 		// setup userAccountServer
 		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
 		userAccountServer.setName("ServerName" + uniqueID);
-		userAccountServer.setIp("ServerURL" + uniqueID);
-//		userAccountServer.setStatus("ServerStatus" + uniqueID);
-
+		userAccountServer.setIp(validURL);
 		return createNewServer(userAccountServer);
+	}
+	
+	private UserAccountServer createNewServerNoCheck(){
+		UserAccountServer userAccountServer = new UserAccountServer();
+		
+		// setup userAccountServer
+		userAccountServer.setAccountId(Integer.toString(user_id_lookedup));
+		userAccountServer.setName("ServerName" + uniqueID);
+		userAccountServer.setIp("invalidIP");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		String userAccountServerString = null;
+		
+		try {
+			userAccountServerString = mapper.writeValueAsString(userAccountServer);
+		} catch (JsonProcessingException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+		
+	
+		given().
+			header("Content-type", JSON).
+			header("AJP_eppn", newKnownUser).
+		body(userAccountServerString).
+			expect().
+		statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value()).  
+			when().
+		post("/account_servers"); //IMPROVEMENT allow forced user input for testing purposes
+		
+		
+		return userAccountServer;
 	}
 }
