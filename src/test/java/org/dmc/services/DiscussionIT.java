@@ -205,6 +205,7 @@ public class DiscussionIT extends BaseIT {
 	/*
 	 * test case for POST /individual-discussion
 	 */
+	@Ignore
 	@Test
 	public void testPost_IndividualDiscussion(){
 		IndividualDiscussion obj = new IndividualDiscussion();

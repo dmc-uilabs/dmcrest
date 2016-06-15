@@ -23,7 +23,7 @@ public class IndividualDiscussionController {
 
 	private final String logTag = IndividualDiscussionController.class.getName();
 
-	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity getIndividualDiscussion(
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
@@ -32,18 +32,23 @@ public class IndividualDiscussionController {
 		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
 			ServiceLogger.log(logTag, "In getIndividualDiscussion");
-			return new ResponseEntity<List<IndividualDiscussion>>(individualDiscussionDao.getListOfCommunityIndividualDiscussions(limit, order, sort),
-					HttpStatus.OK);
+			return new ResponseEntity<List<IndividualDiscussion>>(individualDiscussionDao.getListOfCommunityIndividualDiscussions(limit, order, sort), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
 	}
 
-	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<IndividualDiscussion> individualDiscussionPost(@RequestBody IndividualDiscussion discussion) {
-		// do some magic!
-		return new ResponseEntity<IndividualDiscussion>(HttpStatus.NOT_IMPLEMENTED);
+	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.POST)
+	public ResponseEntity postIndividualDiscussion(@RequestBody IndividualDiscussion discussion) {
+		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		try {
+			ServiceLogger.log(logTag, "In postIndividualDiscussion");
+			return new ResponseEntity<IndividualDiscussion>(individualDiscussionDao.createIndividualDiscussion(discussion), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-comments", produces = { "application/json",
