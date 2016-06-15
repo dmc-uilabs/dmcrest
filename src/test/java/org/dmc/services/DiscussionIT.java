@@ -200,19 +200,19 @@ public class DiscussionIT extends BaseIT {
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussion = null;
 
-		String title = "Title";
+		String title = "For GET /individual-discussion";
 		String createdBy = "John Wayne";
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal accountId = new BigDecimal(550);
-		BigDecimal projectId = new BigDecimal(12);
 
 		obj.setTitle(title);
 		obj.setCreatedBy(createdBy);
 		obj.setCreatedAt(createdAt);
 		obj.setAccountId(accountId);
-		obj.setProjectId(projectId);
+		
 
 		for (int i = 0; i < 5; i++) {
+			obj.setProjectId(new BigDecimal(i));
 			try {
 				postedIndividualDiscussion = mapper.writeValueAsString(obj);
 			} catch (JsonProcessingException e) {
@@ -232,7 +232,6 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testGet_IndividualDiscussion: createdBy values are not equal", (received.get(0).getCreatedBy().equals(createdBy)));
 		assertTrue("testGet_IndividualDiscussion: createdAt values are not equal", (received.get(0).getCreatedAt().equals(createdAt)));
 		assertTrue("testGet_IndividualDiscussion: accountId values are not equal", (received.get(0).getAccountId().equals(accountId)));
-		assertTrue("testGet_IndividualDiscussion: projectId values are not equal", (received.get(0).getProjectId().equals(projectId)));
 	}
 
 	/*
@@ -244,7 +243,7 @@ public class DiscussionIT extends BaseIT {
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussion = null;
 
-		String title = "Title";
+		String title = "For POST /individual-discussion";
 		String createdBy = "John Wayne";
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal accountId = new BigDecimal(550);
@@ -281,8 +280,8 @@ public class DiscussionIT extends BaseIT {
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussion = null;
 
-		String title = "Title";
-		String createdBy = "John Wayne";
+		String title = "For GET /individual-discussion/{id}";
+		String createdBy = "Eminem";
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal accountId = new BigDecimal(550);
 		BigDecimal projectId = new BigDecimal(12);
@@ -305,11 +304,11 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussion read = given().param("commentId", commentId).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
 				.get("/individual-discussion/" + posted.getId()).as(IndividualDiscussion.class);
 
-		assertTrue("testPost_IndividualDiscussion: title values are not equal", (posted.getTitle().equals(read.getTitle())));
-		assertTrue("testPost_IndividualDiscussion: createdBy values are not equal", (posted.getCreatedBy().equals(read.getCreatedBy())));
-		assertTrue("testPost_IndividualDiscussion: createdAt values are not equal", (posted.getCreatedAt().equals(read.getCreatedAt())));
-		assertTrue("testPost_IndividualDiscussion: accountId values are not equal", (posted.getAccountId().equals(read.getAccountId())));
-		assertTrue("testPost_IndividualDiscussion: projectId values are not equal", (posted.getProjectId().equals(read.getProjectId())));
+		assertTrue("testGet_IndividualDiscussionFromId: title values are not equal", (posted.getTitle().equals(read.getTitle())));
+		assertTrue("testGet_IndividualDiscussionFromId: createdBy values are not equal", (posted.getCreatedBy().equals(read.getCreatedBy())));
+		assertTrue("testGet_IndividualDiscussionFromId: createdAt values are not equal", (posted.getCreatedAt().equals(read.getCreatedAt())));
+		assertTrue("testGet_IndividualDiscussionFromId: accountId values are not equal", (posted.getAccountId().equals(read.getAccountId())));
+		assertTrue("testGet_IndividualDiscussionFromId: projectId values are not equal", (posted.getProjectId().equals(read.getProjectId())));
 	}
 	
 	/*
