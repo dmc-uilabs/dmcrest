@@ -202,5 +202,66 @@ public class IndividualDiscussionDao {
 
 		return retObj;
 	}
+	
+	public IndividualDiscussionComment createIndividualDiscussionComment(IndividualDiscussionComment comment) throws DMCServiceException {
+		IndividualDiscussionComment retObj = new IndividualDiscussionComment();
+		Connection connection = DBConnector.connection();
+		Util util = Util.getInstance();
+
+		try {
+			connection.setAutoCommit(false);
+			String domeInterfaceQuery = "INSERT into individual_discussions_comments (individual_discussion_id, full_name, account_id, comment_id, avatar, reply, text, created_at, likes, dislikes) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+
+			PreparedStatement preparedStatementDomeInterfaceQuery = DBConnector.prepareStatement(domeInterfaceQuery, Statement.RETURN_GENERATED_KEYS);
+			preparedStatementDomeInterfaceQuery.setInt(1, Integer.parseInt(comment.getIndividualDiscussionId()));
+			preparedStatementDomeInterfaceQuery.setString(2, comment.getFullName());
+			preparedStatementDomeInterfaceQuery.setInt(3, comment.getAccountId().intValue());
+			preparedStatementDomeInterfaceQuery.setInt(4, comment.getCommentId().intValue());
+			preparedStatementDomeInterfaceQuery.setString(5, comment.getAvatar());
+			preparedStatementDomeInterfaceQuery.setBoolean(6, comment.getReply());
+			preparedStatementDomeInterfaceQuery.setString(7, comment.getText());
+			preparedStatementDomeInterfaceQuery.setString(8, comment.getCreatedAt().toString());
+			preparedStatementDomeInterfaceQuery.setInt(9, comment.getLike().intValue());
+			preparedStatementDomeInterfaceQuery.setInt(10, comment.getDislike().intValue());
+
+			int rowsAffected_interface = preparedStatementDomeInterfaceQuery.executeUpdate();
+			if (rowsAffected_interface != 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "unable to add individual discussion comment " + comment.toString());
+			}
+			int id = util.getGeneratedKey(preparedStatementDomeInterfaceQuery, "id");
+
+			retObj.setId(Integer.toString(id));
+			retObj.setIndividualDiscussionId(comment.getIndividualDiscussionId());
+			retObj.setFullName(comment.getFullName());
+			retObj.setAccountId(comment.getAccountId());
+			retObj.setCommentId(comment.getCommentId());
+			retObj.setAvatar(comment.getAvatar());
+			retObj.setReply(comment.getReply());
+			retObj.setText(comment.getText());
+			retObj.setCreatedAt(comment.getCreatedAt());
+			retObj.setLike(comment.getLike());
+			retObj.setDislike(comment.getDislike());
+			
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+
+		return retObj;
+	}
 
 }

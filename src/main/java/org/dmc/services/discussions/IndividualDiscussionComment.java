@@ -10,16 +10,15 @@ public class IndividualDiscussionComment  {
   
   private String id = null;
   private String individualDiscussionId = null;
-  private String accountId = null;
+  private BigDecimal accountId = null;
   private String fullName = null;
   private String avatar = null;
   private String text = null;
   private BigDecimal createdAt = null;
   private Boolean reply = null;
-  private String commentId = null;
+  private BigDecimal commentId = null;
   private BigDecimal like = null;
   private BigDecimal dislike = null;
-  private BigDecimal projectId = null;
 
   
   /**
@@ -47,10 +46,10 @@ public class IndividualDiscussionComment  {
   /**
    **/
   @JsonProperty("accountId")
-  public String getAccountId() {
+  public BigDecimal getAccountId() {
     return accountId;
   }
-  public void setAccountId(String accountId) {
+  public void setAccountId(BigDecimal accountId) {
     this.accountId = accountId;
   }
 
@@ -113,10 +112,10 @@ public class IndividualDiscussionComment  {
   /**
    **/
   @JsonProperty("commentId")
-  public String getCommentId() {
+  public BigDecimal getCommentId() {
     return commentId;
   }
-  public void setCommentId(String commentId) {
+  public void setCommentId(BigDecimal commentId) {
     this.commentId = commentId;
   }
 
@@ -142,19 +141,6 @@ public class IndividualDiscussionComment  {
     this.dislike = dislike;
   }
 
-  
-  /**
-   **/
-  @JsonProperty("projectId")
-  public BigDecimal getProjectId() {
-    return projectId;
-  }
-  public void setProjectId(BigDecimal projectId) {
-    this.projectId = projectId;
-  }
-
-  
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -174,13 +160,12 @@ public class IndividualDiscussionComment  {
         Objects.equals(reply, individualDiscussionComment.reply) &&
         Objects.equals(commentId, individualDiscussionComment.commentId) &&
         Objects.equals(like, individualDiscussionComment.like) &&
-        Objects.equals(dislike, individualDiscussionComment.dislike) &&
-        Objects.equals(projectId, individualDiscussionComment.projectId);
+        Objects.equals(dislike, individualDiscussionComment.dislike);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, individualDiscussionId, accountId, fullName, avatar, text, createdAt, reply, commentId, like, dislike, projectId);
+    return Objects.hash(id, individualDiscussionId, accountId, fullName, avatar, text, createdAt, reply, commentId, like, dislike);
   }
 
   @Override
@@ -199,7 +184,6 @@ public class IndividualDiscussionComment  {
     sb.append("  commentId: ").append(commentId).append("\n");
     sb.append("  like: ").append(like).append("\n");
     sb.append("  dislike: ").append(dislike).append("\n");
-    sb.append("  projectId: ").append(projectId).append("\n");
     sb.append("}\n");
     return sb.toString();
   }

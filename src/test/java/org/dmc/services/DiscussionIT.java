@@ -311,6 +311,7 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testGet_IndividualDiscussionFromId: projectId values are not equal", (posted.getProjectId().equals(read.getProjectId())));
 	}
 	
+	
 	/*
 	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-comments
 	 */
@@ -342,25 +343,74 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testPost_IndividualDiscussionComments(){
-		IndividualDiscussionComment obj = new IndividualDiscussionComment();
+		IndividualDiscussion discussionForComment = new IndividualDiscussion();
 		ObjectMapper mapper = new ObjectMapper();
-		String postedIndividualDiscussionCommentJSONString = null;
-		
+		String postedIndividualDiscussion = null;
+
+		String title = "For POST /individual-discussion-comments";
+		String createdBy = "John Wayne";
+		BigDecimal createdAt = new BigDecimal(12301293);
+		BigDecimal accountId = new BigDecimal(550);
+		BigDecimal projectId = new BigDecimal(12);
+
+		discussionForComment.setTitle(title);
+		discussionForComment.setCreatedBy(createdBy);
+		discussionForComment.setCreatedAt(createdAt);
+		discussionForComment.setAccountId(accountId);
+		discussionForComment.setProjectId(projectId);
+
 		try {
-			postedIndividualDiscussionCommentJSONString = mapper.writeValueAsString(obj);
+			postedIndividualDiscussion = mapper.writeValueAsString(discussionForComment);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
+				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
 		
-		given().
-		header("Content-type", "application/json").
-		header("AJP-eppn", userEPPN).
-		body(postedIndividualDiscussionCommentJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().
-		post("/individual-discussion-comments");
+		
+		IndividualDiscussionComment obj = new IndividualDiscussionComment();
+		String postedCommentStr = null;
+
+		String individualDiscussionId = posted.getId();
+		String fullName = "Marshall Mathers";
+		BigDecimal commentId = new BigDecimal(0);
+		String avatar = "For POST /individual-discussion-comments";
+		Boolean reply = false;
+		String text = "TEXT";
+		BigDecimal like = new BigDecimal(2);
+		BigDecimal dislike = new BigDecimal(1);
+		
+		obj.setIndividualDiscussionId(individualDiscussionId);
+		obj.setFullName(fullName);
+		obj.setAccountId(accountId);
+		obj.setCommentId(commentId);
+		obj.setAvatar(avatar);
+		obj.setReply(reply);
+		obj.setText(text);
+		obj.setCreatedAt(createdAt);
+		obj.setLike(like);
+		obj.setDislike(dislike);
+
+		try {
+			postedCommentStr = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		IndividualDiscussionComment postedCommentObj = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedCommentStr).expect()
+				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion-comments").as(IndividualDiscussionComment.class);
+
+		assertTrue("testPost_IndividualDiscussionComment: individualDiscussionId values are not equal", (postedCommentObj.getIndividualDiscussionId().equals(individualDiscussionId)));
+		assertTrue("testPost_IndividualDiscussionComment: fullName values are not equal", (postedCommentObj.getFullName().equals(fullName)));
+		assertTrue("testPost_IndividualDiscussionComment: accountId values are not equal", (postedCommentObj.getAccountId().equals(accountId)));
+		assertTrue("testPost_IndividualDiscussionComment: commentId values are not equal", (postedCommentObj.getCommentId().equals(commentId)));
+		assertTrue("testPost_IndividualDiscussionComment: avatar values are not equal", (postedCommentObj.getAvatar().equals(avatar)));
+		assertTrue("testPost_IndividualDiscussionComment: reply values are not equal", (postedCommentObj.getReply().equals(reply)));
+		assertTrue("testPost_IndividualDiscussionComment: text values are not equal", (postedCommentObj.getText().equals(text)));
+		assertTrue("testPost_IndividualDiscussionComment: createdAt values are not equal", (postedCommentObj.getCreatedAt().equals(createdAt)));
+		assertTrue("testPost_IndividualDiscussionComment: like values are not equal", (postedCommentObj.getLike().equals(like)));
+		assertTrue("testPost_IndividualDiscussionComment: dislike values are not equal", (postedCommentObj.getDislike().equals(dislike)));
 	}
 	
 	
