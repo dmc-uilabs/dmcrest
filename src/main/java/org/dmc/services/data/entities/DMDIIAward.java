@@ -5,15 +5,21 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "dmdii_member_award")
 public class DMDIIAward extends BaseEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
+
+	@ManyToOne
+    @JoinColumn(name="organization_dmdii_member_id")
+	private DMDIIMember dmdiiMember;
 
 	@Column(name = "name")
 	private String name;
@@ -54,6 +60,14 @@ public class DMDIIAward extends BaseEntity {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public DMDIIMember getDmdiiMember() {
+		return dmdiiMember;
+	}
+
+	public void setDmdiiMember(DMDIIMember dmdiiMember) {
+		this.dmdiiMember = dmdiiMember;
 	}
 
 	@Override
