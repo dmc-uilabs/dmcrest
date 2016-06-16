@@ -39,12 +39,12 @@ public class DMDIIMemberController {
 		if (categoryId == null && tier == null) {
 			throw new MissingParameterException("No request parameter found for either categoryId or tier");
 		}
-		
+
 		return dmdiiMemberService.findByType(categoryId, tier, page, pageSize);
 	}
 
 	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
-	public @ResponseBody DMDIIMember saveDmdiiMember(@RequestBody DMDIIMember member) {
+	public @ResponseBody DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
 		return dmdiiMemberService.save(member);
 	}
 
