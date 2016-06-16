@@ -263,5 +263,99 @@ public class IndividualDiscussionDao {
 
 		return retObj;
 	}
+	
+	public List<IndividualDiscussionComment> getListOfIndividualDiscussionComments(Integer limit, String order, String sort, String commentId, ArrayList<String> individualDiscussionIdList) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		IndividualDiscussionComment retObj = null;
+		List<IndividualDiscussionComment> individualDiscussionsComments = new ArrayList<IndividualDiscussionComment>();
+
+		try {
+			connection.setAutoCommit(false);
+
+			ArrayList<String> columnsInIndividualDiscussionCommentTable = new ArrayList<String>();
+			columnsInIndividualDiscussionCommentTable.add("id");
+			columnsInIndividualDiscussionCommentTable.add("individual_discussion_id");
+			columnsInIndividualDiscussionCommentTable.add("full_name");
+			columnsInIndividualDiscussionCommentTable.add("account_id");
+			columnsInIndividualDiscussionCommentTable.add("comment_id");
+			columnsInIndividualDiscussionCommentTable.add("avatar");
+			columnsInIndividualDiscussionCommentTable.add("reply");
+			columnsInIndividualDiscussionCommentTable.add("text");
+			columnsInIndividualDiscussionCommentTable.add("created_at");
+			columnsInIndividualDiscussionCommentTable.add("likes");
+			columnsInIndividualDiscussionCommentTable.add("dislikes");
+
+			String domeInterfacesQuery = "SELECT * FROM individual_discussions_comments";
+
+			if (sort == null) {
+				domeInterfacesQuery += " ORDER BY id";
+			} else if (!columnsInIndividualDiscussionCommentTable.contains(sort)) {
+				domeInterfacesQuery += " ORDER BY id";
+			} else {
+				domeInterfacesQuery += " ORDER BY " + sort;
+			}
+
+			if (order == null) {
+				domeInterfacesQuery += " ASC";
+			} else if (!order.equals("ASC") && !order.equals("DESC")) {
+				domeInterfacesQuery += " ASC";
+			} else {
+				domeInterfacesQuery += " " + order;
+			}
+
+			if (limit == null) {
+				domeInterfacesQuery += " LIMIT ALL";
+			} else if (limit < 0) {
+				domeInterfacesQuery += " LIMIT 0";
+			} else {
+				domeInterfacesQuery += " LIMIT " + limit;
+			}
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+
+			while (resultSet.next()) {
+				if (Integer.parseInt(commentId) == resultSet.getInt("comment_id")) {
+					if (individualDiscussionIdList.contains(Integer.toString(resultSet.getInt("individual_discussion_id")))) {
+						retObj = new IndividualDiscussionComment();
+
+						retObj.setId(Integer.toString(resultSet.getInt("id")));
+						retObj.setIndividualDiscussionId(Integer.toString(resultSet.getInt("individual_discussion_id")));
+						retObj.setFullName(resultSet.getString("full_name"));
+						retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
+						retObj.setCommentId(new BigDecimal(resultSet.getInt("comment_id")));
+						retObj.setAvatar(resultSet.getString("avatar"));
+						retObj.setReply(resultSet.getBoolean("reply"));
+						retObj.setText(resultSet.getString("text"));
+						retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
+						retObj.setLike(new BigDecimal(resultSet.getInt("likes")));
+						retObj.setDislike(new BigDecimal(resultSet.getInt("dislikes")));
+
+						individualDiscussionsComments.add(retObj);
+					}
+				}
+			}
+
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+
+		return individualDiscussionsComments;
+	}
 
 }

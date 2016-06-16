@@ -316,7 +316,7 @@ public class DiscussionIT extends BaseIT {
 	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-comments
 	 */
 	@Test
-	public void testGet_IndividualDiscussionComment(){
+	public void testGet_IndividualDiscussionCommentsFromIndividualDiscussionId(){
 		given().param("commentId", commentId).
 		header("AJP_eppn", userEPPN).
 		expect().
@@ -337,6 +337,86 @@ public class DiscussionIT extends BaseIT {
 		when().get("/individual-discussion/" + individualDiscussionID + "/individual-discussion-tags");
 	}
 	
+	
+	/*
+	 * test case for GET /individual-discussion-comments
+	 */
+	@Test
+	public void testGet_IndividualDiscussionComments(){
+		IndividualDiscussion discussionForComment = new IndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussion = null;
+
+		String title = "For GET /individual-discussion-comments";
+		String createdBy = "John Wayne";
+		BigDecimal createdAt = new BigDecimal(12301293);
+		BigDecimal accountId = new BigDecimal(550);
+		BigDecimal projectId = new BigDecimal(12);
+
+		discussionForComment.setTitle(title);
+		discussionForComment.setCreatedBy(createdBy);
+		discussionForComment.setCreatedAt(createdAt);
+		discussionForComment.setAccountId(accountId);
+		discussionForComment.setProjectId(projectId);
+
+		try {
+			postedIndividualDiscussion = mapper.writeValueAsString(discussionForComment);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
+				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
+		
+		
+		IndividualDiscussionComment postedComment = new IndividualDiscussionComment();
+		String postedCommentStr = null;
+
+		String individualDiscussionId = posted.getId();
+		String fullName = "Marshall Mathers";
+		BigDecimal commentId = new BigDecimal(0);
+		String avatar = "For GET /individual-discussion-comments";
+		Boolean reply = false;
+		String text = "TEXT";
+		BigDecimal like = new BigDecimal(2);
+		BigDecimal dislike = new BigDecimal(1);
+		
+		postedComment.setIndividualDiscussionId(individualDiscussionId);
+		postedComment.setFullName(fullName);
+		postedComment.setAccountId(accountId);
+		postedComment.setCommentId(commentId);
+		postedComment.setAvatar(avatar);
+		postedComment.setReply(reply);
+		postedComment.setText(text);
+		postedComment.setCreatedAt(createdAt);
+		postedComment.setLike(like);
+		postedComment.setDislike(dislike);
+
+		try {
+			postedCommentStr = mapper.writeValueAsString(postedComment);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedCommentStr).expect()
+				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion-comments");
+
+		
+		List <IndividualDiscussionComment> listOfComments = Arrays.asList(given().
+		header("AJP_eppn", userEPPN).param("_order", "DESC").param("commentId", 0).param("individual-discussionId", 2).param("individual-discussionId", Integer.parseInt(individualDiscussionId)).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().get("/individual-discussion-comments").as(IndividualDiscussionComment[].class));
+		
+		for (int i = 0; i < listOfComments.size(); i++) {
+			System.out.println(listOfComments.get(i).toString());
+			assertTrue("testGet_IndividualDiscussionComments: individualDiscussionId values are not equal", (listOfComments.get(i).getIndividualDiscussionId().equals(individualDiscussionId) || listOfComments.get(i).getIndividualDiscussionId().equals("2")));
+		}
+		
+		assertTrue("testGet_IndividualDiscussionComments: fullName values are not equal", (listOfComments.get(0).getFullName().equals(fullName)));
+		assertTrue("testGet_IndividualDiscussionComments: accountId values are not equal", (listOfComments.get(0).getAccountId().equals(accountId)));
+		assertTrue("testGet_IndividualDiscussionComments: commentId values are not equal", (listOfComments.get(0).getCommentId().equals(commentId)));
+	}
 	
 	/*
 	 * test case for POST /individual-discussion-comments

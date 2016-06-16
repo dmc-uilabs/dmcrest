@@ -7,8 +7,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import static org.springframework.http.MediaType.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
@@ -33,9 +37,20 @@ public class IndividualDiscussionCommentsController {
 	}
 	
 	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity<IndividualDiscussionComment> getIndividualDiscussionComments(@RequestBody IndividualDiscussionComment discussionComment) {
-		// do some magic!
-		return new ResponseEntity<IndividualDiscussionComment>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity getIndividualDiscussionComments(
+			@RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_order", required = false) String order,
+			@RequestParam(value = "_sort", required = false) String sort,
+			@RequestParam(value = "commentId", required = true) String commentId,
+			@RequestParam(value = "individual-discussionId", required = true) ArrayList<String> individualDiscussionIdList) {
+		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		try {
+			ServiceLogger.log(logTag, "In getIndividualDiscussionComments");
+			return new ResponseEntity<List<IndividualDiscussionComment>>(individualDiscussionDao.getListOfIndividualDiscussionComments(limit, order, sort, commentId, individualDiscussionIdList), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	@RequestMapping(value = "/{commentID}", produces = { "application/json", "text/html" }, method = RequestMethod.DELETE)
