@@ -2,7 +2,6 @@ package org.dmc.services.data.entities;
 
 import java.sql.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -43,7 +42,7 @@ public class DMDIIMember extends BaseEntity {
 	private Date expireDate;
 
 	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
-	private Set<DMDIIAward> awards;
+	private List<DMDIIAward> awards;
 
 	@ManyToMany
 	@JoinTable(name = "dmdii_member_area_of_expertise",
@@ -59,7 +58,7 @@ public class DMDIIMember extends BaseEntity {
 	@JoinColumn(name = "organization_dmdii_member_id")
 	private List<DMDIIMemberCustomer> customers;
 
-	@OneToMany
+	@OneToMany(cascade=CascadeType.ALL)
 	@JoinColumn(name = "organization_dmdii_member_id")
 	private List<DMDIIMemberFinance> finances;
 
@@ -118,11 +117,12 @@ public class DMDIIMember extends BaseEntity {
 		this.expireDate = expireDate;
 	}
 
-	public Set<DMDIIAward> getAwards() {
+	public List<DMDIIAward> getAwards() {
 		return awards;
 	}
 
-	public void setAwards(Set<DMDIIAward> awards) {
+	public void setAwards(List<DMDIIAward> awards) {
+		awards.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.awards = awards;
 	}
 
@@ -300,5 +300,6 @@ public class DMDIIMember extends BaseEntity {
 			return false;
 		return true;
 	}
+
 
 }

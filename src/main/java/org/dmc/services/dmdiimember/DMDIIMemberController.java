@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,8 +45,8 @@ public class DMDIIMemberController {
 		return dmdiiMemberService.findByTier(tier, page, pageSize);
 	}
 
-	@RequestMapping(value = "/dmdiiMember/create", method = RequestMethod.POST)
-	public @ResponseBody DMDIIMember saveDmdiiMember(@RequestBody DMDIIMember member) {
+	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
+	public @ResponseBody DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
 		return dmdiiMemberService.save(member);
 	}
 
