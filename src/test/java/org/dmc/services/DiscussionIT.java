@@ -287,6 +287,25 @@ public class DiscussionIT extends BaseIT {
 	
 	
 	/*
+	 * test case for GET /individual-discussion-comments/{id}
+	 */
+	@Test
+	public void testGet_IndividualDiscussionCommentsFromId(){
+		IndividualDiscussionComment readObj = given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().get("/individual-discussion-comments/" + 1).as(IndividualDiscussionComment.class);
+		
+		assertTrue("testGet_IndividualDiscussionCommentsFromId: id values are not equal", (readObj.getId().equals("1")));
+		assertTrue("testGet_IndividualDiscussionCommentsFromId: individual_discussion_id values are not equal", (readObj.getIndividualDiscussionId().equals("1")));
+		assertTrue("testGet_IndividualDiscussionCommentsFromId: fullName values are not equal", (readObj.getFullName().equals("Joe")));
+		assertTrue("testGet_IndividualDiscussionCommentsFromId: accountId values are not equal", (readObj.getAccountId().equals(new BigDecimal(550))));
+		assertTrue("testGet_IndividualDiscussionCommentsFromId: commentId values are not equal", (readObj.getCommentId().equals(new BigDecimal(0))));
+		assertTrue("testGet_IndividualDiscussionCommentsFromId: likes values are not equal", (readObj.getLike().equals(new BigDecimal(30))));
+	}
+	
+	/*
 	 * test case for GET /individual-discussion-comments
 	 */
 	@Test
@@ -371,35 +390,54 @@ public class DiscussionIT extends BaseIT {
 		ObjectMapper mapper = new ObjectMapper();
 		String patchedIndividualDiscussionCommentJSONString = null;
 		
+		String individualDiscussionId = "1";
+		String fullName = "Marshall Mathers";
+		BigDecimal commentId = new BigDecimal(0);
+		String avatar = "For PATCH /individual-discussion-comments/{id}";
+		Boolean reply = false;
+		String text = "TEXT";
+		BigDecimal accountId = new BigDecimal(550);
+		BigDecimal createdAt = new BigDecimal(12301293);
+		BigDecimal like = new BigDecimal(2);
+		BigDecimal dislike = new BigDecimal(1);
+		
+		obj.setIndividualDiscussionId(individualDiscussionId);
+		obj.setFullName(fullName);
+		obj.setAccountId(accountId);
+		obj.setCommentId(commentId);
+		obj.setAvatar(avatar);
+		obj.setReply(reply);
+		obj.setText(text);
+		obj.setCreatedAt(createdAt);
+		obj.setLike(like);
+		obj.setDislike(dislike);
+		
 		try {
 			patchedIndividualDiscussionCommentJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		given().
+		IndividualDiscussionComment received = given().
 		header("Content-type", "application/json").
 		header("AJP-eppn", userEPPN).
 		body(patchedIndividualDiscussionCommentJSONString).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
-		patch("/individual-discussion-comments/" + commentId);
-	}
-	
-	
-	
-	/*
-	 * test case for DELETE /individual-discussion-comments/{commentID}
-	 */
-	@Test
-	public void testDelete_IndividualDiscussionComment(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().delete("/individual-discussion-comments/" + commentId);
+		patch("/individual-discussion-comments/" + 5).as(IndividualDiscussionComment.class);
+		
+		assertTrue("testPatch_IndividualDiscussionComments: id values are not equal", (received.getId().equals("5")));
+		assertTrue("testPatch_IndividualDiscussionComments: individualDiscussionId values are not equal", (received.getIndividualDiscussionId().equals(individualDiscussionId)));
+		assertTrue("testPatch_IndividualDiscussionComments: fullName values are not equal", (received.getFullName().equals(fullName)));
+		assertTrue("testPatch_IndividualDiscussionComments: accountId values are not equal", (received.getAccountId().equals(accountId)));
+		assertTrue("testPatch_IndividualDiscussionComments: commentId values are not equal", (received.getCommentId().equals(commentId)));
+		assertTrue("testPatch_IndividualDiscussionComments: avatar values are not equal", (received.getAvatar().equals(avatar)));
+		assertTrue("testPatch_IndividualDiscussionComments: reply values are not equal", (received.getReply().equals(reply)));
+		assertTrue("testPatch_IndividualDiscussionComments: text values are not equal", (received.getText().equals(text)));
+		assertTrue("testPatch_IndividualDiscussionComments: createdAt values are not equal", (received.getCreatedAt().equals(createdAt)));
+		assertTrue("testPatch_IndividualDiscussionComments: like values are not equal", (received.getLike().equals(like)));
+		assertTrue("testPatch_IndividualDiscussionComments: dislike values are not equal", (received.getDislike().equals(dislike)));
 	}
 	
 	

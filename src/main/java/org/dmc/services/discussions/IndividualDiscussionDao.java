@@ -18,6 +18,7 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.services.GetDomeInterface;
+import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.sharedattributes.Util;
 
 public class IndividualDiscussionDao {
@@ -157,7 +158,7 @@ public class IndividualDiscussionDao {
 
 		return retObj;
 	}
-	
+
 	public IndividualDiscussion getSingleIndividualDiscussionFromId(String id) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
 		IndividualDiscussion retObj = null;
@@ -202,7 +203,7 @@ public class IndividualDiscussionDao {
 
 		return retObj;
 	}
-	
+
 	public IndividualDiscussionComment createIndividualDiscussionComment(IndividualDiscussionComment comment) throws DMCServiceException {
 		IndividualDiscussionComment retObj = new IndividualDiscussionComment();
 		Connection connection = DBConnector.connection();
@@ -242,7 +243,7 @@ public class IndividualDiscussionDao {
 			retObj.setCreatedAt(comment.getCreatedAt());
 			retObj.setLike(comment.getLike());
 			retObj.setDislike(comment.getDislike());
-			
+
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
@@ -263,8 +264,9 @@ public class IndividualDiscussionDao {
 
 		return retObj;
 	}
-	
-	public List<IndividualDiscussionComment> getListOfIndividualDiscussionComments(Integer limit, String order, String sort, String commentId, ArrayList<String> individualDiscussionIdList) throws DMCServiceException {
+
+	public List<IndividualDiscussionComment> getListOfIndividualDiscussionComments(Integer limit, String order, String sort, String commentId,
+			ArrayList<String> individualDiscussionIdList) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
 		IndividualDiscussionComment retObj = null;
 		List<IndividualDiscussionComment> individualDiscussionsComments = new ArrayList<IndividualDiscussionComment>();
@@ -356,6 +358,109 @@ public class IndividualDiscussionDao {
 		}
 
 		return individualDiscussionsComments;
+	}
+
+	public IndividualDiscussionComment getCommentFromId(String id) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		IndividualDiscussionComment retObj = null;
+
+		try {
+			connection.setAutoCommit(false);
+			String domeInterfacesQuery = "SELECT * FROM individual_discussions_comments WHERE id = ?";
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			preparedStatement.setInt(1, Integer.parseInt(id));
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+
+			if (resultSet.next()) {
+				retObj = new IndividualDiscussionComment();
+
+				retObj.setId(Integer.toString(resultSet.getInt("id")));
+				retObj.setIndividualDiscussionId(Integer.toString(resultSet.getInt("individual_discussion_id")));
+				retObj.setFullName(resultSet.getString("full_name"));
+				retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
+				retObj.setCommentId(new BigDecimal(resultSet.getInt("comment_id")));
+				retObj.setAvatar(resultSet.getString("avatar"));
+				retObj.setReply(resultSet.getBoolean("reply"));
+				retObj.setText(resultSet.getString("text"));
+				retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
+				retObj.setLike(new BigDecimal(resultSet.getInt("likes")));
+				retObj.setDislike(new BigDecimal(resultSet.getInt("dislikes")));
+			}
+
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+
+		return retObj;
+	}
+
+	public IndividualDiscussionComment updateIndividualDiscussionComment(BigDecimal id, IndividualDiscussionComment comment) throws DMCServiceException {
+
+		Connection connection = DBConnector.connection();
+		IndividualDiscussionComment retObj = new IndividualDiscussionComment();
+
+		try {
+			connection.setAutoCommit(false);
+
+			String updateQuery = "UPDATE individual_discussions_comments SET individual_discussion_id=?, full_name=?, account_id=?, comment_id=?, avatar=?, reply=?, text=?, created_at=?, likes=?, dislikes=? WHERE id = ?";
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(updateQuery);
+			preparedStatement.setInt(1, Integer.parseInt(comment.getIndividualDiscussionId()));
+			preparedStatement.setString(2, comment.getFullName());
+			preparedStatement.setInt(3, comment.getAccountId().intValue());
+			preparedStatement.setInt(4, comment.getCommentId().intValue());
+			preparedStatement.setString(5, comment.getAvatar());
+			preparedStatement.setBoolean(6, comment.getReply());
+			preparedStatement.setString(7, comment.getText());
+			preparedStatement.setString(8, comment.getCreatedAt().toString());
+			preparedStatement.setInt(9, comment.getLike().intValue());
+			preparedStatement.setInt(10, comment.getDislike().intValue());
+			preparedStatement.setInt(11, id.intValue());
+
+			int rowsAffected_interface = preparedStatement.executeUpdate();
+			if (rowsAffected_interface != 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "unable to update individual discussion comment " + comment.toString());
+			}
+
+			retObj = comment;
+			retObj.setId(id.toString());
+
+
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+		return retObj;
 	}
 
 }

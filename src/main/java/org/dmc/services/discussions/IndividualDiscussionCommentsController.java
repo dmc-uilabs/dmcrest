@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import static org.springframework.http.MediaType.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,17 +54,29 @@ public class IndividualDiscussionCommentsController {
 		}
 	}
 
-	@RequestMapping(value = "/{commentID}", produces = { "application/json", "text/html" }, method = RequestMethod.DELETE)
-	public ResponseEntity<Void> individualDiscussionCommentsCommentIDDelete(@PathVariable("commentID") String commentID) {
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+	@RequestMapping(value = "/{commentID}", produces = { "application/json" }, method = RequestMethod.GET)
+	public ResponseEntity individualDiscussionCommentsCommentIDDelete(@PathVariable("commentID") String commentID) {
+		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		try {
+			ServiceLogger.log(logTag, "In getIndividualDiscussionComments");
+			return new ResponseEntity<IndividualDiscussionComment>(individualDiscussionDao.getCommentFromId(commentID), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	@RequestMapping(value = "/{commentID}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
-	public ResponseEntity<IndividualDiscussionComment> individualDiscussionCommentsCommentIDPatch(@PathVariable("commentID") String commentID,
+	public ResponseEntity individualDiscussionCommentsCommentIDPatch(@PathVariable("commentID") BigDecimal commentID,
 			@RequestBody IndividualDiscussionComment comment) {
-		// do some magic!
-		return new ResponseEntity<IndividualDiscussionComment>(HttpStatus.NOT_IMPLEMENTED);
+		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		try {
+			ServiceLogger.log(logTag, "In getIndividualDiscussionComments");
+			return new ResponseEntity<IndividualDiscussionComment>(individualDiscussionDao.updateIndividualDiscussionComment(commentID, comment), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
 	}
 
 }
