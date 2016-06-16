@@ -11,6 +11,7 @@ import org.dmc.services.company.CompanyVideo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,16 +45,17 @@ public class EventsController
 	{
 		ServiceLogger.log(logTag, "getEvents");
 		int statusCode = HttpStatus.OK.value();
-		ArrayList<CommunityEvent> events = null;
+		ArrayList<CommunityEvent> events = new ArrayList<CommunityEvent>();
 
-		try {
+		try
+		{
 	        events = eventsDao.getEvents();
 	        return new ResponseEntity<ArrayList<CommunityEvent>>(events, HttpStatus.valueOf(statusCode));
-		} catch (HTTPException e) {
+		}
+		catch (DMCServiceException e)
+		{
 			ServiceLogger.log(logTag, e.getMessage());
-			statusCode = e.getStatusCode();
-			ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-			return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 
 	}
@@ -66,16 +68,63 @@ public class EventsController
 		ServiceLogger.log(logTag, "createCommunityEvent");
 		int statusCode = HttpStatus.OK.value();
 		Id id = null;
-
 		try
 		{
-			id = EventsDao.createCommunityEvent(event);
-			
+			id = eventsDao.createCommunityEvent(event);
 		}
-		catch(DMCServiceException e) {
-	      	return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-	    	}
+		
+		catch(DMCServiceException e)
+		{
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+	    }
+		
 		return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));		
+	}
+	
+	//patch
+	@RequestMapping(value = "/events/{id}", method = RequestMethod.PATCH, produces = { "application/json"})
+	public ResponseEntity updateEvent(@PathVariable("id") int id, @RequestBody CommunityEvent event)
+	{
+		ServiceLogger.log(logTag, "updateEvent" + id);
+		
+		int statusCode = HttpStatus.OK.value();
+		
+		try
+		{
+			event = eventsDao.updateEvent(id, event);
+			return new ResponseEntity<CommunityEvent>(event, HttpStatus.valueOf(statusCode));
+		}
+		catch(DMCServiceException e)
+		{
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}  
+	}
+	
+
+	//delete
+	@RequestMapping(value = "/events/{id}", method = RequestMethod.DELETE, produces = { "application/json" })
+	@ResponseBody
+	public ResponseEntity deleteEvent(@PathVariable("id") int id)
+	{	
+		ServiceLogger.log(logTag, "deleteCommunityEvent");
+		
+		int statusCode = HttpStatus.OK.value();
+		Id returnId = null;
+		
+		try
+		{
+			returnId = eventsDao.deleteCommunityEvent(id);			
+		}
+		
+		catch(DMCServiceException e)
+		{
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+	    }
+		
+		return new ResponseEntity<Id>(returnId, HttpStatus.valueOf(statusCode));		
 	}
 }
 

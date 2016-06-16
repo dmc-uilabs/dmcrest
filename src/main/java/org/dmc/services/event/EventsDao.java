@@ -1,114 +1,99 @@
 package org.dmc.services.event;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.Company;
 import org.dmc.services.services.ServiceImages;
-import org.dmc.services.sharedattributes.FeatureImage;
-import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.users.User;
-import org.dmc.services.users.UserDao;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
+import org.dmc.services.services.ServiceImagesDao;
+
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
-
-import static org.dmc.services.company.CompanyUserUtil.isMemberOfCompany;
 
 public class EventsDao 
 {
 
 	private final String logTag = EventsDao.class.getName();
 	private ResultSet resultSet;
-	
-	
-	// Only declare here and instantiate in method where it is used
-	// Instantiating here may cause NullPointer Exceptions
 	private Connection connection;
 	
 	public Id createCommunityEvent(CommunityEvent event) throws DMCServiceException
 	{
-		connection = DBConnector.connection();
-		PreparedStatement statement;
-		Util util = Util.getInstance();
+		//connection = DBConnector.connection();
+		//PreparedStatement statement;
+		//Util util = Util.getInstance();
 		int id = -99999;
 
 		// NEED TO PUT Get AWS URL FUNCTION
 		//Tests to see if valid user, exits function if so
 
-		try {
+	/*	try {
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
 			ServiceLogger.log(logTag, ex.getMessage());
 			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
-		}
-
-		try
-		{
-			String query = "INSERT INTO community_events (title, date, startTime, endTime, address, description) VALUES (?, ?, ?, ?, ?, ?)";
-			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			statement.setString(1, event.getTitle());
-			statement.setString(2, event.getDate());
-			statement.setString(3, event.getStartTime());
-			statement.setString(4, event.getEndTime());
-			statement.setString(5, event.getAddress());
-			statement.setString(6, event.getDescription());
-			statement.executeUpdate();
-			id = util.getGeneratedKey(statement, "id");
-			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
-			connection.commit();
-		}
-		catch (SQLException e)
-		{
-			ServiceLogger.log(logTag, "SQL EXCEPTION ----- " + e.getMessage());
-			try
-			{
-				if (connection != null)
-				{
-					ServiceLogger.log(logTag, "createServiceImage transaction rolled back");
-					connection.rollback();
-				}
-			}
-			catch (SQLException ex)
-			{
-				ServiceLogger.log(logTag, ex.getMessage());
-				throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
-			}
-			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
-		}
-		
-		finally
-		{
-			try
-			{
-				if (connection != null)
-				{
-					connection.setAutoCommit(true);
-				}
-			}
-			catch (SQLException et)
-			{
-				ServiceLogger.log(logTag, et.getMessage());
-				throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
-			}
-		}
-		
+		}*/
 		return new Id.IdBuilder(id).build();
 	}
 	
+    public ArrayList<CommunityEvent> getEvents() throws DMCServiceException {
+        ArrayList<CommunityEvent> events = new ArrayList<CommunityEvent>();
+        ServiceLogger.log(logTag, "In Get Events");
+        
+		try
+		{
+			String query = "SELECT * FROM community_event";
+			resultSet = DBConnector.executeQuery(query);
+			
+			while (resultSet.next())
+			{
+				//Collect output and push to a list
+				String id =Integer.toString(resultSet.getInt("id"));
+				String title = resultSet.getString("title");
+				String date = resultSet.getString("date");
+				String startTime =resultSet.getString("start_time");
+				String endTime = resultSet.getString("end_time");
+				String address = resultSet.getString("address");
+				String description = resultSet.getString("description");
+				
+				
+				CommunityEvent event = new CommunityEvent();
+				event.setId(id);
+				event.setTitle(title);
+				event.setDate(date);
+				event.setStartTime(startTime);
+				event.setEndTime(endTime);
+				event.setAddress(address);
+				event.setDescription(description);
+				events.add(event);
+			}
+		}
+		catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		}
+		return events;
+	}
+	
+    public CommunityEvent updateEvent(int id, CommunityEvent event) throws DMCServiceException {
+        ServiceLogger.log(logTag, "In Patch Event" + id);
+        
+        return event;
+	}
+    
+    
+    public Id deleteCommunityEvent(int id) throws DMCServiceException
+	{
+		return new Id.IdBuilder(id).build();
+	}
+
+    
 	/*
 	 public Id createServiceImages(ServiceImages payload, String userEPPN) throws DMCServiceException {
 
@@ -173,22 +158,7 @@ public class EventsDao
 	}
 	 */
 	
-    public ArrayList<CommunityEvent> getEvents() throws HTTPException {
-        ArrayList<CommunityEvent> events = null;
-        ServiceLogger.log(logTag, "In Get Events");
-        
-        CommunityEvent event = new CommunityEvent();
-		event.setId("a");
-		event.setTitle("b");
-		event.setDate("c");
-		event.setStartTime("d");
-		event.setEndTime("e");;
-		event.setAddress("f");
-		event.setDescription("g");
-        events.add(event);
-        
-        return events;
-	}
+
         //createCommunityEvent function
         
         
