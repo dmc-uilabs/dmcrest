@@ -3,7 +3,6 @@ package org.dmc.services.dmdiimember;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.mappers.Mapper;
@@ -57,17 +56,14 @@ public class DMDIIMemberService {
 		return mapper.mapToModel(dmdiiMemberDao.findByOrganizationNameLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%").getContent());
 	}
 
-	@Transactional
-	public DMDIIMember save(DMDIIMember member) {
-//		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
+	public DMDIIMemberModel save(DMDIIMemberModel member) {
+		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 
-		// save organization separately
 		organizationService.save(member.getOrganization());
-//		DMDIIMember memberEntity = mapper.mapToEntity(memberModel);
+		DMDIIMember memberEntity = mapper.mapToEntity(member);
+		memberEntity = dmdiiMemberDao.save(memberEntity);
 
-//		memberEntity.setOrganization(orgEntity);
-		return dmdiiMemberDao.save(member);
-//		return mapper.mapToModel(dmdiiMemberDao.save(memberEntity));
+		return mapper.mapToModel(memberEntity);
 	}
 
 	public List<DMDIIMemberModel> findByCategoryId(Integer categoryId, Integer pageNumber, Integer pageSize) {

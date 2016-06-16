@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.exceptions.MissingParameterException;
 import org.springframework.http.MediaType;
