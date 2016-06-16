@@ -196,42 +196,15 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussion() {
-		IndividualDiscussion obj = new IndividualDiscussion();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedIndividualDiscussion = null;
-
-		String title = "For GET /individual-discussion";
-		String createdBy = "John Wayne";
-		BigDecimal createdAt = new BigDecimal(12301293);
-		BigDecimal accountId = new BigDecimal(550);
-
-		obj.setTitle(title);
-		obj.setCreatedBy(createdBy);
-		obj.setCreatedAt(createdAt);
-		obj.setAccountId(accountId);
-		
-
-		for (int i = 0; i < 5; i++) {
-			obj.setProjectId(new BigDecimal(i));
-			try {
-				postedIndividualDiscussion = mapper.writeValueAsString(obj);
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-
-			given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect().statusCode(HttpStatus.OK.value()).when()
-					.post("/individual-discussion");
-		}
-
-		List<IndividualDiscussion> received = Arrays.asList(given().header("AJP_eppn", userEPPN).param("limit", 3).param("order", "DESC").expect().statusCode(HttpStatus.OK.value())
+		List<IndividualDiscussion> received = Arrays.asList(given().header("AJP_eppn", userEPPN).param("limit", 3).param("order", "ASC").expect().statusCode(HttpStatus.OK.value())
 				.when().get("/individual-discussion").as(IndividualDiscussion[].class));
 
 		assertTrue("testGet_IndividualDiscussion: limit parameter did not work", received.size() == 3);
 
-		assertTrue("testGet_IndividualDiscussion: title values are not equal", (received.get(0).getTitle().equals(title)));
-		assertTrue("testGet_IndividualDiscussion: createdBy values are not equal", (received.get(0).getCreatedBy().equals(createdBy)));
-		assertTrue("testGet_IndividualDiscussion: createdAt values are not equal", (received.get(0).getCreatedAt().equals(createdAt)));
-		assertTrue("testGet_IndividualDiscussion: accountId values are not equal", (received.get(0).getAccountId().equals(accountId)));
+		assertTrue("testGet_IndividualDiscussion: title values are not equal", (received.get(0).getTitle().equals("For Community")));
+		assertTrue("testGet_IndividualDiscussion: createdBy values are not equal", (received.get(0).getCreatedBy().equals("John")));
+		assertTrue("testGet_IndividualDiscussion: createdAt values are not equal", (received.get(0).getCreatedAt().equals(new BigDecimal("12345"))));
+		assertTrue("testGet_IndividualDiscussion: accountId values are not equal", (received.get(0).getAccountId().equals(new BigDecimal(550))));
 	}
 
 	/*
@@ -244,7 +217,7 @@ public class DiscussionIT extends BaseIT {
 		String postedIndividualDiscussion = null;
 
 		String title = "For POST /individual-discussion";
-		String createdBy = "John Wayne";
+		String createdBy = "Eminem";
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal accountId = new BigDecimal(550);
 		BigDecimal projectId = new BigDecimal(12);
@@ -276,39 +249,14 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionFromId(){
-		IndividualDiscussion obj = new IndividualDiscussion();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedIndividualDiscussion = null;
-
-		String title = "For GET /individual-discussion/{id}";
-		String createdBy = "Eminem";
-		BigDecimal createdAt = new BigDecimal(12301293);
-		BigDecimal accountId = new BigDecimal(550);
-		BigDecimal projectId = new BigDecimal(12);
-
-		obj.setTitle(title);
-		obj.setCreatedBy(createdBy);
-		obj.setCreatedAt(createdAt);
-		obj.setAccountId(accountId);
-		obj.setProjectId(projectId);
-
-		try {
-			postedIndividualDiscussion = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-
-		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
-				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
-
 		IndividualDiscussion read = given().param("commentId", commentId).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
-				.get("/individual-discussion/" + posted.getId()).as(IndividualDiscussion.class);
+				.get("/individual-discussion/" + 3).as(IndividualDiscussion.class);
 
-		assertTrue("testGet_IndividualDiscussionFromId: title values are not equal", (posted.getTitle().equals(read.getTitle())));
-		assertTrue("testGet_IndividualDiscussionFromId: createdBy values are not equal", (posted.getCreatedBy().equals(read.getCreatedBy())));
-		assertTrue("testGet_IndividualDiscussionFromId: createdAt values are not equal", (posted.getCreatedAt().equals(read.getCreatedAt())));
-		assertTrue("testGet_IndividualDiscussionFromId: accountId values are not equal", (posted.getAccountId().equals(read.getAccountId())));
-		assertTrue("testGet_IndividualDiscussionFromId: projectId values are not equal", (posted.getProjectId().equals(read.getProjectId())));
+		assertTrue("testGet_IndividualDiscussionFromId: title values are not equal", (read.getTitle().equals("For Project")));
+		assertTrue("testGet_IndividualDiscussionFromId: createdBy values are not equal", (read.getCreatedBy().equals("Google")));
+		assertTrue("testGet_IndividualDiscussionFromId: createdAt values are not equal", (read.getCreatedAt().equals(new BigDecimal(12345))));
+		assertTrue("testGet_IndividualDiscussionFromId: accountId values are not equal", (read.getAccountId().equals(new BigDecimal(550))));
+		assertTrue("testGet_IndividualDiscussionFromId: projectId values are not equal", (read.getProjectId().equals(new BigDecimal(12))));
 	}
 	
 	
@@ -343,79 +291,21 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionComments(){
-		IndividualDiscussion discussionForComment = new IndividualDiscussion();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedIndividualDiscussion = null;
-
-		String title = "For GET /individual-discussion-comments";
-		String createdBy = "John Wayne";
-		BigDecimal createdAt = new BigDecimal(12301293);
-		BigDecimal accountId = new BigDecimal(550);
-		BigDecimal projectId = new BigDecimal(12);
-
-		discussionForComment.setTitle(title);
-		discussionForComment.setCreatedBy(createdBy);
-		discussionForComment.setCreatedAt(createdAt);
-		discussionForComment.setAccountId(accountId);
-		discussionForComment.setProjectId(projectId);
-
-		try {
-			postedIndividualDiscussion = mapper.writeValueAsString(discussionForComment);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-
-		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
-				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
-		
-		
-		IndividualDiscussionComment postedComment = new IndividualDiscussionComment();
-		String postedCommentStr = null;
-
-		String individualDiscussionId = posted.getId();
-		String fullName = "Marshall Mathers";
-		BigDecimal commentId = new BigDecimal(0);
-		String avatar = "For GET /individual-discussion-comments";
-		Boolean reply = false;
-		String text = "TEXT";
-		BigDecimal like = new BigDecimal(2);
-		BigDecimal dislike = new BigDecimal(1);
-		
-		postedComment.setIndividualDiscussionId(individualDiscussionId);
-		postedComment.setFullName(fullName);
-		postedComment.setAccountId(accountId);
-		postedComment.setCommentId(commentId);
-		postedComment.setAvatar(avatar);
-		postedComment.setReply(reply);
-		postedComment.setText(text);
-		postedComment.setCreatedAt(createdAt);
-		postedComment.setLike(like);
-		postedComment.setDislike(dislike);
-
-		try {
-			postedCommentStr = mapper.writeValueAsString(postedComment);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-
-		given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedCommentStr).expect()
-				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion-comments");
-
-		
 		List <IndividualDiscussionComment> listOfComments = Arrays.asList(given().
-		header("AJP_eppn", userEPPN).param("_order", "DESC").param("commentId", 0).param("individual-discussionId", 2).param("individual-discussionId", Integer.parseInt(individualDiscussionId)).
+		header("AJP_eppn", userEPPN).param("_limit",  2).param("_order", "ASC").param("commentId", 0).param("individual-discussionId", 1).param("individual-discussionId", 3).
 		expect().
 		statusCode(HttpStatus.OK.value()).
 		when().get("/individual-discussion-comments").as(IndividualDiscussionComment[].class));
 		
 		for (int i = 0; i < listOfComments.size(); i++) {
 			System.out.println(listOfComments.get(i).toString());
-			assertTrue("testGet_IndividualDiscussionComments: individualDiscussionId values are not equal", (listOfComments.get(i).getIndividualDiscussionId().equals(individualDiscussionId) || listOfComments.get(i).getIndividualDiscussionId().equals("2")));
+			assertTrue("testGet_IndividualDiscussionComments: individualDiscussionId values are not equal", (listOfComments.get(i).getIndividualDiscussionId().equals("1")));
 		}
 		
-		assertTrue("testGet_IndividualDiscussionComments: fullName values are not equal", (listOfComments.get(0).getFullName().equals(fullName)));
-		assertTrue("testGet_IndividualDiscussionComments: accountId values are not equal", (listOfComments.get(0).getAccountId().equals(accountId)));
-		assertTrue("testGet_IndividualDiscussionComments: commentId values are not equal", (listOfComments.get(0).getCommentId().equals(commentId)));
+		assertTrue("testGet_IndividualDiscussionComments: id values are not equal", (listOfComments.get(0).getId().equals("1")));
+		assertTrue("testGet_IndividualDiscussionComments: fullName values are not equal", (listOfComments.get(0).getFullName().equals("Joe")));
+		assertTrue("testGet_IndividualDiscussionComments: accountId values are not equal", (listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
+		assertTrue("testGet_IndividualDiscussionComments: commentId values are not equal", (listOfComments.get(0).getCommentId().equals(new BigDecimal(0))));
 	}
 	
 	/*
@@ -423,41 +313,18 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testPost_IndividualDiscussionComments(){
-		IndividualDiscussion discussionForComment = new IndividualDiscussion();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedIndividualDiscussion = null;
-
-		String title = "For POST /individual-discussion-comments";
-		String createdBy = "John Wayne";
-		BigDecimal createdAt = new BigDecimal(12301293);
-		BigDecimal accountId = new BigDecimal(550);
-		BigDecimal projectId = new BigDecimal(12);
-
-		discussionForComment.setTitle(title);
-		discussionForComment.setCreatedBy(createdBy);
-		discussionForComment.setCreatedAt(createdAt);
-		discussionForComment.setAccountId(accountId);
-		discussionForComment.setProjectId(projectId);
-
-		try {
-			postedIndividualDiscussion = mapper.writeValueAsString(discussionForComment);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-
-		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
-				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
-		
-		
 		IndividualDiscussionComment obj = new IndividualDiscussionComment();
 		String postedCommentStr = null;
+		ObjectMapper mapper = new ObjectMapper();
 
-		String individualDiscussionId = posted.getId();
+		String individualDiscussionId = "1";
 		String fullName = "Marshall Mathers";
 		BigDecimal commentId = new BigDecimal(0);
 		String avatar = "For POST /individual-discussion-comments";
 		Boolean reply = false;
 		String text = "TEXT";
+		BigDecimal accountId = new BigDecimal(550);
+		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal like = new BigDecimal(2);
 		BigDecimal dislike = new BigDecimal(1);
 		
