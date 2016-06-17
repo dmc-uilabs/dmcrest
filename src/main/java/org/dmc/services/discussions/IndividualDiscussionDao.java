@@ -17,8 +17,6 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.services.GetDomeInterface;
-import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.sharedattributes.Util;
 
 public class IndividualDiscussionDao {
@@ -41,25 +39,25 @@ public class IndividualDiscussionDao {
 			columnsInIndividualDiscussionTable.add("account_id");
 			columnsInIndividualDiscussionTable.add("project_id");
 
-			String domeInterfacesQuery = "SELECT * FROM individual_discussions";
+			String discussionsQuery = "SELECT * FROM individual_discussions";
 
 			if (sort == null) {
-				domeInterfacesQuery += " ORDER BY id";
+				discussionsQuery += " ORDER BY id";
 			} else if (!columnsInIndividualDiscussionTable.contains(sort)) {
-				domeInterfacesQuery += " ORDER BY id";
+				discussionsQuery += " ORDER BY id";
 			} else {
-				domeInterfacesQuery += " ORDER BY " + sort;
+				discussionsQuery += " ORDER BY " + sort;
 			}
 
 			if (order == null) {
-				domeInterfacesQuery += " ASC";
+				discussionsQuery += " ASC";
 			} else if (!order.equals("ASC") && !order.equals("DESC")) {
-				domeInterfacesQuery += " ASC";
+				discussionsQuery += " ASC";
 			} else {
-				domeInterfacesQuery += " " + order;
+				discussionsQuery += " " + order;
 			}
 
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(discussionsQuery);
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
 
@@ -109,21 +107,21 @@ public class IndividualDiscussionDao {
 		try {
 			connection.setAutoCommit(false);
 
-			String domeInterfaceQuery = "INSERT into individual_discussions (title, created_by, created_at, account_id, project_id) values ( ?, ?, ?, ?, ? )";
+			String discussionsQuery = "INSERT into individual_discussions (title, created_by, created_at, account_id, project_id) values ( ?, ?, ?, ?, ? )";
 
-			PreparedStatement preparedStatementDomeInterfaceQuery = DBConnector.prepareStatement(domeInterfaceQuery, Statement.RETURN_GENERATED_KEYS);
-			preparedStatementDomeInterfaceQuery.setString(1, discussion.getTitle());
-			preparedStatementDomeInterfaceQuery.setString(2, discussion.getCreatedBy());
-			preparedStatementDomeInterfaceQuery.setString(3, discussion.getCreatedAt().toString());
-			preparedStatementDomeInterfaceQuery.setInt(4, discussion.getAccountId().intValue());
-			preparedStatementDomeInterfaceQuery.setInt(5, discussion.getProjectId().intValue());
+			PreparedStatement preparedStatementQuery = DBConnector.prepareStatement(discussionsQuery, Statement.RETURN_GENERATED_KEYS);
+			preparedStatementQuery.setString(1, discussion.getTitle());
+			preparedStatementQuery.setString(2, discussion.getCreatedBy());
+			preparedStatementQuery.setString(3, discussion.getCreatedAt().toString());
+			preparedStatementQuery.setInt(4, discussion.getAccountId().intValue());
+			preparedStatementQuery.setInt(5, discussion.getProjectId().intValue());
 
-			int rowsAffected_interface = preparedStatementDomeInterfaceQuery.executeUpdate();
+			int rowsAffected_interface = preparedStatementQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "unable to add individual discussion " + discussion.toString());
 			}
-			int id = util.getGeneratedKey(preparedStatementDomeInterfaceQuery, "id");
+			int id = util.getGeneratedKey(preparedStatementQuery, "id");
 
 			retObj.setId(Integer.toString(id));
 			retObj.setTitle(discussion.getTitle());
@@ -159,9 +157,9 @@ public class IndividualDiscussionDao {
 
 		try {
 			connection.setAutoCommit(false);
-			String domeInterfacesQuery = "SELECT * FROM individual_discussions WHERE id = ?";
+			String discussionsQuery = "SELECT * FROM individual_discussions WHERE id = ?";
 
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(discussionsQuery);
 			preparedStatement.setInt(1, Integer.parseInt(id));
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
@@ -205,26 +203,26 @@ public class IndividualDiscussionDao {
 
 		try {
 			connection.setAutoCommit(false);
-			String domeInterfaceQuery = "INSERT into individual_discussions_comments (individual_discussion_id, full_name, account_id, comment_id, avatar, reply, text, created_at, likes, dislikes) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+			String commentsQuery = "INSERT into individual_discussions_comments (individual_discussion_id, full_name, account_id, comment_id, avatar, reply, text, created_at, likes, dislikes) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
 
-			PreparedStatement preparedStatementDomeInterfaceQuery = DBConnector.prepareStatement(domeInterfaceQuery, Statement.RETURN_GENERATED_KEYS);
-			preparedStatementDomeInterfaceQuery.setInt(1, Integer.parseInt(comment.getIndividualDiscussionId()));
-			preparedStatementDomeInterfaceQuery.setString(2, comment.getFullName());
-			preparedStatementDomeInterfaceQuery.setInt(3, comment.getAccountId().intValue());
-			preparedStatementDomeInterfaceQuery.setInt(4, comment.getCommentId().intValue());
-			preparedStatementDomeInterfaceQuery.setString(5, comment.getAvatar());
-			preparedStatementDomeInterfaceQuery.setBoolean(6, comment.getReply());
-			preparedStatementDomeInterfaceQuery.setString(7, comment.getText());
-			preparedStatementDomeInterfaceQuery.setString(8, comment.getCreatedAt().toString());
-			preparedStatementDomeInterfaceQuery.setInt(9, comment.getLike().intValue());
-			preparedStatementDomeInterfaceQuery.setInt(10, comment.getDislike().intValue());
+			PreparedStatement preparedStatementQuery = DBConnector.prepareStatement(commentsQuery, Statement.RETURN_GENERATED_KEYS);
+			preparedStatementQuery.setInt(1, Integer.parseInt(comment.getIndividualDiscussionId()));
+			preparedStatementQuery.setString(2, comment.getFullName());
+			preparedStatementQuery.setInt(3, comment.getAccountId().intValue());
+			preparedStatementQuery.setInt(4, comment.getCommentId().intValue());
+			preparedStatementQuery.setString(5, comment.getAvatar());
+			preparedStatementQuery.setBoolean(6, comment.getReply());
+			preparedStatementQuery.setString(7, comment.getText());
+			preparedStatementQuery.setString(8, comment.getCreatedAt().toString());
+			preparedStatementQuery.setInt(9, comment.getLike().intValue());
+			preparedStatementQuery.setInt(10, comment.getDislike().intValue());
 
-			int rowsAffected_interface = preparedStatementDomeInterfaceQuery.executeUpdate();
+			int rowsAffected_interface = preparedStatementQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "unable to add individual discussion comment " + comment.toString());
 			}
-			int id = util.getGeneratedKey(preparedStatementDomeInterfaceQuery, "id");
+			int id = util.getGeneratedKey(preparedStatementQuery, "id");
 
 			retObj.setId(Integer.toString(id));
 			retObj.setIndividualDiscussionId(comment.getIndividualDiscussionId());
@@ -354,9 +352,9 @@ public class IndividualDiscussionDao {
 
 		try {
 			connection.setAutoCommit(false);
-			String domeInterfacesQuery = "SELECT * FROM individual_discussions_comments WHERE id = ?";
+			String commentQuery = "SELECT * FROM individual_discussions_comments WHERE id = ?";
 
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(commentQuery);
 			preparedStatement.setInt(1, Integer.parseInt(id));
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
@@ -536,6 +534,87 @@ public class IndividualDiscussionDao {
 		}
 
 		return individualDiscussionComments;
+	}
+
+	public List<IndividualDiscussion> getIndividualDiscussionsFromProjectId(Integer projectId, Integer limit, String order, String sort) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		IndividualDiscussion retObj = null;
+		List<IndividualDiscussion> individualDiscussions = new ArrayList<IndividualDiscussion>();
+
+		try {
+			connection.setAutoCommit(false);
+
+			ArrayList<String> columnsInIndividualDiscussionTable = new ArrayList<String>();
+			columnsInIndividualDiscussionTable.add("id");
+			columnsInIndividualDiscussionTable.add("title");
+			columnsInIndividualDiscussionTable.add("created_by");
+			columnsInIndividualDiscussionTable.add("created_at");
+			columnsInIndividualDiscussionTable.add("account_id");
+			columnsInIndividualDiscussionTable.add("project_id");
+
+			String discussionQuery = "SELECT * FROM individual_discussions WHERE project_id = ?";
+
+			if (sort == null) {
+				discussionQuery += " ORDER BY id";
+			} else if (!columnsInIndividualDiscussionTable.contains(sort)) {
+				discussionQuery += " ORDER BY id";
+			} else {
+				discussionQuery += " ORDER BY " + sort;
+			}
+
+			if (order == null) {
+				discussionQuery += " ASC";
+			} else if (!order.equals("ASC") && !order.equals("DESC")) {
+				discussionQuery += " ASC";
+			} else {
+				discussionQuery += " " + order;
+			}
+
+			if (limit == null) {
+				discussionQuery += " LIMIT ALL";
+			} else if (limit < 0) {
+				discussionQuery += " LIMIT 0";
+			} else {
+				discussionQuery += " LIMIT " + limit;
+			}
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(discussionQuery);
+			preparedStatement.setInt(1, projectId);
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+
+			while (resultSet.next()) {
+				retObj = new IndividualDiscussion();
+
+				retObj.setId(Integer.toString(resultSet.getInt("id")));
+				retObj.setTitle(resultSet.getString("title"));
+				retObj.setCreatedBy(resultSet.getString("created_by"));
+				retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
+				retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
+				retObj.setProjectId(new BigDecimal(resultSet.getInt("project_id")));
+
+				individualDiscussions.add(retObj);
+			}
+
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+
+		return individualDiscussions;
 	}
 
 }

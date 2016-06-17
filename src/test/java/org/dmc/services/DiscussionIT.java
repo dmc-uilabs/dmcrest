@@ -190,6 +190,21 @@ public class DiscussionIT extends BaseIT {
 		when().delete("/follow_discussions/" + followId);
 	}
 	
+	/*
+	 * test case for GET /projects/{id}/individual-discussion
+	 */
+	@Test
+	public void testGet_IndividualDiscussionFromProjectId() {
+		List<IndividualDiscussion> received = Arrays.asList(given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
+				.get("/projects/" + 12 + "/individual-discussion").as(IndividualDiscussion[].class));
+
+		assertTrue("testGet_IndividualDiscussionFromProjectId: id values are not equal", (received.get(0).getId().equals("3")));
+		assertTrue("testGet_IndividualDiscussionFromProjectId: title values are not equal", (received.get(0).getTitle().equals("For Project")));
+		assertTrue("testGet_IndividualDiscussionFromProjectId: createdBy values are not equal", (received.get(0).getCreatedBy().equals("Google")));
+		assertTrue("testGet_IndividualDiscussionFromProjectId: createdAt values are not equal", (received.get(0).getCreatedAt().equals(new BigDecimal("12345"))));
+		assertTrue("testGet_IndividualDiscussionFromProjectId: accountId values are not equal", (received.get(0).getAccountId().equals(new BigDecimal(550))));
+	}
+	
 	
 	/*
 	 * test case for GET /individual-discussion
