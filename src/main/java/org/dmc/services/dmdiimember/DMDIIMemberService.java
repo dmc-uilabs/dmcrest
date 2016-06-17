@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
+import org.dmc.services.data.entities.QDMDIIProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIMemberModel;
@@ -20,8 +21,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.mysema.query.BooleanBuilder;
+import com.mysema.query.jpa.JPASubQuery;
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
+import com.mysema.query.types.query.ListSubQuery;
 
 @Service
 public class DMDIIMemberService {
@@ -112,12 +115,12 @@ public class DMDIIMemberService {
 		}
 
 		Date today = new Date();
+		QDMDIIProject qdmdiiProject = QDMDIIProject.dMDIIProject;
+		ListSubQuery subQuery = new JPASubQuery().from(qdmdiiProject).where(qdmdiiProject.awardedDate.before(today), qdmdiiProject.endDate.after(today)).list(qdmdiiProject.id);
 		if (Boolean.valueOf(hasActiveProjects)) {
-			return QDMDIIMember.dMDIIMember.projects.any().awardedDate.before(today).and(
-					QDMDIIMember.dMDIIMember.projects.any().endDate.after(today));
+			return QDMDIIMember.dMDIIMember.projects.any().in(subQuery);
 		} else {
-			return new BooleanBuilder().and(QDMDIIMember.dMDIIMember.projects.any().awardedDate.before(today).and(
-					QDMDIIMember.dMDIIMember.projects.any().endDate.after(today))).not().getValue();
+			return new BooleanBuilder().and(QDMDIIMember.dMDIIMember.projects.any().in(subQuery)).not().getValue();
 		}
 	}
 
