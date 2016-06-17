@@ -226,12 +226,12 @@ public class DiscussionIT extends BaseIT {
 	 * test case for POST /individual-discussion
 	 */
 	@Test
-	public void testPost_IndividualDiscussion() {
+	public void testPost_IndividualDiscussionWithProjectId() {
 		IndividualDiscussion obj = new IndividualDiscussion();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussion = null;
 
-		String title = "For POST /individual-discussion";
+		String title = "For POST /individual-discussion With ProjectId";
 		String createdBy = "Eminem";
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal accountId = new BigDecimal(550);
@@ -252,11 +252,45 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
 				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
 
-		assertTrue("testPost_IndividualDiscussion: title values are not equal", (posted.getTitle().equals(title)));
-		assertTrue("testPost_IndividualDiscussion: createdBy values are not equal", (posted.getCreatedBy().equals(createdBy)));
-		assertTrue("testPost_IndividualDiscussion: createdAt values are not equal", (posted.getCreatedAt().equals(createdAt)));
-		assertTrue("testPost_IndividualDiscussion: accountId values are not equal", (posted.getAccountId().equals(accountId)));
-		assertTrue("testPost_IndividualDiscussion: projectId values are not equal", (posted.getProjectId().equals(projectId)));
+		assertTrue("testPost_IndividualDiscussionWithProjectId: title values are not equal", (posted.getTitle().equals(title)));
+		assertTrue("testPost_IndividualDiscussionWithProjectId: createdBy values are not equal", (posted.getCreatedBy().equals(createdBy)));
+		assertTrue("testPost_IndividualDiscussionWithProjectId: createdAt values are not equal", (posted.getCreatedAt().equals(createdAt)));
+		assertTrue("testPost_IndividualDiscussionWithProjectId: accountId values are not equal", (posted.getAccountId().equals(accountId)));
+		assertTrue("testPost_IndividualDiscussionWithProjectId: projectId values are not equal", (posted.getProjectId().equals(projectId)));
+	}
+	
+	/*
+	 * test case for POST /individual-discussion
+	 */
+	@Test
+	public void testPost_IndividualDiscussionWithoutProjectId() {
+		IndividualDiscussion obj = new IndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussion = null;
+
+		String title = "For POST /individual-discussion Without projectId";
+		String createdBy = "Eminem";
+		BigDecimal createdAt = new BigDecimal(12301293);
+		BigDecimal accountId = new BigDecimal(550);
+
+		obj.setTitle(title);
+		obj.setCreatedBy(createdBy);
+		obj.setCreatedAt(createdAt);
+		obj.setAccountId(accountId);
+
+		try {
+			postedIndividualDiscussion = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
+				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
+
+		assertTrue("testPost_IndividualDiscussionWithoutProjectId: title values are not equal", (posted.getTitle().equals(title)));
+		assertTrue("testPost_IndividualDiscussionWithoutProjectId: createdBy values are not equal", (posted.getCreatedBy().equals(createdBy)));
+		assertTrue("testPost_IndividualDiscussionWithoutProjectId: createdAt values are not equal", (posted.getCreatedAt().equals(createdAt)));
+		assertTrue("testPost_IndividualDiscussionWithoutProjectId: accountId values are not equal", (posted.getAccountId().equals(accountId)));
 	}
 	
 	/*

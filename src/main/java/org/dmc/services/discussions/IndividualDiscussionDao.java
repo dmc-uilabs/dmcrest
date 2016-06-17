@@ -106,15 +106,27 @@ public class IndividualDiscussionDao {
 
 		try {
 			connection.setAutoCommit(false);
+			PreparedStatement preparedStatementQuery;
+			String discussionsQuery;
 
-			String discussionsQuery = "INSERT into individual_discussions (title, created_by, created_at, account_id, project_id) values ( ?, ?, ?, ?, ? )";
+			if (discussion.getProjectId() != null) {
+				discussionsQuery = "INSERT into individual_discussions (title, created_by, created_at, account_id, project_id) values ( ?, ?, ?, ?, ? )";
 
-			PreparedStatement preparedStatementQuery = DBConnector.prepareStatement(discussionsQuery, Statement.RETURN_GENERATED_KEYS);
-			preparedStatementQuery.setString(1, discussion.getTitle());
-			preparedStatementQuery.setString(2, discussion.getCreatedBy());
-			preparedStatementQuery.setString(3, discussion.getCreatedAt().toString());
-			preparedStatementQuery.setInt(4, discussion.getAccountId().intValue());
-			preparedStatementQuery.setInt(5, discussion.getProjectId().intValue());
+				preparedStatementQuery = DBConnector.prepareStatement(discussionsQuery, Statement.RETURN_GENERATED_KEYS);
+				preparedStatementQuery.setString(1, discussion.getTitle());
+				preparedStatementQuery.setString(2, discussion.getCreatedBy());
+				preparedStatementQuery.setString(3, discussion.getCreatedAt().toString());
+				preparedStatementQuery.setInt(4, discussion.getAccountId().intValue());
+				preparedStatementQuery.setInt(5, discussion.getProjectId().intValue());
+			} else {
+				discussionsQuery = "INSERT into individual_discussions (title, created_by, created_at, account_id) values ( ?, ?, ?, ? )";
+
+				preparedStatementQuery = DBConnector.prepareStatement(discussionsQuery, Statement.RETURN_GENERATED_KEYS);
+				preparedStatementQuery.setString(1, discussion.getTitle());
+				preparedStatementQuery.setString(2, discussion.getCreatedBy());
+				preparedStatementQuery.setString(3, discussion.getCreatedAt().toString());
+				preparedStatementQuery.setInt(4, discussion.getAccountId().intValue());
+			}
 
 			int rowsAffected_interface = preparedStatementQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
