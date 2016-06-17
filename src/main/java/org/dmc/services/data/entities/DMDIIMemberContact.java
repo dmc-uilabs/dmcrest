@@ -12,10 +12,14 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "dmdii_member_contact")
 public class DMDIIMemberContact extends BaseEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
+
+	@ManyToOne
+    @JoinColumn(name="organization_dmdii_member_id")
+	private DMDIIMember dmdiiMember;
 
 	@ManyToOne
 	@JoinColumn(name = "dmdii_contact_type_id")
@@ -29,6 +33,14 @@ public class DMDIIMemberContact extends BaseEntity {
 
 	@Column(name = "email")
 	private String email;
+
+	public DMDIIMember getDmdiiMember() {
+		return dmdiiMember;
+	}
+
+	public void setDmdiiMember(DMDIIMember dmdiiMember) {
+		this.dmdiiMember = dmdiiMember;
+	}
 
 	public DMDIIContactType getContactType() {
 		return contactType;
