@@ -185,6 +185,20 @@ public class AccountsIT extends BaseIT {
 				(receivedAccountServers.get(0).getStatus().equals("offline")));
 
 	}
+	
+	@Test
+	public void testAccountGet_AccountServersWithParameters() {
+		String accountID = "102"; // This is the accountID of alias=baseDOME in the servers table (first two entries)
+
+		List<UserAccountServer> receivedAccountServers = Arrays.asList(
+				given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("_limit", 1).param("_order", "DESC").expect()
+						.statusCode(HttpStatus.OK.value()).when().get("/accounts/" + accountID + "/account_servers").as(UserAccountServer[].class));
+
+		assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
+				(receivedAccountServers.get(0).getAccountId().equals(accountID)));
+		assertTrue("testAccountGet_AccountServers: Limit parameter did not work", (receivedAccountServers.size() == 1));
+
+	}
 
 	/**
 	 * Tests for
