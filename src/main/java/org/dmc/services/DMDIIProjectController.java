@@ -6,10 +6,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.dmc.services.data.models.DMDIIProjectModel;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -20,38 +22,43 @@ public class DMDIIProjectController {
 	@Inject
 	private DMDIIProjectService dmdiiProjectService;
 
-	@RequestMapping(value = "/dmdiiprojects/{partnerID}", params = {"page", "pageSize"}, method = RequestMethod.GET)
-	public List<DMDIIProjectModel> getAllDmdiiProjectsByDMDIIMemberId(@PathVariable("memberID") Integer memberID,
+	@RequestMapping(value = "/dmdiiprojects/member", params = {"page", "pageSize"}, method = RequestMethod.GET)
+	public List<DMDIIProjectModel> getDmdiiProjectsByDMDIIMemberId(@RequestParam("dmdiiMemberId") Integer dmdiiMemberId,
 																		@RequestParam("page") Integer page,
 																		@RequestParam("pageSize") Integer pageSize) {
-		ServiceLogger.log(logTag, "In getAllDmdiiProjectsByDMDIIMemberId as member " + memberID);
+		ServiceLogger.log(logTag, "In getDmdiiProjectsByDMDIIMemberId as member " + dmdiiMemberId);
 		
-		return dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(memberID, page, pageSize);
+		return dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId, page, pageSize);
 	}
 	
-	@RequestMapping(value = "/dmdiiprojects/{awardedDate}", params = {"page", "pageSize"}, method = RequestMethod.GET)
-	public List<DMDIIProjectModel> getAllDMDIIProjectsByAwardedDate(@PathVariable("awardedDate") Date awardedDate,
+	@RequestMapping(value = "dmdiiProject/{id}", method = RequestMethod.GET)
+	public @ResponseBody DMDIIProjectModel getDMDIIProject(@PathVariable Integer id) {
+		return dmdiiProjectService.findOne(id);
+	}
+	
+	@RequestMapping(value = "/dmdiiprojects/awardDate", params = {"page", "pageSize"}, method = RequestMethod.GET)
+	public List<DMDIIProjectModel> getDMDIIProjectsByAwardedDate(@RequestParam("awardedDate") Date awardedDate,
 																	@RequestParam("page") Integer page,
 																	@RequestParam("pageSize") Integer pageSize) {
-		ServiceLogger.log(logTag, "In getAllDMDIIProjectsByStartDate: " + awardedDate);
+		ServiceLogger.log(logTag, "In getDMDIIProjectsByStartDate: " + awardedDate);
 		
 		return dmdiiProjectService.findDMDIIProjectsByAwardedDate(awardedDate, page, pageSize);
 	}
 	
-	@RequestMapping(value = "/dmdiiprojects/{projectStatusId}", params = {"page", "pageSize"}, method = RequestMethod.GET)
-	public List<DMDIIProjectModel> getAllDMDIIProjectsByProjectStatusId(@PathVariable("projectStatusId") Integer projectStatusId,
+	@RequestMapping(value = "/dmdiiprojects/status", params = {"page", "pageSize"}, method = RequestMethod.GET)
+	public List<DMDIIProjectModel> getDMDIIProjectsByStatusId(@RequestParam("statusId") Integer statusId,
 																		@RequestParam("page") Integer page,
 																		@RequestParam("pageSize") Integer pageSize) {
-		ServiceLogger.log(logTag, "In getAllDMDIIProjectsByProjectStatusId: " + projectStatusId);
+		ServiceLogger.log(logTag, "In getDMDIIProjectsByStatusId: " + statusId);
 		
-		return dmdiiProjectService.findDMDIIProjectsByProjectStatusId(projectStatusId, page, pageSize);
+		return dmdiiProjectService.findDMDIIProjectsByStatusId(statusId, page, pageSize);
 	}
 	
-	@RequestMapping(value = "/dmdiiprojects", params = {"page", "pageSize"}, method = RequestMethod.GET)
-	public List<DMDIIProjectModel> getAllDMDIIProjects(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) {
+	@RequestMapping(value = "/dmdiiprojects", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<DMDIIProjectModel> getDMDIIProjects(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) {
 		ServiceLogger.log(logTag, "In getAllDMDIIProjects");
 		
-		return dmdiiProjectService.getAllDMDIIProjects(page, pageSize);
+		return dmdiiProjectService.findPage(page, pageSize);
 	}
 	
 	@RequestMapping(value = "/dmdiiprojects/search", params = {"title", "page", "pageSize"}, method = RequestMethod.GET)

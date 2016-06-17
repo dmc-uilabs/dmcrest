@@ -32,7 +32,7 @@ public class DMDIIProject extends BaseEntity {
 	private User principalInvestigator;
 	
 	@Column(name = "status_id")
-	private Integer projectStatusId;
+	private Integer statusId;
 	
 	@Column(name = "awarded_date")
 	@Temporal(TemporalType.DATE)
@@ -68,7 +68,7 @@ public class DMDIIProject extends BaseEntity {
 		
 		this.primeOrganization = primeOrganization;
 		this.principalInvestigator = principalInvestigator;
-		this.projectStatusId = projectStatusId;
+		this.statusId = projectStatusId;
 		this.awardedDate = awardedDate;
 		this.projectTitle = projectTitle;
 		this.projectSummary = projectSummary;
@@ -91,12 +91,12 @@ public class DMDIIProject extends BaseEntity {
 		this.principalInvestigator = principalInvestigator;
 	}
 
-	public Integer getProjectStatusId() {
-		return projectStatusId;
+	public Integer getStatusId() {
+		return statusId;
 	}
 
-	public void setProjectStatusId(Integer projectStatusId) {
-		this.projectStatusId = projectStatusId;
+	public void setStatusId(Integer statusId) {
+		this.statusId = statusId;
 	}
 
 	public Date getAwardedDate() {
@@ -166,7 +166,7 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((primeOrganization == null) ? 0 : primeOrganization.hashCode());
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
 		result = prime * result + ((principalPointOfContact == null) ? 0 : principalPointOfContact.hashCode());
-		result = prime * result + ((projectStatusId == null) ? 0 : projectStatusId.hashCode());
+		result = prime * result + ((statusId == null) ? 0 : statusId.hashCode());
 		result = prime * result + ((projectSummary == null) ? 0 : projectSummary.hashCode());
 		result = prime * result + ((projectTitle == null) ? 0 : projectTitle.hashCode());
 		result = prime * result + ((thrustId == null) ? 0 : thrustId.hashCode());
@@ -217,10 +217,10 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!principalPointOfContact.equals(other.principalPointOfContact))
 			return false;
-		if (projectStatusId == null) {
-			if (other.projectStatusId != null)
+		if (statusId == null) {
+			if (other.statusId != null)
 				return false;
-		} else if (!projectStatusId.equals(other.projectStatusId))
+		} else if (!statusId.equals(other.statusId))
 			return false;
 		if (projectSummary == null) {
 			if (other.projectSummary != null)

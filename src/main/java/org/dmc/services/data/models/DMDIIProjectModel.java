@@ -8,7 +8,7 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	private UserModel principalInvestigator;
 	
-	private Integer projectStatusId;
+	private Integer statusId;
 	
 	private Date awardedDate;
 	
@@ -41,12 +41,12 @@ public class DMDIIProjectModel extends BaseModel {
 		this.principalInvestigator = principalInvestigator;
 	}
 
-	public Integer getProjectStatusId() {
-		return projectStatusId;
+	public Integer getStatusId() {
+		return statusId;
 	}
 
-	public void setProjectStatusId(Integer projectStatusId) {
-		this.projectStatusId = projectStatusId;
+	public void setStatusId(Integer statusId) {
+		this.statusId = statusId;
 	}
 
 	public Date getAwardedDate() {
