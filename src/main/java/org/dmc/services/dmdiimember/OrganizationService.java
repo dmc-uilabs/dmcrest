@@ -19,7 +19,7 @@ public class OrganizationService {
 	private MapperFactory mapperFactory;
 
 
-	public Organization save(OrganizationModel organizationModel) {
+	public OrganizationModel save(OrganizationModel organizationModel) {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
 		Organization organizationEntity = mapper.mapToEntity(organizationModel);
@@ -32,7 +32,7 @@ public class OrganizationService {
 			organizationEntity = organizationDao.save(existingOrganization);
 		}
 
-		return organizationEntity;
+		return mapper.mapToModel(organizationEntity);
 
 	}
 

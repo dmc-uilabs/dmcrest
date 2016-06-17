@@ -50,20 +50,16 @@ public class DMDIIMember extends BaseEntity {
 			   inverseJoinColumns = @JoinColumn(name="dmdii_area_of_expertise_id"))
 	private List<DMDIIAreaOfExpertise> areasOfExpertise;
 
-	@OneToMany
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIMemberContact> contacts;
 
-	@OneToMany
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIMemberCustomer> customers;
 
-	@OneToMany(cascade=CascadeType.ALL)
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIMemberFinance> finances;
 
-	@OneToMany
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIInstituteInvolvement> instituteInvolvement;
 
 	@ManyToMany
@@ -139,6 +135,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public void setContacts(List<DMDIIMemberContact> contacts) {
+		contacts.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.contacts = contacts;
 	}
 
@@ -147,6 +144,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public void setCustomers(List<DMDIIMemberCustomer> customers) {
+		customers.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.customers = customers;
 	}
 
@@ -155,6 +153,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public void setFinances(List<DMDIIMemberFinance> finances) {
+		finances.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.finances = finances;
 	}
 
@@ -163,6 +162,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public void setInstituteInvolvement(List<DMDIIInstituteInvolvement> instituteInvolvement) {
+		instituteInvolvement.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.instituteInvolvement = instituteInvolvement;
 	}
 

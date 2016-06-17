@@ -5,6 +5,7 @@ import org.dmc.services.data.entities.DMDIIAward;
 import org.dmc.services.data.entities.DMDIIInstituteInvolvement;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIMemberContact;
+import org.dmc.services.data.entities.DMDIIMemberCustomer;
 import org.dmc.services.data.entities.DMDIIMemberFinance;
 import org.dmc.services.data.entities.DMDIIMemberUser;
 import org.dmc.services.data.entities.DMDIIRndFocus;
@@ -14,6 +15,7 @@ import org.dmc.services.data.models.DMDIIAreaOfExpertiseModel;
 import org.dmc.services.data.models.DMDIIAwardModel;
 import org.dmc.services.data.models.DMDIIInstituteInvolvementModel;
 import org.dmc.services.data.models.DMDIIMemberContactModel;
+import org.dmc.services.data.models.DMDIIMemberCustomerModel;
 import org.dmc.services.data.models.DMDIIMemberFinanceModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIMemberUserModel;
@@ -29,13 +31,14 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 
 	@Override
 	public DMDIIMember mapToEntity(DMDIIMemberModel model) {
-		DMDIIMember entity = copyProperties(model, new DMDIIMember(), new String[]{"awards"});
+		DMDIIMember entity = copyProperties(model, new DMDIIMember(), new String[]{"awards", "contacts", "customers", "finances", "instituteInvolvement"});
 
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class,	OrganizationModel.class);
 		Mapper<DMDIIAward, DMDIIAwardModel> awardMapper = mapperFactory.mapperFor(DMDIIAward.class, DMDIIAwardModel.class);
 		Mapper<DMDIIAreaOfExpertise, DMDIIAreaOfExpertiseModel> aoeMapper = mapperFactory.mapperFor(DMDIIAreaOfExpertise.class, DMDIIAreaOfExpertiseModel.class);
 		Mapper<DMDIIMemberContact, DMDIIMemberContactModel> contactMapper = mapperFactory.mapperFor(DMDIIMemberContact.class, DMDIIMemberContactModel.class);
+		Mapper<DMDIIMemberCustomer, DMDIIMemberCustomerModel> customerMapper = mapperFactory.mapperFor(DMDIIMemberCustomer.class, DMDIIMemberCustomerModel.class);
 		Mapper<DMDIIMemberFinance, DMDIIMemberFinanceModel> financeMapper = mapperFactory.mapperFor(DMDIIMemberFinance.class, DMDIIMemberFinanceModel.class);
 		Mapper<DMDIIInstituteInvolvement, DMDIIInstituteInvolvementModel> involvementMapper = mapperFactory.mapperFor(DMDIIInstituteInvolvement.class, DMDIIInstituteInvolvementModel.class);
 		Mapper<DMDIIRndFocus, DMDIIRndFocusModel> rndMapper = mapperFactory.mapperFor(DMDIIRndFocus.class, DMDIIRndFocusModel.class);
@@ -47,6 +50,7 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 		entity.setAwards(awardMapper.mapToEntity(model.getAwards()));
 		entity.setAreasOfExpertise(aoeMapper.mapToEntity(model.getAreasOfExpertise()));
 		entity.setContacts(contactMapper.mapToEntity(model.getContacts()));
+		entity.setCustomers(customerMapper.mapToEntity(model.getCustomers()));
 		entity.setFinances(financeMapper.mapToEntity(model.getFinances()));
 		entity.setInstituteInvolvement(involvementMapper.mapToEntity(model.getInstituteInvolvement()));
 		entity.setRndFocus(rndMapper.mapToEntity(model.getRndFocus()));
@@ -58,12 +62,13 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 
 	@Override
 	public DMDIIMemberModel mapToModel(DMDIIMember entity) {
-		DMDIIMemberModel model = copyProperties(entity, new DMDIIMemberModel(), new String[]{"awards"});
+		DMDIIMemberModel model = copyProperties(entity, new DMDIIMemberModel(), new String[]{"awards", "contacts", "customers", "finances", "instituteInvolvement"});
 
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class,	OrganizationModel.class);
 		Mapper<DMDIIAward, DMDIIAwardModel> awardMapper = mapperFactory.mapperFor(DMDIIAward.class, DMDIIAwardModel.class);
 		Mapper<DMDIIAreaOfExpertise, DMDIIAreaOfExpertiseModel> aoeMapper = mapperFactory.mapperFor(DMDIIAreaOfExpertise.class, DMDIIAreaOfExpertiseModel.class);
+		Mapper<DMDIIMemberCustomer, DMDIIMemberCustomerModel> customerMapper = mapperFactory.mapperFor(DMDIIMemberCustomer.class, DMDIIMemberCustomerModel.class);
 		Mapper<DMDIIMemberContact, DMDIIMemberContactModel> contactMapper = mapperFactory.mapperFor(DMDIIMemberContact.class, DMDIIMemberContactModel.class);
 		Mapper<DMDIIMemberFinance, DMDIIMemberFinanceModel> financeMapper = mapperFactory.mapperFor(DMDIIMemberFinance.class, DMDIIMemberFinanceModel.class);
 		Mapper<DMDIIInstituteInvolvement, DMDIIInstituteInvolvementModel> involvementMapper = mapperFactory.mapperFor(DMDIIInstituteInvolvement.class, DMDIIInstituteInvolvementModel.class);
@@ -76,6 +81,7 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 		model.setAwards(awardMapper.mapToModel(entity.getAwards()));
 		model.setAreasOfExpertise(aoeMapper.mapToModel(entity.getAreasOfExpertise()));
 		model.setContacts(contactMapper.mapToModel(entity.getContacts()));
+		model.setCustomers(customerMapper.mapToModel(entity.getCustomers()));
 		model.setFinances(financeMapper.mapToModel(entity.getFinances()));
 		model.setInstituteInvolvement(involvementMapper.mapToModel(entity.getInstituteInvolvement()));
 		model.setRndFocus(rndMapper.mapToModel(entity.getRndFocus()));

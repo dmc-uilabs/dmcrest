@@ -6,16 +6,21 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "dmdii_member_finance")
 public class DMDIIMemberFinance extends BaseEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
+
+	@ManyToOne
+    @JoinColumn(name="organization_dmdii_member_id")
+	private DMDIIMember dmdiiMember;
 
 	@OneToOne
 	@JoinColumn(name = "user_id")
@@ -26,6 +31,14 @@ public class DMDIIMemberFinance extends BaseEntity {
 
 	@Column(name = "asset_url")
 	private String assetUrl;
+
+	public DMDIIMember getDmdiiMember() {
+		return dmdiiMember;
+	}
+
+	public void setDmdiiMember(DMDIIMember dmdiiMember) {
+		this.dmdiiMember = dmdiiMember;
+	}
 
 	public User getDmdiiOwner() {
 		return dmdiiOwner;
