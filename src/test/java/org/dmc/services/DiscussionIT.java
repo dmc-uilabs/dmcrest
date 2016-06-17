@@ -248,7 +248,7 @@ public class DiscussionIT extends BaseIT {
 	 * test case for GET /individual-discussion/{individualDiscussionID}
 	 */
 	@Test
-	public void testGet_IndividualDiscussionFromId(){
+	public void testGet_IndividualDiscussionFromId() {
 		IndividualDiscussion read = given().param("commentId", commentId).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
 				.get("/individual-discussion/" + 3).as(IndividualDiscussion.class);
 
@@ -264,20 +264,20 @@ public class DiscussionIT extends BaseIT {
 	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-comments
 	 */
 	@Test
-	public void testGet_IndividualDiscussionCommentsFromIndividualDiscussionId(){
-		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().
-		header("AJP_eppn", userEPPN).param("commentId", "1").param("limit", 2).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().get("/individual-discussion/" + 1 + "/individual-discussion-comments").as(IndividualDiscussionComment[].class));
-		
+	public void testGet_IndividualDiscussionCommentsFromIndividualDiscussionId() {
+		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("commentId", "1").param("limit", 2).expect()
+				.statusCode(HttpStatus.OK.value()).when().get("/individual-discussion/" + 1 + "/individual-discussion-comments").as(IndividualDiscussionComment[].class));
+
 		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: limit parameter did not work", (listOfComments.size() == 2));
 
 		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: id values are not equal", (listOfComments.get(0).getId().equals("3")));
-		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: individual_discussion_id values are not equal", (listOfComments.get(0).getIndividualDiscussionId().equals("1")));
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: individual_discussion_id values are not equal",
+				(listOfComments.get(0).getIndividualDiscussionId().equals("1")));
 		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: fullName values are not equal", (listOfComments.get(0).getFullName().equals("Joe")));
-		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: accountId values are not equal", (listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
-		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: commentId values are not equal", (listOfComments.get(0).getCommentId().equals(new BigDecimal(1))));
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: accountId values are not equal",
+				(listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: commentId values are not equal",
+				(listOfComments.get(0).getCommentId().equals(new BigDecimal(1))));
 		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: likes values are not equal", (listOfComments.get(0).getLike().equals(new BigDecimal(1))));
 	}
 	
@@ -299,13 +299,10 @@ public class DiscussionIT extends BaseIT {
 	 * test case for GET /individual-discussion-comments/{id}
 	 */
 	@Test
-	public void testGet_IndividualDiscussionCommentsFromId(){
-		IndividualDiscussionComment readObj = given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().get("/individual-discussion-comments/" + 1).as(IndividualDiscussionComment.class);
-		
+	public void testGet_IndividualDiscussionCommentsFromId() {
+		IndividualDiscussionComment readObj = given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments/" + 1)
+				.as(IndividualDiscussionComment.class);
+
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: id values are not equal", (readObj.getId().equals("1")));
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: individual_discussion_id values are not equal", (readObj.getIndividualDiscussionId().equals("1")));
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: fullName values are not equal", (readObj.getFullName().equals("Joe")));
@@ -318,17 +315,15 @@ public class DiscussionIT extends BaseIT {
 	 * test case for GET /individual-discussion-comments
 	 */
 	@Test
-	public void testGet_IndividualDiscussionComments(){
-		List <IndividualDiscussionComment> listOfComments = Arrays.asList(given().
-		header("AJP_eppn", userEPPN).param("_limit",  2).param("_order", "ASC").param("commentId", 0).param("individual-discussionId", 1).param("individual-discussionId", 3).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().get("/individual-discussion-comments").as(IndividualDiscussionComment[].class));
-		
+	public void testGet_IndividualDiscussionComments() {
+		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("_limit", 2).param("_order", "ASC").param("commentId", 0)
+				.param("individual-discussionId", 1).param("individual-discussionId", 3).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments")
+				.as(IndividualDiscussionComment[].class));
+
 		for (int i = 0; i < listOfComments.size(); i++) {
 			assertTrue("testGet_IndividualDiscussionComments: individualDiscussionId values are not equal", (listOfComments.get(i).getIndividualDiscussionId().equals("1")));
 		}
-		
+
 		assertTrue("testGet_IndividualDiscussionComments: id values are not equal", (listOfComments.get(0).getId().equals("1")));
 		assertTrue("testGet_IndividualDiscussionComments: fullName values are not equal", (listOfComments.get(0).getFullName().equals("Joe")));
 		assertTrue("testGet_IndividualDiscussionComments: accountId values are not equal", (listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
@@ -339,7 +334,7 @@ public class DiscussionIT extends BaseIT {
 	 * test case for POST /individual-discussion-comments
 	 */
 	@Test
-	public void testPost_IndividualDiscussionComments(){
+	public void testPost_IndividualDiscussionComments() {
 		IndividualDiscussionComment obj = new IndividualDiscussionComment();
 		String postedCommentStr = null;
 		ObjectMapper mapper = new ObjectMapper();
@@ -354,7 +349,7 @@ public class DiscussionIT extends BaseIT {
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal like = new BigDecimal(2);
 		BigDecimal dislike = new BigDecimal(1);
-		
+
 		obj.setIndividualDiscussionId(individualDiscussionId);
 		obj.setFullName(fullName);
 		obj.setAccountId(accountId);
@@ -375,7 +370,8 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionComment postedCommentObj = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedCommentStr).expect()
 				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion-comments").as(IndividualDiscussionComment.class);
 
-		assertTrue("testPost_IndividualDiscussionComment: individualDiscussionId values are not equal", (postedCommentObj.getIndividualDiscussionId().equals(individualDiscussionId)));
+		assertTrue("testPost_IndividualDiscussionComment: individualDiscussionId values are not equal",
+				(postedCommentObj.getIndividualDiscussionId().equals(individualDiscussionId)));
 		assertTrue("testPost_IndividualDiscussionComment: fullName values are not equal", (postedCommentObj.getFullName().equals(fullName)));
 		assertTrue("testPost_IndividualDiscussionComment: accountId values are not equal", (postedCommentObj.getAccountId().equals(accountId)));
 		assertTrue("testPost_IndividualDiscussionComment: commentId values are not equal", (postedCommentObj.getCommentId().equals(commentId)));
@@ -391,13 +387,13 @@ public class DiscussionIT extends BaseIT {
 	/*
 	 * test case for PATCH /individual-discussion-comments/{commentID}
 	 */
-	
+
 	@Test
-	public void testPatch_IndividualDiscussionComments(){
+	public void testPatch_IndividualDiscussionComments() {
 		IndividualDiscussionComment obj = new IndividualDiscussionComment();
 		ObjectMapper mapper = new ObjectMapper();
 		String patchedIndividualDiscussionCommentJSONString = null;
-		
+
 		String individualDiscussionId = "1";
 		String fullName = "Marshall Mathers";
 		BigDecimal commentId = new BigDecimal(0);
@@ -408,7 +404,7 @@ public class DiscussionIT extends BaseIT {
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal like = new BigDecimal(2);
 		BigDecimal dislike = new BigDecimal(1);
-		
+
 		obj.setIndividualDiscussionId(individualDiscussionId);
 		obj.setFullName(fullName);
 		obj.setAccountId(accountId);
@@ -419,22 +415,16 @@ public class DiscussionIT extends BaseIT {
 		obj.setCreatedAt(createdAt);
 		obj.setLike(like);
 		obj.setDislike(dislike);
-		
+
 		try {
 			patchedIndividualDiscussionCommentJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
-		IndividualDiscussionComment received = given().
-		header("Content-type", "application/json").
-		header("AJP-eppn", userEPPN).
-		body(patchedIndividualDiscussionCommentJSONString).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().
-		patch("/individual-discussion-comments/" + 5).as(IndividualDiscussionComment.class);
-		
+
+		IndividualDiscussionComment received = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(patchedIndividualDiscussionCommentJSONString)
+				.expect().statusCode(HttpStatus.OK.value()).when().patch("/individual-discussion-comments/" + 5).as(IndividualDiscussionComment.class);
+
 		assertTrue("testPatch_IndividualDiscussionComments: id values are not equal", (received.getId().equals("5")));
 		assertTrue("testPatch_IndividualDiscussionComments: individualDiscussionId values are not equal", (received.getIndividualDiscussionId().equals(individualDiscussionId)));
 		assertTrue("testPatch_IndividualDiscussionComments: fullName values are not equal", (received.getFullName().equals(fullName)));
