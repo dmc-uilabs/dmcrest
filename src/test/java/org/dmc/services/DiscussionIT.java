@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 //@Ignore
 public class DiscussionIT extends BaseIT {
-	
+
 	private final String logTag = DiscussionController.class.getName();
 	private static final String PROFILE_CREATE_RESOURCE = "/profiles";
 	private static final String ALL_DISCUSSIONS_RESOURCE = "/all-discussions";
@@ -40,67 +40,46 @@ public class DiscussionIT extends BaseIT {
 	private String helpfulId = "1";
 	private String disscusionTagId = "1";
 	private String accountId = "1";
-	
+
 	private Integer createdId = null;
 	String randomEPPN = UUID.randomUUID().toString();
-	
+
 	@Before
 	public void testDiscussionCreate() {
 		this.createdId = createDiscussion(null);
 	}
-	
-    @Test
+
+	@Test
 	public void testAllDiscussions() {
-    	if (this.createdId != null) {
-			ArrayList<Discussion> originalDiscussionList =
-		        given().
-		            header("Content-type", "application/json").
-		            header("AJP_eppn", randomEPPN).
-		        expect().
-		            statusCode(200).
-		        when().
-		            get(ALL_DISCUSSIONS_RESOURCE).as(ArrayList.class);
-			
-		        // add a discussion
-		        String savedRandomEPPN = randomEPPN;
-		        randomEPPN = UUID.randomUUID().toString();
-		        testDiscussionCreate();
-		        randomEPPN = savedRandomEPPN;
-		        
-		        ArrayList<Discussion> newDiscussionList =
-		        given().
-		            header("Content-type", "application/json").
-		            header("AJP_eppn", randomEPPN).
-		        expect().
-		            statusCode(200).
-		        when().
-		            get(ALL_DISCUSSIONS_RESOURCE).as(ArrayList.class);
-            int LIMIT = 100;
-		       assertTrue("Returned discussion lists do not have acceptable sizes", newDiscussionList.size() == originalDiscussionList.size()+1 || newDiscussionList.size() == LIMIT);
-    	}
+		if (this.createdId != null) {
+			ArrayList<Discussion> originalDiscussionList = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect().statusCode(200).when()
+					.get(ALL_DISCUSSIONS_RESOURCE).as(ArrayList.class);
+
+			// add a discussion
+			String savedRandomEPPN = randomEPPN;
+			randomEPPN = UUID.randomUUID().toString();
+			testDiscussionCreate();
+			randomEPPN = savedRandomEPPN;
+
+			ArrayList<Discussion> newDiscussionList = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect().statusCode(200).when()
+					.get(ALL_DISCUSSIONS_RESOURCE).as(ArrayList.class);
+			int LIMIT = 100;
+			assertTrue("Returned discussion lists do not have acceptable sizes",
+					newDiscussionList.size() == originalDiscussionList.size() + 1 || newDiscussionList.size() == LIMIT);
+		}
 	}
 
 	public int createDiscussion(Integer projectId) {
-		
+
 		JSONObject json = createFixture(projectId);
-		this.createdId = given()
-				.header("Content-type", "application/json")
-				.header("AJP_eppn", randomEPPN)
-				.body(json.toString())
-				.expect()
-				.statusCode(200)
-				.when()
-				.post(DISCUSSION_CREATE_RESOURCE)
-				.then()
-				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-				.extract()
-				.path("id");
-		
+		this.createdId = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).body(json.toString()).expect().statusCode(200).when()
+				.post(DISCUSSION_CREATE_RESOURCE).then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+
 		return createdId;
 	}
-	
+
 	public JSONObject createFixture(Integer projectId) {
-			
+
 		String projId = (projectId != null) ? projectId.toString() : "123";
 		JSONObject json = new JSONObject();
 		json.put("title", "test discussion title");
@@ -109,54 +88,39 @@ public class DiscussionIT extends BaseIT {
 		json.put("createdAt", 1232000);
 		json.put("accountId", "123");
 		json.put("projectId", projId);
-		
+
 		return json;
 	}
-	
-	
+
 	/**
 	 * test case for get /popular_discussions
 	 */
 	@Test
-	public void testGet_PopularDiscussions(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/popular_discussions");
+	public void testGet_PopularDiscussions() {
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().get("/popular_discussions");
 	}
-	
+
 	/*
 	 * test case for get /follow_people_discussions
 	 */
 	@Test
-	public void testGet_FollowPeopleDiscussions(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/follow_people_discussions");
+	public void testGet_FollowPeopleDiscussions() {
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().get("/follow_people_discussions");
 	}
-	
-	
+
 	/*
 	 * test case for get /following_discussions
 	 */
 	@Test
-	public void testGet_FollowingDiscussions(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/following_discussions");
+	public void testGet_FollowingDiscussions() {
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().get("/following_discussions");
 	}
-	
-	
+
 	/*
 	 * test case for PATCH /follow_discussions
 	 */
 	@Test
-	public void testPatch_followDiscussion(){
+	public void testPatch_followDiscussion() {
 		FollowingIndividualDiscussion obj = new FollowingIndividualDiscussion();
 		ObjectMapper mapper = new ObjectMapper();
 		String patchedFollowDiscussionsJSONString = null;
@@ -166,31 +130,19 @@ public class DiscussionIT extends BaseIT {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(patchedFollowDiscussionsJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        patch("/follow_discussions");
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(patchedFollowDiscussionsJSONString).expect()
+				.statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().patch("/follow_discussions");
 	}
 
-	
 	/*
 	 * test case for DELETE /follow_discussions/{followID}
 	 */
 	@Test
-	public void testDelete_FollowDiscussions(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().delete("/follow_discussions/" + followId);
+	public void testDelete_FollowDiscussions() {
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().delete("/follow_discussions/" + followId);
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion
 	 */
@@ -243,12 +195,12 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testPost_IndividualDiscussion: accountId values are not equal", (posted.getAccountId().equals(accountId)));
 		assertTrue("testPost_IndividualDiscussion: projectId values are not equal", (posted.getProjectId().equals(projectId)));
 	}
-	
+
 	/*
 	 * test case for GET /individual-discussion/{individualDiscussionID}
 	 */
 	@Test
-	public void testGet_IndividualDiscussionFromId(){
+	public void testGet_IndividualDiscussionFromId() {
 		IndividualDiscussion read = given().param("commentId", commentId).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
 				.get("/individual-discussion/" + 3).as(IndividualDiscussion.class);
 
@@ -258,45 +210,45 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testGet_IndividualDiscussionFromId: accountId values are not equal", (read.getAccountId().equals(new BigDecimal(550))));
 		assertTrue("testGet_IndividualDiscussionFromId: projectId values are not equal", (read.getProjectId().equals(new BigDecimal(12))));
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-comments
 	 */
 	@Test
-	public void testGet_IndividualDiscussionCommentsFromIndividualDiscussionId(){
-		given().param("commentId", commentId).
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/individual-discussion/" + individualDiscussionID + "/individual-discussion-comments");
+	public void testGet_IndividualDiscussionCommentsFromIndividualDiscussionId() {
+		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("commentId", "1").param("limit", 2).expect()
+				.statusCode(HttpStatus.OK.value()).when().get("/individual-discussion/" + 1 + "/individual-discussion-comments").as(IndividualDiscussionComment[].class));
+
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: limit parameter did not work", (listOfComments.size() == 2));
+
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: id values are not equal", (listOfComments.get(0).getId().equals("3")));
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: individual_discussion_id values are not equal",
+				(listOfComments.get(0).getIndividualDiscussionId().equals("1")));
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: fullName values are not equal", (listOfComments.get(0).getFullName().equals("Joe")));
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: accountId values are not equal",
+				(listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: commentId values are not equal",
+				(listOfComments.get(0).getCommentId().equals(new BigDecimal(1))));
+		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: likes values are not equal", (listOfComments.get(0).getLike().equals(new BigDecimal(1))));
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-tags
 	 */
 	@Test
-	public void testGet_IndividualDiscussionTag(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/individual-discussion/" + individualDiscussionID + "/individual-discussion-tags");
+	public void testGet_IndividualDiscussionTag() {
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+				.get("/individual-discussion/" + individualDiscussionID + "/individual-discussion-tags");
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion-comments/{id}
 	 */
 	@Test
-	public void testGet_IndividualDiscussionCommentsFromId(){
-		IndividualDiscussionComment readObj = given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().get("/individual-discussion-comments/" + 1).as(IndividualDiscussionComment.class);
-		
+	public void testGet_IndividualDiscussionCommentsFromId() {
+		IndividualDiscussionComment readObj = given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments/" + 1)
+				.as(IndividualDiscussionComment.class);
+
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: id values are not equal", (readObj.getId().equals("1")));
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: individual_discussion_id values are not equal", (readObj.getIndividualDiscussionId().equals("1")));
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: fullName values are not equal", (readObj.getFullName().equals("Joe")));
@@ -304,34 +256,31 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: commentId values are not equal", (readObj.getCommentId().equals(new BigDecimal(0))));
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: likes values are not equal", (readObj.getLike().equals(new BigDecimal(30))));
 	}
-	
+
 	/*
 	 * test case for GET /individual-discussion-comments
 	 */
 	@Test
-	public void testGet_IndividualDiscussionComments(){
-		List <IndividualDiscussionComment> listOfComments = Arrays.asList(given().
-		header("AJP_eppn", userEPPN).param("_limit",  2).param("_order", "ASC").param("commentId", 0).param("individual-discussionId", 1).param("individual-discussionId", 3).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().get("/individual-discussion-comments").as(IndividualDiscussionComment[].class));
-		
+	public void testGet_IndividualDiscussionComments() {
+		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("_limit", 2).param("_order", "ASC").param("commentId", 0)
+				.param("individual-discussionId", 1).param("individual-discussionId", 3).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments")
+				.as(IndividualDiscussionComment[].class));
+
 		for (int i = 0; i < listOfComments.size(); i++) {
-			System.out.println(listOfComments.get(i).toString());
 			assertTrue("testGet_IndividualDiscussionComments: individualDiscussionId values are not equal", (listOfComments.get(i).getIndividualDiscussionId().equals("1")));
 		}
-		
+
 		assertTrue("testGet_IndividualDiscussionComments: id values are not equal", (listOfComments.get(0).getId().equals("1")));
 		assertTrue("testGet_IndividualDiscussionComments: fullName values are not equal", (listOfComments.get(0).getFullName().equals("Joe")));
 		assertTrue("testGet_IndividualDiscussionComments: accountId values are not equal", (listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
 		assertTrue("testGet_IndividualDiscussionComments: commentId values are not equal", (listOfComments.get(0).getCommentId().equals(new BigDecimal(0))));
 	}
-	
+
 	/*
 	 * test case for POST /individual-discussion-comments
 	 */
 	@Test
-	public void testPost_IndividualDiscussionComments(){
+	public void testPost_IndividualDiscussionComments() {
 		IndividualDiscussionComment obj = new IndividualDiscussionComment();
 		String postedCommentStr = null;
 		ObjectMapper mapper = new ObjectMapper();
@@ -346,7 +295,7 @@ public class DiscussionIT extends BaseIT {
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal like = new BigDecimal(2);
 		BigDecimal dislike = new BigDecimal(1);
-		
+
 		obj.setIndividualDiscussionId(individualDiscussionId);
 		obj.setFullName(fullName);
 		obj.setAccountId(accountId);
@@ -367,7 +316,8 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionComment postedCommentObj = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedCommentStr).expect()
 				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion-comments").as(IndividualDiscussionComment.class);
 
-		assertTrue("testPost_IndividualDiscussionComment: individualDiscussionId values are not equal", (postedCommentObj.getIndividualDiscussionId().equals(individualDiscussionId)));
+		assertTrue("testPost_IndividualDiscussionComment: individualDiscussionId values are not equal",
+				(postedCommentObj.getIndividualDiscussionId().equals(individualDiscussionId)));
 		assertTrue("testPost_IndividualDiscussionComment: fullName values are not equal", (postedCommentObj.getFullName().equals(fullName)));
 		assertTrue("testPost_IndividualDiscussionComment: accountId values are not equal", (postedCommentObj.getAccountId().equals(accountId)));
 		assertTrue("testPost_IndividualDiscussionComment: commentId values are not equal", (postedCommentObj.getCommentId().equals(commentId)));
@@ -378,18 +328,17 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testPost_IndividualDiscussionComment: like values are not equal", (postedCommentObj.getLike().equals(like)));
 		assertTrue("testPost_IndividualDiscussionComment: dislike values are not equal", (postedCommentObj.getDislike().equals(dislike)));
 	}
-	
-	
+
 	/*
 	 * test case for PATCH /individual-discussion-comments/{commentID}
 	 */
-	
+
 	@Test
-	public void testPatch_IndividualDiscussionComments(){
+	public void testPatch_IndividualDiscussionComments() {
 		IndividualDiscussionComment obj = new IndividualDiscussionComment();
 		ObjectMapper mapper = new ObjectMapper();
 		String patchedIndividualDiscussionCommentJSONString = null;
-		
+
 		String individualDiscussionId = "1";
 		String fullName = "Marshall Mathers";
 		BigDecimal commentId = new BigDecimal(0);
@@ -400,7 +349,7 @@ public class DiscussionIT extends BaseIT {
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal like = new BigDecimal(2);
 		BigDecimal dislike = new BigDecimal(1);
-		
+
 		obj.setIndividualDiscussionId(individualDiscussionId);
 		obj.setFullName(fullName);
 		obj.setAccountId(accountId);
@@ -411,22 +360,16 @@ public class DiscussionIT extends BaseIT {
 		obj.setCreatedAt(createdAt);
 		obj.setLike(like);
 		obj.setDislike(dislike);
-		
+
 		try {
 			patchedIndividualDiscussionCommentJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
-		IndividualDiscussionComment received = given().
-		header("Content-type", "application/json").
-		header("AJP-eppn", userEPPN).
-		body(patchedIndividualDiscussionCommentJSONString).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().
-		patch("/individual-discussion-comments/" + 5).as(IndividualDiscussionComment.class);
-		
+
+		IndividualDiscussionComment received = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(patchedIndividualDiscussionCommentJSONString)
+				.expect().statusCode(HttpStatus.OK.value()).when().patch("/individual-discussion-comments/" + 5).as(IndividualDiscussionComment.class);
+
 		assertTrue("testPatch_IndividualDiscussionComments: id values are not equal", (received.getId().equals("5")));
 		assertTrue("testPatch_IndividualDiscussionComments: individualDiscussionId values are not equal", (received.getIndividualDiscussionId().equals(individualDiscussionId)));
 		assertTrue("testPatch_IndividualDiscussionComments: fullName values are not equal", (received.getFullName().equals(fullName)));
@@ -439,153 +382,111 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testPatch_IndividualDiscussionComments: like values are not equal", (received.getLike().equals(like)));
 		assertTrue("testPatch_IndividualDiscussionComments: dislike values are not equal", (received.getDislike().equals(dislike)));
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion-comments-helpful
 	 */
 	@Test
-	public void testGet_IndividualDiscussionCommentHelpful(){
-		given().
-		param("accountId", accountId).
-		param("commentId", commentId).
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/individual-discussion-comments-helpful");
+	public void testGet_IndividualDiscussionCommentHelpful() {
+		given().param("accountId", accountId).param("commentId", commentId).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+				.get("/individual-discussion-comments-helpful");
 	}
-	
-	
+
 	/*
 	 * test case for POST /individual-discussion-comments-helpful
 	 */
 	@Test
-	public void testPost_IndividualDiscussionCommentHelpful(){
+	public void testPost_IndividualDiscussionCommentHelpful() {
 		IndividualDiscussionCommentHelpful obj = new IndividualDiscussionCommentHelpful();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentHelpfulJSONString = null;
-		
+
 		try {
 			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(postedIndividualDiscussionCommentHelpfulJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().post("/individual-discussion-comments-helpful");
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentHelpfulJSONString).expect()
+				.statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().post("/individual-discussion-comments-helpful");
 	}
-	
-	
+
 	/*
 	 * test case for PATCH /individual-discussion-comments-helpful/{helpfulID}
 	 */
 	@Test
-	public void testPatch_IndividualDiscussionCommentHelpfulById(){
+	public void testPatch_IndividualDiscussionCommentHelpfulById() {
 		IndividualDiscussionCommentHelpful obj = new IndividualDiscussionCommentHelpful();
 		ObjectMapper mapper = new ObjectMapper();
 		String patchedIndividualDiscussionCommentHelpfulJSONString = null;
-		
+
 		try {
 			patchedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(patchedIndividualDiscussionCommentHelpfulJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().patch("/individual-discussion-comments-helpful/" + helpfulId);
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(patchedIndividualDiscussionCommentHelpfulJSONString).expect()
+				.statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().patch("/individual-discussion-comments-helpful/" + helpfulId);
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion-comments-flagged
 	 */
 	@Test
-	public void testGet_IndividualDiscussionCommentflagged(){
-		given().
-		param("accountId", accountId).
-		param("commentId", commentId).
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/individual-discussion-comments-flagged");
+	public void testGet_IndividualDiscussionCommentflagged() {
+		given().param("accountId", accountId).param("commentId", commentId).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+				.get("/individual-discussion-comments-flagged");
 	}
-	
-	
+
 	/*
 	 * test case for POST /individual-discussion-comments-flagged
 	 */
 	@Test
-	public void testPost_IndividualDiscussionCommentflagged(){
+	public void testPost_IndividualDiscussionCommentflagged() {
 		IndividualDiscussionCommentFlagged obj = new IndividualDiscussionCommentFlagged();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentFlaggedJSONString = null;
-		
+
 		try {
 			postedIndividualDiscussionCommentFlaggedJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(postedIndividualDiscussionCommentFlaggedJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().post("/individual-discussion-comments-flagged");
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentFlaggedJSONString).expect()
+				.statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().post("/individual-discussion-comments-flagged");
 	}
-	
-	
-	
+
 	/*
 	 * test case for POST /individual-discussion-tags
 	 */
 	@Test
-	public void testPost_IndividualDiscussionTag(){
+	public void testPost_IndividualDiscussionTag() {
 		IndividualDiscussionTag obj = new IndividualDiscussionTag();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionTagJSONString = null;
-		
+
 		try {
 			postedIndividualDiscussionTagJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(postedIndividualDiscussionTagJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().post("/individual-discussion-tags");
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionTagJSONString).expect()
+				.statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().post("/individual-discussion-tags");
 	}
-	
-	
+
 	/*
 	 * test case for DELETE /individual-discussion-tags/{disscusionTagID}
 	 */
 	@Test
-	public void testDelete_IndividualDiscussionTag(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().delete("/individual-discussion-tags/" + disscusionTagId);
+	public void testDelete_IndividualDiscussionTag() {
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().delete("/individual-discussion-tags/" + disscusionTagId);
 	}
-	
+
 }

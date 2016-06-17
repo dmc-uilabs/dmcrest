@@ -24,7 +24,7 @@ import org.dmc.services.ServiceLogger;
 public class IndividualDiscussionCommentsController {
 
 	private final String logTag = IndividualDiscussionCommentsController.class.getName();
-	
+
 	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.POST)
 	public ResponseEntity postIndividualDiscussionComments(@RequestBody IndividualDiscussionComment discussionComment) {
 		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
@@ -36,18 +36,17 @@ public class IndividualDiscussionCommentsController {
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
 		}
 	}
-	
+
 	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity getIndividualDiscussionComments(
-			@RequestParam(value = "_limit", required = false) Integer limit,
-			@RequestParam(value = "_order", required = false) String order,
-			@RequestParam(value = "_sort", required = false) String sort,
+	public ResponseEntity getIndividualDiscussionComments(@RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_order", required = false) String order, @RequestParam(value = "_sort", required = false) String sort,
 			@RequestParam(value = "commentId", required = true) String commentId,
 			@RequestParam(value = "individual-discussionId", required = true) ArrayList<String> individualDiscussionIdList) {
 		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
 			ServiceLogger.log(logTag, "In getIndividualDiscussionComments");
-			return new ResponseEntity<List<IndividualDiscussionComment>>(individualDiscussionDao.getListOfIndividualDiscussionComments(limit, order, sort, commentId, individualDiscussionIdList), HttpStatus.OK);
+			return new ResponseEntity<List<IndividualDiscussionComment>>(
+					individualDiscussionDao.getListOfIndividualDiscussionComments(limit, order, sort, commentId, individualDiscussionIdList), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
@@ -67,8 +66,7 @@ public class IndividualDiscussionCommentsController {
 	}
 
 	@RequestMapping(value = "/{commentID}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
-	public ResponseEntity individualDiscussionCommentsCommentIDPatch(@PathVariable("commentID") BigDecimal commentID,
-			@RequestBody IndividualDiscussionComment comment) {
+	public ResponseEntity individualDiscussionCommentsCommentIDPatch(@PathVariable("commentID") BigDecimal commentID, @RequestBody IndividualDiscussionComment comment) {
 		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
 			ServiceLogger.log(logTag, "In getIndividualDiscussionComments");
