@@ -6,6 +6,8 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.Generated;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +27,7 @@ public class EntityTest {
 		List<String> foundEntities = classes
 										.stream()
 										.filter(c -> {
-											if(!c.getSimpleName().equals("BaseEntity"))
+											if(!c.getSimpleName().equals("BaseEntity") && c.load().isAssignableFrom(BaseEntity.class))
 												return c.getName() != null;
 											return false;
 										})
