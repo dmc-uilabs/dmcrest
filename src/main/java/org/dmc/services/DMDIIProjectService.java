@@ -1,10 +1,8 @@
 package org.dmc.services;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.dmc.services.data.entities.DMDIIProject;
@@ -12,6 +10,7 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.repositories.DMDIIProjectRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,48 +22,34 @@ public class DMDIIProjectService {
 	@Inject
 	private MapperFactory mapperFactory;
 	
-	private Mapper<DMDIIProject, DMDIIProjectModel> mapper;
-	
-	@PostConstruct
-	private void postConstruct() {
-		this.mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+	public List<DMDIIProjectModel> findPage(Integer pageNumber, Integer pageSize) {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		List<DMDIIProject> projects = dmdiiProjectRepository.findAll(new PageRequest(pageNumber, pageSize)).getContent();
+		return mapper.mapToModel(projects);
 	}
 	
-	public List<DMDIIProjectModel> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId) {
-		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
-		
-		if(primeOrganizationId != null) {
-			dmdiiProjects = dmdiiProjectRepository.findByPrimeOrganizationId(primeOrganizationId);
-		}
-		
-		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
+	public List<DMDIIProjectModel> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId, Integer pageNumber, Integer pageSize) {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationId(new PageRequest(pageNumber, pageSize), primeOrganizationId).getContent());
 	}
 
-	public List<DMDIIProjectModel> findDMDIIProjectsByAwardedDate(Date awardedDate) {
-		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
-		
-		if(awardedDate != null) {
-			dmdiiProjects = dmdiiProjectRepository.findByAwardedDate(awardedDate);
-		}
-		
-		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
+	public List<DMDIIProjectModel> findDMDIIProjectsByAwardedDate(Date awardedDate, Integer pageNumber, Integer pageSize) {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findByAwardedDate(new PageRequest(pageNumber, pageSize), awardedDate).getContent());
 	}
 
-	public List<DMDIIProjectModel> findDMDIIProjectsByProjectStatusId(Integer projectStatusId) {
-		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
-		
-		if(projectStatusId != null) {
-			dmdiiProjects = dmdiiProjectRepository.findByProjectStatusId(projectStatusId);
-		}
-		
-		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
+	public List<DMDIIProjectModel> findDMDIIProjectsByStatusId(Integer statusId, Integer pageNumber, Integer pageSize) {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findByStatusId(new PageRequest(pageNumber, pageSize), statusId).getContent());
+	}
+	
+	public List<DMDIIProjectModel> findByTitle(String title, Integer pageNumber, Integer pageSize) {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findByProjectTitleLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+title+"%").getContent());
 	}
 
-	public List<DMDIIProjectModel> getAllDMDIIProjects() {
-		List<DMDIIProject> dmdiiProjects = Collections.emptyList();
-		
-		dmdiiProjects = dmdiiProjectRepository.findAll();
-		
-		return (List<DMDIIProjectModel>) mapper.mapToModel(dmdiiProjects);
+	public DMDIIProjectModel findOne(Integer id) {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findOne(id));
 	}
 }
