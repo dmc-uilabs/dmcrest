@@ -40,7 +40,7 @@ public class DMDIIMemberService {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		List<DMDIIMember> members;
 		PageRequest page = new PageRequest(pageNumber, pageSize);
-
+		
 		if (categoryId != null && tier != null) {
 			members = dmdiiMemberDao.findByDmdiiTypeDmdiiTypeCategoryIdAndDmdiiTypeTier(page, categoryId, tier).getContent();
 		} else if (categoryId != null) {
@@ -48,10 +48,10 @@ public class DMDIIMemberService {
 		} else {
 			members = dmdiiMemberDao.findByDmdiiTypeTier(page, tier).getContent();
 		}
-
+		
 		return mapper.mapToModel(members);
 	}
-
+	
 	public List<DMDIIMemberModel> findByName(String name, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findByOrganizationNameLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%").getContent());

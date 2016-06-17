@@ -30,7 +30,7 @@ public class DMDIIMemberController {
 	public @ResponseBody DMDIIMemberModel getMember(@PathVariable Integer id) {
 		return dmdiiMemberService.findOne(id);
 	}
-
+	
 	@RequestMapping(value = "/dmdiiMember/type", method = RequestMethod.GET, params = {"page", "pageSize"})
 	public @ResponseBody List<DMDIIMemberModel> getMembersByType(@RequestParam(value = "categoryId", required = false) Integer categoryId,
 																@RequestParam(value = "tier", required = false) Integer tier,
@@ -39,7 +39,7 @@ public class DMDIIMemberController {
 		if (categoryId == null && tier == null) {
 			throw new MissingParameterException("No request parameter found for either categoryId or tier");
 		}
-
+		
 		return dmdiiMemberService.findByType(categoryId, tier, page, pageSize);
 	}
 
@@ -47,7 +47,7 @@ public class DMDIIMemberController {
 	public @ResponseBody DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
 		return dmdiiMemberService.save(member);
 	}
-
+	
 	@RequestMapping(value = "/dmdiiMember/search", method = RequestMethod.GET,params = {"page", "pageSize", "name"})
 	public @ResponseBody List<DMDIIMemberModel> findMembersByName(@RequestParam("page") Integer page,
 																@RequestParam("pageSize") Integer pageSize,
