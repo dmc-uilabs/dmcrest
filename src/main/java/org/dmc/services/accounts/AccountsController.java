@@ -74,13 +74,16 @@ public class AccountsController {
 	@RequestMapping(value = "/{accountID}/account_servers", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity accountsAccountIDAccountServersGet(
-			@PathVariable("accountID") String accountID) {
+			@PathVariable("accountID") String accountID,
+			@RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_order", required = false) String order,
+			@RequestParam(value = "_sort", required = false) String sort) {
 		
 		AccountsDao accountsDao = new AccountsDao();
 		
 		try {
 			ServiceLogger.log(logTag, "In accountsAccountIDAccountServersGet, accountID = " + accountID);
-			return new ResponseEntity<List<UserAccountServer>>(accountsDao.getAccountServersFromAccountID(accountID), HttpStatus.OK);
+			return new ResponseEntity<List<UserAccountServer>>(accountsDao.getAccountServersFromAccountID(accountID, limit, order, sort), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
