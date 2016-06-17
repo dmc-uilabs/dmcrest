@@ -2,10 +2,12 @@ package org.dmc.services.data.entities;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -83,6 +85,10 @@ public class DMDIIMember extends BaseEntity {
 			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
 			   inverseJoinColumns = @JoinColumn(name="id"))
 	private List<DMDIIMemberUser> users;
+	
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "prime_organization_id")
+	private Set<DMDIIProject> projects;
 
 	public DMDIIType getDmdiiType() {
 		return this.dmdiiType;
@@ -298,6 +304,14 @@ public class DMDIIMember extends BaseEntity {
 		} else if (!users.equals(other.users))
 			return false;
 		return true;
+	}
+
+	public Set<DMDIIProject> getProjects() {
+		return projects;
+	}
+
+	public void setProjects(Set<DMDIIProject> projects) {
+		this.projects = projects;
 	}
 
 }
