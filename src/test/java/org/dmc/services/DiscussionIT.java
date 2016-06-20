@@ -250,7 +250,7 @@ public class DiscussionIT extends BaseIT {
 		}
 
 		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
-				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
+				.statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
 
 		assertTrue("testPost_IndividualDiscussionWithProjectId: title values are not equal", (posted.getTitle().equals(title)));
 		assertTrue("testPost_IndividualDiscussionWithProjectId: createdBy values are not equal", (posted.getCreatedBy().equals(createdBy)));
@@ -285,7 +285,7 @@ public class DiscussionIT extends BaseIT {
 		}
 
 		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
-				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
+				.statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
 
 		assertTrue("testPost_IndividualDiscussionWithoutProjectId: title values are not equal", (posted.getTitle().equals(title)));
 		assertTrue("testPost_IndividualDiscussionWithoutProjectId: createdBy values are not equal", (posted.getCreatedBy().equals(createdBy)));
@@ -314,7 +314,7 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionCommentsFromIndividualDiscussionId() {
-		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("commentId", "1").param("limit", 2).expect()
+		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("commentId", "1").param("_limit", 2).expect()
 				.statusCode(HttpStatus.OK.value()).when().get("/individual-discussion/" + 1 + "/individual-discussion-comments").as(IndividualDiscussionComment[].class));
 
 		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: limit parameter did not work", (listOfComments.size() == 2));
@@ -361,22 +361,47 @@ public class DiscussionIT extends BaseIT {
 	}
 	
 	/*
-	 * test case for GET /individual-discussion-comments
+	 * test case 1 for GET /individual-discussion-comments
 	 */
 	@Test
-	public void testGet_IndividualDiscussionComments() {
+	public void testGet_IndividualDiscussionCommentsWithIndividualDiscussionId() {
 		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("_limit", 2).param("_order", "ASC").param("commentId", 0)
 				.param("individual-discussionId", 1).param("individual-discussionId", 3).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments")
 				.as(IndividualDiscussionComment[].class));
 
 		for (int i = 0; i < listOfComments.size(); i++) {
-			assertTrue("testGet_IndividualDiscussionComments: individualDiscussionId values are not equal", (listOfComments.get(i).getIndividualDiscussionId().equals("1")));
+			assertTrue("testGet_IndividualDiscussionCommentsWithIndividualDiscussionId: individualDiscussionId values are not equal",
+					(listOfComments.get(i).getIndividualDiscussionId().equals("1")));
 		}
 
-		assertTrue("testGet_IndividualDiscussionComments: id values are not equal", (listOfComments.get(0).getId().equals("1")));
-		assertTrue("testGet_IndividualDiscussionComments: fullName values are not equal", (listOfComments.get(0).getFullName().equals("Joe")));
-		assertTrue("testGet_IndividualDiscussionComments: accountId values are not equal", (listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
-		assertTrue("testGet_IndividualDiscussionComments: commentId values are not equal", (listOfComments.get(0).getCommentId().equals(new BigDecimal(0))));
+		assertTrue("testGet_IndividualDiscussionCommentsWithIndividualDiscussionId: id values are not equal", (listOfComments.get(0).getId().equals("1")));
+		assertTrue("testGet_IndividualDiscussionCommentsWithIndividualDiscussionId: fullName values are not equal", (listOfComments.get(0).getFullName().equals("Joe")));
+		assertTrue("testGet_IndividualDiscussionCommentsWithIndividualDiscussionId: accountId values are not equal",
+				(listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
+		assertTrue("testGet_IndividualDiscussionCommentsWithIndividualDiscussionId: commentId values are not equal",
+				(listOfComments.get(0).getCommentId().equals(new BigDecimal(0))));
+	}
+
+	/*
+	 * test case 2 for GET /individual-discussion-comments
+	 */
+	@Test
+	public void testGet_IndividualDiscussionCommentsWithoutIndividualDiscussionId() {
+		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("_limit", 2).param("_order", "ASC").param("commentId", 1)
+				.expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments").as(IndividualDiscussionComment[].class));
+
+		for (int i = 0; i < listOfComments.size(); i++) {
+			assertTrue("testGet_IndividualDiscussionCommentsWithoutIndividualDiscussionId: individualDiscussionId values are not equal",
+					(listOfComments.get(i).getIndividualDiscussionId().equals("1")));
+		}
+
+		assertTrue("testGet_IndividualDiscussionCommentsWithoutIndividualDiscussionId: id values are not equal", (listOfComments.get(0).getId().equals("3")));
+		assertTrue("testGet_IndividualDiscussionCommentsWithoutIndividualDiscussionId: fullName values are not equal", (listOfComments.get(0).getFullName().equals("Joe")));
+		assertTrue("testGet_IndividualDiscussionCommentsWithoutIndividualDiscussionId: accountId values are not equal",
+				(listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
+		assertTrue("testGet_IndividualDiscussionCommentsWithoutIndividualDiscussionId: commentId values are not equal",
+				(listOfComments.get(0).getCommentId().equals(new BigDecimal(1))));
+		assertTrue("testGet_IndividualDiscussionCommentsWithoutIndividualDiscussionId: likes values are not equal", listOfComments.get(0).getLike().equals(new BigDecimal(1)));
 	}
 	
 	/*

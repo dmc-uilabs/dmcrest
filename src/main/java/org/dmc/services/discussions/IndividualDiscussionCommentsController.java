@@ -41,7 +41,7 @@ public class IndividualDiscussionCommentsController {
 	public ResponseEntity getIndividualDiscussionComments(@RequestParam(value = "_limit", required = false) Integer limit,
 			@RequestParam(value = "_order", required = false) String order, @RequestParam(value = "_sort", required = false) String sort,
 			@RequestParam(value = "commentId", required = true) String commentId,
-			@RequestParam(value = "individual-discussionId", required = true) ArrayList<String> individualDiscussionIdList) {
+			@RequestParam(value = "individual-discussionId", required = false) ArrayList<String> individualDiscussionIdList) {
 		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
 			ServiceLogger.log(logTag, "In getIndividualDiscussionComments");

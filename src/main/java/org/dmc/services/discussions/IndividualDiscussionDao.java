@@ -8,14 +8,10 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
-
-import javax.xml.ws.http.HTTPException;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
-import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.Util;
 
@@ -150,16 +146,13 @@ public class IndividualDiscussionDao {
 				ServiceLogger.log(logTag, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
-
 		} finally {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
 				ServiceLogger.log(logTag, se.getMessage());
 			}
-
 		}
-
 		return retObj;
 	}
 
@@ -316,7 +309,7 @@ public class IndividualDiscussionDao {
 			int counter = 0;
 			while (resultSet.next() && counter < limit) {
 				if (Integer.parseInt(commentId) == resultSet.getInt("comment_id")) {
-					if (individualDiscussionIdList.contains(Integer.toString(resultSet.getInt("individual_discussion_id")))) {
+					if (individualDiscussionIdList == null || individualDiscussionIdList.contains(Integer.toString(resultSet.getInt("individual_discussion_id")))) {
 						retObj = new IndividualDiscussionComment();
 						counter++;
 
