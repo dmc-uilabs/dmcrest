@@ -10,7 +10,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "dmdii_area_of_expertise")
 public class DMDIIAreaOfExpertise extends BaseEntity{
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
