@@ -5,9 +5,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.DMDIIDocumentModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.repositories.DMDIIProjectRepository;
 import org.springframework.data.domain.PageRequest;
@@ -51,5 +53,15 @@ public class DMDIIProjectService {
 	public DMDIIProjectModel findOne(Integer id) {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findOne(id));
+	}
+
+	public DMDIIProjectModel save(DMDIIProjectModel project) {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		
+		DMDIIProject projectEntity = mapper.mapToEntity(project);
+		
+		projectEntity = dmdiiProjectRepository.save(projectEntity);
+		
+		return mapper.mapToModel(projectEntity);
 	}
 }

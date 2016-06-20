@@ -1,6 +1,7 @@
 package org.dmc.services.data.models;
 
 import java.util.Date;
+import java.util.List;
 
 public class DMDIIProjectModel extends BaseModel {
 	
@@ -22,7 +23,9 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	private Integer focusAreaId;
 	
-	private Integer thrustId;	
+	private Integer thrustId;
+	
+	private List<DMDIIMemberModel> contributingCompanies;
 	
 
 	public DMDIIMemberModel getPrimeOrganization() {
@@ -103,6 +106,14 @@ public class DMDIIProjectModel extends BaseModel {
 
 	public void setThrustId(Integer thrustId) {
 		this.thrustId = thrustId;
+	}
+
+	public List<DMDIIMemberModel> getContributingCompanies() {
+		return contributingCompanies;
+	}
+
+	public void setContributingCompanies(List<DMDIIMemberModel> contributingCompanies) {
+		this.contributingCompanies = contributingCompanies;
 	}
 
 }

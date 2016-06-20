@@ -1,6 +1,7 @@
 package org.dmc.services.data.entities;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -58,6 +61,12 @@ public class DMDIIProject extends BaseEntity {
 	@JoinColumn(name = "thrust_id")
 	private Integer thrustId;
 	
+	@ManyToMany
+	@JoinTable(name = "dmdii_project_contributing_companies",
+				joinColumns = @JoinColumn(name = "dmdii_project_id"),
+				inverseJoinColumns = @JoinColumn(name = "contributing_company_id"))
+	private List<DMDIIMember> contributingCompanies;
+	
 	public DMDIIProject () {
 		
 	}
@@ -107,6 +116,14 @@ public class DMDIIProject extends BaseEntity {
 		this.awardedDate = awardedDate;
 	}
 
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
 	public String getProjectTitle() {
 		return projectTitle;
 	}
@@ -153,6 +170,14 @@ public class DMDIIProject extends BaseEntity {
 
 	public void setThrustId(Integer thrustId) {
 		this.thrustId = thrustId;
+	}
+
+	public List<DMDIIMember> getContributingCompanies() {
+		return contributingCompanies;
+	}
+
+	public void setContributingCompanies(List<DMDIIMember> contributingCompanies) {
+		this.contributingCompanies = contributingCompanies;
 	}
 
 	@Override
