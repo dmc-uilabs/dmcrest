@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,6 +70,13 @@ public class DMDIIProjectController {
 		ServiceLogger.log(logTag, "In getDmdiiProjectsByTitle: " + title);
 		
 		return dmdiiProjectService.findByTitle(title, page, pageSize);
+	}
+	
+	@RequestMapping(value = "/dmdiiproject/contributingcompanies", params = {"projectId"}, method = RequestMethod.GET)
+	public List<DMDIIMemberModel> getDMDIIProjectContributingCompaniesByDMDIIProjectId(@RequestParam("projectId") Integer projectId) {
+		ServiceLogger.log(logTag, "In getDMDIIProjectContributingCompaniesByDMDIIProjectId: " + projectId);
+		
+		return dmdiiProjectService.findContributingCompanyByProjectId(projectId);
 	}
 	
 	@RequestMapping(value = "/dmdiiProject/save", method = RequestMethod.POST)
