@@ -20,10 +20,9 @@ import org.dmc.services.services.DomeModel;
 import org.dmc.services.services.DomeModelResponse;
 import org.dmc.services.services.DomeResponseEntity;
 
-@Ignore
 public class DomeIT extends BaseIT {
 
-	private String domeServer = "http://localhost:8082/DOMEApiServicesV7"; // System.getenv("DOME_SERVER");
+	private String domeServer = System.getenv("DOME_SERVER") + "/DOMEApiServicesV7";
 	private DomeAPIDao domeAPIDao = new DomeAPIDao();
 	ObjectMapper mapper = new ObjectMapper();
 
