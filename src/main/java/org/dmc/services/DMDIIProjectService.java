@@ -54,7 +54,7 @@ public class DMDIIProjectService {
 
 	public List<DMDIIProjectModel> findDMDIIProjectsByStatusId(Integer statusId, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-		return mapper.mapToModel(dmdiiProjectRepository.findByStatusId(new PageRequest(pageNumber, pageSize), statusId).getContent());
+		return mapper.mapToModel(dmdiiProjectRepository.findByProjectStatusId(new PageRequest(pageNumber, pageSize), statusId).getContent());
 	}
 	
 	public List<DMDIIProjectModel> findByTitle(String title, Integer pageNumber, Integer pageSize) {

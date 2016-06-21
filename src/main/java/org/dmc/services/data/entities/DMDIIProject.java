@@ -27,15 +27,16 @@ public class DMDIIProject extends BaseEntity {
 	private Integer id;
 
 	@ManyToOne
-	@JoinColumn(name = "prime_organization_id", nullable = false)
+	@JoinColumn(name = "organization_dmdii_member_id", nullable = false)
 	private DMDIIMember primeOrganization;
 	
 	@OneToOne
 	@JoinColumn(name = "principal_investigator_id")
 	private User principalInvestigator;
 	
-	@Column(name = "status_id")
-	private Integer statusId;
+	@ManyToOne
+	@JoinColumn(name = "status_id")
+	private DMDIIProjectStatus projectStatus;
 	
 	@Column(name = "awarded_date")
 	@Temporal(TemporalType.DATE)
@@ -55,33 +56,22 @@ public class DMDIIProject extends BaseEntity {
 	@JoinColumn(name = "principal_point_of_contact_id")
 	private User principalPointOfContact;
 	
+	@ManyToOne
 	@JoinColumn(name = "focus_area_id")
-	private Integer focusAreaId;
+	private DMDIIProjectFocusArea projectFocusArea;
 	
+	@ManyToOne
 	@JoinColumn(name = "thrust_id")
-	private Integer thrustId;
+	private DMDIIProjectThrust projectThrust;
 	
 	@ManyToMany
 	@JoinTable(name = "dmdii_project_contributing_companies",
 				joinColumns = @JoinColumn(name = "dmdii_project_id"),
-				inverseJoinColumns = @JoinColumn(name = "contributing_company_id"))
+				inverseJoinColumns = @JoinColumn(name = "organization_dmdii_member_id"))
 	private List<DMDIIMember> contributingCompanies;
 	
 	public DMDIIProject () {
 		
-	}
-	
-	public DMDIIProject (DMDIIMember primeOrganization, User principalInvestigator,
-			Integer projectStatusId, Date awardedDate, String projectTitle, String projectSummary,
-			User principalPointOfContact) {
-		
-		this.primeOrganization = primeOrganization;
-		this.principalInvestigator = principalInvestigator;
-		this.statusId = projectStatusId;
-		this.awardedDate = awardedDate;
-		this.projectTitle = projectTitle;
-		this.projectSummary = projectSummary;
-		this.principalPointOfContact = principalPointOfContact;
 	}
 
 	public DMDIIMember getPrimeOrganization() {
@@ -100,12 +90,12 @@ public class DMDIIProject extends BaseEntity {
 		this.principalInvestigator = principalInvestigator;
 	}
 
-	public Integer getStatusId() {
-		return statusId;
+	public DMDIIProjectStatus getProjectStatus() {
+		return projectStatus;
 	}
-
-	public void setStatusId(Integer statusId) {
-		this.statusId = statusId;
+	
+	public void setProjectStatus(DMDIIProjectStatus projectStatus) {
+		this.projectStatus = projectStatus;
 	}
 
 	public Date getAwardedDate() {
@@ -156,20 +146,20 @@ public class DMDIIProject extends BaseEntity {
 		this.id = id;
 	}
 
-	public Integer getFocusAreaId() {
-		return focusAreaId;
+	public DMDIIProjectFocusArea getProjectFocusArea() {
+		return projectFocusArea;
 	}
 
-	public void setFocusAreaId(Integer focusAreaId) {
-		this.focusAreaId = focusAreaId;
+	public void setProjectFocusArea(DMDIIProjectFocusArea projectFocusArea) {
+		this.projectFocusArea = projectFocusArea;
 	}
 
-	public Integer getThrustId() {
-		return thrustId;
+	public DMDIIProjectThrust getProjectThrust() {
+		return projectThrust;
 	}
 
-	public void setThrustId(Integer thrustId) {
-		this.thrustId = thrustId;
+	public void setProjectThrust(DMDIIProjectThrust projectThrust) {
+		this.projectThrust = projectThrust;
 	}
 
 	public List<DMDIIMember> getContributingCompanies() {
@@ -185,16 +175,17 @@ public class DMDIIProject extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((awardedDate == null) ? 0 : awardedDate.hashCode());
+		result = prime * result + ((contributingCompanies == null) ? 0 : contributingCompanies.hashCode());
 		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
-		result = prime * result + ((focusAreaId == null) ? 0 : focusAreaId.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((primeOrganization == null) ? 0 : primeOrganization.hashCode());
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
 		result = prime * result + ((principalPointOfContact == null) ? 0 : principalPointOfContact.hashCode());
-		result = prime * result + ((statusId == null) ? 0 : statusId.hashCode());
+		result = prime * result + ((projectFocusArea == null) ? 0 : projectFocusArea.hashCode());
+		result = prime * result + ((projectStatus == null) ? 0 : projectStatus.hashCode());
 		result = prime * result + ((projectSummary == null) ? 0 : projectSummary.hashCode());
+		result = prime * result + ((projectThrust == null) ? 0 : projectThrust.hashCode());
 		result = prime * result + ((projectTitle == null) ? 0 : projectTitle.hashCode());
-		result = prime * result + ((thrustId == null) ? 0 : thrustId.hashCode());
 		return result;
 	}
 
@@ -212,15 +203,15 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!awardedDate.equals(other.awardedDate))
 			return false;
+		if (contributingCompanies == null) {
+			if (other.contributingCompanies != null)
+				return false;
+		} else if (!contributingCompanies.equals(other.contributingCompanies))
+			return false;
 		if (endDate == null) {
 			if (other.endDate != null)
 				return false;
 		} else if (!endDate.equals(other.endDate))
-			return false;
-		if (focusAreaId == null) {
-			if (other.focusAreaId != null)
-				return false;
-		} else if (!focusAreaId.equals(other.focusAreaId))
 			return false;
 		if (id == null) {
 			if (other.id != null)
@@ -242,28 +233,32 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!principalPointOfContact.equals(other.principalPointOfContact))
 			return false;
-		if (statusId == null) {
-			if (other.statusId != null)
+		if (projectFocusArea == null) {
+			if (other.projectFocusArea != null)
 				return false;
-		} else if (!statusId.equals(other.statusId))
+		} else if (!projectFocusArea.equals(other.projectFocusArea))
+			return false;
+		if (projectStatus == null) {
+			if (other.projectStatus != null)
+				return false;
+		} else if (!projectStatus.equals(other.projectStatus))
 			return false;
 		if (projectSummary == null) {
 			if (other.projectSummary != null)
 				return false;
 		} else if (!projectSummary.equals(other.projectSummary))
 			return false;
+		if (projectThrust == null) {
+			if (other.projectThrust != null)
+				return false;
+		} else if (!projectThrust.equals(other.projectThrust))
+			return false;
 		if (projectTitle == null) {
 			if (other.projectTitle != null)
 				return false;
 		} else if (!projectTitle.equals(other.projectTitle))
 			return false;
-		if (thrustId == null) {
-			if (other.thrustId != null)
-				return false;
-		} else if (!thrustId.equals(other.thrustId))
-			return false;
 		return true;
 	}
-
 	
 }
