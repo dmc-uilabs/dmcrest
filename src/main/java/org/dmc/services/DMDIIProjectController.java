@@ -6,6 +6,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.dmc.services.data.models.DMDIIProjectModel;
+import org.dmc.services.data.models.DMDIIProjectNewsModel;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -74,5 +75,10 @@ public class DMDIIProjectController {
 	@RequestMapping(value = "/dmdiiProject/save", method = RequestMethod.POST)
 	public DMDIIProjectModel saveDMDIIProject (@RequestBody DMDIIProjectModel project) {
 		return dmdiiProjectService.save(project);
+	}
+	
+	@RequestMapping(value = "/dmdiiProject/news", params = "limit", method = RequestMethod.GET)
+	public List<DMDIIProjectNewsModel> getDmdiiProjectNews(@RequestParam("limit") Integer limit) {
+		return dmdiiProjectService.getDmdiiProjectNews(limit);
 	}
 }

@@ -5,12 +5,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIProject;
+import org.dmc.services.data.entities.DMDIIProjectNews;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
-import org.dmc.services.data.models.DMDIIDocumentModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
+import org.dmc.services.data.models.DMDIIProjectNewsModel;
+import org.dmc.services.data.repositories.DMDIIProjectNewsRepository;
 import org.dmc.services.data.repositories.DMDIIProjectRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,9 @@ public class DMDIIProjectService {
 
 	@Inject
 	private DMDIIProjectRepository dmdiiProjectRepository;
+	
+	@Inject
+	private DMDIIProjectNewsRepository dmdiiProjectNewsRepository;
 	
 	@Inject
 	private MapperFactory mapperFactory;
@@ -63,5 +67,10 @@ public class DMDIIProjectService {
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
 		
 		return mapper.mapToModel(projectEntity);
+	}
+	
+	public List<DMDIIProjectNewsModel> getDmdiiProjectNews(Integer limit) {
+		Mapper<DMDIIProjectNews, DMDIIProjectNewsModel> mapper = mapperFactory.mapperFor(DMDIIProjectNews.class, DMDIIProjectNewsModel.class);
+		return mapper.mapToModel(dmdiiProjectNewsRepository.findAllByOrderByDateCreatedDesc(new PageRequest(0, limit)).getContent());
 	}
 }
