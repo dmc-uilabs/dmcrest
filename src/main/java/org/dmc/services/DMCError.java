@@ -55,7 +55,10 @@ public enum DMCError {
 	CannotPatchDOMEServerEntry,
 	CannotDeleteDOMEServerEntry,
 	UnknownUser,
-	NoContentInQuery
+	NoContentInQuery,
+	
+	//Individual_Discussions
+	InvalidAccountId
 
 
 }

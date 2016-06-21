@@ -65,7 +65,7 @@ public class IndividualDiscussionCommentsController {
 		}
 	}
 
-	@RequestMapping(value = "/{commentID}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
+	@RequestMapping(value = "/{commentID}", produces = { "application/json" }, method = RequestMethod.PATCH)
 	public ResponseEntity individualDiscussionCommentsCommentIDPatch(@PathVariable("commentID") BigDecimal commentID, @RequestBody IndividualDiscussionComment comment) {
 		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {

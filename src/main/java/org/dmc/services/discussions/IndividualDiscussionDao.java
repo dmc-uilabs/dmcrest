@@ -58,8 +58,9 @@ public class IndividualDiscussionDao {
 			ResultSet resultSet = preparedStatement.getResultSet();
 
 			int counter = 0;
-			while (resultSet.next() && counter < limit) {
-				if (new BigDecimal(resultSet.getInt("project_id")) != null) {
+			while (resultSet.next() && (limit == null || counter < limit)) {
+				String projectIdTemp = resultSet.getString("project_id");
+				if (projectIdTemp == null) {
 					retObj = new IndividualDiscussion();
 					counter++;
 
@@ -68,7 +69,6 @@ public class IndividualDiscussionDao {
 					retObj.setCreatedBy(resultSet.getString("created_by"));
 					retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
 					retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
-					retObj.setProjectId(new BigDecimal(resultSet.getInt("project_id")));
 
 					individualDiscussions.add(retObj);
 				}
@@ -113,7 +113,7 @@ public class IndividualDiscussionDao {
 				preparedStatementQuery.setString(2, discussion.getCreatedBy());
 				preparedStatementQuery.setString(3, discussion.getCreatedAt().toString());
 				preparedStatementQuery.setInt(4, discussion.getAccountId().intValue());
-				preparedStatementQuery.setInt(5, discussion.getProjectId().intValue());
+				preparedStatementQuery.setString(5, discussion.getProjectId().toString());
 			} else {
 				discussionsQuery = "INSERT into individual_discussions (title, created_by, created_at, account_id) values ( ?, ?, ?, ? )";
 
@@ -139,13 +139,17 @@ public class IndividualDiscussionDao {
 			retObj.setProjectId(discussion.getProjectId());
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
 				ServiceLogger.log(logTag, e.getMessage());
 			}
-			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+			if (se.getMessage().startsWith("ERROR: insert or update on table \"individual_discussions\" violates foreign key constraint \"individualdiscussions_accountid_fk\"")) {
+				throw new DMCServiceException(DMCError.InvalidAccountId, se.getMessage());
+			} else {
+				ServiceLogger.log(logTag, se.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+			}
 		} finally {
 			try {
 				connection.setAutoCommit(true);
@@ -177,7 +181,10 @@ public class IndividualDiscussionDao {
 				retObj.setCreatedBy(resultSet.getString("created_by"));
 				retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
 				retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
-				retObj.setProjectId(new BigDecimal(resultSet.getInt("project_id")));
+				String projectIdTemp = resultSet.getString("project_id");
+				if (projectIdTemp != null) {
+					retObj.setProjectId(new BigDecimal(projectIdTemp));
+				}
 			}
 
 		} catch (SQLException se) {
@@ -307,7 +314,7 @@ public class IndividualDiscussionDao {
 			ResultSet resultSet = preparedStatement.getResultSet();
 
 			int counter = 0;
-			while (resultSet.next() && counter < limit) {
+			while (resultSet.next() && (limit == null || counter < limit)) {
 				if (Integer.parseInt(commentId) == resultSet.getInt("comment_id")) {
 					if (individualDiscussionIdList == null || individualDiscussionIdList.contains(Integer.toString(resultSet.getInt("individual_discussion_id")))) {
 						retObj = new IndividualDiscussionComment();
@@ -499,7 +506,7 @@ public class IndividualDiscussionDao {
 			ResultSet resultSet = preparedStatement.getResultSet();
 
 			int counter = 0;
-			while (resultSet.next() && counter < limit) {
+			while (resultSet.next() && (limit == null || counter < limit)) {
 				if (Integer.parseInt(commentId) == resultSet.getInt("comment_id")) {
 					retObj = new IndividualDiscussionComment();
 					counter++;
@@ -584,7 +591,7 @@ public class IndividualDiscussionDao {
 			}
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(discussionQuery);
-			preparedStatement.setInt(1, projectId);
+			preparedStatement.setString(1, projectId.toString());
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
 
@@ -596,7 +603,10 @@ public class IndividualDiscussionDao {
 				retObj.setCreatedBy(resultSet.getString("created_by"));
 				retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
 				retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
-				retObj.setProjectId(new BigDecimal(resultSet.getInt("project_id")));
+				String projectIdTemp = resultSet.getString("project_id");
+				if (projectIdTemp != null) {
+					retObj.setProjectId(new BigDecimal(projectIdTemp));
+				}
 
 				individualDiscussions.add(retObj);
 			}

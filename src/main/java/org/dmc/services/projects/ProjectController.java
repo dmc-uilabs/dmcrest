@@ -193,7 +193,6 @@ public class ProjectController {
 		}
 	}
 
-	// this is same as above - yaml may be wrong as to what should be defined
 	@RequestMapping(value = "/projects/{projectID}/individual-discussion", method = RequestMethod.GET, produces = { "application/json" })
 	public ResponseEntity getIndividualDiscussionsFromProjectId(@PathVariable("projectID") Integer projectID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestParam(value = "_limit", required = false) Integer limit,
