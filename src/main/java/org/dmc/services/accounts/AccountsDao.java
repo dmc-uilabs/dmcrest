@@ -124,7 +124,7 @@ class AccountsDao {
         return account;
     }
     
-	public List<UserAccountServer> getAccountServersFromAccountID(String accountID) throws DMCServiceException {
+	public List<UserAccountServer> getAccountServersFromAccountID(String accountID, Integer limit, String order, String sort) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
 		UserAccountServer retObj = null;
 		List<UserAccountServer> userAccountServers = new ArrayList<UserAccountServer>();
@@ -132,7 +132,38 @@ class AccountsDao {
 		try {
 			connection.setAutoCommit(false);
 
+			ArrayList<String> columnsInServersTable = new ArrayList<String>();
+			columnsInServersTable.add("server_id");
+			columnsInServersTable.add("url");
+			columnsInServersTable.add("user_id");
+			columnsInServersTable.add("alias");
+			columnsInServersTable.add("status");
+
 			String domeInterfacesQuery = "SELECT server_id, url, user_id, alias, status FROM servers WHERE user_id = ?";
+
+			if (sort == null) {
+				domeInterfacesQuery += " ORDER BY server_id";
+			} else if (!columnsInServersTable.contains(sort)) {
+				domeInterfacesQuery += " ORDER BY server_id";
+			} else {
+				domeInterfacesQuery += " ORDER BY " + sort;
+			}
+
+			if (order == null) {
+				domeInterfacesQuery += " ASC";
+			} else if (!order.equals("ASC") && !order.equals("DESC")) {
+				domeInterfacesQuery += " ASC";
+			} else {
+				domeInterfacesQuery += " " + order;
+			}
+
+			if (limit == null) {
+				domeInterfacesQuery += " LIMIT ALL";
+			} else if (limit < 0) {
+				domeInterfacesQuery += " LIMIT 0";
+			} else {
+				domeInterfacesQuery += " LIMIT " + limit;
+			}
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(Integer.parseInt(accountID)));
