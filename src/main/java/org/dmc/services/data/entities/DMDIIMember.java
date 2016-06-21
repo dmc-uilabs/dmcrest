@@ -2,10 +2,12 @@ package org.dmc.services.data.entities;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,6 +16,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.dmc.services.dmdiitype.DMDIIType;
@@ -30,7 +33,7 @@ public class DMDIIMember extends BaseEntity {
 	@JoinColumn(name = "dmdii_type_id")
 	private DMDIIType dmdiiType;
 
-	@ManyToOne(cascade=CascadeType.ALL)
+	@OneToOne
 	@JoinColumn(name = "organization_id")
 	private Organization organization;
 
@@ -40,8 +43,7 @@ public class DMDIIMember extends BaseEntity {
 	@Column(name = "expire_date")
 	private Date expireDate;
 
-	@OneToMany
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIAward> awards;
 
 	@ManyToMany
@@ -50,32 +52,28 @@ public class DMDIIMember extends BaseEntity {
 			   inverseJoinColumns = @JoinColumn(name="dmdii_area_of_expertise_id"))
 	private List<DMDIIAreaOfExpertise> areasOfExpertise;
 
-	@OneToMany
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIMemberContact> contacts;
 
-	@OneToMany
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIMemberCustomer> customers;
 
-	@OneToMany
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIMemberFinance> finances;
 
-	@OneToMany
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIInstituteInvolvement> instituteInvolvement;
 
 	@ManyToMany
 	@JoinTable(name = "dmdii_member_rnd_focus",
 			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
-			   inverseJoinColumns = @JoinColumn(name="id"))
+			   inverseJoinColumns = @JoinColumn(name="dmdii_rnd_focus_id"))
 	private List<DMDIIRndFocus> rndFocus;
 
 	@ManyToMany
 	@JoinTable(name = "dmdii_member_skill",
 			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
-			   inverseJoinColumns = @JoinColumn(name="id"))
+			   inverseJoinColumns = @JoinColumn(name="dmdii_skill_id"))
 	private List<DMDIISkill> skills;
 
 	@ManyToMany
@@ -83,6 +81,10 @@ public class DMDIIMember extends BaseEntity {
 			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
 			   inverseJoinColumns = @JoinColumn(name="id"))
 	private List<DMDIIMemberUser> users;
+	
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "prime_organization_id")
+	private Set<DMDIIProject> projects;
 
 	public DMDIIType getDmdiiType() {
 		return this.dmdiiType;
@@ -122,6 +124,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public void setAwards(List<DMDIIAward> awards) {
+		awards.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.awards = awards;
 	}
 
@@ -138,6 +141,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public void setContacts(List<DMDIIMemberContact> contacts) {
+		contacts.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.contacts = contacts;
 	}
 
@@ -146,6 +150,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public void setCustomers(List<DMDIIMemberCustomer> customers) {
+		customers.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.customers = customers;
 	}
 
@@ -154,6 +159,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public void setFinances(List<DMDIIMemberFinance> finances) {
+		finances.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.finances = finances;
 	}
 
@@ -162,6 +168,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public void setInstituteInvolvement(List<DMDIIInstituteInvolvement> instituteInvolvement) {
+		instituteInvolvement.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.instituteInvolvement = instituteInvolvement;
 	}
 
@@ -298,6 +305,14 @@ public class DMDIIMember extends BaseEntity {
 		} else if (!users.equals(other.users))
 			return false;
 		return true;
+	}
+
+	public Set<DMDIIProject> getProjects() {
+		return projects;
+	}
+
+	public void setProjects(Set<DMDIIProject> projects) {
+		this.projects = projects;
 	}
 
 }

@@ -9,11 +9,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.dmc.services.data.models.DMDIIUserModel;
 
 @Entity
 @Table(name="dmdii_project")
@@ -27,15 +27,20 @@ public class DMDIIProject extends BaseEntity {
 	@JoinColumn(name = "prime_organization_id", nullable = false)
 	private DMDIIMember primeOrganization;
 	
-	@Column(name = "principal_investigator")
-	private DMDIIUserModel principalInvestigator;
+	@OneToOne
+	@JoinColumn(name = "principal_investigator_id")
+	private User principalInvestigator;
 	
-	@Column(name = "project_status_id")
-	private Integer projectStatusId;
+	@Column(name = "status_id")
+	private Integer statusId;
 	
 	@Column(name = "awarded_date")
 	@Temporal(TemporalType.DATE)
 	private Date awardedDate;
+	
+	@Column(name = "end_date")
+	@Temporal(TemporalType.DATE)
+	private Date endDate;
 	
 	@Column(name = "project_title")
 	private String projectTitle;
@@ -43,26 +48,27 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "project_summary")
 	private String projectSummary;
 	
+	@OneToOne
 	@JoinColumn(name = "principal_point_of_contact_id")
-	private DMDIIUserModel principalPointOfContact;
+	private User principalPointOfContact;
 	
-	@Column(name = "focus_area_id")
+	@JoinColumn(name = "focus_area_id")
 	private Integer focusAreaId;
 	
-	@Column(name = "thrust_id")
+	@JoinColumn(name = "thrust_id")
 	private Integer thrustId;
 	
 	public DMDIIProject () {
 		
 	}
 	
-	public DMDIIProject (DMDIIMember primeOrganization, DMDIIUserModel principalInvestigator,
+	public DMDIIProject (DMDIIMember primeOrganization, User principalInvestigator,
 			Integer projectStatusId, Date awardedDate, String projectTitle, String projectSummary,
-			DMDIIUserModel principalPointOfContact) {
+			User principalPointOfContact) {
 		
 		this.primeOrganization = primeOrganization;
 		this.principalInvestigator = principalInvestigator;
-		this.projectStatusId = projectStatusId;
+		this.statusId = projectStatusId;
 		this.awardedDate = awardedDate;
 		this.projectTitle = projectTitle;
 		this.projectSummary = projectSummary;
@@ -77,20 +83,20 @@ public class DMDIIProject extends BaseEntity {
 		this.primeOrganization = primeOrganization;
 	}
 
-	public DMDIIUserModel getPrincipalInvestigator() {
+	public User getPrincipalInvestigator() {
 		return principalInvestigator;
 	}
 
-	public void setPrincipalInvestigator(DMDIIUserModel principalInvestigator) {
+	public void setPrincipalInvestigator(User principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
 	}
 
-	public Integer getProjectStatusId() {
-		return projectStatusId;
+	public Integer getStatusId() {
+		return statusId;
 	}
 
-	public void setProjectStatusId(Integer projectStatusId) {
-		this.projectStatusId = projectStatusId;
+	public void setStatusId(Integer statusId) {
+		this.statusId = statusId;
 	}
 
 	public Date getAwardedDate() {
@@ -117,11 +123,11 @@ public class DMDIIProject extends BaseEntity {
 		this.projectSummary = projectSummary;
 	}
 
-	public DMDIIUserModel getPrincipalPointOfContact() {
+	public User getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(DMDIIUserModel principalPointOfContact) {
+	public void setPrincipalPointOfContact(User principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 
@@ -154,13 +160,16 @@ public class DMDIIProject extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((awardedDate == null) ? 0 : awardedDate.hashCode());
+		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
+		result = prime * result + ((focusAreaId == null) ? 0 : focusAreaId.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((primeOrganization == null) ? 0 : primeOrganization.hashCode());
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
 		result = prime * result + ((principalPointOfContact == null) ? 0 : principalPointOfContact.hashCode());
-		result = prime * result + ((projectStatusId == null) ? 0 : projectStatusId.hashCode());
+		result = prime * result + ((statusId == null) ? 0 : statusId.hashCode());
 		result = prime * result + ((projectSummary == null) ? 0 : projectSummary.hashCode());
 		result = prime * result + ((projectTitle == null) ? 0 : projectTitle.hashCode());
+		result = prime * result + ((thrustId == null) ? 0 : thrustId.hashCode());
 		return result;
 	}
 
@@ -177,6 +186,16 @@ public class DMDIIProject extends BaseEntity {
 			if (other.awardedDate != null)
 				return false;
 		} else if (!awardedDate.equals(other.awardedDate))
+			return false;
+		if (endDate == null) {
+			if (other.endDate != null)
+				return false;
+		} else if (!endDate.equals(other.endDate))
+			return false;
+		if (focusAreaId == null) {
+			if (other.focusAreaId != null)
+				return false;
+		} else if (!focusAreaId.equals(other.focusAreaId))
 			return false;
 		if (id == null) {
 			if (other.id != null)
@@ -198,10 +217,10 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!principalPointOfContact.equals(other.principalPointOfContact))
 			return false;
-		if (projectStatusId == null) {
-			if (other.projectStatusId != null)
+		if (statusId == null) {
+			if (other.statusId != null)
 				return false;
-		} else if (!projectStatusId.equals(other.projectStatusId))
+		} else if (!statusId.equals(other.statusId))
 			return false;
 		if (projectSummary == null) {
 			if (other.projectSummary != null)
@@ -213,6 +232,13 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!projectTitle.equals(other.projectTitle))
 			return false;
+		if (thrustId == null) {
+			if (other.thrustId != null)
+				return false;
+		} else if (!thrustId.equals(other.thrustId))
+			return false;
 		return true;
 	}
+
+	
 }

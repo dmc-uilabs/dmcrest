@@ -8,16 +8,21 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "dmdii_member_institute_involvement")
 public class DMDIIInstituteInvolvement extends BaseEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
+
+	@ManyToOne
+    @JoinColumn(name="organization_dmdii_member_id")
+	private DMDIIMember dmdiiMember;
 
 	@Column(name = "static_line_item")
 	private String staticLineItem;
@@ -28,6 +33,14 @@ public class DMDIIInstituteInvolvement extends BaseEntity {
 	@OneToOne
 	@JoinColumn(name = "user_id")
 	private User user;
+
+	public DMDIIMember getDmdiiMember() {
+		return dmdiiMember;
+	}
+
+	public void setDmdiiMember(DMDIIMember dmdiiMember) {
+		this.dmdiiMember = dmdiiMember;
+	}
 
 	public String getStaticLineItem() {
 		return staticLineItem;
