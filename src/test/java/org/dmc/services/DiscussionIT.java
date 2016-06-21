@@ -380,6 +380,7 @@ public class DiscussionIT extends BaseIT {
 				(listOfComments.get(0).getAccountId().equals(new BigDecimal(550))));
 		assertTrue("testGet_IndividualDiscussionCommentsWithIndividualDiscussionId: commentId values are not equal",
 				(listOfComments.get(0).getCommentId().equals(new BigDecimal(0))));
+		assertTrue("testGet_IndividualDiscussionCommentsWithIndividualDiscussionId: likes values are not equal", listOfComments.get(0).getLike().equals(new BigDecimal(30)));
 	}
 
 	/*
