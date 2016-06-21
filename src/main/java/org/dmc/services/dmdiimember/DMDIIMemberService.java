@@ -9,15 +9,18 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.dmc.services.data.entities.DMDIIMember;
+import org.dmc.services.data.entities.DMDIIMemberEvent;
 import org.dmc.services.data.entities.DMDIIMemberNews;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDMDIIProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.DMDIIMemberEventModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIMemberNewsModel;
 import org.dmc.services.data.models.OrganizationModel;
+import org.dmc.services.data.repositories.DMDIIMemberEventRepository;
 import org.dmc.services.data.repositories.DMDIIMemberNewsRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +40,9 @@ public class DMDIIMemberService {
 	
 	@Inject
 	private DMDIIMemberNewsRepository dmdiiMemberNewsRepository;
+	
+	@Inject
+	private DMDIIMemberEventRepository dmdiiMemberEventRepository;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -133,6 +139,11 @@ public class DMDIIMemberService {
 	public List<DMDIIMemberNewsModel> getDmdiiMemberNews(Integer limit) {
 		Mapper<DMDIIMemberNews, DMDIIMemberNewsModel> mapper = mapperFactory.mapperFor(DMDIIMemberNews.class, DMDIIMemberNewsModel.class);
 		return mapper.mapToModel(dmdiiMemberNewsRepository.findAllByOrderByDateCreatedDesc(new PageRequest(0, limit)).getContent());
+	}
+	
+	public List<DMDIIMemberEventModel> getDmdiiMemberEvents(Integer limit) {
+		Mapper<DMDIIMemberEvent, DMDIIMemberEventModel> mapper = mapperFactory.mapperFor(DMDIIMemberEvent.class, DMDIIMemberEventModel.class);
+		return mapper.mapToModel(dmdiiMemberEventRepository.findFutureEvents(new PageRequest(0, limit)).getContent());
 	}
 
 }
