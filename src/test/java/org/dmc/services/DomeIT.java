@@ -22,7 +22,7 @@ import org.dmc.services.services.DomeResponseEntity;
 
 public class DomeIT extends BaseIT {
 
-	private String domeServer = System.getenv("DOME_SERVER") + "/DOMEApiServicesV7";
+	private String domeServer = System.getenv("DOME_TEST_SERVER") + "/DOMEApiServicesV7";
 	private DomeAPIDao domeAPIDao = new DomeAPIDao();
 	ObjectMapper mapper = new ObjectMapper();
 
