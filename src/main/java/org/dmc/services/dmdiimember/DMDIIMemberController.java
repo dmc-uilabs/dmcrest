@@ -6,8 +6,8 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.dmc.services.data.models.DMDIIMemberModel;
+import org.dmc.services.data.models.DMDIIMemberNewsModel;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
-import org.dmc.services.exceptions.MissingParameterException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,6 +48,11 @@ public class DMDIIMemberController {
 																@RequestParam("pageSize") Integer pageSize,
 																@RequestParam("name") String name) {
 		return dmdiiMemberService.findByName(name, page, pageSize);
+	}
+	
+	@RequestMapping(value = "/dmdiiMember/news", params = "limit", method = RequestMethod.GET)
+	public List<DMDIIMemberNewsModel> getDmdiiMemberNews(@RequestParam("limit") Integer limit) {
+		return dmdiiMemberService.getDmdiiMemberNews(limit);
 	}
 
 }

@@ -9,13 +9,16 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.dmc.services.data.entities.DMDIIMember;
+import org.dmc.services.data.entities.DMDIIMemberNews;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDMDIIProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIMemberModel;
+import org.dmc.services.data.models.DMDIIMemberNewsModel;
 import org.dmc.services.data.models.OrganizationModel;
+import org.dmc.services.data.repositories.DMDIIMemberNewsRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,9 @@ public class DMDIIMemberService {
 
 	@Inject
 	private DMDIIMemberDao dmdiiMemberDao;
+	
+	@Inject
+	private DMDIIMemberNewsRepository dmdiiMemberNewsRepository;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -122,6 +128,11 @@ public class DMDIIMemberService {
 		} else {
 			return new BooleanBuilder().and(QDMDIIMember.dMDIIMember.projects.any().in(subQuery)).not().getValue();
 		}
+	}
+	
+	public List<DMDIIMemberNewsModel> getDmdiiMemberNews(Integer limit) {
+		Mapper<DMDIIMemberNews, DMDIIMemberNewsModel> mapper = mapperFactory.mapperFor(DMDIIMemberNews.class, DMDIIMemberNewsModel.class);
+		return mapper.mapToModel(dmdiiMemberNewsRepository.findAllByOrderByDateCreatedDesc(new PageRequest(0, limit)).getContent());
 	}
 
 }
