@@ -12,7 +12,7 @@ public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Int
 
 	Page<DMDIIProject> findByAwardedDate(Pageable pageable, Date startDate);
 
-	Page<DMDIIProject> findByStatusId(Pageable pageable, Integer statusId);
+	Page<DMDIIProject> findByProjectStatusId(Pageable pageable, Integer statusId);
 	
 	Page<DMDIIProject> findByProjectTitleLikeIgnoreCase(Pageable pageable, String title);
 }
