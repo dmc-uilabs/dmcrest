@@ -71,6 +71,11 @@ public class DomeIT extends BaseIT {
 
 		String resultFromDirectCommunication = new String();
 
+		DomeResponseEntity resultFromREST = given().header("Content-type", "application/json")
+				.header("AJP_eppn", userEPPN).param("domeServer", domeServer).param("name", name).param("path", path)
+				.param("type", type).expect().statusCode(HttpStatus.OK.value()).when().get("/getChildren")
+				.as(DomeResponseEntity.class);
+		
 		try {
 			resultFromDirectCommunication = domeAPIDao.getChildren(domeEntity);
 			resultFromDirectComm = mapper.readValue(resultFromDirectCommunication, DomeResponseEntity.class);
@@ -83,11 +88,6 @@ public class DomeIT extends BaseIT {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		DomeResponseEntity resultFromREST = given().header("Content-type", "application/json")
-				.header("AJP_eppn", userEPPN).param("domeServer", domeServer).param("name", name).param("path", path)
-				.param("type", type).expect().statusCode(HttpStatus.OK.value()).when().get("/getChildren")
-				.as(DomeResponseEntity.class);
 
 		assertTrue("testGetChildrenWhenTypeIsFolder: Result from dome server does not match result from REST API",
 				(resultFromDirectComm.equals(resultFromREST)));
