@@ -1,16 +1,24 @@
 package org.dmc.services.event;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.company.Company;
+import org.dmc.services.company.CompanyUserUtil;
 import org.dmc.services.services.ServiceImages;
 import org.dmc.services.services.ServiceImagesDao;
+import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.users.UserDao;
+import org.json.JSONException;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 
@@ -23,25 +31,70 @@ public class EventsDao
 	private ResultSet resultSet;
 	private Connection connection;
 	
+	//-------------------------------
+	//Create Community Event Function
+	//-------------------------------
 	public Id createCommunityEvent(CommunityEvent event) throws DMCServiceException
 	{
-		//connection = DBConnector.connection();
-		//PreparedStatement statement;
-		//Util util = Util.getInstance();
+
+		connection = DBConnector.connection();
+		PreparedStatement statement;
+		Util util = Util.getInstance();
 		int id = -99999;
 
-		// NEED TO PUT Get AWS URL FUNCTION
-		//Tests to see if valid user, exits function if so
-
-	/*	try {
+  
+		try {
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
 			ServiceLogger.log(logTag, ex.getMessage());
 			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
-		}*/
+		}
+
+		try {
+			String query = "INSERT INTO community_event (title, date, start_time, end_time, address, description) VALUES (?, ?, ?, ?, ?, ?)";
+			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			
+			statement.setString(1, event.getTitle());
+			statement.setString(2, event.getDate());
+			statement.setString(3, event.getStartTime());
+			statement.setString(4, event.getEndTime());
+			statement.setString(5, event.getAddress());
+			statement.setString(6, event.getDescription());
+			statement.executeUpdate();
+			id = util.getGeneratedKey(statement, "id");
+			ServiceLogger.log(logTag, "Creating New Event, returning ID: " + id);
+			connection.commit();
+		}
+		catch (SQLException e) {
+			ServiceLogger.log(logTag, "SQL EXCEPTION ----- " + e.getMessage());
+			try {
+				if (connection != null) {
+					ServiceLogger.log(logTag, "createCommunityEvent transaction rolled back");
+					connection.rollback();
+				}
+			} catch (SQLException ex) {
+				ServiceLogger.log(logTag, ex.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		}
+		//Always includes in a create
+		finally {
+			try {
+				if (connection != null) {
+					connection.setAutoCommit(true);
+				}
+			} catch (SQLException et) {
+				ServiceLogger.log(logTag, et.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
+			}
+		}
 		return new Id.IdBuilder(id).build();
 	}
 	
+	//----------------------------
+	//Get Community Event Function
+	//----------------------------
     public ArrayList<CommunityEvent> getEvents() throws DMCServiceException {
         ArrayList<CommunityEvent> events = new ArrayList<CommunityEvent>();
         ServiceLogger.log(logTag, "In Get Events");
@@ -80,157 +133,132 @@ public class EventsDao
 		}
 		return events;
 	}
-	
-    public CommunityEvent updateEvent(int id, CommunityEvent event) throws DMCServiceException {
-        ServiceLogger.log(logTag, "In Patch Event" + id);
-        
-        return event;
-	}
-    
-    
-    public Id deleteCommunityEvent(int id) throws DMCServiceException
-	{
-		return new Id.IdBuilder(id).build();
-	}
-
-    
 	/*
-	 public Id createServiceImages(ServiceImages payload, String userEPPN) throws DMCServiceException {
-
-		connection = DBConnector.connection();
-		PreparedStatement statement;
-		Util util = Util.getInstance();
-		int id = -99999;
-
-		// NEED TO PUT Get AWS URL FUNCTION
-		//Tests to see if valid user, exits function if so
-    try {
-      int userId = UserDao.getUserID(userEPPN);
-      if(userId == -1){
-    			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
-      }
-    } catch (SQLException e) {
-			ServiceLogger.log(logTag, e.getMessage());
-			throw new DMCServiceException(DMCError.NotDMDIIMember, "User: " + userEPPN + " is not valid");
-			}
-
-		try {
+    //Method is not needed and does not make sense to have. If needed, can be added. Has been tested and works.
+    //-------------------------------
+    //PATCH Community Event Function
+    //-------------------------------
+    public CommunityEvent updateEvent(int id, CommunityEvent event) throws DMCServiceException
+    {
+        ServiceLogger.log(logTag, "In Patch Event" + id);
+        connection = DBConnector.connection();
+        
+        try {
 			connection.setAutoCommit(false);
 		} catch (SQLException ex) {
 			ServiceLogger.log(logTag, ex.getMessage());
 			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
 		}
+        
+        try
+        {
+        	//Update Event
+        	String query = "UPDATE community_event SET title = ?, date = ?, start_time = ?, " 
+        	+ "end_time = ?, address = ?, description = ? WHERE id = ?";
+        
+        	PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 
-		try {
-			String query = "INSERT INTO service_images (service_id, url) VALUES (?, ?)";
-			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			statement.setInt(1, payload.getServiceId());
-			statement.setString(2, payload.getUrl());
-			statement.executeUpdate();
-			id = util.getGeneratedKey(statement, "id");
-			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
+        	preparedStatement.setString(1, event.getTitle());
+			preparedStatement.setString(2, event.getDate());
+			preparedStatement.setString(3, event.getStartTime());
+			preparedStatement.setString(4, event.getEndTime());
+			preparedStatement.setString(5, event.getAddress());
+			preparedStatement.setString(6, event.getDescription());
+			preparedStatement.setInt(7, id);
+        	preparedStatement.executeUpdate();
 			connection.commit();
-		}
-		catch (SQLException e) {
-			ServiceLogger.log(logTag, "SQL EXCEPTION ----- " + e.getMessage());
-			try {
-				if (connection != null) {
-					ServiceLogger.log(logTag, "createServiceImage transaction rolled back");
+
+        	
+        }
+        catch (SQLException e)
+        {
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag, "Transaction updateCompany Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
+			ServiceLogger.log(logTag, e.getMessage());
+  			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+
+        }
+        //Always includes in a create
+      	finally
+      	{
+      		try
+      		{
+      			if (connection != null)
+      			{
+      				connection.setAutoCommit(true);
+      			}
+      		}
+      		catch (SQLException et)
+      		{
+      			ServiceLogger.log(logTag, et.getMessage());
+      			throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
+      		}
+      	}
+        
+        return event;
+    }
+    */
+    
+    //-------------------------------
+    //Delete Community Event Function
+    //-------------------------------
+    public Id deleteCommunityEvent(int id) throws DMCServiceException
+	{
+    	//Connect to DB
+		int rows;
+		connection = DBConnector.connection();
+		PreparedStatement statement;
+
+	    try
+	    {
+			//Delete an Event
+			connection.setAutoCommit(false);
+	        String query = "DELETE FROM community_event WHERE id = ?";
+	        statement = DBConnector.prepareStatement(query);
+	        statement.setInt(1, id);
+	        rows = statement.executeUpdate();
+			connection.commit();
+	    }
+		catch (SQLException e)
+	    {
+			ServiceLogger.log(logTag, "ERROR IN DELETE Community Events-------------------" + e.getMessage());
+
+			if (connection != null)
+			{
+				try
+				{
+					ServiceLogger.log(logTag, "Transaction deleteCommunityEvent Rolled back");
 					connection.rollback();
 				}
-			} catch (SQLException ex) {
-				ServiceLogger.log(logTag, ex.getMessage());
-				throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
+				catch (SQLException ex)
+				{
+					ServiceLogger.log(logTag, ex.getMessage());
+					throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
+				}
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
-		finally {
-			try {
-				if (connection != null) {
-					connection.setAutoCommit(true);
-				}
-			} catch (SQLException et) {
-				ServiceLogger.log(logTag, et.getMessage());
-				throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
-			}
+	    //Catch
+		catch (JSONException e)
+	    {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.Generic, e.getMessage());
 		}
-		return new Id.IdBuilder(id).build();
+
+	    if (rows == 0)
+	    {
+	    	id = -1;
+	    }
+	    
+	    return new Id.IdBuilder(id)
+	    .build();
 	}
-	 */
-	
-
-        //createCommunityEvent function
-        
-        
-        
-        /*
-			//For GET Event
-	        try {
-            // get events;
-            // does the organization need to be active member?  assume no.
-            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name FROM organization");
-            companies = new ArrayList<Company>();
-
-			//filling id, title, date, startTime, endTime, address, description
-            while (resultSet.next()) {
-                String id = resultSet.getString("id");
-                String title = resultSet.getInt("title");
-                String date = resultSet.getString("date");
-				String startTime = resultSet.getString("startTime");
-				String  endTime = resultSet.getString("endTime");
-				String  address = resultSet.getString("address");
-				String  description= resultSet.getString("description");
-				
-				//DOES THIS NEED SOMETHING LIKE A NEW COMPANY/LIKE  NEW EVENT?
-                Company company = new Company();
-				company.setId(Integer.toString(id));
-				company.setAccountId(Integer.toString(accountId));
-				company.setName(name);
-                companies.add(company);
-            }
-        } catch (SQLException e) {
-            ServiceLogger.log(logTag, e.getMessage());
-            throw new HTTPException(HttpStatus.FORBIDDEN.value());  // ToDo: what error should this be?
-        }
-        return companies;
-	}
-			//For POST Event
-			 * 
-			//For PATCH Event
-			//For DELETE Event
- */
-
-     
-
-        
-        
-        /*		
- * 
- * 
-        try {
-            // get all organizations;
-            // does the organization need to be active member?  assume no.
-            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name FROM organization");
-            events = new ArrayList<CommunityEvent>();
-
-            while (resultSet.next()) {
-                int id = resultSet.getInt("organization_id");
-                int accountId = resultSet.getInt("accountid");
-                String name = resultSet.getString("name");
-
-                Event event = new event();
-				event.setId(Integer.toString(id));
-				event.setAccountId(Integer.toString(accountId));
-				event.setName(name);
-                events.add(event);
-            }
-        } catch (SQLException e) {
-            ServiceLogger.log(logTag, e.getMessage());
-            throw new HTTPException(HttpStatus.FORBIDDEN.value());  // ToDo: what error should this be?
-        }
-        */
-        
 }
-
 
 
