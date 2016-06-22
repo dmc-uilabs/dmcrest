@@ -1,6 +1,7 @@
 package org.dmc.services.data.models;
 
 import java.util.Date;
+import java.util.List;
 
 public class DMDIIProjectModel extends BaseModel {
 	
@@ -8,7 +9,7 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	private UserModel principalInvestigator;
 	
-	private Integer statusId;
+	private DMDIIProjectStatusModel projectStatus;
 	
 	private Date awardedDate;
 	
@@ -20,9 +21,17 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	private UserModel principalPointOfContact;
 	
-	private Integer focusAreaId;
+	private DMDIIProjectFocusAreaModel projectFocusArea;
 	
-	private Integer thrustId;	
+	private DMDIIProjectThrustModel projectThrust;
+	
+	private List<DMDIIMemberModel> contributingCompanies;
+	
+	private Integer rootNumber;
+	
+	private Integer callNumber;
+	
+	private Integer projectNumber;
 	
 
 	public DMDIIMemberModel getPrimeOrganization() {
@@ -39,14 +48,6 @@ public class DMDIIProjectModel extends BaseModel {
 
 	public void setPrincipalInvestigator(UserModel principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
-	}
-
-	public Integer getStatusId() {
-		return statusId;
-	}
-
-	public void setStatusId(Integer statusId) {
-		this.statusId = statusId;
 	}
 
 	public Date getAwardedDate() {
@@ -89,20 +90,64 @@ public class DMDIIProjectModel extends BaseModel {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 
-	public Integer getFocusAreaId() {
-		return focusAreaId;
+	public List<DMDIIMemberModel> getContributingCompanies() {
+		return contributingCompanies;
 	}
 
-	public void setFocusAreaId(Integer focusAreaId) {
-		this.focusAreaId = focusAreaId;
+	public void setContributingCompanies(List<DMDIIMemberModel> contributingCompanies) {
+		this.contributingCompanies = contributingCompanies;
 	}
 
-	public Integer getThrustId() {
-		return thrustId;
+	public DMDIIProjectStatusModel getProjectStatus() {
+		return projectStatus;
 	}
 
-	public void setThrustId(Integer thrustId) {
-		this.thrustId = thrustId;
+	public void setProjectStatus(DMDIIProjectStatusModel projectStatus) {
+		this.projectStatus = projectStatus;
+	}
+
+	public DMDIIProjectFocusAreaModel getProjectFocusArea() {
+		return projectFocusArea;
+	}
+
+	public void setProjectFocusArea(DMDIIProjectFocusAreaModel projectFocusArea) {
+		this.projectFocusArea = projectFocusArea;
+	}
+
+	public DMDIIProjectThrustModel getProjectThrust() {
+		return projectThrust;
+	}
+
+	public void setProjectThrust(DMDIIProjectThrustModel projectThrust) {
+		this.projectThrust = projectThrust;
+	}
+
+	public Integer getRootNumber() {
+		return rootNumber;
+	}
+
+	public void setRootNumber(Integer rootNumber) {
+		this.rootNumber = rootNumber;
+	}
+
+	public Integer getCallNumber() {
+		return callNumber;
+	}
+
+	public void setCallNumber(Integer callNumber) {
+		this.callNumber = callNumber;
+	}
+
+	public Integer getProjectNumber() {
+		return projectNumber;
+	}
+
+	public void setProjectNumber(Integer projectNumber) {
+		this.projectNumber = projectNumber;
+	}
+	
+	public String getProjectIdentifier() {
+		return rootNumber + "-" + callNumber + "-" + projectNumber;
 	}
 
 }
