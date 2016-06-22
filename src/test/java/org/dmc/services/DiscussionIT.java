@@ -437,10 +437,10 @@ public class DiscussionIT extends BaseIT {
 	}
 	
 	/*
-	 * test case for POST /individual-discussion-comments
+	 * test case 1 for POST /individual-discussion-comments
 	 */
 	@Test
-	public void testPost_IndividualDiscussionComments() {
+	public void testPost_IndividualDiscussionCommentsWithValidUser() {
 		IndividualDiscussionComment obj = new IndividualDiscussionComment();
 		String postedCommentStr = null;
 		ObjectMapper mapper = new ObjectMapper();
@@ -476,17 +476,59 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionComment postedCommentObj = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedCommentStr).expect()
 				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion-comments").as(IndividualDiscussionComment.class);
 
-		assertTrue("testPost_IndividualDiscussionComment: individualDiscussionId values are not equal",
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: individualDiscussionId values are not equal",
 				(postedCommentObj.getIndividualDiscussionId().equals(individualDiscussionId)));
-		assertTrue("testPost_IndividualDiscussionComment: fullName values are not equal", (postedCommentObj.getFullName().equals(fullName)));
-		assertTrue("testPost_IndividualDiscussionComment: accountId values are not equal", (postedCommentObj.getAccountId().equals(accountId)));
-		assertTrue("testPost_IndividualDiscussionComment: commentId values are not equal", (postedCommentObj.getCommentId().equals(commentId)));
-		assertTrue("testPost_IndividualDiscussionComment: avatar values are not equal", (postedCommentObj.getAvatar().equals(avatar)));
-		assertTrue("testPost_IndividualDiscussionComment: reply values are not equal", (postedCommentObj.getReply().equals(reply)));
-		assertTrue("testPost_IndividualDiscussionComment: text values are not equal", (postedCommentObj.getText().equals(text)));
-		assertTrue("testPost_IndividualDiscussionComment: createdAt values are not equal", (postedCommentObj.getCreatedAt().equals(createdAt)));
-		assertTrue("testPost_IndividualDiscussionComment: like values are not equal", (postedCommentObj.getLike().equals(like)));
-		assertTrue("testPost_IndividualDiscussionComment: dislike values are not equal", (postedCommentObj.getDislike().equals(dislike)));
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: fullName values are not equal", (postedCommentObj.getFullName().equals(fullName)));
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: accountId values are not equal", (postedCommentObj.getAccountId().equals(accountId)));
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: commentId values are not equal", (postedCommentObj.getCommentId().equals(commentId)));
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: avatar values are not equal", (postedCommentObj.getAvatar().equals(avatar)));
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: reply values are not equal", (postedCommentObj.getReply().equals(reply)));
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: text values are not equal", (postedCommentObj.getText().equals(text)));
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: createdAt values are not equal", (postedCommentObj.getCreatedAt().equals(createdAt)));
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: like values are not equal", (postedCommentObj.getLike().equals(like)));
+		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: dislike values are not equal", (postedCommentObj.getDislike().equals(dislike)));
+	}
+	
+	/*
+	 * test case 2 for POST /individual-discussion-comments
+	 */
+	@Test
+	public void testPost_IndividualDiscussionCommentsWithInvalidUser() {
+		IndividualDiscussionComment obj = new IndividualDiscussionComment();
+		String postedCommentStr = null;
+		ObjectMapper mapper = new ObjectMapper();
+
+		String individualDiscussionId = "1";
+		String fullName = "Marshall Mathers";
+		BigDecimal commentId = new BigDecimal(0);
+		String avatar = "For POST /individual-discussion-comments";
+		Boolean reply = false;
+		String text = "TEXT";
+		BigDecimal accountId = BigDecimal.ZERO;
+		BigDecimal createdAt = new BigDecimal(12301293);
+		BigDecimal like = new BigDecimal(2);
+		BigDecimal dislike = new BigDecimal(1);
+
+		obj.setIndividualDiscussionId(individualDiscussionId);
+		obj.setFullName(fullName);
+		obj.setAccountId(accountId);
+		obj.setCommentId(commentId);
+		obj.setAvatar(avatar);
+		obj.setReply(reply);
+		obj.setText(text);
+		obj.setCreatedAt(createdAt);
+		obj.setLike(like);
+		obj.setDislike(dislike);
+
+		try {
+			postedCommentStr = mapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedCommentStr).expect().statusCode(HttpStatus.UNAUTHORIZED.value()).when()
+				.post("/individual-discussion-comments");
+
 	}
 	
 	
