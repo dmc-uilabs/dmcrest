@@ -70,6 +70,15 @@ public class DMDIIProject extends BaseEntity {
 				inverseJoinColumns = @JoinColumn(name = "organization_dmdii_member_id"))
 	private List<DMDIIMember> contributingCompanies;
 	
+	@Column(name = "project_root_number")
+	private Integer rootNumber;
+	
+	@Column(name = "project_call_number")
+	private Integer callNumber;
+	
+	@Column(name = "project_number")
+	private Integer projectNumber;
+	
 	public DMDIIProject () {
 		
 	}
@@ -170,11 +179,36 @@ public class DMDIIProject extends BaseEntity {
 		this.contributingCompanies = contributingCompanies;
 	}
 
+	public Integer getRootNumber() {
+		return rootNumber;
+	}
+
+	public void setRootNumber(Integer rootNumber) {
+		this.rootNumber = rootNumber;
+	}
+
+	public Integer getCallNumber() {
+		return callNumber;
+	}
+
+	public void setCallNumber(Integer callNumber) {
+		this.callNumber = callNumber;
+	}
+
+	public Integer getProjectNumber() {
+		return projectNumber;
+	}
+
+	public void setProjectNumber(Integer projectNumber) {
+		this.projectNumber = projectNumber;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((awardedDate == null) ? 0 : awardedDate.hashCode());
+		result = prime * result + ((callNumber == null) ? 0 : callNumber.hashCode());
 		result = prime * result + ((contributingCompanies == null) ? 0 : contributingCompanies.hashCode());
 		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
@@ -182,10 +216,12 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
 		result = prime * result + ((principalPointOfContact == null) ? 0 : principalPointOfContact.hashCode());
 		result = prime * result + ((projectFocusArea == null) ? 0 : projectFocusArea.hashCode());
+		result = prime * result + ((projectNumber == null) ? 0 : projectNumber.hashCode());
 		result = prime * result + ((projectStatus == null) ? 0 : projectStatus.hashCode());
 		result = prime * result + ((projectSummary == null) ? 0 : projectSummary.hashCode());
 		result = prime * result + ((projectThrust == null) ? 0 : projectThrust.hashCode());
 		result = prime * result + ((projectTitle == null) ? 0 : projectTitle.hashCode());
+		result = prime * result + ((rootNumber == null) ? 0 : rootNumber.hashCode());
 		return result;
 	}
 
@@ -202,6 +238,11 @@ public class DMDIIProject extends BaseEntity {
 			if (other.awardedDate != null)
 				return false;
 		} else if (!awardedDate.equals(other.awardedDate))
+			return false;
+		if (callNumber == null) {
+			if (other.callNumber != null)
+				return false;
+		} else if (!callNumber.equals(other.callNumber))
 			return false;
 		if (contributingCompanies == null) {
 			if (other.contributingCompanies != null)
@@ -238,6 +279,11 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!projectFocusArea.equals(other.projectFocusArea))
 			return false;
+		if (projectNumber == null) {
+			if (other.projectNumber != null)
+				return false;
+		} else if (!projectNumber.equals(other.projectNumber))
+			return false;
 		if (projectStatus == null) {
 			if (other.projectStatus != null)
 				return false;
@@ -257,6 +303,11 @@ public class DMDIIProject extends BaseEntity {
 			if (other.projectTitle != null)
 				return false;
 		} else if (!projectTitle.equals(other.projectTitle))
+			return false;
+		if (rootNumber == null) {
+			if (other.rootNumber != null)
+				return false;
+		} else if (!rootNumber.equals(other.rootNumber))
 			return false;
 		return true;
 	}

@@ -27,6 +27,12 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	private List<DMDIIMemberModel> contributingCompanies;
 	
+	private Integer rootNumber;
+	
+	private Integer callNumber;
+	
+	private Integer projectNumber;
+	
 
 	public DMDIIMemberModel getPrimeOrganization() {
 		return primeOrganization;
@@ -114,6 +120,34 @@ public class DMDIIProjectModel extends BaseModel {
 
 	public void setProjectThrust(DMDIIProjectThrustModel projectThrust) {
 		this.projectThrust = projectThrust;
+	}
+
+	public Integer getRootNumber() {
+		return rootNumber;
+	}
+
+	public void setRootNumber(Integer rootNumber) {
+		this.rootNumber = rootNumber;
+	}
+
+	public Integer getCallNumber() {
+		return callNumber;
+	}
+
+	public void setCallNumber(Integer callNumber) {
+		this.callNumber = callNumber;
+	}
+
+	public Integer getProjectNumber() {
+		return projectNumber;
+	}
+
+	public void setProjectNumber(Integer projectNumber) {
+		this.projectNumber = projectNumber;
+	}
+	
+	public String getProjectIdentifier() {
+		return rootNumber + "-" + callNumber + "-" + projectNumber;
 	}
 
 }

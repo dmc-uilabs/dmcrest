@@ -2,12 +2,14 @@ package org.dmc.services;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.DMDIIProjectNewsModel;
+import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +26,13 @@ public class DMDIIProjectController {
 	
 	@Inject
 	private DMDIIProjectService dmdiiProjectService;
+	
+	@RequestMapping(value = "/dmdiiprojects", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<DMDIIProjectModel> filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
+		ServiceLogger.log(logTag, "In filter");
+		
+		return dmdiiProjectService.filter(params, page, pageSize);
+	}
 
 	@RequestMapping(value = "/dmdiiprojects/member", params = {"page", "pageSize"}, method = RequestMethod.GET)
 	public List<DMDIIProjectModel> getDmdiiProjectsByDMDIIMemberId(@RequestParam("dmdiiMemberId") Integer dmdiiMemberId,
@@ -46,22 +55,6 @@ public class DMDIIProjectController {
 		ServiceLogger.log(logTag, "In getDMDIIProjectsByStartDate: " + awardedDate);
 		
 		return dmdiiProjectService.findDMDIIProjectsByAwardedDate(awardedDate, page, pageSize);
-	}
-	
-	@RequestMapping(value = "/dmdiiprojects/status", params = {"page", "pageSize"}, method = RequestMethod.GET)
-	public List<DMDIIProjectModel> getDMDIIProjectsByStatusId(@RequestParam("statusId") Integer statusId,
-																		@RequestParam("page") Integer page,
-																		@RequestParam("pageSize") Integer pageSize) {
-		ServiceLogger.log(logTag, "In getDMDIIProjectsByStatusId: " + statusId);
-		
-		return dmdiiProjectService.findDMDIIProjectsByStatusId(statusId, page, pageSize);
-	}
-	
-	@RequestMapping(value = "/dmdiiprojects", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<DMDIIProjectModel> getDMDIIProjects(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) {
-		ServiceLogger.log(logTag, "In getAllDMDIIProjects");
-		
-		return dmdiiProjectService.findPage(page, pageSize);
 	}
 	
 	@RequestMapping(value = "/dmdiiprojects/search", params = {"title", "page", "pageSize"}, method = RequestMethod.GET)
