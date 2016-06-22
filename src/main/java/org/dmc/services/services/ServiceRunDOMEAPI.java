@@ -64,7 +64,7 @@ public class ServiceRunDOMEAPI {
 		//TODO
 		// Note that these information are different from port information provided in the database
 		// Database information for DOME server is provided for local execution, 8080/DOMEApiServicesV7/runModel need to be parameterized later.
-		String servicePath = "http://" + dServer.getServerURL() + ":8080/DOMEApiServicesV7/runModel";
+		String servicePath = "http://" + dServer.getServerURL() + ":" + dServer.getPort() + "/DOMEApiServicesV7/runModel";
 		  URL url = new URL(servicePath);
 		  HttpURLConnection conn =
 		      (HttpURLConnection) url.openConnection();
@@ -137,7 +137,7 @@ public class ServiceRunDOMEAPI {
 		//TODO
 		// Note that these information are different from port information provided in the database
 		// Database information for DOME server is provided for local execution, 8080/DOMEApiServicesV7/runModel need to be parameterized later.
-		String servicePath = "http://" + dServer.getServerURL() + ":8980/DOMEApiServicesV7/runModel";
+		String servicePath = "http://" + dServer.getServerURL() + ":" + dServer.getPort() + "/DOMEApiServicesV7/runModel";
 		  URL url = new URL(servicePath);
 		  HttpURLConnection conn =
 		      (HttpURLConnection) url.openConnection();

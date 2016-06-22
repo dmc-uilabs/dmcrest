@@ -125,8 +125,8 @@ public class ServiceRunController {
     	
     	// Run service
     	ServiceRunController c = new ServiceRunController();
-//   	    ResponseEntity<Id> result = c.serviceRun(input2,"testUser"); 
-    	ResponseEntity<ServiceRunResult> result = c.servicePoll(9,"testUser");
+   	    ResponseEntity<Id> result = c.serviceRun(input2,"testUser"); 
+//    	ResponseEntity<ServiceRunResult> result = c.servicePoll(9,"testUser");
     	System.out.println("result: " + result.toString());
-    }*/
-}
+    }
+*/}

@@ -40,11 +40,22 @@ public enum DMCError {
 	IncorrectType,
 	CanNotGetChildren,
 	CanNotGetModel,
-	CanNotConnectToDome,
+	CannotConnectToDome,
 
 	// Service queries
 	ServiceInterfaceNotMatch,
-	ServiceIDNotExist
-
+	ServiceIDNotExist,
+	
+	//account_server errors
+	CannotCreateDOMEServerEntry, 
+	UnknownSQLError,
+	UnexpectedDOMEError,
+	UnexpectedDOMEConnectionError, 
+	BadURL,
+	UnauthorizedAccessAttempt, 
+	CannotPatchDOMEServerEntry,
+	CannotDeleteDOMEServerEntry,
+	UnknownUser,
+	NoContentInQuery
 
 }

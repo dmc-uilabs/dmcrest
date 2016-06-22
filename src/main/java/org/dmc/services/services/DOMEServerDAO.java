@@ -72,7 +72,8 @@ public class DOMEServerDAO {
 	public String toDOMEString()
 	{
 		String result = printNameString("name",this.serverURL) + "," +
-				printNameString("port", ""+this.port) + "," +
+				//printNameString("port", ""+this.port) + "," +
+				printNameString("port", "7795") + "," +
 				printNameString("user",this.userName) + "," +
 				printNameString("pw", this.userPass) + "," +
 				printNameString("space",this.userSpace);
@@ -120,5 +121,10 @@ public class DOMEServerDAO {
 	public String getServerName()
 	{
 		return this.name;
+	}
+	
+	public int getPort()
+	{
+		return this.port;
 	}
 }
