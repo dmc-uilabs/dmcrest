@@ -22,6 +22,8 @@ public interface DMDIIMemberDao extends BaseRepository<DMDIIMember, Integer> {
 	Page<DMDIIMember> findByHasActiveProjects(Pageable pageable);
 	
 	Page<DMDIIMember> findByOrganizationNameLikeIgnoreCase(Pageable pageable, String name);
+	
+	Long countByOrganizationNameLikeIgnoreCase(String name);
 
 	@Query(value = "SELECT * FROM organization_dmdii_member dm JOIN dmdii_project_contributing_company dpcc on " +
 					"dm.id=dpcc.contributing_company_id WHERE dpcc.dmdii_project_id = :projectId", nativeQuery = true)
