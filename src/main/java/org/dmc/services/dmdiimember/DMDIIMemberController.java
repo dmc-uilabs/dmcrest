@@ -23,11 +23,6 @@ public class DMDIIMemberController {
 
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
-
-//	@RequestMapping(value = "/dmdiiMember", params = {"page", "pageSize"}, method = RequestMethod.GET)
-//	public @ResponseBody List<DMDIIMemberModel> getPage(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) {
-//		return dmdiiMemberService.findPage(page, pageSize);
-//	}
 	
 	@RequestMapping(value = "/dmdiiMember", params = {"page", "pageSize"}, method = RequestMethod.GET)
 	public List<DMDIIMemberModel> filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
@@ -35,17 +30,17 @@ public class DMDIIMemberController {
 	}
 
 	@RequestMapping(value = "/dmdiiMember/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody DMDIIMemberModel getMember(@PathVariable Integer id) {
+	public DMDIIMemberModel getMember(@PathVariable Integer id) {
 		return dmdiiMemberService.findOne(id);
 	}
 
 	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
-	public @ResponseBody DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
+	public DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
 		return dmdiiMemberService.save(member);
 	}
 	
 	@RequestMapping(value = "/dmdiiMember/search", method = RequestMethod.GET,params = {"page", "pageSize", "name"})
-	public @ResponseBody List<DMDIIMemberModel> findMembersByName(@RequestParam("page") Integer page,
+	public List<DMDIIMemberModel> findMembersByName(@RequestParam("page") Integer page,
 																@RequestParam("pageSize") Integer pageSize,
 																@RequestParam("name") String name) {
 		return dmdiiMemberService.findByName(name, page, pageSize);
