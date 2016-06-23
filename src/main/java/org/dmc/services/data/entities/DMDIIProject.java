@@ -21,7 +21,7 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name="dmdii_project")
 public class DMDIIProject extends BaseEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -29,58 +29,58 @@ public class DMDIIProject extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "organization_dmdii_member_id", nullable = false)
 	private DMDIIMember primeOrganization;
-	
+
 	@OneToOne
 	@JoinColumn(name = "principal_investigator_id")
 	private User principalInvestigator;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "status_id")
 	private DMDIIProjectStatus projectStatus;
-	
+
 	@Column(name = "awarded_date")
 	@Temporal(TemporalType.DATE)
 	private Date awardedDate;
-	
+
 	@Column(name = "end_date")
 	@Temporal(TemporalType.DATE)
 	private Date endDate;
-	
+
 	@Column(name = "project_title")
 	private String projectTitle;
-	
+
 	@Column(name = "project_summary")
 	private String projectSummary;
-	
+
 	@OneToOne
 	@JoinColumn(name = "principal_point_of_contact_id")
 	private User principalPointOfContact;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "focus_area_id")
 	private DMDIIProjectFocusArea projectFocusArea;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "thrust_id")
 	private DMDIIProjectThrust projectThrust;
-	
+
 	@ManyToMany
-	@JoinTable(name = "dmdii_project_contributing_companies",
+	@JoinTable(name = "dmdii_project_contributing_company",
 				joinColumns = @JoinColumn(name = "dmdii_project_id"),
-				inverseJoinColumns = @JoinColumn(name = "organization_dmdii_member_id"))
+				inverseJoinColumns = @JoinColumn(name = "contributing_company_id"))
 	private List<DMDIIMember> contributingCompanies;
-	
+
 	@Column(name = "project_root_number")
 	private Integer rootNumber;
-	
+
 	@Column(name = "project_call_number")
 	private Integer callNumber;
-	
+
 	@Column(name = "project_number")
 	private Integer projectNumber;
-	
+
 	public DMDIIProject () {
-		
+
 	}
 
 	public DMDIIMember getPrimeOrganization() {
@@ -102,7 +102,7 @@ public class DMDIIProject extends BaseEntity {
 	public DMDIIProjectStatus getProjectStatus() {
 		return projectStatus;
 	}
-	
+
 	public void setProjectStatus(DMDIIProjectStatus projectStatus) {
 		this.projectStatus = projectStatus;
 	}
@@ -311,5 +311,5 @@ public class DMDIIProject extends BaseEntity {
 			return false;
 		return true;
 	}
-	
+
 }

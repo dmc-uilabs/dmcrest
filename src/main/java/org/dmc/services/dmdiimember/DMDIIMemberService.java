@@ -59,6 +59,10 @@ public class DMDIIMemberService {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findByOrganizationNameLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%").getContent());
 	}
+	
+	public Long countByName(String name) {
+		return dmdiiMemberDao.countByOrganizationNameLikeIgnoreCase("%"+name+"%");
+	}
 
 	public DMDIIMemberModel save(DMDIIMemberModel memberModel) {
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
@@ -79,6 +83,11 @@ public class DMDIIMemberService {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+	}
+	
+	public Long count(Map filterParams) throws InvalidFilterParameterException {
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+		return dmdiiMemberDao.count(where);
 	}
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {

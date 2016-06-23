@@ -25,7 +25,7 @@ public class ModelTest {
 		List<String> foundModels = classes
 										.stream()
 										.filter(c -> {
-											if(!c.getSimpleName().equals("BaseModel"))
+											if(!c.getSimpleName().equals("BaseModel") && c.load().isAssignableFrom(BaseModel.class))
 												return c.getName() != null;
 											return false;
 										})
