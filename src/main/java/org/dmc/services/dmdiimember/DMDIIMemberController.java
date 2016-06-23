@@ -5,9 +5,11 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIMemberNewsModel;
+import org.dmc.services.data.models.PagedResponse;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,8 +27,10 @@ public class DMDIIMemberController {
 	private DMDIIMemberService dmdiiMemberService;
 	
 	@RequestMapping(value = "/dmdiiMember", params = {"page", "pageSize"}, method = RequestMethod.GET)
-	public List<DMDIIMemberModel> filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
-		return dmdiiMemberService.filter(params, page, pageSize);
+	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
+		List<? extends BaseModel> results = dmdiiMemberService.filter(params, page, pageSize);
+		Long count = dmdiiMemberService.count(params);
+		return new PagedResponse(count, results);
 	}
 
 	@RequestMapping(value = "/dmdiiMember/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -40,10 +44,12 @@ public class DMDIIMemberController {
 	}
 	
 	@RequestMapping(value = "/dmdiiMember/search", method = RequestMethod.GET,params = {"page", "pageSize", "name"})
-	public List<DMDIIMemberModel> findMembersByName(@RequestParam("page") Integer page,
+	public PagedResponse findMembersByName(@RequestParam("page") Integer page,
 																@RequestParam("pageSize") Integer pageSize,
 																@RequestParam("name") String name) {
-		return dmdiiMemberService.findByName(name, page, pageSize);
+		List<? extends BaseModel> results = dmdiiMemberService.findByName(name, page, pageSize);
+		Long count = dmdiiMemberService.countByName(name);
+		return new PagedResponse(count, results);
 	}
 	
 	@RequestMapping(value = "/dmdiiMember/news", params = "limit", method = RequestMethod.GET)
