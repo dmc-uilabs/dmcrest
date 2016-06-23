@@ -7,7 +7,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.json.JSONObject;
 import org.json.JSONException;
 
 import org.dmc.services.DBConnector;
@@ -15,6 +14,7 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.users.UserDao;
 
 public class TaskDao {
     private static final String logTag = TaskDao.class.getName();
@@ -23,7 +23,7 @@ public class TaskDao {
     public TaskDao() {
     }
 
-    public Task getTask(String taskID) throws DMCServiceException {
+    public Task getTask(String taskID, String userEPPN) throws DMCServiceException {
         if (queryTask(taskID)) {
             return readTaskFromResultSet();
         }
@@ -36,7 +36,7 @@ public class TaskDao {
      * assignee : string reporter : string dueDate : MM/DD/YY priority :
      * 'Today', '<Date>'
      */
-    public Id createTask(String jsonStr) {
+    public Id createTask(Task task, String userEPPN) {
 
         int id = -99999;
 
@@ -46,24 +46,14 @@ public class TaskDao {
          */
         ServiceLogger.log(logTag, "ID in createTask: " + id);
         try {
-            JSONObject json = new JSONObject(jsonStr);
-
-            String title = json.getString("title");
-            String description = json.getString("description");
-            // Integer priority = json.getInt("priority");
-            Integer priority = new Integer(1);
-            // String assignee = new String("assignee");
-            Integer endDate = json.getInt("dueDate");
-            // String reporter = json.getInt("reporter");
-            Integer createdBy = new Integer("102");
-            Integer groupId = json.getInt("projectId");
-            // Integer statusId = json.getInt("status_id");
-            // always assign project task = open
-            Integer statusId = new Integer(1);
-
-            // SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-YYYY
-            // hh:mm:ss");
-            // long millisOfDate = (new Date()).getTime();
+            int userID = UserDao.getUserID(userEPPN);
+            String title = task.getTitle();
+            String description = task.getAdditionalDetails();
+            Integer priority = task.getPriority();
+            Long endDate = task.getDueDate();
+            Integer createdBy = userID;
+            Integer groupId = task.getTaskProject().getId();
+            Integer statusId = TaskStatus.StatusValues.valueOf(task.getStatus().toUpperCase()).getValue();
 
             String query = "INSERT INTO project_task (summary, details, priority, end_date, created_by, group_project_id, status_id)"
                     + "values ( ?, ?, ?, ?, ?, ?, ?)";
@@ -72,7 +62,7 @@ public class TaskDao {
             preparedStatement.setString(1, title);
             preparedStatement.setString(2, description);
             preparedStatement.setInt(3, priority);
-            preparedStatement.setInt(4, endDate);
+            preparedStatement.setLong(4, endDate);
             preparedStatement.setInt(5, createdBy);
             preparedStatement.setInt(6, groupId);
             preparedStatement.setInt(7, statusId);
@@ -239,7 +229,6 @@ public class TaskDao {
             long dueDate = resultSet.getLong("end_date");
             Date releaseDate = new Date(1000L * resultSet.getLong("end_date"));
             SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-            String dueDateText = formatter.format(releaseDate);
             String status = resultSet.getString("status");
 
             TaskProject taskProject = new TaskProject(group_project_id, projectTitle);

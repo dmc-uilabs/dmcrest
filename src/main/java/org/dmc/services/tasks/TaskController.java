@@ -21,37 +21,38 @@ import java.util.ArrayList;
 @RestController
 public class TaskController {
 
-    private static final String LOGTAG = "TASK_CONTROLLER";
+    private static final String LOGTAG = TaskController.class.getName();
 
     private TaskDao task = new TaskDao();
 
     @RequestMapping(value = "/tasks/{taskID}", method = GET, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity getTask(@PathVariable("taskID") String taskID,
+    public ResponseEntity<?> getTask(@PathVariable("taskID") String taskID,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         ServiceLogger.log(LOGTAG, "UserName: " + userEPPN);
         try {
-            return new ResponseEntity<Task>(task.getTask(taskID), OK);
+            return new ResponseEntity<Task>(task.getTask(taskID, userEPPN), OK);
         } catch (DMCServiceException e) {
             return new ResponseEntity<String>(e.getMessage(), INTERNAL_SERVER_ERROR);
         }
     }
 
     @RequestMapping(value = "/tasks/{taskID}", method = DELETE, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> tasksTaskIDDelete(@PathVariable("taskID") String taskID) {
+    public ResponseEntity<Void> tasksTaskIDDelete(@PathVariable("taskID") String taskID,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         // do some magic!
         return new ResponseEntity<Void>(NOT_IMPLEMENTED);
     }
 
     @RequestMapping(value = "/tasks/create", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Id createTask(@RequestBody String payload) {
+    public Id createTask(@RequestBody Task payload,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         ServiceLogger.log(LOGTAG, "Payload: " + payload);
 
-        return task.createTask(payload);
+        return task.createTask(payload, userEPPN);
     }
 
     @RequestMapping(value = "/tasks", method = GET, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity getTaskList(@RequestParam(value = "_order", required = false) String order,
+    public ResponseEntity<?> getTaskList(@RequestParam(value = "_order", required = false) String order,
             @RequestParam(value = "_sort", required = false) String sort,
             @RequestParam(value = "_start", required = false) Integer start,
             @RequestParam(value = "_limit", required = false) Integer limit,
