@@ -81,9 +81,9 @@ public class DMDIIMember extends BaseEntity {
 			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
 			   inverseJoinColumns = @JoinColumn(name="id"))
 	private List<DMDIIMemberUser> users;
-	
+
 	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "prime_organization_id")
+	@JoinColumn(name = "organization_dmdii_member_id")
 	private Set<DMDIIProject> projects;
 
 	public DMDIIType getDmdiiType() {
