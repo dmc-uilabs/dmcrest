@@ -9,10 +9,16 @@ import org.springframework.data.domain.Pageable;
 public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Integer> {
 
 	Page<DMDIIProject> findByPrimeOrganizationId(Pageable pageable, Integer primeOrganizationId);
+	
+	Long countByPrimeOrganizationId(Integer primeOrganizationId);
 
 	Page<DMDIIProject> findByAwardedDate(Pageable pageable, Date startDate);
+	
+	Long countByAwardedDate(Date startDate);
 
 	Page<DMDIIProject> findByProjectStatusId(Pageable pageable, Integer statusId);
 	
 	Page<DMDIIProject> findByProjectTitleLikeIgnoreCase(Pageable pageable, String title);
+	
+	Long countByProjectTitleLikeIgnoreCase(String title);
 }

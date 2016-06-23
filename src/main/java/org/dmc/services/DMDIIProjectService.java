@@ -23,6 +23,7 @@ import org.dmc.services.data.repositories.DMDIIProjectEventsRepository;
 import org.dmc.services.data.repositories.DMDIIProjectNewsRepository;
 import org.dmc.services.data.repositories.DMDIIProjectRepository;
 import org.dmc.services.dmdiimember.DMDIIMemberDao;
+import org.dmc.services.dmdiimember.DMDIIMemberService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,9 @@ public class DMDIIProjectService {
 
 	@Inject
 	private DMDIIProjectEventsRepository dmdiiProjectEventsRepository;
+	
+	@Inject
+	private DMDIIMemberService dmdiiMemberService;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -52,6 +56,11 @@ public class DMDIIProjectService {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+	}
+	
+	public Long count(Map<String, String> filterParams) throws InvalidFilterParameterException {
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+		return dmdiiProjectRepository.count(where);
 	}
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
@@ -146,14 +155,26 @@ public class DMDIIProjectService {
 		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationId(new PageRequest(pageNumber, pageSize), primeOrganizationId).getContent());
 	}
 
+	public Long countDmdiiProjectsByPrimeOrganizationId(Integer dmdiiMemberId) {
+		return dmdiiProjectRepository.countByPrimeOrganizationId(dmdiiMemberId);
+	}
+
 	public List<DMDIIProjectModel> findDMDIIProjectsByAwardedDate(Date awardedDate, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByAwardedDate(new PageRequest(pageNumber, pageSize), awardedDate).getContent());
+	}
+	
+	public Long countDMDIIProjectsByAwardedDate(Date awardedDate) {
+		return dmdiiProjectRepository.countByAwardedDate(awardedDate);
 	}
 
 	public List<DMDIIProjectModel> findByTitle(String title, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByProjectTitleLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+title+"%").getContent());
+	}
+	
+	public Long countByTitle(String title) {
+		return dmdiiProjectRepository.countByProjectTitleLikeIgnoreCase("%"+title+"%");
 	}
 
 	public DMDIIProjectModel findOne(Integer id) {
@@ -162,13 +183,16 @@ public class DMDIIProjectService {
 	}
 
 	public DMDIIProjectModel save(DMDIIProjectModel project) {
-		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-
-		DMDIIProject projectEntity = mapper.mapToEntity(project);
+		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
+		
+		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
+		DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
+		projectEntity.setPrimeOrganization(memberEntity);
 
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
 
-		return mapper.mapToModel(projectEntity);
+		return projectMapper.mapToModel(projectEntity);
 	}
 
 	public List<DMDIIMemberModel> findContributingCompanyByProjectId(Integer projectId) {
@@ -186,4 +210,5 @@ public class DMDIIProjectService {
 		Mapper<DMDIIProjectEvent, DMDIIProjectEventModel> mapper = mapperFactory.mapperFor(DMDIIProjectEvent.class, DMDIIProjectEventModel.class);
 		return mapper.mapToModel(dmdiiProjectEventsRepository.findAllByOrderByEventDateDesc(new PageRequest(0, limit)).getContent());
 	}
+
 }
