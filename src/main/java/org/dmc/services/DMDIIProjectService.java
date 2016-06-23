@@ -23,6 +23,7 @@ import org.dmc.services.data.repositories.DMDIIProjectEventsRepository;
 import org.dmc.services.data.repositories.DMDIIProjectNewsRepository;
 import org.dmc.services.data.repositories.DMDIIProjectRepository;
 import org.dmc.services.dmdiimember.DMDIIMemberDao;
+import org.dmc.services.dmdiimember.DMDIIMemberService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,9 @@ public class DMDIIProjectService {
 
 	@Inject
 	private DMDIIProjectEventsRepository dmdiiProjectEventsRepository;
+	
+	@Inject
+	private DMDIIMemberService dmdiiMemberService;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -179,13 +183,16 @@ public class DMDIIProjectService {
 	}
 
 	public DMDIIProjectModel save(DMDIIProjectModel project) {
-		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-
-		DMDIIProject projectEntity = mapper.mapToEntity(project);
+		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
+		
+		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
+		DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
+		projectEntity.setPrimeOrganization(memberEntity);
 
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
 
-		return mapper.mapToModel(projectEntity);
+		return projectMapper.mapToModel(projectEntity);
 	}
 
 	public List<DMDIIMemberModel> findContributingCompanyByProjectId(Integer projectId) {
