@@ -17,8 +17,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ServiceRunDOMEAPI {
-		
-
+    private static final String LOGTAG ServiceRunDOMEAPI.class.getName();
+ 
 	/*public static void main(String[] args)
 	{
 		int user_id = 111;
@@ -138,6 +138,7 @@ public class ServiceRunDOMEAPI {
 		// Note that these information are different from port information provided in the database
 		// Database information for DOME server is provided for local execution, 8080/DOMEApiServicesV7/runModel need to be parameterized later.
 		String servicePath = "http://" + dServer.getServerURL() + ":" + dServer.getPort() + "/DOMEApiServicesV7/runModel";
+		ServiceLogger.log(LOGTAG, "url to run model: " + servicePath);
 		  URL url = new URL(servicePath);
 		  HttpURLConnection conn =
 		      (HttpURLConnection) url.openConnection();
@@ -164,6 +165,7 @@ public class ServiceRunDOMEAPI {
 		  out.close();
 
 		  if (conn.getResponseCode() != 200) {
+		    ServiceLogger.log(LOGTAG, "failed to run service: code = " + conn.getResponseCode() + " : " + conn.getResponseMessage());
 		    throw new IOException(conn.getResponseMessage());
 		  }
 
