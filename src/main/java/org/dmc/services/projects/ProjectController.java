@@ -13,6 +13,8 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionListDao;
 import org.dmc.services.discussions.IndividualDiscussion;
+import org.dmc.services.discussions.IndividualDiscussionComment;
+import org.dmc.services.discussions.IndividualDiscussionDao;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -191,28 +193,20 @@ public class ProjectController {
 		}
 	}
 
-	// this is same as above - yaml may be wrong as to what should be defined
-    @RequestMapping(value = "/projects/{projectID}/individual-discussion", method = RequestMethod.GET, produces = { "application/json" })
-    public ResponseEntity getIndividualDiscussions(@PathVariable("projectID") int projectID,
-            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
-            @RequestParam(value = "_limit", defaultValue = "100", required=false) Integer limit,
-            @RequestParam(value = "_order", defaultValue = "DESC", required=false) String order,
-            @RequestParam(value = "_sort", defaultValue = "time_posted", required=false) String sort) {
+	@RequestMapping(value = "/projects/{projectID}/individual-discussion", method = RequestMethod.GET, produces = { "application/json" })
+	public ResponseEntity getIndividualDiscussionsFromProjectId(@PathVariable("projectID") Integer projectID,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_order", required = false) String order, @RequestParam(value = "_sort", required = false) String sort) {
+		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		ServiceLogger.log(logTag, "getIndividualDiscussionsFromProjectId, userEPPN: " + userEPPN);
 
-        ServiceLogger.log(logTag, "getIndividualDiscussions, userEPPN: " + userEPPN);
-        int statusCode = HttpStatus.OK.value();
-        ArrayList<Discussion> discussions = null;
-
-        try {
-            discussions = discussionListDao.getDiscussionList(userEPPN, projectID, limit, order, sort);
-            return new ResponseEntity<ArrayList<Discussion>>(discussions, HttpStatus.valueOf(statusCode));
-        } catch (HTTPException e) {
-            ServiceLogger.log(logTag, e.getMessage());
-            statusCode = e.getStatusCode();
-            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-        }
-    }
+		try {
+			return new ResponseEntity<List<IndividualDiscussion>>(individualDiscussionDao.getIndividualDiscussionsFromProjectId(projectID, limit, order, sort), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		}
+	}
     
 
 	@ExceptionHandler(Exception.class)
