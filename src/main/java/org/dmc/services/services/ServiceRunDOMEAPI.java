@@ -17,7 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ServiceRunDOMEAPI {
-    private static final String LOGTAG ServiceRunDOMEAPI.class.getName();
+    private static final String LOGTAG = ServiceRunDOMEAPI.class.getName();
  
 	/*public static void main(String[] args)
 	{
