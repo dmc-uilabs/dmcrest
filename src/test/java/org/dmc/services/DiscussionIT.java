@@ -196,7 +196,7 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testGet_IndividualDiscussionFromProjectId() {
 		List<IndividualDiscussion> received = Arrays.asList(given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
-				.get("/projects/" + 12 + "/individual-discussion").as(IndividualDiscussion[].class));
+				.get("/projects/" + 2 + "/individual-discussion").as(IndividualDiscussion[].class));
 
 		assertTrue("testGet_IndividualDiscussionFromProjectId: id values are not equal", (received.get(0).getId().equals("3")));
 		assertTrue("testGet_IndividualDiscussionFromProjectId: title values are not equal", (received.get(0).getTitle().equals("For Project")));
@@ -236,7 +236,7 @@ public class DiscussionIT extends BaseIT {
 		String createdBy = "Eminem";
 		BigDecimal createdAt = new BigDecimal(12301293);
 		BigDecimal accountId = new BigDecimal(550);
-		BigDecimal projectId = new BigDecimal(12);
+		BigDecimal projectId = new BigDecimal(2);
 
 		obj.setTitle(title);
 		obj.setCreatedBy(createdBy);
@@ -336,7 +336,7 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testGet_IndividualDiscussionFromId: createdBy values are not equal", (read.getCreatedBy().equals("Google")));
 		assertTrue("testGet_IndividualDiscussionFromId: createdAt values are not equal", (read.getCreatedAt().equals(new BigDecimal(12345))));
 		assertTrue("testGet_IndividualDiscussionFromId: accountId values are not equal", (read.getAccountId().equals(new BigDecimal(550))));
-		assertTrue("testGet_IndividualDiscussionFromId: projectId values are not equal", (read.getProjectId().equals(new BigDecimal(12))));
+		assertTrue("testGet_IndividualDiscussionFromId: projectId values are not equal", (read.getProjectId().equals(new BigDecimal(2))));
 	}
 	
 	

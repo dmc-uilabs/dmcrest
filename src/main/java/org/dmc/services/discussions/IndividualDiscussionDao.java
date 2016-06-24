@@ -59,8 +59,8 @@ public class IndividualDiscussionDao {
 
 			int counter = 0;
 			while (resultSet.next() && (limit == null || counter < limit)) {
-				String projectIdTemp = resultSet.getString("project_id");
-				if (projectIdTemp == null) {
+				Integer projectIdTemp = resultSet.getInt("project_id");
+				if (projectIdTemp.equals(new Integer(0))) {
 					retObj = new IndividualDiscussion();
 					counter++;
 
@@ -113,7 +113,7 @@ public class IndividualDiscussionDao {
 				preparedStatementQuery.setString(2, discussion.getCreatedBy());
 				preparedStatementQuery.setString(3, discussion.getCreatedAt().toString());
 				preparedStatementQuery.setInt(4, discussion.getAccountId().intValue());
-				preparedStatementQuery.setString(5, discussion.getProjectId().toString());
+				preparedStatementQuery.setInt(5, discussion.getProjectId().intValue());
 			} else {
 				discussionsQuery = "INSERT into individual_discussions (title, created_by, created_at, account_id) values ( ?, ?, ?, ? )";
 
@@ -181,8 +181,8 @@ public class IndividualDiscussionDao {
 				retObj.setCreatedBy(resultSet.getString("created_by"));
 				retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
 				retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
-				String projectIdTemp = resultSet.getString("project_id");
-				if (projectIdTemp != null) {
+				Integer projectIdTemp = resultSet.getInt("project_id");
+				if (!projectIdTemp.equals(new Integer(0))) {
 					retObj.setProjectId(new BigDecimal(projectIdTemp));
 				}
 			}
@@ -595,7 +595,7 @@ public class IndividualDiscussionDao {
 			}
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(discussionQuery);
-			preparedStatement.setString(1, projectId.toString());
+			preparedStatement.setInt(1, projectId);
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
 
@@ -607,8 +607,8 @@ public class IndividualDiscussionDao {
 				retObj.setCreatedBy(resultSet.getString("created_by"));
 				retObj.setCreatedAt(new BigDecimal(resultSet.getString("created_at")));
 				retObj.setAccountId(new BigDecimal(resultSet.getInt("account_id")));
-				String projectIdTemp = resultSet.getString("project_id");
-				if (projectIdTemp != null) {
+				Integer projectIdTemp = resultSet.getInt("project_id");
+				if (!projectIdTemp.equals(new Integer(0))) {
 					retObj.setProjectId(new BigDecimal(projectIdTemp));
 				}
 
