@@ -45,7 +45,7 @@ public class ProjectMemberController {
             
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         } 
     }
     
@@ -67,7 +67,7 @@ public class ProjectMemberController {
             return new ResponseEntity<ProjectMember>(createdMember, HttpStatus.valueOf(HttpStatus.OK.value()));
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         } 
     }
 
@@ -89,7 +89,7 @@ public class ProjectMemberController {
             return new ResponseEntity<ProjectMember>(createdMember, HttpStatus.valueOf(HttpStatus.OK.value()));
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         } 
     }
     
@@ -132,7 +132,7 @@ public class ProjectMemberController {
             return new ResponseEntity<ProjectMember>(projectMemberDao.acceptMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
 
@@ -152,7 +152,7 @@ public class ProjectMemberController {
             return new ResponseEntity<ProjectMember>(projectMemberDao.rejectMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
 

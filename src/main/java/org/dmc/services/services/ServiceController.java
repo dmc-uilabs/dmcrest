@@ -39,7 +39,7 @@ public class ServiceController {
 		    return new ResponseEntity<Service>(serviceDao.getService(id, userEPPN), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 		    ServiceLogger.logException(logTag, e);
-		    return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+		    return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
@@ -50,7 +50,7 @@ public class ServiceController {
             return new ResponseEntity<ArrayList<Service>>(serviceDao.getServiceList(), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
 	}
 
@@ -61,7 +61,7 @@ public class ServiceController {
             return new ResponseEntity<ArrayList<Service>>(serviceDao.getServiceList(projectId), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
 	}
 
@@ -72,7 +72,7 @@ public class ServiceController {
             return new ResponseEntity<ArrayList<Service>>(serviceDao.getServiceByComponentList(componentId), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
 	}
 
@@ -84,7 +84,7 @@ public class ServiceController {
             return new ResponseEntity<Service>(serviceDao.createService(body, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
 	}
 
@@ -98,7 +98,7 @@ public class ServiceController {
             return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
 	}
 
@@ -192,7 +192,7 @@ public class ServiceController {
 			return new ResponseEntity<List<GetDomeInterface>>(domeInterfacesDao.getDomeInterfacesFromServiceId(serviceId, limit, order, sort), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 		
 	}
@@ -232,7 +232,7 @@ public class ServiceController {
 			return new ResponseEntity<ArrayList<Integer>>(ids, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		} 
 	}
 	
@@ -254,7 +254,7 @@ public class ServiceController {
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		} 
 	}
 	
@@ -276,7 +276,7 @@ public class ServiceController {
 			return new ResponseEntity<Id>(id, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		} 
 	}
 	
@@ -297,7 +297,7 @@ public class ServiceController {
 			return new ResponseEntity<ArrayList<ServiceSpecifications>>(specs, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		} 
 	}
 	
@@ -321,7 +321,7 @@ public class ServiceController {
 			return new ResponseEntity<ArrayList<ServiceSpecifications>>(specs, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		} 
 	}
 

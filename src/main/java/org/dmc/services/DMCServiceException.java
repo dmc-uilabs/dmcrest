@@ -6,12 +6,10 @@ import org.springframework.http.HttpStatus;
 public class DMCServiceException extends Exception {
 
 	private DMCError error;
-	private String errorMessage;
-
 	public DMCServiceException(DMCError e, String m)
 	{
+	    super(m);
 		this.error = e;
-		this.errorMessage = m;
 	}
 
 	public DMCError getError() {
@@ -20,14 +18,6 @@ public class DMCServiceException extends Exception {
 
 	public void setError(DMCError error) {
 		this.error = error;
-	}
-
-	public String getErrorMessage() {
-		return this.errorMessage;
-	}
-
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
 	}
 
 	public HttpStatus getHttpStatusCode() {

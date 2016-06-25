@@ -98,7 +98,7 @@ public class TaskIT extends BaseIT {
         final long dueDate = 0L;
         final String reporter = "bamboo tester"; // a user ID in users table
         final String reporterId = "111"; // a user ID in users table
-        final String assignee = "should be 103's name"; // from group table
+        final String assignee = "berlier"; // from group table
         final String assigneeId = "103"; // from group table
         final String status = "Open";
 
