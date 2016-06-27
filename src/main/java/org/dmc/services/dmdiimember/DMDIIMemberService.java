@@ -68,8 +68,6 @@ public class DMDIIMemberService {
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
-		Organization organization = orgMapper.mapToEntity(organizationService.save(memberModel.getOrganization()));
-
 		DMDIIMember memberEntity = memberMapper.mapToEntity(memberModel);
 		Organization organizationEntity = orgMapper.mapToEntity(organizationService.save(memberModel.getOrganization()));
 		memberEntity.setOrganization(organizationEntity);
