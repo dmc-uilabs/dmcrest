@@ -323,6 +323,7 @@
 							<excludes>
 								<exclude>**/SearchIT.java</exclude>
 								<exclude>**/ServiceRunIT.java</exclude>
+								<exclude>**/DomeIT.java</exclude>
 							</excludes>
 						</configuration>
 					</execution>
