@@ -592,13 +592,22 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionCommentHelpful(){
-		given().
+		String accountId = "550";
+		String commentId = "2";
+		Boolean helpful = true;
+
+		IndividualDiscussionCommentHelpful received = given().
 		param("accountId", accountId).
 		param("commentId", commentId).
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/individual-discussion-comments-helpful");
+		statusCode(HttpStatus.OK.value()).
+		when().get("/individual-discussion-comments-helpful").as(IndividualDiscussionCommentHelpful.class);
+		
+		assertTrue("testGet_IndividualDiscussionCommentHelpful: id values are not equal", (received.getId().equals("1")));
+		assertTrue("testGet_IndividualDiscussionCommentHelpful: accountId values are not equal", (received.getAccountId().equals(accountId)));
+		assertTrue("testGet_IndividualDiscussionCommentHelpful: commentId values are not equal", (received.getCommentId().equals(commentId)));
+		assertTrue("testGet_IndividualDiscussionCommentHelpful: helpful values are not equal", (received.getHelpful().equals(helpful)));
 	}
 	
 	

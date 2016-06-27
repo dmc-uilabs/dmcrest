@@ -23,12 +23,16 @@ public class IndividualDiscussionCommentsHelpfulController {
 	private final String logTag = IndividualDiscussionCommentsHelpfulController.class.getName();
 	private IndividualDiscussionCommentsHelpfulDao commentsHelpfulDao = new IndividualDiscussionCommentsHelpfulDao();
 
-	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<IndividualDiscussionCommentHelpful>> individualDiscussionCommentsHelpfulGet(@RequestParam(value = "commentId", required = true) String commentId,
-			@RequestParam(value = "accountId", required = true) String accountId, @RequestParam(value = "limit", required = false) Integer limit,
-			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<List<IndividualDiscussionCommentHelpful>>(HttpStatus.NOT_IMPLEMENTED);
+	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.GET)
+	public ResponseEntity individualDiscussionCommentsHelpfulGet(@RequestParam(value = "commentId", required = true) String commentId,
+			@RequestParam(value = "accountId", required = true) String accountId) {
+		try {
+			ServiceLogger.log(logTag, "In postIndividualDiscussionCommentsHelpful");
+			return new ResponseEntity<IndividualDiscussionCommentHelpful>(commentsHelpfulDao.getIndividualDiscussionCommentHelpful(commentId, accountId), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.POST)
@@ -38,7 +42,7 @@ public class IndividualDiscussionCommentsHelpfulController {
 			return new ResponseEntity<IndividualDiscussionCommentHelpful>(commentsHelpfulDao.createIndividualDiscussionCommentHelpful(individualDiscussionCommentHelpful), HttpStatus.CREATED);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 

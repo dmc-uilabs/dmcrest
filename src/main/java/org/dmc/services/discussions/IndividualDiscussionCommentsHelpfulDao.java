@@ -68,5 +68,49 @@ public class IndividualDiscussionCommentsHelpfulDao {
 		}
 		return retObj;
 	}
+	
+	public IndividualDiscussionCommentHelpful getIndividualDiscussionCommentHelpful(String commentId, String accountId) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		IndividualDiscussionCommentHelpful retObj = null;
+
+		try {
+			connection.setAutoCommit(false);
+			String commentHelpfulQuery = "SELECT * FROM individual_discussions_comments_helpful WHERE comment_id = ? AND account_id = ?";
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(commentHelpfulQuery);
+			preparedStatement.setInt(1, Integer.parseInt(commentId));
+			preparedStatement.setInt(2, Integer.parseInt(accountId));
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+
+			if (resultSet.next()) {
+				retObj = new IndividualDiscussionCommentHelpful();
+
+				retObj.setId(Integer.toString(resultSet.getInt("id")));
+				retObj.setAccountId(Integer.toString(resultSet.getInt("account_id")));
+				retObj.setCommentId(Integer.toString(resultSet.getInt("comment_id")));
+				retObj.setHelpful(resultSet.getBoolean("helpful"));
+			}
+
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+
+		return retObj;
+	}
 
 }
