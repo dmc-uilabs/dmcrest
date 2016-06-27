@@ -68,6 +68,7 @@ public class DMCServiceException extends Exception {
 				status = HttpStatus.INTERNAL_SERVER_ERROR;
 				break;
 			case IncorrectType:
+			case InvalidCommentId:
 				status = HttpStatus.BAD_REQUEST;
 				break;
 			case CannotConnectToDome:

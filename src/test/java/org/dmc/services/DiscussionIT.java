@@ -603,28 +603,89 @@ public class DiscussionIT extends BaseIT {
 	
 	
 	/*
-	 * test case for POST /individual-discussion-comments-helpful
+	 * test case 1 for POST /individual-discussion-comments-helpful
 	 */
 	@Test
-	public void testPost_IndividualDiscussionCommentHelpful(){
-		IndividualDiscussionCommentHelpful obj = new IndividualDiscussionCommentHelpful();
+	public void testPost_IndividualDiscussionCommentHelpfulWithValidAttributes() {
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentHelpfulJSONString = null;
-		
+		String accountId = "550";
+		String commentId = "2";
+		Boolean helpful = true;
+
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpful);
+
 		try {
-			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(obj);
+			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(postedIndividualDiscussionCommentHelpfulJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().post("/individual-discussion-comments-helpful");
+
+		IndividualDiscussionCommentHelpful postedHelpful = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
+				.body(postedIndividualDiscussionCommentHelpfulJSONString).expect().statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion-comments-helpful")
+				.as(IndividualDiscussionCommentHelpful.class);
+
+		assertTrue("testPost_IndividualDiscussionCommentHelpfulWithValidAttributes: accountId values are not equal", (postedHelpful.getAccountId().equals(accountId)));
+		assertTrue("testPost_IndividualDiscussionCommentHelpfulWithValidAttributes: commentId values are not equal", (postedHelpful.getCommentId().equals(commentId)));
+		assertTrue("testPost_IndividualDiscussionCommentHelpfulWithValidAttributes: helpful values are not equal", (postedHelpful.getHelpful().equals(helpful)));
+
+	}
+
+	/*
+	 * test case 2 for POST /individual-discussion-comments-helpful
+	 */
+	@Test
+	public void testPost_IndividualDiscussionCommentHelpfulWithInvalidAccountId() {
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionCommentHelpfulJSONString = null;
+		String accountId = "0";
+		String commentId = "2";
+		Boolean helpful = true;
+
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpful);
+
+		try {
+			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentHelpfulJSONString).expect()
+				.statusCode(HttpStatus.UNAUTHORIZED.value()).when().post("/individual-discussion-comments-helpful");
+
+	}
+
+	/*
+	 * test case 3 for POST /individual-discussion-comments-helpful
+	 */
+	@Test
+	public void testPost_IndividualDiscussionCommentHelpfulWithInvalidCommentId() {
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionCommentHelpfulJSONString = null;
+		String accountId = "550";
+		String commentId = "0";
+		Boolean helpful = true;
+
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpful);
+
+		try {
+			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentHelpfulJSONString).expect()
+				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post("/individual-discussion-comments-helpful");
+
 	}
 	
 	
