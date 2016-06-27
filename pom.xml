@@ -322,6 +322,7 @@
 							To run a specific test: mvn-Dtest=ProjectIT test -->
 							<excludes>
 								<exclude>**/SearchIT.java</exclude>
+								<exclude>**/ServiceRunIT.java</exclude>
 							</excludes>
 						</configuration>
 					</execution>
