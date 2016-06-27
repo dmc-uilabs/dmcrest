@@ -44,6 +44,7 @@ public enum DMCError {
 
 	// Service queries
 	ServiceInterfaceNotMatch,
+	ServiceIDNotExist,
 	
 	//account_server errors
 	CannotCreateDOMEServerEntry, 
@@ -59,6 +60,5 @@ public enum DMCError {
 	
 	//Individual_Discussions
 	InvalidAccountId
-
 
 }
