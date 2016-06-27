@@ -177,7 +177,7 @@ public class DomeAPIDao {
 			out.close();
 
 			if (conn.getResponseCode() != 200) {
-				throw new DMCServiceException(DMCError.CanNotConnectToDome, conn.getResponseMessage());
+				throw new DMCServiceException(DMCError.CannotConnectToDome, conn.getResponseMessage());
 			} else {
 
 				// Buffer the result into a string
@@ -262,7 +262,7 @@ public class DomeAPIDao {
 			out.close();
 
 			if (conn.getResponseCode() != 200) {
-				throw new DMCServiceException(DMCError.CanNotConnectToDome, conn.getResponseMessage());
+				throw new DMCServiceException(DMCError.CannotConnectToDome, conn.getResponseMessage());
 			} else {
 
 				// Buffer the result into a string

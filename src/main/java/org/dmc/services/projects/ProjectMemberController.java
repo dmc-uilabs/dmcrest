@@ -5,6 +5,7 @@ import java.lang.Exception;
 
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.profile.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,26 @@ public class ProjectMemberController {
     private final String logTag = ProjectMemberController.class.getName();
     private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
 
+    /**
+     * GET member
+     * @param userEPPN
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/members", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<?> getProjectMembers(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
+        
+        ServiceLogger.log(logTag, "In getProjectMembers: as user " + userEPPN);
+
+        try {
+        	return new ResponseEntity<ArrayList<Profile>>(projectMemberDao.getMembers(userEPPN), HttpStatus.OK);
+            
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+        } 
+    }
+    
     @RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity getProjectMembers(
             @RequestParam(value = "projectId", required = false) String projectIdString,

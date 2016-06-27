@@ -3,15 +3,12 @@ package org.dmc.services;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
+
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
-import java.net.HttpURLConnection;
 
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import static org.hamcrest.CoreMatchers.*;
 import static com.jayway.restassured.RestAssured.*;
 
 import com.jayway.restassured.response.ValidatableResponse;
@@ -24,20 +21,21 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.dmc.services.projects.ProjectMember;
 import org.dmc.services.projects.ProjectDocument;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.Assert.*;
 
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.company.CompanyUserUtil;
 import org.dmc.services.discussions.Discussion;
+import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectTag;
-import org.dmc.services.services.ServiceSpecifications;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -50,11 +48,13 @@ public class ProjectIT extends BaseIT {
 	// Member
 	private static final String MEMBER_ACCEPT_RESOURCE = "/projects/{projectId}/accept/{memberId}";
 	private static final String MEMBER_REJECT_RESOURCE = "/projects/{projectId}/reject/{memberId}";
+	private static final String MEMBERS_RESOURCE = "/members";
 
 	//Documents
 	private static final String PROJECT_DOCS = "/projects/{projectID}/project_documents/";
 
 
+	private static final String adminUser = "fforgeadmin";
     private final String logTag = ProjectIT.class.getName();
     private DiscussionIT discussionIT = new DiscussionIT();
 	private Integer createdId = null;
@@ -914,6 +914,30 @@ public class ProjectIT extends BaseIT {
 				.asString();
 
 			assertTrue("Not Admin", response.contains("not have permission to remove members"));
+		}
+	}
+	
+	/**
+	 * GET /members
+	 */
+	@Test
+	public void testGetMembers() throws Exception {
+		String userName;
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode members = given()
+			.header("Content-type", APPLICATION_JSON_VALUE)
+			.header("AJP_eppn", adminUser)
+			.expect()
+			.statusCode(HttpStatus.OK.value())
+			.when()
+			.get(MEMBERS_RESOURCE)
+			.as(JsonNode.class);
+
+		ArrayList<Profile> membersList = mapper.readValue(mapper.treeAsTokens(members), new TypeReference<ArrayList<Profile>>() {});
+
+		for (Profile profile : membersList) {
+			userName = profile.getDisplayName();
+			assertTrue("Member " + userName + " is DMDII Member", CompanyUserUtil.isDMDIIMember(userName));
 		}
 	}
 }
