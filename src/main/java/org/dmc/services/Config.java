@@ -3,8 +3,8 @@ package org.dmc.services;
 public class Config {
 
 	// DB
-	public static final String DB_PORT = System.getenv("DBport");//"5432";//System.getenv("DBport");
-	public static final String DB_IP = System.getenv("DBip"); //54.237.192.205
+	public static final String DB_PORT = "5432";//System.getenv("DBport");
+	public static final String DB_IP = "54.172.82.133";
 	public static final String DB_HOST = "jdbc:postgresql://" + DB_IP;//ec2-52-35-193-110.us-west-2.compute.amazonaws.com";// + System.getenv("DBip");
   public static final String DB_NAME = "gforge";//"gforge";
  	public static final String DB_USER = "gforge";//System.getenv("DBuser");//"gforge";//System.getenv("DBuser");
