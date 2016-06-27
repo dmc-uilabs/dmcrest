@@ -38,11 +38,11 @@ public class DomeInterfacesController {
 		} catch (DMCServiceException e) {
 			
 
-			if (e.getErrorMessage().startsWith("ERROR: insert or update on table \"service_interface\" violates foreign key constraint")) {
+			if (e.getMessage().startsWith("ERROR: insert or update on table \"service_interface\" violates foreign key constraint")) {
 				return new ResponseEntity<String>(HttpStatus.METHOD_NOT_ALLOWED);
 			} else {
 				ServiceLogger.logException(logTag, e);
-				return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+				return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 			}
 		}
 	}
@@ -55,7 +55,7 @@ public class DomeInterfacesController {
 			return new ResponseEntity<Void>(HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 		
 	}
@@ -73,7 +73,7 @@ public class DomeInterfacesController {
 			}
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 		
 	}
@@ -85,7 +85,7 @@ public class DomeInterfacesController {
 			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.updateDomeInterface(domeInterfaceId, domeInterface), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 		
 	}
