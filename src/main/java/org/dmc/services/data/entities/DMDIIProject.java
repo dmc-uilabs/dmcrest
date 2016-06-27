@@ -1,5 +1,6 @@
 package org.dmc.services.data.entities;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -78,6 +79,12 @@ public class DMDIIProject extends BaseEntity {
 
 	@Column(name = "project_number")
 	private Integer projectNumber;
+	
+	@Column(name = "cost_share")
+	private BigDecimal costShare;
+	
+	@Column(name = "dmdii_funding")
+	private BigDecimal dmdiiFunding;
 
 	public DMDIIProject () {
 
@@ -201,6 +208,22 @@ public class DMDIIProject extends BaseEntity {
 
 	public void setProjectNumber(Integer projectNumber) {
 		this.projectNumber = projectNumber;
+	}
+
+	public BigDecimal getCostShare() {
+		return costShare;
+	}
+
+	public void setCostShare(BigDecimal costShare) {
+		this.costShare = costShare;
+	}
+
+	public BigDecimal getDmdiiFunding() {
+		return dmdiiFunding;
+	}
+
+	public void setDmdiiFunding(BigDecimal dmdiiFunding) {
+		this.dmdiiFunding = dmdiiFunding;
 	}
 
 	@Override
