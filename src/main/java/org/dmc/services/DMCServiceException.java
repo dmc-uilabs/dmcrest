@@ -46,6 +46,7 @@ public class DMCServiceException extends Exception {
 				break;
 
 			case UnauthorizedAccessAttempt:
+			case InvalidAccountId:
 				status = HttpStatus.UNAUTHORIZED;
 				break;
 			case AWSError:
