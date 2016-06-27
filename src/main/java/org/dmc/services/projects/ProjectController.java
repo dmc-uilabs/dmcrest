@@ -204,7 +204,7 @@ public class ProjectController {
 			return new ResponseEntity<List<IndividualDiscussion>>(individualDiscussionDao.getIndividualDiscussionsFromProjectId(projectID, limit, order, sort), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
     
