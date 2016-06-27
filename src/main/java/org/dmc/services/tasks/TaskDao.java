@@ -1,5 +1,6 @@
 package org.dmc.services.tasks;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,12 +32,48 @@ public class TaskDao {
 
     }
 
+    public Id createTask(Task task, String userEPPN) throws DMCServiceException {
+        Connection connection = DBConnector.connection();
+        // let's start a transaction
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException ex) {
+            return null;
+        }
+
+        try {
+            final Id id = insertTask(task, userEPPN);
+            assignTask(id.getId(), task.getAssignee());
+            return id;
+        } catch (DMCServiceException e) {
+            ServiceLogger.log(logTag, "got Exception in createTask: " + e.getMessage());
+            if (connection != null) {
+                try {
+                    ServiceLogger.log(logTag,
+                            "Transaction Profile Update Rolled back");
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    ServiceLogger.log(logTag, ex.getMessage());
+                }
+            }
+            throw e;
+        } finally {
+            // let's end the transaction
+            if (null != connection) {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException ex) {
+                    // don't really need to do anything
+                }
+            }
+        }
+    }
     /*
      * Task Fields id : alphanumeric title : string project : object id title
      * assignee : string reporter : string dueDate : MM/DD/YY priority :
      * 'Today', '<Date>'
      */
-    public Id createTask(Task task, String userEPPN) {
+    private Id insertTask(Task task, String userEPPN) {
 
         int id = -99999;
 
@@ -44,7 +81,7 @@ public class TaskDao {
          * Foreign Key Constraints on table project_task: - created_by -> users
          * table - status_id -> table to be identified
          */
-        ServiceLogger.log(logTag, "ID in createTask: " + id);
+        ServiceLogger.log(logTag, "ID in insertTask: " + id);
         try {
             int userID = UserDao.getUserID(userEPPN);
             String title = task.getTitle();
@@ -73,6 +110,7 @@ public class TaskDao {
             while (resultSet.next()) {
                 id = resultSet.getInt("id");
             }
+            ServiceLogger.log(logTag, "create task ID in insertTask: " + id);
         } catch (SQLException e) {
             ServiceLogger.log(logTag, e.getMessage());
             return null;
@@ -83,63 +121,38 @@ public class TaskDao {
         return new Id.IdBuilder(id).build();
     }
 
+    public boolean assignTask(Integer taskId, String assignee) throws DMCServiceException {
+        ServiceLogger.log(logTag, "assign task " + taskId + " to " + assignee);
+        try {
+            if (null == assignee) return true; // nothing to insert
+
+            int assigneeId = UserDao.getUserID(assignee);
+            if (assigneeId <= 0) {
+                ServiceLogger.log(logTag, "assignee " + assignee + " not found: " + assigneeId);
+                throw new DMCServiceException(DMCError.OtherSQLError, "user " + assignee + " not found");
+            }
+            final String query = createAssignTaskQuery();
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+            preparedStatement.setInt(1, taskId);
+            preparedStatement.setInt(2, assigneeId);
+            return preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+        }
+    }
+
     private boolean queryAllTasks() {
-        final String query = "select " 
-                + "T.project_task_id," 
-                + "\'unknown\' as title,"
-                + "T.group_project_id," 
-                + "G.group_name as project_title," 
-                + "U.user_name as assignee,"
-                + "U.user_name as created_by," 
-                + "T.end_date," 
-                + "T.priority, " 
-                + "T.summary, " 
-                + "T.details, "
-                + "S.status_name as status "
-                + "from project_task T ,users U,groups G,project_assigned_to p, project_status S"
-                + " where T.created_by=U.user_id and G.group_id=T.group_project_id "
-                + " and p.project_assigned_id=T.group_project_id" 
-                + " and p.project_task_id=T.project_task_id "
-                + " and T.status_id = S.status_id ";
+        final String query = createTaskListQuery(null, null);
         ServiceLogger.log(logTag, "query for all tasks: " + query);
         resultSet = DBConnector.executeQuery(query);
         return (null != resultSet);
     }
 
-    /*
-     * Sample Query: select x.*, y.assignee from (select T.project_task_id,
-     * 'unknown' as title, T.group_project_id, G.group_name as project_title,
-     * U.user_name as created_by, T.end_date as end_date, T.priority, T.summary,
-     * T.details from project_task T, users U, groups G where
-     * T.created_by=U.user_id and G.group_id=T.group_project_id and
-     * T.project_task_id = 2) x LEFT OUTER JOIN (select p.*, U.user_name as
-     * assignee \ from project_assigned_to p, users U where p.assigned_to_id =
-     * U.user_id and p.project_task_id = 2) y on
-     * (y.project_assigned_id=x.group_project_id and
-     * y.project_task_id=x.project_task_id)
-     */
     private boolean queryTask(String taskID) {
-        String sql = "select x.*, y.assignee "
-                + "from (select  T.project_task_id, T.summary as title, T.group_project_id, G.group_name as project_title, U.user_name as created_by, "
-                + "      T.end_date as end_date, T.priority, T.details, S.status_name as status "
-                + "      from project_task T, users U, groups G, project_status S "
-                + "      where T.created_by=U.user_id "
-                + "      and G.group_id=T.group_project_id "
-                + "      and T.project_task_id = ?"
-                + "      and T.status_id = S.status_id) x "
-                + "LEFT OUTER JOIN "
-                + "	    (select p.*, U.user_name as assignee "
-                + "      from project_assigned_to p, users U "
-                + "      where p.assigned_to_id = U.user_id "
-                + "      and p.project_task_id = ?) y "
-                + "on (y.project_assigned_id=x.group_project_id "
-                + "and y.project_task_id=x.project_task_id) ";
-        ServiceLogger.log(logTag, "queryTask sql = " + sql);
+        String query = createTaskListQuery(null, Integer.parseInt(taskID));
+        ServiceLogger.log(logTag, "queryTask sql = " + query);
         try {
-            PreparedStatement stmt = DBConnector.prepareStatement(sql);
-            int taskID_int = Integer.parseInt(taskID);
-            stmt.setInt(1, taskID_int);
-            stmt.setInt(2, taskID_int);
+            PreparedStatement stmt = DBConnector.prepareStatement(query);
             resultSet = stmt.executeQuery();
             ServiceLogger.log(logTag, "queried for task");
             if (null != resultSet) {
@@ -153,26 +166,62 @@ public class TaskDao {
     }
 
     private boolean queryTasksForProject(int projectId) {
-        final String query = "select "
-                + "T.project_task_id,"
-                + "T.summary as title, "
-                + "T.group_project_id,"
-                + "G.group_name as project_title,"
-                + "U.user_name as assignee,"
-                + "U.user_name as created_by,"
-                + "T.end_date,"
-                + "T.priority, "
-                + "T.details,"
-                + "S.status_name as status "
-                + "from project_task T ,users U,groups G,project_assigned_to p, project_status S "
-                + "where T.created_by=U.user_id and G.group_id=T.group_project_id "
-                + "and p.project_assigned_id=T.group_project_id "
-                + "and p.project_task_id=T.project_task_id and G.group_id = "
-                + projectId
-                + " and T.status_id = S.status_id";
+        final String query = createTaskListQuery(projectId, null);
         ServiceLogger.log(logTag, "query for task list for project: " + query);
         resultSet = DBConnector.executeQuery(query);
         return null != resultSet;
+    }
+
+    /*
+     * sample query:
+     *  select T.project_task_id, 'unknown' as title, T.group_project_id, G.group_name as project_title,
+     *      x.user_name as assignee, U.user_name as created_by, T.end_date, T.priority, T.summary, T.details,
+     *      S.status_name as status
+     *  from project_task T
+     *      LEFT JOIN (
+     *          select * from Users U2, project_assigned_to p, groups G2
+     *          where U2.user_id = p.assigned_to_id and G2.group_id = p.project_assigned_id) x
+     *      on T.project_task_id = x.project_task_id,
+     *      users U,groups G, project_status S
+     *  where T.created_by=U.user_id and G.group_id=T.group_project_id and T.status_id = S.status_id
+     *
+     *  for specific project or task - will add to where clause
+     *
+     *  NOTE: need LEFT JOIN for cases where no assignee is specified so that tasks are still returned
+     */
+
+    private String createTaskListQuery(Integer projectId, Integer taskId) {
+        String query = "select " 
+                + "T.project_task_id," 
+                + "\'unknown\' as title,"
+                + "T.group_project_id," 
+                + "G.group_name as project_title," 
+                + "x.user_name as assignee,"
+                + "U.user_name as created_by," 
+                + "T.end_date," 
+                + "T.priority, " 
+                + "T.summary, " 
+                + "T.details, "
+                + "S.status_name as status "
+                + "from project_task T "
+                + "LEFT JOIN (select * from Users U2, project_assigned_to p, groups G2 "
+                + "where U2.user_id = p.assigned_to_id and G2.group_id = p.project_assigned_id) x "
+                + "on T.project_task_id = x.project_task_id, "
+                + "users U,groups G, project_status S "
+                + "where T.created_by=U.user_id and G.group_id=T.group_project_id "
+                + "and T.status_id = S.status_id ";
+        if (null != projectId) {
+            query += "and G.group_id = " + projectId + " ";
+        }
+        if (null != taskId) { 
+            query += "and T.project_task_id = " + taskId + " ";
+        }
+        return query;
+    }
+
+    private String createAssignTaskQuery() {
+        final String query = "insert into project_assigned_to(project_task_id, assigned_to_id) values (?, ?)";
+        return query;
     }
 
     public ArrayList<Task> getTaskList() throws DMCServiceException {

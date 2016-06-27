@@ -243,7 +243,7 @@ public class ProjectController {
 			updatedId = projectDao.updateProject(id, project, userEPPN);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 
 		return new ResponseEntity<Id>(updatedId, HttpStatus.valueOf(httpStatusCode));

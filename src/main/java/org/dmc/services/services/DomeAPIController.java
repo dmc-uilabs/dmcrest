@@ -57,7 +57,7 @@ public class DomeAPIController {
 			if (!e.getError().equals(DMCError.IncorrectType)) {
 				ServiceLogger.logException(logTag, e);
 			}
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 
 	}
@@ -93,7 +93,7 @@ public class DomeAPIController {
 			if (!e.getError().equals(DMCError.IncorrectType)) {
 				ServiceLogger.logException(logTag, e);
 			}
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 
 	}
