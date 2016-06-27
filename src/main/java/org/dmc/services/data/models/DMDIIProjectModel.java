@@ -1,5 +1,6 @@
 package org.dmc.services.data.models;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +33,10 @@ public class DMDIIProjectModel extends BaseModel {
 	private Integer callNumber;
 	
 	private Integer projectNumber;
+	
+	private BigDecimal costShare;
+	
+	private BigDecimal dmdiiFunding;
 	
 
 	public DMDIIMemberModel getPrimeOrganization() {
@@ -148,6 +153,22 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	public String getProjectIdentifier() {
 		return rootNumber + "-" + callNumber + "-" + projectNumber;
+	}
+
+	public BigDecimal getCostShare() {
+		return costShare;
+	}
+
+	public void setCostShare(BigDecimal costShare) {
+		this.costShare = costShare;
+	}
+
+	public BigDecimal getDmdiiFunding() {
+		return dmdiiFunding;
+	}
+
+	public void setDmdiiFunding(BigDecimal dmdiiFunding) {
+		this.dmdiiFunding = dmdiiFunding;
 	}
 
 }
