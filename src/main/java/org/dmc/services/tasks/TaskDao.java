@@ -148,42 +148,11 @@ public class TaskDao {
         return (null != resultSet);
     }
 
-    /*
-     * Sample Query: select x.*, y.assignee from (select T.project_task_id,
-     * 'unknown' as title, T.group_project_id, G.group_name as project_title,
-     * U.user_name as created_by, T.end_date as end_date, T.priority, T.summary,
-     * T.details from project_task T, users U, groups G where
-     * T.created_by=U.user_id and G.group_id=T.group_project_id and
-     * T.project_task_id = 2) x LEFT OUTER JOIN (select p.*, U.user_name as
-     * assignee \ from project_assigned_to p, users U where p.assigned_to_id =
-     * U.user_id and p.project_task_id = 2) y on
-     * (y.project_assigned_id=x.group_project_id and
-     * y.project_task_id=x.project_task_id)
-     */
     private boolean queryTask(String taskID) {
         String query = createTaskListQuery(null, Integer.parseInt(taskID));
-        String sql = "select x.*, y.assignee "
-                + "from (select  T.project_task_id, T.summary as title, T.group_project_id, G.group_name as project_title, U.user_name as created_by, "
-                + "      T.end_date as end_date, T.priority, T.details, S.status_name as status "
-                + "      from project_task T, users U, groups G, project_status S "
-                + "      where T.created_by=U.user_id "
-                + "      and G.group_id=T.group_project_id "
-                + "      and T.project_task_id = ?"
-                + "      and T.status_id = S.status_id) x "
-                + "LEFT OUTER JOIN "
-                + "	    (select p.*, U.user_name as assignee "
-                + "      from project_assigned_to p, users U "
-                + "      where p.assigned_to_id = U.user_id "
-                + "      and p.project_task_id = ?) y "
-                + "on (y.project_assigned_id=x.group_project_id "
-                + "and y.project_task_id=x.project_task_id) ";
-        ServiceLogger.log(logTag, "queryTask old sql = " + sql);
         ServiceLogger.log(logTag, "queryTask sql = " + query);
         try {
             PreparedStatement stmt = DBConnector.prepareStatement(query);
-//            int taskID_int = Integer.parseInt(taskID);
-//            stmt.setInt(1, taskID_int);
-//            stmt.setInt(2, taskID_int);
             resultSet = stmt.executeQuery();
             ServiceLogger.log(logTag, "queried for task");
             if (null != resultSet) {
@@ -202,6 +171,24 @@ public class TaskDao {
         resultSet = DBConnector.executeQuery(query);
         return null != resultSet;
     }
+
+    /*
+     * sample query:
+     *  select T.project_task_id, 'unknown' as title, T.group_project_id, G.group_name as project_title,
+     *      x.user_name as assignee, U.user_name as created_by, T.end_date, T.priority, T.summary, T.details,
+     *      S.status_name as status
+     *  from project_task T
+     *      LEFT JOIN (
+     *          select * from Users U2, project_assigned_to p, groups G2
+     *          where U2.user_id = p.assigned_to_id and G2.group_id = p.project_assigned_id) x
+     *      on T.project_task_id = x.project_task_id,
+     *      users U,groups G, project_status S
+     *  where T.created_by=U.user_id and G.group_id=T.group_project_id and T.status_id = S.status_id
+     *
+     *  for specific project or task - will add to where clause
+     *
+     *  NOTE: need LEFT JOIN for cases where no assignee is specified so that tasks are still returned
+     */
 
     private String createTaskListQuery(Integer projectId, Integer taskId) {
         String query = "select " 
