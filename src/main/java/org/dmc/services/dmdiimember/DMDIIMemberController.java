@@ -62,7 +62,7 @@ public class DMDIIMemberController {
 		return dmdiiMemberService.getDmdiiMemberNews(limit);
 	}
 	
-	@RequestMapping(value = "/dmdiiMember/event", params = "limit", method = RequestMethod.GET)
+	@RequestMapping(value = "/dmdiiMember/events", params = "limit", method = RequestMethod.GET)
 	public List<DMDIIMemberEventModel> getDmdiiMemberEvents(@RequestParam("limit") Integer limit) {
 		return dmdiiMemberService.getDmdiiMemberEvents(limit);
 	}
