@@ -35,8 +35,8 @@ public class AccountServersController {
 		try {
 			userAccountServer = accountServersDao.postUserAccountServer(accountServer, userEPPN);
 		} catch (DMCServiceException e) {
-			ServiceLogger.log(logTag, e.getErrorMessage());
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 		
 		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));
@@ -54,8 +54,8 @@ public class AccountServersController {
 		try {
 			accountServersDao.deleteUserAccountServer(Integer.parseInt(serverID), userEPPN);
 		} catch (DMCServiceException e) {
-			ServiceLogger.log(logTag, e.getErrorMessage());
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 
 		return new ResponseEntity<Void>(HttpStatus.valueOf(httpStatusCode));
@@ -73,8 +73,8 @@ public class AccountServersController {
 		try {
 			userAccountServer = accountServersDao.getUserAccountServer(Integer.parseInt(serverID), userEPPN);
 		} catch (DMCServiceException e) {
-			ServiceLogger.log(logTag, e.getErrorMessage());
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 		
 		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));
@@ -94,8 +94,8 @@ public class AccountServersController {
 		try {
 			userAccountServer = accountServersDao.patchUserAccountServer(serverID, server, userEPPN);
 		} catch (DMCServiceException e) {
-			ServiceLogger.log(logTag, e.getErrorMessage());
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 		
 		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));

@@ -33,7 +33,7 @@ public class IndividualDiscussionController {
 			return new ResponseEntity<List<IndividualDiscussion>>(individualDiscussionDao.getListOfCommunityIndividualDiscussions(limit, order, sort), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
@@ -45,7 +45,7 @@ public class IndividualDiscussionController {
 			return new ResponseEntity<IndividualDiscussion>(individualDiscussionDao.createIndividualDiscussion(discussion), HttpStatus.CREATED);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
@@ -57,7 +57,7 @@ public class IndividualDiscussionController {
 			return new ResponseEntity<IndividualDiscussion>(individualDiscussionDao.getSingleIndividualDiscussionFromId(individualDiscussionID), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
@@ -72,7 +72,7 @@ public class IndividualDiscussionController {
 					individualDiscussionDao.getCommentsForSingleDiscussionId(limit, order, sort, commentId, individualDiscussionID), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
