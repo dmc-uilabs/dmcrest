@@ -44,16 +44,18 @@ public class IndividualDiscussionCommentsHelpfulDao {
 			retObj.setAccountId(commentHelpful.getAccountId());
 			retObj.setCommentId(commentHelpful.getCommentId());
 			retObj.setHelpful(commentHelpful.getHelpful());
-			
+
 		} catch (SQLException se) {
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
 				ServiceLogger.log(logTag, e.getMessage());
 			}
-			if (se.getMessage().startsWith("ERROR: insert or update on table \"individual_discussions_comments_helpful\" violates foreign key constraint \"individualdiscussionscommentshelpful_accountid_fk\"")) {
+			if (se.getMessage().startsWith(
+					"ERROR: insert or update on table \"individual_discussions_comments_helpful\" violates foreign key constraint \"individualdiscussionscommentshelpful_accountid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidAccountId, se.getMessage());
-			} else if (se.getMessage().startsWith("ERROR: insert or update on table \"individual_discussions_comments_helpful\" violates foreign key constraint \"individualdiscussionscommentshelpful_commentid_fk\"")) {
+			} else if (se.getMessage().startsWith(
+					"ERROR: insert or update on table \"individual_discussions_comments_helpful\" violates foreign key constraint \"individualdiscussionscommentshelpful_commentid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidCommentId, se.getMessage());
 			} else {
 				ServiceLogger.log(logTag, se.getMessage());
@@ -68,7 +70,7 @@ public class IndividualDiscussionCommentsHelpfulDao {
 		}
 		return retObj;
 	}
-	
+
 	public IndividualDiscussionCommentHelpful getIndividualDiscussionCommentHelpful(String commentId, String accountId) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
 		IndividualDiscussionCommentHelpful retObj = null;
@@ -110,6 +112,50 @@ public class IndividualDiscussionCommentsHelpfulDao {
 
 		}
 
+		return retObj;
+	}
+
+	public IndividualDiscussionCommentHelpful updateIndividualDiscussionCommentHelpful(String id, IndividualDiscussionCommentHelpful commentHelpful) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		IndividualDiscussionCommentHelpful retObj = new IndividualDiscussionCommentHelpful();
+
+		try {
+			connection.setAutoCommit(false);
+
+			String updateQuery = "UPDATE individual_discussions_comments_helpful SET account_id=?, comment_id=?, helpful=? WHERE id = ?";
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(updateQuery);
+			preparedStatement.setInt(1, Integer.parseInt(commentHelpful.getAccountId()));
+			preparedStatement.setInt(2, Integer.parseInt(commentHelpful.getCommentId()));
+			preparedStatement.setBoolean(3, commentHelpful.getHelpful());
+			preparedStatement.setInt(4, Integer.parseInt(id));
+
+			int rowsAffected_interface = preparedStatement.executeUpdate();
+			if (rowsAffected_interface != 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "unable to update individual discussion comment helpful object" + commentHelpful.toString());
+			}
+
+			retObj = commentHelpful;
+			retObj.setId(id);
+
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
 		return retObj;
 	}
 

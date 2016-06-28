@@ -24,10 +24,10 @@ public class IndividualDiscussionCommentsHelpfulController {
 	private IndividualDiscussionCommentsHelpfulDao commentsHelpfulDao = new IndividualDiscussionCommentsHelpfulDao();
 
 	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity individualDiscussionCommentsHelpfulGet(@RequestParam(value = "commentId", required = true) String commentId,
+	public ResponseEntity getIndividualDiscussionCommentsHelpful(@RequestParam(value = "commentId", required = true) String commentId,
 			@RequestParam(value = "accountId", required = true) String accountId) {
 		try {
-			ServiceLogger.log(logTag, "In postIndividualDiscussionCommentsHelpful");
+			ServiceLogger.log(logTag, "In getIndividualDiscussionCommentsHelpful");
 			return new ResponseEntity<IndividualDiscussionCommentHelpful>(commentsHelpfulDao.getIndividualDiscussionCommentHelpful(commentId, accountId), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
@@ -47,10 +47,15 @@ public class IndividualDiscussionCommentsHelpfulController {
 	}
 
 	@RequestMapping(value = "/{helpfulID}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
-	public ResponseEntity<IndividualDiscussionCommentHelpful> individualDiscussionCommentsHelpfulHelpfulIDPatch(@PathVariable("helpfulID") String helpfulID,
+	public ResponseEntity patchIndividualDiscussionCommentsHelpfulHelpfulID(@PathVariable("helpfulID") String helpfulID,
 			@RequestBody IndividualDiscussionCommentHelpful helpful) {
-		// do some magic!
-		return new ResponseEntity<IndividualDiscussionCommentHelpful>(HttpStatus.NOT_IMPLEMENTED);
+		try {
+			ServiceLogger.log(logTag, "In patchIndividualDiscussionCommentsHelpfulHelpfulID");
+			return new ResponseEntity<IndividualDiscussionCommentHelpful>(commentsHelpfulDao.updateIndividualDiscussionCommentHelpful(helpfulID, helpful), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 }

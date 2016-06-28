@@ -703,14 +703,20 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testPatch_IndividualDiscussionCommentHelpfulById(){
-		IndividualDiscussionCommentHelpful obj = new IndividualDiscussionCommentHelpful();
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
 		ObjectMapper mapper = new ObjectMapper();
 		String patchedIndividualDiscussionCommentHelpfulJSONString = null;
+		String accountId = "550";
+		String commentId = "3";
+		Boolean helpful = true;
+		
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpful);
 		
 		try {
-			patchedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(obj);
+			patchedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -719,8 +725,8 @@ public class DiscussionIT extends BaseIT {
 		header("AJP_eppn", userEPPN).
 		body(patchedIndividualDiscussionCommentHelpfulJSONString).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().patch("/individual-discussion-comments-helpful/" + helpfulId);
+		statusCode(HttpStatus.OK.value()).
+		when().patch("/individual-discussion-comments-helpful/" + 2);
 	}
 	
 	
