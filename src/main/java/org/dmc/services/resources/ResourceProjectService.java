@@ -26,16 +26,24 @@ public class ResourceProjectService {
 	private MapperFactory mapperFactory;
 
 
-	//Gets all assessments
+	//Gets all projects
 	public List<ResourceProjectModel> getAll() {
 		Mapper<ResourceProject, ResourceProjectModel> mapper = mapperFactory.mapperFor(ResourceProject.class, ResourceProjectModel.class);
 		return mapper.mapToModel(resourceProjectRepository.findAll());
 	}
 
-	//Gets a specific assessment
+	//Gets a specific projects
 	public ResourceProjectModel get(Integer id) {
 		Mapper<ResourceProject, ResourceProjectModel> mapper = mapperFactory.mapperFor(ResourceProject.class, ResourceProjectModel.class);
 		return mapper.mapToModel(resourceProjectRepository.findOne(id));
+	}
+	
+	//Creates an project
+	public ResourceProjectModel create(ResourceProjectModel assessment) {
+		Mapper<ResourceProject, ResourceProjectModel> mapper = mapperFactory.mapperFor(ResourceProject.class, ResourceProjectModel.class);
+		ResourceProject entity = mapper.mapToEntity(assessment);
+		entity = resourceProjectRepository.save(entity);
+		return mapper.mapToModel(entity);
 	}
 	
 	

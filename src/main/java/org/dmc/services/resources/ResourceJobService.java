@@ -38,6 +38,13 @@ public class ResourceJobService {
 		return mapper.mapToModel(resourceJobRepository.findOne(id));
 	}
 	
+	public ResourceJobModel create(ResourceJobModel assessment) {
+		Mapper<ResourceJob, ResourceJobModel> mapper = mapperFactory.mapperFor(ResourceJob.class, ResourceJobModel.class);
+		ResourceJob entity = mapper.mapToEntity(assessment);
+		entity = resourceJobRepository.save(entity);
+		return mapper.mapToModel(entity);
+	}
+	
 	
 	
 

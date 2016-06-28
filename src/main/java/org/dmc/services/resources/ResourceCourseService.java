@@ -12,7 +12,6 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.ResourceCourseModel;
 import org.dmc.services.data.repositories.ResourceCourseRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 
@@ -26,16 +25,25 @@ public class ResourceCourseService {
 	private MapperFactory mapperFactory;
 
 
-	//Gets all assessments
+	//Gets all courses
 	public List<ResourceCourseModel> getAll() {
 		Mapper<ResourceCourse, ResourceCourseModel> mapper = mapperFactory.mapperFor(ResourceCourse.class, ResourceCourseModel.class);
 		return mapper.mapToModel(resourceCourseRepository.findAll());
 	}
 
-	//Gets a specific assessment
+	//Gets a specific courses
 	public ResourceCourseModel get(Integer id) {
 		Mapper<ResourceCourse, ResourceCourseModel> mapper = mapperFactory.mapperFor(ResourceCourse.class, ResourceCourseModel.class);
 		return mapper.mapToModel(resourceCourseRepository.findOne(id));
+	}
+	
+	
+	//create a course
+	public ResourceCourseModel create(ResourceCourseModel assessment) {
+		Mapper<ResourceCourse, ResourceCourseModel> mapper = mapperFactory.mapperFor(ResourceCourse.class, ResourceCourseModel.class);
+		ResourceCourse entity = mapper.mapToEntity(assessment);
+		entity = resourceCourseRepository.save(entity);
+		return mapper.mapToModel(entity);
 	}
 	
 	

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.ResourceAssessment;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
@@ -36,6 +37,14 @@ public class ResourceAssessmentService {
 	public ResourceAssessmentModel getAssessment(Integer id) {
 		Mapper<ResourceAssessment, ResourceAssessmentModel> mapper = mapperFactory.mapperFor(ResourceAssessment.class, ResourceAssessmentModel.class);
 		return mapper.mapToModel(resourceAssessmentRepository.findOne(id));
+	}
+	
+	//Creates an Assessment
+	public ResourceAssessmentModel createAssessment(ResourceAssessmentModel assessment) {
+		Mapper<ResourceAssessment, ResourceAssessmentModel> mapper = mapperFactory.mapperFor(ResourceAssessment.class, ResourceAssessmentModel.class);
+		ResourceAssessment entity = mapper.mapToEntity(assessment);
+		entity = resourceAssessmentRepository.save(entity);
+		return mapper.mapToModel(entity);
 	}
 	
 	
