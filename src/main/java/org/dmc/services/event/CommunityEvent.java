@@ -16,9 +16,6 @@ public class CommunityEvent  {
   private String address = null;
   private String description = null;
 
- 
-  /**
-   **/
   @JsonProperty("id")
   public String getId() {
     return id;

@@ -113,7 +113,6 @@ public class EventIT extends BaseIT
         return id;
     }
     
-    d
     public void deleteExistingEvent (int eventId)
     {
         given().

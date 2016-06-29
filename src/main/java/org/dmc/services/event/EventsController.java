@@ -47,11 +47,10 @@ public class EventsController
 	{
 		ServiceLogger.log(logTag, "getEvents");
 		int statusCode = HttpStatus.OK.value();
-		ArrayList<CommunityEvent> events = new ArrayList<CommunityEvent>();
 
 		try
 		{
-	        events = eventsDao.getEvents();
+			ArrayList<CommunityEvent> events = eventsDao.getEvents();
 	        return new ResponseEntity<ArrayList<CommunityEvent>>(events, HttpStatus.valueOf(statusCode));
 		}
 		catch (DMCServiceException e)
@@ -65,14 +64,14 @@ public class EventsController
 	//POST
 	@RequestMapping(value = "/events", method = RequestMethod.POST, produces = { "application/json" })
 	@ResponseBody
-	public ResponseEntity createEvent(@RequestBody CommunityEvent event)
+	public ResponseEntity createEvent(@RequestBody CommunityEvent event, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
 	{	
-		ServiceLogger.log(logTag, "createCommunityEvent");
+		ServiceLogger.log(logTag, "createCommunityEvent, userEPPN: " + userEPPN);
 		int statusCode = HttpStatus.OK.value();
 		Id id = null;
 		try
 		{
-			id = eventsDao.createCommunityEvent(event);
+			id = eventsDao.createCommunityEvent(event, userEPPN);
 		}
 		
 		catch(DMCServiceException e)
@@ -83,6 +82,7 @@ public class EventsController
 		
 		return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));		
 	}
+	
 	/*
 	//Method not needed and does not make sense to have. If needed can be added in. Patch method tested and works.
 	//PATCH
@@ -110,16 +110,16 @@ public class EventsController
 	//DELETE
 	@RequestMapping(value = "/events/{id}", method = RequestMethod.DELETE, produces = { "application/json" })
 	@ResponseBody
-	public ResponseEntity deleteEvent(@PathVariable("id") int id)
+	public ResponseEntity deleteEvent(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
 	{	
-		ServiceLogger.log(logTag, "deleteCommunityEvent");
+		ServiceLogger.log(logTag, "deleteCommunityEvent, userEPPN:" + userEPPN);
 		
 		int statusCode = HttpStatus.OK.value();
 		Id returnId = null;
 		
 		try
 		{
-			returnId = eventsDao.deleteCommunityEvent(id);			
+			returnId = eventsDao.deleteCommunityEvent(id, userEPPN);			
 		}
 		
 		catch(DMCServiceException e)
