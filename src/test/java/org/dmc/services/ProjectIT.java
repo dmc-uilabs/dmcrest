@@ -35,6 +35,7 @@ import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectTag;
+import org.dmc.services.users.UserDao;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 //@Ignore
@@ -900,7 +901,8 @@ public class ProjectIT extends BaseIT {
 		ArrayList<Profile> membersList = mapper.readValue(mapper.treeAsTokens(members), new TypeReference<ArrayList<Profile>>() {});
 
 		for (Profile profile : membersList) {
-			userName = profile.getDisplayName();
+			userName = UserDao.getUserName(profile.getId());
+			
 			assertTrue("Member " + userName + " is DMDII Member", CompanyUserUtil.isDMDIIMember(userName));
 		}
 	}
