@@ -1,12 +1,7 @@
 package org.dmc.services.data.models;
 
-import java.util.Date;
-import java.util.List;
-
 public class ResourceMachineModel extends BaseModel {
-	
-	private Integer id;
-	private Integer foreignBayId; 
+	 
 	private String title; 
 	private String image; 
 	private String description; 
@@ -14,20 +9,7 @@ public class ResourceMachineModel extends BaseModel {
 	private String link; 
 	private String contact; 
 	private boolean highlighted;
-	
-	public Integer getId() {
-		return id;
-	}
-	public void setId(Integer id) {
-		this.id = id;
-	}
 
-	public Integer getForeignBayId() {
-		return foreignBayId;
-	}
-	public void setForeignBayId(Integer foreignBayId) {
-		this.foreignBayId = foreignBayId;
-	}
 	public String getTitle() {
 		return title;
 	}

@@ -24,7 +24,7 @@ public class ResourceProject extends BaseEntity {
 	@Column(name = "description")
 	private String description; 
 	
-	@Column(name = "dateCreated")
+	@Column(name = "date_created")
 	private String dateCreated; 
 	
 	@Column(name = "link") 

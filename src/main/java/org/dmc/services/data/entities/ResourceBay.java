@@ -19,7 +19,7 @@ public class ResourceBay extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
-	@OneToMany(mappedBy="foreignBayId", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="bay", cascade=CascadeType.ALL)
 	private List<ResourceMachine> machines;
 
 	@Column(name = "title")
@@ -31,7 +31,7 @@ public class ResourceBay extends BaseEntity {
 	@Column(name = "description")
 	private String description; 
 	
-	@Column(name = "dateCreated")
+	@Column(name = "date_created")
 	private String dateCreated; 
 	
 	@Column(name = "link") 
@@ -117,9 +117,7 @@ public class ResourceBay extends BaseEntity {
 		this.highlighted = highlighted;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -136,9 +134,6 @@ public class ResourceBay extends BaseEntity {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {

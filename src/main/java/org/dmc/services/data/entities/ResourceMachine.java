@@ -22,8 +22,8 @@ public class ResourceMachine extends BaseEntity {
 	private Integer id;
 	
 	@ManyToOne
-    @JoinColumn(name="bayId")
-	private Integer foreignBayId;
+    @JoinColumn(name="bay_id")
+	private ResourceBay bay;
 
 	@Column(name = "title")
 	private String title;
@@ -34,7 +34,7 @@ public class ResourceMachine extends BaseEntity {
 	@Column(name = "description")
 	private String description; 
 	
-	@Column(name = "dateCreated")
+	@Column(name = "date_created")
 	private String dateCreated; 
 	
 	@Column(name = "link") 
@@ -52,6 +52,15 @@ public class ResourceMachine extends BaseEntity {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+
+	public ResourceBay getBay() {
+		return bay;
+	}
+
+	public void setBay(ResourceBay bay) {
+		this.bay = bay;
 	}
 
 	public String getTitle() {
@@ -114,10 +123,10 @@ public class ResourceMachine extends BaseEntity {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((bay == null) ? 0 : bay.hashCode());
 		result = prime * result + ((contact == null) ? 0 : contact.hashCode());
 		result = prime * result + ((dateCreated == null) ? 0 : dateCreated.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
-		result = prime * result + ((foreignBayId == null) ? 0 : foreignBayId.hashCode());
 		result = prime * result + (highlighted ? 1231 : 1237);
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((image == null) ? 0 : image.hashCode());
@@ -138,6 +147,13 @@ public class ResourceMachine extends BaseEntity {
 			return false;
 		}
 		ResourceMachine other = (ResourceMachine) obj;
+		if (bay == null) {
+			if (other.bay != null) {
+				return false;
+			}
+		} else if (!bay.equals(other.bay)) {
+			return false;
+		}
 		if (contact == null) {
 			if (other.contact != null) {
 				return false;
@@ -157,13 +173,6 @@ public class ResourceMachine extends BaseEntity {
 				return false;
 			}
 		} else if (!description.equals(other.description)) {
-			return false;
-		}
-		if (foreignBayId == null) {
-			if (other.foreignBayId != null) {
-				return false;
-			}
-		} else if (!foreignBayId.equals(other.foreignBayId)) {
 			return false;
 		}
 		if (highlighted != other.highlighted) {
@@ -199,7 +208,6 @@ public class ResourceMachine extends BaseEntity {
 		}
 		return true;
 	}
-
 
 	
 }

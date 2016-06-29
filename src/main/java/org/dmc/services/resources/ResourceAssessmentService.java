@@ -47,6 +47,14 @@ public class ResourceAssessmentService {
 		return mapper.mapToModel(entity);
 	}
 	
+	//deletes an Assessment
+	public ResourceAssessmentModel remove(Integer id) {
+		Mapper<ResourceAssessment, ResourceAssessmentModel> mapper = mapperFactory.mapperFor(ResourceAssessment.class, ResourceAssessmentModel.class);
+		ResourceAssessment entity = resourceAssessmentRepository.findOne(id);
+		resourceAssessmentRepository.delete(entity);
+		return mapper.mapToModel(entity);
+	}
+
 	
 	
 

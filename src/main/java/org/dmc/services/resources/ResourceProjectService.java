@@ -7,9 +7,11 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.ResourceCourse;
 import org.dmc.services.data.entities.ResourceProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.ResourceCourseModel;
 import org.dmc.services.data.models.ResourceProjectModel;
 import org.dmc.services.data.repositories.ResourceProjectRepository;
 import org.springframework.data.domain.PageRequest;
@@ -46,6 +48,15 @@ public class ResourceProjectService {
 		return mapper.mapToModel(entity);
 	}
 	
+
+	//deletes an project
+	public ResourceProjectModel remove(Integer id) {
+		Mapper<ResourceProject, ResourceProjectModel> mapper = mapperFactory.mapperFor(ResourceProject.class, ResourceProjectModel.class);
+		ResourceProject entity = resourceProjectRepository.findOne(id);
+		resourceProjectRepository.delete(entity);
+		return mapper.mapToModel(entity);
+	}
+
 	
 	
 
