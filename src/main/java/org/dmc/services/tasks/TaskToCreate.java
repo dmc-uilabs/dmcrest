@@ -2,11 +2,11 @@ package org.dmc.services.tasks;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Task {
+public class TaskToCreate {
 
     private String id;
     private String title;
-    private TaskProject taskProject;
+    private String projectId;
     private String assignee;
     private String assigneeId;
     private String reporter;
@@ -16,15 +16,15 @@ public class Task {
     private String status;
     private int priority;
 
-    public Task() {
+    public TaskToCreate() {
     }
 
-    public Task(String id, String title, TaskProject taskProject, String assignee, String assigneeId, 
+    public TaskToCreate(String id, String title, String projectId, String assignee, String assigneeId, 
             String reporter, String reporterId, long dueDate,
             String additionalDetails, String status, int priority) {
         this.id = id;
         this.title = title;
-        this.taskProject = taskProject;
+        this.projectId = projectId;
         this.assignee = assignee;
         this.assigneeId = assigneeId;
         this.reporter = reporter;
@@ -51,12 +51,12 @@ public class Task {
         this.title = title;
     }
 
-    @JsonProperty("taskProject")
-    public TaskProject getTaskProject() {
-        return taskProject;
+    @JsonProperty("projectId")
+    public String getProjectId() {
+        return this.projectId;
     }
-    public void setTaskProject(TaskProject taskProject) {
-        this.taskProject = taskProject;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     @JsonProperty("assignee")
