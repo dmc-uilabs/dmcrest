@@ -17,6 +17,7 @@ import org.dmc.services.data.entities.QDMDIIProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
+import org.dmc.services.data.models.DMDIIMemberMapEntryModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIMemberNewsModel;
 import org.dmc.services.data.models.OrganizationModel;
@@ -53,6 +54,11 @@ public class DMDIIMemberService {
 	public DMDIIMemberModel findOne(Integer id) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findOne(id));
+	}
+	
+	public List<DMDIIMemberMapEntryModel> getMapEntries() {
+		Mapper<DMDIIMember, DMDIIMemberMapEntryModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberMapEntryModel.class);
+		return mapper.mapToModel(dmdiiMemberDao.findAll());
 	}
 
 	public List<DMDIIMemberModel> findByName(String name, Integer pageNumber, Integer pageSize) {
