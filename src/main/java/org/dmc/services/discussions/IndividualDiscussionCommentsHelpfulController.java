@@ -45,7 +45,7 @@ public class IndividualDiscussionCommentsHelpfulController {
 		}
 	}
 
-	@RequestMapping(value = "/{helpfulID}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
+	@RequestMapping(value = "/{helpfulID}", produces = { "application/json" }, method = RequestMethod.PATCH)
 	public ResponseEntity patchIndividualDiscussionCommentsHelpfulHelpfulID(@PathVariable("helpfulID") String helpfulID, @RequestBody IndividualDiscussionCommentHelpful helpful) {
 		try {
 			ServiceLogger.log(logTag, "In patchIndividualDiscussionCommentsHelpfulHelpfulID");
