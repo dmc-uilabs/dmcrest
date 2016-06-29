@@ -60,7 +60,7 @@ public class ProjectMemberDao {
 
 				String userId = resultSet.getString("user_id");
 				profile.setId(userId);
-				profile.setDisplayName(resultSet.getString("user_name"));
+				profile.setDisplayName(resultSet.getString("realname"));
 				profile.setJobTitle(resultSet.getString("title"));
 				profile.setPhone(resultSet.getString("phone"));
 				profile.setEmail(resultSet.getString("email"));
