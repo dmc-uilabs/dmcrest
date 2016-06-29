@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
 import static org.springframework.http.MediaType.*;
 
 @Controller
@@ -39,7 +37,8 @@ public class IndividualDiscussionCommentsHelpfulController {
 	public ResponseEntity postIndividualDiscussionCommentsHelpful(@RequestBody IndividualDiscussionCommentHelpful individualDiscussionCommentHelpful) {
 		try {
 			ServiceLogger.log(logTag, "In postIndividualDiscussionCommentsHelpful");
-			return new ResponseEntity<IndividualDiscussionCommentHelpful>(commentsHelpfulDao.createIndividualDiscussionCommentHelpful(individualDiscussionCommentHelpful), HttpStatus.CREATED);
+			return new ResponseEntity<IndividualDiscussionCommentHelpful>(commentsHelpfulDao.createIndividualDiscussionCommentHelpful(individualDiscussionCommentHelpful),
+					HttpStatus.CREATED);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -47,8 +46,7 @@ public class IndividualDiscussionCommentsHelpfulController {
 	}
 
 	@RequestMapping(value = "/{helpfulID}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
-	public ResponseEntity patchIndividualDiscussionCommentsHelpfulHelpfulID(@PathVariable("helpfulID") String helpfulID,
-			@RequestBody IndividualDiscussionCommentHelpful helpful) {
+	public ResponseEntity patchIndividualDiscussionCommentsHelpfulHelpfulID(@PathVariable("helpfulID") String helpfulID, @RequestBody IndividualDiscussionCommentHelpful helpful) {
 		try {
 			ServiceLogger.log(logTag, "In patchIndividualDiscussionCommentsHelpfulHelpfulID");
 			return new ResponseEntity<IndividualDiscussionCommentHelpful>(commentsHelpfulDao.updateIndividualDiscussionCommentHelpful(helpfulID, helpful), HttpStatus.OK);
