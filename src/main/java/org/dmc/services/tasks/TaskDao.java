@@ -32,7 +32,7 @@ public class TaskDao {
 
     }
 
-    public Id createTask(Task task, String userEPPN) throws DMCServiceException {
+    public Id createTask(TaskToCreate task, String userEPPN) throws DMCServiceException {
         Connection connection = DBConnector.connection();
         // let's start a transaction
         try {
@@ -73,7 +73,7 @@ public class TaskDao {
      * assignee : string reporter : string dueDate : MM/DD/YY priority :
      * 'Today', '<Date>'
      */
-    private Id insertTask(Task task, String userEPPN) {
+    private Id insertTask(TaskToCreate task, String userEPPN) {
 
         int id = -99999;
 
@@ -89,7 +89,7 @@ public class TaskDao {
             Integer priority = task.getPriority();
             Long endDate = task.getDueDate();
             Integer createdBy = userID;
-            Integer groupId = task.getTaskProject().getId();
+            Integer groupId = Integer.parseInt(task.getProjectId());
             Integer statusId = TaskStatus.StatusValues.valueOf(task.getStatus().toUpperCase()).getValue();
 
             String query = "INSERT INTO project_task (summary, details, priority, end_date, created_by, group_project_id, status_id)"

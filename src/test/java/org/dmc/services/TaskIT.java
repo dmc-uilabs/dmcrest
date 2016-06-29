@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.dmc.services.tasks.Task;
+import org.dmc.services.tasks.TaskToCreate;
 import org.dmc.services.tasks.TaskProject;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,7 +35,7 @@ public class TaskIT extends BaseIT {
 
     @Test
     public void testTaskCreateAndGet() {
-        Task task = createTaskJsonSample("testTaskCreateAndGet");
+        TaskToCreate task = createTaskJsonSample("testTaskCreateAndGet");
         Integer id = given().header("Content-type", APPLICATION_JSON_VALUE).body(task).expect().statusCode(OK.value())
                 .when().post(CREATE_TASKS).then().body(matchesJsonSchemaInClasspath(ID_SCHEMA))
                 .extract().path("id");
@@ -50,7 +51,7 @@ public class TaskIT extends BaseIT {
 
     @Test
     public void testTaskCreateAndGetWithNoAssignee() {
-        Task task = createTaskJsonSample("testTaskCreateAndGetWithNoAssignee");
+        TaskToCreate task = createTaskJsonSample("testTaskCreateAndGetWithNoAssignee");
         task.setAssignee(null);
         task.setAssigneeId(null);
         Integer id = given().header("Content-type", APPLICATION_JSON_VALUE).body(task).expect().statusCode(OK.value())
@@ -95,7 +96,7 @@ public class TaskIT extends BaseIT {
     @Test
     public void testTaskCreate() {
 
-        Task task = createTaskJsonSample("testTaskCreate");
+        TaskToCreate task = createTaskJsonSample("testTaskCreate");
 
         given().header("Content-type", APPLICATION_JSON_VALUE)
                .header("AJP_eppn", userEPPN)
@@ -106,7 +107,7 @@ public class TaskIT extends BaseIT {
 
     }
 
-    private Task createTaskJsonSample(String testDescription) {
+    private TaskToCreate createTaskJsonSample(String testDescription) {
         Date date = new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         String unique = format.format(date);
@@ -122,10 +123,9 @@ public class TaskIT extends BaseIT {
         final String assigneeId = "103"; // from group table
         final String status = "Open";
 
-        final Integer projectId = 1; // from group table and project_group_list, 1
+        final String projectId = "1"; // from group table and project_group_list, 1
                                         // is available in both
-        final TaskProject taskProject = new TaskProject(projectId, "project title");
-        Task json = new Task(taskId, title, taskProject, assignee, assigneeId,
+        TaskToCreate json = new TaskToCreate(taskId, title, projectId, assignee, assigneeId,
             reporter, reporterId, dueDate,
             additionalDetails, status, priority);
         return json;

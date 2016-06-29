@@ -44,7 +44,7 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/tasks/create", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createTask(@RequestBody Task payload,
+    public ResponseEntity<?> createTask(@RequestBody TaskToCreate payload,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         ServiceLogger.log(LOGTAG, "Payload: " + payload);
 
