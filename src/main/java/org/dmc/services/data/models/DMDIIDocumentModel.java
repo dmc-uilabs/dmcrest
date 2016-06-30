@@ -1,12 +1,22 @@
 package org.dmc.services.data.models;
 
+import java.util.Date;
+
 public class DMDIIDocumentModel extends BaseModel {
 
 	private String documentName;
 	
 	private String documentUrl;
 	
-	private Integer dmdiiProjectId;
+	private DMDIIProjectModel dmdiiProject;
+	
+	private UserModel owner;
+	
+	private Date modified;
+	
+	private Date expires;
+	
+	private Boolean isDeleted;
 
 	public String getDocumentName() {
 		return documentName;
@@ -24,11 +34,43 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.documentUrl = documentUrl;
 	}
 
-	public Integer getDmdiiProjectId() {
-		return dmdiiProjectId;
+	public DMDIIProjectModel getDmdiiProject() {
+		return dmdiiProject;
 	}
 
-	public void setDmdiiProjectId(Integer dmdiiProjectId) {
-		this.dmdiiProjectId = dmdiiProjectId;
+	public void setDmdiiProject(DMDIIProjectModel dmdiiProject) {
+		this.dmdiiProject = dmdiiProject;
+	}
+
+	public UserModel getOwner() {
+		return owner;
+	}
+
+	public void setOwner(UserModel owner) {
+		this.owner = owner;
+	}
+
+	public Date getModified() {
+		return modified;
+	}
+
+	public void setModified(Date modified) {
+		this.modified = modified;
+	}
+
+	public Date getExpires() {
+		return expires;
+	}
+
+	public void setExpires(Date expires) {
+		this.expires = expires;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 }
