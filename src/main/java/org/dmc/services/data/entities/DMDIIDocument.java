@@ -1,11 +1,17 @@
 package org.dmc.services.data.entities;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name="dmdii_document")
@@ -21,8 +27,24 @@ public class DMDIIDocument extends BaseEntity {
 	@Column(name = "url")
 	private String documentUrl;
 	
-	@Column(name = "dmdii_project_id")
-	private Integer dmdiiProjectId;
+	@ManyToOne
+	@JoinColumn(name = "dmdii_project_id")
+	private DMDIIProject dmdiiProject;
+	
+	@ManyToOne
+	@JoinColumn(name = "owner_id")
+	private User owner;
+	
+	@Column(name = "modified")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date modified;
+	
+	@Column(name = "expires")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date expires;
+	
+	@Column(name = "is_deleted")
+	private Boolean isDeleted;
 
 	public Integer getId() {
 		return id;
@@ -48,12 +70,52 @@ public class DMDIIDocument extends BaseEntity {
 		this.documentUrl = documentUrl;
 	}
 	
-	public Integer getDmdiiProjectId() {
-		return dmdiiProjectId;
+	public DMDIIProject getDMDIIProject() {
+		return dmdiiProject;
 	}
 
-	public void setDmdiiProjectId(Integer dmdiiProjectId) {
-		this.dmdiiProjectId = dmdiiProjectId;
+	public void setDMDIIProject(DMDIIProject dmdiiProject) {
+		this.dmdiiProject = dmdiiProject;
+	}
+
+	public DMDIIProject getDmdiiProject() {
+		return dmdiiProject;
+	}
+
+	public void setDmdiiProject(DMDIIProject dmdiiProject) {
+		this.dmdiiProject = dmdiiProject;
+	}
+
+	public User getOwner() {
+		return owner;
+	}
+
+	public void setOwner(User owner) {
+		this.owner = owner;
+	}
+
+	public Date getModified() {
+		return modified;
+	}
+
+	public void setModified(Date modified) {
+		this.modified = modified;
+	}
+	
+	public Date getExpires() {
+		return expires;
+	}
+
+	public void setExpires(Date expires) {
+		this.expires = expires;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 	@Override
