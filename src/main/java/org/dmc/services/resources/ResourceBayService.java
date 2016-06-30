@@ -60,9 +60,15 @@ public class ResourceBayService {
 	}
 	
 	//create a machine 
-	public ResourceMachineModel createBayMachine(ResourceMachineModel machine) {
+	public ResourceMachineModel createBayMachine(Integer bayId, ResourceMachineModel machine) {
 		Mapper<ResourceMachine, ResourceMachineModel> mapper = mapperFactory.mapperFor(ResourceMachine.class, ResourceMachineModel.class);
 		ResourceMachine entity = mapper.mapToEntity(machine);
+		
+		//Get the associated bay 
+		ResourceBay bay = resourceBayRepository.findOne(bayId);
+		
+		//Set the bay number 
+		entity.setBay(bay);
 		entity = resourceMachineRepository.save(entity);
 		return mapper.mapToModel(entity);
 	}
