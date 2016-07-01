@@ -1,7 +1,7 @@
 package org.dmc.services.data.models;
 
 public class ResourceMachineModel extends BaseModel {
-	 
+	
 	private String title; 
 	private String image; 
 	private String description; 
@@ -9,7 +9,14 @@ public class ResourceMachineModel extends BaseModel {
 	private String link; 
 	private String contact; 
 	private boolean highlighted;
+	private ResourceBayModel bay; 
 
+	public ResourceBayModel getBay() {
+		return bay;
+	}
+	public void setBay(ResourceBayModel bay) {
+		this.bay = bay;
+	}
 	public String getTitle() {
 		return title;
 	}

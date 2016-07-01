@@ -175,11 +175,6 @@ public class ResourceController {
 		return resourceBayService.get(id);
 	}
 	
-	@RequestMapping(value = "/resource/bay/machine/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public  @ResponseBody ResourceMachineModel getMachine(@PathVariable Integer id){
-		return resourceBayService.getMachine(id);
-	}
-
 
 	
 	@RequestMapping(value = "/resource/bay", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -187,15 +182,28 @@ public class ResourceController {
 		return resourceBayService.create(bay);
 	}
 	
+	@RequestMapping(value = "/resource/bay/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResourceBayModel deleteBay(@PathVariable Integer id) {
+		return resourceBayService.remove(id);
+	}
+	
+	
+	/*
+	 * Machines
+	 */
+	
+	@RequestMapping(value = "/resource/bay/machine/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public  @ResponseBody ResourceMachineModel getMachine(@PathVariable Integer id){
+		return resourceBayService.getMachine(id);
+	}
+
+
 	@RequestMapping(value = "/resource/bay/{bayId}/machine", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResourceMachineModel createBayMachine(@PathVariable Integer bayId, @RequestBody ResourceMachineModel machine) {
 		return resourceBayService.createBayMachine(bayId, machine);
 	}
 	
-	@RequestMapping(value = "/resource/bay/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResourceBayModel deleteBay(@PathVariable Integer id) {
-		return resourceBayService.remove(id);
-	}
+	
 	
 	@RequestMapping(value = "/resource/bay/machine/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResourceMachineModel deleteBayMachine(@PathVariable Integer id) {

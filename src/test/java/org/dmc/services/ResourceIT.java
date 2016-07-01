@@ -5,9 +5,14 @@ import org.dmc.services.data.models.ResourceJobModel;
 import org.dmc.services.data.models.ResourceLabModel;
 import org.dmc.services.data.models.ResourceProjectModel;
 import org.dmc.services.data.models.ResourceCourseModel;
+import org.dmc.services.data.models.ResourceBayModel;
+import org.dmc.services.data.models.ResourceMachineModel;
+
+import java.util.*; 
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -22,18 +27,31 @@ public class ResourceIT extends BaseIT {
 
     private String RESOURCE_ASSESSMENT_GET_POST  = "/resource/assessment";
     private String RESOURCE_ASSESSMENT_DELETE  = "/resource/assessment/{id}";
+    private String RESOURCE_ASSESSMENT_GET_ID = "/resource/assessment/{id}";
+
     
     private String RESOURCE_JOB_GET_POST  = "/resource/job";
     private String RESOURCE_JOB_DELETE = "/resource/job/{id}";
+    private String RESOURCE_JOB_GET_ID = "/resource/job/{id}";
+
 
     private	String RESOURCE_LAB_GET_POST  = "/resource/lab";
     private String RESOURCE_LAB_DELETE = "/resource/lab/{id}";
+    private String RESOURCE_LAB_GET_ID = "/resource/lab/{id}";
+
+    private	String RESOURCE_COURSE_GET_POST  = "/resource/course";
+    private String RESOURCE_COURSE_DELETE = "/resource/course/{id}";
+    private String RESOURCE_COURSE_GET_ID = "/resource/course/{id}";
 
     private String RESOURCE_PROJECT_GET_POST  = "/resource/project";
     private String RESOURCE_PROJECT_DELETE  = "/resource/project/{id}";
+    private String RESOURCE_PROJECT_GET_ID  = "/resource/project/{id}";
 
-    private String RESOURCE_COURSE_GET_POST  = "/resource/course";
-    private String RESOURCE_COURSE_DELETE = "/resource/course/{id}";
+
+    private String RESOURCE_BAY_GET_POST  = "/resource/bay";
+    private String RESOURCE_BAY_DELETE = "/resource/bay/{id}";
+    private String RESOURCE_BAY_GET_ID = "/resource/bay/{id}";
+    
 
     public static final String userEPPN = "fforgeadmin";
 
@@ -79,6 +97,21 @@ public class ResourceIT extends BaseIT {
         int numExpected = numBefore + 1;
         //the new list and old list should only differ by one
         assertTrue ("Adding resource failed"  , numAfter == numExpected);
+        
+        //Get Resource By ID
+        Integer checkId  = 
+                given().
+        				header("Content-type", "application/json").
+                        expect().
+                        statusCode(HttpStatus.OK.value()).
+                        when().
+                        get(RESOURCE_ASSESSMENT_GET_ID, id).
+                        then()
+                        .extract().path("id");
+        
+        assertTrue ("Get individual assessment failed"  , id == checkId);
+
+       
 
         delete(id, RESOURCE_ASSESSMENT_DELETE);
 
@@ -127,6 +160,21 @@ public class ResourceIT extends BaseIT {
         
         //the new list and old list should only differ by one
         assertTrue ("Adding resource failed"  , numAfter == numExpected);
+        
+        
+        //Get Resource By ID
+        Integer checkId  = 
+                given().
+        				header("Content-type", "application/json").
+                        expect().
+                        statusCode(HttpStatus.OK.value()).
+                        when().
+                        get(RESOURCE_JOB_GET_ID, id).
+                        then()
+                        .extract().path("id");
+        
+        assertTrue ("Get individual job failed"  , id == checkId);
+
 
         delete(id, RESOURCE_JOB_DELETE);
 
@@ -176,6 +224,20 @@ public class ResourceIT extends BaseIT {
         
         //the new list and old list should only differ by one
         assertTrue ("Adding resource failed"  , numAfter == numExpected);
+        
+        //Get Resource By ID
+        Integer checkId  = 
+                given().
+        				header("Content-type", "application/json").
+                        expect().
+                        statusCode(HttpStatus.OK.value()).
+                        when().
+                        get(RESOURCE_COURSE_GET_ID, id).
+                        then()
+                        .extract().path("id");
+        
+        assertTrue ("Get individual course failed"  , id == checkId);
+
 
         delete(id, RESOURCE_COURSE_DELETE);
 
@@ -225,6 +287,20 @@ public class ResourceIT extends BaseIT {
         
         //the new list and old list should only differ by one
         assertTrue ("Adding resource failed"  , numAfter == numExpected);
+        
+        //Get Resource By ID
+        Integer checkId  = 
+                given().
+        				header("Content-type", "application/json").
+                        expect().
+                        statusCode(HttpStatus.OK.value()).
+                        when().
+                        get(RESOURCE_PROJECT_GET_ID, id).
+                        then()
+                        .extract().path("id");
+        
+        assertTrue ("Get individual project failed"  , id == checkId);
+
 
         delete(id, RESOURCE_PROJECT_DELETE);
 
@@ -255,7 +331,7 @@ public class ResourceIT extends BaseIT {
                 get(RESOURCE_LAB_GET_POST).
                 as(ArrayList.class);
         
-        int id = addProject();
+        int id = addLab();
         
         //Make sure the added image returns a valid id
         assertTrue("Resource ID returned invalid", id != -1);
@@ -275,6 +351,20 @@ public class ResourceIT extends BaseIT {
         
         //the new list and old list should only differ by one
         assertTrue ("Adding resource failed"  , numAfter == numExpected);
+        
+        //Get Resource By ID
+        Integer checkId  = 
+                given().
+        				header("Content-type", "application/json").
+                        expect().
+                        statusCode(HttpStatus.OK.value()).
+                        when().
+                        get(RESOURCE_LAB_GET_ID, id).
+                        then()
+                        .extract().path("id");
+        
+        assertTrue ("Get individual lab failed"  , id == checkId);
+
 
         delete(id, RESOURCE_LAB_DELETE);
 
@@ -290,6 +380,114 @@ public class ResourceIT extends BaseIT {
         assertTrue ("Deleting resource failed", numAfterDelete == numBefore);
 
     }
+       
+       
+    @Test
+    public void addAndGetAndDeleteBayMachine() {
+	    
+    	//Get a list of the current images
+        ArrayList<ResourceBayModel> original =
+        given().
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(RESOURCE_BAY_GET_POST).
+                as(ArrayList.class);
+        
+        int id = addBay();
+        
+        //Make sure the added resource returns a valid id
+        assertTrue("Resource ID returned invalid", id != -1);
+
+        ArrayList<ResourceBayModel> newList =
+        given().
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(RESOURCE_BAY_GET_POST).
+                as(ArrayList.class);
+
+        int numBefore = (original != null) ? original.size() : 0;
+        int numAfter  = (newList != null) ? newList.size() : 0;
+        int numExpected = numBefore + 1;
+        
+        //the new list and old list should only differ by one
+        assertTrue ("Adding resource failed"  , numAfter == numExpected);
+        
+        //Get the number of machines in created bay 
+        List<ResourceMachineModel> oldMachineList =
+        given().
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(RESOURCE_BAY_GET_POST).
+                then()
+                .extract().path("machines");
+        
+        //Add a machine with the created bay
+        int machineId = addMachine(id); 
+        
+        //Get the machine created
+        Integer checkMachineId  = 
+                given().
+        				header("Content-type", "application/json").
+                        expect().
+                        statusCode(HttpStatus.OK.value()).
+                        when().
+                        get("/resource/bay/machine/{id}", id).
+                        then()
+                        .extract().path("id");
+        
+        assertTrue ("Get individual machine failed"  , machineId == checkMachineId);
+        
+        
+        //Check if machine added to bay 
+        List<ResourceMachineModel> newMachineList =
+                given().
+                        expect().
+                        statusCode(HttpStatus.OK.value()).
+                        when().
+                        get(RESOURCE_BAY_GET_POST).
+                        then()
+                        .extract().path("machines");
+        
+        int numBeforeMachine = (oldMachineList != null) ? oldMachineList.size() : 0;
+        int numAfterMachine  = (newMachineList != null) ? newMachineList.size() : 0;
+        int numExpectedMachine = numBeforeMachine + 1;
+        assertTrue ("Adding machine failed"  , numAfterMachine == numExpectedMachine);
+
+        //Delete the machine
+        delete(machineId, "/resource/bay/machine/{id}");
+                  
+        //Get Resource By ID
+        Integer checkId  = 
+                given().
+        				header("Content-type", "application/json").
+                        expect().
+                        statusCode(HttpStatus.OK.value()).
+                        when().
+                        get(RESOURCE_BAY_GET_ID, id).
+                        then()
+                        .extract().path("id");
+        
+        assertTrue ("Get individual bay failed"  , id == checkId);
+
+
+        delete(id, RESOURCE_BAY_DELETE);
+
+        ArrayList<ResourceBayModel> after =
+        given().
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(RESOURCE_BAY_GET_POST).
+                as(ArrayList.class);
+
+        int numAfterDelete  = (after != null) ? after.size() : 0;
+        assertTrue ("Deleting resource failed", numAfterDelete == numBefore);
+
+    }
+    
     
     
     /*
@@ -298,9 +496,9 @@ public class ResourceIT extends BaseIT {
     
     public int addAssessment() {
 
-        int id = -1;
+        int id;
         ResourceAssessmentModel json = new ResourceAssessmentModel();
-        json.setId(1);
+        json.setId(1000);
         json.setTitle("Title");
         json.setImage("Image"); 
         json.setDescription("Description");
@@ -311,14 +509,14 @@ public class ResourceIT extends BaseIT {
         
         Integer createdId  = 
         given().
+        		header("Content-type", "application/json").
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
-                post(RESOURCE_ASSESSMENT_GET_POST).
+                post("/resource/assessment").
                 then().
-                body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-                .extract().path("id");
+                extract().path("id");
 
         id = (createdId != null) ? createdId.intValue() : -1;
         return id;
@@ -326,9 +524,9 @@ public class ResourceIT extends BaseIT {
     
     public int addJob() {
 
-        int id = -1;
+        int id;
         ResourceJobModel json = new ResourceJobModel();
-        json.setId(1);
+        json.setId(1000);
         json.setTitle("Title");
         json.setImage("Image"); 
         json.setDescription("Description");
@@ -339,14 +537,14 @@ public class ResourceIT extends BaseIT {
         
         Integer createdId  = 
         given().
+				header("Content-type", "application/json").
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
                 post(RESOURCE_JOB_GET_POST).
                 then().
-                body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-                .extract().path("id");
+                extract().path("id");
 
         id = (createdId != null) ? createdId.intValue() : -1;
         return id;
@@ -354,9 +552,9 @@ public class ResourceIT extends BaseIT {
     
     public int addCourse() {
 
-        int id = -1;
+        int id;
         ResourceCourseModel json = new ResourceCourseModel();
-        json.setId(1);
+        json.setId(1000);
         json.setTitle("Title");
         json.setImage("Image"); 
         json.setDescription("Description");
@@ -367,14 +565,14 @@ public class ResourceIT extends BaseIT {
         
         Integer createdId  = 
         given().
+				header("Content-type", "application/json").
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
                 post(RESOURCE_COURSE_GET_POST).
                 then().
-                body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-                .extract().path("id");
+                extract().path("id");
 
         id = (createdId != null) ? createdId.intValue() : -1;
         return id;
@@ -382,9 +580,9 @@ public class ResourceIT extends BaseIT {
     
     public int addLab() {
 
-        int id = -1;
+        int id;
         ResourceLabModel json = new ResourceLabModel();
-        json.setId(1);
+        json.setId(1000);
         json.setTitle("Title");
         json.setImage("Image"); 
         json.setDescription("Description");
@@ -395,13 +593,13 @@ public class ResourceIT extends BaseIT {
         
         Integer createdId  = 
         given().
+				header("Content-type", "application/json").
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
                 post(RESOURCE_LAB_GET_POST).
-                then().
-                body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+                then()
                 .extract().path("id");
 
         id = (createdId != null) ? createdId.intValue() : -1;
@@ -410,9 +608,9 @@ public class ResourceIT extends BaseIT {
     
     public int addProject() {
 
-        int id = -1;
+        int id;
         ResourceProjectModel json = new ResourceProjectModel();
-        json.setId(1);
+        json.setId(1000);
         json.setTitle("Title");
         json.setImage("Image"); 
         json.setDescription("Description");
@@ -423,18 +621,80 @@ public class ResourceIT extends BaseIT {
         
         Integer createdId  = 
         given().
+				header("Content-type", "application/json").
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
                 post(RESOURCE_PROJECT_GET_POST).
-                then().
-                body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+                then()
                 .extract().path("id");
 
         id = (createdId != null) ? createdId.intValue() : -1;
         return id;
     }
+    
+
+    public int addBay() {
+
+        int id;
+        ResourceBayModel json = new ResourceBayModel();
+        //ResourceMachineModel machine = new ResourceMachineModel(); 
+    	List<ResourceMachineModel> machines = Collections.emptyList();
+    	
+        json.setId(1000);
+        json.setTitle("Title");
+        json.setImage("Image"); 
+        json.setDescription("Description");
+        json.setDateCreated("Date"); 
+        json.setLink("Link");
+        json.setContact("Contact"); 
+        json.setHighlighted(true);
+        json.setMachines(machines);
+        
+        Integer createdId  = 
+        given().
+				header("Content-type", "application/json").
+                body(json).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                post(RESOURCE_BAY_GET_POST).
+                then()
+                .extract().path("id");
+
+        id = (createdId != null) ? createdId.intValue() : -1;
+        return id;
+    }
+    
+    public int addMachine(int bayId ) {
+
+        int id;
+        ResourceMachineModel json = new ResourceMachineModel();
+        
+        json.setTitle("Title");
+        json.setImage("Image"); 
+        json.setDescription("Description");
+        json.setDateCreated("Date"); 
+        json.setLink("Link");
+        json.setContact("Contact"); 
+        json.setHighlighted(true);
+        
+        Integer createdId  = 
+        given().
+				header("Content-type", "application/json").
+                body(json).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                post("/resource/bay/{bayId}/machine", bayId).
+                then()
+                .extract().path("id");
+
+        id = (createdId != null) ? createdId.intValue() : -1;
+        return id;
+    }
+    
     
     public void delete (int id, String endpoint) {
         given().

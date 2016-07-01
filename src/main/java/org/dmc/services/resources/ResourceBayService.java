@@ -7,11 +7,15 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.DMDIIMember;
+import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.ResourceBay;
 import org.dmc.services.data.entities.ResourceMachine;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.ResourceMachineModel;
+import org.dmc.services.data.models.DMDIIMemberModel;
+import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.ResourceBayModel;
 import org.dmc.services.data.repositories.ResourceBayRepository;
 import org.dmc.services.data.repositories.ResourceMachineRepository;
@@ -60,17 +64,18 @@ public class ResourceBayService {
 	}
 	
 	//create a machine 
-	public ResourceMachineModel createBayMachine(Integer bayId, ResourceMachineModel machine) {
-		Mapper<ResourceMachine, ResourceMachineModel> mapper = mapperFactory.mapperFor(ResourceMachine.class, ResourceMachineModel.class);
-		ResourceMachine entity = mapper.mapToEntity(machine);
+	public ResourceMachineModel createBayMachine(Integer bayId, ResourceMachineModel machineModel) {
+		Mapper<ResourceMachine, ResourceMachineModel> machineMapper = mapperFactory.mapperFor(ResourceMachine.class, ResourceMachineModel.class);
 		
+		ResourceMachine machineEntity = machineMapper.mapToEntity(machineModel);
+
 		//Get the associated bay 
-		ResourceBay bay = resourceBayRepository.findOne(bayId);
+		ResourceBay bayEntity = resourceBayRepository.findOne(bayId);
 		
 		//Set the bay number 
-		entity.setBay(bay);
-		entity = resourceMachineRepository.save(entity);
-		return mapper.mapToModel(entity);
+		machineEntity.setBay(bayEntity);
+		machineEntity = resourceMachineRepository.save(machineEntity);
+		return machineMapper.mapToModel(machineEntity);
 	}
 		
 	
