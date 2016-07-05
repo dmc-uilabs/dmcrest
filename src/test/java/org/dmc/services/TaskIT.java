@@ -211,6 +211,7 @@ public class TaskIT extends BaseIT {
 		
 		assertTrue("Created and retrieved tasks are not equal", id.toString().equals(retrievedTask.getId()));
 		
+		// delete newly created task
         given().
 			header("Content-type", APPLICATION_JSON_VALUE).
 			header("AJP_eppn", "berlier").
@@ -220,17 +221,12 @@ public class TaskIT extends BaseIT {
 			delete(TASKS_BASE + "/" + id.toString());
 		
 		// lookup deleted tasks
-		/*
-		 Task retrieveDeletedTask =
-		 given().
+		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
-		 expect().
+			header("AJP_eppn", "berlier").
+		expect().
 			statusCode(OK.value()).
-		 when().
-			get(newGetRequest).
-		 then().
-			log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
-			extract().as(Task.class);
-		 */
+		when().
+			get(newGetRequest);
     }
 }
