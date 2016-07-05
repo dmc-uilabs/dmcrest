@@ -16,6 +16,9 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
+
 
 public class TaskDao {
     private static final String logTag = TaskDao.class.getName();
@@ -29,8 +32,42 @@ public class TaskDao {
             return readTaskFromResultSet();
         }
         return null;
-
     }
+
+	public Id deleteTask(String taskID, String userEPPN) throws DMCServiceException {
+		ServiceLogger.log(logTag, "deleteTask; TaskID " +taskID+ " User: " + userEPPN);
+
+		if (queryTask(taskID)) {
+			Task task = readTaskFromResultSet();
+			int taskId = Integer.parseInt(taskID);
+			int returnedTaskId = Integer.parseInt(task.getId());
+			if(taskId != returnedTaskId) {
+				ServiceLogger.log(logTag, "deleteTask; Task retrieval error");
+				throw new DMCServiceException(DMCError.OtherSQLError, "Task retrieval error");
+			}
+			try {
+				int reporterId = UserDao.getUserID(task.getReporter());
+				int assigneeId = UserDao.getUserID(task.getAssignee());
+			
+				int userID = UserDao.getUserID(userEPPN);
+				if(userID != assigneeId && userID != reporterId) {
+					ServiceLogger.log(logTag, "deleteTask; User " +userEPPN+ " can not delete requested task. User is not reporter ("+task.getReporter()+") or assignee ("+task.getAssignee()+")");
+					throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, "User can not delete requested task");
+				} // else the tasks can be deleted
+				
+				String deleteQuery = "DELETE FROM project_task WHERE project_task_id = ?";
+				PreparedStatement statement = DBConnector.prepareStatement(deleteQuery);
+				statement.setInt(1, taskId);
+				statement.executeUpdate();
+				return new Id.IdBuilder(taskId).build();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, "deleteTask; Other SQL Error");
+				throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+			}
+		}
+		ServiceLogger.log(logTag, "deleteTask; Other SQL Error tail");
+		throw new DMCServiceException(DMCError.OtherSQLError, "Task retrieval error");
+	}
 
     public Id createTask(TaskToCreate task, String userEPPN) throws DMCServiceException {
         Connection connection = DBConnector.connection();

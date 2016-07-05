@@ -16,12 +16,12 @@ import org.dmc.services.tasks.TaskProject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.springframework.http.HttpStatus;
 
 import com.jayway.restassured.response.ExtractableResponse;
 import com.jayway.restassured.response.ValidatableResponse;
 
-//@Ignore
 public class TaskIT extends BaseIT {
     private static final String TASKS_BASE = "/tasks";
     private static final String CREATE_TASKS = "/tasks/create";
@@ -136,7 +136,58 @@ public class TaskIT extends BaseIT {
      */
     @Test
     public void testDelete_FollowDiscussions() {
-        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).expect()
-                .statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().delete(TASKS_BASE + "/" + taskId);
+		
+		TaskToCreate task = createTaskJsonSample("testTaskCreateAndGet");
+		Integer id =
+		given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", "berlier").
+			body(task).
+		expect().
+			statusCode(OK.value()).
+		when().
+			post(CREATE_TASKS).
+		then().
+			body(matchesJsonSchemaInClasspath(ID_SCHEMA)).
+			extract().path("id");
+		
+		String newGetRequest = TASKS_BASE + "/" + id.toString();
+		
+		// let's query the newly created task and make sure we get it
+		Task retrievedTask =
+		given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", "berlier").
+		expect().
+			statusCode(OK.value()).
+		when().
+			get(newGetRequest).
+		then().
+			log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
+			extract().as(Task.class);
+		
+		assertTrue("Created and retrieved tasks are not equal", id.toString().equals(retrievedTask.getId()));
+		
+        given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", "berlier").
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().
+			delete(TASKS_BASE + "/" + id.toString());
+		
+		// lookup deleted tasks
+		/*
+		 Task retrieveDeletedTask =
+		 given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+		 expect().
+			statusCode(OK.value()).
+		 when().
+			get(newGetRequest).
+		 then().
+			log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
+			extract().as(Task.class);
+		 */
     }
 }
