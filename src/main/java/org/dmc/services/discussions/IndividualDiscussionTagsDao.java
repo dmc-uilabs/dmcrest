@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
@@ -61,6 +63,81 @@ public class IndividualDiscussionTagsDao {
 			}
 		}
 		return retObj;
+	}
+
+	public List<IndividualDiscussionTag> getTagsForSingleDiscussionId(Integer limit, String order, String sort, String individualDiscussionId) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		IndividualDiscussionTag retObj = null;
+		List<IndividualDiscussionTag> tags = new ArrayList<IndividualDiscussionTag>();
+
+		try {
+			connection.setAutoCommit(false);
+
+			ArrayList<String> columnsInIndividualDiscussionsTagsTable = new ArrayList<String>();
+			columnsInIndividualDiscussionsTagsTable.add("id");
+			columnsInIndividualDiscussionsTagsTable.add("individual_discussion_id");
+			columnsInIndividualDiscussionsTagsTable.add("name");
+
+			String tagQuery = "SELECT * FROM individual_discussions_tags WHERE individual_discussion_id = ?";
+
+			if (sort == null) {
+				tagQuery += " ORDER BY id";
+			} else if (!columnsInIndividualDiscussionsTagsTable.contains(sort)) {
+				tagQuery += " ORDER BY id";
+			} else {
+				tagQuery += " ORDER BY " + sort;
+			}
+
+			if (order == null) {
+				tagQuery += " ASC";
+			} else if (!order.equals("ASC") && !order.equals("DESC")) {
+				tagQuery += " ASC";
+			} else {
+				tagQuery += " " + order;
+			}
+
+			if (limit == null) {
+				tagQuery += " LIMIT ALL";
+			} else if (limit < 0) {
+				tagQuery += " LIMIT 0";
+			} else {
+				tagQuery += " LIMIT " + limit;
+			}
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(tagQuery);
+			preparedStatement.setInt(1, Integer.parseInt(individualDiscussionId));
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+
+			while (resultSet.next()) {
+				retObj = new IndividualDiscussionTag();
+
+				retObj.setId(Integer.toString(resultSet.getInt("id")));
+				retObj.setIndividualDiscussionId(Integer.toString(resultSet.getInt("individual_discussion_id")));
+				retObj.setName(resultSet.getString("name"));
+
+				tags.add(retObj);
+			}
+
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+
+		return tags;
 	}
 
 }

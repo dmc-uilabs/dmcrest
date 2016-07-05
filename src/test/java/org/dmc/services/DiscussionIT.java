@@ -366,12 +366,17 @@ public class DiscussionIT extends BaseIT {
 	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-tags
 	 */
 	@Test
-	public void testGet_IndividualDiscussionTag(){
-		given().
-		header("AJP_eppn", userEPPN).
+	public void testGet_IndividualDiscussionTags(){
+		List<IndividualDiscussionTag> tags = Arrays.asList(given().
+		header("AJP_eppn", userEPPN).param("_limit", 1).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/individual-discussion/" + individualDiscussionID + "/individual-discussion-tags");
+		statusCode(HttpStatus.OK.value()).
+		when().get("/individual-discussion/" + 1 + "/individual-discussion-tags").as(IndividualDiscussionTag[].class));
+		
+		assertTrue("testGet_IndividualDiscussionTags: limit parameter didn't work", tags.size() == 1);
+		assertTrue("testGet_IndividualDiscussionTags: id value is not correct", tags.get(0).getId().equals("1"));
+		assertTrue("testGet_IndividualDiscussionTags: individual discussion id value is not correct", tags.get(0).getIndividualDiscussionId().equals("1"));
+		assertTrue("testGet_IndividualDiscussionTags: name value is not correct", tags.get(0).getName().equals("tag"));
 	}
 	
 	
