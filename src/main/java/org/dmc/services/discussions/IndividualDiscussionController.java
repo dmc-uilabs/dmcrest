@@ -78,8 +78,8 @@ public class IndividualDiscussionController {
 
 	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-tags", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<IndividualDiscussionTag>> individualDiscussionIndividualDiscussionIDIndividualDiscussionTagsGet(
-			@PathVariable("individualDiscussionID") String individualDiscussionID, @RequestParam(value = "limit", required = false) Integer limit,
-			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
+			@PathVariable("individualDiscussionID") String individualDiscussionID, @RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_order", required = false) String order, @RequestParam(value = "_sort", required = false) String sort) {
 		// do some magic!
 		return new ResponseEntity<List<IndividualDiscussionTag>>(HttpStatus.NOT_IMPLEMENTED);
 	}

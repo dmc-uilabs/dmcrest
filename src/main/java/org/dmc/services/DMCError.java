@@ -60,6 +60,7 @@ public enum DMCError {
 	
 	//Individual_Discussions
 	InvalidAccountId,
-	InvalidCommentId
+	InvalidCommentId,
+	InvalidDiscussionId
 
 }

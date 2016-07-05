@@ -14,7 +14,7 @@ import org.dmc.services.sharedattributes.Util;
 
 public class IndividualDiscussionCommentsHelpfulDao {
 
-	private final String logTag = DiscussionDao.class.getName();
+	private final String logTag = IndividualDiscussionCommentsHelpfulDao.class.getName();
 
 	public IndividualDiscussionCommentHelpful createIndividualDiscussionCommentHelpful(IndividualDiscussionCommentHelpful commentHelpful) throws DMCServiceException {
 		IndividualDiscussionCommentHelpful retObj = new IndividualDiscussionCommentHelpful();

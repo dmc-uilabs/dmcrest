@@ -723,7 +723,7 @@ public class DiscussionIT extends BaseIT {
 				.body(patchedIndividualDiscussionCommentHelpfulJSONString).expect().statusCode(HttpStatus.OK.value()).when().patch("/individual-discussion-comments-helpful/" + 2)
 				.as(IndividualDiscussionCommentHelpful.class);
 
-		assertTrue("testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject: accountId values are not equal", (helpful.getId().equals("2")));
+		assertTrue("testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject: id values are not equal", (helpful.getId().equals("2")));
 		assertTrue("testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject: accountId values are not equal", (helpful.getAccountId().equals(accountId)));
 		assertTrue("testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject: commentId values are not equal", (helpful.getCommentId().equals(commentId)));
 		assertTrue("testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject: helpful values are not equal", (helpful.getHelpful().equals(helpfulBool)));
@@ -824,30 +824,59 @@ public class DiscussionIT extends BaseIT {
 	}
 	
 	
-	
 	/*
-	 * test case for POST /individual-discussion-tags
+	 * test case 1 for POST /individual-discussion-tags
 	 */
 	@Test
-	public void testPost_IndividualDiscussionTag(){
-		IndividualDiscussionTag obj = new IndividualDiscussionTag();
+	public void testPost_IndividualDiscussionTagWithValidDiscussionId() {
+		IndividualDiscussionTag tagToPost = new IndividualDiscussionTag();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionTagJSONString = null;
-		
+
+		String individualDiscussionId = "3";
+		String name = "tag3";
+
+		tagToPost.setIndividualDiscussionId(individualDiscussionId);
+		tagToPost.setName(name);
+
 		try {
-			postedIndividualDiscussionTagJSONString = mapper.writeValueAsString(obj);
+			postedIndividualDiscussionTagJSONString = mapper.writeValueAsString(tagToPost);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(postedIndividualDiscussionTagJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().post("/individual-discussion-tags");
+
+		IndividualDiscussionTag postedTag = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionTagJSONString).expect()
+				.statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion-tags").as(IndividualDiscussionTag.class);
+
+		assertTrue("testPost_IndividualDiscussionTagWithValidDiscussionId: individual discussion id values are not equal",
+				(postedTag.getIndividualDiscussionId().equals(individualDiscussionId)));
+		assertTrue("testPost_IndividualDiscussionTagWithValidDiscussionId: name values are not equal", (postedTag.getName().equals(name)));
+	}
+
+	/*
+	 * test case 2 for POST /individual-discussion-tags
+	 */
+	@Test
+	public void testPost_IndividualDiscussionTagWithInvalidDiscussionId() {
+		IndividualDiscussionTag tagToPost = new IndividualDiscussionTag();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionTagJSONString = null;
+
+		String individualDiscussionId = "0";
+		String name = "tag3";
+
+		tagToPost.setIndividualDiscussionId(individualDiscussionId);
+		tagToPost.setName(name);
+
+		try {
+			postedIndividualDiscussionTagJSONString = mapper.writeValueAsString(tagToPost);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionTagJSONString).expect()
+				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post("/individual-discussion-tags");
+
 	}
 	
 	
