@@ -78,7 +78,6 @@ public class AssignUserIT extends BaseIT {
 	
 	@Test
 	public void testAssignUsersWithProject() throws Exception {
-		
 		// create user and add basic info
 		String uniqueUserEPPN1 = TestUserUtil.createNewUser();
 		Integer int1 = TestUserUtil.addBasicInfomationToUser(uniqueUserEPPN1);
@@ -105,6 +104,7 @@ public class AssignUserIT extends BaseIT {
 		
 		ObjectMapper mapper1 = new ObjectMapper();
 		
+		// get users in a project
 		JsonNode users1 =
 		given().
 			header("Content-type", "application/json").
@@ -117,7 +117,55 @@ public class AssignUserIT extends BaseIT {
 		ArrayList<AssignUser> membersList1 = mapper1.readValue(mapper1.treeAsTokens(users1), new TypeReference<ArrayList<AssignUser>>() {});
 		
 		assertTrue("Project does not have one member", membersList1.size() == 1);
-				
 	}
 
+	
+	@Test
+	public void testAssignUsersWithNonProjectMember() throws Exception {
+		// create user and add basic info
+		String uniqueUserEPPN1 = TestUserUtil.createNewUser();
+		Integer int1 = TestUserUtil.addBasicInfomationToUser(uniqueUserEPPN1);
+		
+		// setup project create request
+		ProjectCreateRequest json = new ProjectCreateRequest();
+		json.setDescription("user " + uniqueUserEPPN1 + " project");
+		json.setTitle("proj " + uniqueUserEPPN1);
+		
+		ServiceLogger.log(logTag, "testProjectCreateJsonObject: json = " + json.toString());
+		
+		// create project for user
+		int projectId =
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", uniqueUserEPPN1).
+		body(json).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		post("/projects/create").
+		then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+		
+		
+		// create a NEW user and add basic info
+		String uniqueUserEPPN2 = TestUserUtil.createNewUser();
+		Integer int2 = TestUserUtil.addBasicInfomationToUser(uniqueUserEPPN2);
+
+		ObjectMapper mapper = new ObjectMapper();
+		
+		// get users in a project, using non-member of a project
+		JsonNode users =
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", uniqueUserEPPN2).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		get("/assign_users/"+projectId).as(JsonNode.class);
+		
+		ArrayList<AssignUser> membersList = mapper.readValue(mapper.treeAsTokens(users), new TypeReference<ArrayList<AssignUser>>() {});
+		
+		assertTrue("Returned list is empty because request was made by non project member", membersList.size() == 0);
+	}
+
+	
 }
