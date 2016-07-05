@@ -7,24 +7,25 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.dmc.services.data.entities.DMDIIMember;
-import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.ResourceBay;
 import org.dmc.services.data.entities.ResourceMachine;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.ResourceMachineModel;
-import org.dmc.services.data.models.DMDIIMemberModel;
-import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.ResourceBayModel;
 import org.dmc.services.data.repositories.ResourceBayRepository;
 import org.dmc.services.data.repositories.ResourceMachineRepository;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import org.springframework.stereotype.Service;
 
 
 @Service
 public class ResourceBayService {
+	
+	private SessionFactory sessionFactory;
 
 	@Inject
 	private ResourceBayRepository resourceBayRepository;
@@ -63,22 +64,28 @@ public class ResourceBayService {
 		return mapper.mapToModel(entity);
 	}
 	
+	
+	
 	//create a machine 
 	public ResourceMachineModel createBayMachine(Integer bayId, ResourceMachineModel machineModel) {
 		Mapper<ResourceMachine, ResourceMachineModel> machineMapper = mapperFactory.mapperFor(ResourceMachine.class, ResourceMachineModel.class);
 		
-		ResourceMachine machineEntity = machineMapper.mapToEntity(machineModel);
+		  //Convert to machine to entity
+		  ResourceMachine machineEntity = machineMapper.mapToEntity(machineModel);
+		  
+		  //Get the associated bay 
+		  ResourceBay bayEntity = resourceBayRepository.findOne(bayId);
 
-		//Get the associated bay 
-		ResourceBay bayEntity = resourceBayRepository.findOne(bayId);
-		
-		//Set the bay number 
+		//Add bay entity 
 		machineEntity.setBay(bayEntity);
-		machineEntity = resourceMachineRepository.save(machineEntity);
+			
+		//save changes
+		resourceMachineRepository.save(machineEntity); 
+		
+		//Return the created machine
 		return machineMapper.mapToModel(machineEntity);
 	}
-		
-	
+
 	//deletes an bay
 	public ResourceBayModel remove(Integer id) {
 		Mapper<ResourceBay, ResourceBayModel> mapper = mapperFactory.mapperFor(ResourceBay.class, ResourceBayModel.class);
