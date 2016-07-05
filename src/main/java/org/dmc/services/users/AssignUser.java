@@ -9,7 +9,12 @@ public class AssignUser {
 	private String name;
 	
 	private final String logTag = AssignUser.class.getName();
-	
+
+	public AssignUser() {
+		this.id = -1;
+		this.name = new String();
+	}
+
 	public AssignUser(int id, String name) {
 		this.id = id;
 		this.name = name;
