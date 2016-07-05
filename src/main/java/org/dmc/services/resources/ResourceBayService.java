@@ -15,9 +15,6 @@ import org.dmc.services.data.models.ResourceMachineModel;
 import org.dmc.services.data.models.ResourceBayModel;
 import org.dmc.services.data.repositories.ResourceBayRepository;
 import org.dmc.services.data.repositories.ResourceMachineRepository;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 import org.springframework.stereotype.Service;
 
@@ -25,7 +22,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ResourceBayService {
 	
-	private SessionFactory sessionFactory;
 
 	@Inject
 	private ResourceBayRepository resourceBayRepository;
@@ -65,22 +61,24 @@ public class ResourceBayService {
 	}
 	
 	
-	
 	//create a machine 
 	public ResourceMachineModel createBayMachine(Integer bayId, ResourceMachineModel machineModel) {
-		Mapper<ResourceMachine, ResourceMachineModel> machineMapper = mapperFactory.mapperFor(ResourceMachine.class, ResourceMachineModel.class);
 		
-		  //Convert to machine to entity
-		  ResourceMachine machineEntity = machineMapper.mapToEntity(machineModel);
-		  
-		  //Get the associated bay 
-		  ResourceBay bayEntity = resourceBayRepository.findOne(bayId);
+		//Create mappers
+		Mapper<ResourceMachine, ResourceMachineModel> machineMapper = mapperFactory.mapperFor(ResourceMachine.class, ResourceMachineModel.class);
+		//Mapper<ResourceBay, ResourceBayModel> bayMapper = mapperFactory.mapperFor(ResourceBay.class, ResourceBayModel.class);
+
+		//Convert to machine to entity
+		ResourceMachine machineEntity = machineMapper.mapToEntity(machineModel);
+	  
+		//Get the associated bay 
+		ResourceBay bayEntity = resourceBayRepository.findOne(bayId);
 
 		//Add bay entity 
 		machineEntity.setBay(bayEntity);
 			
 		//save changes
-		resourceMachineRepository.save(machineEntity); 
+		machineEntity = resourceMachineRepository.save(machineEntity); 
 		
 		//Return the created machine
 		return machineMapper.mapToModel(machineEntity);
