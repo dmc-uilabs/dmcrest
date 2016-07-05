@@ -5,8 +5,10 @@ import java.lang.Exception;
 
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.projects.ProjectMember;
 import org.dmc.services.projects.ProjectMemberDao;
 import org.dmc.services.profile.Profile;
+import org.dmc.services.profile.ProfileDao;
 
 import java.util.Iterator;
 
@@ -35,12 +37,13 @@ public class AssignUserController {
 	 */
 	@RequestMapping(value = "/assign_users", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
 	public ResponseEntity<?> getAssignUsers(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
-											@RequestHeader(value = "projectNumber", defaultValue = "-1") Integer projectNumber) throws Exception {
+											@RequestHeader(value = "projectId", defaultValue = "-1") Integer projectId) throws Exception {
 		
 		ServiceLogger.log(logTag, "In getAssignUsers: as user " + userEPPN);
 		
 		try {
 			ArrayList<Profile> members = projectMemberDao.getMembers(userEPPN); //ToDo: User projectNumber to get correct set of users
+			
 			ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
 			
 			Iterator<Profile> iter = members.iterator();
@@ -57,4 +60,44 @@ public class AssignUserController {
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
+	
+	
+	
+	
+	
+	/**
+	 * GET assign_users
+	 * @param userEPPN
+	 * @param project number
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/assign_users/{projectId}", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
+	public ResponseEntity<?> getAssignUsersForProject(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
+													  @PathVariable(value = "projectId") Integer projectId) throws Exception {
+		
+		ServiceLogger.log(logTag, "In getAssignUsers: as user " + userEPPN);
+		
+		try {
+			ArrayList<ProjectMember> members =  projectMemberDao.getMembersForProject(projectId.toString(), userEPPN);
+			ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
+			ProfileDao profileDao = new ProfileDao();
+			
+			Iterator<ProjectMember> iter = members.iterator();
+			while(iter.hasNext()) {
+				ProjectMember projectMember = iter.next();
+				Profile userProfile = profileDao.getProfile(Integer.parseInt(projectMember.getProfileId()));
+				AssignUser user = new AssignUser(userProfile.getId(), userProfile.getDisplayName());
+				assignUser.add(user);
+			}
+			
+			return new ResponseEntity<ArrayList<AssignUser>>(assignUser, HttpStatus.OK);
+			
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
+	}
+
+	
 }

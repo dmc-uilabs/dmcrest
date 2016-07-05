@@ -19,12 +19,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 
+import org.dmc.services.Id;
 import org.dmc.services.users.User;
 import org.dmc.services.users.AssignUser;
 import org.dmc.services.users.UserOnboarding;
 import org.dmc.services.users.UserNotifications;
 import org.dmc.services.users.UserRunningServices;
 import org.dmc.services.users.UserMessages;
+import org.dmc.services.projects.ProjectCreateRequest;
+
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
@@ -33,7 +36,7 @@ public class AssignUserIT extends BaseIT {
 	private static final String logTag = AssignUserIT.class.getName();
 	
 	@Test
-	public void testNewUserWithCompany() throws Exception {
+	public void testAssignUsersWithoutProject() throws Exception {
 		
 		String uniqueUserEPPN1 = TestUserUtil.createNewUser();
 		Integer int1 = TestUserUtil.addBasicInfomationToUser(uniqueUserEPPN1);
@@ -43,7 +46,7 @@ public class AssignUserIT extends BaseIT {
 		given().
 			header("Content-type", "application/json").
 			header("AJP_eppn", uniqueUserEPPN1).
-			header("projectNumber",-1).
+			header("projectId",-1).
 		expect().
 			statusCode(HttpStatus.OK.value()).
 		when().
@@ -60,7 +63,7 @@ public class AssignUserIT extends BaseIT {
 		given().
 		header("Content-type", "application/json").
 		header("AJP_eppn", uniqueUserEPPN2).
-		header("projectNumber",-1).
+		header("projectId",-1).
 		expect().
 		statusCode(HttpStatus.OK.value()).
 		when().
@@ -71,4 +74,50 @@ public class AssignUserIT extends BaseIT {
 		assertFalse("Users' EPPNs ( "+uniqueUserEPPN1+" & "+uniqueUserEPPN2+" ) are the same",uniqueUserEPPN1.equals(uniqueUserEPPN2));
 		assertTrue("Second list "+membersList2.size()+" in not one larger than first list " + membersList1.size(), membersList2.size() ==  membersList1.size()+1);
 	}
+	
+	
+	@Test
+	public void testAssignUsersWithProject() throws Exception {
+		
+		// create user and add basic info
+		String uniqueUserEPPN1 = TestUserUtil.createNewUser();
+		Integer int1 = TestUserUtil.addBasicInfomationToUser(uniqueUserEPPN1);
+		
+		// setup project create request
+		ProjectCreateRequest json = new ProjectCreateRequest();
+		json.setDescription("user " + uniqueUserEPPN1 + " project");
+		json.setTitle("proj " + uniqueUserEPPN1);
+		
+		ServiceLogger.log(logTag, "testProjectCreateJsonObject: json = " + json.toString());
+
+		// create project for user
+		int projectId =
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", uniqueUserEPPN1).
+			body(json).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().
+			post("/projects/create").
+		then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+		
+		
+		ObjectMapper mapper1 = new ObjectMapper();
+		
+		JsonNode users1 =
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", uniqueUserEPPN1).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().
+			get("/assign_users/"+projectId).as(JsonNode.class);
+		
+		ArrayList<AssignUser> membersList1 = mapper1.readValue(mapper1.treeAsTokens(users1), new TypeReference<ArrayList<AssignUser>>() {});
+		
+		assertTrue("Project does not have one member", membersList1.size() == 1);
+				
+	}
+
 }
