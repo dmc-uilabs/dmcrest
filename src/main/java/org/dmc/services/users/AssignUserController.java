@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 public class AssignUserController {
@@ -35,21 +36,20 @@ public class AssignUserController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/assign_users", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
+	@RequestMapping(value = "/assign_users", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getAssignUsers(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
 											@RequestHeader(value = "projectId", defaultValue = "-1") Integer projectId) throws Exception {
 		
 		ServiceLogger.log(logTag, "In getAssignUsers: as user " + userEPPN);
 		
 		try {
-			ArrayList<Profile> members = projectMemberDao.getMembers(userEPPN); //ToDo: User projectNumber to get correct set of users
+			final ArrayList<Profile> members = projectMemberDao.getMembers(userEPPN);
+			final ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
 			
-			ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
-			
-			Iterator<Profile> iter = members.iterator();
+			final Iterator<Profile> iter = members.iterator();
 			while(iter.hasNext()) {
-				Profile userProfile = iter.next();
-				AssignUser user = new AssignUser(userProfile.getId(), userProfile.getDisplayName());
+				final Profile userProfile = iter.next();
+				final AssignUser user = new AssignUser(userProfile.getId(), userProfile.getDisplayName());
 				assignUser.add(user);
 			}
 			
@@ -72,22 +72,22 @@ public class AssignUserController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/assign_users/{projectId}", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
+	@RequestMapping(value = "/assign_users/{projectId}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getAssignUsersForProject(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
 													  @PathVariable(value = "projectId") Integer projectId) throws Exception {
 		
 		ServiceLogger.log(logTag, "In getAssignUsers: as user " + userEPPN);
 		
 		try {
-			ArrayList<ProjectMember> members =  projectMemberDao.getMembersForProject(projectId.toString(), userEPPN);
-			ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
-			ProfileDao profileDao = new ProfileDao();
+			final ArrayList<ProjectMember> members =  projectMemberDao.getMembersForProject(projectId.toString(), userEPPN);
+			final ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
+			final ProfileDao profileDao = new ProfileDao();
 			
-			Iterator<ProjectMember> iter = members.iterator();
+			final Iterator<ProjectMember> iter = members.iterator();
 			while(iter.hasNext()) {
-				ProjectMember projectMember = iter.next();
-				Profile userProfile = profileDao.getProfile(Integer.parseInt(projectMember.getProfileId()));
-				AssignUser user = new AssignUser(userProfile.getId(), userProfile.getDisplayName());
+				final ProjectMember projectMember = iter.next();
+				final Profile userProfile = profileDao.getProfile(Integer.parseInt(projectMember.getProfileId()));
+				final AssignUser user = new AssignUser(userProfile.getId(), userProfile.getDisplayName());
 				assignUser.add(user);
 			}
 			
@@ -98,6 +98,4 @@ public class AssignUserController {
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
-
-	
 }
