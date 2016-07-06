@@ -914,28 +914,99 @@ public class DiscussionIT extends BaseIT {
 	
 	
 	/*
-	 * test case for POST /individual-discussion-comments-flagged
+	 * test case 1 for POST /individual-discussion-comments-flagged
 	 */
 	@Test
-	public void testPost_IndividualDiscussionCommentflagged(){
-		IndividualDiscussionCommentFlagged obj = new IndividualDiscussionCommentFlagged();
+	public void testPost_IndividualDiscussionCommentFlaggedWithValidObj() {
+		IndividualDiscussionCommentFlagged flagToPost = new IndividualDiscussionCommentFlagged();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentFlaggedJSONString = null;
-		
+
+		String accountId = "102";
+		String commentId = "2";
+		String reason = "Bad";
+		String comment = "Inappropriate";
+
+		flagToPost.setAccountId(accountId);
+		flagToPost.setCommentId(commentId);
+		flagToPost.setReason(reason);
+		flagToPost.setComment(comment);
+
 		try {
-			postedIndividualDiscussionCommentFlaggedJSONString = mapper.writeValueAsString(obj);
+			postedIndividualDiscussionCommentFlaggedJSONString = mapper.writeValueAsString(flagToPost);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(postedIndividualDiscussionCommentFlaggedJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().post("/individual-discussion-comments-flagged");
+
+		IndividualDiscussionCommentFlagged postedFlag = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
+				.body(postedIndividualDiscussionCommentFlaggedJSONString).expect().statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion-comments-flagged")
+				.as(IndividualDiscussionCommentFlagged.class);
+
+		assertTrue("testPost_IndividualDiscussionCommentFlaggedWithValidObj: accountId values are not equal", postedFlag.getAccountId().equals(accountId));
+		assertTrue("testPost_IndividualDiscussionCommentFlaggedWithValidObj: commentId values are not equal", postedFlag.getCommentId().equals(commentId));
+		assertTrue("testPost_IndividualDiscussionCommentFlaggedWithValidObj: reason values are not equal", postedFlag.getReason().equals(reason));
+		assertTrue("testPost_IndividualDiscussionCommentFlaggedWithValidObj: comment values are not equal", postedFlag.getComment().equals(comment));
+
+	}
+
+	/*
+	 * test case 2 for POST /individual-discussion-comments-flagged
+	 */
+	@Test
+	public void testPost_IndividualDiscussionCommentFlaggedWithInvalidAccount() {
+		IndividualDiscussionCommentFlagged flagToPost = new IndividualDiscussionCommentFlagged();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionCommentFlaggedJSONString = null;
+
+		String accountId = "0";
+		String commentId = "2";
+		String reason = "Bad";
+		String comment = "Inappropriate";
+
+		flagToPost.setAccountId(accountId);
+		flagToPost.setCommentId(commentId);
+		flagToPost.setReason(reason);
+		flagToPost.setComment(comment);
+
+		try {
+			postedIndividualDiscussionCommentFlaggedJSONString = mapper.writeValueAsString(flagToPost);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentFlaggedJSONString).expect()
+				.statusCode(HttpStatus.UNAUTHORIZED.value()).when().post("/individual-discussion-comments-flagged");
+
+	}
+
+	/*
+	 * test case 3 for POST /individual-discussion-comments-flagged
+	 */
+	@Test
+	public void testPost_IndividualDiscussionCommentFlaggedWithInvalidCommentId() {
+		IndividualDiscussionCommentFlagged flagToPost = new IndividualDiscussionCommentFlagged();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionCommentFlaggedJSONString = null;
+
+		String accountId = "102";
+		String commentId = "0";
+		String reason = "Bad";
+		String comment = "Inappropriate";
+
+		flagToPost.setAccountId(accountId);
+		flagToPost.setCommentId(commentId);
+		flagToPost.setReason(reason);
+		flagToPost.setComment(comment);
+
+		try {
+			postedIndividualDiscussionCommentFlaggedJSONString = mapper.writeValueAsString(flagToPost);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentFlaggedJSONString).expect()
+				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post("/individual-discussion-comments-flagged");
+
 	}
 	
 	

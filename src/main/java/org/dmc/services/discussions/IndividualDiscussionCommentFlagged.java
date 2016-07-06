@@ -10,10 +10,10 @@ public class IndividualDiscussionCommentFlagged  {
   private String id = null;
   private String commentId = null;
   private String accountId = null;
+  private String reason = null;
+  private String comment = null;
 
   
-  /**
-   **/
   @JsonProperty("id")
   public String getId() {
     return id;
@@ -23,8 +23,6 @@ public class IndividualDiscussionCommentFlagged  {
   }
 
   
-  /**
-   **/
   @JsonProperty("commentId")
   public String getCommentId() {
     return commentId;
@@ -34,14 +32,30 @@ public class IndividualDiscussionCommentFlagged  {
   }
 
   
-  /**
-   **/
   @JsonProperty("accountId")
   public String getAccountId() {
     return accountId;
   }
   public void setAccountId(String accountId) {
     this.accountId = accountId;
+  }
+  
+  
+  @JsonProperty("reason")
+  public String getReason() {
+    return reason;
+  }
+  public void setReason(String reason) {
+    this.reason = reason;
+  }
+  
+  
+  @JsonProperty("comment")
+  public String getComment() {
+    return comment;
+  }
+  public void setComment(String comment) {
+    this.comment = comment;
   }
 
   
@@ -57,12 +71,14 @@ public class IndividualDiscussionCommentFlagged  {
     IndividualDiscussionCommentFlagged individualDiscussionCommentFlagged = (IndividualDiscussionCommentFlagged) o;
     return Objects.equals(id, individualDiscussionCommentFlagged.id) &&
         Objects.equals(commentId, individualDiscussionCommentFlagged.commentId) &&
-        Objects.equals(accountId, individualDiscussionCommentFlagged.accountId);
+        Objects.equals(accountId, individualDiscussionCommentFlagged.accountId) &&
+        Objects.equals(reason, individualDiscussionCommentFlagged.reason) &&
+        Objects.equals(comment, individualDiscussionCommentFlagged.comment);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, commentId, accountId);
+    return Objects.hash(id, commentId, accountId, reason, comment);
   }
 
   @Override
@@ -73,6 +89,8 @@ public class IndividualDiscussionCommentFlagged  {
     sb.append("  id: ").append(id).append("\n");
     sb.append("  commentId: ").append(commentId).append("\n");
     sb.append("  accountId: ").append(accountId).append("\n");
+    sb.append("  reason: ").append(reason).append("\n");
+    sb.append("  comment: ").append(comment).append("\n");
     sb.append("}\n");
     return sb.toString();
   }

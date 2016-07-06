@@ -1,6 +1,5 @@
 package org.dmc.services.discussions;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
