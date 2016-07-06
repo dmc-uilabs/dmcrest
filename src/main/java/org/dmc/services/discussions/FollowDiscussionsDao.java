@@ -103,5 +103,91 @@ public class FollowDiscussionsDao {
 			}
 		}
 	}
+	
+	public List<FollowingIndividualDiscussion> getFollowedDiscussionsforAccount(String accountId, String individualDiscussionId, Integer limit, String order, String sort) throws DMCServiceException {
+		Connection connection = DBConnector.connection();
+		FollowingIndividualDiscussion retObj = null;
+		List<FollowingIndividualDiscussion> followedDiscussions = new ArrayList<FollowingIndividualDiscussion>();
+
+		try {
+			connection.setAutoCommit(false);
+
+			ArrayList<String> columnsInIndividualDiscussionsFollowingTable = new ArrayList<String>();
+			columnsInIndividualDiscussionsFollowingTable.add("id");
+			columnsInIndividualDiscussionsFollowingTable.add("individual_discussion_id");
+			columnsInIndividualDiscussionsFollowingTable.add("account_id");
+			String followingQuery;
+			PreparedStatement preparedStatement;
+
+			if (individualDiscussionId == null) {
+				followingQuery = "SELECT * FROM individual_discussions_following WHERE account_id = ?";
+				
+				if (sort == null) {
+					followingQuery += " ORDER BY id";
+				} else if (!columnsInIndividualDiscussionsFollowingTable.contains(sort)) {
+					followingQuery += " ORDER BY id";
+				} else {
+					followingQuery += " ORDER BY " + sort;
+				}
+
+				if (order == null) {
+					followingQuery += " ASC";
+				} else if (!order.equals("ASC") && !order.equals("DESC")) {
+					followingQuery += " ASC";
+				} else {
+					followingQuery += " " + order;
+				}
+
+				if (limit == null) {
+					followingQuery += " LIMIT ALL";
+				} else if (limit < 0) {
+					followingQuery += " LIMIT 0";
+				} else {
+					followingQuery += " LIMIT " + limit;
+				}
+				
+				preparedStatement = DBConnector.prepareStatement(followingQuery);
+				preparedStatement.setInt(1, Integer.parseInt(accountId));
+				
+			} else {
+				followingQuery = "SELECT * FROM individual_discussions_following WHERE account_id = ? AND individual_discussion_id = ?";
+				preparedStatement = DBConnector.prepareStatement(followingQuery);
+				preparedStatement.setInt(1, Integer.parseInt(accountId));
+				preparedStatement.setInt(2, Integer.parseInt(individualDiscussionId));
+			}
+			
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+
+			while (resultSet.next()) {
+				retObj = new FollowingIndividualDiscussion();
+
+				retObj.setId(Integer.toString(resultSet.getInt("id")));
+				retObj.setIndividualDiscussionId(Integer.toString(resultSet.getInt("individual_discussion_id")));
+				retObj.setAccountId(Integer.toString(resultSet.getInt("account_id")));
+
+				followedDiscussions.add(retObj);
+			}
+
+		} catch (SQLException se) {
+			ServiceLogger.log(logTag, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
+
+		}
+
+		return followedDiscussions;
+	}
 
 }

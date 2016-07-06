@@ -151,6 +151,45 @@ public class DiscussionIT extends BaseIT {
 		when().get("/following_discussions");
 	}
 	
+	/*
+	 * test case 1 for GET /accounts/{accountID}/follow_discussions
+	 */
+
+	@Test
+	public void testGet_FollowDiscussionsFromAccountIdWithIndividualDiscussionId() {
+		String individualDiscussionId = "1";
+		String accountId = "550";
+
+		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", userEPPN).param("individual-discussionId", individualDiscussionId)
+				.expect().statusCode(HttpStatus.OK.value()).when().get("/accounts/" + accountId + "/follow_discussions").as(FollowingIndividualDiscussion[].class));
+
+		assertTrue(
+				"testGet_FollowDiscussionsFromAccountIdWithIndividualDiscussionId: there should only be one item returned when both accountId and individualDiscussionId are specified",
+				followedDiscussions.size() == 1);
+		assertTrue("testGet_FollowDiscussionsFromAccountIdWithIndividualDiscussionId: accountId values are not equal", followedDiscussions.get(0).getAccountId().equals(accountId));
+		assertTrue("testGet_FollowDiscussionsFromAccountIdWithIndividualDiscussionId: individualDiscussionId values are not equal",
+				followedDiscussions.get(0).getIndividualDiscussionId().equals(individualDiscussionId));
+		assertTrue("testGet_FollowDiscussionsFromAccountIdWithIndividualDiscussionId: id values are not equal", followedDiscussions.get(0).getId().equals("1"));
+	}
+
+	/*
+	 * test case 2 for GET /accounts/{accountID}/follow_discussions
+	 */
+
+	@Test
+	public void testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId() {
+		String accountId = "550";
+
+		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", userEPPN).param("limit", 2).expect().statusCode(HttpStatus.OK.value())
+				.when().get("/accounts/" + accountId + "/follow_discussions").as(FollowingIndividualDiscussion[].class));
+
+		assertTrue("testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId: limit parameter didn't work", followedDiscussions.size() == 2);
+		assertTrue("testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId: accountId values are not equal",
+				followedDiscussions.get(0).getAccountId().equals(accountId));
+		assertTrue("testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId: individualDiscussionId values are not equal",
+				followedDiscussions.get(0).getIndividualDiscussionId().equals("1"));
+		assertTrue("testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId: id values are not equal", followedDiscussions.get(0).getId().equals("1"));
+	}
 	
 	/*
 	 * test case 1 for POST /follow_discussions

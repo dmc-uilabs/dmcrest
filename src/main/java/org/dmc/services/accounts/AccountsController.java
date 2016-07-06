@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.discussions.FollowDiscussionsDao;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
+import org.dmc.services.discussions.IndividualDiscussionTag;
 import org.dmc.services.services.DomeInterfacesDao;
 import org.dmc.services.services.GetDomeInterface;
 
@@ -111,16 +113,19 @@ public class AccountsController {
 		return new ResponseEntity<List<FollowingCompany>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@RequestMapping(value = "/{accountID}/follow_discussions", produces = {
-			"application/json" }, method = RequestMethod.GET)
-	public ResponseEntity<List<FollowingIndividualDiscussion>> accountsAccountIDFollowDiscussionsGet(
-			@PathVariable("accountID") String accountID,
-			@RequestParam(value = "individual-discussionId", required = true) String individualDiscussionId,
-			@RequestParam(value = "limit", required = false) Integer limit,
-			@RequestParam(value = "order", required = false) String order,
-			@RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<List<FollowingIndividualDiscussion>>(HttpStatus.NOT_IMPLEMENTED);
+	@RequestMapping(value = "/{accountID}/follow_discussions", produces = { "application/json" }, method = RequestMethod.GET)
+	public ResponseEntity getFollowDiscussionsFromAccountId(@PathVariable("accountID") String accountID,
+			@RequestParam(value = "individual-discussionId", required = false) String individualDiscussionId, @RequestParam(value = "limit", required = false) Integer limit,
+			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
+		FollowDiscussionsDao followDiscussionsDao = new FollowDiscussionsDao();
+		try {
+			ServiceLogger.log(logTag, "In getFollowDiscussionsFromAccountId");
+			return new ResponseEntity<List<FollowingIndividualDiscussion>>(
+					followDiscussionsDao.getFollowedDiscussionsforAccount(accountID, individualDiscussionId, limit, order, sort), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	@RequestMapping(value = "/{accountId}/following_members", produces = { "application/json",
