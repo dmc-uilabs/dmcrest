@@ -1,5 +1,7 @@
 package org.dmc.services.data.models;
 
+import java.util.List;
+
 public class UserModel extends BaseModel {
 
 	private String username;
@@ -9,6 +11,7 @@ public class UserModel extends BaseModel {
 	private String address;
 	private String phone;
 	private UserContactInfoModel userContactInfo;
+	private List<UserRoleAssignmentModel> roles;
 
 	public String getUsername() {
 		return username;
@@ -54,6 +57,14 @@ public class UserModel extends BaseModel {
 
 	public void setUserContactInfo(UserContactInfoModel userContactInfo) {
 		this.userContactInfo = userContactInfo;
+	}
+
+	public List<UserRoleAssignmentModel> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<UserRoleAssignmentModel> roles) {
+		this.roles = roles;
 	}
 
 

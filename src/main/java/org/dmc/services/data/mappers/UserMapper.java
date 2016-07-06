@@ -2,8 +2,10 @@ package org.dmc.services.data.mappers;
 
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
+import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.models.UserContactInfoModel;
 import org.dmc.services.data.models.UserModel;
+import org.dmc.services.data.models.UserRoleAssignmentModel;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +18,9 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 
 		User entity = copyProperties(model, new User());
 
+		Mapper<UserRoleAssignment, UserRoleAssignmentModel> roleMapper = mapperFactory.mapperFor(UserRoleAssignment.class, UserRoleAssignmentModel.class);
 		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+		entity.setRoles(roleMapper.mapToEntity(model.getRoles()));
 		entity.setUserContactInfo(contactInfoMapper.mapToEntity(model.getUserContactInfo()));
 
 		return entity;
@@ -30,7 +34,9 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		UserModel model = copyProperties(entity, new UserModel());
 
 		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+		Mapper<UserRoleAssignment, UserRoleAssignmentModel> roleMapper = mapperFactory.mapperFor(UserRoleAssignment.class, UserRoleAssignmentModel.class);
 		model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
+		model.setRoles(roleMapper.mapToModel(entity.getRoles()));
 
 		return model;
 	}
