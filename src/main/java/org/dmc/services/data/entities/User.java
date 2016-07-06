@@ -1,10 +1,14 @@
 package org.dmc.services.data.entities;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -33,6 +37,9 @@ public class User extends BaseEntity {
 
 	@Column(name = "phone")
 	private String phone;
+	
+	@OneToMany(mappedBy = "userId", cascade = CascadeType.DETACH)
+	private List<UserRoleAssignment> roles;
 
 	public String getUsername() {
 		return username;
@@ -90,6 +97,14 @@ public class User extends BaseEntity {
 		this.id = id;
 	}
 
+	public List<UserRoleAssignment> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<UserRoleAssignment> roles) {
+		this.roles = roles;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -100,6 +115,7 @@ public class User extends BaseEntity {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((phone == null) ? 0 : phone.hashCode());
+		result = prime * result + ((roles == null) ? 0 : roles.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
@@ -143,6 +159,11 @@ public class User extends BaseEntity {
 				return false;
 		} else if (!phone.equals(other.phone))
 			return false;
+		if (roles == null) {
+			if (other.roles != null)
+				return false;
+		} else if (!roles.equals(other.roles))
+			return false;
 		if (username == null) {
 			if (other.username != null)
 				return false;
@@ -150,8 +171,5 @@ public class User extends BaseEntity {
 			return false;
 		return true;
 	}
-
-
-
 
 }
