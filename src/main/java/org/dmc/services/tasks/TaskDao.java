@@ -69,6 +69,10 @@ public class TaskDao {
 		throw new DMCServiceException(DMCError.OtherSQLError, "Task retrieval error");
 	}
 
+	public Task patchTask(Task task, String userEPPN) throws DMCServiceException {
+		return new Task();
+	}
+	
     public Id createTask(TaskToCreate task, String userEPPN) throws DMCServiceException {
         Connection connection = DBConnector.connection();
         // let's start a transaction
