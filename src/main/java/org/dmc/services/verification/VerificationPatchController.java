@@ -20,7 +20,7 @@ public class VerificationPatchController {
     private Verification verificationTest = new Verification(); 
 
 	
-	@RequestMapping(value = "/verify", method = RequestMethod.PATCH, produces = { "application/json" })
+	@RequestMapping(value = "/verify", method = RequestMethod.POST, produces = { "application/json" })
     public ResponseEntity verify(@RequestBody VerificationPatch payload) {
 		
     	ServiceLogger.log(logTag, "Verification Machine Patch");
