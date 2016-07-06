@@ -40,6 +40,9 @@ public class ResourceController {
 	@Inject
 	private ResourceBayService resourceBayService; 
 	
+	@Inject
+	private ResourceMachineService resourceMachineService; 
+	
 	/*
 	 * Assessments
 	 */
@@ -175,8 +178,6 @@ public class ResourceController {
 		return resourceBayService.get(id);
 	}
 	
-
-	
 	@RequestMapping(value = "/resource/bay", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResourceBayModel createBay(@RequestBody ResourceBayModel bay) {
 		return resourceBayService.create(bay);
@@ -192,22 +193,26 @@ public class ResourceController {
 	 * Machines
 	 */
 	
-	@RequestMapping(value = "/resource/bay/machine/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public  @ResponseBody ResourceMachineModel getMachine(@PathVariable Integer id){
-		return resourceBayService.getMachine(id);
+	@RequestMapping(value = "/resource/machine/{bayId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public  @ResponseBody List<ResourceMachineModel> getMachine(@PathVariable Integer bayId){
+		return resourceMachineService.getAllMachines(bayId);
 	}
 
 
-	@RequestMapping(value = "/resource/bay/{bayId}/machine", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/resource/machine/{bayId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResourceMachineModel createBayMachine(@PathVariable Integer bayId, @RequestBody ResourceMachineModel machine) {
-		return resourceBayService.createBayMachine(bayId, machine);
+		return resourceMachineService.createMachine(bayId, machine);
 	}
 	
 	
+	@RequestMapping(value = "/resource/machine/{bayId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Integer deleteAllMachines(@PathVariable Integer bayId) {
+		return resourceMachineService.removeAllMachines(bayId);
+	}
 	
-	@RequestMapping(value = "/resource/bay/machine/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResourceMachineModel deleteBayMachine(@PathVariable Integer id) {
-		return resourceBayService.removeMachine(id);
+	@RequestMapping(value = "/resource/machine/{bayId}/{machineId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResourceMachineModel deleteMachine(@PathVariable Integer bayId, @PathVariable Integer machineId) {
+		return resourceMachineService.removeMachine(bayId, machineId);
 	}
 	
 	

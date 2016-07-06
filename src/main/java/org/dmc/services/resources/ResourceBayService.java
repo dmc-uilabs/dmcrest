@@ -25,11 +25,7 @@ public class ResourceBayService {
 
 	@Inject
 	private ResourceBayRepository resourceBayRepository;
-	
-	@Inject
-	private ResourceMachineRepository resourceMachineRepository;
 
-	
 	@Inject
 	private MapperFactory mapperFactory;
 
@@ -45,13 +41,7 @@ public class ResourceBayService {
 		Mapper<ResourceBay, ResourceBayModel> mapper = mapperFactory.mapperFor(ResourceBay.class, ResourceBayModel.class);
 		return mapper.mapToModel(resourceBayRepository.findOne(id));
 	}
-	
-	//Gets a specific machine
-		public ResourceMachineModel getMachine(Integer id) {
-			Mapper<ResourceMachine, ResourceMachineModel> mapper = mapperFactory.mapperFor(ResourceMachine.class, ResourceMachineModel.class);
-			return mapper.mapToModel(resourceMachineRepository.findOne(id));
-		}
-	
+
 	//create a bay
 	public ResourceBayModel create(ResourceBayModel bay) {
 		Mapper<ResourceBay, ResourceBayModel> mapper = mapperFactory.mapperFor(ResourceBay.class, ResourceBayModel.class);
@@ -60,29 +50,6 @@ public class ResourceBayService {
 		return mapper.mapToModel(entity);
 	}
 	
-	
-	//create a machine 
-	public ResourceMachineModel createBayMachine(Integer bayId, ResourceMachineModel machineModel) {
-		
-		//Create mappers
-		Mapper<ResourceMachine, ResourceMachineModel> machineMapper = mapperFactory.mapperFor(ResourceMachine.class, ResourceMachineModel.class);
-		//Mapper<ResourceBay, ResourceBayModel> bayMapper = mapperFactory.mapperFor(ResourceBay.class, ResourceBayModel.class);
-
-		//Convert to machine to entity
-		ResourceMachine machineEntity = machineMapper.mapToEntity(machineModel);
-	  
-		//Get the associated bay 
-		ResourceBay bayEntity = resourceBayRepository.findOne(bayId);
-
-		//Add bay entity 
-		machineEntity.setBay(bayEntity);
-			
-		//save changes
-		machineEntity = resourceMachineRepository.save(machineEntity); 
-		
-		//Return the created machine
-		return machineMapper.mapToModel(machineEntity);
-	}
 
 	//deletes an bay
 	public ResourceBayModel remove(Integer id) {
@@ -92,13 +59,7 @@ public class ResourceBayService {
 		return mapper.mapToModel(entity);
 	}
 	
-	//deletes an machine
-	public ResourceMachineModel removeMachine(Integer id) {
-		Mapper<ResourceMachine, ResourceMachineModel> mapper = mapperFactory.mapperFor(ResourceMachine.class, ResourceMachineModel.class);
-		ResourceMachine entity = resourceMachineRepository.findOne(id);
-		resourceMachineRepository.delete(entity);
-		return mapper.mapToModel(entity);
-	}
+	
 
 
 	

@@ -13,7 +13,7 @@ public class ResourceBayModel extends BaseModel {
 	private String link; 
 	private String contact; 
 	private boolean highlighted;
-	private List<ResourceMachineModel> machines;
+	//private List<ResourceMachineModel> machines;
 
 	
 	public Integer getId() {
@@ -64,12 +64,13 @@ public class ResourceBayModel extends BaseModel {
 	public void setHighlighted(boolean highlighted) {
 		this.highlighted = highlighted;
 	}
+	/*
 	public List<ResourceMachineModel> getMachines() {
 		return machines;
 	}
 	public void setMachines(List<ResourceMachineModel> machines) {
 		this.machines = machines;
 	} 
-	
+	*/
 
 }

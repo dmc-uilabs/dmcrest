@@ -19,8 +19,8 @@ public class ResourceBay extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
-	@OneToMany(mappedBy="bay", cascade=CascadeType.ALL)
-	private List<ResourceMachine> machines;
+	//@OneToMany(mappedBy="bay", cascade=CascadeType.ALL)
+	//private List<ResourceMachine> machines;
 
 	@Column(name = "title")
 	private String title;
@@ -52,7 +52,7 @@ public class ResourceBay extends BaseEntity {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-
+/*
 	public List<ResourceMachine> getMachines() {
 		return machines;
 	}
@@ -60,7 +60,7 @@ public class ResourceBay extends BaseEntity {
 	public void setMachines(List<ResourceMachine> machines) {
 		this.machines = machines;
 	}
-
+*/
 	public String getTitle() {
 		return title;
 	}
@@ -129,7 +129,6 @@ public class ResourceBay extends BaseEntity {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((image == null) ? 0 : image.hashCode());
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
-		result = prime * result + ((machines == null) ? 0 : machines.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
@@ -189,13 +188,6 @@ public class ResourceBay extends BaseEntity {
 				return false;
 			}
 		} else if (!link.equals(other.link)) {
-			return false;
-		}
-		if (machines == null) {
-			if (other.machines != null) {
-				return false;
-			}
-		} else if (!machines.equals(other.machines)) {
 			return false;
 		}
 		if (title == null) {
