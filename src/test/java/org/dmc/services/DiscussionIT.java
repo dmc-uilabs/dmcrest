@@ -153,41 +153,112 @@ public class DiscussionIT extends BaseIT {
 	
 	
 	/*
-	 * test case for PATCH /follow_discussions
+	 * test case 1 for POST /follow_discussions
 	 */
 	@Test
-	public void testPatch_followDiscussion(){
-		FollowingIndividualDiscussion obj = new FollowingIndividualDiscussion();
+	public void testPost_followDiscussionWithValidObject() {
+		FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
 		ObjectMapper mapper = new ObjectMapper();
-		String patchedFollowDiscussionsJSONString = null;
+		String postedFollowDiscussionsJSONString = null;
+
+		String accountId = "550";
+		String individualDiscussionId = "3";
+
+		followToPost.setIndividualDiscussionId(individualDiscussionId);
+		followToPost.setAccountId(accountId);
+
 		try {
-			patchedFollowDiscussionsJSONString = mapper.writeValueAsString(obj);
+			postedFollowDiscussionsJSONString = mapper.writeValueAsString(followToPost);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(patchedFollowDiscussionsJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        patch("/follow_discussions");
+
+		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString)
+				.expect().statusCode(HttpStatus.CREATED.value()).when().post("/follow_discussions").as(FollowingIndividualDiscussion.class);
+
+		assertTrue("testPost_followDiscussionWithValidObject: individual discussion id values are not equal",
+				postedFollow.getIndividualDiscussionId().equals(individualDiscussionId));
+		assertTrue("testPost_followDiscussionWithValidObject: account id values are not equal", postedFollow.getAccountId().equals(accountId));
+
 	}
 
-	
+	/*
+	 * test case 2 for POST /follow_discussions
+	 */
+	@Test
+	public void testPost_followDiscussionWithInvalidAccountId() {
+		FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedFollowDiscussionsJSONString = null;
+
+		String accountId = "0";
+		String individualDiscussionId = "3";
+
+		followToPost.setIndividualDiscussionId(individualDiscussionId);
+		followToPost.setAccountId(accountId);
+
+		try {
+			postedFollowDiscussionsJSONString = mapper.writeValueAsString(followToPost);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString).expect().statusCode(HttpStatus.UNAUTHORIZED.value())
+				.when().post("/follow_discussions");
+
+	}
+
+	/*
+	 * test case 3 for POST /follow_discussions
+	 */
+	@Test
+	public void testPost_followDiscussionWithInvalidDiscussionId() {
+		FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedFollowDiscussionsJSONString = null;
+
+		String accountId = "550";
+		String individualDiscussionId = "0";
+
+		followToPost.setIndividualDiscussionId(individualDiscussionId);
+		followToPost.setAccountId(accountId);
+
+		try {
+			postedFollowDiscussionsJSONString = mapper.writeValueAsString(followToPost);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString).expect().statusCode(HttpStatus.BAD_REQUEST.value())
+				.when().post("/follow_discussions");
+
+	}
+
 	/*
 	 * test case for DELETE /follow_discussions/{followID}
 	 */
 	@Test
-	public void testDelete_FollowDiscussions(){
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().delete("/follow_discussions/" + followId);
+	public void testDelete_FollowDiscussions() {
+		FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedFollowDiscussionsJSONString = null;
+
+		String accountId = "102";
+		String individualDiscussionId = "4";
+
+		followToPost.setIndividualDiscussionId(individualDiscussionId);
+		followToPost.setAccountId(accountId);
+
+		try {
+			postedFollowDiscussionsJSONString = mapper.writeValueAsString(followToPost);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString)
+				.expect().statusCode(HttpStatus.CREATED.value()).when().post("/follow_discussions").as(FollowingIndividualDiscussion.class);
+
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().delete("/follow_discussions/" + postedFollow.getId());
 	}
 	
 	/*

@@ -17,7 +17,7 @@ import org.dmc.services.sharedattributes.Util;
 
 public class IndividualDiscussionDao {
 
-	private final String logTag = DiscussionDao.class.getName();
+	private final String logTag = IndividualDiscussionDao.class.getName();
 
 	public List<IndividualDiscussion> getListOfCommunityIndividualDiscussions(Integer limit, String order, String sort) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
