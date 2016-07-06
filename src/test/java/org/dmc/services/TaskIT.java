@@ -186,4 +186,48 @@ public class TaskIT extends BaseIT {
 		when().
 			get(newGetRequest);
     }
+	
+	@Test
+	public void testPatchTask() {
+		TaskToCreate task = createTaskJsonSample("testTaskCreateAndGet");
+		Integer id =
+		given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+			body(task).
+		expect().
+			statusCode(OK.value()).
+		when().
+			post(CREATE_TASKS).
+		then().
+			body(matchesJsonSchemaInClasspath(ID_SCHEMA)).
+			extract().path("id");
+		
+		String newGetRequest = TASKS_BASE + "/" + id.toString();
+		
+		// let's query the newly created task and make sure we get it
+		Task retrievedTask =
+		given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+		expect().
+			statusCode(OK.value()).
+		when().
+			get(newGetRequest).
+		then().
+			log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
+			extract().as(Task.class);
+		
+		assertEquals(id.toString(), retrievedTask.getId());
+
+		Task patchedTask =
+		given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+			body(retrievedTask).
+		expect().
+			statusCode(OK.value()).
+		when().
+			patch(newGetRequest).
+		then().
+			log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
+			extract().as(Task.class);
+	}
 }
