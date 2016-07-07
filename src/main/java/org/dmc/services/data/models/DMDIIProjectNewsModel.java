@@ -7,7 +7,7 @@ public class DMDIIProjectNewsModel extends BaseModel {
 	private Integer id;
 	private String title;
 	private String content;
-	private Date dateCreated;
+	private String dateCreated;
 	private String projectNumber;
 	
 	public Integer getId() {
@@ -28,10 +28,10 @@ public class DMDIIProjectNewsModel extends BaseModel {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public Date getDateCreated() {
+	public String getDateCreated() {
 		return dateCreated;
 	}
-	public void setDateCreated(Date dateCreated) {
+	public void setDateCreated(String dateCreated) {
 		this.dateCreated = dateCreated;
 	}
 	public String getProjectNumber() {
