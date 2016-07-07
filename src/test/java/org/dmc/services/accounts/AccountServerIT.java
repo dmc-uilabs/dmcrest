@@ -79,6 +79,7 @@ public class AccountServerIT extends BaseIT {
 		
 		// set if of orginal to id of returned
 		userAccountServer.setId(returnedUserAccountServer.getId());
+		userAccountServer.setIp(validURL + "/DOMEApiServicesV7/");
 		
 		// check returned and orginal UserAccountServer object is equal
 		assertTrue("Orginal and returned UserAccountServer objects are not equal",
@@ -251,6 +252,7 @@ public class AccountServerIT extends BaseIT {
 			patch("/account_servers/" + returnedUserAccountServer.getId()).
 			as(UserAccountServer.class);
 		
+		returnedUserAccountServer.setIp(validURL + "/DOMEApiServicesV7/");
 		// check returned and orginal UserAccountServer object is equal
 		assertTrue("Orginal modified UserAccountServer object is not equal to patched",
        			   returnedUserAccountServer.equals(patchedUserAccountServer));
