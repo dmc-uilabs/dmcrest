@@ -902,17 +902,25 @@ public class DiscussionIT extends BaseIT {
 	 * test case for GET /individual-discussion-comments-flagged
 	 */
 	@Test
-	public void testGet_IndividualDiscussionCommentflagged(){
-		given().
-		param("accountId", accountId).
-		param("commentId", commentId).
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/individual-discussion-comments-flagged");
+	public void testGet_IndividualDiscussionCommentFlagged() {
+		IndividualDiscussionCommentFlagged flagInTable = new IndividualDiscussionCommentFlagged();
+		String accountId = "550";
+		String commentId = "1";
+		String reason = "Bad";
+		String comment = "Inappropriate";
+
+		flagInTable.setId("1");
+		flagInTable.setAccountId(accountId);
+		flagInTable.setCommentId(commentId);
+		flagInTable.setReason(reason);
+		flagInTable.setComment(comment);
+
+		IndividualDiscussionCommentFlagged receivedFlag = given().param("accountId", accountId).param("commentId", commentId).header("AJP_eppn", userEPPN).expect()
+				.statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments-flagged").as(IndividualDiscussionCommentFlagged.class);
+
+		assertTrue("testGet_IndividualDiscussionCommentFlagged: expected flag in table doesn't match flag read with GET method", flagInTable.equals(receivedFlag));
 	}
-	
-	
+
 	/*
 	 * test case 1 for POST /individual-discussion-comments-flagged
 	 */

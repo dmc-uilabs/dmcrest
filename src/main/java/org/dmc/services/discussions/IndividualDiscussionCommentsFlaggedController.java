@@ -22,10 +22,16 @@ public class IndividualDiscussionCommentsFlaggedController {
 	private final String logTag = IndividualDiscussionCommentsFlaggedController.class.getName();
 
 	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.GET)
-	public ResponseEntity<List<IndividualDiscussionCommentFlagged>> individualDiscussionCommentsFlaggedGet(@RequestParam(value = "commentId", required = true) String commentId,
+	public ResponseEntity getIndividualDiscussionCommentsFlagged(@RequestParam(value = "commentId", required = true) String commentId,
 			@RequestParam(value = "accountId", required = true) String accountId) {
-		// do some magic!
-		return new ResponseEntity<List<IndividualDiscussionCommentFlagged>>(HttpStatus.NOT_IMPLEMENTED);
+		IndividualDiscussionCommentsFlaggedDao individualDiscussionCommentsFlaggedDao = new IndividualDiscussionCommentsFlaggedDao();
+		try {
+			ServiceLogger.log(logTag, "In getIndividualDiscussionCommentsFlagged");
+			return new ResponseEntity<IndividualDiscussionCommentFlagged>(individualDiscussionCommentsFlaggedDao.getCommentFlagged(commentId, accountId), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.POST)
