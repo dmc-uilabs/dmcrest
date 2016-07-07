@@ -11,6 +11,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Entity
 @Table(name = "dmdii_member_news")
 public class DMDIIMemberNews extends BaseEntity {
@@ -27,6 +29,7 @@ public class DMDIIMemberNews extends BaseEntity {
 	
 	@Column(name = "date_posted")
 	@Temporal(TemporalType.DATE)
+	@JsonFormat(pattern = "yyy-MM-dd")
 	private Date dateCreated;
 
 	public Integer getId() {
