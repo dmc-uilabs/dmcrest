@@ -6,6 +6,7 @@ import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.UserModel;
+import org.dmc.services.data.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service

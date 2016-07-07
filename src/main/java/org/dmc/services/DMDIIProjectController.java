@@ -28,6 +28,12 @@ public class DMDIIProjectController {
 
 	@Inject
 	private DMDIIProjectService dmdiiProjectService;
+	
+	@Inject
+	private DMDIIProjectEventsService dmdiiProjectEventsService;
+	
+	@Inject
+	private DMDIIProjectNewsService dmdiiProjectNewsService;
 
 	@RequestMapping(value = "/dmdiiprojects", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
@@ -96,5 +102,15 @@ public class DMDIIProjectController {
 	@RequestMapping(value = "/dmdiiProject/events", params = "limit", method = RequestMethod.GET)
 	public List<DMDIIProjectEventModel> getDmdiiProjectEvents(@RequestParam("limit") Integer limit) {
 		return dmdiiProjectService.getDmdiiProjectEvents(limit);
+	}
+	
+	@RequestMapping(value = "/dmdiiProject/events/save", method = RequestMethod.POST)
+	public DMDIIProjectEventModel saveDMDIIProjectEvent (@RequestBody DMDIIProjectEventModel projectEvent) {
+		return dmdiiProjectEventsService.save(projectEvent);
+	}
+	
+	@RequestMapping(value = "/dmdiiProject/news/save", method = RequestMethod.POST)
+	public DMDIIProjectNewsModel saveDMDIIProjectNews (@RequestBody DMDIIProjectNewsModel projectNews) {
+		return dmdiiProjectNewsService.save(projectNews);
 	}
 }

@@ -1,14 +1,12 @@
 package org.dmc.services.data.models;
 
-import java.util.Date;
-
 public class DMDIIMemberEventModel extends BaseModel {
 
 	private Integer id;
 	private String name;
 	private String description;
 	private String location;
-	private Date date;
+	private String date;
 	
 	public Integer getId() {
 		return id;
@@ -34,10 +32,10 @@ public class DMDIIMemberEventModel extends BaseModel {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 	

@@ -1,7 +1,7 @@
-package org.dmc.services;
+package org.dmc.services.data.repositories;
 
 import org.dmc.services.data.entities.User;
-import org.dmc.services.data.repositories.BaseRepository;
+import org.springframework.data.domain.Page;
 
 public interface UserRepository extends BaseRepository<User, Integer> {
 
