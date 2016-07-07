@@ -25,7 +25,7 @@ public class TaskController {
 
     private TaskDao task = new TaskDao();
 
-    @RequestMapping(value = "/tasks/{taskID}", method = GET, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/tasks/{taskID}", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getTask(@PathVariable("taskID") String taskID,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         ServiceLogger.log(LOGTAG, "UserName: " + userEPPN);
@@ -36,7 +36,7 @@ public class TaskController {
         }
     }
 
-    @RequestMapping(value = "/tasks/{taskID}", method = DELETE, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/tasks/{taskID}", method = DELETE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> tasksTaskIDDelete(@PathVariable("taskID") String taskID,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         // do some magic!
@@ -44,14 +44,19 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/tasks/create", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public Id createTask(@RequestBody Task payload,
+    public ResponseEntity<?> createTask(@RequestBody TaskToCreate payload,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         ServiceLogger.log(LOGTAG, "Payload: " + payload);
 
-        return task.createTask(payload, userEPPN);
+        try {
+            final Id id = task.createTask(payload, userEPPN);
+            return new ResponseEntity<Id>(id, OK);
+        } catch (DMCServiceException e) {
+            return new ResponseEntity<String>(e.getMessage(), INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @RequestMapping(value = "/tasks", method = GET, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/tasks", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getTaskList(@RequestParam(value = "_order", required = false) String order,
             @RequestParam(value = "_sort", required = false) String sort,
             @RequestParam(value = "_start", required = false) Integer start,
@@ -64,7 +69,7 @@ public class TaskController {
         }
     }
 
-    @RequestMapping(value = "/projects/{projectID}/tasks", method = GET, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/projects/{projectID}/tasks", method = GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity getTaskList(@PathVariable("projectID") int projectId,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         ServiceLogger.log(LOGTAG, "UserName: " + userEPPN);

@@ -43,7 +43,7 @@ public class CompanyKeyContactController {
 			int statusCode = HttpStatus.OK.value();
 			return new ResponseEntity<Id>(retrunId, HttpStatus.valueOf(statusCode));
 		} catch (DMCServiceException e) {
-			ServiceLogger.log(this.logTag, "Exception:" + e.getErrorMessage());
+			ServiceLogger.log(this.logTag, "Exception:" + e.getMessage());
 			// HttpHeaders headers = new HttpHeaders();
 			//return new ResponseEntity<String>("DMCServerException:"
 			//		+ e.getErrorMessage(), headers, HttpStatus.BAD_REQUEST);

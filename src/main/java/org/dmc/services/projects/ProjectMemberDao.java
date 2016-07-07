@@ -40,18 +40,18 @@ public class ProjectMemberDao {
 
 			// User should only have access to users within the same company
 			// User may even have to be an admin of some sort, but that will depend on requirements
-			Integer organizationId = CompanyUserUtil.getOrgId(userEPPN);
+//			Integer organizationId = CompanyUserUtil.getOrgId(userEPPN);
 			
 			String query = "SELECT u.user_id, u.user_name, u.realname, u.title, u.phone, "
 					+ "u.email, u.address, u.image, u.people_resume "
 					+ "FROM organization_dmdii_member dmdii, organization_user orgu, users u "
 					+ "WHERE u.user_id = orgu.user_id " 
 					+ "AND orgu.organization_id = dmdii.organization_id "
-					+ "AND dmdii.expire_date >= now() "
-					+ "AND orgu.organization_id = ?";
+					+ "AND dmdii.expire_date >= now() ";
+//					+ "AND orgu.organization_id = ?";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-			preparedStatement.setInt(1, organizationId);
+//			preparedStatement.setInt(1, organizationId);
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			while (resultSet.next()) {
@@ -60,7 +60,7 @@ public class ProjectMemberDao {
 
 				String userId = resultSet.getString("user_id");
 				profile.setId(userId);
-				profile.setDisplayName(resultSet.getString("user_name"));
+				profile.setDisplayName(resultSet.getString("realname"));
 				profile.setJobTitle(resultSet.getString("title"));
 				profile.setPhone(resultSet.getString("phone"));
 				profile.setEmail(resultSet.getString("email"));

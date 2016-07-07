@@ -6,17 +6,11 @@ import org.springframework.http.HttpStatus;
 public class DMCServiceException extends Exception {
 
 	private DMCError error;
-	private String errorMessage;
-	
-	public DMCServiceException(){
-		this.error = DMCError.Generic;
-		this.errorMessage = "";
-	}
 
 	public DMCServiceException(DMCError e, String m)
 	{
+	    super(m);
 		this.error = e;
-		this.errorMessage = m;
 	}
 
 	public DMCError getError() {
@@ -27,17 +21,9 @@ public class DMCServiceException extends Exception {
 		this.error = error;
 	}
 
-	public String getErrorMessage() {
-		return this.errorMessage;
-	}
-
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
-
 	public HttpStatus getHttpStatusCode() {
 
-		HttpStatus status;
+		HttpStatus status = HttpStatus.NOT_FOUND;
 
 		switch(error) {
 			case NotAdminUser:
@@ -68,6 +54,7 @@ public class DMCServiceException extends Exception {
 				status = HttpStatus.INTERNAL_SERVER_ERROR;
 				break;
 			case IncorrectType:
+			case InvalidCommentId:
 				status = HttpStatus.BAD_REQUEST;
 				break;
 			case CannotConnectToDome:

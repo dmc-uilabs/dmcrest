@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.DMDIIMemberEventService;
+import org.dmc.services.DMDIIMemberNewsService;
 import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
 import org.dmc.services.data.models.DMDIIMemberMapEntryModel;
@@ -25,6 +27,12 @@ public class DMDIIMemberController {
 
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
+	
+	@Inject
+	private DMDIIMemberEventService dmdiiMemberEventsService;
+	
+	@Inject
+	private DMDIIMemberNewsService dmdiiMemberNewsService;
 	
 	@RequestMapping(value = "/dmdiiMember", params = {"page", "pageSize"}, method = RequestMethod.GET)
 	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
@@ -62,9 +70,19 @@ public class DMDIIMemberController {
 		return dmdiiMemberService.getDmdiiMemberNews(limit);
 	}
 	
-	@RequestMapping(value = "/dmdiiMember/event", params = "limit", method = RequestMethod.GET)
+	@RequestMapping(value = "/dmdiiMember/events", params = "limit", method = RequestMethod.GET)
 	public List<DMDIIMemberEventModel> getDmdiiMemberEvents(@RequestParam("limit") Integer limit) {
 		return dmdiiMemberService.getDmdiiMemberEvents(limit);
+	}
+	
+	@RequestMapping(value = "/dmdiiMember/events", method = RequestMethod.POST)
+	public DMDIIMemberEventModel saveDMDIIMemberEvent (@RequestBody DMDIIMemberEventModel memberEvent) {
+		return dmdiiMemberEventsService.save(memberEvent);
+	}
+	
+	@RequestMapping(value = "/dmdiiMember/news", method = RequestMethod.POST)
+	public DMDIIMemberNewsModel saveDMDIIMemberNews (@RequestBody DMDIIMemberNewsModel memberNews) {
+		return dmdiiMemberNewsService.save(memberNews);
 	}
 
 }
