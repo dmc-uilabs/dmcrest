@@ -47,7 +47,7 @@ class AccountServersDao {
 				.openConnection();
 
 		testConnection.setConnectTimeout(TIMEOUT); 
-		;
+		
 		testConnection.setRequestMethod(GET);
 		int responseCode = 0;
 		String responseMsg = null;
@@ -112,7 +112,9 @@ class AccountServersDao {
 		try {
 			// update user's record in users table
 			// ToDo store status
-
+			userAccountServer.setIp(userAccountServer.getIp() + "/DOMEApiServicesV7/");
+			//here we add the version of DOME running. In the future, this should come from the frontend/user
+			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery, 
 					Statement.RETURN_GENERATED_KEYS);
 			preparedStatement.setString(1, userAccountServer.getIp());
