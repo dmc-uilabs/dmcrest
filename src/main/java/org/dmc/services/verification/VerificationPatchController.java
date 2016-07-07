@@ -43,7 +43,7 @@ public class VerificationPatchController {
         int httpStatusCode = HttpStatus.OK.value();
         
         try{
-        	VerificationPatch back = verificationTest.verify("https://s3.amazonaws.com/dmc-uploads2/uilabs.jpeg", "verify_test", "noreply", 1);
+        	VerificationPatch back = verificationTest.verify("https://s3.amazonaws.com/dmc-uploads2/uilabs.jpeg", "verify_test", "noreply", 1, "ProfilePicture", "Profile");
             return new ResponseEntity<VerificationPatch>(back, HttpStatus.valueOf(httpStatusCode));        
 
         } catch(DMCServiceException e) {

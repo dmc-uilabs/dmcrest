@@ -9,15 +9,19 @@ public class Verification {
 	private static final String targetURL = System.getenv("verifyURL");
 	
 	
-	public VerificationPatch verify (String url, String table, String userEPPN,  int id) throws DMCServiceException {
+	public VerificationPatch verify (String url, String table, String userEPPN,  int id, String resourceType, String folder) throws DMCServiceException {
 		try{ 
 			
 			//Create upload object
-			VerificationUpload upload = new VerificationUpload(); 
+			VerificationPatch upload = new VerificationPatch(); 
 			upload.setId(id);
 			upload.setTable(table);
 			upload.setUrl("http://tempurl");
 			upload.setUserEPPN(userEPPN);
+			upload.setFolder(folder);
+			upload.setResourceType(resourceType);
+			upload.setVerified(true);
+			
 
 			RestTemplate restTemplate = new RestTemplate();
 			
