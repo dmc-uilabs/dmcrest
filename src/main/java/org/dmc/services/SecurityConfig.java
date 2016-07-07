@@ -1,8 +1,12 @@
 package org.dmc.services;
 
+import javax.inject.Inject;
+
 import org.dmc.services.security.AuthenticationExceptionHandler;
 import org.dmc.services.security.UserPrincipalService;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,13 +20,14 @@ import org.springframework.security.web.authentication.preauth.RequestHeaderAuth
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	private UserPrincipalService userPrincipalService = new UserPrincipalService();
+	@Inject
+	private UserPrincipalService userPrincipalService;
 	
 	private PreAuthenticatedAuthenticationProvider preAuthenticatedProvider;
 	
 	public SecurityConfig() {
 		super();
-		
+
 		UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken> wrapper = new UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken>(userPrincipalService);
 		
 		preAuthenticatedProvider = new PreAuthenticatedAuthenticationProvider();
