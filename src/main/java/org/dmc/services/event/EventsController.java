@@ -1,5 +1,4 @@
 package org.dmc.services.event;
-
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
@@ -43,14 +42,15 @@ public class EventsController
 	@RequestMapping(value = "/events", method = RequestMethod.GET, produces = { "application/json"})
 	public ResponseEntity getEvent(@RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit,
 			@RequestParam(value = "order", required = false, defaultValue = "DESC") String order,
-			@RequestParam(value = "sort", required = false, defaultValue = "id") String sort)
+			@RequestParam(value = "sort", required = false, defaultValue = "on_date") String sort,
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
 	{
-		ServiceLogger.log(logTag, "getEvents");
+		ServiceLogger.log(logTag, "getEvents, userEPPN: " + userEPPN);
 		int statusCode = HttpStatus.OK.value();
 
 		try
 		{
-			ArrayList<CommunityEvent> events = eventsDao.getEvents();
+			ArrayList<CommunityEvent> events = eventsDao.getEvents(userEPPN, sort, order, limit);
 	        return new ResponseEntity<ArrayList<CommunityEvent>>(events, HttpStatus.valueOf(statusCode));
 		}
 		catch (DMCServiceException e)
@@ -68,35 +68,33 @@ public class EventsController
 	{	
 		ServiceLogger.log(logTag, "createCommunityEvent, userEPPN: " + userEPPN);
 		int statusCode = HttpStatus.OK.value();
-		Id id = null;
+		
 		try
 		{
-			id = eventsDao.createCommunityEvent(event, userEPPN);
+			Id id = eventsDao.createCommunityEvent(event, userEPPN);
+			return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
 		}
-		
 		catch(DMCServiceException e)
 		{
 			ServiceLogger.log(logTag, e.getMessage());
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-	    }
-		
-		return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));		
+		}
 	}
 	
 	/*
 	//Method not needed and does not make sense to have. If needed can be added in. Patch method tested and works.
 	//PATCH
 	@RequestMapping(value = "/events/{id}", method = RequestMethod.PATCH, produces = { "application/json"})
-	public ResponseEntity updateEvent(@PathVariable("id") int id, @RequestBody CommunityEvent event)
+	public ResponseEntity updateEvent(@PathVariable("id") int id, @RequestBody CommunityEvent event @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
 	{
-		ServiceLogger.log(logTag, "updateEvent" + id);
+		ServiceLogger.log(logTag, "updateEvent" + id + ", userEPPN: " + userEPPN);
 		CommunityEvent returnEvent = new CommunityEvent(); 
 		
 		int statusCode = HttpStatus.OK.value();
 		
 		try
 		{
-			returnEvent = eventsDao.updateEvent(id, event);
+			returnEvent = eventsDao.updateEvent(id, event, userEPPN);
 			return new ResponseEntity<CommunityEvent>(returnEvent, HttpStatus.valueOf(statusCode));
 		}
 		catch(DMCServiceException e)
@@ -115,20 +113,17 @@ public class EventsController
 		ServiceLogger.log(logTag, "deleteCommunityEvent, userEPPN:" + userEPPN);
 		
 		int statusCode = HttpStatus.OK.value();
-		Id returnId = null;
 		
 		try
 		{
-			returnId = eventsDao.deleteCommunityEvent(id, userEPPN);			
-		}
-		
+			Id returnId = eventsDao.deleteCommunityEvent(id, userEPPN);
+			return new ResponseEntity<Id>(returnId, HttpStatus.valueOf(statusCode));
+		}		
 		catch(DMCServiceException e)
 		{
 			ServiceLogger.log(logTag, e.getMessage());
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-	    }
-		
-		return new ResponseEntity<Id>(returnId, HttpStatus.valueOf(statusCode));		
+	    }		
 	}
 }
 

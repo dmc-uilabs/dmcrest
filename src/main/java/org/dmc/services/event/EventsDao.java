@@ -26,6 +26,12 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
+//imports needed for date conversion
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+
 public class EventsDao 
 {
 
@@ -56,7 +62,6 @@ public class EventsDao
 
 		connection = DBConnector.connection();
 		PreparedStatement statement;
-		Util util = Util.getInstance();
 		int id = -99999;
 
   
@@ -71,12 +76,18 @@ public class EventsDao
 		}
 
 		try
-		{
-			String query = "INSERT INTO community_event (title, date, start_time, end_time, address, description) VALUES (?, ?, ?, ?, ?, ?)";
+		{ 
+			Util util = Util.getInstance();
+
+			String query = "INSERT INTO community_event (title, on_date, start_time, end_time, address, description) VALUES (?, ?, ?, ?, ?, ?)";
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			
+			String expectedPattern = "MM/dd/yyyy";
+		    SimpleDateFormat formatter = new SimpleDateFormat(expectedPattern);
+		    Date date = formatter.parse(event.getDate());
+		    java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+		    
 			statement.setString(1, event.getTitle());
-			statement.setString(2, event.getDate());
+			statement.setDate(2, sqlDate);
 			statement.setString(3, event.getStartTime());
 			statement.setString(4, event.getEndTime());
 			statement.setString(5, event.getAddress());
@@ -104,6 +115,10 @@ public class EventsDao
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
+		 catch (ParseException e)
+	    {
+	      e.printStackTrace();
+	    }
 		
 		//Always includes in a create
 		finally
@@ -127,35 +142,75 @@ public class EventsDao
 	//----------------------------
 	//Get Community Event Function
 	//----------------------------
-    public ArrayList<CommunityEvent> getEvents() throws DMCServiceException {
+    public ArrayList<CommunityEvent> getEvents(String userEPPN, String sort, String order, Integer limit) throws DMCServiceException
+    {
+    	int userIdEPPN = -1;
+
+		// Look up userId of userEPPN
+		try
+		{
+			userIdEPPN = UserDao.getUserID(userEPPN);
+		}
+		catch (SQLException e)
+		{
+			if (userIdEPPN == -1)
+			{
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not a valid user");
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+		}
+    	
         ArrayList<CommunityEvent> events = new ArrayList<CommunityEvent>();
         ServiceLogger.log(logTag, "In Get Events");
         
 		try
-		{
+		{			
 			String query = "SELECT * FROM community_event";
+			query += " ORDER BY " + sort + " " + order + " LIMIT " + limit;
 			resultSet = DBConnector.executeQuery(query);
 			
 			while (resultSet.next())
 			{
+				
+				
 				//Collect output and push to a list
-				String id =Integer.toString(resultSet.getInt("id"));
-				String title = resultSet.getString("title");
-				String date = resultSet.getString("date");
-				String startTime =resultSet.getString("start_time");
-				String endTime = resultSet.getString("end_time");
-				String address = resultSet.getString("address");
-				String description = resultSet.getString("description");
-				
-				
 				CommunityEvent event = new CommunityEvent();
-				event.setId(id);
-				event.setTitle(title);
-				event.setDate(date);
-				event.setStartTime(startTime);
-				event.setEndTime(endTime);
-				event.setAddress(address);
-				event.setDescription(description);
+				event.setId(Integer.toString(resultSet.getInt("id")));
+				event.setTitle(resultSet.getString("title"));
+				
+				
+				//Get date from DB, convert date to string
+				//Create a format for the date variable
+				String expectedPattern = "MM/dd/yyyy";
+				SimpleDateFormat format = new SimpleDateFormat(expectedPattern);
+
+				//Get back on_date from table as a string
+				Date StringAsDate = resultSet.getDate("on_date");
+
+				//Parse dateAsString from type string to dateAsDate of type Date
+				String finalDate = format.format(StringAsDate);
+				
+				event.setDate(finalDate);
+				
+				
+				//SimpleDateFormat formatter = new SimpleDateFormat("mm/dd/yyyy");
+				//date = formatter.format(releaseDate);				
+				//releaseDate = new Date(1000L * resultSet.getLong("releaseDate"));
+				
+				//from link: http://alvinalexander.com/java/simpledateformat-convert-string-to-date-formatted-parse
+				/*
+				String expectedPattern = "MM/dd/yyyy";
+				SimpleDateFormat formatter = new SimpleDateFormat(expectedPattern);
+				String userInput = "09/22/2009";
+				Date date = formatter.parse(userInput);
+				*/
+				
+				
+				
+				event.setStartTime(resultSet.getString("start_time"));
+				event.setEndTime(resultSet.getString("end_time"));
+				event.setAddress(resultSet.getString("address"));
+				event.setDescription(resultSet.getString("description"));
 				events.add(event);
 			}
 		}
@@ -172,8 +227,24 @@ public class EventsDao
     //-------------------------------
     //PATCH Community Event Function
     //-------------------------------
-    public CommunityEvent updateEvent(int id, CommunityEvent event) throws DMCServiceException
+    public CommunityEvent updateEvent(int id, CommunityEvent event, String userEPPN) throws DMCServiceException
     {
+    	int userIdEPPN = -1;
+
+		// Look up userId of userEPPN
+		try
+		{
+			userIdEPPN = UserDao.getUserID(userEPPN);
+		}
+		catch (SQLException e)
+		{
+			if (userIdEPPN == -1)
+			{
+				ServiceLogger.log(logTag, "User " + userEPPN + " is not a valid user");
+				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+			}
+		}
+		
         ServiceLogger.log(logTag, "In Patch Event" + id);
         connection = DBConnector.connection();
         
@@ -277,6 +348,7 @@ public class EventsDao
 	        String query = "DELETE FROM community_event WHERE id = ?";
 	        statement = DBConnector.prepareStatement(query);
 	        statement.setInt(1, id);
+	        //Check the number of rows updated by delete function
 	        rows = statement.executeUpdate();
 			connection.commit();
 	    }
@@ -300,7 +372,7 @@ public class EventsDao
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
 	    //Catch
-		catch (JSONException e)
+	    catch (JSONException e)
 	    {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.Generic, e.getMessage());
@@ -315,5 +387,4 @@ public class EventsDao
 	    .build();
 	}
 }
-
 

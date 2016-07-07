@@ -90,7 +90,7 @@ public class EventIT extends BaseIT
         
         json.setId("100");
         json.setTitle("Fake Title");
-        json.setDate("Fake Grand Opening");
+        json.setDate("01/01/2001");
         json.setStartTime("Yesterday");
         json.setEndTime("Never");
         json.setAddress("Everywhere");
