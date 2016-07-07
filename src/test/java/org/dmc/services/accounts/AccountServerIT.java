@@ -80,7 +80,7 @@ public class AccountServerIT extends BaseIT {
 		// set if of orginal to id of returned
 		userAccountServer.setId(returnedUserAccountServer.getId());
 
-		if (!returnedUserAccountServer.getIp().contains("DOMEApiServicesV7/"))
+		if (!userAccountServer.getIp().contains("DOMEApiServicesV7/"))
 			userAccountServer.setIp(validURL + "/DOMEApiServicesV7/");
 
 		// check returned and orginal UserAccountServer object is equal
