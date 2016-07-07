@@ -104,12 +104,12 @@ public class DMDIIProjectController {
 		return dmdiiProjectService.getDmdiiProjectEvents(limit);
 	}
 	
-	@RequestMapping(value = "/dmdiiProject/events/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/dmdiiProject/events", method = RequestMethod.POST)
 	public DMDIIProjectEventModel saveDMDIIProjectEvent (@RequestBody DMDIIProjectEventModel projectEvent) {
 		return dmdiiProjectEventsService.save(projectEvent);
 	}
 	
-	@RequestMapping(value = "/dmdiiProject/news/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/dmdiiProject/news", method = RequestMethod.POST)
 	public DMDIIProjectNewsModel saveDMDIIProjectNews (@RequestBody DMDIIProjectNewsModel projectNews) {
 		return dmdiiProjectNewsService.save(projectNews);
 	}
