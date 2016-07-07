@@ -52,6 +52,10 @@ public class ResourceIT extends BaseIT {
     private String RESOURCE_BAY_DELETE = "/resource/bay/{id}";
     private String RESOURCE_BAY_GET_ID = "/resource/bay/{id}";
     
+    
+    
+
+    private String RESOURCE_MACHINE_GET_POST_DELETE  = "/resource/machine/{bayId}";
 
     public static final String userEPPN = "fforgeadmin";
 
@@ -383,7 +387,7 @@ public class ResourceIT extends BaseIT {
        
        
     @Test
-    public void addAndGetAndDeleteBayMachine() {
+    public void addAndGetAndDeleteBay() {
 	    
     	//Get a list of the current images
         ArrayList<ResourceBayModel> original =
@@ -413,52 +417,7 @@ public class ResourceIT extends BaseIT {
         
         //the new list and old list should only differ by one
         assertTrue ("Adding resource failed"  , numAfter == numExpected);
-        
-        //Get the number of machines in created bay 
-        List<ResourceMachineModel> oldMachineList =
-        given().
-                expect().
-                statusCode(HttpStatus.OK.value()).
-                when().
-                get(RESOURCE_BAY_GET_POST).
-                then()
-                .extract().path("machines");
-        
-        //Add a machine with the created bay
-        int machineId = addMachine(id); 
-        
-        //Get the machine created
-        Integer checkMachineId  = 
-                given().
-        				header("Content-type", "application/json").
-                        expect().
-                        statusCode(HttpStatus.OK.value()).
-                        when().
-                        get("/resource/bay/machine/{id}", id).
-                        then()
-                        .extract().path("id");
-        
-        assertTrue ("Get individual machine failed"  , machineId == checkMachineId);
-        
-        
-        //Check if machine added to bay 
-        List<ResourceMachineModel> newMachineList =
-                given().
-                        expect().
-                        statusCode(HttpStatus.OK.value()).
-                        when().
-                        get(RESOURCE_BAY_GET_POST).
-                        then()
-                        .extract().path("machines");
-        
-        int numBeforeMachine = (oldMachineList != null) ? oldMachineList.size() : 0;
-        int numAfterMachine  = (newMachineList != null) ? newMachineList.size() : 0;
-        int numExpectedMachine = numBeforeMachine + 1;
-        assertTrue ("Adding machine failed"  , numAfterMachine == numExpectedMachine);
-
-        //Delete the machine
-        delete(machineId, "/resource/bay/machine/{id}");
-                  
+                         
         //Get Resource By ID
         Integer checkId  = 
                 given().
@@ -471,7 +430,6 @@ public class ResourceIT extends BaseIT {
                         .extract().path("id");
         
         assertTrue ("Get individual bay failed"  , id == checkId);
-
 
         delete(id, RESOURCE_BAY_DELETE);
 
@@ -638,10 +596,7 @@ public class ResourceIT extends BaseIT {
     public int addBay() {
 
         int id;
-        ResourceBayModel json = new ResourceBayModel();
-        //ResourceMachineModel machine = new ResourceMachineModel(); 
-    	List<ResourceMachineModel> machines = Collections.emptyList();
-    	
+        ResourceBayModel json = new ResourceBayModel();    	
         json.setId(1000);
         json.setTitle("Title");
         json.setImage("Image"); 
@@ -650,7 +605,6 @@ public class ResourceIT extends BaseIT {
         json.setLink("Link");
         json.setContact("Contact"); 
         json.setHighlighted(true);
-        json.setMachines(machines);
         
         Integer createdId  = 
         given().
@@ -664,10 +618,31 @@ public class ResourceIT extends BaseIT {
                 .extract().path("id");
 
         id = (createdId != null) ? createdId.intValue() : -1;
+        
+        json.setId(id);
+        //Create a machine 
+        int machineId = addMachine(json); 
+        
+        //Get all the machines in the bay
+        ArrayList<ResourceMachineModel> machines =
+                given().
+                        expect().
+                        statusCode(HttpStatus.OK.value()).
+                        when().
+                        get(RESOURCE_MACHINE_GET_POST_DELETE, id).
+                        as(ArrayList.class);
+
+                int num  = (machines != null) ? machines.size() : 0;
+                assertTrue ("Creating machine failed", num == 1);
+                
+         //delete machine
+         delete(id, RESOURCE_MACHINE_GET_POST_DELETE); 
+          
+        //Return the id of the bay
         return id;
     }
     
-    public int addMachine(int bayId ) {
+    public int addMachine(ResourceBayModel bay ) {
 
         int id;
         ResourceMachineModel json = new ResourceMachineModel();
@@ -679,7 +654,8 @@ public class ResourceIT extends BaseIT {
         json.setLink("Link");
         json.setContact("Contact"); 
         json.setHighlighted(true);
-        
+        json.setBay(bay);
+       
         Integer createdId  = 
         given().
 				header("Content-type", "application/json").
@@ -687,7 +663,7 @@ public class ResourceIT extends BaseIT {
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
-                post("/resource/bay/{bayId}/machine", bayId).
+                post( "/resource/machine").
                 then()
                 .extract().path("id");
 

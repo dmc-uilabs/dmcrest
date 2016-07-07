@@ -199,9 +199,9 @@ public class ResourceController {
 	}
 
 
-	@RequestMapping(value = "/resource/machine/{bayId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResourceMachineModel createBayMachine(@PathVariable Integer bayId, @RequestBody ResourceMachineModel machine) {
-		return resourceMachineService.createMachine(bayId, machine);
+	@RequestMapping(value = "/resource/machine", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody ResourceMachineModel createBayMachine(@RequestBody ResourceMachineModel machine) {
+		return resourceMachineService.createMachine(machine);
 	}
 	
 	
