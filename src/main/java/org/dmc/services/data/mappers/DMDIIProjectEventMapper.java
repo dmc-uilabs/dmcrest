@@ -17,8 +17,6 @@ public class DMDIIProjectEventMapper extends AbstractMapper<DMDIIProjectEvent, D
 		Assert.notNull(model);
 		DMDIIProjectEvent entity = copyProperties(model, new DMDIIProjectEvent());
 		
-		Mapper<DMDIIProjectEvent, DMDIIProjectEventModel> mapper = mapperFactory.mapperFor(DMDIIProjectEvent.class, DMDIIProjectEventModel.class);
-		
 		entity.setEventDate(new DateTime(model.getEventDate()).toDate());
 		
 		return entity;
@@ -28,8 +26,6 @@ public class DMDIIProjectEventMapper extends AbstractMapper<DMDIIProjectEvent, D
 	public DMDIIProjectEventModel mapToModel(DMDIIProjectEvent entity) {
 		Assert.notNull(entity);
 		DMDIIProjectEventModel model = copyProperties(entity, new DMDIIProjectEventModel());
-		
-		Mapper<DMDIIProjectEvent, DMDIIProjectEventModel> mapper = mapperFactory.mapperFor(DMDIIProjectEvent.class, DMDIIProjectEventModel.class);
 		
 		Format formatter = new SimpleDateFormat("yyyy-MM-dd");
 		model.setEventDate(formatter.format(entity.getEventDate()));

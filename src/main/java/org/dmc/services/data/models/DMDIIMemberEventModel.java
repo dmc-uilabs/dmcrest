@@ -1,12 +1,5 @@
 package org.dmc.services.data.models;
 
-import java.util.Date;
-
-import org.dmc.services.JsonDateSerializer;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 public class DMDIIMemberEventModel extends BaseModel {
 
 	private Integer id;

@@ -17,8 +17,6 @@ public class DMDIIProjectNewsMapper extends AbstractMapper<DMDIIProjectNews, DMD
 		Assert.notNull(model);
 		DMDIIProjectNews entity = copyProperties(model, new DMDIIProjectNews());
 		
-		Mapper<DMDIIProjectNews, DMDIIProjectNewsModel> mapper = mapperFactory.mapperFor(DMDIIProjectNews.class, DMDIIProjectNewsModel.class);
-		
 		entity.setDateCreated(new DateTime(model.getDateCreated()).toDate());
 		
 		return entity;
@@ -28,8 +26,6 @@ public class DMDIIProjectNewsMapper extends AbstractMapper<DMDIIProjectNews, DMD
 	public DMDIIProjectNewsModel mapToModel(DMDIIProjectNews entity) {
 		Assert.notNull(entity);
 		DMDIIProjectNewsModel model = copyProperties(entity, new DMDIIProjectNewsModel());
-		
-		Mapper<DMDIIProjectNews, DMDIIProjectNewsModel> mapper = mapperFactory.mapperFor(DMDIIProjectNews.class, DMDIIProjectNewsModel.class);
 		
 		Format formatter = new SimpleDateFormat("yyyy-MM-dd");
 		model.setDateCreated(formatter.format(entity.getDateCreated()));

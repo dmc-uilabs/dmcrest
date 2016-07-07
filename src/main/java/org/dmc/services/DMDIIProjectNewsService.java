@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 public class DMDIIProjectNewsService {
 
 	@Inject
-	DMDIIProjectNewsRepository dmdiiProjectNewsRepository;
+	private DMDIIProjectNewsRepository dmdiiProjectNewsRepository;
 	
 	@Inject
-	MapperFactory mapperFactory;
+	private MapperFactory mapperFactory;
 	
 	public DMDIIProjectNewsModel save(DMDIIProjectNewsModel projectNews) {
 		Mapper<DMDIIProjectNews, DMDIIProjectNewsModel> mapper = mapperFactory.mapperFor(DMDIIProjectNews.class, DMDIIProjectNewsModel.class);
