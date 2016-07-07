@@ -84,6 +84,8 @@ public class AccountServerIT extends BaseIT {
 			userAccountServer.setIp(validURL + "/DOMEApiServicesV7/");
 
 		// check returned and orginal UserAccountServer object is equal
+		ServiceLogger.log(logTag, "original IP: " + userAccountServer.getIp() + "\tReturned IP: " + returnedUserAccountServer.getIp());
+		
 		assertTrue("Orginal and returned UserAccountServer objects are not equal",
 				returnedUserAccountServer.equals(userAccountServer));
 	}
@@ -256,6 +258,9 @@ public class AccountServerIT extends BaseIT {
 		if (!returnedUserAccountServer.getIp().contains("DOMEApiServicesV7/"))
 			returnedUserAccountServer.setIp(validURL + "/DOMEApiServicesV7/");
 		// check returned and orginal UserAccountServer object is equal
+		
+		ServiceLogger.log(logTag, "Prepatched IP: " + returnedUserAccountServer.getIp() + "\tPostpatched IP: " + patchedUserAccountServer.getIp());
+		
 		assertTrue("Orginal modified UserAccountServer object is not equal to patched",
 				returnedUserAccountServer.equals(patchedUserAccountServer));
 	}
