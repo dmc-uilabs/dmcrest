@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 public class DMDIIMemberEventService {
 
 	@Inject
-	DMDIIMemberEventRepository dmdiiMemberEventsRepository;
+	private DMDIIMemberEventRepository dmdiiMemberEventsRepository;
 	
 	@Inject
-	MapperFactory mapperFactory;
+	private MapperFactory mapperFactory;
 	
 	public DMDIIMemberEventModel save(DMDIIMemberEventModel memberEvent) {
 		Mapper<DMDIIMemberEvent, DMDIIMemberEventModel> mapper = mapperFactory.mapperFor(DMDIIMemberEvent.class,  DMDIIMemberEventModel.class);

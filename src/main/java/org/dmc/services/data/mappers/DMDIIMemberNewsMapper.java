@@ -16,9 +16,7 @@ public class DMDIIMemberNewsMapper  extends AbstractMapper<DMDIIMemberNews, DMDI
 	public DMDIIMemberNews mapToEntity(DMDIIMemberNewsModel model) {
 		Assert.notNull(model);
 		DMDIIMemberNews entity = copyProperties(model, new DMDIIMemberNews());
-		
-		Mapper<DMDIIMemberNews, DMDIIMemberNewsModel> mapper = mapperFactory.mapperFor(DMDIIMemberNews.class, DMDIIMemberNewsModel.class);
-		
+				
 		entity.setDateCreated(new DateTime(model.getDateCreated()).toDate());
 		
 		return entity;
@@ -28,8 +26,6 @@ public class DMDIIMemberNewsMapper  extends AbstractMapper<DMDIIMemberNews, DMDI
 	public DMDIIMemberNewsModel mapToModel(DMDIIMemberNews entity) {
 		Assert.notNull(entity);
 		DMDIIMemberNewsModel model = copyProperties(entity, new DMDIIMemberNewsModel());
-		
-		Mapper<DMDIIMemberNews, DMDIIMemberNewsModel> mapper = mapperFactory.mapperFor(DMDIIMemberNews.class, DMDIIMemberNewsModel.class);
 		
 		Format formatter = new SimpleDateFormat("yyyy-MM-dd");
 		model.setDateCreated(formatter.format(entity.getDateCreated()));

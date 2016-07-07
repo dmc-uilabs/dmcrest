@@ -29,7 +29,7 @@ public class DMDIIMemberNews extends BaseEntity {
 	
 	@Column(name = "date_posted")
 	@Temporal(TemporalType.DATE)
-	@JsonFormat(pattern = "yyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date dateCreated;
 
 	public Integer getId() {

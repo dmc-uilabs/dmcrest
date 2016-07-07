@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 public class DMDIIProjectEventsService {
 
 	@Inject
-	DMDIIProjectEventsRepository dmdiiProjectEventsRepository;
+	private DMDIIProjectEventsRepository dmdiiProjectEventsRepository;
 	
 	@Inject
-	MapperFactory mapperFactory;
+	private MapperFactory mapperFactory;
 	
 	public DMDIIProjectEventModel save(DMDIIProjectEventModel projectEvent) {
 		Mapper<DMDIIProjectEvent, DMDIIProjectEventModel> mapper = mapperFactory.mapperFor(DMDIIProjectEvent.class, DMDIIProjectEventModel.class);

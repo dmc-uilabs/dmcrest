@@ -75,12 +75,12 @@ public class DMDIIMemberController {
 		return dmdiiMemberService.getDmdiiMemberEvents(limit);
 	}
 	
-	@RequestMapping(value = "/dmdiiMember/events/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/dmdiiMember/events", method = RequestMethod.POST)
 	public DMDIIMemberEventModel saveDMDIIMemberEvent (@RequestBody DMDIIMemberEventModel memberEvent) {
 		return dmdiiMemberEventsService.save(memberEvent);
 	}
 	
-	@RequestMapping(value = "/dmdiiMember/news/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/dmdiiMember/news", method = RequestMethod.POST)
 	public DMDIIMemberNewsModel saveDMDIIMemberNews (@RequestBody DMDIIMemberNewsModel memberNews) {
 		return dmdiiMemberNewsService.save(memberNews);
 	}

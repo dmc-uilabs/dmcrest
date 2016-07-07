@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 public class UserService {
 	
 	@Inject
-	UserRepository userRepository;
+	private UserRepository userRepository;
 	
 	@Inject
-	MapperFactory mapperFactory;
+	private MapperFactory mapperFactory;
 	
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
