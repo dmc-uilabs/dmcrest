@@ -26,6 +26,9 @@ public class EventIT extends BaseIT
     @Test
 	public void testGet_events()
 	{
+    	given().
+    	header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
 		expect().
 		statusCode(HttpStatus.OK.value()).
 		when().
@@ -41,8 +44,12 @@ public class EventIT extends BaseIT
     public void addAndGetAndDeleteEvents ()
     {
     	//Get a list of the current images
-        ArrayList<CommunityEvent> originalEvents =
-                expect().
+    	
+    	ArrayList<CommunityEvent> originalEvents =
+    			given().
+    	    	header("Content-type", "application/json").
+    	        header("AJP_eppn", userEPPN).
+    			expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
                 get(COMMUNITY_EVENTS_GET).
@@ -56,7 +63,10 @@ public class EventIT extends BaseIT
 
         //Get a list of the new images 
         ArrayList<CommunityEvent> newEvent =
-                expect().
+        		given().
+            	header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+        		expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
                 get(COMMUNITY_EVENTS_GET).
@@ -72,6 +82,8 @@ public class EventIT extends BaseIT
 
         ArrayList<CommunityEvent> afterDeleteEvent =
         given().
+    	header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -99,6 +111,7 @@ public class EventIT extends BaseIT
         Integer createdId  = 
         given().
                 header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
@@ -118,6 +131,7 @@ public class EventIT extends BaseIT
     {
         given().
                 header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
