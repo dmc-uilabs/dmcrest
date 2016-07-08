@@ -42,7 +42,7 @@ public class ProjectsTagsController {
 			return new ResponseEntity<ProjectTag>(createdTag, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
@@ -64,7 +64,7 @@ public class ProjectsTagsController {
 					HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
@@ -88,7 +88,7 @@ public class ProjectsTagsController {
 			return new ResponseEntity<Id>(deletedTag, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 

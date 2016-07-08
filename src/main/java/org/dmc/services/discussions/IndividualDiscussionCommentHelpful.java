@@ -11,7 +11,7 @@ public class IndividualDiscussionCommentHelpful  {
   private String id = null;
   private String commentId = null;
   private String accountId = null;
-  private Boolean helpfull = null;
+  private Boolean helpful = null;
 
   
   /**
@@ -49,12 +49,12 @@ public class IndividualDiscussionCommentHelpful  {
   
   /**
    **/
-  @JsonProperty("helpfull")
-  public Boolean getHelpfull() {
-    return helpfull;
+  @JsonProperty("helpful")
+  public Boolean getHelpful() {
+    return helpful;
   }
-  public void setHelpfull(Boolean helpfull) {
-    this.helpfull = helpfull;
+  public void setHelpful(Boolean helpful) {
+    this.helpful = helpful;
   }
 
   
@@ -71,12 +71,12 @@ public class IndividualDiscussionCommentHelpful  {
     return Objects.equals(id, individualDiscussionCommentHelpful.id) &&
         Objects.equals(commentId, individualDiscussionCommentHelpful.commentId) &&
         Objects.equals(accountId, individualDiscussionCommentHelpful.accountId) &&
-        Objects.equals(helpfull, individualDiscussionCommentHelpful.helpfull);
+        Objects.equals(helpful, individualDiscussionCommentHelpful.helpful);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, commentId, accountId, helpfull);
+    return Objects.hash(id, commentId, accountId, helpful);
   }
 
   @Override
@@ -87,7 +87,7 @@ public class IndividualDiscussionCommentHelpful  {
     sb.append("  id: ").append(id).append("\n");
     sb.append("  commentId: ").append(commentId).append("\n");
     sb.append("  accountId: ").append(accountId).append("\n");
-    sb.append("  helpfull: ").append(helpfull).append("\n");
+    sb.append("  helpful: ").append(helpful).append("\n");
     sb.append("}\n");
     return sb.toString();
   }

@@ -11,11 +11,10 @@ public class IndividualDiscussion  {
   
   private String id = null;
   private String title = null;
-  private String message = null;
   private String createdBy = null;
   private BigDecimal createdAt = null;
-  private String accountId = null;
-  private String projectId = null;
+  private BigDecimal accountId = null;
+  private BigDecimal projectId = null;
 
   
   /**
@@ -37,17 +36,6 @@ public class IndividualDiscussion  {
   }
   public void setTitle(String title) {
     this.title = title;
-  }
-
-  
-  /**
-   **/
-  @JsonProperty("message")
-  public String getMessage() {
-    return message;
-  }
-  public void setMessage(String message) {
-    this.message = message;
   }
 
   
@@ -76,10 +64,10 @@ public class IndividualDiscussion  {
   /**
    **/
   @JsonProperty("accountId")
-  public String getAccountId() {
+  public BigDecimal getAccountId() {
     return accountId;
   }
-  public void setAccountId(String accountId) {
+  public void setAccountId(BigDecimal accountId) {
     this.accountId = accountId;
   }
 
@@ -87,10 +75,10 @@ public class IndividualDiscussion  {
   /**
    **/
   @JsonProperty("projectId")
-  public String getProjectId() {
+  public BigDecimal getProjectId() {
     return projectId;
   }
-  public void setProjectId(String projectId) {
+  public void setProjectId(BigDecimal projectId) {
     this.projectId = projectId;
   }
 
@@ -107,7 +95,6 @@ public class IndividualDiscussion  {
     IndividualDiscussion individualDiscussion = (IndividualDiscussion) o;
     return Objects.equals(id, individualDiscussion.id) &&
         Objects.equals(title, individualDiscussion.title) &&
-        Objects.equals(message, individualDiscussion.message) &&
         Objects.equals(createdBy, individualDiscussion.createdBy) &&
         Objects.equals(createdAt, individualDiscussion.createdAt) &&
         Objects.equals(accountId, individualDiscussion.accountId) &&
@@ -116,7 +103,7 @@ public class IndividualDiscussion  {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, title, message, createdBy, createdAt, accountId, projectId);
+    return Objects.hash(id, title, createdBy, createdAt, accountId, projectId);
   }
 
   @Override
@@ -126,7 +113,6 @@ public class IndividualDiscussion  {
     
     sb.append("  id: ").append(id).append("\n");
     sb.append("  title: ").append(title).append("\n");
-    sb.append("  message: ").append(message).append("\n");
     sb.append("  createdBy: ").append(createdBy).append("\n");
     sb.append("  createdAt: ").append(createdAt).append("\n");
     sb.append("  accountId: ").append(accountId).append("\n");
