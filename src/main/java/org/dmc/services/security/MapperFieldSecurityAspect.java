@@ -1,6 +1,7 @@
 package org.dmc.services.security;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -24,4 +25,12 @@ public class MapperFieldSecurityAspect {
 		}
 	}
 	
+	@Before("execution(* org.dmc.services.data.mappers.Mapper.mapToModel(..)) && args(entities) && !within(org.dmc.services.data.mappers.DefaultMapper)")
+	public void nullifyProtectedFields(Collection entities) throws IllegalArgumentException, IllegalAccessException {
+		if (entities.size() != 0 && SecuredEntity.class.isAssignableFrom(entities.toArray()[0].getClass())) {
+			for (Object entity : entities) {
+				nullifyProtectedFields((SecuredEntity) entity);
+			}
+		}
+	}
 }

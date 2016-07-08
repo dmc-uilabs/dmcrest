@@ -2,10 +2,12 @@ package org.dmc.services.data.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -14,15 +16,18 @@ public class UserRoleAssignment extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Integer id;
 	
-	@Column(name = "user_id")
-	private Integer userId;
+	@JoinColumn(name = "user_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	private User user;
 	
 	@Column(name = "organization_id")
 	private Integer organizationId;
 	
 	@JoinColumn(name = "role_id")
+	@ManyToOne
 	private Role role;
 
 	public Integer getId() {
@@ -33,12 +38,12 @@ public class UserRoleAssignment extends BaseEntity {
 		this.id = id;
 	}
 
-	public Integer getUserId() {
-		return userId;
+	public User getUser() {
+		return user;
 	}
 
-	public void setUserId(Integer userId) {
-		this.userId = userId;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public Integer getOrganizationId() {
@@ -64,7 +69,7 @@ public class UserRoleAssignment extends BaseEntity {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((organizationId == null) ? 0 : organizationId.hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
-		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+		result = prime * result + ((user == null) ? 0 : user.hashCode());
 		return result;
 	}
 
@@ -92,10 +97,10 @@ public class UserRoleAssignment extends BaseEntity {
 				return false;
 		} else if (!role.equals(other.role))
 			return false;
-		if (userId == null) {
-			if (other.userId != null)
+		if (user == null) {
+			if (other.user != null)
 				return false;
-		} else if (!userId.equals(other.userId))
+		} else if (!user.equals(other.user))
 			return false;
 		return true;
 	}
