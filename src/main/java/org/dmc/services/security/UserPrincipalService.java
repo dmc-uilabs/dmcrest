@@ -15,18 +15,6 @@ public class UserPrincipalService implements UserDetailsService {
 	
 	@Inject
 	private UserRepository userRepository;
-	
-//	@Override
-//	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//		if (!username.equals("test3")) {
-//			throw new UsernameNotFoundException("test error");
-//		}
-//		
-//		UserPrincipal principal = new UserPrincipal(1003, "test3");
-//		principal.addRole(1, "VIP");
-//		
-//		return principal;
-//	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
