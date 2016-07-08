@@ -11,6 +11,8 @@ public class OrganizationMapper extends AbstractMapper<Organization, Organizatio
 
 	@Override
 	public Organization mapToEntity(OrganizationModel model) {
+		if (model == null) return null;
+		
 		Organization entity = copyProperties(model, new Organization());
 
 		Mapper<Address, AddressModel> addressMapper = mapperFactory.mapperFor(Address.class, AddressModel.class);
@@ -22,6 +24,8 @@ public class OrganizationMapper extends AbstractMapper<Organization, Organizatio
 
 	@Override
 	public OrganizationModel mapToModel(Organization entity) {
+		if (entity == null) return null;
+		
 		OrganizationModel model = copyProperties(entity, new OrganizationModel());
 
 		Mapper<Address, AddressModel> addressMapper = mapperFactory.mapperFor(Address.class, AddressModel.class);

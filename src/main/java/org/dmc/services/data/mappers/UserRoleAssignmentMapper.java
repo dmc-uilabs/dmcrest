@@ -11,6 +11,8 @@ public class UserRoleAssignmentMapper extends AbstractMapper<UserRoleAssignment,
 
 	@Override
 	public UserRoleAssignment mapToEntity(UserRoleAssignmentModel model) {
+		if (model == null) return null;
+		
 		Mapper<Role, RoleModel> roleMapper = mapperFactory.mapperFor(Role.class, RoleModel.class);
 		UserRoleAssignment entity = copyProperties(model, new UserRoleAssignment());
 		entity.setRole(roleMapper.mapToEntity(model.getRole()));
@@ -19,6 +21,8 @@ public class UserRoleAssignmentMapper extends AbstractMapper<UserRoleAssignment,
 
 	@Override
 	public UserRoleAssignmentModel mapToModel(UserRoleAssignment entity) {
+		if (entity == null) return null;
+		
 		Mapper<Role, RoleModel> roleMapper = mapperFactory.mapperFor(Role.class, RoleModel.class);
 		UserRoleAssignmentModel model = copyProperties(entity, new UserRoleAssignmentModel());
 		model.setRole(roleMapper.mapToModel(entity.getRole()));
