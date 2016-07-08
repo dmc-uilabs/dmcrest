@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Connection;
 import java.util.Calendar;
-
+import java.util.Date;
 
 import org.dmc.services.AWSConnector;
 import org.dmc.services.DBConnector;
@@ -38,10 +38,10 @@ public class ProjectDocumentDao {
 		Calendar calendar = Calendar.getInstance();
 		 
 		//  get a java.util.Date from the calendar instance.
-		java.util.Date now = calendar.getTime();
+		Date now = calendar.getTime();
 		 
 		// a java current time (now) instance
-		java.sql.Timestamp expires = new java.sql.Timestamp(now.getTime());
+		Timestamp expires = new Timestamp(now.getTime());
 		//Timestamp expires = new java.sql.Timestamp(UnixTimeStamp + (1000*60*60*24*365*10)); 
 		
 		//Add an hour 

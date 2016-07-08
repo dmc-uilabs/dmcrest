@@ -35,6 +35,7 @@ import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectTag;
+import org.dmc.services.users.UserDao;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 //@Ignore
@@ -294,42 +295,6 @@ public class ProjectIT extends BaseIT {
         	}
     	}
 	}
-
-    @Test
-    public void testIndividualProjectDiscussions() {
-
-        ObjectMapper mapper = new ObjectMapper();
-        this.testProjectCreateJsonString();
-
-        if (this.createdId != null) {
-            Integer discussionId = discussionIT.createDiscussion(this.createdId);
-            if (discussionId != null) {
-                JsonNode discussions =
-                    given()
-                    .header("Content-type", "application/json")
-                    .header("AJP_eppn", randomEPPN)
-                    .expect()
-                    .statusCode(200)
-                    .when()
-                    .get(PROJECT_INDIVIDUAL_DISCUSSION_RESOURCE, this.createdId)
-                    .as(JsonNode.class);
-
-                try {
-                    ArrayList<Discussion> discussionList =
-                            mapper.readValue(mapper.treeAsTokens(discussions),
-                            new TypeReference<ArrayList<Discussion>>() {});
-
-                    assertEquals("should  only be one discussion that we created, found a different amount", 1, discussionList.size());
-                    for (Discussion discussion : discussionList) {
-                        assertTrue("Discussion belongs to project", discussion.getProjectId().equals(this.createdId.toString()));
-                    }
-
-                } catch (Exception e) {
-                    ServiceLogger.log(logTag, e.getMessage());
-                }
-            }
-        }
-    }
 
     //Test for Project Documents POST and GET
     @Test
@@ -936,7 +901,8 @@ public class ProjectIT extends BaseIT {
 		ArrayList<Profile> membersList = mapper.readValue(mapper.treeAsTokens(members), new TypeReference<ArrayList<Profile>>() {});
 
 		for (Profile profile : membersList) {
-			userName = profile.getDisplayName();
+			userName = UserDao.getUserName(profile.getId());
+			
 			assertTrue("Member " + userName + " is DMDII Member", CompanyUserUtil.isDMDIIMember(userName));
 		}
 	}

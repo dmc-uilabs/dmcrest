@@ -3,42 +3,48 @@
   "type": "array",
   "items": {
     "type": "object",
-    "properties": {
-      "id": {
-        "type": "integer"
-      },
-      "title": {
-        "type": "string"
-      },
-      "project": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "title": {
-            "type": "string"
+      "properties": {
+        "id": {
+          "type": ["string", "null"]
+        },
+        "title": {
+          "type": ["string", "null"]
+        },
+        "project": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": ["integer", "null"]
+            },
+            "title": {
+              "type": ["string", "null"]
+            }
           }
+        },
+        "assignee": {
+          "type": ["string", "null"]
+        },
+        "assigneeId": {
+          "type": ["string", "null"]
+        },
+        "reporter": {
+          "type": ["string", "null"]
+        },
+        "reporterId": {
+          "type": ["string", "null"]
+        },
+        "dueDate": {
+          "type": ["integer", "null"]
+        },
+        "additionalDetails": {
+          "type": ["string", "null"]
+        },
+        "status": {
+          "type": ["string", "null"]
+        },
+        "priority": {
+          "type": ["integer", "null"]
         }
-      },
-      "assignee": {
-        "type": "string"
-      },
-      "reporter": {
-        "type": "string"
-      },
-      "dueDate": {
-        "type": "string"
-      },
-      "priority": {
-        "type": "integer"
-      },
-      "summary": {
-        "type": "string"
-      },
-      "details": {
-        "type": "string"
       }
     }
-  }
 }
