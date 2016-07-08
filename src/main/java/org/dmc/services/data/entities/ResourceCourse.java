@@ -7,9 +7,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+
 @Entity
 @Table(name = "resource_workforce_courses")
 public class ResourceCourse extends BaseEntity {
+
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,19 +22,19 @@ public class ResourceCourse extends BaseEntity {
 
 	@Column(name = "image")
 	private String image;
-	
+
 	@Column(name = "description")
-	private String description; 
-	
+	private String description;
+
 	@Column(name = "date_created")
-	private String dateCreated; 
-	
-	@Column(name = "link") 
-	private String link; 
-	
-	@Column(name = "contact") 
-	private String contact; 
-	
+	private String dateCreated;
+
+	@Column(name = "link")
+	private String link;
+
+	@Column(name = "contact")
+	private String contact;
+
 	@Column(name = "highlighted")
 	private boolean highlighted;
 
@@ -180,8 +182,8 @@ public class ResourceCourse extends BaseEntity {
 			return false;
 		}
 		return true;
-	} 
-	
+	}
 
-	
+
+
 }

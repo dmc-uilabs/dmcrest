@@ -13,36 +13,41 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+// Annotate your entity class here
 @Entity
-@Table(name = "resource_machines")
-public class ResourceMachine extends BaseEntity {
-
+@Table(name = "resource_machines")//This is where you put the name of the DB table that you are trying to map to
+public class ResourceMachine extends BaseEntity {//Your entities should extend from the base
+//All PK should follow as below
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
-	@ManyToOne
-    @JoinColumn(name="bay_id")
-	private ResourceBay bay;
 
+	//Put the type of relationship in an annotation
+	@ManyToOne
+    @JoinColumn(name="bay_id")//The join column name should be the DB column of the table your are trying to join with.
+	private ResourceBay bay;
+	//This type of mapping is called a "bidirectional" mapping, where the many to one realtionship actually has the joined entity as a member var
+
+
+	//Normal Column annotations should have the following
 	@Column(name = "title")
 	private String title;
 
 	@Column(name = "image")
 	private String image;
-	
+
 	@Column(name = "description")
-	private String description; 
-	
+	private String description;
+
 	@Column(name = "date_created")
-	private String dateCreated; 
-	
-	@Column(name = "link") 
-	private String link; 
-	
-	@Column(name = "contact") 
-	private String contact; 
-	
+	private String dateCreated;
+
+	@Column(name = "link")
+	private String link;
+
+	@Column(name = "contact")
+	private String contact;
+
 	@Column(name = "highlighted")
 	private boolean highlighted;
 
@@ -209,5 +214,5 @@ public class ResourceMachine extends BaseEntity {
 		return true;
 	}
 
-	
+
 }

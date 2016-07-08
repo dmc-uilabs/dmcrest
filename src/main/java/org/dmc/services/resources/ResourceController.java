@@ -19,30 +19,36 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+
+//Make sure to annotate your controllers
 @RestController
 public class ResourceController {
 
+
+//Intead of making an instance of all the helper classes that you need, use the Inject annotation.
+//The rest of this file follows standard controller creation methodology. No major changes from hibernate here. 
+
 	@Inject
 	private ResourceCourseService resourceCourseService;
-	
+
 	@Inject
 	private ResourceAssessmentService resourceAssessmentService;
 
 	@Inject
 	private ResourceProjectService resourceProjectService;
-	
+
 	@Inject
 	private ResourceJobService resourceJobService;
 
 	@Inject
 	private ResourceLabService resourceLabService;
-	
+
 	@Inject
-	private ResourceBayService resourceBayService; 
-	
+	private ResourceBayService resourceBayService;
+
 	@Inject
-	private ResourceMachineService resourceMachineService; 
-	
+	private ResourceMachineService resourceMachineService;
+
 	/*
 	 * Assessments
 	 */
@@ -50,7 +56,7 @@ public class ResourceController {
 	public List<ResourceAssessmentModel> filter() {
 		return resourceAssessmentService.getAllAssessments();
 	}
-	
+
 	@RequestMapping(value = "/resource/assessment/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public  @ResponseBody ResourceAssessmentModel getAssessment(@PathVariable Integer id){
 		return resourceAssessmentService.getAssessment(id);
@@ -61,12 +67,12 @@ public class ResourceController {
 	public @ResponseBody ResourceAssessmentModel saveAssessment(@RequestBody ResourceAssessmentModel assessment) {
 		return resourceAssessmentService.createAssessment(assessment);
 	}
-	
+
 	@RequestMapping(value = "/resource/assessment/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResourceAssessmentModel deleteAssessment(@PathVariable Integer id) {
 		return resourceAssessmentService.remove(id);
 	}
-	
+
 	/*
 	 * Courses
 	 */
@@ -74,7 +80,7 @@ public class ResourceController {
 	public List<ResourceCourseModel> getAllCourses() {
 		return resourceCourseService.getAll();
 	}
-	
+
 	@RequestMapping(value = "/resource/course/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public  @ResponseBody ResourceCourseModel getCourse(@PathVariable Integer id){
 		return resourceCourseService.get(id);
@@ -84,21 +90,21 @@ public class ResourceController {
 	public @ResponseBody ResourceCourseModel createCourse(@RequestBody ResourceCourseModel course) {
 		return resourceCourseService.create(course);
 	}
-	
+
 	@RequestMapping(value = "/resource/course/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResourceCourseModel deleteCourse(@PathVariable Integer id) {
 		return resourceCourseService.remove(id);
 	}
-	
+
 
 	/*
-	 * Projects 
+	 * Projects
 	 */
 	@RequestMapping(value = "/resource/project", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<ResourceProjectModel> getAllProjects() {
 		return resourceProjectService.getAll();
 	}
-	
+
 	@RequestMapping(value = "/resource/project/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public  @ResponseBody ResourceProjectModel getProject(@PathVariable Integer id){
 		return resourceProjectService.get(id);
@@ -109,12 +115,12 @@ public class ResourceController {
 	public @ResponseBody ResourceProjectModel createProject(@RequestBody ResourceProjectModel lab) {
 		return resourceProjectService.create(lab);
 	}
-	
+
 	@RequestMapping(value = "/resource/project/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResourceProjectModel deleteProject(@PathVariable Integer id) {
 		return resourceProjectService.remove(id);
 	}
-	
+
 
 	/*
 	 * Jobs
@@ -123,7 +129,7 @@ public class ResourceController {
 	public List<ResourceJobModel> getAllJobs() {
 		return resourceJobService.getAll();
 	}
-	
+
 	@RequestMapping(value = "/resource/job/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public  @ResponseBody ResourceJobModel getJob(@PathVariable Integer id){
 		return resourceJobService.get(id);
@@ -134,7 +140,7 @@ public class ResourceController {
 	public @ResponseBody ResourceJobModel createJob(@RequestBody ResourceJobModel Job) {
 		return resourceJobService.create(Job);
 	}
-	
+
 	@RequestMapping(value = "/resource/job/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResourceJobModel deleteJob(@PathVariable Integer id) {
 		return resourceJobService.remove(id);
@@ -148,7 +154,7 @@ public class ResourceController {
 	public List<ResourceLabModel> getAllLabs() {
 		return resourceLabService.getAll();
 	}
-	
+
 	@RequestMapping(value = "/resource/lab/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public  @ResponseBody ResourceLabModel getLab(@PathVariable Integer id){
 		return resourceLabService.get(id);
@@ -158,13 +164,13 @@ public class ResourceController {
 	public @ResponseBody ResourceLabModel createLab(@RequestBody ResourceLabModel lab) {
 		return resourceLabService.create(lab);
 	}
-	
+
 	@RequestMapping(value = "/resource/lab/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResourceLabModel deleteLab(@PathVariable Integer id) {
 		return resourceLabService.remove(id);
 	}
-	
-	
+
+
 	/*
 	 * Bays
 	 */
@@ -172,27 +178,27 @@ public class ResourceController {
 	public List<ResourceBayModel> getAllBays() {
 		return resourceBayService.getAll();
 	}
-	
+
 	@RequestMapping(value = "/resource/bay/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public  @ResponseBody ResourceBayModel getBay(@PathVariable Integer id){
 		return resourceBayService.get(id);
 	}
-	
+
 	@RequestMapping(value = "/resource/bay", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResourceBayModel createBay(@RequestBody ResourceBayModel bay) {
 		return resourceBayService.create(bay);
 	}
-	
+
 	@RequestMapping(value = "/resource/bay/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResourceBayModel deleteBay(@PathVariable Integer id) {
 		return resourceBayService.remove(id);
 	}
-	
-	
+
+
 	/*
 	 * Machines
 	 */
-	
+
 	@RequestMapping(value = "/resource/machine/{bayId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public  @ResponseBody List<ResourceMachineModel> getMachine(@PathVariable Integer bayId){
 		return resourceMachineService.getAllMachines(bayId);
@@ -203,20 +209,20 @@ public class ResourceController {
 	public @ResponseBody ResourceMachineModel createBayMachine(@RequestBody ResourceMachineModel machine) {
 		return resourceMachineService.createMachine(machine);
 	}
-	
-	
+
+
 	@RequestMapping(value = "/resource/machine/{bayId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Integer deleteAllMachines(@PathVariable Integer bayId) {
 		return resourceMachineService.removeAllMachines(bayId);
 	}
-	
+
 	@RequestMapping(value = "/resource/machine/{bayId}/{machineId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResourceMachineModel deleteMachine(@PathVariable Integer bayId, @PathVariable Integer machineId) {
 		return resourceMachineService.removeMachine(bayId, machineId);
 	}
-	
-	
-	
-	
+
+
+
+
 
 }

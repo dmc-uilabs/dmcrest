@@ -8,9 +8,12 @@ import org.dmc.services.data.models.ResourceMachineModel;
 
 import org.springframework.stereotype.Component;
 
+
+//Custom mappers are only needed if you have complex (many to one, one to many) relationships. If not, no need
 @Component
 public class ResourceMachineMapper extends AbstractMapper<ResourceMachine, ResourceMachineModel> {
 
+ //In this case, one bay can have many machines. We are mapping machines to the bay.
 	@Override
 	public ResourceMachine mapToEntity(ResourceMachineModel model) {
 		ResourceMachine entity = copyProperties(model, new ResourceMachine());
@@ -36,5 +39,5 @@ public class ResourceMachineMapper extends AbstractMapper<ResourceMachine, Resou
 	public Class<ResourceMachineModel> supportsModel() {
 		return ResourceMachineModel.class;
 	}
-	
+
 }

@@ -1,15 +1,21 @@
 package org.dmc.services.data.models;
 
+
+//Models are the return object of Hiberante. They are what the entities will map back to
+//Implement these like regular POJOs
 public class ResourceMachineModel extends BaseModel {
-	
-	private String title; 
-	private String image; 
-	private String description; 
-	private String dateCreated; 
-	private String link; 
-	private String contact; 
+
+
+//As you can see, there  is no id as in the ResourceMachine entity. This is because of the special bidirectional relationship with bay
+//normal relationships normally mirror the variables in the entity class 
+	private String title;
+	private String image;
+	private String description;
+	private String dateCreated;
+	private String link;
+	private String contact;
 	private boolean highlighted;
-	private ResourceBayModel bay; 
+	private ResourceBayModel bay;
 
 	public ResourceBayModel getBay() {
 		return bay;
@@ -58,11 +64,11 @@ public class ResourceMachineModel extends BaseModel {
 	}
 	public void setHighlighted(boolean highlighted) {
 		this.highlighted = highlighted;
-	} 
-	
-	
-	
-	
-	
+	}
+
+
+
+
+
 
 }
