@@ -31,6 +31,8 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 
 	@Override
 	public DMDIIMember mapToEntity(DMDIIMemberModel model) {
+		if (model == null) return null;
+		
 		DMDIIMember entity = copyProperties(model, new DMDIIMember(), new String[]{"awards", "contacts", "customers", "finances", "instituteInvolvement"});
 
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
@@ -62,6 +64,8 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 
 	@Override
 	public DMDIIMemberModel mapToModel(DMDIIMember entity) {
+		if (entity == null) return null;
+		
 		DMDIIMemberModel model = copyProperties(entity, new DMDIIMemberModel(), new String[]{"awards", "contacts", "customers", "finances", "instituteInvolvement"});
 
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);

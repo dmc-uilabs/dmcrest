@@ -14,7 +14,7 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 
 	@Override
 	public DMDIIDocument mapToEntity(DMDIIDocumentModel model) {
-		Assert.notNull(model);
+		if (model == null) return null;
 		DMDIIDocument entity = copyProperties(model, new DMDIIDocument());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -28,7 +28,7 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 
 	@Override
 	public DMDIIDocumentModel mapToModel(DMDIIDocument entity) {
-		Assert.notNull(entity);
+		if (entity == null) return null;
 
 		DMDIIDocumentModel model = copyProperties(entity, new DMDIIDocumentModel());
 		
