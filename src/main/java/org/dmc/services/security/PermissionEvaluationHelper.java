@@ -14,6 +14,11 @@ public class PermissionEvaluationHelper {
 			return true;
 		}
 		String assignedRole = user.getRole(tenantId);
+		
+		if (assignedRole == null) {
+			return false;
+		}
+		
 		switch (assignedRole) {
 		case SecurityRoles.ADMIN:
 			userRoles.add(SecurityRoles.ADMIN);
