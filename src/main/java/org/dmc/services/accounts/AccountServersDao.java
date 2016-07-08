@@ -47,7 +47,7 @@ class AccountServersDao {
 				.openConnection();
 
 		testConnection.setConnectTimeout(TIMEOUT); 
-		;
+		
 		testConnection.setRequestMethod(GET);
 		int responseCode = 0;
 		String responseMsg = null;
@@ -112,7 +112,11 @@ class AccountServersDao {
 		try {
 			// update user's record in users table
 			// ToDo store status
-
+			
+			if (!userAccountServer.getIp().contains("DOMEApiServicesV7"))
+				userAccountServer.setIp(userAccountServer.getIp() + "/DOMEApiServicesV7/");
+			//here we add the version of DOME running. In the future, this should come from the frontend/user
+			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery, 
 					Statement.RETURN_GENERATED_KEYS);
 			preparedStatement.setString(1, userAccountServer.getIp());
@@ -220,6 +224,11 @@ class AccountServersDao {
 					+ "alias = ? WHERE user_id = ? AND server_id = ?";  // ToDo: update status
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery);
+			
+			if (!userAccountServer.getIp().contains("DOMEApiServicesV7"))
+				userAccountServer.setIp(userAccountServer.getIp() + "/DOMEApiServicesV7/");
+			//append DOME endpoint on target server's URL
+			
 			preparedStatement.setString(1, userAccountServer.getIp());
 			preparedStatement.setString(2, userAccountServer.getName());
 			preparedStatement.setInt(3, user_id_lookedup);
