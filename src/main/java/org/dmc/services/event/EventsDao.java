@@ -380,7 +380,9 @@ public class EventsDao
 
 	    if (rows == 0)
 	    {
-	    	id = -1;
+	    	
+	    	ServiceLogger.log(logTag, "User with EPPN number " + userEPPN + " has tried to remove an event that does not exist.");
+			throw new DMCServiceException(DMCError.OtherSQLError, "Delete Fail");
 	    }
 	    
 	    return new Id.IdBuilder(id)

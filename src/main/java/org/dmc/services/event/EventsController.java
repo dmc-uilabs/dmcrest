@@ -41,17 +41,18 @@ public class EventsController
 	//GET
 	@RequestMapping(value = "/events", method = RequestMethod.GET, produces = { "application/json"})
 	public ResponseEntity getEvent(@RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit,
-			@RequestParam(value = "order", required = false, defaultValue = "DESC") String order,
-			@RequestParam(value = "sort", required = false, defaultValue = "on_date") String sort,
-			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
+	@RequestParam(value = "order", required = false, defaultValue = "DESC") String order,
+	@RequestParam(value = "sort", required = false, defaultValue = "on_date") String sort,
+	@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN)
 	{
 		ServiceLogger.log(logTag, "getEvents, userEPPN: " + userEPPN);
-		int statusCode = HttpStatus.OK.value();
+		//int statusCode = HttpStatus.OK.value();
 
 		try
 		{
+			int statusCode = HttpStatus.OK.value();
 			ArrayList<CommunityEvent> events = eventsDao.getEvents(userEPPN, sort, order, limit);
-	        return new ResponseEntity<ArrayList<CommunityEvent>>(events, HttpStatus.valueOf(statusCode));
+			return new ResponseEntity<ArrayList<CommunityEvent>>(events, HttpStatus.valueOf(statusCode));
 		}
 		catch (DMCServiceException e)
 		{

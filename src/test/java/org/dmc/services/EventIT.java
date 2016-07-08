@@ -88,7 +88,7 @@ public class EventIT extends BaseIT
     {
         CommunityEvent json = new CommunityEvent();        
         
-        json.setId("100");
+        json.setId("0");
         json.setTitle("Fake Title");
         json.setDate("01/01/2001");
         json.setStartTime("Yesterday");
@@ -109,6 +109,7 @@ public class EventIT extends BaseIT
                 .extract().path("id");
 
         int id = (createdId != null) ? createdId.intValue() : -1;
+        assertTrue ("No Event Created / Id returned was 0 or -1", id > 0);
 
         return id;
     }
