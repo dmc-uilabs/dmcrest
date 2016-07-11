@@ -26,14 +26,14 @@ public class DMDIIDocumentController {
 	@RequestMapping(value = "/dmdiidocuments/dmdiiProjectId", params = {"page", "pageSize"}, method = RequestMethod.GET)
 	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProjectId(@RequestParam ("dmdiiProjectId") Integer dmdiiProjectId,
 																		@RequestParam("page") Integer page,
-																		@RequestParam("pageSize") Integer pageSize) {
+																		@RequestParam("pageSize") Integer pageSize) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In getAllDMDIIDocumentsByDMDIIProjectId: " + dmdiiProjectId);
 
 		return dmdiiDocumentService.getDMDIIDocumentsByDMDIIProject(dmdiiProjectId, page, pageSize);
 	}
 
 	@RequestMapping(value = "/dmdiidocument/{dmdiiDocumentId}", method = RequestMethod.GET)
-	public DMDIIDocumentModel getDMDIIDocumentByDMDIIDocumentId(@PathVariable("dmdiiDocumentId") Integer dmdiiDocumentId) {
+	public DMDIIDocumentModel getDMDIIDocumentByDMDIIDocumentId(@PathVariable("dmdiiDocumentId") Integer dmdiiDocumentId) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In getDMDIIDocumentByDMDIIDocumentId: " + dmdiiDocumentId);
 
 		return dmdiiDocumentService.getDMDIIDocumentByDMDIIDocumentId(dmdiiDocumentId);
@@ -46,13 +46,13 @@ public class DMDIIDocumentController {
 	}
 
 	@RequestMapping(value = "/dmdiidocuments/undeleted", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = {"application/json"})
-	public List<DMDIIDocumentModel> getUndeletedDMDIIDocuments(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) {
+	public List<DMDIIDocumentModel> getUndeletedDMDIIDocuments(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In getUndeletedDMDIIDocuments");
 		return dmdiiDocumentService.getUndeletedDMDIIDocuments(page, pageSize);
 	}
 
 	@RequestMapping(value = "/dmdiidocuments/save", method = RequestMethod.POST, consumes = {"application/json"})
-	public DMDIIDocumentModel postDMDIIDocument (@RequestBody DMDIIDocumentModel doc) {
+	public DMDIIDocumentModel postDMDIIDocument (@RequestBody DMDIIDocumentModel doc) throws DMCServiceException {
 		ServiceLogger.log(logTag, "Post DMDIIDocument " + doc.getDocumentName());
 		return dmdiiDocumentService.save(doc);
 	}
