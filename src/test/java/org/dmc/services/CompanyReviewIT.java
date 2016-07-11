@@ -34,9 +34,11 @@ public class CompanyReviewIT extends BaseIT {
 
     private int memberUserId = -1;
     private String memberEPPN;
+    private String memberDisplayName;
 
     private int nonMemberUserId = -1;
     private String nonMemberEPPN;
+    private String nonMemberDisplayName;
 
     private int companyId = -1;
     private int reviewId = -1;
@@ -65,13 +67,14 @@ public class CompanyReviewIT extends BaseIT {
         String member3GivenName = "userGivenName" + unique3;
         String member3SurName= "userSurName" + unique3;
         String member3DisplayName = "userDisplayName" + unique3;
+        memberDisplayName = member3DisplayName;
         String member3Email = "userEmail" + unique3;
 
         memberUserId = CommonUtils.createUser(memberEPPN,member3GivenName, member3SurName, member3DisplayName, member3Email);
         CommonUtils.addMemberToCompany(memberUserId, companyId, ownerEPPN);
 
-        //
-        reviewId = addReview(companyId, memberEPPN);
+        // int companyId, String name, int accountId, String comment, String userEPPN
+        reviewId = addReview(companyId, memberDisplayName, memberUserId, "My comment", memberEPPN);
 
         // Create a user that is not a member of the company
         String unique4 = TestUserUtil.generateTime();
@@ -80,6 +83,7 @@ public class CompanyReviewIT extends BaseIT {
         String nonMember3SurName= "userSurName" + unique4;
         String nonMember3DisplayName = "userDisplayName" + unique4;
         String nonMember3Email = "userEmail" + unique4;
+        nonMemberDisplayName = nonMember3DisplayName;
 
         nonMemberUserId = CommonUtils.createUser(nonMemberEPPN,nonMember3GivenName, nonMember3SurName, nonMember3DisplayName, nonMember3Email);
     }
@@ -116,6 +120,8 @@ public class CompanyReviewIT extends BaseIT {
 
     @Test
     public void testGetReviewsMemberSpecificReview () {
+
+        ServiceLogger.log(logTag, "testGetReviewsMemberSpecificReview: companyId=" + companyId + ", reviewId=" + reviewId);
         ArrayList<CompanyReview> companyReviewList =
                 given()
                         .header("Content-type", "application/json")
@@ -134,7 +140,7 @@ public class CompanyReviewIT extends BaseIT {
     @Test
     public void testAddReviewNonMember () {
 
-        String json = createCompanyReviewFixture(companyId);
+        String json = createCompanyReviewFixture(companyId, nonMemberDisplayName, nonMemberUserId, "This is a cool comment");
 
         given()
                 .header("Content-type", "application/json")
@@ -146,19 +152,32 @@ public class CompanyReviewIT extends BaseIT {
                 .post(COMPANY_REVIEW_POST_RESOURCE);
     }
 
-    public static String createCompanyReviewFixture(int companyId)
+    public static int reviewIdCount = 100;
+
+    public static String createCompanyReviewFixture(int companyId, String name, int accountId, String comment)
     {
-        String name = "name";
-        boolean reply = true;
-        String reviewId = "0";
+//            accountId:1
+//            comment:"Cool stuff!"
+//            companyId:"1"
+//            date:"1468095204202"
+//            dislike:0
+//            id:12
+//            like:0
+//            name:"Thomas Smith"
+//            rating:3
+//            reply:false
+//            reviewId:0
+//            status:true
+
+        String reviewId = Integer.toString(reviewIdCount++);
         boolean status = true;
         BigDecimal date = BigDecimal.valueOf(Calendar.getInstance().getTime().getTime());
-        int rating = 10;
-        int likes = 1;
-        int dislikes = 1;
-        String comment = "comment";
+        int rating = 3;
+        int likes = 0;
+        int dislikes = 0;
+        boolean reply = false;
 
-        return createCompanyReviewFixture(companyId, name, reply, reviewId, status, date, rating, likes, dislikes, comment);
+        return createCompanyReviewFixture(companyId, name, reply, reviewId, status, date, rating, likes, dislikes, comment, accountId);
     }
 
     public static String createCompanyReviewFixture(int companyId,
@@ -170,7 +189,8 @@ public class CompanyReviewIT extends BaseIT {
                                                     int rating,
                                                     int likes,
                                                     int dislikes,
-                                                    String comment)
+                                                    String comment,
+                                                    int accountId)
     {
 
         CompanyReview r = new CompanyReview();
@@ -185,6 +205,8 @@ public class CompanyReviewIT extends BaseIT {
         r.setLike(likes);
         r.setDislike(dislikes);
         r.setComment(comment);
+        r.setAccountId(Integer.toString(accountId));
+
         ObjectMapper mapper = new ObjectMapper();
         String companyJSONString = null;
         try {
@@ -197,9 +219,9 @@ public class CompanyReviewIT extends BaseIT {
 
     }
 
-    public int addReview (int companyId, String userEPPN) {
+    public int addReview (int companyId, String name, int accountId, String comment, String userEPPN) {
 
-        String json = createCompanyReviewFixture(companyId);
+        String json = createCompanyReviewFixture(companyId, name, accountId, comment);
 
         int id =
                 given()
