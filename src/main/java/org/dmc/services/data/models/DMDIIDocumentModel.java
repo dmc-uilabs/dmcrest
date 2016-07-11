@@ -43,8 +43,8 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.documentUrl = documentUrl;
 	}
 
-	public String getPath() {
-		return path;
+	public DMDIIProjectModel getDmdiiProject() {
+		return dmdiiProject;
 	}
 
 	public void setPath(String path) {

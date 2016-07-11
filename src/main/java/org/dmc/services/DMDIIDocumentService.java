@@ -56,7 +56,9 @@ public class DMDIIDocumentService {
 	public List<DMDIIDocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
-		return mapper.mapToModel(dmdiiDocumentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		List<DMDIIDocument> results = dmdiiDocumentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		results = refreshDocuments(results);
+		return mapper.mapToModel(results);
 	}
 
 	public List<DMDIIDocumentModel> findPage(Integer pageNumber, Integer pageSize) {
