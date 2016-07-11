@@ -1,7 +1,5 @@
 package org.dmc.services;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +38,9 @@ public class DMDIIDocumentService {
 
 	@Inject
 	private MapperFactory mapperFactory;
+	
+	@Inject
+	private AWSConnector AWS;
 
 	public List<DMDIIDocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
@@ -52,26 +53,48 @@ public class DMDIIDocumentService {
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByIsDeletedFalse(new PageRequest(pageNumber, pageSize)).getContent();
 		return mapper.mapToModel(documents);
 	}
-
-	public List<DMDIIDocumentModel> getUndeletedDMDIIDocuments(Integer pageNumber, Integer pageSize) {
+	
+	public List<DMDIIDocumentModel> getUndeletedDMDIIDocuments(Integer pageNumber, Integer pageSize) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByIsDeletedFalse(new PageRequest(pageNumber, pageSize)).getContent();
+		
+		documents = refreshDocuments(documents);
+		return mapper.mapToModel(documents);
+	}
+	
+	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProject (Integer dmdiiProjectId, Integer pageNumber, Integer pageSize) throws DMCServiceException {
+		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
+		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectId(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
+		
+		documents = refreshDocuments(documents);
 		return mapper.mapToModel(documents);
 	}
 
-	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProject (Integer dmdiiProjectId, Integer pageNumber, Integer pageSize) {
+	public DMDIIDocumentModel getDMDIIDocumentByDMDIIDocumentId(Integer dmdiiDocumentId) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		return mapper.mapToModel(dmdiiDocumentRepository.findByDmdiiProjectIdAndIsDeletedFalse(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent());
+		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(dmdiiDocumentId));
+		
+		docList = refreshDocuments(docList);
+		return mapper.mapToModel(docList.get(0));
 	}
-
-	public DMDIIDocumentModel getDMDIIDocumentByDMDIIDocumentId(Integer dmdiiDocumentId) {
-		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		return mapper.mapToModel(dmdiiDocumentRepository.findOne(dmdiiDocumentId));
-	}
-
-	public DMDIIDocumentModel save(DMDIIDocumentModel doc) {
+	
+	public DMDIIDocumentModel save(DMDIIDocumentModel doc) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		return docMapper.mapToModel(dmdiiDocumentRepository.save(docMapper.mapToEntity(doc)));
+		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		
+		String signedURL = "temp";
+		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getOwner().getUsername(), "Documents");
+		String path = AWS.createPath(signedURL);
+		
+		DMDIIDocument docEntity = docMapper.mapToEntity(doc);
+		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwner().getId()));
+		docEntity.setOwner(userEntity);
+		docEntity.setDocumentUrl(signedURL);
+		docEntity.setPath(path);
+		
+		docEntity = dmdiiDocumentRepository.save(docEntity);
+		
+		return docMapper.mapToModel(docEntity);
 	}
 
 	public List<DMDIIDocumentTagModel> getAllTags() {
@@ -110,5 +133,31 @@ public class DMDIIDocumentService {
 			returnValue.add(QDMDIIDocument.dMDIIDocument.tags.any().id.eq(tagIdInt));
 		}
 		return returnValue;
+	}
+	
+	private List<DMDIIDocument> refreshDocuments (List<DMDIIDocument> docs) throws DMCServiceException {
+		List<DMDIIDocument> freshDocs = new ArrayList<DMDIIDocument>();
+		//Refresh check
+		for (DMDIIDocument doc : docs) {
+			if(AWS.isTimeStampExpired(doc.getExpires())) {
+				//Refresh URL
+				String newURL = AWS.refreshURL(doc.getPath());
+				
+				//create a timestamp
+				Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime());
+				
+				//add an hour
+				expires.setTime(expires.getTime() + (1000*60*60));
+				
+				//update the entity
+				doc.setDocumentUrl(newURL);
+				doc.setExpires(expires);
+				doc = dmdiiDocumentRepository.save(doc);
+			}
+			
+			freshDocs.add(doc);
+		}
+		
+		return freshDocs;
 	}
 }

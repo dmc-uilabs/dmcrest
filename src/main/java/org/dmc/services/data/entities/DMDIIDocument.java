@@ -1,5 +1,6 @@
 package org.dmc.services.data.entities;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -53,8 +54,8 @@ public class DMDIIDocument extends BaseEntity {
 
 	@Column(name = "expires")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date expires;
-
+	private Timestamp expires;
+	
 	@Column(name = "is_deleted")
 	private Boolean isDeleted;
 
@@ -81,7 +82,7 @@ public class DMDIIDocument extends BaseEntity {
 	public void setDocumentUrl(String documentUrl) {
 		this.documentUrl = documentUrl;
 	}
-
+	
 	public String getPath() {
 		return path;
 	}
@@ -129,12 +130,12 @@ public class DMDIIDocument extends BaseEntity {
 	public void setModified(Date modified) {
 		this.modified = modified;
 	}
-
-	public Date getExpires() {
+	
+	public Timestamp getExpires() {
 		return expires;
 	}
 
-	public void setExpires(Date expires) {
+	public void setExpires(Timestamp expires) {
 		this.expires = expires;
 	}
 
