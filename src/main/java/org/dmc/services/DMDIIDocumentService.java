@@ -1,5 +1,9 @@
 package org.dmc.services;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +54,10 @@ public class DMDIIDocumentService {
 
 	public List<DMDIIDocumentModel> findPage(Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByIsDeletedFalse(new PageRequest(pageNumber, pageSize)).getContent();
+		List<DMDIIDocument> documents = dmdiiDocumentRepository.findAll(new PageRequest(pageNumber, pageSize)).getContent();
+		
+		documents = refreshDocuments(documents);
+		
 		return mapper.mapToModel(documents);
 	}
 	
@@ -70,7 +77,7 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(documents);
 	}
 
-	public DMDIIDocumentModel getDMDIIDocumentByDMDIIDocumentId(Integer dmdiiDocumentId) throws DMCServiceException {
+	public DMDIIDocumentModel findOne(Integer dmdiiDocumentId) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(dmdiiDocumentId));
 		

@@ -11,7 +11,7 @@ import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestMethod; 
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,8 +35,8 @@ public class DMDIIDocumentController {
 	@RequestMapping(value = "/dmdiidocument/{dmdiiDocumentId}", method = RequestMethod.GET)
 	public DMDIIDocumentModel getDMDIIDocumentByDMDIIDocumentId(@PathVariable("dmdiiDocumentId") Integer dmdiiDocumentId) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In getDMDIIDocumentByDMDIIDocumentId: " + dmdiiDocumentId);
-
-		return dmdiiDocumentService.getDMDIIDocumentByDMDIIDocumentId(dmdiiDocumentId);
+		
+		return dmdiiDocumentService.findOne(dmdiiDocumentId);
 	}
 
 	@RequestMapping(value = "/dmdiidocuments", params = {"page", "pageSize"}, method = RequestMethod.GET)
@@ -50,8 +50,8 @@ public class DMDIIDocumentController {
 		ServiceLogger.log(logTag, "In getUndeletedDMDIIDocuments");
 		return dmdiiDocumentService.getUndeletedDMDIIDocuments(page, pageSize);
 	}
-
-	@RequestMapping(value = "/dmdiidocuments/save", method = RequestMethod.POST, consumes = {"application/json"})
+	
+	@RequestMapping(value = "/dmdiidocument", method = RequestMethod.POST, consumes = {"application/json"})
 	public DMDIIDocumentModel postDMDIIDocument (@RequestBody DMDIIDocumentModel doc) throws DMCServiceException {
 		ServiceLogger.log(logTag, "Post DMDIIDocument " + doc.getDocumentName());
 		return dmdiiDocumentService.save(doc);
