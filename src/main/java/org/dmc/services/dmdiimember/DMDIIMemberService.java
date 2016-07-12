@@ -38,10 +38,10 @@ public class DMDIIMemberService {
 
 	@Inject
 	private DMDIIMemberDao dmdiiMemberDao;
-	
+
 	@Inject
 	private DMDIIMemberNewsRepository dmdiiMemberNewsRepository;
-	
+
 	@Inject
 	private DMDIIMemberEventRepository dmdiiMemberEventRepository;
 
@@ -55,7 +55,7 @@ public class DMDIIMemberService {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findOne(id));
 	}
-	
+
 	public List<DMDIIMemberMapEntryModel> getMapEntries() {
 		Mapper<DMDIIMember, DMDIIMemberMapEntryModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberMapEntryModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findAll());
@@ -65,7 +65,7 @@ public class DMDIIMemberService {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findByOrganizationNameLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%").getContent());
 	}
-	
+
 	public Long countByName(String name) {
 		return dmdiiMemberDao.countByOrganizationNameLikeIgnoreCase("%"+name+"%");
 	}
@@ -88,7 +88,7 @@ public class DMDIIMemberService {
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
 	}
-	
+
 	public Long count(Map filterParams) throws InvalidFilterParameterException {
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		return dmdiiMemberDao.count(where);
@@ -100,8 +100,26 @@ public class DMDIIMemberService {
 		expressions.add(categoryIdFilter(filterParams.get("categoryId")));
 		expressions.add(tierFilter(filterParams.get("tier")));
 		expressions.add(hasActiveProjectsFilter(filterParams.get("hasActiveProjects")));
+		String[] tags = filterParams.get("tagIds").split(",");
+		for(String tag: tags) {
+			expressions.add(tagIdFilter(tag));
+		}
 
 		return expressions;
+	}
+
+	private Predicate tagIdFilter(String tagId) throws InvalidFilterParameterException {
+		if(tagId == null)
+			return null;
+
+		Integer tagIdInt = null;
+		try {
+			tagIdInt = Integer.parseInt(tagId);
+		} catch(NumberFormatException e) {
+			throw new InvalidFilterParameterException("tagId", Integer.class);
+		}
+
+		return QDMDIIMember.dMDIIMember.areasOfExpertise.any().id.eq(tagIdInt);
 	}
 
 	private Predicate categoryIdFilter(String categoryId) throws InvalidFilterParameterException {
@@ -148,12 +166,12 @@ public class DMDIIMemberService {
 			return new BooleanBuilder().and(QDMDIIMember.dMDIIMember.projects.any().in(subQuery)).not().getValue();
 		}
 	}
-	
+
 	public List<DMDIIMemberNewsModel> getDmdiiMemberNews(Integer limit) {
 		Mapper<DMDIIMemberNews, DMDIIMemberNewsModel> mapper = mapperFactory.mapperFor(DMDIIMemberNews.class, DMDIIMemberNewsModel.class);
 		return mapper.mapToModel(dmdiiMemberNewsRepository.findAllByOrderByDateCreatedDesc(new PageRequest(0, limit)).getContent());
 	}
-	
+
 	public List<DMDIIMemberEventModel> getDmdiiMemberEvents(Integer limit) {
 		Mapper<DMDIIMemberEvent, DMDIIMemberEventModel> mapper = mapperFactory.mapperFor(DMDIIMemberEvent.class, DMDIIMemberEventModel.class);
 		return mapper.mapToModel(dmdiiMemberEventRepository.findFutureEvents(new PageRequest(0, limit)).getContent());
