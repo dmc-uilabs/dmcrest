@@ -8,6 +8,8 @@ public class DMDIIDocumentModel extends BaseModel {
 	
 	private String documentUrl;
 	
+	private String path;
+	
 	private DMDIIProjectModel dmdiiProject;
 	
 	private UserModel owner;
@@ -32,6 +34,14 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	public void setDocumentUrl(String documentUrl) {
 		this.documentUrl = documentUrl;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	public DMDIIProjectModel getDmdiiProject() {
