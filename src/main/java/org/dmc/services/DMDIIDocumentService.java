@@ -92,6 +92,10 @@ public class DMDIIDocumentService {
 		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getOwner().getUsername(), "Documents");
 		String path = AWS.createPath(signedURL);
 		
+		String signedURL = "temp";
+		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getOwner().getUsername(), "Documents");
+		String path = AWS.createPath(signedURL);
+		
 		DMDIIDocument docEntity = docMapper.mapToEntity(doc);
 		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwner().getId()));
 		docEntity.setOwner(userEntity);
