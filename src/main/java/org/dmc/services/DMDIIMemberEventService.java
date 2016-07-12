@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class DMDIIMemberEventService {
 
 	@Inject
-	private DMDIIMemberEventRepository dmdiiMemberEventsRepository;
+	private DMDIIMemberEventRepository dmdiiMemberEventRepository;
 	
 	@Inject
 	private MapperFactory mapperFactory;
@@ -23,7 +23,7 @@ public class DMDIIMemberEventService {
 		
 		DMDIIMemberEvent memberEventEntity = mapper.mapToEntity(memberEvent);
 		
-		memberEventEntity = dmdiiMemberEventsRepository.save(memberEventEntity);
+		memberEventEntity = dmdiiMemberEventRepository.save(memberEventEntity);
 		
 		return mapper.mapToModel(memberEventEntity);
 	}
