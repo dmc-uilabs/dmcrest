@@ -1,5 +1,9 @@
 package org.dmc.services;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +51,9 @@ public class DMDIIDocumentService {
 	public List<DMDIIDocumentModel> findPage(Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findAll(new PageRequest(pageNumber, pageSize)).getContent();
+		
+		documents = refreshDocuments(documents);
+		
 		return mapper.mapToModel(documents);
 	}
 	
@@ -66,7 +73,7 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(documents);
 	}
 
-	public DMDIIDocumentModel getDMDIIDocumentByDMDIIDocumentId(Integer dmdiiDocumentId) throws DMCServiceException {
+	public DMDIIDocumentModel findOne(Integer dmdiiDocumentId) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(dmdiiDocumentId));
 		
@@ -76,6 +83,10 @@ public class DMDIIDocumentService {
 	
 	public DMDIIDocumentModel save(DMDIIDocumentModel doc) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
+		
+		String signedURL = "temp";
+		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getOwner().getUsername(), "Documents");
+		String path = AWS.createPath(signedURL);
 		
 		String signedURL = "temp";
 		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getOwner().getUsername(), "Documents");

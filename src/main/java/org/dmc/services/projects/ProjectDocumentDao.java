@@ -151,10 +151,10 @@ public class ProjectDocumentDao {
 		    		Calendar calendar = Calendar.getInstance();
 		    		 
 		    		//  get a java.util.Date from the calendar instance.
-		    		java.util.Date now = calendar.getTime();
+		    		Date now = calendar.getTime();
 		    		 
 		    		// a java current time (now) instance
-		    		java.sql.Timestamp expires = new java.sql.Timestamp(now.getTime()); 
+		    		Timestamp expires = new Timestamp(now.getTime()); 
 		    		
 		    		//Add an hour 
 		    		long duration = 1000 * 60 * 60; // Add 1 hour.
