@@ -80,6 +80,13 @@ public class DMDIIDocumentService {
 		docList = refreshDocuments(docList);
 		return mapper.mapToModel(docList.get(0));
 	}
+
+	public DMDIIDocument findOneEntity(Integer id) throws DMCServiceException {
+		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(id));
+		
+		docList = refreshDocuments(docList);
+		return docList.get(0);
+	}
 	
 	public DMDIIDocumentModel save(DMDIIDocumentModel doc) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
