@@ -52,6 +52,12 @@ public class DMDIIMember extends BaseEntity {
 			   inverseJoinColumns = @JoinColumn(name="dmdii_area_of_expertise_id"))
 	private List<DMDIIAreaOfExpertise> areasOfExpertise;
 
+	@ManyToMany
+	@JoinTable(name = "dmdii_member_desired_area_of_expertise",
+			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
+			   inverseJoinColumns = @JoinColumn(name="dmdii_area_of_expertise_id"))
+	private List<DMDIIAreaOfExpertise> desiredAreasOfExpertise;
+
 	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIMemberContact> contacts;
 
@@ -63,12 +69,6 @@ public class DMDIIMember extends BaseEntity {
 
 	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
 	private List<DMDIIInstituteInvolvement> instituteInvolvement;
-
-	@ManyToMany
-	@JoinTable(name = "dmdii_member_rnd_focus",
-			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
-			   inverseJoinColumns = @JoinColumn(name="dmdii_rnd_focus_id"))
-	private List<DMDIIRndFocus> rndFocus;
 
 	@ManyToMany
 	@JoinTable(name = "dmdii_member_skill",
@@ -136,6 +136,14 @@ public class DMDIIMember extends BaseEntity {
 		this.areasOfExpertise = areasOfExpertise;
 	}
 
+	public List<DMDIIAreaOfExpertise> getDesiredAreasOfExpertise() {
+		return desiredAreasOfExpertise;
+	}
+
+	public void setDesiredAreasOfExpertise(List<DMDIIAreaOfExpertise> desiredAreasOfExpertise) {
+		this.desiredAreasOfExpertise = desiredAreasOfExpertise;
+	}
+
 	public List<DMDIIMemberContact> getContacts() {
 		return contacts;
 	}
@@ -170,14 +178,6 @@ public class DMDIIMember extends BaseEntity {
 	public void setInstituteInvolvement(List<DMDIIInstituteInvolvement> instituteInvolvement) {
 		instituteInvolvement.stream().forEach((a) -> a.setDmdiiMember(this));
 		this.instituteInvolvement = instituteInvolvement;
-	}
-
-	public List<DMDIIRndFocus> getRndFocus() {
-		return rndFocus;
-	}
-
-	public void setRndFocus(List<DMDIIRndFocus> rndFocus) {
-		this.rndFocus = rndFocus;
 	}
 
 	public List<DMDIISkill> getSkills() {
@@ -218,7 +218,6 @@ public class DMDIIMember extends BaseEntity {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((instituteInvolvement == null) ? 0 : instituteInvolvement.hashCode());
 		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
-		result = prime * result + ((rndFocus == null) ? 0 : rndFocus.hashCode());
 		result = prime * result + ((skills == null) ? 0 : skills.hashCode());
 		result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
 		result = prime * result + ((users == null) ? 0 : users.hashCode());
@@ -283,11 +282,6 @@ public class DMDIIMember extends BaseEntity {
 			if (other.organization != null)
 				return false;
 		} else if (!organization.equals(other.organization))
-			return false;
-		if (rndFocus == null) {
-			if (other.rndFocus != null)
-				return false;
-		} else if (!rndFocus.equals(other.rndFocus))
 			return false;
 		if (skills == null) {
 			if (other.skills != null)
