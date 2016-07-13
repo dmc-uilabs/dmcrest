@@ -14,20 +14,6 @@ import java.util.ArrayList;
 
 public class MarketIT extends BaseIT {
     private final String logTag = MarketIT.class.getName();
-
-	/*
-	 * test case for GET /market/components
-	 */
-	@Test
-	public void testMarketGet_Component() {
-		given().
-		header("AJP_eppn", "user_EPPN").
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().
-		get("/market/components");
-	}
-	
 	
 	/*
 	 * test case for GET /market/services
@@ -91,20 +77,6 @@ public class MarketIT extends BaseIT {
             fail("unable to map response to Service object: " + e.getMessage());
         }
 
-	}
-	
-	
-	/*
-	 * test case for GET /market/popular_services
-	 */
-	@Test
-	public void testMarketGet_PopularService() {
-		given().
-		header("AJP_eppn", "user_EPPN").
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().
-		get("/market/popular_services");
 	}
 
 }
