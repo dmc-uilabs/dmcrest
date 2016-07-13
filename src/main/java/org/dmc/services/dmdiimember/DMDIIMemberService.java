@@ -100,40 +100,33 @@ public class DMDIIMemberService {
 		expressions.add(categoryIdFilter(filterParams.get("categoryId")));
 		expressions.add(tierFilter(filterParams.get("tier")));
 		expressions.add(hasActiveProjectsFilter(filterParams.get("hasActiveProjects")));
-		if(filterParams.get("expertiseTags") != null) {
-			String[] expertiseTags = filterParams.get("expertiseTags").split(",");
-			for(String tag: expertiseTags)
-				expressions.add(tagFilter(tag, "expertise"));
-		}
-
-		if(filterParams.get("desiredExpertiseTags") != null) {
-			String[] desiredExpertiseTags = filterParams.get("desiredExpertiseTags").split(",");
-			for(String tag: desiredExpertiseTags)
-				expressions.add(tagFilter(tag, "desired"));
-		}
+		expressions.addAll(tagFilter(filterParams.get("expertiseTags"), "expertiseTags"));
+		expressions.addAll(tagFilter(filterParams.get("desiredExpertiseTags"), "desiredExpertiseTags"));
 
 		return expressions;
 	}
 
-	private Predicate tagFilter(String tagId, String tagType) throws InvalidFilterParameterException {
-		if(tagId == null)
-			return null;
+	private Collection<Predicate> tagFilter(String tagIds, String tagType) throws InvalidFilterParameterException {
+		if(tagIds == null)
+			return new ArrayList<Predicate>();
 
-		Predicate returnValue = null;
+		Collection<Predicate> returnValue = new ArrayList<Predicate>();
+		String[] tags = tagIds.split(",");
 		Integer tagIdInt = null;
 
-		try {
-			tagIdInt = Integer.parseInt(tagId);
-		} catch(NumberFormatException e) {
-			throw new InvalidFilterParameterException("tagId", Integer.class);
-		}
+		for(String tag: tags) {
+			try{
+				tagIdInt = Integer.parseInt(tag);
+			} catch(NumberFormatException e) {
+				throw new InvalidFilterParameterException(tagType, Integer.class);
+			}
 
-		if(tagType.equals("expertise")) {
-			returnValue = QDMDIIMember.dMDIIMember.areasOfExpertise.any().id.eq(tagIdInt);
-		} else if (tagType.equals("desired")) {
-			returnValue = QDMDIIMember.dMDIIMember.desiredAreasOfExpertise.any().id.eq(tagIdInt);
+			if(tagType.equals("expertiseTags")) {
+				returnValue.add(QDMDIIMember.dMDIIMember.areasOfExpertise.any().id.eq(tagIdInt));
+			} else if (tagType.equals("desiredExpertiseTags")) {
+				returnValue.add(QDMDIIMember.dMDIIMember.desiredAreasOfExpertise.any().id.eq(tagIdInt));
+			}
 		}
-
 		return returnValue;
 	}
 

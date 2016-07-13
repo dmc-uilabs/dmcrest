@@ -209,6 +209,7 @@ public class DMDIIMember extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((areasOfExpertise == null) ? 0 : areasOfExpertise.hashCode());
+		result = prime * result + ((desiredAreasOfExpertise == null) ? 0 : desiredAreasOfExpertise.hashCode());
 		result = prime * result + ((awards == null) ? 0 : awards.hashCode());
 		result = prime * result + ((contacts == null) ? 0 : contacts.hashCode());
 		result = prime * result + ((customers == null) ? 0 : customers.hashCode());
@@ -237,6 +238,11 @@ public class DMDIIMember extends BaseEntity {
 			if (other.areasOfExpertise != null)
 				return false;
 		} else if (!areasOfExpertise.equals(other.areasOfExpertise))
+			return false;
+		if (desiredAreasOfExpertise == null) {
+			if (other.desiredAreasOfExpertise != null)
+				return false;
+		} else if (!desiredAreasOfExpertise.equals(other.desiredAreasOfExpertise))
 			return false;
 		if (awards == null) {
 			if (other.awards != null)
