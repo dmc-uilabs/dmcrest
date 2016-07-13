@@ -34,7 +34,7 @@ public class ProductIT extends BaseIT {
 		when().
 		get("/product/" + serviceId + "/product_reviews");
 	}
-	
+
 	
 	
 	/*
