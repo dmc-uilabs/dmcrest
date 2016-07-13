@@ -3,7 +3,7 @@ package org.dmc.services.event;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
-
+import java.util.Date;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class CommunityEvent  {
@@ -16,9 +16,6 @@ public class CommunityEvent  {
   private String address = null;
   private String description = null;
 
-  
-  /**
-   **/
   @JsonProperty("id")
   public String getId() {
     return id;
