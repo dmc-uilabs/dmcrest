@@ -100,26 +100,41 @@ public class DMDIIMemberService {
 		expressions.add(categoryIdFilter(filterParams.get("categoryId")));
 		expressions.add(tierFilter(filterParams.get("tier")));
 		expressions.add(hasActiveProjectsFilter(filterParams.get("hasActiveProjects")));
-		String[] tags = filterParams.get("tagIds").split(",");
-		for(String tag: tags) {
-			expressions.add(tagIdFilter(tag));
+		if(filterParams.get("expertiseTags") != null) {
+			String[] expertiseTags = filterParams.get("expertiseTags").split(",");
+			for(String tag: expertiseTags)
+				expressions.add(tagFilter(tag, "expertise"));
+		}
+
+		if(filterParams.get("desiredExpertiseTags") != null) {
+			String[] desiredExpertiseTags = filterParams.get("desiredExpertiseTags").split(",");
+			for(String tag: desiredExpertiseTags)
+				expressions.add(tagFilter(tag, "desired"));
 		}
 
 		return expressions;
 	}
 
-	private Predicate tagIdFilter(String tagId) throws InvalidFilterParameterException {
+	private Predicate tagFilter(String tagId, String tagType) throws InvalidFilterParameterException {
 		if(tagId == null)
 			return null;
 
+		Predicate returnValue = null;
 		Integer tagIdInt = null;
+
 		try {
 			tagIdInt = Integer.parseInt(tagId);
 		} catch(NumberFormatException e) {
 			throw new InvalidFilterParameterException("tagId", Integer.class);
 		}
 
-		return QDMDIIMember.dMDIIMember.areasOfExpertise.any().id.eq(tagIdInt);
+		if(tagType.equals("expertise")) {
+			returnValue = QDMDIIMember.dMDIIMember.areasOfExpertise.any().id.eq(tagIdInt);
+		} else if (tagType.equals("desired")) {
+			returnValue = QDMDIIMember.dMDIIMember.desiredAreasOfExpertise.any().id.eq(tagIdInt);
+		}
+
+		return returnValue;
 	}
 
 	private Predicate categoryIdFilter(String categoryId) throws InvalidFilterParameterException {
