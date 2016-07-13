@@ -17,6 +17,8 @@ public class DMDIIMemberModel extends BaseModel {
 
 	private List<DMDIIAreaOfExpertiseModel> areasOfExpertise;
 
+	private List<DMDIIAreaOfExpertiseModel> desiredAreasOfExpertise;
+
 	private List<DMDIIMemberContactModel> contacts;
 
 	private List<DMDIIMemberCustomerModel> customers;
@@ -24,8 +26,6 @@ public class DMDIIMemberModel extends BaseModel {
 	private List<DMDIIMemberFinanceModel> finances;
 
 	private List<DMDIIInstituteInvolvementModel> instituteInvolvement;
-
-	private List<DMDIIRndFocusModel> rndFocus;
 
 	private List<DMDIISkillModel> skills;
 
@@ -79,6 +79,14 @@ public class DMDIIMemberModel extends BaseModel {
 		this.areasOfExpertise = areasOfExpertise;
 	}
 
+	public List<DMDIIAreaOfExpertiseModel> getDesiredAreasOfExpertise() {
+		return desiredAreasOfExpertise;
+	}
+
+	public void setDesiredAreasOfExpertise(List<DMDIIAreaOfExpertiseModel> desiredAreasOfExpertise) {
+		this.desiredAreasOfExpertise = desiredAreasOfExpertise;
+	}
+
 	public List<DMDIIMemberContactModel> getContacts() {
 		return contacts;
 	}
@@ -109,14 +117,6 @@ public class DMDIIMemberModel extends BaseModel {
 
 	public void setInstituteInvolvement(List<DMDIIInstituteInvolvementModel> instituteInvolvement) {
 		this.instituteInvolvement = instituteInvolvement;
-	}
-
-	public List<DMDIIRndFocusModel> getRndFocus() {
-		return rndFocus;
-	}
-
-	public void setRndFocus(List<DMDIIRndFocusModel> rndFocus) {
-		this.rndFocus = rndFocus;
 	}
 
 	public List<DMDIISkillModel> getSkills() {
