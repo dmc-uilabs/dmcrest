@@ -1,5 +1,7 @@
 package org.dmc.services.data.models;
 
+import java.util.Date;
+
 public class DMDIIQuickLinkModel extends BaseModel {
 
 	private String text;
@@ -7,6 +9,8 @@ public class DMDIIQuickLinkModel extends BaseModel {
 	private String link;
 	
 	private DMDIIDocumentModel doc;
+	
+	private Date created;
 
 	public String getText() {
 		return text;
@@ -30,5 +34,13 @@ public class DMDIIQuickLinkModel extends BaseModel {
 
 	public void setDoc(DMDIIDocumentModel doc) {
 		this.doc = doc;
+	}
+
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
 	}
 }
