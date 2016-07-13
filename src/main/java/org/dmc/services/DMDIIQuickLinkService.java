@@ -50,7 +50,7 @@ public class DMDIIQuickLinkService {
 		
 		List<DMDIIQuickLink> freshLinks = new ArrayList<DMDIIQuickLink>();
 		
-		List<DMDIIQuickLink> links = dmdiiQuickLinkRepository.findAll(new PageRequest(0, limit)).getContent();
+		List<DMDIIQuickLink> links = dmdiiQuickLinkRepository.findAllByOrderByCreatedDesc(new PageRequest(0, limit)).getContent();
 		
 		for (DMDIIQuickLink link : links) {
 			if(link.getDoc() != null) {
