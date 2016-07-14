@@ -1,6 +1,7 @@
 package org.dmc.services.data.entities;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -37,6 +40,12 @@ public class DMDIIDocument extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
 	private User owner;
+
+	@ManyToMany
+	@JoinTable(name = "dmdii_member_tag_join",
+			   joinColumns = @JoinColumn(name="dmdii_document_id"),
+			   inverseJoinColumns = @JoinColumn(name="dmdii_document_tag_id"))
+	private List<DMDIIDocumentTag> tags;
 
 	@Column(name = "modified")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -103,6 +112,14 @@ public class DMDIIDocument extends BaseEntity {
 
 	public void setOwner(User owner) {
 		this.owner = owner;
+	}
+
+	public List<DMDIIDocumentTag> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<DMDIIDocumentTag> tags) {
+		this.tags = tags;
 	}
 
 	public Date getModified() {

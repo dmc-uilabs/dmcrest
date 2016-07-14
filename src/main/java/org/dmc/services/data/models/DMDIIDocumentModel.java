@@ -1,6 +1,7 @@
 package org.dmc.services.data.models;
 
 import java.util.Date;
+import java.util.List;
 
 public class DMDIIDocumentModel extends BaseModel {
 
@@ -13,6 +14,8 @@ public class DMDIIDocumentModel extends BaseModel {
 	private Integer dmdiiProjectId;
 
 	private Integer userId;
+
+	private List<DMDIIDocumentModel> tags;
 
 	private Date modified;
 
@@ -58,6 +61,14 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	public void setUserId(Integer userId) {
 		this.userId = userId;
+	}
+
+	public List<DMDIIDocumentModel> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<DMDIIDocumentModel> tags) {
+		this.tags = tags;
 	}
 
 	public Date getModified() {
