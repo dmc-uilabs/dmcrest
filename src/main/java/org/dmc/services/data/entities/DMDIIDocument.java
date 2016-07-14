@@ -20,29 +20,32 @@ public class DMDIIDocument extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
+
 	@Column(name = "name")
 	private String documentName;
-	
+
 	@Column(name = "url")
 	private String documentUrl;
-	
+
+	@Column(name = "path")
+	private String path;
+
 	@ManyToOne
 	@JoinColumn(name = "dmdii_project_id")
 	private DMDIIProject dmdiiProject;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
 	private User owner;
-	
+
 	@Column(name = "modified")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date modified;
-	
+
 	@Column(name = "expires")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date expires;
-	
+
 	@Column(name = "is_deleted")
 	private Boolean isDeleted;
 
@@ -69,7 +72,15 @@ public class DMDIIDocument extends BaseEntity {
 	public void setDocumentUrl(String documentUrl) {
 		this.documentUrl = documentUrl;
 	}
-	
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
 	public DMDIIProject getDMDIIProject() {
 		return dmdiiProject;
 	}
@@ -101,7 +112,7 @@ public class DMDIIDocument extends BaseEntity {
 	public void setModified(Date modified) {
 		this.modified = modified;
 	}
-	
+
 	public Date getExpires() {
 		return expires;
 	}
@@ -127,7 +138,7 @@ public class DMDIIDocument extends BaseEntity {
 		result = prime * result + ((documentUrl == null) ? 0 : documentUrl.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals (Object obj) {
 		if(this == obj)
@@ -152,7 +163,7 @@ public class DMDIIDocument extends BaseEntity {
 				return false;
 		} else if (!documentUrl.equals(other.documentUrl))
 			return false;
-		
+
 		return true;
 	}
 }

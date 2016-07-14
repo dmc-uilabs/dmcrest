@@ -5,17 +5,19 @@ import java.util.Date;
 public class DMDIIDocumentModel extends BaseModel {
 
 	private String documentName;
-	
+
 	private String documentUrl;
-	
-	private DMDIIProjectModel dmdiiProject;
-	
-	private UserModel owner;
-	
+
+	private String path;
+
+	private Integer dmdiiProjectId;
+
+	private Integer userId;
+
 	private Date modified;
-	
+
 	private Date expires;
-	
+
 	private Boolean isDeleted;
 
 	public String getDocumentName() {
@@ -34,20 +36,28 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.documentUrl = documentUrl;
 	}
 
-	public DMDIIProjectModel getDmdiiProject() {
-		return dmdiiProject;
+	public String getPath() {
+		return path;
 	}
 
-	public void setDmdiiProject(DMDIIProjectModel dmdiiProject) {
-		this.dmdiiProject = dmdiiProject;
+	public void setPath(String path) {
+		this.path = path;
 	}
 
-	public UserModel getOwner() {
-		return owner;
+	public Integer getDmdiiProjectId() {
+		return dmdiiProjectId;
 	}
 
-	public void setOwner(UserModel owner) {
-		this.owner = owner;
+	public void setDmdiiProjectId(Integer dmdiiProjectId) {
+		this.dmdiiProjectId = dmdiiProjectId;
+	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 
 	public Date getModified() {
