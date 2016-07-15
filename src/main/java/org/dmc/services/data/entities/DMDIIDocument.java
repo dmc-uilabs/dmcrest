@@ -42,7 +42,7 @@ public class DMDIIDocument extends BaseEntity {
 	private User owner;
 
 	@ManyToMany
-	@JoinTable(name = "dmdii_member_tag_join",
+	@JoinTable(name = "dmdii_document_tag_join",
 			   joinColumns = @JoinColumn(name="dmdii_document_id"),
 			   inverseJoinColumns = @JoinColumn(name="dmdii_document_tag_id"))
 	private List<DMDIIDocumentTag> tags;
