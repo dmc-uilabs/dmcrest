@@ -173,7 +173,7 @@ public class ServiceRunServiceInterfaceDAO {
 		{
 			String name = inpars.get(i).name;
 			DomeModelParam valueObj = (DomeModelParam)inPars.get(name);
-			String value = (String)valueObj.getValue();
+			String value = valueObj.getValue().toString();
 			inParValue=inParValue+inpars.get(i).toDomeStringWithValue(value);
 			if (i!=this.inpars.size()-1)
 				inParValue = inParValue + ",";
