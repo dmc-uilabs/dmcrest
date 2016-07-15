@@ -57,6 +57,9 @@ public class DMDIIDocument extends BaseEntity {
 	
 	@Column(name = "is_deleted")
 	private Boolean isDeleted;
+	
+	@Column(name = "file_type_id")
+	private Integer fileType;
 
 	public Integer getId() {
 		return id;
@@ -144,6 +147,14 @@ public class DMDIIDocument extends BaseEntity {
 
 	public void setIsDeleted(Boolean isDeleted) {
 		this.isDeleted = isDeleted;
+	}
+
+	public Integer getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(Integer fileType) {
+		this.fileType = fileType;
 	}
 
 	@Override
