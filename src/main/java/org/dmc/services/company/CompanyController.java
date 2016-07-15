@@ -342,9 +342,23 @@ public class CompanyController {
          List<CompanyReview> reviews = null;
          int statusCode = HttpStatus.OK.value();
 
+         int reviewIdInt = 0;
+         try {
+             reviewIdInt = Integer.parseInt(reviewId);
+         } catch (NumberFormatException nfe) {
+
+         }
+
          try {
                 int companyIdInt = Integer.parseInt(companyID);
-                reviews = reviewDao.getReviews(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN);
+
+                if (reviewIdInt == 0) {
+                    reviews = reviewDao.getReviews(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN);
+
+                } else if (reviewIdInt > 0) {
+                    reviews = reviewDao.getReviewReplies(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN);
+                }
+
                 return new ResponseEntity<List<CompanyReview>>(reviews, HttpStatus.valueOf(statusCode));
             } catch (NumberFormatException nfe) {
                 ServiceLogger.log(logTag, "Invalid companyId: " + companyID + ": " + nfe.getMessage());

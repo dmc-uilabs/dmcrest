@@ -74,7 +74,8 @@ public class CompanyReviewIT extends BaseIT {
         CommonUtils.addMemberToCompany(memberUserId, companyId, ownerEPPN);
 
         // int companyId, String name, int accountId, String comment, String userEPPN
-        reviewId = addReview(companyId, memberDisplayName, memberUserId, "My comment", memberEPPN);
+        int parentReviewId = 0;
+        reviewId = addReview(companyId, memberDisplayName, memberUserId, "My comment", memberEPPN, parentReviewId);
 
         // Create a user that is not a member of the company
         String unique4 = TestUserUtil.generateTime();
@@ -119,28 +120,10 @@ public class CompanyReviewIT extends BaseIT {
     }
 
     @Test
-    public void testGetReviewsMemberSpecificReview () {
-
-        ServiceLogger.log(logTag, "testGetReviewsMemberSpecificReview: companyId=" + companyId + ", reviewId=" + reviewId);
-        ArrayList<CompanyReview> companyReviewList =
-                given()
-                        .header("Content-type", "application/json")
-                        .header("AJP_eppn", memberEPPN)
-                        .parameters("reviewId", Integer.toString(reviewId))
-                        .expect()
-                        .statusCode(200)
-                        .when()
-                        .get(COMPANY_REVIEW_GET_RESOURCE, companyId)
-                        .as(ArrayList.class);
-
-        assertTrue("Company review list cannot be null", companyReviewList != null);
-        assertTrue("Expected 1 company review, got" + companyReviewList.size(), companyReviewList.size() == 1);
-    }
-
-    @Test
     public void testAddReviewNonMember () {
 
-        String json = createCompanyReviewFixture(companyId, nonMemberDisplayName, nonMemberUserId, "This is a cool comment");
+        int reviewId = 0;
+        String json = createCompanyReviewFixture(companyId, nonMemberDisplayName, nonMemberUserId, "This is a cool comment", reviewId);
 
         given()
                 .header("Content-type", "application/json")
@@ -152,9 +135,7 @@ public class CompanyReviewIT extends BaseIT {
                 .post(COMPANY_REVIEW_POST_RESOURCE);
     }
 
-    public static int reviewIdCount = 100;
-
-    public static String createCompanyReviewFixture(int companyId, String name, int accountId, String comment)
+    public static String createCompanyReviewFixture(int companyId, String name, int accountId, String comment, int reviewId)
     {
 //            accountId:1
 //            comment:"Cool stuff!"
@@ -169,7 +150,7 @@ public class CompanyReviewIT extends BaseIT {
 //            reviewId:0
 //            status:true
 
-        String reviewId = Integer.toString(reviewIdCount++);
+        //String reviewId = Integer.toString(reviewIdCount++);
         boolean status = true;
         BigDecimal date = BigDecimal.valueOf(Calendar.getInstance().getTime().getTime());
         int rating = 3;
@@ -177,7 +158,7 @@ public class CompanyReviewIT extends BaseIT {
         int dislikes = 0;
         boolean reply = false;
 
-        return createCompanyReviewFixture(companyId, name, reply, reviewId, status, date, rating, likes, dislikes, comment, accountId);
+        return createCompanyReviewFixture(companyId, name, reply, Integer.toString(reviewId), status, date, rating, likes, dislikes, comment, accountId);
     }
 
     public static String createCompanyReviewFixture(int companyId,
@@ -219,9 +200,9 @@ public class CompanyReviewIT extends BaseIT {
 
     }
 
-    public int addReview (int companyId, String name, int accountId, String comment, String userEPPN) {
+    public int addReview (int companyId, String name, int accountId, String comment, String userEPPN, int reviewId) {
 
-        String json = createCompanyReviewFixture(companyId, name, accountId, comment);
+        String json = createCompanyReviewFixture(companyId, name, accountId, comment, reviewId);
 
         int id =
                 given()
@@ -239,4 +220,65 @@ public class CompanyReviewIT extends BaseIT {
         return id;
     }
 
+    public int addReviewReply (int companyId, String name, int accountId, String comment, int reviewId, String userEPPN, int parentReviewId) {
+
+        String json = createCompanyReviewFixture(companyId, name, accountId, comment, parentReviewId);
+
+        int id =
+                given()
+                        .header("Content-type", "application/json")
+                        .header("AJP_eppn", userEPPN)
+                        .body(json.toString())
+                        .expect()
+                        .statusCode(200)
+                        .when()
+                        .post(COMPANY_REVIEW_POST_RESOURCE)
+                        .then()
+                        .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+                        .extract()
+                        .path("id");
+        return id;
+    }
+
+    // TODO
+    @Test
+    public void testReviewAndReplies() {
+
+        // Add a new review
+        int reviewId = addReview(companyId, memberDisplayName, memberUserId, "My awesome review", memberEPPN, 0);
+        ArrayList<CompanyReview> companyReviewList =
+                given()
+                        .header("Content-type", "application/json")
+                        .header("AJP_eppn", memberEPPN)
+                        .parameters("reviewId", "0")
+                        .expect()
+                        .statusCode(200)
+                        .when()
+                        .get(COMPANY_REVIEW_GET_RESOURCE, companyId)
+                        .as(ArrayList.class);
+
+        assertTrue("Company review list cannot be null", companyReviewList != null);
+        assertTrue("Expected 2 company reviews, got" + companyReviewList.size(), companyReviewList.size() == 2);
+
+        // Add a review reply
+        int replyReviewId = addReview(companyId, memberDisplayName, memberUserId, "My awesome review", memberEPPN, reviewId);
+
+        // Add a review reply
+        int replyReviewId2 = addReview(companyId, memberDisplayName, memberUserId, "My awesome second review", memberEPPN, reviewId);
+
+        ArrayList<CompanyReview> companyReplyReviewList =
+                given()
+                        .header("Content-type", "application/json")
+                        .header("AJP_eppn", memberEPPN)
+                        .parameters("reviewId", Integer.toString(reviewId))
+                        .expect()
+                        .statusCode(200)
+                        .when()
+                        .get(COMPANY_REVIEW_GET_RESOURCE, companyId)
+                        .as(ArrayList.class);
+
+        assertTrue("Company review list cannot be null", companyReplyReviewList != null);
+        assertTrue("Expected 2 company review, got" + companyReplyReviewList.size(), companyReplyReviewList.size() == 2);
+
+    }
 }

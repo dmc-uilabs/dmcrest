@@ -35,6 +35,7 @@ public class CommonUtils {
         return companyId;
     }
 
+
     public static String createCompanyFixture(String ownerName) {
         Company company = new Company();
 

@@ -179,8 +179,8 @@ public class CompanyReviewDao {
                 throw new DMCServiceException(DMCError.NotDMDIIMember, "User " + userEPPN + " is not a member of the DMDII");
             }
 
-            String whereClause = " WHERE r.organization_id = ?";
-            int numFields = 1;
+            String whereClause = " WHERE ";
+            int numFields = 0;
             int reviewIdIndex = -1;
             int ratingIndex = -1;
             int statusIndex = -1;
@@ -195,7 +195,7 @@ public class CompanyReviewDao {
 
                     if (reviewIdVal > 0) {
                         reviewIdIndex = ++numFields;
-                        whereClause += " AND r.id = ?";
+                        whereClause += " r.review_id = ?";
                         ServiceLogger.log(logTag, "reviewId index is " + reviewIdIndex + ", value is " + reviewId);
                     }
                 } catch (NumberFormatException nfe) {
@@ -270,12 +270,12 @@ public class CompanyReviewDao {
                 r.setId(Integer.toString(resultSet.getInt("id")));
                 r.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
                 r.setName(resultSet.getString("name"));
-                r.setReply(resultSet.getBoolean("reply"));
+
                 r.setReviewId(resultSet.getString("reviewId"));
                 java.sql.Timestamp reviewTimestamp = resultSet.getTimestamp("review_reply_timestamp");
                 BigDecimal bdDate = new BigDecimal(reviewTimestamp.getTime());
                 r.setDate(bdDate);
-                r.setRating(resultSet.getInt("rating"));
+                r.setRating(0); // replies do not have stars
                 r.setComment(resultSet.getString("comment"));
 
                 // replies do not have replies
@@ -300,6 +300,7 @@ public class CompanyReviewDao {
             }
 
         } catch (SQLException ex) {
+            ex.printStackTrace();
             throw new DMCServiceException(DMCError.OtherSQLError, "Error: " + ex.toString());
         }
 
@@ -335,7 +336,7 @@ public class CompanyReviewDao {
     }
 
     public int countHelpfulForReviewReply (int reviewReplyId, boolean helpfulOrNot) {
-        String q = "select count(*) FROM organization_review_reply_rate WHERE review_reply_id = " + reviewReplyId + " AND helpfulOrNot IS " + Boolean.toString(helpfulOrNot);
+        String q = "select count(*) FROM organization_review_reply_rate WHERE review_reply_id = " + reviewReplyId + " AND helpful_or_not IS " + Boolean.toString(helpfulOrNot);
         int count = 0;
         ResultSet rs = DBConnector.executeQuery(q);
         try {
@@ -378,14 +379,26 @@ public class CompanyReviewDao {
 //            preparedStatement.setInt(9, companyReview.getDislike());
 //            preparedStatement.setString(10, companyReview.getComment());
 
+            int reviewIdInt = 0;
+            if (companyReview.getReviewId() != null) {
+                try {
+                    reviewIdInt = Integer.parseInt(companyReview.getReviewId());
+                } catch (NumberFormatException nfe) {
+
+                }
+            }
+
+            String tableInserted = "organization_review_new";
             PreparedStatement preparedStatement = null;
-            if (companyReview.getReply()) {
+            if (reviewIdInt > 0) {
                 // Insert into organization_review_reply
                 preparedStatement = DBConnector.prepareStatement(sqlInsertReply);
                 preparedStatement.setInt(1, Integer.parseInt(companyReview.getAccountId()));
                 preparedStatement.setTimestamp(2, new java.sql.Timestamp(companyReview.getDate().longValue()));
-                preparedStatement.setInt(3, Integer.parseInt(companyReview.getAccountId()));
+                preparedStatement.setInt(3, reviewIdInt);
                 preparedStatement.setString(4, companyReview.getComment());
+
+                tableInserted = "organization_review_reply";
 
             } else {
                 // Insert into organization_review_new
@@ -395,12 +408,14 @@ public class CompanyReviewDao {
                 preparedStatement.setTimestamp(3, new java.sql.Timestamp(companyReview.getDate().longValue()));
                 preparedStatement.setString(4, companyReview.getComment());
                 preparedStatement.setInt(5, companyReview.getRating().intValue());
+
+                tableInserted = "organization_review_new";
             }
 
 
             int rCreate = preparedStatement.executeUpdate();
 
-            String queryId = "select max(id) max_id from organization_review_new";
+            String queryId = "select max(id) max_id from " + tableInserted;
             PreparedStatement preparedStatement1 = DBConnector.prepareStatement(queryId);
             ResultSet r=preparedStatement1.executeQuery();
             r.next();
