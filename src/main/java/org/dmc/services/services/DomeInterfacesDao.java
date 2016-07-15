@@ -207,17 +207,41 @@ public class DomeInterfacesDao {
 				String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();	
 				preparedStatement = DBConnector.prepareStatement(query);
 				preparedStatement.execute();
-	
-				
 				resultSet = preparedStatement.getResultSet();
 	
 				List<BigDecimal> newPath = new ArrayList<BigDecimal>();
 	
-				while(resultSet.next()) {
+				while (resultSet.next()) {
 					newPath.add(new BigDecimal(Integer.toString(resultSet.getInt("path"))));
 				}
 				
 				retObj.setPath(newPath);
+				
+				query = "SELECT * FROM service_interface_parameter WHERE interface_id=" + domeInterfaceId.toString();
+				preparedStatement = DBConnector.prepareStatement(query);
+				preparedStatement.execute();
+				resultSet = preparedStatement.getResultSet();
+				
+				List<DomeModelParam> newInParams = new ArrayList<DomeModelParam>();
+				List<DomeModelParam> newOutParams = new ArrayList<DomeModelParam>();
+				while (resultSet.next()) {
+					DomeModelParam tempInParam = new DomeModelParam();
+					tempInParam.setName(resultSet.getString("name"));
+					tempInParam.setType(resultSet.getString("type"));
+					tempInParam.setUnit(resultSet.getString("unit"));
+					tempInParam.setCategory(resultSet.getString("category"));
+					tempInParam.setValue(new BigDecimal(resultSet.getString("default_value")));
+					tempInParam.setParameterid(resultSet.getString("parameter_id_txt"));
+					tempInParam.setInstancename(resultSet.getString("instancename"));
+					
+					if (resultSet.getBoolean("input_parameter")) {
+						newInParams.add(tempInParam);
+					} else {
+						newOutParams.add(tempInParam);
+					}
+				}
+				retObj.setInParams(newInParams);
+				retObj.setOutParams(newOutParams);
 			}		
 			
 		} catch (SQLException se) {
