@@ -31,11 +31,8 @@ public class DomeInterfacesDao {
 		GetDomeInterface retObj = new GetDomeInterface();
 				
 		try {
-			// let's start a transaction
 			connection.setAutoCommit(false);
 
-			// requesting user must be administrator of the project to get the
-			// list of members.
 			String addDomeInterfaceQuery = "INSERT into service_interface (version, model_id, interface_id_str, type, name, service_id, server_id) values ( ?, ?, ?, ?, ?, ?, ? )";
 
 			PreparedStatement preparedStatementDomeInterfaceQuery = DBConnector.prepareStatement(addDomeInterfaceQuery, Statement.RETURN_GENERATED_KEYS);
@@ -72,8 +69,6 @@ public class DomeInterfacesDao {
 			String addDomeInterfacePathQuery = "INSERT into service_interface_path (interface_id, path) values ( ?, ?)";
 
 			while(pathListIter.hasNext()) {
-				//    interface_id integer NOT NULL,
-				//			path integer NOT NULL
 				Integer tempPathListInt = pathListIter.next();
 				
 				retPathList.add(new BigDecimal(tempPathListInt.toString()));
@@ -91,6 +86,66 @@ public class DomeInterfacesDao {
 			}
 			
 			retObj.setPath(retPathList);
+			
+			ListIterator<DomeModelParam> inParamsListIter = postUpdateDomeInterface.getInParams().listIterator();
+			String inParamsQuery = "INSERT into service_interface_parameter (interface_id, name, type, unit, category, default_value, parameter_id_txt, parameter_position, input_parameter, instancename) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			int i = 1;
+			
+			while(inParamsListIter.hasNext()) {
+				DomeModelParam tempInParam = inParamsListIter.next();
+				
+				PreparedStatement preparedStatement = DBConnector.prepareStatement(inParamsQuery);
+				preparedStatement.setInt(1, id);
+				preparedStatement.setString(2, tempInParam.getName());
+				preparedStatement.setString(3, tempInParam.getType());
+				preparedStatement.setString(4, tempInParam.getUnit());
+				preparedStatement.setString(5, tempInParam.getCategory());
+				preparedStatement.setString(6, tempInParam.getValue().toString());
+				preparedStatement.setString(7, tempInParam.getParameterid());
+				preparedStatement.setInt(8, i);
+				preparedStatement.setBoolean(9, true);
+				preparedStatement.setString(10, tempInParam.getInstancename());
+				
+				int rowsAffected = preparedStatement.executeUpdate();
+				if (rowsAffected != 1) {
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
+				}
+				
+				i++;
+			}
+			
+			retObj.setInParams(postUpdateDomeInterface.getInParams());
+			
+			ListIterator<DomeModelParam> outParamsListIter = postUpdateDomeInterface.getOutParams().listIterator();
+			String outParamsQuery = "INSERT into service_interface_parameter (interface_id, name, type, unit, category, default_value, parameter_id_txt, parameter_position, input_parameter, instancename) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			i = 1;
+			
+			while(outParamsListIter.hasNext()) {
+				DomeModelParam tempOutParam = outParamsListIter.next();
+				
+				PreparedStatement preparedStatement = DBConnector.prepareStatement(outParamsQuery);
+				preparedStatement.setInt(1, id);
+				preparedStatement.setString(2, tempOutParam.getName());
+				preparedStatement.setString(3, tempOutParam.getType());
+				preparedStatement.setString(4, tempOutParam.getUnit());
+				preparedStatement.setString(5, tempOutParam.getCategory());
+				preparedStatement.setString(6, tempOutParam.getValue().toString());
+				preparedStatement.setString(7, tempOutParam.getParameterid());
+				preparedStatement.setInt(8, i);
+				preparedStatement.setBoolean(9, false);
+				preparedStatement.setString(10, tempOutParam.getInstancename());
+				
+				int rowsAffected = preparedStatement.executeUpdate();
+				if (rowsAffected != 1) {
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
+				}
+				
+				i++;
+			}
+			
+			retObj.setOutParams(postUpdateDomeInterface.getOutParams());
 				
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
