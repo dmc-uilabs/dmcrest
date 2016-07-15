@@ -329,11 +329,8 @@ public class DomeInterfacesDao {
 		GetDomeInterface retObj = new GetDomeInterface();
 				
 		try {
-			// let's start a transaction
 			connection.setAutoCommit(false);
 			
-			// requesting user must be administrator of the project to get the
-			// list of members.
 			String updateQuery = "UPDATE service_interface SET version=?, model_id=?, interface_id_str=?, type=?, name=?, service_id=?, server_id=? WHERE interface_id = ?";
 	
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(updateQuery);
@@ -398,8 +395,80 @@ public class DomeInterfacesDao {
 				}
 
 			}
-
+			
 			retObj.setPath(retPathList);
+			
+			//Delete old parameters
+			String paramQuery = "DELETE FROM service_interface_parameter WHERE interface_id = ?";
+			PreparedStatement paramPreparedStatement = DBConnector.prepareStatement(paramQuery);
+			paramPreparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
+			int paramRowsAffected = paramPreparedStatement.executeUpdate();
+			
+			if (paramRowsAffected < 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
+			}
+
+			//Write (potentially) new parameters
+			ListIterator<DomeModelParam> inParamsListIter = postUpdateDomeInterface.getInParams().listIterator();
+			String inParamsQuery = "INSERT into service_interface_parameter (interface_id, name, type, unit, category, default_value, parameter_id_txt, parameter_position, input_parameter, instancename) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			int i = 1;
+			
+			while(inParamsListIter.hasNext()) {
+				DomeModelParam tempInParam = inParamsListIter.next();
+				
+				PreparedStatement preparedStatementInParams = DBConnector.prepareStatement(inParamsQuery);
+				preparedStatementInParams.setInt(1, domeInterfaceId.intValue());
+				preparedStatementInParams.setString(2, tempInParam.getName());
+				preparedStatementInParams.setString(3, tempInParam.getType());
+				preparedStatementInParams.setString(4, tempInParam.getUnit());
+				preparedStatementInParams.setString(5, tempInParam.getCategory());
+				preparedStatementInParams.setString(6, tempInParam.getValue().toString());
+				preparedStatementInParams.setString(7, tempInParam.getParameterid());
+				preparedStatementInParams.setInt(8, i);
+				preparedStatementInParams.setBoolean(9, true);
+				preparedStatementInParams.setString(10, tempInParam.getInstancename());
+				
+				int rowsAffected = preparedStatementInParams.executeUpdate();
+				if (rowsAffected != 1) {
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
+				}
+				
+				i++;
+			}
+			
+			retObj.setInParams(postUpdateDomeInterface.getInParams());
+			
+			ListIterator<DomeModelParam> outParamsListIter = postUpdateDomeInterface.getOutParams().listIterator();
+			String outParamsQuery = "INSERT into service_interface_parameter (interface_id, name, type, unit, category, default_value, parameter_id_txt, parameter_position, input_parameter, instancename) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			i = 1;
+			
+			while(outParamsListIter.hasNext()) {
+				DomeModelParam tempOutParam = outParamsListIter.next();
+				
+				PreparedStatement preparedStatementOutParams = DBConnector.prepareStatement(outParamsQuery);
+				preparedStatementOutParams.setInt(1, domeInterfaceId.intValue());
+				preparedStatementOutParams.setString(2, tempOutParam.getName());
+				preparedStatementOutParams.setString(3, tempOutParam.getType());
+				preparedStatementOutParams.setString(4, tempOutParam.getUnit());
+				preparedStatementOutParams.setString(5, tempOutParam.getCategory());
+				preparedStatementOutParams.setString(6, tempOutParam.getValue().toString());
+				preparedStatementOutParams.setString(7, tempOutParam.getParameterid());
+				preparedStatementOutParams.setInt(8, i);
+				preparedStatementOutParams.setBoolean(9, false);
+				preparedStatementOutParams.setString(10, tempOutParam.getInstancename());
+				
+				int rowsAffected = preparedStatementOutParams.executeUpdate();
+				if (rowsAffected != 1) {
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
+				}
+				
+				i++;
+			}
+			
+			retObj.setOutParams(postUpdateDomeInterface.getOutParams());
 
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
