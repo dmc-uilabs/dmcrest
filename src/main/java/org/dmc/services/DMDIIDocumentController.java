@@ -57,6 +57,11 @@ public class DMDIIDocumentController {
 		return dmdiiDocumentService.save(doc);
 	}
 
+	@RequestMapping(value = "/dmdiidocuments/getAllTags", method = RequestMethod.GET)
+	public List<DMDIIDocumentTagModel> getAllTags() {
+		return dmdiiDocumentService.getAllTags();
+	}
+
 	@RequestMapping(value = "/dmdiidocuments/saveDocumentTag", method = RequestMethod.POST, consumes = {"application/json"})
 	public DMDIIDocumentTagModel postDmdiiDocuemntTag (@RequestBody DMDIIDocumentTagModel tag) {
 		ServiceLogger.log(logTag, "Post DMDIIDocumentTag " + tag.getTagName());

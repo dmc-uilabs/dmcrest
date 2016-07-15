@@ -74,6 +74,11 @@ public class DMDIIDocumentService {
 		return docMapper.mapToModel(dmdiiDocumentRepository.save(docMapper.mapToEntity(doc)));
 	}
 
+	public List<DMDIIDocumentTagModel> getAllTags() {
+		Mapper<DMDIIDocumentTag, DMDIIDocumentTagModel> tagMapper = mapperFactory.mapperFor(DMDIIDocumentTag.class, DMDIIDocumentTagModel.class);
+		return tagMapper.mapToModel(dmdiiDocumentTagRepository.findAll());
+	}
+
 	public DMDIIDocumentTagModel saveDocumentTag(DMDIIDocumentTagModel tag) {
 		Mapper<DMDIIDocumentTag, DMDIIDocumentTagModel> tagMapper = mapperFactory.mapperFor(DMDIIDocumentTag.class, DMDIIDocumentTagModel.class);
 		return tagMapper.mapToModel(dmdiiDocumentTagRepository.save(tagMapper.mapToEntity(tag)));
