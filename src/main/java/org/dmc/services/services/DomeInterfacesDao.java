@@ -270,7 +270,6 @@ public class DomeInterfacesDao {
 		Connection connection = DBConnector.connection();
 		
 		try {
-			// let's start a transaction
 			connection.setAutoCommit(false);
 
 			String query = "DELETE FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
@@ -279,6 +278,16 @@ public class DomeInterfacesDao {
 			int pathRowsAffected = pathPreparedStatement.executeUpdate();
 			
 			if (pathRowsAffected < 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
+			}
+			
+			String paramQuery = "DELETE FROM service_interface_parameter WHERE interface_id = ?";
+			PreparedStatement paramPreparedStatement = DBConnector.prepareStatement(paramQuery);
+			paramPreparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
+			int paramRowsAffected = paramPreparedStatement.executeUpdate();
+			
+			if (paramRowsAffected < 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
 			}
@@ -418,7 +427,6 @@ public class DomeInterfacesDao {
 		List<GetDomeInterface> domeInterfaces = new ArrayList<GetDomeInterface>();
 		
 		try {
-			// let's start a transaction
 			connection.setAutoCommit(false);
 			
 			ArrayList<String> columnsInServiceInterfaceTable = new ArrayList<String>();
@@ -487,6 +495,33 @@ public class DomeInterfacesDao {
 				}
 				
 				retObj.setPath(newPath);
+				
+				query = "SELECT * FROM service_interface_parameter WHERE interface_id=" + retObj.getId();
+				PreparedStatement preparedStatementParams = DBConnector.prepareStatement(query);
+				preparedStatementParams.execute();
+				ResultSet resultSetParams = preparedStatementParams.getResultSet();
+				
+				List<DomeModelParam> newInParams = new ArrayList<DomeModelParam>();
+				List<DomeModelParam> newOutParams = new ArrayList<DomeModelParam>();
+				while (resultSetParams.next()) {
+					DomeModelParam tempInParam = new DomeModelParam();
+					tempInParam.setName(resultSetParams.getString("name"));
+					tempInParam.setType(resultSetParams.getString("type"));
+					tempInParam.setUnit(resultSetParams.getString("unit"));
+					tempInParam.setCategory(resultSetParams.getString("category"));
+					tempInParam.setValue(new BigDecimal(resultSetParams.getString("default_value")));
+					tempInParam.setParameterid(resultSetParams.getString("parameter_id_txt"));
+					tempInParam.setInstancename(resultSetParams.getString("instancename"));
+					
+					if (resultSetParams.getBoolean("input_parameter")) {
+						newInParams.add(tempInParam);
+					} else {
+						newOutParams.add(tempInParam);
+					}
+				}
+				retObj.setInParams(newInParams);
+				retObj.setOutParams(newOutParams);
+				
 				domeInterfaces.add(retObj);
 			}
 			
@@ -552,6 +587,33 @@ public class DomeInterfacesDao {
 				}
 				
 				retObj.setPath(newPath);
+				
+				query = "SELECT * FROM service_interface_parameter WHERE interface_id=" + retObj.getId();
+				PreparedStatement preparedStatementParams = DBConnector.prepareStatement(query);
+				preparedStatementParams.execute();
+				ResultSet resultSetParams = preparedStatementParams.getResultSet();
+				
+				List<DomeModelParam> newInParams = new ArrayList<DomeModelParam>();
+				List<DomeModelParam> newOutParams = new ArrayList<DomeModelParam>();
+				while (resultSetParams.next()) {
+					DomeModelParam tempInParam = new DomeModelParam();
+					tempInParam.setName(resultSetParams.getString("name"));
+					tempInParam.setType(resultSetParams.getString("type"));
+					tempInParam.setUnit(resultSetParams.getString("unit"));
+					tempInParam.setCategory(resultSetParams.getString("category"));
+					tempInParam.setValue(new BigDecimal(resultSetParams.getString("default_value")));
+					tempInParam.setParameterid(resultSetParams.getString("parameter_id_txt"));
+					tempInParam.setInstancename(resultSetParams.getString("instancename"));
+					
+					if (resultSetParams.getBoolean("input_parameter")) {
+						newInParams.add(tempInParam);
+					} else {
+						newOutParams.add(tempInParam);
+					}
+				}
+				retObj.setInParams(newInParams);
+				retObj.setOutParams(newOutParams);
+				
 				domeInterfaces.add(retObj);
 			}
 			
