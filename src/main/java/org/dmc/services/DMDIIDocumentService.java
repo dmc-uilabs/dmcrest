@@ -72,6 +72,15 @@ public class DMDIIDocumentService {
 		return docList.get(0);
 	}
 	
+	public DMDIIDocumentModel findMostRecentStaticFileByFileTypeId (Integer fileTypeId) throws DMCServiceException {
+		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
+		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeOrderByModifiedDesc(fileTypeId));
+		
+		docList = refreshDocuments(docList);
+		return mapper.mapToModel(docList.get(0));
+		
+	}
+	
 	public DMDIIDocumentModel save(DMDIIDocumentModel doc) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);

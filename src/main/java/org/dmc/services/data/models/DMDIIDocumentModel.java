@@ -19,6 +19,8 @@ public class DMDIIDocumentModel extends BaseModel {
 	private Date expires;
 	
 	private Boolean isDeleted;
+	
+	private Integer fileType;
 
 	public String getDocumentName() {
 		return documentName;
@@ -82,5 +84,13 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	public void setIsDeleted(Boolean isDeleted) {
 		this.isDeleted = isDeleted;
+	}
+
+	public Integer getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(Integer fileType) {
+		this.fileType = fileType;
 	}
 }
