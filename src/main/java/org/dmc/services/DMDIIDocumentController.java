@@ -67,4 +67,10 @@ public class DMDIIDocumentController {
 		ServiceLogger.log(logTag, "Post DMDIIDocumentTag " + tag.getTagName());
 		return dmdiiDocumentService.saveDocumentTag(tag);
 	}
+	
+	@RequestMapping(value = "/staticdocument/{fileTypeId}", method = RequestMethod.GET)
+	public DMDIIDocumentModel getMostRecentStaticDocumentByFileTypeId (@PathVariable("fileTypeId") Integer fileTypeId) throws DMCServiceException {
+		ServiceLogger.log(logTag, "In getMostRecentStaticDocumentByFileTypeId: " + fileTypeId);
+		return dmdiiDocumentService.findMostRecentStaticFileByFileTypeId(fileTypeId);
+	}
 }
