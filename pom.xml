@@ -17,7 +17,8 @@
 
 	<!-- PROPERTIES -->
 	<properties>
-		<!-- The main class to start application execution, necessary if using spring-boot-starter-parent pom -->
+		<!-- The main class to start application execution, necessary if using 
+			spring-boot-starter-parent pom -->
 		<start-class>org.dmc.services.Application</start-class>
 		<java.version>1.8</java.version>
 	</properties>
@@ -133,10 +134,10 @@
 	<dependencies>
 
 		<!--FOR all AWS function calls -->
-	 	<dependency>
-    		<groupId>com.amazonaws</groupId>
-   			<artifactId>aws-java-sdk</artifactId>
-   			<version>1.11.0</version>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk</artifactId>
+			<version>1.11.0</version>
 		</dependency>
 
 
@@ -163,7 +164,7 @@
 			<version>18.0</version>
 		</dependency>
 
-		<!-- prevents the tomcat servlet container from being included in the packaged
+		<!-- prevents the tomcat servlet container from being included in the packaged 
 			WAR. This way the local tomcat (not embedded) will be used instead -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -201,14 +202,14 @@
 			<version>5.4.1</version>
 			<type>jar</type>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-apt</artifactId>
 			<version>3.7.3</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-jpa</artifactId>
@@ -258,22 +259,22 @@
 			<version>2.1.0</version>
 		</dependency>
 
-		<!--  Dependency for ActiveMQ -->
+		<!-- Dependency for ActiveMQ -->
 		<dependency>
-      		<groupId>org.apache.geronimo.specs</groupId>
-      		<artifactId>geronimo-jms_1.1_spec</artifactId>
-      		<version>1.1</version>
-    	</dependency>
-    	<dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-client</artifactId>
-            <version>5.9.0</version>
-        </dependency>
-    	<dependency>
-    		<groupId>commons-beanutils</groupId>
-    		<artifactId>commons-beanutils</artifactId>
-    		<version>1.9.1</version>
-    	</dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jms_1.1_spec</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-client</artifactId>
+			<version>5.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.1</version>
+		</dependency>
 	</dependencies>
 
 
@@ -310,20 +311,25 @@
 							<skipTests>${integration-tests.skip}</skipTests>
 							<includes>
 								<!-- By default failsafe-plugin includes tests with IT suffix -->
-								<!--
-
-								<include>**/*IT.class</include>
-								-->
+								<!-- <include>**/*IT.class</include> -->
 							</includes>
 							<!-- Exclude search tests by default -->
-							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT verify -P  "integration" -->
+							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT 
+								verify -P "integration" -->
 
-							<!--  Ignore above command for our specific build. To run all tests: mvn integration-test -P integration
-							To run a specific test: mvn-Dtest=ProjectIT test -->
+							<!-- Ignore above command for our specific build. To run all tests: 
+								mvn integration-test -P integration To run a specific test: mvn-Dtest=ProjectIT 
+								test -->
 							<excludes>
+								<!-- search tests -->
 								<exclude>**/SearchIT.java</exclude>
+								<!-- DOME server tests -->
 								<exclude>**/ServiceRunIT.java</exclude>
 								<exclude>**/DomeIT.java</exclude>
+								<exclude>**/AccountServerIT.java</exclude>
+								<!-- AWS tests -->
+								<exclude>**/ProfileIT.java</exclude>
+								<exclude>**/AwsProjectIT.java</exclude>
 							</excludes>
 						</configuration>
 					</execution>
@@ -363,9 +369,9 @@
 		</repository>
 		<!-- Repository for ActiveMQ -->
 		<repository>
-      		<id>Fusesource Snapshots</id>
-      		<url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
-    	</repository>
+			<id>Fusesource Snapshots</id>
+			<url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
+		</repository>
 	</repositories>
 
 	<!-- PLUGIN REPOSITORIES -->
