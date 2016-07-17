@@ -427,4 +427,5 @@ public class CompanyReviewDao {
 
         return new Id.IdBuilder(id).build();
     }
- }
+
+}
