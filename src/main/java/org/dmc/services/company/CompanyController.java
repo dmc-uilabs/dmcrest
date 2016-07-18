@@ -205,10 +205,10 @@ public class CompanyController {
         try {
             updatedId = videoDao.updateCompanyVideo(id, video, userEPPN);
         } catch (DMCServiceException e) {
-            ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
-        }
-        
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		} 
+
         return new ResponseEntity<Id>(updatedId, HttpStatus.valueOf(httpStatusCode));        
     }
 
@@ -365,7 +365,7 @@ public class CompanyController {
                 return new ResponseEntity<String>("Invalid companyId: " + companyID, HttpStatus.BAD_REQUEST);
             } catch (DMCServiceException e) {
                 ServiceLogger.logException(logTag, e);
-                return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+                return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
             }
       }
 
@@ -381,7 +381,7 @@ public class CompanyController {
              return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
          } catch (DMCServiceException e) {
              ServiceLogger.logException(logTag, e);
-             return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
          }
 
      }

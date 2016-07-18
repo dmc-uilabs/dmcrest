@@ -69,7 +69,7 @@ public class MarketController {
             return new ResponseEntity<ArrayList<Service>>(serviceDao.getServices(limit, order, start, sort, null, null, null, null, null, null, fromLocations, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
 
@@ -108,7 +108,7 @@ public class MarketController {
             return new ResponseEntity<ArrayList<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
-            return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
 }

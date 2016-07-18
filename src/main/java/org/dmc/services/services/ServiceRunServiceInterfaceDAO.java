@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
@@ -44,6 +45,31 @@ public class ServiceRunServiceInterfaceDAO {
 				"\"modelDescription\":\"\",\"server\":{\"name\":\"52.33.38.232\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed" +
 				"\",\"space\":\"USER\"}}";
 		return result;
+	}
+	
+	public static int getServiceId(String interfaceIdStr) throws DMCServiceException
+	{
+	    int result = -9;
+	    String query = "select service_id from service_interface where interface_id_str=?";
+	    try {
+	    PreparedStatement preparedStatement = DBConnector
+				.prepareStatement(query);
+		preparedStatement.setString(1,interfaceIdStr);
+		ResultSet rs = preparedStatement.executeQuery();		
+		if (!rs.next())
+			{
+				throw (new DMCServiceException(DMCError.ServiceIDNotExist, "For method id:" + interfaceIdStr +", serviceId not exist"));
+			}
+		else
+			{
+				result = rs.getInt("service_id");
+				return result;
+			}
+		}
+		catch (SQLException e)
+		{
+			throw (new DMCServiceException(DMCError.ServiceIDNotExist, e.toString()));
+		}
 	}
 	
 	public String printNameInt(String name, int value)
@@ -98,6 +124,57 @@ public class ServiceRunServiceInterfaceDAO {
 		for (int i=0;i<this.inpars.size();i++)
 		{
 			inParValue=inParValue+inpars.get(i).toDomeString();
+			if (i!=this.inpars.size()-1)
+				inParValue = inParValue + ",";
+		}
+		String inParString2 = printNameJSON("inParams",inParValue);
+		result = result + inParString2 + ",";
+		
+		String outParValue = "";
+		for (int i=0;i<this.outpars.size();i++)
+		{
+			outParValue=outParValue+outpars.get(i).toDomeString();
+			if (i!=this.outpars.size()-1)
+				outParValue = outParValue + ",";
+		}
+		String outParString3 = printNameJSON("outParams",outParValue);
+		result = result + outParString3 + ",";
+				
+		String modelNameString4 = printNameString("modelName", this.name);
+		result = result + modelNameString4 + ",";
+		
+		String modelDescription5 = printNameString("modelDescription","");
+		result = result + modelDescription5 + ",";
+		
+		String server6 = this.domeServer.toDOMEString();
+		result = result + server6 + "}";
+		System.out.println("result = "+result);
+		
+		return result;
+		
+	}
+	
+	// The DOME API invocation need a particular order
+	public String toDOMEStringInPars(Map inPars)
+	{
+		String result="{";
+		String interfaceValue = printNameInt("version", this.version) + ","
+				+ printNameString("modelId", this.modelID) + ","
+				+ printNameString("interfaceId", this.interfaceIdStr) +"," 
+				+ printNameString("type", this.type) + ","
+				+ printNameString("name", this.name) + ","
+				+ this.iPath.toDOMEString();
+		String interfaceString1 = printNameJSON("interFace", interfaceValue);
+		//System.out.println("interfaceString1 = " + interfaceString1);
+		result = result + interfaceString1 + ",";
+		
+		String inParValue = "";
+		for (int i=0;i<this.inpars.size();i++)
+		{
+			String name = inpars.get(i).name;
+			DomeModelParam valueObj = (DomeModelParam)inPars.get(name);
+			String value = (String)valueObj.getValue();
+			inParValue=inParValue+inpars.get(i).toDomeStringWithValue(value);
 			if (i!=this.inpars.size()-1)
 				inParValue = inParValue + ",";
 		}
@@ -193,6 +270,38 @@ public class ServiceRunServiceInterfaceDAO {
 				throw new DMCServiceException(DMCError.OtherSQLError,"service_id " + sId +" does not exist.");
 			}
 			this.serviceId = sId;
+			this.version=rs.getInt("version");
+			this.modelID=rs.getString("model_id");
+			this.interfaceIdStr=rs.getString("interface_id_str");
+			this.type=rs.getString("type");
+			this.name=rs.getString("name");
+			this.serverId=rs.getInt("server_id");
+			this.interfaceId = rs.getInt("interface_id");
+			this.getParameters();
+			this.domeServer = new DOMEServerDAO(serverId);
+			this.iPath = new InterfacePath(interfaceId);
+		}
+		catch (SQLException e)
+		{
+			throw new DMCServiceException(DMCError.OtherSQLError,"SQLException: " + e.toString());
+		}
+	}
+	
+	public ServiceRunServiceInterfaceDAO(String interfaceIdString) throws DMCServiceException
+	{
+		
+		ResultSet rs = null;
+		try{
+			String query = "select * from service_interface where interface_id_str = ?";
+			PreparedStatement preparedStatement = DBConnector
+				.prepareStatement(query);
+			preparedStatement.setString(1,interfaceIdString);
+			rs = preparedStatement.executeQuery();
+			if (!rs.next())
+			{
+				throw new DMCServiceException(DMCError.OtherSQLError,"interface_id_str " + interfaceIdString +" does not exist.");
+			}
+			this.serviceId = rs.getInt("service_id");
 			this.version=rs.getInt("version");
 			this.modelID=rs.getString("model_id");
 			this.interfaceIdStr=rs.getString("interface_id_str");
@@ -345,6 +454,17 @@ public class ServiceRunServiceInterfaceDAO {
 					printNameString("unit", this.unit) + "," +
 					printNameString("category", this.category) + "," +
 					printNameValue("value", this.defaultValue) + "," +
+					printNameString("parameterid", this.parameter_id_txt);
+			return printNameJSON(this.name,value); 
+		}
+		public String toDomeStringWithValue(String v)
+		{
+			String value=printNameString("name", this.name) + "," +
+					printNameString("type", this.type) + "," +
+					printNameString("unit", this.unit) + "," +
+					printNameString("category", this.category) + "," +
+					//printNameValue("value", this.defaultValue) + "," +
+					printNameValue("value", v) + "," +
 					printNameString("parameterid", this.parameter_id_txt);
 			return printNameJSON(this.name,value); 
 		}
