@@ -18,6 +18,8 @@ public class ComponentIT extends BaseIT {
 
 	@Test
 	public void testComponent1() {
+		given().
+		header("AJP_eppn", knownUserEPPN).
 	  expect().
 	    statusCode(200).
 	    when().
@@ -27,6 +29,8 @@ public class ComponentIT extends BaseIT {
 	
 	@Test
 	public void testComponentList(){
+		given().
+		header("AJP_eppn", knownUserEPPN).
 		expect().statusCode(200).when().get("/components").then().
         body(matchesJsonSchemaInClasspath("Schemas/componentListSchema.json"));
 	}
@@ -39,6 +43,8 @@ public class ComponentIT extends BaseIT {
 	
 	@Test
 	public void testProjectComponents(){
+		given().
+		header("AJP_eppn", knownUserEPPN).
 		expect().statusCode(200).when().get("/projects/6/components").then().
 		body(matchesJsonSchemaInClasspath("Schemas/componentListSchema.json"));
 	}
