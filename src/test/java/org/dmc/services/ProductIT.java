@@ -1,13 +1,10 @@
 package org.dmc.services;
 
-import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.RestAssured.given;
 
-import org.dmc.services.products.ProductReview;
+import org.dmc.services.utility.TestUserUtil;
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 
@@ -17,6 +14,14 @@ public class ProductIT extends BaseIT {
 	private String reviewId = "1";
 	private String helpfulId = "1";
 	private Integer favoriteProductId = 1;
+	private String knownEPPN;
+	
+	@Before
+	public void before() {
+		if (knownEPPN == null) {
+			knownEPPN = TestUserUtil.createNewUser();
+		}
+	}
 
 	/*
 	 * test case for GET /product/{service_Id}/product_reviews
@@ -25,7 +30,7 @@ public class ProductIT extends BaseIT {
 	public void testProductGet_ProductServiceReviews() {
 		given().
 		param("reviewId", reviewId).
-		header("AJP_eppn", "user_EPPN").
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(400). // need figure out where the malformed syntax
 		when().
@@ -39,7 +44,7 @@ public class ProductIT extends BaseIT {
 	@Test
 	public void testProductDelete_FavoriteProductbyId() {
 		given().
-		header("AJP_eppn", "user_EPPN").
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(400). // need figure out where the malformed syntax
 		when().
