@@ -1,5 +1,14 @@
 package org.dmc.services;
 
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertTrue;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionController;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
@@ -8,24 +17,15 @@ import org.dmc.services.discussions.IndividualDiscussionComment;
 import org.dmc.services.discussions.IndividualDiscussionCommentFlagged;
 import org.dmc.services.discussions.IndividualDiscussionCommentHelpful;
 import org.dmc.services.discussions.IndividualDiscussionTag;
+import org.dmc.services.utility.TestUserUtil;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static com.jayway.restassured.RestAssured.*;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import org.json.JSONObject;
-
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.assertTrue;
 
 //@Ignore
 public class DiscussionIT extends BaseIT {
@@ -36,16 +36,19 @@ public class DiscussionIT extends BaseIT {
 	private static final String DISCUSSION_CREATE_RESOURCE = "/discussions/create";
 	private String followId = "1";
 	private String individualDiscussionID = "1";
-	private String commentId = "1";
+	private String knownCommentId = "1";
 	private String helpfulId = "1";
 	private String disscusionTagId = "1";
 	private String accountId = "1";
 	
 	private Integer createdId = null;
-	String randomEPPN = UUID.randomUUID().toString();
+	private String knownEPPN;
 	
 	@Before
 	public void testDiscussionCreate() {
+		if (knownEPPN == null) {
+			knownEPPN = TestUserUtil.createNewUser();
+		}
 		this.createdId = createDiscussion(null);
 	}
 	
@@ -55,22 +58,22 @@ public class DiscussionIT extends BaseIT {
 			ArrayList<Discussion> originalDiscussionList =
 		        given().
 		            header("Content-type", "application/json").
-		            header("AJP_eppn", randomEPPN).
+		            header("AJP_eppn", knownEPPN).
 		        expect().
 		            statusCode(200).
 		        when().
 		            get(ALL_DISCUSSIONS_RESOURCE).as(ArrayList.class);
 			
 		        // add a discussion
-		        String savedRandomEPPN = randomEPPN;
-		        randomEPPN = UUID.randomUUID().toString();
+		        String savedRandomEPPN = knownEPPN;
+		        knownEPPN = TestUserUtil.createNewUser();
 		        testDiscussionCreate();
-		        randomEPPN = savedRandomEPPN;
+		        knownEPPN = savedRandomEPPN;
 		        
 		        ArrayList<Discussion> newDiscussionList =
 		        given().
 		            header("Content-type", "application/json").
-		            header("AJP_eppn", randomEPPN).
+		            header("AJP_eppn", knownEPPN).
 		        expect().
 		            statusCode(200).
 		        when().
@@ -83,9 +86,10 @@ public class DiscussionIT extends BaseIT {
 	public int createDiscussion(Integer projectId) {
 		
 		JSONObject json = createFixture(projectId);
+		
 		this.createdId = given()
 				.header("Content-type", "application/json")
-				.header("AJP_eppn", randomEPPN)
+				.header("AJP_eppn", knownEPPN)
 				.body(json.toString())
 				.expect()
 				.statusCode(200)
@@ -120,7 +124,7 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testGet_PopularDiscussions(){
 		given().
-		header("AJP_eppn", userEPPN).
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().get("/popular_discussions");
@@ -132,7 +136,7 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testGet_FollowPeopleDiscussions(){
 		given().
-		header("AJP_eppn", userEPPN).
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().get("/follow_people_discussions");
@@ -145,7 +149,7 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testGet_FollowingDiscussions(){
 		given().
-		header("AJP_eppn", userEPPN).
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().get("/following_discussions");
@@ -169,7 +173,7 @@ public class DiscussionIT extends BaseIT {
 		
 		given().
         header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
+        header("AJP_eppn", knownEPPN).
         body(patchedFollowDiscussionsJSONString).
 	expect().
         statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
@@ -184,7 +188,7 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testDelete_FollowDiscussions(){
 		given().
-		header("AJP_eppn", userEPPN).
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().delete("/follow_discussions/" + followId);
@@ -195,7 +199,7 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionFromProjectId() {
-		List<IndividualDiscussion> received = Arrays.asList(given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
+		List<IndividualDiscussion> received = Arrays.asList(given().header("AJP_eppn", knownEPPN).expect().statusCode(HttpStatus.OK.value()).when()
 				.get("/projects/" + 2 + "/individual-discussion").as(IndividualDiscussion[].class));
 
 		assertTrue("testGet_IndividualDiscussionFromProjectId: id values are not equal", (received.get(0).getId().equals("3")));
@@ -212,7 +216,7 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testGet_IndividualDiscussion() {
 		List<IndividualDiscussion> received = Arrays
-				.asList(given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion").as(IndividualDiscussion[].class));
+				.asList(given().header("AJP_eppn", knownEPPN).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion").as(IndividualDiscussion[].class));
 
 		assertTrue("testGet_IndividualDiscussion: title values are not equal", (received.get(0).getTitle().equals("For Community")));
 		assertTrue("testGet_IndividualDiscussion: createdBy values are not equal", (received.get(0).getCreatedBy().equals("John")));
@@ -250,7 +254,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
+		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedIndividualDiscussion).expect()
 				.statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
 
 		assertTrue("testPost_IndividualDiscussionWithProjectId: title values are not equal", (posted.getTitle().equals(title)));
@@ -285,7 +289,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect()
+		IndividualDiscussion posted = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedIndividualDiscussion).expect()
 				.statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion").as(IndividualDiscussion.class);
 
 		assertTrue("testPost_IndividualDiscussionWithoutProjectId: title values are not equal", (posted.getTitle().equals(title)));
@@ -319,7 +323,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedIndividualDiscussion).expect().statusCode(HttpStatus.UNAUTHORIZED.value()).when()
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedIndividualDiscussion).expect().statusCode(HttpStatus.UNAUTHORIZED.value()).when()
 				.post("/individual-discussion");
 
 	}
@@ -328,8 +332,9 @@ public class DiscussionIT extends BaseIT {
 	 * test case for GET /individual-discussion/{individualDiscussionID}
 	 */
 	@Test
+	@Ignore("Test requires db data which isn't set up, gives param that isn't used in controller. Needs to be cleaned up")
 	public void testGet_IndividualDiscussionFromId() {
-		IndividualDiscussion read = given().param("commentId", commentId).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
+		IndividualDiscussion read = given().param("commentId", knownCommentId).header("AJP_eppn", knownEPPN).expect().statusCode(HttpStatus.OK.value()).when()
 				.get("/individual-discussion/" + 3).as(IndividualDiscussion.class);
 
 		assertTrue("testGet_IndividualDiscussionFromId: title values are not equal", (read.getTitle().equals("For Project")));
@@ -345,7 +350,7 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionCommentsFromIndividualDiscussionId() {
-		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("commentId", "1").param("_limit", 2).expect()
+		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", knownEPPN).param("commentId", "1").param("_limit", 2).expect()
 				.statusCode(HttpStatus.OK.value()).when().get("/individual-discussion/" + 1 + "/individual-discussion-comments").as(IndividualDiscussionComment[].class));
 
 		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: limit parameter did not work", (listOfComments.size() == 2));
@@ -368,7 +373,7 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testGet_IndividualDiscussionTag(){
 		given().
-		header("AJP_eppn", userEPPN).
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().get("/individual-discussion/" + individualDiscussionID + "/individual-discussion-tags");
@@ -380,7 +385,7 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionCommentsFromId() {
-		IndividualDiscussionComment readObj = given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments/" + 1)
+		IndividualDiscussionComment readObj = given().header("AJP_eppn", knownEPPN).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments/" + 1)
 				.as(IndividualDiscussionComment.class);
 
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: id values are not equal", (readObj.getId().equals("1")));
@@ -396,7 +401,7 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionCommentsWithIndividualDiscussionId() {
-		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("_limit", 2).param("_order", "ASC").param("commentId", 0)
+		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", knownEPPN).param("_limit", 2).param("_order", "ASC").param("commentId", 0)
 				.param("individual-discussionId", 1).param("individual-discussionId", 3).expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments")
 				.as(IndividualDiscussionComment[].class));
 
@@ -419,7 +424,7 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionCommentsWithoutIndividualDiscussionId() {
-		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", userEPPN).param("_limit", 2).param("_order", "ASC").param("commentId", 1)
+		List<IndividualDiscussionComment> listOfComments = Arrays.asList(given().header("AJP_eppn", knownEPPN).param("_limit", 2).param("_order", "ASC").param("commentId", 1)
 				.expect().statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments").as(IndividualDiscussionComment[].class));
 
 		for (int i = 0; i < listOfComments.size(); i++) {
@@ -473,7 +478,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		IndividualDiscussionComment postedCommentObj = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedCommentStr).expect()
+		IndividualDiscussionComment postedCommentObj = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedCommentStr).expect()
 				.statusCode(HttpStatus.OK.value()).when().post("/individual-discussion-comments").as(IndividualDiscussionComment.class);
 
 		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: individualDiscussionId values are not equal",
@@ -526,7 +531,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(postedCommentStr).expect().statusCode(HttpStatus.UNAUTHORIZED.value()).when()
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedCommentStr).expect().statusCode(HttpStatus.UNAUTHORIZED.value()).when()
 				.post("/individual-discussion-comments");
 
 	}
@@ -570,7 +575,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		IndividualDiscussionComment received = given().header("Content-type", "application/json").header("AJP-eppn", userEPPN).body(patchedIndividualDiscussionCommentJSONString)
+		IndividualDiscussionComment received = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(patchedIndividualDiscussionCommentJSONString)
 				.expect().statusCode(HttpStatus.OK.value()).when().patch("/individual-discussion-comments/" + 5).as(IndividualDiscussionComment.class);
 
 		assertTrue("testPatch_IndividualDiscussionComments: id values are not equal", (received.getId().equals("5")));
@@ -599,7 +604,7 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionCommentHelpful received = given().
 		param("accountId", accountId).
 		param("commentId", commentId).
-		header("AJP_eppn", userEPPN).
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(HttpStatus.OK.value()).
 		when().get("/individual-discussion-comments-helpful").as(IndividualDiscussionCommentHelpful.class);
@@ -633,7 +638,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		IndividualDiscussionCommentHelpful postedHelpful = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
+		IndividualDiscussionCommentHelpful postedHelpful = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
 				.body(postedIndividualDiscussionCommentHelpfulJSONString).expect().statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion-comments-helpful")
 				.as(IndividualDiscussionCommentHelpful.class);
 
@@ -665,7 +670,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentHelpfulJSONString).expect()
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedIndividualDiscussionCommentHelpfulJSONString).expect()
 				.statusCode(HttpStatus.UNAUTHORIZED.value()).when().post("/individual-discussion-comments-helpful");
 
 	}
@@ -692,7 +697,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentHelpfulJSONString).expect()
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedIndividualDiscussionCommentHelpfulJSONString).expect()
 				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post("/individual-discussion-comments-helpful");
 
 	}
@@ -718,8 +723,8 @@ public class DiscussionIT extends BaseIT {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-
-		IndividualDiscussionCommentHelpful helpful = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
+		
+		IndividualDiscussionCommentHelpful helpful = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
 				.body(patchedIndividualDiscussionCommentHelpfulJSONString).expect().statusCode(HttpStatus.OK.value()).when().patch("/individual-discussion-comments-helpful/" + 2)
 				.as(IndividualDiscussionCommentHelpful.class);
 
@@ -752,7 +757,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(patchedIndividualDiscussionCommentHelpfulJSONString).expect()
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(patchedIndividualDiscussionCommentHelpfulJSONString).expect()
 				.statusCode(HttpStatus.UNAUTHORIZED.value()).when().patch("/individual-discussion-comments-helpful/" + 2);
 	}
 
@@ -778,7 +783,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(patchedIndividualDiscussionCommentHelpfulJSONString).expect()
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(patchedIndividualDiscussionCommentHelpfulJSONString).expect()
 				.statusCode(HttpStatus.BAD_REQUEST.value()).when().patch("/individual-discussion-comments-helpful/" + 2);
 	}
 	
@@ -790,8 +795,8 @@ public class DiscussionIT extends BaseIT {
 	public void testGet_IndividualDiscussionCommentflagged(){
 		given().
 		param("accountId", accountId).
-		param("commentId", commentId).
-		header("AJP_eppn", userEPPN).
+		param("commentId", knownCommentId).
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().get("/individual-discussion-comments-flagged");
@@ -816,7 +821,7 @@ public class DiscussionIT extends BaseIT {
 		
 		given().
 		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
+		header("AJP_eppn", knownEPPN).
 		body(postedIndividualDiscussionCommentFlaggedJSONString).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
@@ -843,7 +848,7 @@ public class DiscussionIT extends BaseIT {
 		
 		given().
 		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
+		header("AJP_eppn", knownEPPN).
 		body(postedIndividualDiscussionTagJSONString).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
@@ -857,7 +862,7 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testDelete_IndividualDiscussionTag(){
 		given().
-		header("AJP_eppn", userEPPN).
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().delete("/individual-discussion-tags/" + disscusionTagId);
