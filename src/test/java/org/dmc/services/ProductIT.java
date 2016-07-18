@@ -1,8 +1,9 @@
 package org.dmc.services;
 
-import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.RestAssured.given;
 
-import org.dmc.services.products.ProductReview;
+import org.dmc.services.utility.TestUserUtil;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -28,7 +29,6 @@ public class ProductIT extends BaseIT {
 		given().
 		param("reviewId", reviewId).
 		header("AJP_eppn", "user_EPPN").
-		header("Content-type", APPLICATION_JSON_VALUE).
 		expect().
 		statusCode(HttpStatus.OK.value()). // need figure out where the malformed syntax
 		when().
@@ -225,7 +225,7 @@ public class ProductIT extends BaseIT {
 	@Test
 	public void testProductDelete_FavoriteProductbyId() {
 		given().
-		header("AJP_eppn", "user_EPPN").
+		header("AJP_eppn", knownEPPN).
 		expect().
 		statusCode(400). // need figure out where the malformed syntax
 		when().
