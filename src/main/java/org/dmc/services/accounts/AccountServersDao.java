@@ -113,8 +113,10 @@ class AccountServersDao {
 			// update user's record in users table
 			// ToDo store status
 			
-			if (!userAccountServer.getIp().contains("DOMEApiServicesV7"))
+			if (!userAccountServer.getIp().contains("DOMEApiServicesV7")){
+				ServiceLogger.log(logTag, "NOTE: no DOME version specified, appending default version");
 				userAccountServer.setIp(userAccountServer.getIp() + "/DOMEApiServicesV7/");
+			}
 			//here we add the version of DOME running. In the future, this should come from the frontend/user
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery, 
