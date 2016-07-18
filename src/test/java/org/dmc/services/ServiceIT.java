@@ -249,7 +249,7 @@ public class ServiceIT extends BaseIT {
 			domeInterface.setVersion(20);
 			domeInterface.setModelId((new Integer(i + 100)).toString());
 			domeInterface.setInterfaceId("John Wayne");
-			domeInterface.setDomeServer("1");
+			domeInterface.setDomeServer("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/");
 			domeInterface.setName("FOR /services/#/dome-interfaces TEST");
 			List<Integer> path = new ArrayList<Integer>();
 			path.add(new Integer(1 + i));
@@ -289,7 +289,7 @@ public class ServiceIT extends BaseIT {
 				.statusCode(HttpStatus.OK.value()).when().get("/services/" + 2 + "/dome-interfaces").as(GetDomeInterface[].class));
 
 		for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
-			assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Dome server values are not equal",
+			assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Service id values are not equal",
 					(receivedDomeInterfaces.get(i).getServiceId().equals(new BigDecimal(2))));
 		}
 
@@ -307,7 +307,7 @@ public class ServiceIT extends BaseIT {
 			domeInterface.setVersion(20);
 			domeInterface.setModelId((new Integer(i + 100)).toString());
 			domeInterface.setInterfaceId("John Wayne");
-			domeInterface.setDomeServer("1");
+			domeInterface.setDomeServer("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/");
 			domeInterface.setName("FOR /services/#/dome-interfaces TEST");
 			List<Integer> path = new ArrayList<Integer>();
 			path.add(new Integer(1 + i));
@@ -360,7 +360,7 @@ public class ServiceIT extends BaseIT {
 			path.add(new Integer(4 + 4 - i));
 			path.add(new Integer(5 + 4 - i));
 
-			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal", (tempDome.getDomeServer().equals("1")));
+			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal", (tempDome.getDomeServer().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Version values are not equal", (tempDome.getVersion().equals(new BigDecimal(20))));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Model ID values are not equal",
 					(tempDome.getModelId().equals((new Integer(4 - i + 100)).toString())));
@@ -368,7 +368,7 @@ public class ServiceIT extends BaseIT {
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Type values are not equal", (tempDome.getType().equals("type")));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Name values are not equal", (tempDome.getName().equals("FOR /services/#/dome-interfaces TEST")));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Path values are not equal", (tempDome.getPath().equals(convertIntegerListtoBigDecimalList(path))));
-			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal",
+			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Service id values are not equal",
 					(tempDome.getServiceId().equals(new BigDecimal(testDomeServerNum))));
 
 		}
@@ -392,7 +392,7 @@ public class ServiceIT extends BaseIT {
 		domeInterface.setVersion(20);
 		domeInterface.setModelId("1996");
 		domeInterface.setInterfaceId("John Wayne");
-		domeInterface.setDomeServer("1");
+		domeInterface.setDomeServer("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/");
 		domeInterface.setName("Brian");
 		List<Integer> path = new ArrayList<Integer>();
 		path.add(new Integer(1));
@@ -518,7 +518,7 @@ public class ServiceIT extends BaseIT {
 		patchDomeInterface.setVersion(22);
 		patchDomeInterface.setModelId("2016");
 		patchDomeInterface.setInterfaceId("Marshall Mathers");
-		patchDomeInterface.setDomeServer("1");
+		patchDomeInterface.setDomeServer("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/");
 		patchDomeInterface.setName("Batman");
 		List<Integer> path = new ArrayList<Integer>();
 		path.add(new Integer(11));
@@ -595,7 +595,6 @@ public class ServiceIT extends BaseIT {
 		try {
 			postDomeInterfaceJSONString = mapper.writeValueAsString(postDomeInterface);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

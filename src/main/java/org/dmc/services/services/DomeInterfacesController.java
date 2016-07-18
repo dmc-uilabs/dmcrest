@@ -36,8 +36,6 @@ public class DomeInterfacesController {
 		try {
 			return new ResponseEntity<GetDomeInterface>(domeInterfacesDao.createDomeInterface(postUpdateDomeInterface, userEPPN), HttpStatus.OK);
 		} catch (DMCServiceException e) {
-			
-
 			if (e.getMessage().startsWith("ERROR: insert or update on table \"service_interface\" violates foreign key constraint")) {
 				return new ResponseEntity<String>(HttpStatus.METHOD_NOT_ALLOWED);
 			} else {
