@@ -1,7 +1,5 @@
 package org.dmc.services.data.models;
 
-import java.sql.Date;
-
 public class DMDIIProjectEventModel extends BaseModel {
 
 	private Integer id;
@@ -10,7 +8,7 @@ public class DMDIIProjectEventModel extends BaseModel {
 
 	private String eventDescription;
 
-	private Date eventDate;
+	private String eventDate;
 
 	public Integer getId() {
 		return id;
@@ -36,11 +34,11 @@ public class DMDIIProjectEventModel extends BaseModel {
 		this.eventDescription = eventDescription;
 	}
 
-	public Date getEventDate() {
+	public String getEventDate() {
 		return eventDate;
 	}
 
-	public void setEventDate(Date eventDate) {
+	public void setEventDate(String eventDate) {
 		this.eventDate = eventDate;
 	}
 
