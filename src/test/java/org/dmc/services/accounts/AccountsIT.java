@@ -1,28 +1,22 @@
 package org.dmc.services.accounts;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.dmc.services.BaseIT;
+import org.dmc.services.users.User;
+import org.dmc.services.utility.TestUserUtil;
+import org.json.JSONObject;
+import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-
-import org.json.JSONObject;
-
-import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-
-import org.dmc.services.BaseIT;
-import org.dmc.services.utility.TestUserUtil;
-import org.dmc.services.accounts.UserAccount;
-import org.dmc.services.accounts.UserAccountServer;
-import org.dmc.services.users.User;
-import org.dmc.services.users.UserDao;
 
 public class AccountsIT extends BaseIT {
 	private final String logTag = AccountsIT.class.getName();
@@ -37,10 +31,9 @@ public class AccountsIT extends BaseIT {
 
 	@Test
 	public void testAccountGet_UnknownUser() {
-		String unknownUserEPPN = TestUserUtil.uniqueUserEPPN();
 		String unknownUserID = Integer.toString(Integer.MAX_VALUE);
 
-		given().header("AJP_eppn", unknownUserEPPN).expect().statusCode(401).when().get("/accounts/" + unknownUserID);
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(401).when().get("/accounts/" + unknownUserID);
 
 		// not json is returned on 401. If it is, then the check below should be
 		// perfromed.
@@ -137,6 +130,11 @@ public class AccountsIT extends BaseIT {
 	}
 
 	private User getUser(String uniqueString) {
+		given().header("Content-type", "text/plain").header("AJP_eppn", "userEPPN" + uniqueString)
+				.header("AJP_givenName", "userGivenName" + uniqueString).header("AJP_sn", "userSurname" + uniqueString)
+				.header("AJP_displayName", "userDisplayName" + uniqueString)
+				.header("AJP_mail", "userEmail" + uniqueString).expect().statusCode(200).when().post("/users/create");
+				
 		User user = given().header("Content-type", "text/plain").header("AJP_eppn", "userEPPN" + uniqueString)
 				.header("AJP_givenName", "userGivenName" + uniqueString).header("AJP_sn", "userSurname" + uniqueString)
 				.header("AJP_displayName", "userDisplayName" + uniqueString)
