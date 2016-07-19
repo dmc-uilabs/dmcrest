@@ -265,6 +265,8 @@ public class TaskIT extends BaseIT {
 		
 		assertEquals(id.toString(), retrievedTask.getId());
 
+		retrievedTask.setAssignee("testUser");
+		
 		Task patchedTask =
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
