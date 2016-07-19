@@ -1,8 +1,11 @@
 package org.dmc.services.data.mappers;
 
 import org.dmc.services.data.entities.DMDIIDocument;
+import org.dmc.services.data.entities.DMDIIProject;
+import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DMDIIDocumentModel;
-import org.springframework.beans.BeanUtils;
+import org.dmc.services.data.models.DMDIIProjectModel;
+import org.dmc.services.data.models.UserModel;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -12,16 +15,29 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 	@Override
 	public DMDIIDocument mapToEntity(DMDIIDocumentModel model) {
 		Assert.notNull(model);
-		DMDIIDocument entity = new DMDIIDocument();
-		BeanUtils.copyProperties(model, entity);
+		DMDIIDocument entity = copyProperties(model, new DMDIIDocument());
+		
+		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		
+		entity.setOwner(userMapper.mapToEntity(model.getOwner()));
+		entity.setDMDIIProject(projectMapper.mapToEntity(model.getDmdiiProject()));
+		
 		return entity;
 	}
 
 	@Override
 	public DMDIIDocumentModel mapToModel(DMDIIDocument entity) {
 		Assert.notNull(entity);
-		DMDIIDocumentModel model = new DMDIIDocumentModel();
-		BeanUtils.copyProperties(entity, model);
+
+		DMDIIDocumentModel model = copyProperties(entity, new DMDIIDocumentModel());
+		
+		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		
+		model.setOwner(userMapper.mapToModel(entity.getOwner()));
+		model.setDmdiiProject(projectMapper.mapToModel(entity.getDMDIIProject()));
+		
 		return model;
 	}
 

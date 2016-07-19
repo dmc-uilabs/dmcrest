@@ -59,6 +59,7 @@ public enum DMCError {
 	NoContentInQuery,
 	
 	//Individual_Discussions
-	InvalidAccountId
+	InvalidAccountId,
+	InvalidCommentId
 
 }

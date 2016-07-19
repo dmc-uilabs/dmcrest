@@ -32,7 +32,7 @@ public class TaskDao {
 
     }
 
-    public Id createTask(Task task, String userEPPN) throws DMCServiceException {
+    public Id createTask(TaskToCreate task, String userEPPN) throws DMCServiceException {
         Connection connection = DBConnector.connection();
         // let's start a transaction
         try {
@@ -73,7 +73,7 @@ public class TaskDao {
      * assignee : string reporter : string dueDate : MM/DD/YY priority :
      * 'Today', '<Date>'
      */
-    private Id insertTask(Task task, String userEPPN) {
+    private Id insertTask(TaskToCreate task, String userEPPN) {
 
         int id = -99999;
 
@@ -87,9 +87,9 @@ public class TaskDao {
             String title = task.getTitle();
             String description = task.getAdditionalDetails();
             Integer priority = task.getPriority();
-            Long endDate = task.getDueDate();
+            java.sql.Timestamp endDate = new java.sql.Timestamp(task.getDueDate());
             Integer createdBy = userID;
-            Integer groupId = task.getTaskProject().getId();
+            Integer groupId = Integer.parseInt(task.getProjectId());
             Integer statusId = TaskStatus.StatusValues.valueOf(task.getStatus().toUpperCase()).getValue();
 
             String query = "INSERT INTO project_task (summary, details, priority, end_date, created_by, group_project_id, status_id)"
@@ -99,18 +99,20 @@ public class TaskDao {
             preparedStatement.setString(1, title);
             preparedStatement.setString(2, description);
             preparedStatement.setInt(3, priority);
-            preparedStatement.setLong(4, endDate);
+            preparedStatement.setTimestamp(4, endDate);
             preparedStatement.setInt(5, createdBy);
             preparedStatement.setInt(6, groupId);
             preparedStatement.setInt(7, statusId);
+            ServiceLogger.log(logTag, "insert query for project_task prepared");
             preparedStatement.executeUpdate();
+            ServiceLogger.log(logTag, "insert query performed");
 
             query = "select currval('project_task_pk_seq') as id";
             resultSet = DBConnector.executeQuery(query);
             while (resultSet.next()) {
                 id = resultSet.getInt("id");
             }
-            ServiceLogger.log(logTag, "create task ID in insertTask: " + id);
+            ServiceLogger.log(logTag, "created task ID in insertTask: " + id);
         } catch (SQLException e) {
             ServiceLogger.log(logTag, e.getMessage());
             return null;
@@ -275,15 +277,13 @@ public class TaskDao {
             String details = resultSet.getString("details");
             int priority = resultSet.getInt("priority");
 
-            long dueDate = resultSet.getLong("end_date");
-            Date releaseDate = new Date(1000L * resultSet.getLong("end_date"));
-            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+            java.sql.Timestamp dueDate = resultSet.getTimestamp("end_date");
             String status = resultSet.getString("status");
 
             TaskProject taskProject = new TaskProject(group_project_id, projectTitle);
 
             Task task = new Task(Integer.toString(id), title, taskProject, assignee, assigneeId, assignee, assigneeId,
-                    dueDate, details, status, priority);
+                    dueDate.getTime(), details, status, priority);
             ServiceLogger.log(logTag, "should have a Task object now: " + task.toString());
             return task;
         } catch (Exception e) {

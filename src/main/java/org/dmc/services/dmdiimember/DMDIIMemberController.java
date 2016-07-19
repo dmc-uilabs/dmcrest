@@ -5,8 +5,11 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.DMDIIMemberEventService;
+import org.dmc.services.DMDIIMemberNewsService;
 import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
+import org.dmc.services.data.models.DMDIIMemberMapEntryModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIMemberNewsModel;
 import org.dmc.services.data.models.PagedResponse;
@@ -17,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,11 +28,22 @@ public class DMDIIMemberController {
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
 	
+	@Inject
+	private DMDIIMemberEventService dmdiiMemberEventsService;
+	
+	@Inject
+	private DMDIIMemberNewsService dmdiiMemberNewsService;
+	
 	@RequestMapping(value = "/dmdiiMember", params = {"page", "pageSize"}, method = RequestMethod.GET)
 	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
 		List<? extends BaseModel> results = dmdiiMemberService.filter(params, page, pageSize);
 		Long count = dmdiiMemberService.count(params);
 		return new PagedResponse(count, results);
+	}
+	
+	@RequestMapping(value = "/dmdiiMember/mapEntry", method = RequestMethod.GET)
+	public List<DMDIIMemberMapEntryModel> getMapEntries() {
+		return dmdiiMemberService.getMapEntries();
 	}
 
 	@RequestMapping(value = "/dmdiiMember/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,9 +70,19 @@ public class DMDIIMemberController {
 		return dmdiiMemberService.getDmdiiMemberNews(limit);
 	}
 	
-	@RequestMapping(value = "/dmdiiMember/event", params = "limit", method = RequestMethod.GET)
+	@RequestMapping(value = "/dmdiiMember/events", params = "limit", method = RequestMethod.GET)
 	public List<DMDIIMemberEventModel> getDmdiiMemberEvents(@RequestParam("limit") Integer limit) {
 		return dmdiiMemberService.getDmdiiMemberEvents(limit);
+	}
+	
+	@RequestMapping(value = "/dmdiiMember/events", method = RequestMethod.POST)
+	public DMDIIMemberEventModel saveDMDIIMemberEvent (@RequestBody DMDIIMemberEventModel memberEvent) {
+		return dmdiiMemberEventsService.save(memberEvent);
+	}
+	
+	@RequestMapping(value = "/dmdiiMember/news", method = RequestMethod.POST)
+	public DMDIIMemberNewsModel saveDMDIIMemberNews (@RequestBody DMDIIMemberNewsModel memberNews) {
+		return dmdiiMemberNewsService.save(memberNews);
 	}
 
 }

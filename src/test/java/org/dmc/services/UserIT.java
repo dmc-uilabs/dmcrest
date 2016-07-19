@@ -2,6 +2,7 @@ package org.dmc.services;
 
 import org.junit.Test;
 
+import java.sql.SQLException;
 import static com.jayway.restassured.RestAssured.*;
 import static org.junit.Assert.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 
 import org.dmc.services.users.User;
+import org.dmc.services.users.UserDao;
 import org.dmc.services.users.UserOnboarding;
 import org.dmc.services.users.UserNotifications;
 import org.dmc.services.users.UserRunningServices;
@@ -124,6 +126,49 @@ public class UserIT extends BaseIT {
         assertTrue("Added user: " + "userEPPN" + unique + " Valid user ID must be greater then zero.  Value is " + id + ".", id > 0);
         // could also check email syntax
         
+	}
+
+	
+	@Test
+	public void testGetUserNameAndGetUserID(){
+		ServiceLogger.log(logTag, "starting testUserCreate");
+		String unique = TestUserUtil.generateTime();
+		
+		Integer id =
+		given().
+		header("Content-type", "text/plain").
+		header("AJP_eppn", "userEPPN" + unique).
+		header("AJP_givenName", "userGivenName" + unique).
+		header("AJP_sn", "userSurname" + unique).
+		header("AJP_displayName", "userDisplayName" + unique).
+		header("AJP_mail", "userEmail" + unique).
+		expect().
+		statusCode(200).
+		when().
+		post("/users/create").
+		then().
+		body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
+		extract().path("id");
+		
+		// check return value > 0
+		assertTrue("Added user: " + "userEPPN" + unique + " Valid user ID must be greater then zero.  Value is " + id + ".", id > 0);
+		// could also check email syntax
+		
+		String newUserName = null;
+		try {
+			newUserName = UserDao.getUserName(id);
+		} catch (SQLException e) {
+			assertTrue("java.sql.SQLException thrown",false);
+		}
+		assertTrue("User names are not equal", newUserName.equals("userEPPN" + unique));
+		
+		int newUserId = -1;
+		try {
+			newUserId = UserDao.getUserID("userEPPN" + unique);
+		} catch(SQLException e) {
+			assertTrue("java.sql.SQLException thrown",false);
+		}
+		assertTrue("User IDs are not equal", id.equals(newUserId));
 	}
 
 	

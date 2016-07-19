@@ -592,65 +592,194 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionCommentHelpful(){
-		given().
+		String accountId = "550";
+		String commentId = "2";
+		Boolean helpful = true;
+
+		IndividualDiscussionCommentHelpful received = given().
 		param("accountId", accountId).
 		param("commentId", commentId).
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/individual-discussion-comments-helpful");
+		statusCode(HttpStatus.OK.value()).
+		when().get("/individual-discussion-comments-helpful").as(IndividualDiscussionCommentHelpful.class);
+		
+		assertTrue("testGet_IndividualDiscussionCommentHelpful: id values are not equal", (received.getId().equals("1")));
+		assertTrue("testGet_IndividualDiscussionCommentHelpful: accountId values are not equal", (received.getAccountId().equals(accountId)));
+		assertTrue("testGet_IndividualDiscussionCommentHelpful: commentId values are not equal", (received.getCommentId().equals(commentId)));
+		assertTrue("testGet_IndividualDiscussionCommentHelpful: helpful values are not equal", (received.getHelpful().equals(helpful)));
 	}
 	
 	
 	/*
-	 * test case for POST /individual-discussion-comments-helpful
+	 * test case 1 for POST /individual-discussion-comments-helpful
 	 */
 	@Test
-	public void testPost_IndividualDiscussionCommentHelpful(){
-		IndividualDiscussionCommentHelpful obj = new IndividualDiscussionCommentHelpful();
+	public void testPost_IndividualDiscussionCommentHelpfulWithValidAttributes() {
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentHelpfulJSONString = null;
-		
+		String accountId = "550";
+		String commentId = "2";
+		Boolean helpful = true;
+
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpful);
+
 		try {
-			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(obj);
+			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(postedIndividualDiscussionCommentHelpfulJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().post("/individual-discussion-comments-helpful");
+
+		IndividualDiscussionCommentHelpful postedHelpful = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
+				.body(postedIndividualDiscussionCommentHelpfulJSONString).expect().statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion-comments-helpful")
+				.as(IndividualDiscussionCommentHelpful.class);
+
+		assertTrue("testPost_IndividualDiscussionCommentHelpfulWithValidAttributes: accountId values are not equal", (postedHelpful.getAccountId().equals(accountId)));
+		assertTrue("testPost_IndividualDiscussionCommentHelpfulWithValidAttributes: commentId values are not equal", (postedHelpful.getCommentId().equals(commentId)));
+		assertTrue("testPost_IndividualDiscussionCommentHelpfulWithValidAttributes: helpful values are not equal", (postedHelpful.getHelpful().equals(helpful)));
+
 	}
-	
-	
+
 	/*
-	 * test case for PATCH /individual-discussion-comments-helpful/{helpfulID}
+	 * test case 2 for POST /individual-discussion-comments-helpful
 	 */
 	@Test
-	public void testPatch_IndividualDiscussionCommentHelpfulById(){
-		IndividualDiscussionCommentHelpful obj = new IndividualDiscussionCommentHelpful();
+	public void testPost_IndividualDiscussionCommentHelpfulWithInvalidAccountId() {
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
 		ObjectMapper mapper = new ObjectMapper();
-		String patchedIndividualDiscussionCommentHelpfulJSONString = null;
-		
+		String postedIndividualDiscussionCommentHelpfulJSONString = null;
+		String accountId = "0";
+		String commentId = "2";
+		Boolean helpful = true;
+
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpful);
+
 		try {
-			patchedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(obj);
+			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", userEPPN).
-		body(patchedIndividualDiscussionCommentHelpfulJSONString).
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().patch("/individual-discussion-comments-helpful/" + helpfulId);
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentHelpfulJSONString).expect()
+				.statusCode(HttpStatus.UNAUTHORIZED.value()).when().post("/individual-discussion-comments-helpful");
+
+	}
+
+	/*
+	 * test case 3 for POST /individual-discussion-comments-helpful
+	 */
+	@Test
+	public void testPost_IndividualDiscussionCommentHelpfulWithInvalidCommentId() {
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedIndividualDiscussionCommentHelpfulJSONString = null;
+		String accountId = "550";
+		String commentId = "0";
+		Boolean helpful = true;
+
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpful);
+
+		try {
+			postedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentHelpfulJSONString).expect()
+				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post("/individual-discussion-comments-helpful");
+
+	}
+	
+	/*
+	 * test case 1 for PATCH /individual-discussion-comments-helpful/{helpfulID}
+	 */
+	@Test
+	public void testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject() {
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedIndividualDiscussionCommentHelpfulJSONString = null;
+		String accountId = "550";
+		String commentId = "3";
+		Boolean helpfulBool = true;
+
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpfulBool);
+
+		try {
+			patchedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		IndividualDiscussionCommentHelpful helpful = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
+				.body(patchedIndividualDiscussionCommentHelpfulJSONString).expect().statusCode(HttpStatus.OK.value()).when().patch("/individual-discussion-comments-helpful/" + 2)
+				.as(IndividualDiscussionCommentHelpful.class);
+
+		assertTrue("testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject: accountId values are not equal", (helpful.getId().equals("2")));
+		assertTrue("testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject: accountId values are not equal", (helpful.getAccountId().equals(accountId)));
+		assertTrue("testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject: commentId values are not equal", (helpful.getCommentId().equals(commentId)));
+		assertTrue("testPatch_IndividualDiscussionCommentHelpfulByIdWithGoodObject: helpful values are not equal", (helpful.getHelpful().equals(helpfulBool)));
+
+	}
+
+	/*
+	 * test case 2 for PATCH /individual-discussion-comments-helpful/{helpfulID}
+	 */
+	@Test
+	public void testPatch_IndividualDiscussionCommentHelpfulByIdWithInvalidAccount() {
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedIndividualDiscussionCommentHelpfulJSONString = null;
+		String accountId = "0";
+		String commentId = "3";
+		Boolean helpful = true;
+
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpful);
+
+		try {
+			patchedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(patchedIndividualDiscussionCommentHelpfulJSONString).expect()
+				.statusCode(HttpStatus.UNAUTHORIZED.value()).when().patch("/individual-discussion-comments-helpful/" + 2);
+	}
+
+	/*
+	 * test case 3 for PATCH /individual-discussion-comments-helpful/{helpfulID}
+	 */
+	@Test
+	public void testPatch_IndividualDiscussionCommentHelpfulById() {
+		IndividualDiscussionCommentHelpful commentHelpful = new IndividualDiscussionCommentHelpful();
+		ObjectMapper mapper = new ObjectMapper();
+		String patchedIndividualDiscussionCommentHelpfulJSONString = null;
+		String accountId = "550";
+		String commentId = "0";
+		Boolean helpful = true;
+
+		commentHelpful.setAccountId(accountId);
+		commentHelpful.setCommentId(commentId);
+		commentHelpful.setHelpful(helpful);
+
+		try {
+			patchedIndividualDiscussionCommentHelpfulJSONString = mapper.writeValueAsString(commentHelpful);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(patchedIndividualDiscussionCommentHelpfulJSONString).expect()
+				.statusCode(HttpStatus.BAD_REQUEST.value()).when().patch("/individual-discussion-comments-helpful/" + 2);
 	}
 	
 	
