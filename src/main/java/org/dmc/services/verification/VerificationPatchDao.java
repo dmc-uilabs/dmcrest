@@ -15,7 +15,7 @@ import org.dmc.services.verification.VerificationPatch;
 
 public class VerificationPatchDao {
 
-    private static final String LOGTAG = VerificationPatchDao.class.getName();
+    private static final String logTag = VerificationPatchDao.class.getName();
     private PreparedStatement statement; 
     private AWSConnector AWS = new AWSConnector();
     private final Connection connection = DBConnector.connection();
@@ -23,6 +23,9 @@ public class VerificationPatchDao {
 
     public VerificationPatch verify(VerificationPatch payload) throws DMCServiceException {
     	String finalURL = " "; 
+    	
+    	ServiceLogger.log(logTag, "Verification Machine DAO");
+
 
         try {
             connection.setAutoCommit(false);
@@ -55,13 +58,13 @@ public class VerificationPatchDao {
 
             
         } catch (SQLException e) {
-            ServiceLogger.log(LOGTAG, e.getMessage());
+            ServiceLogger.log(logTag, e.getMessage());
             if (connection != null) {
                 try {
-                    ServiceLogger.log(LOGTAG, "Transaction Verification Update Rolled back");
+                    ServiceLogger.log(logTag, "Transaction Verification Update Rolled back");
                     connection.rollback();
                 } catch (SQLException ex) {
-                    ServiceLogger.log(LOGTAG, ex.getMessage());
+                    ServiceLogger.log(logTag, ex.getMessage());
                 }
             }
 			throw new DMCServiceException(DMCError.AWSError, e.getMessage());

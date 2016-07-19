@@ -20,7 +20,7 @@ public class VerificationPatchController {
     private Verification verificationTest = new Verification(); 
 
 	
-	@RequestMapping(value = "/verify", method = RequestMethod.POST, produces = { "application/json" })
+	@RequestMapping(value = "/verify", method = RequestMethod.POST, consumes = "application/json", produces = { "application/json" })
     public ResponseEntity verify(@RequestBody VerificationPatch payload) {
 		
     	ServiceLogger.log(logTag, "Verification Machine Patch");
@@ -35,7 +35,7 @@ public class VerificationPatchController {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
-	
+	/*
 	//CONTROLLER ONLY FOR TESTING VERIFICATION MACHINE
 	@RequestMapping(value = "/verifyTest", method = RequestMethod.GET, produces = { "application/json" })
     public ResponseEntity testVerify()
@@ -43,14 +43,14 @@ public class VerificationPatchController {
         int httpStatusCode = HttpStatus.OK.value();
         
         try{
-        	VerificationPatch back = verificationTest.verify("https://s3.amazonaws.com/dmc-uploads2/uilabs.jpeg", "verify_test", "noreply", 1, "ProfilePicture", "Profile");
+        	VerificationPatch back = verificationTest.verify(1, "https://s3-us-west-2.amazonaws.com/test-temp-verify/test.jpeg", "verify", "noreply", 1);
             return new ResponseEntity<VerificationPatch>(back, HttpStatus.valueOf(httpStatusCode));        
 
         } catch(DMCServiceException e) {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
-	
+	*/
 	
 	
 	
