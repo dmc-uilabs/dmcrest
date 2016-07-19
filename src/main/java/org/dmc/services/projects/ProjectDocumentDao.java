@@ -67,7 +67,7 @@ public class ProjectDocumentDao {
 			//String path = AWS.createPath(signedURL);
 			
 			
-			String query = "INSERT INTO doc2_files (owner, owner_id, filename, description, "
+			String query = "INSERT INTO doc2_files (owner, owner_id, url, description, "
 			+ "modified_date, size, doc_group_id, group_id,resource_path, expiration_date) VALUES (?,?,?,?,?,?,?,?,?,?)";
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, payload.getOwner());
@@ -146,7 +146,7 @@ public class ProjectDocumentDao {
 				doc.setModifed(Integer.toString(resultSet.getInt("modified_date")));
 				doc.setSize(Integer.toString(resultSet.getInt("size"))); 
 				String filename = resultSet.getString("filename"); 
-				/*
+				
 				//Refresh Check 
 				if(AWS.isTimeStampExpired(resultSet.getTimestamp("expiration_date"))){
 					//Refresh URL
