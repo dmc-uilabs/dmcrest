@@ -137,7 +137,7 @@ public class TaskIT extends BaseIT {
         final String additionalDetails = "description for sample test  " + testDescription + " from junit on " + unique;
         final int priority = 0;
         final long dueDate = 0L;
-        final String reporter = "bamboo tester"; // a user ID in users table
+        final String reporter = "testUser"; // a user ID in users table
         final String reporterId = "111"; // a user ID in users table
         final String assignee = "berlier"; // from group table
         final String assigneeId = "103"; // from group table
@@ -160,7 +160,7 @@ public class TaskIT extends BaseIT {
         final String additionalDetails = "description for sample test  " + testDescription + " from junit on " + unique;
         final int priority = 4;
         final long dueDate = 1468468800000L;
-        final String reporter = "bamboo tester"; // a user ID in users table
+        final String reporter = "testUser"; // a user ID in users table
         final String reporterId = "111"; // a user ID in users table
         final String assignee = "berlier"; // from group table
         final String assigneeId = "103"; // from group table
@@ -180,7 +180,9 @@ public class TaskIT extends BaseIT {
     @Test
     public void testDelete_FollowDiscussions() {
 		
-		TaskToCreate task = createTaskJsonSample("testTaskCreateAndGet");
+		TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreateAndGet");
+		
+		// create a new task
 		Integer id =
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
@@ -208,7 +210,7 @@ public class TaskIT extends BaseIT {
 		then().
 			log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
 			extract().as(Task.class);
-		
+				
 		assertTrue("Created and retrieved tasks are not equal", id.toString().equals(retrievedTask.getId()));
 		
 		// delete newly created task
@@ -216,7 +218,7 @@ public class TaskIT extends BaseIT {
 			header("Content-type", APPLICATION_JSON_VALUE).
 			header("AJP_eppn", "berlier").
 		expect().
-			statusCode(HttpStatus.OK.value()).
+			statusCode(OK.value()).
 		when().
 			delete(TASKS_BASE + "/" + id.toString());
 		
@@ -225,14 +227,14 @@ public class TaskIT extends BaseIT {
 			header("Content-type", APPLICATION_JSON_VALUE).
 			header("AJP_eppn", "berlier").
 		expect().
-			statusCode(OK.value()).
+			statusCode(INTERNAL_SERVER_ERROR.value()).
 		when().
 			get(newGetRequest);
     }
 	
 	@Test
 	public void testPatchTask() {
-		TaskToCreate task = createTaskJsonSample("testTaskCreateAndGet");
+		TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreateAndGet");
 		Integer id =
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
