@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
@@ -176,7 +177,7 @@ public class CompanyDao {
 		Util util = Util.getInstance();
 		PreparedStatement statement;
 		String query;
-		long UnixTimeStamp = System.currentTimeMillis() / 1000L;
+		long UnixTimeStamp = Calendar.getInstance().getTime().getTime();
 		Timestamp timestamp = new java.sql.Timestamp(UnixTimeStamp);
 		Timestamp expires = new java.sql.Timestamp(UnixTimeStamp + (1000*60*60*24*365*10)); 
 		int id = -99999, commonAddressId = -9999, commonImageId = -9999;
