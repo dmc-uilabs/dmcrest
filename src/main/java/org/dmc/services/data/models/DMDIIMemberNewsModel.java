@@ -7,7 +7,7 @@ public class DMDIIMemberNewsModel extends BaseModel {
 	private Integer id;
 	private String title;
 	private String content;
-	private Date dateCreated;
+	private String dateCreated;
 	
 	public Integer getId() {
 		return id;
@@ -27,10 +27,10 @@ public class DMDIIMemberNewsModel extends BaseModel {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public Date getDateCreated() {
+	public String getDateCreated() {
 		return dateCreated;
 	}
-	public void setDateCreated(Date dateCreated) {
+	public void setDateCreated(String dateCreated) {
 		this.dateCreated = dateCreated;
 	}
 
