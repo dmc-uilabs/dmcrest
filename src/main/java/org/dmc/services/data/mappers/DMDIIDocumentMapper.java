@@ -1,5 +1,9 @@
 package org.dmc.services.data.mappers;
 
+import javax.inject.Inject;
+
+import org.dmc.services.DMDIIProjectService;
+import org.dmc.services.UserService;
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIProject;
 import org.dmc.services.data.entities.User;
@@ -12,17 +16,24 @@ import org.springframework.util.Assert;
 @Component
 public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocumentModel> {
 
+	@Inject
+	private DMDIIProjectService dmdiiProjectService;
+
+	@Inject
+	private UserService userService;
+
+
 	@Override
 	public DMDIIDocument mapToEntity(DMDIIDocumentModel model) {
 		if (model == null) return null;
 		DMDIIDocument entity = copyProperties(model, new DMDIIDocument());
-		
+
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-		
-		entity.setOwner(userMapper.mapToEntity(model.getOwner()));
-		entity.setDMDIIProject(projectMapper.mapToEntity(model.getDmdiiProject()));
-		
+
+		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getUserId())));
+		entity.setDMDIIProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProjectId())));
+
 		return entity;
 	}
 
@@ -31,13 +42,16 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 		if (entity == null) return null;
 
 		DMDIIDocumentModel model = copyProperties(entity, new DMDIIDocumentModel());
-		
+
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-		
-		model.setOwner(userMapper.mapToModel(entity.getOwner()));
-		model.setDmdiiProject(projectMapper.mapToModel(entity.getDMDIIProject()));
-		
+
+		model.setUserId(entity.getOwner().getId());
+		if(entity.getDMDIIProject() != null)
+			model.setDmdiiProjectId(entity.getDMDIIProject().getId());
+		else
+			model.setDmdiiProjectId(null);
+
 		return model;
 	}
 

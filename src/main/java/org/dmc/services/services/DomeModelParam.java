@@ -1,5 +1,6 @@
 package org.dmc.services.services;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,7 +10,7 @@ public class DomeModelParam {
 	private String name = null;
 	private String unit = null;
 	private String category = null;
-	private Object value = null;
+	private BigDecimal value = null;
 	private String parameterid = null;
 	private String instancename = null;
 
@@ -50,11 +51,11 @@ public class DomeModelParam {
 	}
 
 	@JsonProperty("value")
-	public Object getValue() {
+	public BigDecimal getValue() {
 		return value;
 	}
 
-	public void setValue(Object value) {
+	public void setValue(BigDecimal value) {
 		this.value = value;
 	}
 

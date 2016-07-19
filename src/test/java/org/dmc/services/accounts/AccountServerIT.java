@@ -85,6 +85,7 @@ public class AccountServerIT extends BaseIT {
 
 		// check returned and orginal UserAccountServer object is equal
 		ServiceLogger.log(logTag, "original IP: " + userAccountServer.getIp() + "\tReturned IP: " + returnedUserAccountServer.getIp());
+		ServiceLogger.log(logTag, "original server: " + userAccountServer.toString() + "\tReturned server: " + returnedUserAccountServer.toString());
 		
 		assertTrue("Orginal and returned UserAccountServer objects are not equal",
 				returnedUserAccountServer.equals(userAccountServer));
@@ -260,6 +261,7 @@ public class AccountServerIT extends BaseIT {
 		// check returned and orginal UserAccountServer object is equal
 		
 		ServiceLogger.log(logTag, "Prepatched IP: " + returnedUserAccountServer.getIp() + "\tPostpatched IP: " + patchedUserAccountServer.getIp());
+		ServiceLogger.log(logTag, "Prepatched server: " + returnedUserAccountServer.toString() + "\tPostpatched server: " + patchedUserAccountServer.toString());
 		
 		assertTrue("Orginal modified UserAccountServer object is not equal to patched",
 				returnedUserAccountServer.equals(patchedUserAccountServer));
