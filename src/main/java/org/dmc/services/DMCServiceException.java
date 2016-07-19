@@ -67,6 +67,7 @@ public class DMCServiceException extends Exception {
 			case NoContentInQuery:
 				status = HttpStatus.NO_CONTENT;
 				break;
+			case DiscussionFollowNotFound:
 			default:
 				status = HttpStatus.NOT_FOUND;
 		}

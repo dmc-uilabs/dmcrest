@@ -21,72 +21,71 @@ import static org.springframework.http.MediaType.*;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class IndividualDiscussionController {
 
-	private final String logTag = IndividualDiscussionController.class.getName();
+	private static final String LOGTAG = IndividualDiscussionController.class.getName();
 
-	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.GET)
+	@RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
 	public ResponseEntity getIndividualDiscussion(@RequestParam(value = "limit", required = false) Integer limit, @RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
-
-		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		final IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
-			ServiceLogger.log(logTag, "In getIndividualDiscussion");
+			ServiceLogger.log(LOGTAG, "In getIndividualDiscussion");
 			return new ResponseEntity<List<IndividualDiscussion>>(individualDiscussionDao.getListOfCommunityIndividualDiscussions(limit, order, sort), HttpStatus.OK);
 		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
+			ServiceLogger.logException(LOGTAG, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
-	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.POST)
+	@RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
 	public ResponseEntity postIndividualDiscussion(@RequestBody IndividualDiscussion discussion) {
-		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		final IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
-			ServiceLogger.log(logTag, "In postIndividualDiscussion");
+			ServiceLogger.log(LOGTAG, "In postIndividualDiscussion");
 			return new ResponseEntity<IndividualDiscussion>(individualDiscussionDao.createIndividualDiscussion(discussion), HttpStatus.CREATED);
 		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
+			ServiceLogger.logException(LOGTAG, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
-	@RequestMapping(value = "/{individualDiscussionID}", produces = { "application/json" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/{individualDiscussionID}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
 	public ResponseEntity getSingleIndividualDiscussion(@PathVariable("individualDiscussionID") String individualDiscussionID) {
-		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		final IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
-			ServiceLogger.log(logTag, "In getSingleIndividualDiscussion");
+			ServiceLogger.log(LOGTAG, "In getSingleIndividualDiscussion");
 			return new ResponseEntity<IndividualDiscussion>(individualDiscussionDao.getSingleIndividualDiscussionFromId(individualDiscussionID), HttpStatus.OK);
 		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
+			ServiceLogger.logException(LOGTAG, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
-	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-comments", produces = { "application/json" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-comments", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
 	public ResponseEntity getIndividualDiscussionCommentsForSingleIndividualDiscussion(@PathVariable("individualDiscussionID") String individualDiscussionID,
 			@RequestParam(value = "commentId", required = true) String commentId, @RequestParam(value = "_order", required = false) String order,
 			@RequestParam(value = "_sort", required = false) String sort, @RequestParam(value = "_limit", required = false) Integer limit) {
-		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		final IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
-			ServiceLogger.log(logTag, "In getIndividualDiscussionCommentsForSingleIndividualDiscussion");
+			ServiceLogger.log(LOGTAG, "In getIndividualDiscussionCommentsForSingleIndividualDiscussion");
 			return new ResponseEntity<List<IndividualDiscussionComment>>(
 					individualDiscussionDao.getCommentsForSingleDiscussionId(limit, order, sort, commentId, individualDiscussionID), HttpStatus.OK);
 		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
+			ServiceLogger.logException(LOGTAG, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
 
-	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-tags", produces = { "application/json" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/{individualDiscussionID}/individual-discussion-tags", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
 	public ResponseEntity getIndividualDiscussionTagsFromIndividualDiscussionId(@PathVariable("individualDiscussionID") String individualDiscussionID,
 			@RequestParam(value = "_limit", required = false) Integer limit, @RequestParam(value = "_order", required = false) String order,
 			@RequestParam(value = "_sort", required = false) String sort) {
-		IndividualDiscussionTagsDao individualDiscussionTagsDao = new IndividualDiscussionTagsDao();
+		final IndividualDiscussionTagsDao individualDiscussionTagsDao = new IndividualDiscussionTagsDao();
 		try {
-			ServiceLogger.log(logTag, "In getIndividualDiscussionTagsFromIndividualDiscussionId");
+			ServiceLogger.log(LOGTAG, "In getIndividualDiscussionTagsFromIndividualDiscussionId");
 			return new ResponseEntity<List<IndividualDiscussionTag>>(individualDiscussionTagsDao.getTagsForSingleDiscussionId(limit, order, sort, individualDiscussionID),
 					HttpStatus.OK);
 		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
+			ServiceLogger.logException(LOGTAG, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}

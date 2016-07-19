@@ -16,27 +16,27 @@ import org.dmc.services.sharedattributes.Util;
 
 public class IndividualDiscussionTagsDao {
 
-	private final String logTag = IndividualDiscussionTagsDao.class.getName();
+	private static final String LOGTAG = IndividualDiscussionTagsDao.class.getName();
 
 	public IndividualDiscussionTag createIndividualDiscussionTag(IndividualDiscussionTag tag) throws DMCServiceException {
-		IndividualDiscussionTag retObj = new IndividualDiscussionTag();
-		Connection connection = DBConnector.connection();
-		Util util = Util.getInstance();
+		final IndividualDiscussionTag retObj = new IndividualDiscussionTag();
+		final Connection connection = DBConnector.connection();
+		final Util util = Util.getInstance();
 
 		try {
 			connection.setAutoCommit(false);
-			String discussionHelpfulQuery = "INSERT into individual_discussions_tags (individual_discussion_id, name) values ( ?, ? )";
+			final String discussionHelpfulQuery = "INSERT into individual_discussions_tags (individual_discussion_id, name) values ( ?, ? )";
 
-			PreparedStatement preparedStatementQuery = DBConnector.prepareStatement(discussionHelpfulQuery, Statement.RETURN_GENERATED_KEYS);
+			final PreparedStatement preparedStatementQuery = DBConnector.prepareStatement(discussionHelpfulQuery, Statement.RETURN_GENERATED_KEYS);
 			preparedStatementQuery.setInt(1, Integer.parseInt(tag.getIndividualDiscussionId()));
 			preparedStatementQuery.setString(2, tag.getName());
 
-			int rowsAffected_interface = preparedStatementQuery.executeUpdate();
+			final int rowsAffected_interface = preparedStatementQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "unable to add individual discussion tag " + tag.toString());
 			}
-			int id = util.getGeneratedKey(preparedStatementQuery, "id");
+			final int id = util.getGeneratedKey(preparedStatementQuery, "id");
 
 			retObj.setId(Integer.toString(id));
 			retObj.setIndividualDiscussionId(tag.getIndividualDiscussionId());
@@ -46,34 +46,33 @@ public class IndividualDiscussionTagsDao {
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			if (se.getMessage().startsWith(
 					"ERROR: insert or update on table \"individual_discussions_tags\" violates foreign key constraint \"individualdiscussionstags_individualdiscussionid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidDiscussionId, se.getMessage());
 			} else {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 				throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			}
 		} finally {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 		}
 		return retObj;
 	}
 
 	public List<IndividualDiscussionTag> getTagsForSingleDiscussionId(Integer limit, String order, String sort, String individualDiscussionId) throws DMCServiceException {
-		Connection connection = DBConnector.connection();
-		IndividualDiscussionTag retObj = null;
-		List<IndividualDiscussionTag> tags = new ArrayList<IndividualDiscussionTag>();
+		final Connection connection = DBConnector.connection();
+		final List<IndividualDiscussionTag> tags = new ArrayList<IndividualDiscussionTag>();
 
 		try {
 			connection.setAutoCommit(false);
 
-			ArrayList<String> columnsInIndividualDiscussionsTagsTable = new ArrayList<String>();
+			final ArrayList<String> columnsInIndividualDiscussionsTagsTable = new ArrayList<String>();
 			columnsInIndividualDiscussionsTagsTable.add("id");
 			columnsInIndividualDiscussionsTagsTable.add("individual_discussion_id");
 			columnsInIndividualDiscussionsTagsTable.add("name");
@@ -104,13 +103,13 @@ public class IndividualDiscussionTagsDao {
 				tagQuery += " LIMIT " + limit;
 			}
 
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(tagQuery);
+			final PreparedStatement preparedStatement = DBConnector.prepareStatement(tagQuery);
 			preparedStatement.setInt(1, Integer.parseInt(individualDiscussionId));
 			preparedStatement.execute();
-			ResultSet resultSet = preparedStatement.getResultSet();
+			final ResultSet resultSet = preparedStatement.getResultSet();
 
 			while (resultSet.next()) {
-				retObj = new IndividualDiscussionTag();
+				final IndividualDiscussionTag retObj = new IndividualDiscussionTag();
 
 				retObj.setId(Integer.toString(resultSet.getInt("id")));
 				retObj.setIndividualDiscussionId(Integer.toString(resultSet.getInt("individual_discussion_id")));
@@ -120,11 +119,11 @@ public class IndividualDiscussionTagsDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -132,7 +131,7 @@ public class IndividualDiscussionTagsDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}

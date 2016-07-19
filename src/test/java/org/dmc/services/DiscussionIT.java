@@ -159,8 +159,9 @@ public class DiscussionIT extends BaseIT {
 	public void testGet_FollowDiscussionsFromAccountIdWithIndividualDiscussionId() {
 		String individualDiscussionId = "1";
 		String accountId = "550";
+		String userEppn = "joeengineer";
 
-		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", userEPPN).param("individual-discussionId", individualDiscussionId)
+		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", userEppn).param("individual-discussionId", individualDiscussionId)
 				.expect().statusCode(HttpStatus.OK.value()).when().get("/accounts/" + accountId + "/follow_discussions").as(FollowingIndividualDiscussion[].class));
 
 		assertTrue(
@@ -179,8 +180,9 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId() {
 		String accountId = "550";
+		String userEppn = "joeengineer";
 
-		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", userEPPN).param("limit", 2).expect().statusCode(HttpStatus.OK.value())
+		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", userEppn).param("limit", 2).expect().statusCode(HttpStatus.OK.value())
 				.when().get("/accounts/" + accountId + "/follow_discussions").as(FollowingIndividualDiscussion[].class));
 
 		assertTrue("testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId: limit parameter didn't work", followedDiscussions.size() == 2);
@@ -190,7 +192,7 @@ public class DiscussionIT extends BaseIT {
 				followedDiscussions.get(0).getIndividualDiscussionId().equals("1"));
 		assertTrue("testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId: id values are not equal", followedDiscussions.get(0).getId().equals("1"));
 	}
-	
+
 	/*
 	 * test case 1 for POST /follow_discussions
 	 */
@@ -202,6 +204,7 @@ public class DiscussionIT extends BaseIT {
 
 		String accountId = "550";
 		String individualDiscussionId = "3";
+		String userEPPN = "joeengineer";
 
 		followToPost.setIndividualDiscussionId(individualDiscussionId);
 		followToPost.setAccountId(accountId);
@@ -258,6 +261,7 @@ public class DiscussionIT extends BaseIT {
 
 		String accountId = "550";
 		String individualDiscussionId = "0";
+		String userEPPN = "joeengineer";
 
 		followToPost.setIndividualDiscussionId(individualDiscussionId);
 		followToPost.setAccountId(accountId);
@@ -274,16 +278,17 @@ public class DiscussionIT extends BaseIT {
 	}
 
 	/*
-	 * test case for DELETE /follow_discussions/{followID}
+	 * test case 1 for DELETE /follow_discussions/{followID}
 	 */
 	@Test
-	public void testDelete_FollowDiscussions() {
+	public void testDelete_FollowDiscussionsWithValidId() {
 		FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedFollowDiscussionsJSONString = null;
 
 		String accountId = "102";
 		String individualDiscussionId = "4";
+		String userEPPN = "fforgeadmin";
 
 		followToPost.setIndividualDiscussionId(individualDiscussionId);
 		followToPost.setAccountId(accountId);
@@ -299,7 +304,35 @@ public class DiscussionIT extends BaseIT {
 
 		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().delete("/follow_discussions/" + postedFollow.getId());
 	}
-	
+
+	/*
+	 * test case 2 for DELETE /follow_discussions/{followID}
+	 */
+	@Test
+	public void testDelete_FollowDiscussionsWithInvalidId() {
+		FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedFollowDiscussionsJSONString = null;
+
+		String accountId = "102";
+		String individualDiscussionId = "4";
+		String userEPPN = "fforgeadmin";
+
+		followToPost.setIndividualDiscussionId(individualDiscussionId);
+		followToPost.setAccountId(accountId);
+
+		try {
+			postedFollowDiscussionsJSONString = mapper.writeValueAsString(followToPost);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString)
+				.expect().statusCode(HttpStatus.CREATED.value()).when().post("/follow_discussions").as(FollowingIndividualDiscussion.class);
+
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when().delete("/follow_discussions/" + 0);
+	}
+
 	/*
 	 * test case for GET /projects/{id}/individual-discussion
 	 */
@@ -314,8 +347,7 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testGet_IndividualDiscussionFromProjectId: createdAt values are not equal", (received.get(0).getCreatedAt().equals(new BigDecimal("12345"))));
 		assertTrue("testGet_IndividualDiscussionFromProjectId: accountId values are not equal", (received.get(0).getAccountId().equals(new BigDecimal(550))));
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion
 	 */
@@ -369,7 +401,7 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testPost_IndividualDiscussionWithProjectId: accountId values are not equal", (posted.getAccountId().equals(accountId)));
 		assertTrue("testPost_IndividualDiscussionWithProjectId: projectId values are not equal", (posted.getProjectId().equals(projectId)));
 	}
-	
+
 	/*
 	 * test case 2 for POST /individual-discussion
 	 */
@@ -403,7 +435,7 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testPost_IndividualDiscussionWithoutProjectId: createdAt values are not equal", (posted.getCreatedAt().equals(createdAt)));
 		assertTrue("testPost_IndividualDiscussionWithoutProjectId: accountId values are not equal", (posted.getAccountId().equals(accountId)));
 	}
-	
+
 	/*
 	 * test case 3 for POST /individual-discussion
 	 */
@@ -433,7 +465,7 @@ public class DiscussionIT extends BaseIT {
 				.post("/individual-discussion");
 
 	}
-	
+
 	/*
 	 * test case for GET /individual-discussion/{individualDiscussionID}
 	 */
@@ -448,8 +480,7 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testGet_IndividualDiscussionFromId: accountId values are not equal", (read.getAccountId().equals(new BigDecimal(550))));
 		assertTrue("testGet_IndividualDiscussionFromId: projectId values are not equal", (read.getProjectId().equals(new BigDecimal(2))));
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-comments
 	 */
@@ -470,26 +501,21 @@ public class DiscussionIT extends BaseIT {
 				(listOfComments.get(0).getCommentId().equals(new BigDecimal(1))));
 		assertTrue("testGet_IndividualDiscussionCommentsFromIndividualDiscussionId: likes values are not equal", (listOfComments.get(0).getLike().equals(new BigDecimal(1))));
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion/{individualDiscussionID}/individual-discussion-tags
 	 */
 	@Test
-	public void testGet_IndividualDiscussionTags(){
-		List<IndividualDiscussionTag> tags = Arrays.asList(given().
-		header("AJP_eppn", userEPPN).param("_limit", 1).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().get("/individual-discussion/" + 1 + "/individual-discussion-tags").as(IndividualDiscussionTag[].class));
-		
-		assertTrue("testGet_IndividualDiscussionTags: limit parameter didn't work", tags.size() == 1);
+	public void testGet_IndividualDiscussionTags() {
+		List<IndividualDiscussionTag> tags = Arrays.asList(given().header("AJP_eppn", userEPPN).param("_limit", 2).expect().statusCode(HttpStatus.OK.value()).when()
+				.get("/individual-discussion/" + 1 + "/individual-discussion-tags").as(IndividualDiscussionTag[].class));
+
+		assertTrue("testGet_IndividualDiscussionTags: limit parameter didn't work", tags.size() == 2);
 		assertTrue("testGet_IndividualDiscussionTags: id value is not correct", tags.get(0).getId().equals("1"));
 		assertTrue("testGet_IndividualDiscussionTags: individual discussion id value is not correct", tags.get(0).getIndividualDiscussionId().equals("1"));
 		assertTrue("testGet_IndividualDiscussionTags: name value is not correct", tags.get(0).getName().equals("tag"));
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion-comments/{id}
 	 */
@@ -505,7 +531,7 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: commentId values are not equal", (readObj.getCommentId().equals(new BigDecimal(0))));
 		assertTrue("testGet_IndividualDiscussionCommentsFromId: likes values are not equal", (readObj.getLike().equals(new BigDecimal(30))));
 	}
-	
+
 	/*
 	 * test case 1 for GET /individual-discussion-comments
 	 */
@@ -550,7 +576,7 @@ public class DiscussionIT extends BaseIT {
 				(listOfComments.get(0).getCommentId().equals(new BigDecimal(1))));
 		assertTrue("testGet_IndividualDiscussionCommentsWithoutIndividualDiscussionId: likes values are not equal", listOfComments.get(0).getLike().equals(new BigDecimal(1)));
 	}
-	
+
 	/*
 	 * test case 1 for POST /individual-discussion-comments
 	 */
@@ -603,7 +629,7 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: like values are not equal", (postedCommentObj.getLike().equals(like)));
 		assertTrue("testPost_IndividualDiscussionCommentsWithValidUser: dislike values are not equal", (postedCommentObj.getDislike().equals(dislike)));
 	}
-	
+
 	/*
 	 * test case 2 for POST /individual-discussion-comments
 	 */
@@ -645,8 +671,7 @@ public class DiscussionIT extends BaseIT {
 				.post("/individual-discussion-comments");
 
 	}
-	
-	
+
 	/*
 	 * test case for PATCH /individual-discussion-comments/{commentID}
 	 */
@@ -700,32 +725,25 @@ public class DiscussionIT extends BaseIT {
 		assertTrue("testPatch_IndividualDiscussionComments: like values are not equal", (received.getLike().equals(like)));
 		assertTrue("testPatch_IndividualDiscussionComments: dislike values are not equal", (received.getDislike().equals(dislike)));
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion-comments-helpful
 	 */
 	@Test
-	public void testGet_IndividualDiscussionCommentHelpful(){
+	public void testGet_IndividualDiscussionCommentHelpful() {
 		String accountId = "550";
 		String commentId = "2";
 		Boolean helpful = true;
 
-		IndividualDiscussionCommentHelpful received = given().
-		param("accountId", accountId).
-		param("commentId", commentId).
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().get("/individual-discussion-comments-helpful").as(IndividualDiscussionCommentHelpful.class);
-		
+		IndividualDiscussionCommentHelpful received = given().param("accountId", accountId).param("commentId", commentId).header("AJP_eppn", userEPPN).expect()
+				.statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments-helpful").as(IndividualDiscussionCommentHelpful.class);
+
 		assertTrue("testGet_IndividualDiscussionCommentHelpful: id values are not equal", (received.getId().equals("1")));
 		assertTrue("testGet_IndividualDiscussionCommentHelpful: accountId values are not equal", (received.getAccountId().equals(accountId)));
 		assertTrue("testGet_IndividualDiscussionCommentHelpful: commentId values are not equal", (received.getCommentId().equals(commentId)));
 		assertTrue("testGet_IndividualDiscussionCommentHelpful: helpful values are not equal", (received.getHelpful().equals(helpful)));
 	}
-	
-	
+
 	/*
 	 * test case 1 for POST /individual-discussion-comments-helpful
 	 */
@@ -811,7 +829,7 @@ public class DiscussionIT extends BaseIT {
 				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post("/individual-discussion-comments-helpful");
 
 	}
-	
+
 	/*
 	 * test case 1 for PATCH /individual-discussion-comments-helpful/{helpfulID}
 	 */
@@ -896,8 +914,7 @@ public class DiscussionIT extends BaseIT {
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(patchedIndividualDiscussionCommentHelpfulJSONString).expect()
 				.statusCode(HttpStatus.BAD_REQUEST.value()).when().patch("/individual-discussion-comments-helpful/" + 2);
 	}
-	
-	
+
 	/*
 	 * test case for GET /individual-discussion-comments-flagged
 	 */
@@ -908,6 +925,7 @@ public class DiscussionIT extends BaseIT {
 		String commentId = "1";
 		String reason = "Bad";
 		String comment = "Inappropriate";
+		String userEPPN = "joeengineer";
 
 		flagInTable.setId("1");
 		flagInTable.setAccountId(accountId);
@@ -929,7 +947,7 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionCommentFlagged flagToPost = new IndividualDiscussionCommentFlagged();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentFlaggedJSONString = null;
-
+		String userEPPN = "fforgeadmin";
 		String accountId = "102";
 		String commentId = "2";
 		String reason = "Bad";
@@ -965,7 +983,7 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionCommentFlagged flagToPost = new IndividualDiscussionCommentFlagged();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentFlaggedJSONString = null;
-
+		String userEPPN = "joeengineer";
 		String accountId = "0";
 		String commentId = "2";
 		String reason = "Bad";
@@ -995,7 +1013,7 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionCommentFlagged flagToPost = new IndividualDiscussionCommentFlagged();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentFlaggedJSONString = null;
-
+		String userEPPN = "fforgeadmin";
 		String accountId = "102";
 		String commentId = "0";
 		String reason = "Bad";
@@ -1016,8 +1034,7 @@ public class DiscussionIT extends BaseIT {
 				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post("/individual-discussion-comments-flagged");
 
 	}
-	
-	
+
 	/*
 	 * test case 1 for POST /individual-discussion-tags
 	 */

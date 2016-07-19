@@ -17,7 +17,7 @@ import org.dmc.services.sharedattributes.Util;
 
 public class IndividualDiscussionDao {
 
-	private final String logTag = IndividualDiscussionDao.class.getName();
+	private static final String LOGTAG = IndividualDiscussionDao.class.getName();
 
 	public List<IndividualDiscussion> getListOfCommunityIndividualDiscussions(Integer limit, String order, String sort) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
@@ -75,11 +75,11 @@ public class IndividualDiscussionDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -87,7 +87,7 @@ public class IndividualDiscussionDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
@@ -142,19 +142,19 @@ public class IndividualDiscussionDao {
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			if (se.getMessage().startsWith("ERROR: insert or update on table \"individual_discussions\" violates foreign key constraint \"individualdiscussions_accountid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidAccountId, se.getMessage());
 			} else {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 				throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			}
 		} finally {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 		}
 		return retObj;
@@ -188,11 +188,11 @@ public class IndividualDiscussionDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -200,7 +200,7 @@ public class IndividualDiscussionDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
@@ -252,12 +252,12 @@ public class IndividualDiscussionDao {
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			if (se.getMessage().startsWith("ERROR: insert or update on table \"individual_discussions_comments\" violates foreign key constraint \"individualdiscussionscomments_accountid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidAccountId, se.getMessage());
 			} else {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 				throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			}
 
@@ -265,7 +265,7 @@ public class IndividualDiscussionDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
@@ -342,11 +342,11 @@ public class IndividualDiscussionDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -354,7 +354,7 @@ public class IndividualDiscussionDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
@@ -392,11 +392,11 @@ public class IndividualDiscussionDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -404,7 +404,7 @@ public class IndividualDiscussionDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
@@ -445,11 +445,11 @@ public class IndividualDiscussionDao {
 			retObj.setId(id.toString());
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -457,7 +457,7 @@ public class IndividualDiscussionDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
@@ -532,11 +532,11 @@ public class IndividualDiscussionDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -544,7 +544,7 @@ public class IndividualDiscussionDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
@@ -616,11 +616,11 @@ public class IndividualDiscussionDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -628,7 +628,7 @@ public class IndividualDiscussionDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}

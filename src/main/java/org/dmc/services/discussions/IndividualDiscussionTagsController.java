@@ -17,8 +17,8 @@ import org.dmc.services.ServiceLogger;
 @RequestMapping(value = "/individual-discussion-tags", produces = { APPLICATION_JSON_VALUE })
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class IndividualDiscussionTagsController {
-	
-	private final String logTag = IndividualDiscussionTagsController.class.getName();
+
+	private static final String LOGTAG = IndividualDiscussionTagsController.class.getName();
 
 	@RequestMapping(value = "/{disscusionTagID}", produces = { "application/json", "text/html" }, method = RequestMethod.DELETE)
 	public ResponseEntity<Void> individualDiscussionTagsDisscusionTagIDDelete(@PathVariable("disscusionTagID") String disscusionTagID) {
@@ -26,14 +26,14 @@ public class IndividualDiscussionTagsController {
 		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@RequestMapping(value = "", produces = { "application/json" }, method = RequestMethod.POST)
+	@RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, consumes = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
 	public ResponseEntity postIndividualDiscussionTags(@RequestBody IndividualDiscussionTag discussionTag) {
-		IndividualDiscussionTagsDao individualDiscussionTagsDao = new IndividualDiscussionTagsDao();
+		final IndividualDiscussionTagsDao individualDiscussionTagsDao = new IndividualDiscussionTagsDao();
 		try {
-			ServiceLogger.log(logTag, "In postIndividualDiscussionTags");
+			ServiceLogger.log(LOGTAG, "In postIndividualDiscussionTags");
 			return new ResponseEntity<IndividualDiscussionTag>(individualDiscussionTagsDao.createIndividualDiscussionTag(discussionTag), HttpStatus.CREATED);
 		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
+			ServiceLogger.logException(LOGTAG, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}

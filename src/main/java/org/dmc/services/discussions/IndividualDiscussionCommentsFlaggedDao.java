@@ -11,33 +11,44 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.users.UserDao;
 
 public class IndividualDiscussionCommentsFlaggedDao {
 
-	private final String logTag = IndividualDiscussionCommentsFlaggedDao.class.getName();
+	private static final String LOGTAG = IndividualDiscussionCommentsFlaggedDao.class.getName();
 
-	public IndividualDiscussionCommentFlagged createFlagForComment(IndividualDiscussionCommentFlagged flag) throws DMCServiceException {
-		IndividualDiscussionCommentFlagged retObj = new IndividualDiscussionCommentFlagged();
-		Connection connection = DBConnector.connection();
-		Util util = Util.getInstance();
+	public IndividualDiscussionCommentFlagged createFlagForComment(IndividualDiscussionCommentFlagged flag, String userEPPN) throws DMCServiceException {
+		final IndividualDiscussionCommentFlagged retObj = new IndividualDiscussionCommentFlagged();
+		final Connection connection = DBConnector.connection();
+		final Util util = Util.getInstance();
+
+		try {
+			final int userID = UserDao.getUserID(userEPPN);
+			if (userID != Integer.parseInt(flag.getAccountId())) {
+				throw new DMCServiceException(DMCError.InvalidAccountId, "AccountId does not match userEPPN");
+			}
+		} catch (SQLException se) {
+			ServiceLogger.log(LOGTAG, se.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, se.getMessage());
+		}
 
 		try {
 			connection.setAutoCommit(false);
 
-			String flagQuery = "INSERT into individual_discussions_comments_flagged (account_id, comment_id, reason, comment) values ( ?, ?, ?, ? )";
+			final String flagQuery = "INSERT into individual_discussions_comments_flagged (account_id, comment_id, reason, comment) values ( ?, ?, ?, ? )";
 
-			PreparedStatement preparedStatementQuery = DBConnector.prepareStatement(flagQuery, Statement.RETURN_GENERATED_KEYS);
+			final PreparedStatement preparedStatementQuery = DBConnector.prepareStatement(flagQuery, Statement.RETURN_GENERATED_KEYS);
 			preparedStatementQuery.setInt(1, Integer.parseInt(flag.getAccountId()));
 			preparedStatementQuery.setInt(2, Integer.parseInt(flag.getCommentId()));
 			preparedStatementQuery.setString(3, flag.getReason());
 			preparedStatementQuery.setString(4, flag.getComment());
 
-			int rowsAffected_interface = preparedStatementQuery.executeUpdate();
+			final int rowsAffected_interface = preparedStatementQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "unable to add individual discussion comment flag " + flag.toString());
 			}
-			int id = util.getGeneratedKey(preparedStatementQuery, "id");
+			final int id = util.getGeneratedKey(preparedStatementQuery, "id");
 
 			retObj.setId(Integer.toString(id));
 			retObj.setAccountId(flag.getAccountId());
@@ -49,39 +60,52 @@ public class IndividualDiscussionCommentsFlaggedDao {
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
-			if (se.getMessage().startsWith("ERROR: insert or update on table \"individual_discussions_comments_flagged\" violates foreign key constraint \"individualdiscussionscommentsflagged_accountid_fk\"")) {
+			if (se.getMessage().startsWith(
+					"ERROR: insert or update on table \"individual_discussions_comments_flagged\" violates foreign key constraint \"individualdiscussionscommentsflagged_accountid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidAccountId, se.getMessage());
-			} if (se.getMessage().startsWith("ERROR: insert or update on table \"individual_discussions_comments_flagged\" violates foreign key constraint \"individualdiscussionscommentsflagged_commentid_fk\"")) {
+			}
+			if (se.getMessage().startsWith(
+					"ERROR: insert or update on table \"individual_discussions_comments_flagged\" violates foreign key constraint \"individualdiscussionscommentsflagged_commentid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidCommentId, se.getMessage());
 			} else {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 				throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			}
 		} finally {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 		}
 		return retObj;
 	}
 
-	public IndividualDiscussionCommentFlagged getCommentFlagged(String commentId, String accountId) throws DMCServiceException {
-		Connection connection = DBConnector.connection();
+	public IndividualDiscussionCommentFlagged getCommentFlagged(String commentId, String accountId, String userEPPN) throws DMCServiceException {
+		final Connection connection = DBConnector.connection();
 		IndividualDiscussionCommentFlagged retObj = null;
 
 		try {
-			connection.setAutoCommit(false);
-			String flagQuery = "SELECT * FROM individual_discussions_comments_flagged WHERE account_id = ? AND comment_id = ?";
+			final int userID = UserDao.getUserID(userEPPN);
+			if (userID != Integer.parseInt(accountId)) {
+				throw new DMCServiceException(DMCError.InvalidAccountId, "AccountId does not match userEPPN");
+			}
+		} catch (SQLException se) {
+			ServiceLogger.log(LOGTAG, se.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, se.getMessage());
+		}
 
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(flagQuery);
+		try {
+			connection.setAutoCommit(false);
+			final String flagQuery = "SELECT * FROM individual_discussions_comments_flagged WHERE account_id = ? AND comment_id = ?";
+
+			final PreparedStatement preparedStatement = DBConnector.prepareStatement(flagQuery);
 			preparedStatement.setInt(1, Integer.parseInt(accountId));
 			preparedStatement.setInt(2, Integer.parseInt(commentId));
 			preparedStatement.execute();
-			ResultSet resultSet = preparedStatement.getResultSet();
+			final ResultSet resultSet = preparedStatement.getResultSet();
 
 			if (resultSet.next()) {
 				retObj = new IndividualDiscussionCommentFlagged();
@@ -94,11 +118,11 @@ public class IndividualDiscussionCommentsFlaggedDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -106,12 +130,12 @@ public class IndividualDiscussionCommentsFlaggedDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
 
 		return retObj;
 	}
-	
+
 }

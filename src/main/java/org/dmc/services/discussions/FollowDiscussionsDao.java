@@ -13,31 +13,42 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.users.UserDao;
 
 public class FollowDiscussionsDao {
 
-	private final String logTag = FollowDiscussionsDao.class.getName();
+	private static final String LOGTAG = FollowDiscussionsDao.class.getName();
 
-	public FollowingIndividualDiscussion createFollowDiscussion(FollowingIndividualDiscussion followDiscussion) throws DMCServiceException {
-		FollowingIndividualDiscussion retObj = new FollowingIndividualDiscussion();
-		Connection connection = DBConnector.connection();
-		Util util = Util.getInstance();
+	public FollowingIndividualDiscussion createFollowDiscussion(FollowingIndividualDiscussion followDiscussion, String userEPPN) throws DMCServiceException {
+		final FollowingIndividualDiscussion retObj = new FollowingIndividualDiscussion();
+		final Connection connection = DBConnector.connection();
+		final Util util = Util.getInstance();
+
+		try {
+			final int userID = UserDao.getUserID(userEPPN);
+			if (userID != Integer.parseInt(followDiscussion.getAccountId())) {
+				throw new DMCServiceException(DMCError.InvalidAccountId, "AccountId does not match userEPPN");
+			}
+		} catch (SQLException se) {
+			ServiceLogger.log(LOGTAG, se.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, se.getMessage());
+		}
 
 		try {
 			connection.setAutoCommit(false);
 
-			String followQuery = "INSERT into individual_discussions_following (individual_discussion_id, account_id) values ( ?, ? )";
+			final String followQuery = "INSERT into individual_discussions_following (individual_discussion_id, account_id) values ( ?, ? )";
 
-			PreparedStatement preparedStatementQuery = DBConnector.prepareStatement(followQuery, Statement.RETURN_GENERATED_KEYS);
+			final PreparedStatement preparedStatementQuery = DBConnector.prepareStatement(followQuery, Statement.RETURN_GENERATED_KEYS);
 			preparedStatementQuery.setInt(1, Integer.parseInt(followDiscussion.getIndividualDiscussionId()));
 			preparedStatementQuery.setInt(2, Integer.parseInt(followDiscussion.getAccountId()));
 
-			int rowsAffected_interface = preparedStatementQuery.executeUpdate();
+			final int rowsAffected_interface = preparedStatementQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "unable to add individual discussion follow" + followDiscussion.toString());
 			}
-			int id = util.getGeneratedKey(preparedStatementQuery, "id");
+			final int id = util.getGeneratedKey(preparedStatementQuery, "id");
 
 			retObj.setId(Integer.toString(id));
 			retObj.setIndividualDiscussionId(followDiscussion.getIndividualDiscussionId());
@@ -47,7 +58,7 @@ public class FollowDiscussionsDao {
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			if (se.getMessage().startsWith(
 					"ERROR: insert or update on table \"individual_discussions_following\" violates foreign key constraint \"individualdiscussionsfollowing_accountid_fk\"")) {
@@ -56,30 +67,67 @@ public class FollowDiscussionsDao {
 					"ERROR: insert or update on table \"individual_discussions_following\" violates foreign key constraint \"individualdiscussionsfollowing_individualdiscussionid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidDiscussionId, se.getMessage());
 			} else {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 				throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			}
 		} finally {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 		}
 		return retObj;
 	}
 
-	public void deleteFollowDiscussion(String followId) throws DMCServiceException {
-		Connection connection = DBConnector.connection();
+	public void deleteFollowDiscussion(String followId, String userEPPN) throws DMCServiceException {
+		final Connection connection = DBConnector.connection();
+
+		try {
+			connection.setAutoCommit(false);
+			String accountIdStr = null;
+			final String followingQuery = "SELECT * FROM individual_discussions_following WHERE id = ?";
+
+			final PreparedStatement preparedStatementFollowing = DBConnector.prepareStatement(followingQuery);
+			preparedStatementFollowing.setInt(1, Integer.parseInt(followId));
+			preparedStatementFollowing.execute();
+
+			final ResultSet resultSet = preparedStatementFollowing.getResultSet();
+			if (resultSet.next()) {
+				accountIdStr = Integer.toString(resultSet.getInt("account_id"));
+			} else {
+				throw new DMCServiceException(DMCError.DiscussionFollowNotFound, "Discussion follow object not found");
+			}
+
+			final int userID = UserDao.getUserID(userEPPN);
+			if (userID != Integer.parseInt(accountIdStr)) {
+				throw new DMCServiceException(DMCError.InvalidAccountId, "AccountId does not match userEPPN");
+			}
+
+		} catch (SQLException se) {
+			ServiceLogger.log(LOGTAG, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(LOGTAG, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(LOGTAG, se.getMessage());
+			}
+		}
 
 		try {
 			connection.setAutoCommit(false);
 
-			String query = "DELETE FROM individual_discussions_following WHERE id = ?";
+			final String query = "DELETE FROM individual_discussions_following WHERE id = ?";
 
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, Integer.parseInt(followId));
-			int rowsAffected = preparedStatement.executeUpdate();
+			final int rowsAffected = preparedStatement.executeUpdate();
 
 			if (rowsAffected < 1) {
 				connection.rollback();
@@ -87,31 +135,41 @@ public class FollowDiscussionsDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 		} finally {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 		}
 	}
-	
-	public List<FollowingIndividualDiscussion> getFollowedDiscussionsforAccount(String accountId, String individualDiscussionId, Integer limit, String order, String sort) throws DMCServiceException {
-		Connection connection = DBConnector.connection();
-		FollowingIndividualDiscussion retObj = null;
-		List<FollowingIndividualDiscussion> followedDiscussions = new ArrayList<FollowingIndividualDiscussion>();
+
+	public List<FollowingIndividualDiscussion> getFollowedDiscussionsforAccount(String accountId, String individualDiscussionId, Integer limit, String order, String sort,
+			String userEPPN) throws DMCServiceException {
+		final Connection connection = DBConnector.connection();
+		final List<FollowingIndividualDiscussion> followedDiscussions = new ArrayList<FollowingIndividualDiscussion>();
+
+		try {
+			final int userID = UserDao.getUserID(userEPPN);
+			if (userID != Integer.parseInt(accountId)) {
+				throw new DMCServiceException(DMCError.InvalidAccountId, "AccountId does not match userEPPN");
+			}
+		} catch (SQLException se) {
+			ServiceLogger.log(LOGTAG, se.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, se.getMessage());
+		}
 
 		try {
 			connection.setAutoCommit(false);
 
-			ArrayList<String> columnsInIndividualDiscussionsFollowingTable = new ArrayList<String>();
+			final ArrayList<String> columnsInIndividualDiscussionsFollowingTable = new ArrayList<String>();
 			columnsInIndividualDiscussionsFollowingTable.add("id");
 			columnsInIndividualDiscussionsFollowingTable.add("individual_discussion_id");
 			columnsInIndividualDiscussionsFollowingTable.add("account_id");
@@ -120,7 +178,7 @@ public class FollowDiscussionsDao {
 
 			if (individualDiscussionId == null) {
 				followingQuery = "SELECT * FROM individual_discussions_following WHERE account_id = ?";
-				
+
 				if (sort == null) {
 					followingQuery += " ORDER BY id";
 				} else if (!columnsInIndividualDiscussionsFollowingTable.contains(sort)) {
@@ -144,36 +202,36 @@ public class FollowDiscussionsDao {
 				} else {
 					followingQuery += " LIMIT " + limit;
 				}
-				
+
 				preparedStatement = DBConnector.prepareStatement(followingQuery);
 				preparedStatement.setInt(1, Integer.parseInt(accountId));
-				
+
 			} else {
 				followingQuery = "SELECT * FROM individual_discussions_following WHERE account_id = ? AND individual_discussion_id = ?";
 				preparedStatement = DBConnector.prepareStatement(followingQuery);
 				preparedStatement.setInt(1, Integer.parseInt(accountId));
 				preparedStatement.setInt(2, Integer.parseInt(individualDiscussionId));
 			}
-			
+
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
 
 			while (resultSet.next()) {
-				retObj = new FollowingIndividualDiscussion();
+				final FollowingIndividualDiscussion discussionInTable = new FollowingIndividualDiscussion();
 
-				retObj.setId(Integer.toString(resultSet.getInt("id")));
-				retObj.setIndividualDiscussionId(Integer.toString(resultSet.getInt("individual_discussion_id")));
-				retObj.setAccountId(Integer.toString(resultSet.getInt("account_id")));
+				discussionInTable.setId(Integer.toString(resultSet.getInt("id")));
+				discussionInTable.setIndividualDiscussionId(Integer.toString(resultSet.getInt("individual_discussion_id")));
+				discussionInTable.setAccountId(Integer.toString(resultSet.getInt("account_id")));
 
-				followedDiscussions.add(retObj);
+				followedDiscussions.add(discussionInTable);
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -181,7 +239,7 @@ public class FollowDiscussionsDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}

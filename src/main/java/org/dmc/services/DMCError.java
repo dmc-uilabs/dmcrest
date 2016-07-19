@@ -61,6 +61,7 @@ public enum DMCError {
 	//Individual_Discussions
 	InvalidAccountId,
 	InvalidCommentId,
-	InvalidDiscussionId
+	InvalidDiscussionId,
+	DiscussionFollowNotFound
 
 }
