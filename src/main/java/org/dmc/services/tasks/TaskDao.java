@@ -220,6 +220,7 @@ public class TaskDao {
 			preparedStatement.setInt(2, assigneeId);
 			return preparedStatement.execute();
 		} catch (SQLException e) {
+			ServiceLogger.log(logTag, "assignee " + assignee + " cannot be assigned to task id " + taskId);
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
 	}

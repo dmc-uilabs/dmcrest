@@ -234,7 +234,7 @@ public class TaskIT extends BaseIT {
 	
 	@Test
 	public void testPatchTask() {
-		TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreateAndGet");
+		TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreatePatchAndGet");
 		Integer id =
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
