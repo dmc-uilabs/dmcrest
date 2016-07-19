@@ -30,8 +30,10 @@ import static com.jayway.restassured.RestAssured.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -265,10 +267,12 @@ public class ServiceIT extends BaseIT {
 			input.setName("Input for Model " + (i + 100));
 			DomeModelParam output = createDomeInterfaceParameter();
 			output.setName("Output for Model " + (i + 100));
-			List<DomeModelParam> inputs = new ArrayList<DomeModelParam>();
-			inputs.add(input);
-			List<DomeModelParam> outputs = new ArrayList<DomeModelParam>();
-			outputs.add(output);
+			Map<String, DomeModelParam> inputs = new HashMap<String, DomeModelParam>();
+			inputs.put(input.getName(), input);
+			inputs.put(input.getName(), input);
+			Map<String, DomeModelParam> outputs = new HashMap<String, DomeModelParam>();
+			outputs.put(output.getName(), output);
+			outputs.put(output.getName(), output);
 
 			domeInterface.setInParams(inputs);
 			domeInterface.setOutParams(outputs);
@@ -323,10 +327,12 @@ public class ServiceIT extends BaseIT {
 			input.setName("Input for Model " + (i + 100));
 			DomeModelParam output = createDomeInterfaceParameter();
 			output.setName("Output for Model " + (i + 100));
-			List<DomeModelParam> inputs = new ArrayList<DomeModelParam>();
-			inputs.add(input);
-			List<DomeModelParam> outputs = new ArrayList<DomeModelParam>();
-			outputs.add(output);
+			Map<String, DomeModelParam> inputs = new HashMap<String, DomeModelParam>();
+			inputs.put(input.getName(), input);
+			inputs.put(input.getName(), input);
+			Map<String, DomeModelParam> outputs = new HashMap<String, DomeModelParam>();
+			outputs.put(output.getName(), output);
+			outputs.put(output.getName(), output);
 
 			domeInterface.setInParams(inputs);
 			domeInterface.setOutParams(outputs);
@@ -360,7 +366,8 @@ public class ServiceIT extends BaseIT {
 			path.add(new Integer(4 + 4 - i));
 			path.add(new Integer(5 + 4 - i));
 
-			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal", (tempDome.getDomeServer().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
+			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal",
+					(tempDome.getDomeServer().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Version values are not equal", (tempDome.getVersion().equals(new BigDecimal(20))));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Model ID values are not equal",
 					(tempDome.getModelId().equals((new Integer(4 - i + 100)).toString())));
@@ -408,10 +415,12 @@ public class ServiceIT extends BaseIT {
 		input.setName("Created Parameter for Post Dome Interface");
 		DomeModelParam output = createDomeInterfaceParameter();
 		output.setName("Created Parameter for Post Dome Interface");
-		List<DomeModelParam> inputs = new ArrayList<DomeModelParam>();
-		inputs.add(input);
-		List<DomeModelParam> outputs = new ArrayList<DomeModelParam>();
-		outputs.add(output);
+		Map<String, DomeModelParam> inputs = new HashMap<String, DomeModelParam>();
+		inputs.put(input.getName(), input);
+		inputs.put(input.getName(), input);
+		Map<String, DomeModelParam> outputs = new HashMap<String, DomeModelParam>();
+		outputs.put(output.getName(), output);
+		outputs.put(output.getName(), output);
 
 		domeInterface.setInParams(inputs);
 		domeInterface.setOutParams(outputs);

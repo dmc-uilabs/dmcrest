@@ -16,21 +16,24 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.sharedattributes.Util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 public class DomeInterfacesDao {
-	
+
 	private final String logTag = DomeInterfacesDao.class.getName();
 
-	//used for POST
-	//stores PostUpdateDomeInterface into database and returns GetDomeInterface
+	// used for POST
+	// stores PostUpdateDomeInterface into database and returns GetDomeInterface
 	public GetDomeInterface createDomeInterface(PostUpdateDomeInterface postUpdateDomeInterface, String userEPPN) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
 		Util util = Util.getInstance();
 		GetDomeInterface retObj = new GetDomeInterface();
 		Integer domeServer = new Integer(0);
-				
+
 		try {
 			connection.setAutoCommit(false);
 
@@ -39,10 +42,10 @@ public class DomeInterfacesDao {
 			preparedStatementGetServer.setString(1, postUpdateDomeInterface.getDomeServer());
 			preparedStatementGetServer.execute();
 			ResultSet resultSet = preparedStatementGetServer.getResultSet();
-			if(resultSet.next()) {
+			if (resultSet.next()) {
 				domeServer = resultSet.getInt("server_id");
 			}
-			
+
 			String addDomeInterfaceQuery = "INSERT into service_interface (version, model_id, interface_id_str, type, name, service_id, server_id) values ( ?, ?, ?, ?, ?, ?, ? )";
 
 			PreparedStatement preparedStatementDomeInterfaceQuery = DBConnector.prepareStatement(addDomeInterfaceQuery, Statement.RETURN_GENERATED_KEYS);
@@ -51,7 +54,7 @@ public class DomeInterfacesDao {
 			preparedStatementDomeInterfaceQuery.setString(3, postUpdateDomeInterface.getInterfaceId());
 			preparedStatementDomeInterfaceQuery.setString(4, postUpdateDomeInterface.getType());
 			preparedStatementDomeInterfaceQuery.setString(5, postUpdateDomeInterface.getName());
-			
+
 			preparedStatementDomeInterfaceQuery.setInt(6, postUpdateDomeInterface.getServiceId());
 
 			preparedStatementDomeInterfaceQuery.setInt(7, domeServer);
@@ -74,14 +77,14 @@ public class DomeInterfacesDao {
 
 			ListIterator<Integer> pathListIter = postUpdateDomeInterface.getPath().listIterator();
 			List<BigDecimal> retPathList = new ArrayList<BigDecimal>();
-			
+
 			String addDomeInterfacePathQuery = "INSERT into service_interface_path (interface_id, path) values ( ?, ?)";
 
-			while(pathListIter.hasNext()) {
+			while (pathListIter.hasNext()) {
 				Integer tempPathListInt = pathListIter.next();
-				
+
 				retPathList.add(new BigDecimal(tempPathListInt.toString()));
-				
+
 				PreparedStatement preparedStatement = DBConnector.prepareStatement(addDomeInterfacePathQuery);
 				preparedStatement.setInt(1, id);
 				preparedStatement.setInt(2, tempPathListInt);
@@ -93,16 +96,16 @@ public class DomeInterfacesDao {
 				}
 
 			}
-			
+
 			retObj.setPath(retPathList);
-			
-			ListIterator<DomeModelParam> inParamsListIter = postUpdateDomeInterface.getInParams().listIterator();
+
+			Iterator<DomeModelParam> inParamsListIter = postUpdateDomeInterface.getInParams().values().iterator();
 			String inParamsQuery = "INSERT into service_interface_parameter (interface_id, name, type, unit, category, default_value, parameter_id_txt, parameter_position, input_parameter, instancename) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			int i = 1;
-			
-			while(inParamsListIter.hasNext()) {
+
+			while (inParamsListIter.hasNext()) {
 				DomeModelParam tempInParam = inParamsListIter.next();
-				
+
 				PreparedStatement preparedStatement = DBConnector.prepareStatement(inParamsQuery);
 				preparedStatement.setInt(1, id);
 				preparedStatement.setString(2, tempInParam.getName());
@@ -114,25 +117,25 @@ public class DomeInterfacesDao {
 				preparedStatement.setInt(8, i);
 				preparedStatement.setBoolean(9, true);
 				preparedStatement.setString(10, tempInParam.getInstancename());
-				
+
 				int rowsAffected = preparedStatement.executeUpdate();
 				if (rowsAffected != 1) {
 					connection.rollback();
 					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
 				}
-				
+
 				i++;
 			}
-			
+
 			retObj.setInParams(postUpdateDomeInterface.getInParams());
-			
-			ListIterator<DomeModelParam> outParamsListIter = postUpdateDomeInterface.getOutParams().listIterator();
+
+			Iterator<DomeModelParam> outParamsListIter = postUpdateDomeInterface.getOutParams().values().iterator();
 			String outParamsQuery = "INSERT into service_interface_parameter (interface_id, name, type, unit, category, default_value, parameter_id_txt, parameter_position, input_parameter, instancename) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			i = 1;
-			
-			while(outParamsListIter.hasNext()) {
+
+			while (outParamsListIter.hasNext()) {
 				DomeModelParam tempOutParam = outParamsListIter.next();
-				
+
 				PreparedStatement preparedStatement = DBConnector.prepareStatement(outParamsQuery);
 				preparedStatement.setInt(1, id);
 				preparedStatement.setString(2, tempOutParam.getName());
@@ -144,27 +147,27 @@ public class DomeInterfacesDao {
 				preparedStatement.setInt(8, i);
 				preparedStatement.setBoolean(9, false);
 				preparedStatement.setString(10, tempOutParam.getInstancename());
-				
+
 				int rowsAffected = preparedStatement.executeUpdate();
 				if (rowsAffected != 1) {
 					connection.rollback();
 					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
 				}
-				
+
 				i++;
 			}
-			
+
 			retObj.setOutParams(postUpdateDomeInterface.getOutParams());
-				
+
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
 				ServiceLogger.log(logTag, e.getMessage());
-			}			
+			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
-			
+
 		} finally {
 			try {
 				connection.setAutoCommit(true);
@@ -173,30 +176,30 @@ public class DomeInterfacesDao {
 			}
 
 		}
-	
+
 		return retObj;
 	}
-	
-	//used for GET
-	//returns the GetDomeInterface pointed to by the domeInterfaceId
+
+	// used for GET
+	// returns the GetDomeInterface pointed to by the domeInterfaceId
 	public GetDomeInterface getDomeInterface(BigDecimal domeInterfaceId) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
 		GetDomeInterface retObj = null;
 		boolean readSomethingFromTable = false;
 		Integer domeServer = null;
-		
+
 		try {
 			connection.setAutoCommit(false);
-			
+
 			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE interface_id = ?";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
 			preparedStatement.execute();
-			
+
 			ResultSet resultSet = preparedStatement.getResultSet();
-						
-			if(resultSet.next()) {
+
+			if (resultSet.next()) {
 				readSomethingFromTable = true;
 				retObj = new GetDomeInterface();
 				domeServer = resultSet.getInt("server_id");
@@ -208,39 +211,39 @@ public class DomeInterfacesDao {
 				retObj.setServiceId(new BigDecimal(resultSet.getInt("service_id")));
 				retObj.setType(resultSet.getString("type"));
 				retObj.setVersion(new BigDecimal(resultSet.getInt("version")));
-				
+
 			}
-			
+
 			if (readSomethingFromTable) {
 				String getServerQuery = "SELECT url FROM servers WHERE server_id = ?";
 				PreparedStatement preparedStatementGetServer = DBConnector.prepareStatement(getServerQuery);
 				preparedStatementGetServer.setInt(1, domeServer);
 				preparedStatementGetServer.execute();
 				ResultSet resultSetGetServer = preparedStatementGetServer.getResultSet();
-				if(resultSetGetServer.next()) {
+				if (resultSetGetServer.next()) {
 					retObj.setDomeServer(resultSetGetServer.getString("url"));
 				}
-				
-				String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();	
+
+				String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
 				preparedStatement = DBConnector.prepareStatement(query);
 				preparedStatement.execute();
 				resultSet = preparedStatement.getResultSet();
-	
+
 				List<BigDecimal> newPath = new ArrayList<BigDecimal>();
-	
+
 				while (resultSet.next()) {
 					newPath.add(new BigDecimal(Integer.toString(resultSet.getInt("path"))));
 				}
-				
+
 				retObj.setPath(newPath);
-				
+
 				query = "SELECT * FROM service_interface_parameter WHERE interface_id=" + domeInterfaceId.toString();
 				preparedStatement = DBConnector.prepareStatement(query);
 				preparedStatement.execute();
 				resultSet = preparedStatement.getResultSet();
-				
-				List<DomeModelParam> newInParams = new ArrayList<DomeModelParam>();
-				List<DomeModelParam> newOutParams = new ArrayList<DomeModelParam>();
+
+				Map<String, DomeModelParam> newInParams = new HashMap<String, DomeModelParam>();
+				Map<String, DomeModelParam> newOutParams = new HashMap<String, DomeModelParam>();
 				while (resultSet.next()) {
 					DomeModelParam tempInParam = new DomeModelParam();
 					tempInParam.setName(resultSet.getString("name"));
@@ -250,17 +253,17 @@ public class DomeInterfacesDao {
 					tempInParam.setValue(new BigDecimal(resultSet.getString("default_value")));
 					tempInParam.setParameterid(resultSet.getString("parameter_id_txt"));
 					tempInParam.setInstancename(resultSet.getString("instancename"));
-					
+
 					if (resultSet.getBoolean("input_parameter")) {
-						newInParams.add(tempInParam);
+						newInParams.put(resultSet.getString("name"), tempInParam);
 					} else {
-						newOutParams.add(tempInParam);
+						newOutParams.put(resultSet.getString("name"), tempInParam);
 					}
 				}
 				retObj.setInParams(newInParams);
 				retObj.setOutParams(newOutParams);
-			}		
-			
+			}
+
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
@@ -269,7 +272,7 @@ public class DomeInterfacesDao {
 				ServiceLogger.log(logTag, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
-			
+
 		} finally {
 			try {
 				connection.setAutoCommit(true);
@@ -281,11 +284,11 @@ public class DomeInterfacesDao {
 		return retObj;
 	}
 
-	//used for DELETE
-	//deletes GetDomeInterface pointed to by domeInterfaceId
+	// used for DELETE
+	// deletes GetDomeInterface pointed to by domeInterfaceId
 	public void deleteDomeInterface(BigDecimal domeInterfaceId) throws DMCServiceException {
 		Connection connection = DBConnector.connection();
-		
+
 		try {
 			connection.setAutoCommit(false);
 
@@ -293,24 +296,24 @@ public class DomeInterfacesDao {
 
 			PreparedStatement pathPreparedStatement = DBConnector.prepareStatement(query);
 			int pathRowsAffected = pathPreparedStatement.executeUpdate();
-			
+
 			if (pathRowsAffected < 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
 			}
-			
+
 			String paramQuery = "DELETE FROM service_interface_parameter WHERE interface_id = ?";
 			PreparedStatement paramPreparedStatement = DBConnector.prepareStatement(paramQuery);
 			paramPreparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
 			int paramRowsAffected = paramPreparedStatement.executeUpdate();
-			
+
 			if (paramRowsAffected < 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
 			}
-				
+
 			String domeInterfacesQuery = "DELETE FROM service_interface WHERE interface_id = ?";
-			
+
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
 			int rowsAffected = preparedStatement.executeUpdate();
@@ -319,7 +322,7 @@ public class DomeInterfacesDao {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
 			}
-				
+
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
@@ -328,7 +331,7 @@ public class DomeInterfacesDao {
 				ServiceLogger.log(logTag, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
-			
+
 		} finally {
 			try {
 				connection.setAutoCommit(true);
@@ -337,40 +340,40 @@ public class DomeInterfacesDao {
 			}
 		}
 	}
-	
-	//used for PATCH
-	//updates PostUpdateDomeInterface into database and returns GetDomeInterface
+
+	// used for PATCH
+	// updates PostUpdateDomeInterface into database and returns GetDomeInterface
 	public GetDomeInterface updateDomeInterface(BigDecimal domeInterfaceId, PostUpdateDomeInterface postUpdateDomeInterface) throws DMCServiceException {
-		
+
 		Connection connection = DBConnector.connection();
 		GetDomeInterface retObj = new GetDomeInterface();
 		Integer domeServer = null;
-		
+
 		try {
 			connection.setAutoCommit(false);
-			
+
 			String getServerQuery = "SELECT server_id FROM servers WHERE url = ?";
 			PreparedStatement preparedStatementGetServer = DBConnector.prepareStatement(getServerQuery);
 			preparedStatementGetServer.setString(1, postUpdateDomeInterface.getDomeServer());
 			preparedStatementGetServer.execute();
 			ResultSet resultSetGetServer = preparedStatementGetServer.getResultSet();
-			if(resultSetGetServer.next()) {
+			if (resultSetGetServer.next()) {
 				domeServer = resultSetGetServer.getInt("server_id");
 			}
-			
+
 			String updateQuery = "UPDATE service_interface SET version=?, model_id=?, interface_id_str=?, type=?, name=?, service_id=?, server_id=? WHERE interface_id = ?";
-	
+
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(updateQuery);
 			preparedStatement.setInt(1, postUpdateDomeInterface.getVersion());
 			preparedStatement.setString(2, postUpdateDomeInterface.getModelId());
 			preparedStatement.setString(3, postUpdateDomeInterface.getInterfaceId());
 			preparedStatement.setString(4, postUpdateDomeInterface.getType());
 			preparedStatement.setString(5, postUpdateDomeInterface.getName());
-			
+
 			preparedStatement.setInt(6, postUpdateDomeInterface.getServiceId());
-			
+
 			preparedStatement.setInt(7, domeServer);
-			
+
 			preparedStatement.setInt(8, domeInterfaceId.intValue());
 
 			int rowsAffected_interface = preparedStatement.executeUpdate();
@@ -378,7 +381,7 @@ public class DomeInterfacesDao {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "unable to update dome interface " + postUpdateDomeInterface.toString());
 			}
-	
+
 			retObj.setId(domeInterfaceId.toString());
 			retObj.setDomeServer(postUpdateDomeInterface.getDomeServer());
 			retObj.setInterfaceId(postUpdateDomeInterface.getInterfaceId());
@@ -388,28 +391,28 @@ public class DomeInterfacesDao {
 			retObj.setType(postUpdateDomeInterface.getType());
 			retObj.setVersion(new BigDecimal(Integer.toString(postUpdateDomeInterface.getVersion())));
 
-			//Delete old path values
+			// Delete old path values
 			String query = "DELETE FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
 
 			PreparedStatement pathPreparedStatement = DBConnector.prepareStatement(query);
 			int pathRowsAffected = pathPreparedStatement.executeUpdate();
-			
+
 			if (pathRowsAffected < 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
 			}
-			
-			//Write (potentially new) path values
+
+			// Write (potentially new) path values
 			ListIterator<Integer> pathListIter = postUpdateDomeInterface.getPath().listIterator();
 			List<BigDecimal> retPathList = new ArrayList<BigDecimal>();
-			
+
 			String addDomeInterfacePathQuery = "INSERT into service_interface_path (interface_id, path) values ( ?, ?)";
-			
-			while(pathListIter.hasNext()) {
+
+			while (pathListIter.hasNext()) {
 				Integer tempPathListInt = pathListIter.next();
-				
+
 				retPathList.add(new BigDecimal(tempPathListInt.toString()));
-				
+
 				PreparedStatement preparedStatementPatchPath = DBConnector.prepareStatement(addDomeInterfacePathQuery);
 				preparedStatementPatchPath.setInt(1, new Integer(domeInterfaceId.toString()));
 				preparedStatementPatchPath.setInt(2, tempPathListInt);
@@ -421,28 +424,28 @@ public class DomeInterfacesDao {
 				}
 
 			}
-			
+
 			retObj.setPath(retPathList);
-			
-			//Delete old parameters
+
+			// Delete old parameters
 			String paramQuery = "DELETE FROM service_interface_parameter WHERE interface_id = ?";
 			PreparedStatement paramPreparedStatement = DBConnector.prepareStatement(paramQuery);
 			paramPreparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
 			int paramRowsAffected = paramPreparedStatement.executeUpdate();
-			
+
 			if (paramRowsAffected < 1) {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove dome interface " + domeInterfaceId);
 			}
 
-			//Write (potentially) new parameters
-			ListIterator<DomeModelParam> inParamsListIter = postUpdateDomeInterface.getInParams().listIterator();
+			// Write (potentially) new parameters
+			Iterator<DomeModelParam> inParamsListIter = postUpdateDomeInterface.getInParams().values().iterator();
 			String inParamsQuery = "INSERT into service_interface_parameter (interface_id, name, type, unit, category, default_value, parameter_id_txt, parameter_position, input_parameter, instancename) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			int i = 1;
-			
-			while(inParamsListIter.hasNext()) {
+
+			while (inParamsListIter.hasNext()) {
 				DomeModelParam tempInParam = inParamsListIter.next();
-				
+
 				PreparedStatement preparedStatementInParams = DBConnector.prepareStatement(inParamsQuery);
 				preparedStatementInParams.setInt(1, domeInterfaceId.intValue());
 				preparedStatementInParams.setString(2, tempInParam.getName());
@@ -454,25 +457,25 @@ public class DomeInterfacesDao {
 				preparedStatementInParams.setInt(8, i);
 				preparedStatementInParams.setBoolean(9, true);
 				preparedStatementInParams.setString(10, tempInParam.getInstancename());
-				
+
 				int rowsAffected = preparedStatementInParams.executeUpdate();
 				if (rowsAffected != 1) {
 					connection.rollback();
 					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
 				}
-				
+
 				i++;
 			}
-			
+
 			retObj.setInParams(postUpdateDomeInterface.getInParams());
-			
-			ListIterator<DomeModelParam> outParamsListIter = postUpdateDomeInterface.getOutParams().listIterator();
+
+			Iterator<DomeModelParam> outParamsListIter = postUpdateDomeInterface.getOutParams().values().iterator();
 			String outParamsQuery = "INSERT into service_interface_parameter (interface_id, name, type, unit, category, default_value, parameter_id_txt, parameter_position, input_parameter, instancename) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			i = 1;
-			
-			while(outParamsListIter.hasNext()) {
+
+			while (outParamsListIter.hasNext()) {
 				DomeModelParam tempOutParam = outParamsListIter.next();
-				
+
 				PreparedStatement preparedStatementOutParams = DBConnector.prepareStatement(outParamsQuery);
 				preparedStatementOutParams.setInt(1, domeInterfaceId.intValue());
 				preparedStatementOutParams.setString(2, tempOutParam.getName());
@@ -484,16 +487,16 @@ public class DomeInterfacesDao {
 				preparedStatementOutParams.setInt(8, i);
 				preparedStatementOutParams.setBoolean(9, false);
 				preparedStatementOutParams.setString(10, tempOutParam.getInstancename());
-				
+
 				int rowsAffected = preparedStatementOutParams.executeUpdate();
 				if (rowsAffected != 1) {
 					connection.rollback();
 					throw new DMCServiceException(DMCError.OtherSQLError, "unable to add dome interface " + postUpdateDomeInterface.toString());
 				}
-				
+
 				i++;
 			}
-			
+
 			retObj.setOutParams(postUpdateDomeInterface.getOutParams());
 
 		} catch (SQLException se) {
@@ -504,7 +507,7 @@ public class DomeInterfacesDao {
 				ServiceLogger.log(logTag, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
-			
+
 		} finally {
 			try {
 				connection.setAutoCommit(true);
@@ -512,18 +515,18 @@ public class DomeInterfacesDao {
 				ServiceLogger.log(logTag, se.getMessage());
 			}
 
-		}		
+		}
 		return retObj;
 	}
-	
+
 	public List<GetDomeInterface> getDomeInterfacesFromServiceId(BigDecimal serviceId, Integer limit, String order, String sort) throws DMCServiceException {
-    	Connection connection = DBConnector.connection();
+		Connection connection = DBConnector.connection();
 		GetDomeInterface retObj = null;
 		List<GetDomeInterface> domeInterfaces = new ArrayList<GetDomeInterface>();
-		
+
 		try {
 			connection.setAutoCommit(false);
-			
+
 			ArrayList<String> columnsInServiceInterfaceTable = new ArrayList<String>();
 			columnsInServiceInterfaceTable.add("interface_id");
 			columnsInServiceInterfaceTable.add("version");
@@ -533,9 +536,9 @@ public class DomeInterfacesDao {
 			columnsInServiceInterfaceTable.add("name");
 			columnsInServiceInterfaceTable.add("service_id");
 			columnsInServiceInterfaceTable.add("server_id");
-			
+
 			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE service_id = ?";
-			
+
 			if (sort == null) {
 				domeInterfacesQuery += " ORDER BY interface_id";
 			} else if (!columnsInServiceInterfaceTable.contains(sort)) {
@@ -543,7 +546,7 @@ public class DomeInterfacesDao {
 			} else {
 				domeInterfacesQuery += " ORDER BY " + sort;
 			}
-			
+
 			if (order == null) {
 				domeInterfacesQuery += " ASC";
 			} else if (!order.equals("ASC") && !order.equals("DESC")) {
@@ -551,7 +554,7 @@ public class DomeInterfacesDao {
 			} else {
 				domeInterfacesQuery += " " + order;
 			}
-			
+
 			if (limit == null) {
 				domeInterfacesQuery += " LIMIT ALL";
 			} else if (limit < 0) {
@@ -559,15 +562,15 @@ public class DomeInterfacesDao {
 			} else {
 				domeInterfacesQuery += " LIMIT " + limit;
 			}
-			
+
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(serviceId.intValue()));
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
-			
+
 			while (resultSet.next()) {
 				retObj = new GetDomeInterface();
-				
+
 				retObj.setId(Integer.toString(resultSet.getInt("interface_id")));
 				retObj.setInterfaceId(resultSet.getString("interface_id_str"));
 				retObj.setModelId(resultSet.getString("model_id"));
@@ -576,36 +579,36 @@ public class DomeInterfacesDao {
 				retObj.setServiceId(new BigDecimal(resultSet.getInt("service_id")));
 				retObj.setType(resultSet.getString("type"));
 				retObj.setVersion(new BigDecimal(resultSet.getInt("version")));
-				
+
 				String getServerQuery = "SELECT url FROM servers WHERE server_id = ?";
 				PreparedStatement preparedStatementGetServer = DBConnector.prepareStatement(getServerQuery);
 				preparedStatementGetServer.setInt(1, new Integer(resultSet.getInt("server_id")));
 				preparedStatementGetServer.execute();
 				ResultSet resultSetGetServer = preparedStatementGetServer.getResultSet();
-				if(resultSetGetServer.next()) {
+				if (resultSetGetServer.next()) {
 					retObj.setDomeServer(resultSetGetServer.getString("url"));
 				}
-				
+
 				String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + retObj.getId();
-				
+
 				PreparedStatement preparedStatementPath = DBConnector.prepareStatement(query);
 				preparedStatementPath.execute();
-				
+
 				ResultSet resultSetPath = preparedStatementPath.getResultSet();
 				List<BigDecimal> newPath = new ArrayList<BigDecimal>();
-				while(resultSetPath.next()) {
+				while (resultSetPath.next()) {
 					newPath.add(new BigDecimal(Integer.toString(resultSetPath.getInt("path"))));
 				}
-				
+
 				retObj.setPath(newPath);
-				
+
 				query = "SELECT * FROM service_interface_parameter WHERE interface_id=" + retObj.getId();
 				PreparedStatement preparedStatementParams = DBConnector.prepareStatement(query);
 				preparedStatementParams.execute();
 				ResultSet resultSetParams = preparedStatementParams.getResultSet();
-				
-				List<DomeModelParam> newInParams = new ArrayList<DomeModelParam>();
-				List<DomeModelParam> newOutParams = new ArrayList<DomeModelParam>();
+
+				Map<String, DomeModelParam> newInParams = new HashMap<String, DomeModelParam>();
+				Map<String, DomeModelParam> newOutParams = new HashMap<String, DomeModelParam>();
 				while (resultSetParams.next()) {
 					DomeModelParam tempInParam = new DomeModelParam();
 					tempInParam.setName(resultSetParams.getString("name"));
@@ -615,19 +618,19 @@ public class DomeInterfacesDao {
 					tempInParam.setValue(new BigDecimal(resultSetParams.getString("default_value")));
 					tempInParam.setParameterid(resultSetParams.getString("parameter_id_txt"));
 					tempInParam.setInstancename(resultSetParams.getString("instancename"));
-					
+
 					if (resultSetParams.getBoolean("input_parameter")) {
-						newInParams.add(tempInParam);
+						newInParams.put(resultSet.getString("name"), tempInParam);
 					} else {
-						newOutParams.add(tempInParam);
+						newOutParams.put(resultSet.getString("name"), tempInParam);
 					}
 				}
 				retObj.setInParams(newInParams);
 				retObj.setOutParams(newOutParams);
-				
+
 				domeInterfaces.add(retObj);
 			}
-			
+
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
@@ -636,7 +639,7 @@ public class DomeInterfacesDao {
 				ServiceLogger.log(logTag, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
-			
+
 		} finally {
 			try {
 				connection.setAutoCommit(true);
@@ -645,30 +648,29 @@ public class DomeInterfacesDao {
 			}
 
 		}
-		
-    	return domeInterfaces;
-    }
-	
-	
+
+		return domeInterfaces;
+	}
+
 	public List<GetDomeInterface> getDomeInterfacesFromInterfaceIdStr(String interface_id_str) throws DMCServiceException {
-    	Connection connection = DBConnector.connection();
+		Connection connection = DBConnector.connection();
 		GetDomeInterface retObj = null;
 		List<GetDomeInterface> domeInterfaces = new ArrayList<GetDomeInterface>();
-		
+
 		try {
 			// let's start a transaction
 			connection.setAutoCommit(false);
-			
+
 			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE interface_id_str = ?";
-			
+
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setString(1, interface_id_str);
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
-			
+
 			while (resultSet.next()) {
 				retObj = new GetDomeInterface();
-				
+
 				retObj.setId(Integer.toString(resultSet.getInt("interface_id")));
 				retObj.setInterfaceId(resultSet.getString("interface_id_str"));
 				retObj.setModelId(resultSet.getString("model_id"));
@@ -676,36 +678,36 @@ public class DomeInterfacesDao {
 				retObj.setServiceId(new BigDecimal(resultSet.getInt("service_id")));
 				retObj.setType(resultSet.getString("type"));
 				retObj.setVersion(new BigDecimal(resultSet.getInt("version")));
-				
+
 				String getServerQuery = "SELECT url FROM servers WHERE server_id = ?";
 				PreparedStatement preparedStatementGetServer = DBConnector.prepareStatement(getServerQuery);
 				preparedStatementGetServer.setInt(1, new Integer(resultSet.getInt("server_id")));
 				preparedStatementGetServer.execute();
 				ResultSet resultSetGetServer = preparedStatementGetServer.getResultSet();
-				if(resultSetGetServer.next()) {
+				if (resultSetGetServer.next()) {
 					retObj.setDomeServer(resultSetGetServer.getString("url"));
 				}
-				
+
 				String query = "SELECT interface_id, path FROM service_interface_path WHERE interface_id=" + retObj.getId();
-				
+
 				PreparedStatement preparedStatementPath = DBConnector.prepareStatement(query);
 				preparedStatementPath.execute();
-				
+
 				ResultSet resultSetPath = preparedStatementPath.getResultSet();
 				List<BigDecimal> newPath = new ArrayList<BigDecimal>();
-				while(resultSetPath.next()) {
+				while (resultSetPath.next()) {
 					newPath.add(new BigDecimal(Integer.toString(resultSetPath.getInt("path"))));
 				}
-				
+
 				retObj.setPath(newPath);
-				
+
 				query = "SELECT * FROM service_interface_parameter WHERE interface_id=" + retObj.getId();
 				PreparedStatement preparedStatementParams = DBConnector.prepareStatement(query);
 				preparedStatementParams.execute();
 				ResultSet resultSetParams = preparedStatementParams.getResultSet();
-				
-				List<DomeModelParam> newInParams = new ArrayList<DomeModelParam>();
-				List<DomeModelParam> newOutParams = new ArrayList<DomeModelParam>();
+
+				Map<String, DomeModelParam> newInParams = new HashMap<String, DomeModelParam>();
+				Map<String, DomeModelParam> newOutParams = new HashMap<String, DomeModelParam>();
 				while (resultSetParams.next()) {
 					DomeModelParam tempInParam = new DomeModelParam();
 					tempInParam.setName(resultSetParams.getString("name"));
@@ -715,19 +717,19 @@ public class DomeInterfacesDao {
 					tempInParam.setValue(new BigDecimal(resultSetParams.getString("default_value")));
 					tempInParam.setParameterid(resultSetParams.getString("parameter_id_txt"));
 					tempInParam.setInstancename(resultSetParams.getString("instancename"));
-					
+
 					if (resultSetParams.getBoolean("input_parameter")) {
-						newInParams.add(tempInParam);
+						newInParams.put(resultSet.getString("name"), tempInParam);
 					} else {
-						newOutParams.add(tempInParam);
+						newOutParams.put(resultSet.getString("name"), tempInParam);
 					}
 				}
 				retObj.setInParams(newInParams);
 				retObj.setOutParams(newOutParams);
-				
+
 				domeInterfaces.add(retObj);
 			}
-			
+
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
 			try {
@@ -743,8 +745,8 @@ public class DomeInterfacesDao {
 				ServiceLogger.log(logTag, se.getMessage());
 			}
 		}
-		
-    	return domeInterfaces;
-    }
-	
+
+		return domeInterfaces;
+	}
+
 }
