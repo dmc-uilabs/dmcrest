@@ -12,6 +12,7 @@ public class VerificationPatch {
 	private String resourceType; 
 	private String userEPPN; 
 	private boolean verified;
+	private String scanLog; 
 	
     @JsonProperty("id")
 	public int getId() {
@@ -67,6 +68,14 @@ public class VerificationPatch {
 	}
 	public void setVerified(boolean verified) {
 		this.verified = verified;
+	}
+	
+	@JsonProperty("scanLog")
+	public String getScanLog() {
+		return scanLog;
+	}
+	public void setScanLog(String scanLog) {
+		this.scanLog = scanLog;
 	} 
 	
 	

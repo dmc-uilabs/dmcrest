@@ -39,14 +39,14 @@ public class ProjectDocumentController {
 	}
 	
 	/* 
-	 * POST PROJECT DOCUMENT, returns an array of ProjectDocuments POJO
+	 * GWT PROJECT DOCUMENT, returns an array of ProjectDocuments POJO
 	 */
 	@RequestMapping(value = "/projects/{projectID}/project_documents",method = RequestMethod.GET,  produces = {"application/json"} )
 	public ResponseEntity getProjectDocumentsId(@PathVariable("projectID") int projectID,
 			@RequestParam(value = "documentGroupId", required = true) int documentGroupId, 
 			@RequestParam(value = "limit", defaultValue = "100", required=false) Integer limit,
 	        @RequestParam(value = "order", defaultValue = "ASC", required=false) String order,
-	        @RequestParam(value = "sort", defaultValue = "file_id", required=false) String sort) {
+	        @RequestParam(value = "sort", defaultValue = "id", required=false) String sort) {
 
 		ServiceLogger.log(logTag, " GET ProjectDocuments by Project " + projectID);
 		int statusCode = HttpStatus.OK.value();
