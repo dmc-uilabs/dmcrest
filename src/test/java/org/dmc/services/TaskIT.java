@@ -43,7 +43,7 @@ public class TaskIT extends BaseIT {
     @Test
     public void testTaskCreateAndGet() {
         TaskToCreate task = createTaskJsonSample("testTaskCreateAndGet");
-        Integer id = given().header("Content-type", APPLICATION_JSON_VALUE).header("APJ_eppn", knownEPPN).body(task).expect().statusCode(OK.value())
+        Integer id = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).body(task).expect().statusCode(OK.value())
                 .when().post(CREATE_TASKS).then().body(matchesJsonSchemaInClasspath(ID_SCHEMA))
                 .extract().path("id");
 
@@ -51,7 +51,7 @@ public class TaskIT extends BaseIT {
 
         // let's query the newly created task and make sure we get it
         Task retrievedTask =
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("APJ_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(newGetRequest).then()
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(newGetRequest).then()
                 .log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
         assertEquals(id.toString(), retrievedTask.getId());
     }
@@ -61,7 +61,7 @@ public class TaskIT extends BaseIT {
         TaskToCreate task = createTaskJsonSample("testTaskCreateAndGetWithNoAssignee");
         task.setAssignee(null);
         task.setAssigneeId(null);
-        Integer id = given().header("Content-type", APPLICATION_JSON_VALUE).header("APJ_eppn", knownEPPN).body(task).expect().statusCode(OK.value())
+        Integer id = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).body(task).expect().statusCode(OK.value())
                 .when().post(CREATE_TASKS).then().body(matchesJsonSchemaInClasspath(ID_SCHEMA))
                 .extract().path("id");
 
@@ -69,7 +69,7 @@ public class TaskIT extends BaseIT {
 
         // let's query the newly created task and make sure we get it
         Task retrievedTask =
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("APJ_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(newGetRequest).then()
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(newGetRequest).then()
                 .log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
         // because that should get set when created
         assertNotNull(retrievedTask.getId());
@@ -82,7 +82,7 @@ public class TaskIT extends BaseIT {
         TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreateAndGetWithNoId");
         task.setAssignee(null);
         task.setAssigneeId(null);
-        Integer id = given().header("Content-type", APPLICATION_JSON_VALUE).header("APJ_eppn", knownEPPN).body(task).expect().statusCode(OK.value())
+        Integer id = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).body(task).expect().statusCode(OK.value())
                 .when().post(CREATE_TASKS).then().body(matchesJsonSchemaInClasspath(ID_SCHEMA))
                 .extract().path("id");
 
@@ -90,7 +90,7 @@ public class TaskIT extends BaseIT {
 
         // let's query the newly created task and make sure we get it
         Task retrievedTask =
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("APJ_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(newGetRequest).then()
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(newGetRequest).then()
                 .log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
         assertEquals(id.toString(), retrievedTask.getId());
         assertNull(retrievedTask.getAssignee());
@@ -100,13 +100,13 @@ public class TaskIT extends BaseIT {
     // WARNING: this test is ok as long as our test db has task with id = 1
     @Test
     public void testTask1() {
-        given().header("Content-type", APPLICATION_JSON_VALUE).header("APJ_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(TASKS_BASE + "/1").then().log()
+        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(TASKS_BASE + "/1").then().log()
                 .all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA));
     }
 
     @Test
     public void testTaskList() {
-        given().header("Content-type", APPLICATION_JSON_VALUE).header("APJ_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(TASKS_BASE).then()
+        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(TASKS_BASE).then()
                 .body(matchesJsonSchemaInClasspath(TASKLIST_SCHEMA));
     }
 
@@ -114,7 +114,7 @@ public class TaskIT extends BaseIT {
     @Test
     public void testTaskListWithOrderSortAndStatus() {
         ArrayList<Task> taskList =
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("APJ_eppn", knownEPPN)
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN)
             .expect().statusCode(OK.value())
             .when().get(GET_TASKS_WITH_ORDER_SORT_STATUS)
             .as(ArrayList.class);
