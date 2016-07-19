@@ -186,7 +186,7 @@ public class TaskIT extends BaseIT {
 		Integer id =
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
-			header("AJP_eppn", "berlier").
+			header("AJP_eppn", "testUser").
 			body(task).
 		expect().
 			statusCode(OK.value()).
@@ -202,7 +202,7 @@ public class TaskIT extends BaseIT {
 		Task retrievedTask =
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
-			header("AJP_eppn", "berlier").
+			header("AJP_eppn", "testUser").
 		expect().
 			statusCode(OK.value()).
 		when().
@@ -216,7 +216,7 @@ public class TaskIT extends BaseIT {
 		// delete newly created task
         given().
 			header("Content-type", APPLICATION_JSON_VALUE).
-			header("AJP_eppn", "berlier").
+			header("AJP_eppn", "testUser").
 		expect().
 			statusCode(OK.value()).
 		when().
@@ -225,7 +225,7 @@ public class TaskIT extends BaseIT {
 		// lookup deleted tasks
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
-			header("AJP_eppn", "berlier").
+			header("AJP_eppn", "testUser").
 		expect().
 			statusCode(INTERNAL_SERVER_ERROR.value()).
 		when().
@@ -238,6 +238,7 @@ public class TaskIT extends BaseIT {
 		Integer id =
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", "testUser").
 			body(task).
 		expect().
 			statusCode(OK.value()).
@@ -253,6 +254,7 @@ public class TaskIT extends BaseIT {
 		Task retrievedTask =
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", "testUser").
 		expect().
 			statusCode(OK.value()).
 		when().
@@ -266,6 +268,7 @@ public class TaskIT extends BaseIT {
 		Task patchedTask =
 		given().
 			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", "testUser").
 			body(retrievedTask).
 		expect().
 			statusCode(OK.value()).
