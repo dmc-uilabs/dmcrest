@@ -105,10 +105,10 @@ public class TaskDao {
 			ServiceLogger.log(logTag, "created task ID in insertTask: " + id);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			return null;
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		} catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			return null;
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
 		return getTask(Integer.toString(id), userEPPN);
 	}
@@ -347,10 +347,20 @@ public class TaskDao {
 			String title = resultSet.getString("title");
 			Integer group_project_id = resultSet.getInt("group_project_id");
 			String projectTitle = resultSet.getString("project_title");
+			
 			String assignee = resultSet.getString("assignee");
-			String assigneeId = assignee;
+			int assigneeId = UserDao.getUserID(assignee);
+			String assigneeIdStr = null;
+			if(assigneeId > 0) {
+				assigneeIdStr = Integer.toString(assigneeId);
+			}
+			
 			String reporter = resultSet.getString("created_by");
-			String reporterId = reporter;
+			int reporterId = UserDao.getUserID(reporter);
+			String reporterIdStr = null;
+			if(reporterId > 0) {
+				reporterIdStr = Integer.toString(reporterId);
+			}
 			
 			String details = resultSet.getString("details");
 			Integer priority = resultSet.getInt("priority");
@@ -366,9 +376,9 @@ public class TaskDao {
 			task.setTitle(title);
 			task.setTaskProject(taskProject);
 			task.setAssignee(assignee);
-			task.setAssigneeId(assigneeId);
+			task.setAssigneeId(assigneeIdStr);
 			task.setReporter(reporter);
-			task.setReporterId(reporterId);
+			task.setReporterId(reporterIdStr);
 			task.setDueDate(dueDate.getTime());
 			task.setAdditionalDetails(details);
 			task.setStatus(status);
