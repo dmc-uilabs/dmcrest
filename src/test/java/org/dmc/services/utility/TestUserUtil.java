@@ -1,5 +1,9 @@
 package org.dmc.services.utility;
 
+import org.springframework.http.HttpStatus;
+
+import org.json.JSONObject;
+
 import java.util.Date;
 import java.util.UUID;
 import java.text.SimpleDateFormat;
@@ -38,7 +42,7 @@ public class TestUserUtil {
         header("AJP_displayName", "userDisplayName" + unique).
         header("AJP_mail", "userEmail" + unique).
         expect().
-        statusCode(200).
+        statusCode(HttpStatus.OK.value()).
 		when().
         post("/users/create").
 		then().
@@ -47,4 +51,26 @@ public class TestUserUtil {
         return new String("userEPPN" + unique);
     }
 
+	public static Integer addBasicInfomationToUser(String userEPPN) {
+		JSONObject json = new JSONObject();
+		
+		json.put("email", "test basic info email");
+		json.put("firstName", "test basic info first name");
+		json.put("lastName", "test basic info last name");
+		json.put("company", "1");
+
+		Integer id =
+		given().
+			header("Content-type", "application/json").
+			header("AJP_eppn", userEPPN).
+			body(json.toString()).
+		expect().
+			statusCode(HttpStatus.OK.value()).
+		when().
+			post("/user-basic-information").
+		then().
+			extract().path("id");
+		
+		return id;
+	}
 }
