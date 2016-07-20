@@ -42,9 +42,7 @@ public class VerificationPatchDao {
         	}
         
             // update correct table entity return finalURL;
-            String query = "UPDATE " + payload.getTable() + " SET "
-            + "url = ?, verified = ? "
-            + "WHERE id = ?";
+            String query = "UPDATE " + payload.getTable() + " SET " + payload.getUrlColumn() + " = ?, verified = ? " + "WHERE " + payload.getIdColumn() + " = ?";
 
             statement = DBConnector.prepareStatement(query);
             statement.setString(1, finalURL);

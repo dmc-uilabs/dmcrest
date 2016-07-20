@@ -12,7 +12,7 @@ public class Verification {
 	private static final String targetURL = "http://localhost:3000/";//System.getenv("verifyURL");
 	
 	
-	public String verify (int id, String url, String table, String userEPPN, String folder, String resourceType ) throws DMCServiceException {
+	public String verify (int id, String url, String table, String userEPPN, String folder, String resourceType, String idColumn, String urlColumn ) throws DMCServiceException {
 		try{ 
 			
 			//Create upload object
@@ -23,6 +23,8 @@ public class Verification {
 			upload.setUserEPPN(userEPPN);
 			upload.setFolder(folder);
 			upload.setResourceType(resourceType);
+			upload.setIdColumn(idColumn);
+			upload.setUrlColumn(urlColumn);
 			
 			//REST API CLient class
 			RestTemplate restTemplate = new RestTemplate();
