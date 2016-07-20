@@ -3,9 +3,12 @@ package org.dmc.services.security;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserPrincipal implements UserDetails {
@@ -13,7 +16,7 @@ public class UserPrincipal implements UserDetails {
 	private Integer id;
 	private String username;
 	private Map<Integer, String> rolesByOrgId = new HashMap<Integer, String>();
-	private Boolean isSuperAdmin = false;
+	private Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<SimpleGrantedAuthority>();
 	
 	public UserPrincipal(Integer id, String username) {
 		this.id = id;
@@ -43,17 +46,22 @@ public class UserPrincipal implements UserDetails {
 	public Map<Integer, String> getAllRoles() {
 		return this.rolesByOrgId;
 	}
-	
-	public Boolean getIsSuperAdmin() {
-		return this.isSuperAdmin;
-	}
-	public void setIsSuperAdmin(Boolean isSuperAdmin) {
-		this.isSuperAdmin = isSuperAdmin;
-	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.EMPTY_LIST;
+		return grantedAuthorities;
+	}
+	
+	public void addAuthority(String authority) {
+		this.grantedAuthorities.add(new SimpleGrantedAuthority(authority));
+	}
+	
+	public void addAuthorities(Collection<String> authorities) {
+		authorities.stream().forEach((n) -> addAuthority(n));
+	}
+	
+	public boolean hasAuthority(String authority) {
+		return this.grantedAuthorities.contains(new SimpleGrantedAuthority(authority));
 	}
 
 	@Override

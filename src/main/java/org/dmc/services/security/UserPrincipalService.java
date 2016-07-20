@@ -26,7 +26,12 @@ public class UserPrincipalService implements UserDetailsService {
 		UserPrincipal principal = new UserPrincipal(user.getId(), user.getUsername());
 		
 		for (UserRoleAssignment roleAssignment : user.getRoles()) {
-			principal.addRole(roleAssignment.getOrganizationId(), roleAssignment.getRole().getRole());
+			String role = roleAssignment.getRole().getRole();
+			principal.addRole(roleAssignment.getOrganizationId(), role);
+			
+			if (!principal.hasAuthority(role)) {
+				principal.addAuthorities(PermissionEvaluationHelper.getInheritedRolesForRole(role));
+			}
 		}
 		
 		return principal;
