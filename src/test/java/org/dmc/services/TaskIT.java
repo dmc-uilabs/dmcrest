@@ -64,6 +64,27 @@ public class TaskIT extends BaseIT {
         Task retrievedTask =
             given().header("Content-type", APPLICATION_JSON_VALUE).expect().statusCode(OK.value()).when().get(newGetRequest).then()
                 .log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
+        // because that should get set when created
+        assertNotNull(retrievedTask.getId());
+        assertNull(retrievedTask.getAssignee());
+        assertNull(retrievedTask.getAssigneeId());
+    }
+
+    @Test
+    public void testTaskCreateAndGetWithRealisticDate() {
+        TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreateAndGetWithNoId");
+        task.setAssignee(null);
+        task.setAssigneeId(null);
+        Integer id = given().header("Content-type", APPLICATION_JSON_VALUE).body(task).expect().statusCode(OK.value())
+                .when().post(CREATE_TASKS).then().body(matchesJsonSchemaInClasspath(ID_SCHEMA))
+                .extract().path("id");
+
+        String newGetRequest = TASKS_BASE + "/" + id.toString();
+
+        // let's query the newly created task and make sure we get it
+        Task retrievedTask =
+            given().header("Content-type", APPLICATION_JSON_VALUE).expect().statusCode(OK.value()).when().get(newGetRequest).then()
+                .log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
         assertEquals(id.toString(), retrievedTask.getId());
         assertNull(retrievedTask.getAssignee());
         assertNull(retrievedTask.getAssigneeId());
@@ -112,7 +133,6 @@ public class TaskIT extends BaseIT {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         String unique = format.format(date);
 
-        final String taskId = "not_set_yet";
         final String title  = "sample for test " + testDescription + " from junit on " + unique;
         final String additionalDetails = "description for sample test  " + testDescription + " from junit on " + unique;
         final int priority = 0;
@@ -125,7 +145,30 @@ public class TaskIT extends BaseIT {
 
         final String projectId = "1"; // from group table and project_group_list, 1
                                         // is available in both
-        TaskToCreate json = new TaskToCreate(taskId, title, projectId, assignee, assigneeId,
+        TaskToCreate json = new TaskToCreate(title, projectId, assignee, assigneeId,
+            reporter, reporterId, dueDate,
+            additionalDetails, status, priority);
+        return json;
+    }
+
+    private TaskToCreate createTaskJsonSampleWithRealisticDate(String testDescription) {
+        Date date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        String unique = format.format(date);
+
+        final String title  = "sample for test " + testDescription + " from junit on " + unique;
+        final String additionalDetails = "description for sample test  " + testDescription + " from junit on " + unique;
+        final int priority = 4;
+        final long dueDate = 1468468800000L;
+        final String reporter = "bamboo tester"; // a user ID in users table
+        final String reporterId = "111"; // a user ID in users table
+        final String assignee = "berlier"; // from group table
+        final String assigneeId = "103"; // from group table
+        final String status = "Open";
+
+        final String projectId = "1"; // from group table and project_group_list, 1
+                                        // is available in both
+        TaskToCreate json = new TaskToCreate(title, projectId, assignee, assigneeId,
             reporter, reporterId, dueDate,
             additionalDetails, status, priority);
         return json;
