@@ -627,11 +627,12 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServiceGet_InputPositions(){
+		int sId = 300;
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/services/" + serviceId + "/input-positions");
+		statusCode(HttpStatus.OK.value()).
+		when().get("/services/" + sId + "/input-positions");
 	}
 	
 	
@@ -812,28 +813,43 @@ public class ServiceIT extends BaseIT {
 		when().delete("/service_runs/" + serviceId);
 	}
 	
-	/*
-	 * test case for POST /input-positions
-	 */
-	@Test
 	public void testPost_InputPosition(){
-		List<PostServiceInputPosition> obj = new ArrayList<PostServiceInputPosition>();
+		
+		ArrayList<ServiceInputPosition> positions = new ArrayList<ServiceInputPosition>();
+		ServiceInputPosition position1 = new ServiceInputPosition();
+		position1.setName("SpecimenWidth");
+		position1.setPosition(new BigDecimal(3.0));
+		position1.setName("CrackLength");
+		positions.add(position1);
+		
+		ServiceInputPosition position2 = new ServiceInputPosition();
+		position2.setPosition(new BigDecimal(4.0));
+		position2.setName("Alpha");
+		positions.add(position2);
+		
+		ServiceInputPosition position3 = new ServiceInputPosition();
+		position3.setPosition(new BigDecimal(5.0));
+		PostServiceInputPosition input = new PostServiceInputPosition();
+		positions.add(position3);
+		
+		input.setPositions(positions);
+		input.setServiceId("300");
+	
 		ObjectMapper mapper = new ObjectMapper();
-		String postedInputPositionJSONString = null;
+		String positionJSONString = null;
 		
 		try {
-			postedInputPositionJSONString = mapper.writeValueAsString(obj);
+			positionJSONString = mapper.writeValueAsString(input);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}		
 		given().
         header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
-        body(postedInputPositionJSONString).
+        body(positionJSONString).
 	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+        statusCode(HttpStatus.OK.value()).
 	when().
         post("/input-positions");
 		
@@ -848,7 +864,7 @@ public class ServiceIT extends BaseIT {
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().delete("/input-positions/" + positionInputId);
 	}
 	
@@ -859,13 +875,17 @@ public class ServiceIT extends BaseIT {
 	@Test
 	public void testPatch_InputPositionByPositionInputId(){
 		List<ServiceInputPosition> obj = new ArrayList<ServiceInputPosition>();
+		
+		int interfaceId = 100;
+		ServiceInputPosition position1 = new ServiceInputPosition();
+		position1.setName("SpecimenWidth");
+		position1.setPosition(new BigDecimal(5000.0));
+		obj.add(position1);
 		ObjectMapper mapper = new ObjectMapper();
 		String patchedServiceInputPositionJSONString = null;
-		
 		try {
 			patchedServiceInputPositionJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -873,13 +893,11 @@ public class ServiceIT extends BaseIT {
         header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
         body(patchedServiceInputPositionJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        patch("/input-positions/" + positionInputId);
-		
-	}
-	
+        	expect().
+        statusCode(HttpStatus.OK.value()).
+        	when().
+        patch("/input-positions/" + interfaceId);	
+	}	
 	
     // create a service object to use as body in post
     private Service createNewServiceObjectToPost()
