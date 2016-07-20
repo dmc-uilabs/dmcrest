@@ -19,15 +19,15 @@ public class UserContactInfo extends BaseEntity {
 	@Column(name = "id")
 	private Integer id;
 
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne(cascade=CascadeType.ALL, orphanRemoval=true)
 	@JoinColumn(name = "user_private_contact_info_id")
 	private UserPrivateContactInfo userPrivateContactInfo;
 
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne(cascade=CascadeType.ALL, orphanRemoval=true)
 	@JoinColumn(name = "user_public_contact_info_id")
 	private UserPublicContactInfo userPublicContactInfo;
 
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne(cascade=CascadeType.ALL, orphanRemoval=true)
 	@JoinColumn(name = "user_member_portal_contact_info_id")
 	private UserMemberPortalContactInfo userMemberPortalContactInfo;
 
