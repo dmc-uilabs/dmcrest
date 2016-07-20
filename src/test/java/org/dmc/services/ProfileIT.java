@@ -145,14 +145,14 @@ public class ProfileIT extends BaseIT {
         
     	ObjectMapper mapper = new ObjectMapper();
     	
-		JsonNode projects =
+    	JsonNode projects =
             given()
                 .header("AJP_eppn", "userEPPN" + unique)
             .expect()
                 .statusCode(200)
             .when()
                 .get(PROFILES_READ_RESOURCE)
-            .as(JsonNode.class);
+                .as(JsonNode.class);
             
 		try {
 			ArrayList<Project> projectList =
