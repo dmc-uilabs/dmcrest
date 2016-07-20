@@ -30,12 +30,6 @@ public class DMDIIDocumentService {
 	private DMDIIDocumentRepository dmdiiDocumentRepository;
 
 	@Inject
-	private UserService userService;
-
-	@Inject
-	private DMDIIProjectService dmdiiProjectService;
-
-	@Inject
 	private DMDIIDocumentTagRepository dmdiiDocumentTagRepository;
 
 	@Inject
