@@ -15,6 +15,9 @@ public class UserContactInfoMapper extends AbstractMapper<UserContactInfo, UserC
 
 	@Override
 	public UserContactInfo mapToEntity(UserContactInfoModel model) {
+		if(model == null)
+			return null;
+
 		UserContactInfo entity = copyProperties(model, new UserContactInfo());
 
 		Mapper<UserPrivateContactInfo, UserPrivateContactInfoModel> privateMapper = mapperFactory.mapperFor(UserPrivateContactInfo.class, UserPrivateContactInfoModel.class);
@@ -30,6 +33,9 @@ public class UserContactInfoMapper extends AbstractMapper<UserContactInfo, UserC
 
 	@Override
 	public UserContactInfoModel mapToModel(UserContactInfo entity) {
+		if(entity == null)
+			return null;
+
 		UserContactInfoModel model = copyProperties(entity, new UserContactInfoModel());
 
 		Mapper<UserPrivateContactInfo, UserPrivateContactInfoModel> privateMapper = mapperFactory.mapperFor(UserPrivateContactInfo.class, UserPrivateContactInfoModel.class);
