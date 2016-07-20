@@ -12,6 +12,8 @@ public class VerificationPatch {
 	private String resourceType; 
 	private String userEPPN; 
 	private boolean verified;
+	private String urlColumn; 
+	private String idColumn; 
 	private String scanLog; 
 	
     @JsonProperty("id")
@@ -70,6 +72,21 @@ public class VerificationPatch {
 		this.verified = verified;
 	}
 	
+	@JsonProperty("urlColumn")
+	public String getUrlColumn() {
+		return urlColumn;
+	}
+	public void setUrlColumn(String urlColumn) {
+		this.urlColumn = urlColumn;
+	}
+	
+	@JsonProperty("idColumn")
+	public String getIdColumn() {
+		return idColumn;
+	}
+	public void setIdColumn(String idColumn) {
+		this.idColumn = idColumn;
+	}
 	@JsonProperty("scanLog")
 	public String getScanLog() {
 		return scanLog;

@@ -67,7 +67,7 @@ public class ProjectDocumentDao {
 			//String path = AWS.createPath(signedURL);
 			
 			
-			String query = "INSERT INTO doc2_files (owner, owner_id, url, description, "
+			String query = "INSERT INTO doc2_files (owner, owner_id, filename, description, "
 			+ "modified_date, size, doc_group_id, group_id,resource_path, expiration_date) VALUES (?,?,?,?,?,?,?,?,?,?)";
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, payload.getOwner());
@@ -81,7 +81,7 @@ public class ProjectDocumentDao {
 			statement.setString(9, "temp_path");
 			statement.setTimestamp(10, expires);
 			statement.executeUpdate();
-			id = util.getGeneratedKey(statement, "id");
+			id = util.getGeneratedKey(statement, "file_id");
 			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
 			connection.commit();
 			}
@@ -112,7 +112,7 @@ public class ProjectDocumentDao {
 			int tempId = id; 
 			ServiceLogger.log(logTag, "Attempting to verify document");
 			//Verify the document 
-			String temp = verify.verify(id,payload.getFile(),"doc2_files", payload.getOwner(), "Projects", "Documents");
+			String temp = verify.verify(id,payload.getFile(),"doc2_files", payload.getOwner(), "Projects", "Documents", "file_id", "filename");
 			ServiceLogger.log(logTag, "Verification Machine Response" + temp);
 
 			ServiceLogger.log(logTag, "Returned from Verification machine");
@@ -137,7 +137,7 @@ public class ProjectDocumentDao {
 
 			while (resultSet.next()) {
 				doc = new ProjectDocument();
-				doc.setId(Integer.toString(resultSet.getInt("id")));
+				doc.setId(Integer.toString(resultSet.getInt("file_id")));
 				doc.setProjectId(Integer.toString(resultSet.getInt("group_id")));
 				doc.setProjectDocumentId(Integer.toString(resultSet.getInt("doc_group_id")));
 				doc.setOwner(resultSet.getString("owner"));
@@ -145,7 +145,7 @@ public class ProjectDocumentDao {
 				doc.setTitle(resultSet.getString("description")); 
 				doc.setModifed(Integer.toString(resultSet.getInt("modified_date")));
 				doc.setSize(Integer.toString(resultSet.getInt("size"))); 
-				String filename = resultSet.getString("url"); 
+				String filename = resultSet.getString("filename"); 
 				/*
 				//Refresh Check 
 				if(AWS.isTimeStampExpired(resultSet.getTimestamp("expiration_date"))){
