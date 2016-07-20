@@ -9,6 +9,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.users.UserOnboardingDao;
+import org.dmc.services.verification.Verification;
 import org.dmc.services.company.CompanyDao;
 import org.json.JSONException;
 import java.sql.PreparedStatement;
@@ -28,6 +29,8 @@ public class ProfileDao {
     private static final String LOGTAG = ProfileDao.class.getName();
 
     private AWSConnector AWS = new AWSConnector();
+	private Verification verify = new Verification(); 
+
 
     public Profile getProfile(int requestId) throws HTTPException {
         ServiceLogger.log(LOGTAG, "In getProfile: user_id "+requestId);
@@ -114,8 +117,6 @@ public class ProfileDao {
         }
 
         try {
-            // AWS Profile Picture Upload
-            final String signedURL = AWS.upload(profile.getImage(), "Profiles", userEPPN, "ProfilePictures");
 
             // update user
             query = "UPDATE users SET "
@@ -128,7 +129,7 @@ public class ProfileDao {
             statement.setString(3, profile.getPhone());
             statement.setString(4, profile.getEmail());
             statement.setString(5, profile.getLocation());
-            statement.setString(6, signedURL);
+            statement.setString(6, profile.getImage());
             statement.setString(7, profile.getDescription());
             statement.setInt(8, id);
             statement.setString(9, userEPPN);
@@ -169,6 +170,13 @@ public class ProfileDao {
                 }
             }
         }
+        
+		ServiceLogger.log(LOGTAG, "Attempting to verify document");
+		//Verify the document 
+		String temp = verify.verify(id,profile.getImage(),"users", userEPPN, "Profiles", "ProfilePictures", "user_id", "image");
+		ServiceLogger.log(LOGTAG, "Verification Machine Response" + temp);
+
+		ServiceLogger.log(LOGTAG, "Returned from Verification machine");
 
         return new Id.IdBuilder(id).build();
     }

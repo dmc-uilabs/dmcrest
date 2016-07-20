@@ -203,6 +203,56 @@ public class ProjectDocumentDao {
 		}
 		return docs;	
 	}
+	
+	/**
+	 * Delete Projects Tags
+	 * @param tag
+	 * @param userEPPN
+	 * @return
+	 * @throws DMCServiceException
+	 */
+	public Id deleteProjectDoc(int fileId, String userEPPN) throws DMCServiceException {
+
+		String query;
+		PreparedStatement statement;
+		
+		try {
+		    
+			/*
+			 * To delete from S3 bucket
+			 */
+            //Get the Image URL to delete 
+            final String AWSquery = "SELECT filename FROM doc2_files WHERE file_id = ?";  
+            final PreparedStatement AWSstatement = DBConnector.prepareStatement(AWSquery);
+            AWSstatement.setInt(1, fileId);
+            final ResultSet url = AWSstatement.executeQuery();
+            
+            String URL = null;
+            if(url.next()){
+            	URL = url.getString(1); 
+            }
+            
+            //Call function to delete 
+            try{
+            	AWS.remove(URL, userEPPN);
+            } catch (DMCServiceException e) {
+            	return null;
+            }
+            //End S3 delete
+
+			
+			query = "DELETE FROM doc2_files WHERE file_id = ?";
+			
+			statement  = DBConnector.prepareStatement(query);
+			statement.setInt(1, fileId);
+			statement.executeUpdate();
+			
+		} catch (SQLException e) {
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		}
+		
+		return new Id.IdBuilder(fileId).build();
+	}
 			
 }		
 	

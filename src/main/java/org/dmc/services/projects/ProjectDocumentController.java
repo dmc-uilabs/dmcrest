@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -61,4 +62,22 @@ public class ProjectDocumentController {
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}		
 	}
+	
+	
+	@RequestMapping(value = "/projects/{projectID}/project_documents", method = RequestMethod.DELETE, produces = "application/json")
+		public ResponseEntity deleteProjectDoc(@PathVariable("projectID") int projectID,
+				@RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+			ServiceLogger.log(logTag, "In delete ProjectTag: as user " + userEPPN);
+
+			Id deleted = null;
+
+			try {
+				deleted = projectDocumentDao.deleteProjectDoc(projectID, userEPPN);
+				return new ResponseEntity<Id>(deleted, HttpStatus.valueOf(HttpStatus.OK.value()));
+			} catch (DMCServiceException e) {
+				ServiceLogger.logException(logTag, e);
+				return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+			}
+		}
+
 }

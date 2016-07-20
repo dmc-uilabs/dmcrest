@@ -25,14 +25,11 @@ public class AWSConnector {
 
     // The Temp Bucket where resource is initially stored by FrontEnd Upload
     // SOURCE AND DEST BUCKETS SHOULD BE ENV VARIABLES!
-    private static String sourceBucket = System.getenv("S3SourceBucket");
-    // private static String sourceKey = "test/cat.jpeg";
-
-    // The Perm Bucket where resource
-    private static String destBucket = System.getenv("S3DestBucket");
-
-    private static String accessKey = System.getenv("S3AccessKey");
-    private static String secretKey = System.getenv("S3SecretKey");
+    private static String sourceBucket = "test-temp-verify";//System.getenv("test-temp-verify");
+    // private static String sourceKey = "test/cat.jpeg";    // The Perm Bucket where resource
+    private static String destBucket = "test-final-verify";//System.getenv("test-final-verify");   
+    private static String accessKey = "AKIAJDE3BJULBHCYEX4Q";//System.getenv("S3AccessKey");
+    private static String secretKey = "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";//System.getenv("S3SecretKey");
 
     // Source is the path the the resource in the bucket
     public static String upload(String tempURL, String Folder, String userEPPN, String ResourceType)

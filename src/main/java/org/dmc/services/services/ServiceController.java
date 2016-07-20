@@ -7,6 +7,7 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.event.CommunityEvent;
 import org.dmc.services.services.specifications.ArraySpecifications;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.dmc.services.ErrorMessage;
@@ -30,6 +31,7 @@ public class ServiceController {
 	private ServiceImagesDao serviceImagesDao = new ServiceImagesDao();
 	private ServiceTagsDao serviceTagsDao = new ServiceTagsDao();
 	private ServiceSpecificationDao specificationDao = new ServiceSpecificationDao();
+	private ServiceDocumentDao serviceDocumentDao = new ServiceDocumentDao(); 
 
 	@RequestMapping(value = "/services/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getService(@PathVariable("id") int id,
@@ -112,14 +114,25 @@ public class ServiceController {
 
 	@RequestMapping(value = "/services/{serviceID}/service_documents", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ServiceDocument>> servicesServiceIDServiceDocumentsGet(
-			@PathVariable("serviceID") String serviceID,
+	public ResponseEntity servicesServiceIDServiceDocumentsGet(
+			@PathVariable("serviceID") int serviceID,
 			@RequestParam(value = "serviceDocumentId", required = false) String serviceDocumentId,
-			@RequestParam(value = "limit", required = false) Integer limit,
-			@RequestParam(value = "order", required = false) String order,
-			@RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<List<ServiceDocument>>(HttpStatus.NOT_IMPLEMENTED);
+			@RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit,
+			@RequestParam(value = "order", required = false, defaultValue = "DESC") String order,
+			@RequestParam(value = "sort", required = false, defaultValue = "expiration_date") String sort) {
+				
+		ServiceLogger.log(logTag, "get Service Document, serviceID: " + serviceID);
+		try
+		{
+			int statusCode = HttpStatus.OK.value();
+			ArrayList<ServiceDocument> docs = serviceDocumentDao.getServiceDocs(serviceID, sort, order, limit);
+			return new ResponseEntity<ArrayList<ServiceDocument>>(docs, HttpStatus.valueOf(statusCode));
+		}
+		catch (DMCServiceException e)
+		{
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	@RequestMapping(value = "/services/{serviceID}/service_history", produces = { "application/json",
