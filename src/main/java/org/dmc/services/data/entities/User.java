@@ -116,6 +116,7 @@ public class User extends BaseEntity {
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((phone == null) ? 0 : phone.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		result = prime * result + ((userContactInfo == null) ? 0 : userContactInfo.hashCode());
 		return result;
 	}
 
@@ -162,6 +163,11 @@ public class User extends BaseEntity {
 			if (other.username != null)
 				return false;
 		} else if (!username.equals(other.username))
+			return false;
+		if (userContactInfo == null) {
+			if (other.userContactInfo != null)
+				return false;
+		} else if (!userContactInfo.equals(other.userContactInfo))
 			return false;
 		return true;
 	}
