@@ -83,6 +83,11 @@ public class UserController {
 		return userService.findOne(id);
 	}
 
+    @RequestMapping(value = "/user/save", method = RequestMethod.POST)
+	public UserModel saveUser(@RequestBody UserModel user) {
+		return userService.save(user);
+	}
+
     /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)
     @ResponseBody
