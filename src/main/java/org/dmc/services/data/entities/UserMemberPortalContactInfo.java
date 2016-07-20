@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "user_member_portal_contact_info")
-public class UserMemberPortalContactInfo {
+public class UserMemberPortalContactInfo extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
