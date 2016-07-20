@@ -1,19 +1,7 @@
-package org.dmc.services.data.entities;
+package org.dmc.services.data.models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+public class UserPublicContactInfoModel extends BaseModel {
 
-@Entity
-@Table(name = "user_public_contact_info")
-public class UserPublicContactInfo extends BaseEntity {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
 	private Integer id;
 
 	private String email;
