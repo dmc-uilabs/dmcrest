@@ -44,7 +44,7 @@ public class TaskController {
 			Id id = task.deleteTask(taskID, userEPPN);
 			if(taskID.equals(Integer.toString(id.getId()))) {
 				ServiceLogger.log(LOGTAG, "task " + taskID + " deleted");
-				return new ResponseEntity<Void>(OK);
+				return new ResponseEntity<Id>(id, OK);
 			}
 			ServiceLogger.log(LOGTAG, "task " + taskID + " delete error " + id.getId());
 			return new ResponseEntity<Void>(INTERNAL_SERVER_ERROR);
