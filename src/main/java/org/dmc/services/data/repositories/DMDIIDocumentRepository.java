@@ -6,8 +6,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface DMDIIDocumentRepository extends BaseRepository<DMDIIDocument, Integer> {
 
-	Page<DMDIIDocument> findByDmdiiProjectId(Pageable pageable, Integer dmdiiProjectId);
-	
+	Page<DMDIIDocument> findByDmdiiProjectIdAndIsDeletedFalse(Pageable pageable, Integer dmdiiProjectId);
+
 	Page<DMDIIDocument> findByIsDeletedFalse(Pageable pageable);
-	
+
 }

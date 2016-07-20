@@ -14,7 +14,7 @@ import org.dmc.services.sharedattributes.Util;
 
 public class IndividualDiscussionCommentsHelpfulDao {
 
-	private final String logTag = DiscussionDao.class.getName();
+	private static final String LOGTAG = IndividualDiscussionCommentsHelpfulDao.class.getName();
 
 	public IndividualDiscussionCommentHelpful createIndividualDiscussionCommentHelpful(IndividualDiscussionCommentHelpful commentHelpful) throws DMCServiceException {
 		IndividualDiscussionCommentHelpful retObj = new IndividualDiscussionCommentHelpful();
@@ -46,7 +46,7 @@ public class IndividualDiscussionCommentsHelpfulDao {
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			if (se.getMessage().startsWith(
 					"ERROR: insert or update on table \"individual_discussions_comments_helpful\" violates foreign key constraint \"individualdiscussionscommentshelpful_accountid_fk\"")) {
@@ -55,14 +55,14 @@ public class IndividualDiscussionCommentsHelpfulDao {
 					"ERROR: insert or update on table \"individual_discussions_comments_helpful\" violates foreign key constraint \"individualdiscussionscommentshelpful_commentid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidCommentId, se.getMessage());
 			} else {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 				throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			}
 		} finally {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 		}
 		return retObj;
@@ -92,11 +92,11 @@ public class IndividualDiscussionCommentsHelpfulDao {
 			}
 
 		} catch (SQLException se) {
-			ServiceLogger.log(logTag, se.getMessage());
+			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 
@@ -104,7 +104,7 @@ public class IndividualDiscussionCommentsHelpfulDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
@@ -140,7 +140,7 @@ public class IndividualDiscussionCommentsHelpfulDao {
 			try {
 				connection.rollback();
 			} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+				ServiceLogger.log(LOGTAG, e.getMessage());
 			}
 			if (se.getMessage().startsWith(
 					"ERROR: insert or update on table \"individual_discussions_comments_helpful\" violates foreign key constraint \"individualdiscussionscommentshelpful_accountid_fk\"")) {
@@ -149,7 +149,7 @@ public class IndividualDiscussionCommentsHelpfulDao {
 					"ERROR: insert or update on table \"individual_discussions_comments_helpful\" violates foreign key constraint \"individualdiscussionscommentshelpful_commentid_fk\"")) {
 				throw new DMCServiceException(DMCError.InvalidCommentId, se.getMessage());
 			} else {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 				throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 			}
 
@@ -157,7 +157,7 @@ public class IndividualDiscussionCommentsHelpfulDao {
 			try {
 				connection.setAutoCommit(true);
 			} catch (SQLException se) {
-				ServiceLogger.log(logTag, se.getMessage());
+				ServiceLogger.log(LOGTAG, se.getMessage());
 			}
 
 		}
