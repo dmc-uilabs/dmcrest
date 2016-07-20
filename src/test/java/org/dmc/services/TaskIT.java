@@ -221,6 +221,24 @@ public class TaskIT extends BaseIT {
 		Task patchedTask = patchTask(userEPPN, retrievedTask, id);
 	}
 
+	@Test
+	public void testPatchTask_withPreviouslyAssignedUser() {
+		TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreatePatchAndGet");
+		String userEPPN = "berlier";
+		
+		Integer id = createTask(userEPPN, task);
+		
+		// let's query the newly created task and make sure we get it
+		Task retrievedTask = getTask(userEPPN, id);
+		
+		assertEquals(id.toString(), retrievedTask.getId());
+		
+		retrievedTask.setAssignee(userEPPN);
+		
+		Task patchedTask = patchTask(userEPPN, retrievedTask, id, INTERNAL_SERVER_ERROR);
+		assertTrue("patchedTask is not null", null == patchedTask);
+	}
+
 	
 	private Integer createTask(String userEPPN, TaskToCreate task) {
 		Integer id =
@@ -269,20 +287,33 @@ public class TaskIT extends BaseIT {
 	private Task patchTask(String userEPPN, Task taskToPatch, Integer id, HttpStatus httpStatus) {
 		String newGetRequest = TASKS_BASE + "/" + id.toString();
 		
-		Task patchedTask =
-		given().
-			header("Content-type", APPLICATION_JSON_VALUE).
-			header("AJP_eppn", userEPPN).
-			body(taskToPatch).
-		expect().
-			statusCode(httpStatus.value()).
-		when().
-			patch(newGetRequest).
-		then().
-			log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
-			extract().as(Task.class);
-		
-		return patchedTask;
+		if(httpStatus == OK) {  // return patched object
+			Task patchedTask =
+			given().
+				header("Content-type", APPLICATION_JSON_VALUE).
+				header("AJP_eppn", userEPPN).
+				body(taskToPatch).
+			expect().
+				statusCode(httpStatus.value()).
+			when().
+				patch(newGetRequest).
+			then().
+				log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
+				extract().as(Task.class);
+			
+			return patchedTask;
+		} else {  // handle error condition, no returned object
+			given().
+				header("Content-type", APPLICATION_JSON_VALUE).
+				header("AJP_eppn", userEPPN).
+				body(taskToPatch).
+			expect().
+				statusCode(httpStatus.value()).
+			when().
+				patch(newGetRequest);
+			
+			return null;
+		}
 	}
 	
 	private Integer deleteTask(String userEPPN, Integer id) {
