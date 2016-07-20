@@ -16,25 +16,6 @@ public class Task {
     private String status;
     private int priority;
 
-    public Task() {
-    }
-
-    public Task(String id, String title, TaskProject taskProject, String assignee, String assigneeId, 
-            String reporter, String reporterId, long dueDate,
-            String additionalDetails, String status, int priority) {
-        this.id = id;
-        this.title = title;
-        this.taskProject = taskProject;
-        this.assignee = assignee;
-        this.assigneeId = assigneeId;
-        this.reporter = reporter;
-        this.reporterId = reporterId;
-        this.dueDate = dueDate;
-        this.additionalDetails = additionalDetails;
-        this.status = status;
-        this.priority = priority;
-    }
-
     @JsonProperty("id")
     public String getId() {
         return id;
@@ -123,4 +104,23 @@ public class Task {
         this.priority = priority;
     }
 
+	@Override
+	public String toString()  {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class Task {\n");
+		
+		sb.append("  id: ").append(id).append("\n");
+		sb.append("  title: ").append(title).append("\n");
+		sb.append("  taskProject: ").append(taskProject).append("\n");
+		sb.append("  assignee: ").append(assignee).append("\n");
+		sb.append("  assigneeId: ").append(assigneeId).append("\n");
+		sb.append("  reporter: ").append(reporter).append("\n");
+		sb.append("  reporterId: ").append(reporterId).append("\n");
+		sb.append("  dueDate: ").append(dueDate).append("\n");
+		sb.append("  additionalDetails: ").append(additionalDetails).append("\n");
+		sb.append("  status: ").append(status).append("\n");
+		sb.append("  priority: ").append(priority).append("\n");
+		sb.append("}\n");
+		return sb.toString();
+	}
 }

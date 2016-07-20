@@ -37,12 +37,37 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/tasks/{taskID}", method = DELETE, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> tasksTaskIDDelete(@PathVariable("taskID") String taskID,
-            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-        // do some magic!
-        return new ResponseEntity<Void>(NOT_IMPLEMENTED);
+    public ResponseEntity<?> tasksTaskIDDelete(@PathVariable("taskID") String taskID,
+											   @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		ServiceLogger.log(LOGTAG, "delete /tasks/{taskID} called by UserName: " + userEPPN + " for task " + taskID);
+		try {
+			Id id = task.deleteTask(taskID, userEPPN);
+			if(taskID.equals(Integer.toString(id.getId()))) {
+				ServiceLogger.log(LOGTAG, "task " + taskID + " deleted");
+				return new ResponseEntity<Id>(id, OK);
+			}
+			ServiceLogger.log(LOGTAG, "task " + taskID + " delete error " + id.getId());
+			return new ResponseEntity<Void>(INTERNAL_SERVER_ERROR);
+		} catch (DMCServiceException e) {
+			ServiceLogger.log(LOGTAG, "task " + taskID + " delete error with message " + e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), INTERNAL_SERVER_ERROR);
+		}
     }
 
+	@RequestMapping(value = "/tasks/{taskID}", method = PATCH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> patchTask(@RequestBody Task payload,
+									   @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		ServiceLogger.log(LOGTAG, "PATCH /tasks/{taskID} called by user " +userEPPN+ " with Payload: " + payload);
+		
+		try {
+			final Task patchedTask = task.patchTask(payload, userEPPN);
+			return new ResponseEntity<Task>(patchedTask, OK);
+		} catch (DMCServiceException e) {
+			return new ResponseEntity<String>(e.getMessage(), INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	
     @RequestMapping(value = "/tasks/create", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createTask(@RequestBody TaskToCreate payload,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
