@@ -8,11 +8,12 @@ public class UserModel extends BaseModel {
 	private String email;
 	private String address;
 	private String phone;
-	
+	private UserContactInfoModel userContactInfo;
+
 	public String getUsername() {
 		return username;
 	}
-	
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
@@ -46,6 +47,14 @@ public class UserModel extends BaseModel {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	
-	
+
+	public UserContactInfoModel getUserContactInfo() {
+		return userContactInfo;
+	}
+
+	public void setUserContactInfo(UserContactInfoModel userContactInfo) {
+		this.userContactInfo = userContactInfo;
+	}
+
+
 }

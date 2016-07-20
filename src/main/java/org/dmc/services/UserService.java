@@ -23,4 +23,9 @@ public class UserService {
 		return mapper.mapToModel(userRepository.findOne(id));
 	}
 
+	public UserModel save(UserModel userModel) {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		return mapper.mapToModel(mapper.mapToEntity(userModel));
+	}
+
 }

@@ -97,6 +97,14 @@ public class User extends BaseEntity {
 		this.id = id;
 	}
 
+	public UserContactInfo getUserContactInfo() {
+		return userContactInfo;
+	}
+
+	public void setUserContactInfo(UserContactInfo userContactInfo) {
+		this.userContactInfo = userContactInfo;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
