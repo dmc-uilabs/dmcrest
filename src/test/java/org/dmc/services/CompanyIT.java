@@ -577,33 +577,14 @@ public class CompanyIT extends BaseIT {
 
 	/**
 	 * test case for GET /companies/{companyID}/company_reviews
+	 * See CompanyReviewIT
 	 */
-	@Test
-	public void testCompanyGet_CompanyReviews() {
-		given().param("reviewId", reviewId).header("AJP_eppn", userEPPN).expect()
-				.statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.get("/companies/" + companyId + "/company_reviews");
-	}
 
 	/**
 	 * test case for POST /company_reviews/
+	 * See CompanyReviewIT
 	 */
-	@Test
-	public void testCompanyPost_CompanyReview() {
-		CompanyReview obj = new CompanyReview();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedCompanyReviewJSONString = null;
-		try {
-			postedCompanyReviewJSONString = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.body(postedCompanyReviewJSONString).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.post("/company_reviews");
-	}
 
 	/**
 	 * test case for GET /company_reviews_helpful
