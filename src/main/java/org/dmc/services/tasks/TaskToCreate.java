@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TaskToCreate {
 
-    private String id;
     private String title;
     private String projectId;
     private String assignee;
@@ -19,10 +18,9 @@ public class TaskToCreate {
     public TaskToCreate() {
     }
 
-    public TaskToCreate(String id, String title, String projectId, String assignee, String assigneeId, 
+    public TaskToCreate(String title, String projectId, String assignee, String assigneeId, 
             String reporter, String reporterId, long dueDate,
             String additionalDetails, String status, int priority) {
-        this.id = id;
         this.title = title;
         this.projectId = projectId;
         this.assignee = assignee;
@@ -33,14 +31,6 @@ public class TaskToCreate {
         this.additionalDetails = additionalDetails;
         this.status = status;
         this.priority = priority;
-    }
-
-    @JsonProperty("id")
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
     }
 
     @JsonProperty("title")
