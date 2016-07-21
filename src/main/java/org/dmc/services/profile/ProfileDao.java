@@ -49,7 +49,7 @@ public class ProfileDao {
     	return profiles;
     }
     
-    public Profile setProfileValues(Profile profile, ResultSet resultSet) throws SQLException {
+    private Profile setProfileValues(Profile profile, ResultSet resultSet) throws SQLException {
         //id = resultSet.getString("id");
         profile.setDisplayName(resultSet.getString("realname"));
         
