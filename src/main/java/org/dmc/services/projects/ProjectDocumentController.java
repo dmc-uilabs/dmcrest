@@ -39,7 +39,7 @@ public class ProjectDocumentController {
 	}
 	
 	/* 
-	 * POST PROJECT DOCUMENT, returns an array of ProjectDocuments POJO
+	 * GWT PROJECT DOCUMENT, returns an array of ProjectDocuments POJO
 	 */
 	@RequestMapping(value = "/projects/{projectID}/project_documents",method = RequestMethod.GET,  produces = {"application/json"} )
 	public ResponseEntity getProjectDocumentsId(@PathVariable("projectID") int projectID,
