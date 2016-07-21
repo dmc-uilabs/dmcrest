@@ -3,6 +3,7 @@ package org.dmc.services;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +13,12 @@ import javax.inject.Inject;
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIDocumentTag;
 import org.dmc.services.data.entities.QDMDIIDocument;
+import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIDocumentModel;
 import org.dmc.services.data.models.DMDIIDocumentTagModel;
+import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
@@ -33,6 +36,9 @@ public class DMDIIDocumentService {
 
 	@Inject
 	private DMDIIDocumentTagRepository dmdiiDocumentTagRepository;
+	
+	@Inject
+	private UserService userService;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -67,7 +73,7 @@ public class DMDIIDocumentService {
 	
 	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProject (Integer dmdiiProjectId, Integer pageNumber, Integer pageSize) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectId(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
+		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectIdAndIsDeletedFalse(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
 		
 		documents = refreshDocuments(documents);
 		return mapper.mapToModel(documents);
@@ -109,11 +115,11 @@ public class DMDIIDocumentService {
 		String path = AWS.createPath(signedURL);
 		
 		String signedURL = "temp";
-		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getOwner().getUsername(), "Documents");
+		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getId().toString(), "Documents");
 		String path = AWS.createPath(signedURL);
 		
 		DMDIIDocument docEntity = docMapper.mapToEntity(doc);
-		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwner().getId()));
+		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwnerId()));
 		docEntity.setOwner(userEntity);
 		docEntity.setDocumentUrl(signedURL);
 		docEntity.setPath(path);
@@ -185,5 +191,43 @@ public class DMDIIDocumentService {
 		}
 		
 		return freshDocs;
+	}
+
+	public List<DMDIIDocumentTagModel> getAllTags() {
+		Mapper<DMDIIDocumentTag, DMDIIDocumentTagModel> tagMapper = mapperFactory.mapperFor(DMDIIDocumentTag.class, DMDIIDocumentTagModel.class);
+		return tagMapper.mapToModel(dmdiiDocumentTagRepository.findAll());
+	}
+
+	public DMDIIDocumentTagModel saveDocumentTag(DMDIIDocumentTagModel tag) {
+		Mapper<DMDIIDocumentTag, DMDIIDocumentTagModel> tagMapper = mapperFactory.mapperFor(DMDIIDocumentTag.class, DMDIIDocumentTagModel.class);
+		return tagMapper.mapToModel(dmdiiDocumentTagRepository.save(tagMapper.mapToEntity(tag)));
+	}
+
+	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
+		Collection<Predicate> expressions = new ArrayList<Predicate>();
+
+		expressions.addAll(tagFilter(filterParams.get("tags")));
+
+		return expressions;
+	}
+
+	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
+		if(tagIds.equals(null))
+			return new ArrayList<Predicate>();
+
+		Collection<Predicate> returnValue = new ArrayList<Predicate>();
+		String[] tags = tagIds.split(",");
+		Integer tagIdInt = null;
+
+		for(String tag: tags) {
+			try{
+				tagIdInt = Integer.parseInt(tag);
+			} catch(NumberFormatException e) {
+				throw new InvalidFilterParameterException("tags", Integer.class);
+			}
+
+			returnValue.add(QDMDIIDocument.dMDIIDocument.tags.any().id.eq(tagIdInt));
+		}
+		return returnValue;
 	}
 }
