@@ -22,6 +22,8 @@ public class DMDIIDocumentModel extends BaseModel {
 	private Date expires;
 
 	private Boolean isDeleted;
+	
+	private Integer fileType;
 
 	public String getDocumentName() {
 		return documentName;
@@ -39,8 +41,8 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.documentUrl = documentUrl;
 	}
 
-	public String getPath() {
-		return path;
+	public DMDIIProjectModel getDmdiiProject() {
+		return dmdiiProject;
 	}
 
 	public void setPath(String path) {
@@ -93,5 +95,13 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	public void setIsDeleted(Boolean isDeleted) {
 		this.isDeleted = isDeleted;
+	}
+
+	public Integer getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(Integer fileType) {
+		this.fileType = fileType;
 	}
 }
