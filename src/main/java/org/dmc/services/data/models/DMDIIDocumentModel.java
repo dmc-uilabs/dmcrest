@@ -51,14 +51,6 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.path = path;
 	}
 
-	public DMDIIProjectModel getDmdiiProject() {
-		return dmdiiProject;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
 	public Integer getDmdiiProjectId() {
 		return dmdiiProjectId;
 	}
