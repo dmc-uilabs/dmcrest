@@ -170,7 +170,7 @@ public class ServiceDocumentDao {
 			 * To delete from S3 bucket
 			 */
             //Get the Image URL to delete 
-            final String AWSquery = "SELECT file FROM service_document WHERE id = ?";  
+           /* final String AWSquery = "SELECT file FROM service_document WHERE id = ?";  
             final PreparedStatement AWSstatement = DBConnector.prepareStatement(AWSquery);
             AWSstatement.setInt(1, id);
             final ResultSet url = AWSstatement.executeQuery();
@@ -185,7 +185,7 @@ public class ServiceDocumentDao {
             	AWS.remove(URL, userEPPN);
             } catch (DMCServiceException e) {
             	return false;
-            }
+            }*/
             //End S3 delete
 
 	        String query = "DELETE FROM service_document WHERE id = ?";

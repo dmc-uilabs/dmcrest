@@ -107,6 +107,7 @@ public class ServiceImagesDao {
 
 
 	public ArrayList<ServiceImages> getServiceImages(int input) throws DMCServiceException {
+		ServiceLogger.log(logTag, "Inside get service images with input " + input);
 
 		ArrayList<ServiceImages> list =new ArrayList<ServiceImages>();
 		try {
@@ -158,7 +159,7 @@ public class ServiceImagesDao {
 			 * To delete from S3 bucket
 			 */
             //Get the Image URL to delete 
-            final String AWSquery = "SELECT url FROM service_images WHERE id = ?";  
+           /* final String AWSquery = "SELECT url FROM service_images WHERE id = ?";  
             final PreparedStatement AWSstatement = DBConnector.prepareStatement(AWSquery);
             AWSstatement.setInt(1, imageId);
             final ResultSet url = AWSstatement.executeQuery();
@@ -173,7 +174,7 @@ public class ServiceImagesDao {
             	AWS.remove(URL, userEPPN);
             } catch (DMCServiceException e) {
             	return false;
-            }
+            }*/
             //End S3 delete
 
 	        String query = "DELETE FROM service_images WHERE id = ?";
