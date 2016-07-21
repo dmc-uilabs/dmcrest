@@ -295,7 +295,7 @@ public class ServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/services/{serviceId}/specifications", method = RequestMethod.GET, produces = { "application/json" })
-	public ResponseEntity<?> getServiceSpecifications(@PathVariable("id") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+	public ResponseEntity<?> getServiceSpecifications(@PathVariable("serviceId") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "getServiceSpecifications, userEPPN: " + userEPPN);
 		ArrayList<ServiceSpecifications> specs = null;
