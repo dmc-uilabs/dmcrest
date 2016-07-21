@@ -197,12 +197,20 @@ public class ServiceController {
 		
 	}
 
-	@RequestMapping(value = "/services/{serviceId}/input-positions", produces = { "application/json",
-			"text/html" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/services/{serviceId}/input-positions", produces = { "application/json"}, method = RequestMethod.GET)
 	public ResponseEntity<List<ServiceInputsPositions>> servicesServiceIdInputPositionsGet(
 			@PathVariable("serviceId") BigDecimal serviceId) {
-		// do some magic!
-		return new ResponseEntity<List<ServiceInputsPositions>>(HttpStatus.NOT_IMPLEMENTED);
+		InputPositionsDAO ipDao = new InputPositionsDAO();
+		List<ServiceInputsPositions> result = new ArrayList<ServiceInputsPositions>();
+		try{
+			result = ipDao.getPositions(serviceId.intValue());
+		}
+		catch (DMCServiceException e)
+		{
+			e.printStackTrace();
+			return new ResponseEntity(e.getHttpStatusCode());
+		}
+		return new ResponseEntity<List<ServiceInputsPositions>>(result,HttpStatus.OK);
 	}
 
     /**
