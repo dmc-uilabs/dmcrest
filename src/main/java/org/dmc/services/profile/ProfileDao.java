@@ -189,7 +189,7 @@ public class ProfileDao {
             userOnboardingDao.deleteUserOnboarding(id);
             
             //Get the Image URL to delete 
-            final String AWSquery = "SELECT image FROM users WHERE user_id = ? AND user_name = ?"; 
+         /*   final String AWSquery = "SELECT image FROM users WHERE user_id = ? AND user_name = ?"; 
             final PreparedStatement AWSstatement = DBConnector.prepareStatement(AWSquery);
             AWSstatement.setInt(1, id);
             AWSstatement.setString(2, userEPPN);
@@ -205,7 +205,7 @@ public class ProfileDao {
             	AWS.remove(URL, userEPPN);
             } catch (DMCServiceException e) {
             	return null;
-            }
+            }*/
 
             this.deleteSkills(id);
             final String query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";
