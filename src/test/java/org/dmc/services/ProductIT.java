@@ -30,7 +30,7 @@ public class ProductIT extends BaseIT {
 		header("AJP_eppn", "user_EPPN").
 		header("Content-type", APPLICATION_JSON_VALUE).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()). // need figure out where the malformed syntax
+		statusCode(HttpStatus.OK.value()). // need figure out where the malformed syntax
 		when().
 		get("/product/" + serviceId + "/product_reviews");
 	}
@@ -44,8 +44,9 @@ public class ProductIT extends BaseIT {
 	public void testProductGet_ProductReview() {
 		given().
 		header("AJP_eppn", "user_EPPN").
+		header("Content-type", APPLICATION_JSON_VALUE).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
 		get("/product_reviews");
 	}
@@ -68,11 +69,11 @@ public class ProductIT extends BaseIT {
 		
 		
 		given().
-		header("Content-type", "application/json").
+		header("Content-type", APPLICATION_JSON_VALUE).
 		header("AJP_eppn", "user_EPPN").
 		body(postedProductReviewJSONString).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
 		post("/product_reviews");
 	}
@@ -97,7 +98,7 @@ public class ProductIT extends BaseIT {
 		header("AJP_eppn", "user_EPPN").
 		body(patchedProductReviewJSONString).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
 		patch("/product_reviews/" + reviewId);
 	}

@@ -26,10 +26,7 @@ public class ProductController {
 																			   @RequestParam(value = "sort", required = false) String sort,
 																			   @RequestParam(value = "rating", required = false) Integer rating,
 																			   @RequestParam(value = "status", required = false) Boolean status){
-      // do some magic!
-      return new ResponseEntity<List<ProductReview>>(HttpStatus.NOT_IMPLEMENTED);
+	  ProductReviewDao productReviewDao = new ProductReviewDao();
+      return new ResponseEntity<List<ProductReview>>(productReviewDao.getProductReviews(), HttpStatus.OK);
   }
-
-
-  
 }
