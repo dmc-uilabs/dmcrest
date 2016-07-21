@@ -31,7 +31,7 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 
-		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getUserId())));
+		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getOwnerId())));
 		entity.setDMDIIProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProjectId())));
 
 		return entity;
@@ -46,7 +46,7 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 
-		model.setUserId(entity.getOwner().getId());
+		model.setOwnerId(entity.getOwner().getId());
 		if(entity.getDMDIIProject() != null)
 			model.setDmdiiProjectId(entity.getDMDIIProject().getId());
 		else

@@ -13,7 +13,7 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	private Integer dmdiiProjectId;
 
-	private Integer userId;
+	private Integer ownerId;
 
 	private List<DMDIIDocumentModel> tags;
 
@@ -49,14 +49,6 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.path = path;
 	}
 
-	public DMDIIProjectModel getDmdiiProject() {
-		return dmdiiProject;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
 	public Integer getDmdiiProjectId() {
 		return dmdiiProjectId;
 	}
@@ -65,12 +57,12 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.dmdiiProjectId = dmdiiProjectId;
 	}
 
-	public Integer getUserId() {
-		return userId;
+	public Integer getOwnerId() {
+		return ownerId;
 	}
 
-	public void setUserId(Integer userId) {
-		this.userId = userId;
+	public void setOwnerId(Integer ownerId) {
+		this.ownerId = ownerId;
 	}
 
 	public List<DMDIIDocumentModel> getTags() {
@@ -112,4 +104,6 @@ public class DMDIIDocumentModel extends BaseModel {
 	public void setFileType(Integer fileType) {
 		this.fileType = fileType;
 	}
+
+	
 }

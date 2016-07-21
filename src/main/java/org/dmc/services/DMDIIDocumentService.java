@@ -3,6 +3,7 @@ package org.dmc.services;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -12,10 +13,12 @@ import javax.inject.Inject;
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIDocumentTag;
 import org.dmc.services.data.entities.QDMDIIDocument;
+import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIDocumentModel;
 import org.dmc.services.data.models.DMDIIDocumentTagModel;
+import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
@@ -33,6 +36,9 @@ public class DMDIIDocumentService {
 
 	@Inject
 	private DMDIIDocumentTagRepository dmdiiDocumentTagRepository;
+	
+	@Inject
+	private UserService userService;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -65,7 +71,7 @@ public class DMDIIDocumentService {
 	
 	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProject (Integer dmdiiProjectId, Integer pageNumber, Integer pageSize) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectId(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
+		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectIdAndIsDeletedFalse(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
 		
 		documents = refreshDocuments(documents);
 		return mapper.mapToModel(documents);
@@ -100,11 +106,11 @@ public class DMDIIDocumentService {
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		
 		String signedURL = "temp";
-		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getOwner().getUsername(), "Documents");
+		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getId().toString(), "Documents");
 		String path = AWS.createPath(signedURL);
 		
 		DMDIIDocument docEntity = docMapper.mapToEntity(doc);
-		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwner().getId()));
+		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwnerId()));
 		docEntity.setOwner(userEntity);
 		docEntity.setDocumentUrl(signedURL);
 		docEntity.setPath(path);
