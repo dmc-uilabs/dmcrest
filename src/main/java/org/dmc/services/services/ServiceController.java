@@ -210,12 +210,20 @@ public class ServiceController {
 		
 	}
 
-	@RequestMapping(value = "/services/{serviceId}/input-positions", produces = { "application/json",
-			"text/html" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/services/{serviceId}/input-positions", produces = { "application/json"}, method = RequestMethod.GET)
 	public ResponseEntity<List<ServiceInputsPositions>> servicesServiceIdInputPositionsGet(
 			@PathVariable("serviceId") BigDecimal serviceId) {
-		// do some magic!
-		return new ResponseEntity<List<ServiceInputsPositions>>(HttpStatus.NOT_IMPLEMENTED);
+		InputPositionsDAO ipDao = new InputPositionsDAO();
+		List<ServiceInputsPositions> result = new ArrayList<ServiceInputsPositions>();
+		try{
+			result = ipDao.getPositions(serviceId.intValue());
+		}
+		catch (DMCServiceException e)
+		{
+			e.printStackTrace();
+			return new ResponseEntity(e.getHttpStatusCode());
+		}
+		return new ResponseEntity<List<ServiceInputsPositions>>(result,HttpStatus.OK);
 	}
 
     /**
@@ -300,7 +308,7 @@ public class ServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/services/{serviceId}/specifications", method = RequestMethod.GET, produces = { "application/json" })
-	public ResponseEntity<?> getServiceSpecifications(@PathVariable("id") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+	public ResponseEntity<?> getServiceSpecifications(@PathVariable("serviceId") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "getServiceSpecifications, userEPPN: " + userEPPN);
 		ArrayList<ServiceSpecifications> specs = null;

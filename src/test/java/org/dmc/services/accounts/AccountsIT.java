@@ -291,16 +291,5 @@ public class AccountsIT extends BaseIT {
 		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/accounts/" + knownUserID + "/following_members");
 	}
-	
-	
-	/**
-	 * Tests for <code> get /accounts/{accountID}/follow_discussions </code>
-	 **/
-
-	@Test
-	public void testAccount_FollowDiscussions() {
-		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(400).when()
-				.get("/accounts/" + knownUserID + "/follow_discussions");
-	}
 
 }

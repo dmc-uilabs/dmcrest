@@ -16,12 +16,12 @@ import org.dmc.services.tasks.TaskProject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.springframework.http.HttpStatus;
 
 import com.jayway.restassured.response.ExtractableResponse;
 import com.jayway.restassured.response.ValidatableResponse;
 
-//@Ignore
 public class TaskIT extends BaseIT {
     private static final String TASKS_BASE = "/tasks";
     private static final String CREATE_TASKS = "/tasks/create";
@@ -137,7 +137,7 @@ public class TaskIT extends BaseIT {
         final String additionalDetails = "description for sample test  " + testDescription + " from junit on " + unique;
         final int priority = 0;
         final long dueDate = 0L;
-        final String reporter = "bamboo tester"; // a user ID in users table
+        final String reporter = "testUser"; // a user ID in users table
         final String reporterId = "111"; // a user ID in users table
         final String assignee = "berlier"; // from group table
         final String assigneeId = "103"; // from group table
@@ -160,7 +160,7 @@ public class TaskIT extends BaseIT {
         final String additionalDetails = "description for sample test  " + testDescription + " from junit on " + unique;
         final int priority = 4;
         final long dueDate = 1468468800000L;
-        final String reporter = "bamboo tester"; // a user ID in users table
+        final String reporter = "testUser"; // a user ID in users table
         final String reporterId = "111"; // a user ID in users table
         final String assignee = "berlier"; // from group table
         final String assigneeId = "103"; // from group table
@@ -179,7 +179,160 @@ public class TaskIT extends BaseIT {
      */
     @Test
     public void testDelete_FollowDiscussions() {
-        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).expect()
-                .statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when().delete(TASKS_BASE + "/" + taskId);
+		
+		TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreateAndGet");
+		String userEPPN = "testUser";
+		
+		// create a new task
+		Integer id = createTask(userEPPN, task);
+		
+		// let's query the newly created task and make sure we get it
+		Task retrievedTask = getTask(userEPPN, id);
+		
+		assertTrue("Created and retrieved tasks are not equal", id.toString().equals(retrievedTask.getId()));
+		
+		// delete newly created task
+		Integer deletedId = deleteTask(userEPPN, id);
+		
+		// lookup deleted tasks
+		given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(INTERNAL_SERVER_ERROR.value()).
+		when().
+			get(TASKS_BASE + "/" + id.toString());
     }
+	
+	@Test
+	public void testPatchTask() {
+		TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreatePatchAndGet");
+		String userEPPN = "testUser";
+		
+		Integer id = createTask(userEPPN, task);
+		
+		// let's query the newly created task and make sure we get it
+		Task retrievedTask = getTask(userEPPN, id);
+		
+		assertEquals(id.toString(), retrievedTask.getId());
+
+		retrievedTask.setAssignee(userEPPN);
+		
+		Task patchedTask = patchTask(userEPPN, retrievedTask, id);
+	}
+
+	@Test
+	public void testPatchTask_withPreviouslyAssignedUser() {
+		TaskToCreate task = createTaskJsonSampleWithRealisticDate("testTaskCreatePatchAndGet");
+		String userEPPN = "berlier";
+		
+		Integer id = createTask(userEPPN, task);
+		
+		// let's query the newly created task and make sure we get it
+		Task retrievedTask = getTask(userEPPN, id);
+		
+		assertEquals(id.toString(), retrievedTask.getId());
+		
+		retrievedTask.setAssignee(userEPPN);
+		
+		Task patchedTask = patchTask(userEPPN, retrievedTask, id, INTERNAL_SERVER_ERROR);
+		assertTrue("patchedTask is not null", null == patchedTask);
+	}
+
+	
+	private Integer createTask(String userEPPN, TaskToCreate task) {
+		Integer id =
+		given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", userEPPN).
+			body(task).
+		expect().
+			statusCode(OK.value()).
+		when().
+			post(CREATE_TASKS).
+		then().
+			body(matchesJsonSchemaInClasspath(ID_SCHEMA)).
+			extract().path("id");
+
+		return id;
+	}
+	
+	private Task getTask(String userEPPN, Integer id) {
+		return getTask(userEPPN, id, OK);
+	}
+	
+	private Task getTask(String userEPPN, Integer id, HttpStatus httpStatus) {
+		String newGetRequest = TASKS_BASE + "/" + id.toString();
+		
+		// let's query the newly created task and make sure we get it
+		Task retrievedTask =
+		given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(httpStatus.value()).
+		when().
+			get(newGetRequest).
+		then().
+			log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
+			extract().as(Task.class);
+		
+		return retrievedTask;
+	}
+	
+	private Task patchTask(String userEPPN, Task taskToPatch, Integer id) {
+		return patchTask(userEPPN, taskToPatch, id, OK);
+	}
+	
+	private Task patchTask(String userEPPN, Task taskToPatch, Integer id, HttpStatus httpStatus) {
+		String newGetRequest = TASKS_BASE + "/" + id.toString();
+		
+		if(httpStatus == OK) {  // return patched object
+			Task patchedTask =
+			given().
+				header("Content-type", APPLICATION_JSON_VALUE).
+				header("AJP_eppn", userEPPN).
+				body(taskToPatch).
+			expect().
+				statusCode(httpStatus.value()).
+			when().
+				patch(newGetRequest).
+			then().
+				log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
+				extract().as(Task.class);
+			
+			return patchedTask;
+		} else {  // handle error condition, no returned object
+			given().
+				header("Content-type", APPLICATION_JSON_VALUE).
+				header("AJP_eppn", userEPPN).
+				body(taskToPatch).
+			expect().
+				statusCode(httpStatus.value()).
+			when().
+				patch(newGetRequest);
+			
+			return null;
+		}
+	}
+	
+	private Integer deleteTask(String userEPPN, Integer id) {
+		return deleteTask(userEPPN, id, OK);
+	}
+	
+	private Integer deleteTask(String userEPPN, Integer id, HttpStatus httpStatus) {
+		Integer deletedId =
+		given().
+			header("Content-type", APPLICATION_JSON_VALUE).
+			header("AJP_eppn", userEPPN).
+		expect().
+			statusCode(httpStatus.value()).
+		when().
+			delete(TASKS_BASE + "/" + id.toString()).
+		then().
+			body(matchesJsonSchemaInClasspath(ID_SCHEMA)).
+			extract().path("id");
+		
+		return deletedId;
+	}
 }

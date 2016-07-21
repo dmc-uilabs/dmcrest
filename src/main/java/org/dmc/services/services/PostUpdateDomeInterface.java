@@ -2,8 +2,9 @@ package org.dmc.services.services;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import java.util.Objects;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
@@ -17,8 +18,8 @@ public class PostUpdateDomeInterface {
 	private List<Integer> path = new ArrayList<Integer>();
 	private Integer serviceId = null;
 	private String domeServer = null;
-	private List<DomeModelParam> inParams = new ArrayList<DomeModelParam>();
-	private List<DomeModelParam> outParams = new ArrayList<DomeModelParam>();
+	private Map<String, DomeModelParam> inParams = new HashMap<String, DomeModelParam>();
+	private Map<String, DomeModelParam> outParams = new HashMap<String, DomeModelParam>();
 
 	@JsonProperty("version")
 	public Integer getVersion() {
@@ -93,20 +94,20 @@ public class PostUpdateDomeInterface {
 	}
 
 	@JsonProperty("inParams")
-	public List<DomeModelParam> getInParams() {
+	public Map<String, DomeModelParam> getInParams() {
 		return inParams;
 	}
 
-	public void setInParams(List<DomeModelParam> inParams) {
+	public void setInParams(Map<String, DomeModelParam> inParams) {
 		this.inParams = inParams;
 	}
 
 	@JsonProperty("outParams")
-	public List<DomeModelParam> getOutParams() {
+	public Map<String, DomeModelParam> getOutParams() {
 		return outParams;
 	}
 
-	public void setOutParams(List<DomeModelParam> outParams) {
+	public void setOutParams(Map<String, DomeModelParam> outParams) {
 		this.outParams = outParams;
 	}
 

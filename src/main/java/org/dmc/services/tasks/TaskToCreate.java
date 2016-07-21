@@ -113,4 +113,22 @@ public class TaskToCreate {
         this.priority = priority;
     }
 
+	@Override
+	public String toString()  {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class Task {\n");
+		
+		sb.append("  title: ").append(title).append("\n");
+		sb.append("  projectId: ").append(projectId).append("\n");
+		sb.append("  assignee: ").append(assignee).append("\n");
+		sb.append("  assigneeId: ").append(assigneeId).append("\n");
+		sb.append("  reporter: ").append(reporter).append("\n");
+		sb.append("  reporterId: ").append(reporterId).append("\n");
+		sb.append("  dueDate: ").append(dueDate).append("\n");
+		sb.append("  additionalDetails: ").append(additionalDetails).append("\n");
+		sb.append("  status: ").append(status).append("\n");
+		sb.append("  priority: ").append(priority).append("\n");
+		sb.append("}\n");
+		return sb.toString();
+	}
 }
