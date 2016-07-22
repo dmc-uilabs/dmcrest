@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
 
 import static com.jayway.restassured.RestAssured.*;
+import static org.springframework.http.MediaType.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -159,11 +160,16 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceAuthor(){
+		ArrayList<ServiceAuthor> authors =
         given().
-        header("AJP_eppn", userEPPN).
+			header("AJP_eppn", userEPPN).
+			header("Content-type", APPLICATION_JSON_VALUE).
         expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/service_authors");
+			statusCode(HttpStatus.OK.value()).
+        when().
+			get("/services/" + serviceId + "/service_authors").as(ArrayList.class);
+		
+		assertTrue("No service authors", authors.size() > 0);
     }
 
     /**
