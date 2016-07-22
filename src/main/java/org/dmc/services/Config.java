@@ -6,13 +6,12 @@ public class Config {
 	public static final String DB_PORT = "5432";//System.getenv("DBport");
 	public static final String DB_IP = "127.0.0.1";//"54.172.82.133";
 	public static final String DB_HOST = "jdbc:postgresql://" + DB_IP;//ec2-52-35-193-110.us-west-2.compute.amazonaws.com";// + System.getenv("DBip");
-  public static final String DB_NAME = "gforge";//"gforge";
- 	public static final String DB_USER = "gforge";//System.getenv("DBuser");//"gforge";//System.getenv("DBuser");
- 	public static final String DB_PASS = "gforge"; //System.getenv("DBpass");//"gforge";//System.getenv("DBpass");
-
-
+    public static final String DB_NAME = "gforge";
+ 	public static final String DB_USER = "gforge"; //System.getenv("DBuser");//"gforge";//System.getenv("DBuser");
+ 	public static final String DB_PASS = "gforge";//System.getenv("DBpass");//"gforge";//System.getenv("DBpass");
+ 	
  	public static final String IS_TEST = System.getenv("isTest");
-
+ 	
     // Documentation
     public static final String DOC_API_NAME = "DMC Rest Services";
     public static final String DOC_API_DESCRIPTION = "Serves the DMC Frontend Application";

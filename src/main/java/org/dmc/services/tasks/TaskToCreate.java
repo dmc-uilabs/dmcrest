@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TaskToCreate {
 
-    private String id;
     private String title;
     private String projectId;
     private String assignee;
@@ -19,10 +18,9 @@ public class TaskToCreate {
     public TaskToCreate() {
     }
 
-    public TaskToCreate(String id, String title, String projectId, String assignee, String assigneeId, 
+    public TaskToCreate(String title, String projectId, String assignee, String assigneeId, 
             String reporter, String reporterId, long dueDate,
             String additionalDetails, String status, int priority) {
-        this.id = id;
         this.title = title;
         this.projectId = projectId;
         this.assignee = assignee;
@@ -33,14 +31,6 @@ public class TaskToCreate {
         this.additionalDetails = additionalDetails;
         this.status = status;
         this.priority = priority;
-    }
-
-    @JsonProperty("id")
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
     }
 
     @JsonProperty("title")
@@ -123,4 +113,22 @@ public class TaskToCreate {
         this.priority = priority;
     }
 
+	@Override
+	public String toString()  {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class Task {\n");
+		
+		sb.append("  title: ").append(title).append("\n");
+		sb.append("  projectId: ").append(projectId).append("\n");
+		sb.append("  assignee: ").append(assignee).append("\n");
+		sb.append("  assigneeId: ").append(assigneeId).append("\n");
+		sb.append("  reporter: ").append(reporter).append("\n");
+		sb.append("  reporterId: ").append(reporterId).append("\n");
+		sb.append("  dueDate: ").append(dueDate).append("\n");
+		sb.append("  additionalDetails: ").append(additionalDetails).append("\n");
+		sb.append("  status: ").append(status).append("\n");
+		sb.append("  priority: ").append(priority).append("\n");
+		sb.append("}\n");
+		return sb.toString();
+	}
 }

@@ -55,6 +55,7 @@ public class DMCServiceException extends Exception {
 				break;
 			case IncorrectType:
 			case InvalidCommentId:
+			case InvalidDiscussionId:
 				status = HttpStatus.BAD_REQUEST;
 				break;
 			case CannotConnectToDome:
@@ -66,6 +67,7 @@ public class DMCServiceException extends Exception {
 			case NoContentInQuery:
 				status = HttpStatus.NO_CONTENT;
 				break;
+			case DiscussionFollowNotFound:
 			default:
 				status = HttpStatus.NOT_FOUND;
 		}
