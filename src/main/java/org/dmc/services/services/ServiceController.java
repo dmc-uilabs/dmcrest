@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.http.MediaType.*;
+
 @RestController
 public class ServiceController {
 
@@ -88,8 +90,7 @@ public class ServiceController {
         }
 	}
 
-	@RequestMapping(value = "/services/{serviceID}", produces = { "application/json",
-			"text/html" }, method = RequestMethod.PATCH)
+	@RequestMapping(value = "/services/{serviceID}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
 	public ResponseEntity<?> servicesServiceIDPatch(@PathVariable("serviceID") String serviceID,
 			@RequestBody Service service,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -102,13 +103,24 @@ public class ServiceController {
         }
 	}
 
-	@RequestMapping(value = "/services/{serviceID}/service_authors", produces = { "application/json",
-			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ServiceAuthor>> servicesServiceIDServiceAuthorsGet(
-			@PathVariable("serviceID") String serviceID) {
-		// do some magic!
-		return new ResponseEntity<List<ServiceAuthor>>(HttpStatus.NOT_IMPLEMENTED);
+	@RequestMapping(value = "/services/{serviceId}/service_authors", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+	public ResponseEntity<?> servicesServiceIDServiceAuthorsGet(
+					@PathVariable("serviceId") int serviceId,
+					@RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+		ServiceAuthorDao serviceAuthorDao = new ServiceAuthorDao();
+		int httpStatusCode = HttpStatus.OK.value();
+		ArrayList<ServiceAuthor> authors = null;
+		
+		try {
+			authors = serviceAuthorDao.getServiceAuthors(serviceId, userEPPN);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
+		
+		return new ResponseEntity<ArrayList<ServiceAuthor>>(authors, HttpStatus.valueOf(httpStatusCode));
 	}
+
 
 	@RequestMapping(value = "/services/{serviceID}/service_documents", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
