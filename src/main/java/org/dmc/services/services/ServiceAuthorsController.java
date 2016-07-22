@@ -61,7 +61,7 @@ public class ServiceAuthorsController {
 	 * @param userEPPN
 	 * @return
 	 */
-	@RequestMapping(value = "/services/{id}/service_authors", method = RequestMethod.GET, produces = { "application/json", "text/html" })
+/*	@RequestMapping(value = "/services/{id}/service_authors", method = RequestMethod.GET, produces = { APPLICATION_JSON_VALUE })
 	public ResponseEntity serviceAuthorsGet(@PathVariable("id") int serviceId,  @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		int httpStatusCode = HttpStatus.OK.value();
 		ArrayList<ServiceAuthor> authors = null;
@@ -74,7 +74,7 @@ public class ServiceAuthorsController {
 		}
 
 		return new ResponseEntity<ArrayList<ServiceAuthor>>(authors, HttpStatus.valueOf(httpStatusCode));
-	}
+	}*/
 	
 	/**
 	 * Delete Service Author
