@@ -173,8 +173,9 @@ public class ServiceController {
 			"text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<ServiceStats>> servicesServiceIDServicesStatisticGet(
 			@PathVariable("serviceID") String serviceID) {
-		// do some magic!
-		return new ResponseEntity<List<ServiceStats>>(HttpStatus.NOT_IMPLEMENTED);
+		ServiceStatsDao ssd = new ServiceStatsDao();
+		List<ServiceStats> ssList = ssd.getServiceStats(serviceID);
+		return new ResponseEntity<List<ServiceStats>>(ssList, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/services/{serviceId}/dome-interfaces", produces = { "application/json",

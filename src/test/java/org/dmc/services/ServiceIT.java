@@ -236,7 +236,7 @@ public class ServiceIT extends BaseIT {
         given().
         header("AJP_eppn", userEPPN).
 	expect().
-	statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	statusCode(HttpStatus.OK.value()).
 	when().get("/services/" + serviceId + "/services_statistic");
     }
 	
@@ -992,6 +992,7 @@ public class ServiceIT extends BaseIT {
     		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
     		specialList.add(special);
     		specification.setSpecial(specialList);
+    		// Need to modify after the service run is fixed.  Refer to DMC-878
     		RunStats runstats = new RunStats();
     		runstats.setFail(new Integer(0));
     		runstats.setSuccess(new Integer(0));
