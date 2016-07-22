@@ -82,7 +82,7 @@ public class ProjectDocumentDao {
 			statement.setTimestamp(10, expires);
 			statement.executeUpdate();
 			id = util.getGeneratedKey(statement, "file_id");
-			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
+			ServiceLogger.log(logTag, "Creating ProjectDoc, returning ID: " + id);
 			connection.commit();
 			}
 			catch (SQLException e) {
@@ -222,7 +222,7 @@ public class ProjectDocumentDao {
 			 * To delete from S3 bucket
 			 */
             //Get the Image URL to delete 
-            final String AWSquery = "SELECT filename FROM doc2_files WHERE file_id = ?";  
+           /* final String AWSquery = "SELECT filename FROM doc2_files WHERE file_id = ?";  
             final PreparedStatement AWSstatement = DBConnector.prepareStatement(AWSquery);
             AWSstatement.setInt(1, fileId);
             final ResultSet url = AWSstatement.executeQuery();
@@ -237,7 +237,7 @@ public class ProjectDocumentDao {
             	AWS.remove(URL, userEPPN);
             } catch (DMCServiceException e) {
             	return null;
-            }
+            }*/
             //End S3 delete
 
 			

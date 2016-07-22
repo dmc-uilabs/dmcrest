@@ -252,18 +252,23 @@ public class AWSServiceUploadIT extends BaseIT {
 
 		ServiceLogger.log(logTag, "Conversion to Json object");
 
-        VerificationPatch returnPatch = given()
+        VerificationPatch returnPatch = 
+		given()
         	.header("Content-type", "application/json")
             .body(patchedJSONString)
             .expect()
             .statusCode(HttpStatus.OK.value())
             .when()
-            .patch(PATCH).as(VerificationPatch.class); 
+            .post(PATCH).as(VerificationPatch.class); 
 
         //Test if patched 
         //Extract
       	String ResourceType = returnPatch.getResourceType(); 
-      	assert(ResourceType == "Test");
+		ServiceLogger.log(logTag, "Resource Type " + ResourceType);
+		ServiceLogger.log(logTag, "Table  " + returnPatch.getTable());
+
+
+      	assert(returnPatch.getId() == serviceImageId);
       		
 		ServiceLogger.log(logTag, "Patched worked?");
 
@@ -425,6 +430,149 @@ public class AWSServiceUploadIT extends BaseIT {
 
         int numAfterDelete  = (afterDeleteDocs != null) ? afterDeleteDocs.size() : 0;
         assertTrue ("Deleting an docs failed", numAfterDelete == numBefore);
+
+    }
+    
+    
+    
+    @Test
+    public void PatchServiceDocs () throws DMCServiceException{
+    	
+    	int serviceID = 2;
+    
+    	//Get a list of the current images
+        ArrayList<ServiceImages> originalDocs =
+        given().
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(SERVICE_DOCUMENTS_GET, serviceID).
+                as(ArrayList.class);
+
+        //Hardcoded URL
+        String url = "https://s3-us-west-2.amazonaws.com/test-temp-verify/test.jpeg";
+        
+        
+        //Manual Insert
+		PreparedStatement statement;
+		Util util = Util.getInstance();
+		int serviceDocId;
+
+        try {
+			connection.setAutoCommit(false);
+		} catch (SQLException ex) {
+			throw new DMCServiceException(DMCError.OtherSQLError, "An SQL exception has occured");
+		}
+
+		try {
+			String query = "INSERT INTO service_document (service_id, service_document_id, owner_id, title, modified, size,file) VALUES (?,?,?,?,?,?,?)";
+			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+			statement.setInt(1, serviceID);
+			statement.setString(2, "Big boi");
+			statement.setInt(3, Integer.parseInt(userID));
+			statement.setString(4, "My");
+			statement.setString(5, "Name");
+			statement.setString(6, "Is");
+			statement.setString(7, "Batman");
+			statement.executeUpdate();
+			serviceDocId = util.getGeneratedKey(statement, "id");
+			ServiceLogger.log(logTag, "Creating doc, returning ID: " + serviceDocId);
+			connection.commit();
+		}
+		catch (SQLException e) {
+			ServiceLogger.log(logTag, "SQL EXCEPTION ----- " + e.getMessage());
+			try {
+				if (connection != null) {
+					ServiceLogger.log(logTag, "createServiceDoc transaction rolled back");
+					connection.rollback();
+				}
+			} catch (SQLException ex) {
+				ServiceLogger.log(logTag, ex.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, ex.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		}
+        
+		ServiceLogger.log(logTag, "Manually created id is " + serviceDocId);
+
+        //Make sure the added image returns a valid id
+        assertTrue("Doc ID returned invalid", serviceDocId != -1);
+
+        //Get a list of the new images 
+        ArrayList<ServiceImages> newDocs =
+        given().
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(SERVICE_DOCUMENTS_GET, serviceID).
+                as(ArrayList.class);
+
+        int numBefore = (originalDocs != null) ? originalDocs.size() : 0;
+        int numAfter  = (newDocs != null) ? newDocs.size() : 0;
+        int numExpected = numBefore + 1;
+        //the new list and old list should only differ by one
+        assertTrue ("Adding an doc failed"  , numAfter == numExpected);
+
+        
+        
+        //Call patch image through validation machine endpoint 
+        VerificationPatch json = new VerificationPatch();
+        json.setFolder("Test");
+        json.setUrl(url);
+        json.setScanLog("good");
+        json.setId(serviceDocId);
+        json.setTable("service_document");
+        json.setUserEPPN(userEPPN);
+        json.setUrlColumn("file");
+        json.setResourceType("Test");
+        json.setVerified(false);
+        json.setIdColumn("id");
+        
+        ObjectMapper mapper = new ObjectMapper();
+		String patchedJSONString = null;
+		try {
+			patchedJSONString = mapper.writeValueAsString(json);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		ServiceLogger.log(logTag, "Conversion to Json object");
+
+        VerificationPatch returnPatch = 
+		given()
+        	.header("Content-type", "application/json")
+            .body(patchedJSONString)
+            .expect()
+            .statusCode(HttpStatus.OK.value())
+            .when()
+            .post(PATCH).as(VerificationPatch.class); 
+
+        //Test if patched 
+        //Extract
+      	String ResourceType = returnPatch.getResourceType(); 
+		ServiceLogger.log(logTag, "Resource Type " + ResourceType);
+		ServiceLogger.log(logTag, "Table  " + returnPatch.getTable());
+
+
+      	assert(returnPatch.getId() == serviceDocId);
+      		
+		ServiceLogger.log(logTag, "Patched worked!");
+
+		deleteDoc(serviceDocId);
+
+        ArrayList<ServiceImages> afterDelete =
+        given().
+                header("AJP_eppn", userEPPN).
+                expect().
+                statusCode(HttpStatus.OK.value()).
+                when().
+                get(SERVICE_DOCUMENTS_GET, serviceID).
+                as(ArrayList.class);
+
+        int numAfterDelete  = (afterDelete != null) ? afterDelete.size() : 0;
+        assertTrue ("Deleting an doc failed", numAfterDelete == numBefore);
 
     }
     
