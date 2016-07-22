@@ -71,7 +71,10 @@ public class DOMEServerDAO {
 	//\"server\":{\"name\":\"localhost\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed\",\"space\":\"USER\"}
 	public String toDOMEString()
 	{
-		String result = printNameString("name",this.serverURL) + "," +
+		//Hard coded because the url in the table is a string contains url and other information.  This localhost is just for DOME to run so localhost is fine.
+		String result = printNameString("name","localhost") + "," +
+		//String result = printNameString("name",this.serverURL) + "," +
+				// This is hard coded because nowhere to store this info
 				//printNameString("port", ""+this.port) + "," +
 				printNameString("port", "7795") + "," +
 				printNameString("user",this.userName) + "," +
