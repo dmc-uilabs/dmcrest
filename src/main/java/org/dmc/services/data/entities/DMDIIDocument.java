@@ -56,10 +56,13 @@ public class DMDIIDocument extends BaseEntity {
 	private Timestamp expires;
 	
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 	
 	@Column(name = "file_type_id")
 	private Integer fileType;
+	
+	@Column(name = "verified")
+	private Boolean verified = false;
 
 	public Integer getId() {
 		return id;
@@ -155,6 +158,14 @@ public class DMDIIDocument extends BaseEntity {
 
 	public void setFileType(Integer fileType) {
 		this.fileType = fileType;
+	}
+
+	public Boolean getVerified() {
+		return verified;
+	}
+
+	public void setVerified(Boolean verified) {
+		this.verified = verified;
 	}
 
 	@Override

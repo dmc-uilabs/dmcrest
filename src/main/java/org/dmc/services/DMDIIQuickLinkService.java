@@ -37,9 +37,12 @@ public class DMDIIQuickLinkService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		
 		DMDIIQuickLink linkEntity = linkMapper.mapToEntity(link);
-		DMDIIDocument docEntity = docMapper.mapToEntity(dmdiiDocumentService.findOne(link.getDoc().getId()));
 		
-		linkEntity.setDoc(docEntity);
+		if(link.getDoc() != null) {
+			DMDIIDocument docEntity = docMapper.mapToEntity(dmdiiDocumentService.save(link.getDoc()));
+			
+			linkEntity.setDoc(docEntity);
+		}
 		
 		return linkMapper.mapToModel(linkEntity);
 	}

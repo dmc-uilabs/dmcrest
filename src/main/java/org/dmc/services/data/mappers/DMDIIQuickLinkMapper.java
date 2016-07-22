@@ -15,9 +15,11 @@ public class DMDIIQuickLinkMapper extends AbstractMapper<DMDIIQuickLink, DMDIIQu
 		Assert.notNull(model);
 		DMDIIQuickLink entity = copyProperties(model, new DMDIIQuickLink());
 		
-		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		
-		entity.setDoc(docMapper.mapToEntity(model.getDoc()));
+		if(model.getDoc() != null) {
+			Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
+			
+			entity.setDoc(docMapper.mapToEntity(model.getDoc()));
+		}
 		
 		return entity;
 	}
@@ -27,9 +29,11 @@ public class DMDIIQuickLinkMapper extends AbstractMapper<DMDIIQuickLink, DMDIIQu
 		Assert.notNull(entity);
 		DMDIIQuickLinkModel model = copyProperties(entity, new DMDIIQuickLinkModel());
 		
-		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		
-		model.setDoc(docMapper.mapToModel(entity.getDoc()));
+		if(entity.getDoc() != null) {
+			Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
+			
+			model.setDoc(docMapper.mapToModel(entity.getDoc()));
+		}
 		
 		return model;
 	}
