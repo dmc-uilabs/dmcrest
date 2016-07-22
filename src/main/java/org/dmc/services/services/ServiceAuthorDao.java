@@ -15,6 +15,7 @@ import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyVideo;
+import org.dmc.services.company.CompanyDao;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
@@ -34,7 +35,6 @@ import javax.xml.ws.http.HTTPException;
 public class ServiceAuthorDao {
 
 	private final String logTag = ServiceAuthorDao.class.getName();
-	private ResultSet resultSet;
 	private Connection connection;
 
 	/**
@@ -114,27 +114,39 @@ public class ServiceAuthorDao {
 		ArrayList<ServiceAuthor> authors = new ArrayList<ServiceAuthor>();
 		ServiceLogger.log(this.logTag, "User: " + userEPPN + " asking for all authors of the service: " + serviceId);
 		try {
-			String query = "SELECT * FROM table WHERE id = ?";
+			String query = "SELECT owner_id FROM service WHERE service_id = ?";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, serviceId);
-			this.resultSet = preparedStatement.executeQuery();
+			ResultSet resultSet = preparedStatement.executeQuery();
 
-			while (this.resultSet.next()) {
-				int id = this.resultSet.getInt("id");
-				String displayName = this.resultSet.getString("display_name");
-				String jobTitle = this.resultSet.getString("job_title");
-				Boolean follow = this.resultSet.getBoolean("follow");
-				String avatar = this.resultSet.getString("avatar");
-				String company = this.resultSet.getString("company");
-				ServiceAuthor author = new ServiceAuthor();
-				author.setId(String.valueOf(id));
-				author.setServiceId(String.valueOf(serviceId));
-				author.setJobTitle(jobTitle);
-				author.setFollow(follow);
-				author.setAvatar(avatar);
-				author.setCompany(company);
-				authors.add(author);
+			while (resultSet.next()) {
+				int owner_id = resultSet.getInt("owner_id");
+				ServiceLogger.log(logTag, "Looking up author Id: " + owner_id);
+				
+				String userQuery = "select user_name, realname, title from users where user_id = ?";
+				PreparedStatement preparedStatementUserQuery = DBConnector.prepareStatement(userQuery);
+				preparedStatementUserQuery.setInt(1, owner_id);
+				ResultSet userResultSet = preparedStatementUserQuery.executeQuery();
+				ServiceLogger.log(logTag, "Found up author Id: " + owner_id);
+				if(userResultSet.next()) {
+					String displayName = userResultSet.getString("realname");
+					String jobTitle = userResultSet.getString("title");
+					Boolean follow = new Boolean(false);
+					String avatar = "/images/carbone.png";
+					final CompanyDao companyDao = new CompanyDao();
+					int company = companyDao.getUserCompanyId(owner_id);
+					
+					
+					ServiceAuthor author = new ServiceAuthor();
+					author.setId(String.valueOf(owner_id));
+					author.setServiceId(String.valueOf(serviceId));
+					author.setJobTitle(jobTitle);
+					author.setFollow(follow);
+					author.setAvatar(avatar);
+					author.setCompany(new Integer(company).toString());
+					authors.add(author);
+				}
 			}
 		} catch (SQLException e) {
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
