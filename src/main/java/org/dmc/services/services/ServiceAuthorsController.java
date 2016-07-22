@@ -49,7 +49,7 @@ public class ServiceAuthorsController {
 			createdId = serviceAuthorDao.createServiceAuthor(author, userEPPN);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 
 		return new ResponseEntity<Id>(createdId, HttpStatus.valueOf(httpStatusCode));
@@ -70,7 +70,7 @@ public class ServiceAuthorsController {
 			authors = serviceAuthorDao.getServiceAuthors(serviceId, userEPPN);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 
 		return new ResponseEntity<ArrayList<ServiceAuthor>>(authors, HttpStatus.valueOf(httpStatusCode));
@@ -91,7 +91,7 @@ public class ServiceAuthorsController {
 			deletedId = serviceAuthorDao.deleteServiceAuthor(authorId, userEPPN);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 
 		return new ResponseEntity<Id>(deletedId, HttpStatus.valueOf(httpStatusCode));
