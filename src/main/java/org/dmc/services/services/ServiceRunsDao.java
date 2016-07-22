@@ -115,8 +115,8 @@ public class ServiceRunsDao {
 					ResultSet resultSetProject = preparedStatementProject.getResultSet();
 					
 					if (resultSetProject.next()) {
-						simplifiedProject.setId(Integer.toString(resultSetProject.getInt("groups.group_id")));
-						simplifiedProject.setTitle(resultSetProject.getString("groups.group_name"));
+						simplifiedProject.setId(Integer.toString(resultSetProject.getInt("group_id")));
+						simplifiedProject.setTitle(resultSetProject.getString("group_name"));
 					}
 					
 					singleServiceRun.setProject(simplifiedProject);
