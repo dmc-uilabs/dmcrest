@@ -143,6 +143,7 @@ public class ServiceIT extends BaseIT {
     public void testServicePost(){
         Service service = createNewServiceObjectToPost();
 
+		Service serviceResponce =
         given().
             header("Content-type", "application/json").
             header("AJP_eppn", userEPPN).
@@ -152,7 +153,24 @@ public class ServiceIT extends BaseIT {
         when().
             post("/services/").
         then().
-            body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
+            body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json")).
+			extract().as(Service.class);
+		
+		/*
+		service.setId(serviceResponce.getId());
+		
+		assertTrue("Service sent " + service.toString() +
+				   " does not equal service responce "+ serviceResponce.toString(),
+				   serviceResponce.equals(service));
+		*/
+		assertTrue("Title is not equal in sent and responce",
+				   service.getTitle().equals(serviceResponce.getTitle()));
+		assertTrue("Description is not equal in sent and responce",
+				   service.getDescription().equals(serviceResponce.getDescription()));
+		assertTrue("Service Type is not equal in sent and responce",
+				   service.getServiceType().equals(serviceResponce.getServiceType()));
+		assertTrue("Specifications is not equal in sent and responce",
+				   service.getSpecifications().equals(serviceResponce.getSpecifications()));
     }
 
     /**
@@ -943,6 +961,8 @@ public class ServiceIT extends BaseIT {
         service.setTitle("junit service test");
         service.setDescription("junit service test");
         service.setOwner(userEPPN);
+		service.setServiceType("service type");
+		service.setSpecifications("service specifications");
         return service;
     }
     
