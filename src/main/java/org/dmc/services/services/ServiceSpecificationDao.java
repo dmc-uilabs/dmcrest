@@ -178,40 +178,45 @@ public class ServiceSpecificationDao {
 	 * @throws DMCServiceException
 	 */
 	public ArrayList<ServiceSpecifications> getServiceSpecifications(int serviceId, int limit, String order, String sort, String userEPPN) throws DMCServiceException {
-		
+
 		ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
 		ServiceLogger.log(this.logTag, "User: " + userEPPN + " asking for all service specifications");
-		
+
 		ObjectMapper mapper = new ObjectMapper();
-		
+
 		try {
-			String query = "SELECT * FROM service_specifications"; 
+			String query = "SELECT * FROM service_specifications";
 			if (serviceId != -1) {
 				query += " WHERE service_id = " + serviceId;
 			} else {
 				query += " ORDER BY " + sort + " " + order + " LIMIT " + limit;
 			}
-			
+
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			this.resultSet = preparedStatement.executeQuery();
-			
+
 			while (this.resultSet.next()) {
-				List<ServiceSpecialSpecifications> special = mapper.readValue(this.resultSet.getString("special"), 
-						new TypeReference<ArrayList<ServiceSpecialSpecifications>>() {});
-				
+				String tempSpecial = this.resultSet.getString("special");
+				List<ServiceSpecialSpecifications> special = new ArrayList<ServiceSpecialSpecifications>();
+
+				if (tempSpecial != null) {
+					 special = mapper.readValue(tempSpecial, new TypeReference<ArrayList<ServiceSpecialSpecifications>>() {
+					});
+				}
+
 				String tempUsageStats = this.resultSet.getString("usage_stats");
 				String tempRunStats = this.resultSet.getString("run_stats");
 				UsageStats usageStats = new UsageStats();
 				RunStats runStats = new RunStats();
-				
+
 				if (tempUsageStats != null) {
 					usageStats = mapper.readValue(tempUsageStats, UsageStats.class);
 				}
-				
+
 				if (tempRunStats != null) {
 					runStats = mapper.readValue(tempRunStats, RunStats.class);
 				}
-				
+
 				ServiceSpecifications spec = new ServiceSpecifications();
 				spec.setId(String.valueOf(this.resultSet.getInt("id")));
 				spec.setServiceId(String.valueOf(this.resultSet.getInt("service_id")));
@@ -220,7 +225,7 @@ public class ServiceSpecificationDao {
 				spec.setSpecial(special);
 				spec.setUsageStats(usageStats);
 				spec.setRunStats(runStats);
-				
+
 				specs.add(spec);
 			}
 		} catch (SQLException e) {
