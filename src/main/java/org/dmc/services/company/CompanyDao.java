@@ -27,7 +27,7 @@ import static org.dmc.services.company.CompanyUserUtil.isMemberOfCompany;
 
 public class CompanyDao {
 
-	private final String logTag = CompanyDao.class.getName();
+	private static final String logTag = CompanyDao.class.getName();
 	private ResultSet resultSet;
 	
 	// Only declare here and instantiate in method where it is used
@@ -583,7 +583,7 @@ public class CompanyDao {
 	 * @param userId the user id
      * @return the organization_id from the organization_user record if found, -1 otherwise
      */
-	public int getUserCompanyId(int userId)  {
+	static public int getUserCompanyId(int userId)  {
 		int id = -1;
 		String query = "SELECT organization_id FROM organization_user WHERE user_id = ?";
         try {
