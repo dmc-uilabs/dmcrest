@@ -160,17 +160,22 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceAuthor(){
-		ArrayList<ServiceAuthor> authors =
+		ServiceAuthor[] authors =
         given().
 			header("AJP_eppn", userEPPN).
 			header("Content-type", APPLICATION_JSON_VALUE).
         expect().
 			statusCode(HttpStatus.OK.value()).
         when().
-			get("/services/" + serviceId + "/service_authors").as(ArrayList.class);
+			get("/services/" + serviceId + "/service_authors").as(ServiceAuthor[].class);
 		
-		assertTrue("No service authors", authors.size() > 0);
-    }
+		assertTrue("No service authors", authors[0] != null);
+		
+		ServiceAuthor firstAuthor = (ServiceAuthor) authors[0];
+		
+		assertTrue("First author id "+firstAuthor.getId()+" job title is null", firstAuthor.getJobTitle() != null);
+		assertTrue("First author id "+firstAuthor.getId()+" display name is null ", firstAuthor.getDisplayName() != null);
+	}
 
     /**
      * test case for get /services/{serviceID}/service_documents
