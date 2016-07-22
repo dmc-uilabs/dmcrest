@@ -199,9 +199,19 @@ public class ServiceSpecificationDao {
 				List<ServiceSpecialSpecifications> special = mapper.readValue(this.resultSet.getString("special"), 
 						new TypeReference<ArrayList<ServiceSpecialSpecifications>>() {});
 				
-				UsageStats usageStats = mapper.readValue(this.resultSet.getString("usage_stats"), UsageStats.class);
-				RunStats runStats = mapper.readValue(this.resultSet.getString("run_stats"), RunStats.class);
-
+				String tempUsageStats = this.resultSet.getString("usage_stats");
+				String tempRunStats = this.resultSet.getString("run_stats");
+				UsageStats usageStats = new UsageStats();
+				RunStats runStats = new RunStats();
+				
+				if (tempUsageStats != null) {
+					usageStats = mapper.readValue(tempUsageStats, UsageStats.class);
+				}
+				
+				if (tempRunStats != null) {
+					runStats = mapper.readValue(tempRunStats, RunStats.class);
+				}
+				
 				ServiceSpecifications spec = new ServiceSpecifications();
 				spec.setId(String.valueOf(this.resultSet.getInt("id")));
 				spec.setServiceId(String.valueOf(this.resultSet.getInt("service_id")));
