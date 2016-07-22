@@ -635,7 +635,7 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServiceGet_InputPositions(){
-		int sId = 300;
+		int sId = 3;
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
@@ -780,6 +780,24 @@ public class ServiceIT extends BaseIT {
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().get("/service_runs/" + serviceId);
+	}
+	
+	/**
+	 * test case for GET /service_runs
+	 */
+	@Test
+	public void testServiceGet_ServiceRunsFromListOfServiceIds(){
+		List<GetServiceRun> serviceRunsInTable = Arrays.asList(given().
+		header("AJP_eppn", "joeengineer").param(serviceId, 1).param(serviceId, 3).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().get("/service_runs/").as(GetServiceRun[].class));
+		
+		GetServiceRun expected = serviceRunsInTable.get(0);
+		
+		assertTrue("Status value was not expected", expected.getStatus().equals(new BigDecimal(1)));
+		assertTrue("AccountId value was not expected", expected.getAccountId().equals("550"));
+		assertTrue("ServiceId value was not expected", expected.getServiceId().equals("3"));
 	}
 	
 	/**
