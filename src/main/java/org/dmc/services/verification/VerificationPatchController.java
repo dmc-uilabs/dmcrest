@@ -43,7 +43,7 @@ public class VerificationPatchController {
         int httpStatusCode = HttpStatus.OK.value();
 
         try{
-        	String back = verificationTest.verify(1, "https://s3-us-west-2.amazonaws.com/test-temp-verify/test.jpeg", "doc2_files", "josh","noreply", "documents","filed", "fileanme");
+        	String back = verificationTest.verify(10, "https://s3-us-west-2.amazonaws.com/test-temp-verify/test.jpeg", "doc2_files", "josh","Profiles", "Documents","file_id", "filename");
             return new ResponseEntity<String>(back, HttpStatus.valueOf(httpStatusCode));        
 
         } catch(DMCServiceException e) {
