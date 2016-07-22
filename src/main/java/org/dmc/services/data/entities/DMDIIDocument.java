@@ -53,7 +53,6 @@ public class DMDIIDocument extends BaseEntity {
 	private Date modified;
 
 	@Column(name = "expires")
-	@Temporal(TemporalType.TIMESTAMP)
 	private Timestamp expires;
 	
 	@Column(name = "is_deleted")

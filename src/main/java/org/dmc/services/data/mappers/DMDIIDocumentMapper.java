@@ -32,7 +32,10 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 
 		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getOwnerId())));
-		entity.setDMDIIProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProjectId())));
+		if(model.getDmdiiProjectId() != null)
+			entity.setDMDIIProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProjectId())));
+		else
+			entity.setDMDIIProject(null);
 
 		return entity;
 	}
