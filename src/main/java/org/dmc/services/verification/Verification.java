@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 public class Verification {
 	
 	//Env var for our verification machine 
-	private static final String targetURL = System.getenv("verifyURL");//"http://localhost:3000/";//System.getenv("verifyURL");
+	private static final String targetURL = "54.236.236.170";//System.getenv("verifyURL");//"http://localhost:3000/";//System.getenv("verifyURL");
 	
 	
 	public String verify (int id, String url, String table, String userEPPN, String folder, String resourceType, String idColumn, String urlColumn ) throws DMCServiceException {
