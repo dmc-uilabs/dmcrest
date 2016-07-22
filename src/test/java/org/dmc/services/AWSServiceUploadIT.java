@@ -2,18 +2,12 @@ package org.dmc.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import org.dmc.services.company.Company;
-import org.dmc.services.profile.Profile;
 import org.dmc.services.services.ServiceImages;
-import org.dmc.services.services.ServiceImagesDao;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.services.ServiceDocument;
 import org.dmc.services.DMCServiceException;
 
-import org.dmc.services.utility.TestUserUtil;
 import org.dmc.services.verification.VerificationPatch;
-import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 

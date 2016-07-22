@@ -49,7 +49,7 @@ import org.dmc.services.verification.VerificationPatch;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 //@Ignore
-public class AwsProjectIT extends BaseIT {
+public class AWSProjectUploadIT extends BaseIT {
 
     // Documents
     private static final String GET_PROJECT_DOCS = "/projects/{projectID}/project_documents";
@@ -59,7 +59,7 @@ public class AwsProjectIT extends BaseIT {
     private static final String PATCH= "/verify";
 
     private static final String adminUser = "fforgeadmin";
-    private final String logTag = AwsProjectIT.class.getName();
+    private final String logTag = AWSProjectUploadIT.class.getName();
     
     public static final String userEPPN = "fforgeadmin";
     public static final String userID = "102"; 
