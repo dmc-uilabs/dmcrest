@@ -24,6 +24,8 @@ public class DMDIIDocumentModel extends BaseModel {
 	private Boolean isDeleted;
 	
 	private Integer fileType;
+	
+	private Boolean verified;
 
 	public String getDocumentName() {
 		return documentName;
@@ -103,6 +105,14 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	public void setFileType(Integer fileType) {
 		this.fileType = fileType;
+	}
+
+	public Boolean getVerified() {
+		return verified;
+	}
+
+	public void setVerified(Boolean verified) {
+		this.verified = verified;
 	}
 
 	

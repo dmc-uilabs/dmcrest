@@ -121,13 +121,19 @@ public class DMDIIDocumentService {
 		docEntity.setOwner(userEntity);
 //		docEntity.setDocumentUrl(signedURL);
 //		docEntity.setPath(path);
+		//current time plus one hour
+		Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime() + (1000 * 60 * 60));
+		
+		docEntity.setExpires(expires);
+		docEntity.setIsDeleted(false);
+		docEntity.setVerified(false);
 		
 		docEntity = dmdiiDocumentRepository.save(docEntity);
 		
 		ServiceLogger.log(logTag, "Attempting to verify DMDII document");
 		//Verify the document
 		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", doc.getOwnerId().toString(), "ProjectOfDMDII", "Documents", "id", "url");
-		ServiceLogger.log(logTag, "Verification Machine Response" + temp);
+		ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
 		
 		return docMapper.mapToModel(docEntity);
 	}
