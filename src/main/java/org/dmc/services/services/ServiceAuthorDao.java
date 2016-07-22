@@ -128,7 +128,8 @@ public class ServiceAuthorDao {
 				PreparedStatement preparedStatementUserQuery = DBConnector.prepareStatement(userQuery);
 				preparedStatementUserQuery.setInt(1, owner_id);
 				ResultSet userResultSet = preparedStatementUserQuery.executeQuery();
-				ServiceLogger.log(logTag, "Found up author Id: " + owner_id);
+				ServiceLogger.log(logTag, "Found author Id: " + owner_id);
+				
 				if(userResultSet.next()) {
 					String displayName = userResultSet.getString("realname");
 					String jobTitle = userResultSet.getString("title");
@@ -140,6 +141,7 @@ public class ServiceAuthorDao {
 					
 					ServiceAuthor author = new ServiceAuthor();
 					author.setId(String.valueOf(owner_id));
+					author.setDisplayName(displayName);
 					author.setServiceId(String.valueOf(serviceId));
 					author.setJobTitle(jobTitle);
 					author.setFollow(follow);
