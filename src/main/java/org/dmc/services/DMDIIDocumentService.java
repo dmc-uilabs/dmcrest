@@ -22,9 +22,12 @@ import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.projects.ProjectDocumentDao;
+import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Verify;
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
 
@@ -45,6 +48,10 @@ public class DMDIIDocumentService {
 	
 	@Inject
 	private AWSConnector AWS;
+	
+	private final String logTag = DMDIIDocumentService.class.getName();
+	
+	private Verification verify = new Verification();
 
 	public List<DMDIIDocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
@@ -114,17 +121,22 @@ public class DMDIIDocumentService {
 		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getOwner().getUsername(), "Documents");
 		String path = AWS.createPath(signedURL);
 		
-		String signedURL = "temp";
-		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getId().toString(), "Documents");
-		String path = AWS.createPath(signedURL);
+//		String signedURL = "temp";
+//		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getId().toString(), "Documents");
+//		String path = AWS.createPath(signedURL);
 		
 		DMDIIDocument docEntity = docMapper.mapToEntity(doc);
 		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwnerId()));
 		docEntity.setOwner(userEntity);
-		docEntity.setDocumentUrl(signedURL);
-		docEntity.setPath(path);
+//		docEntity.setDocumentUrl(signedURL);
+//		docEntity.setPath(path);
 		
 		docEntity = dmdiiDocumentRepository.save(docEntity);
+		
+		ServiceLogger.log(logTag, "Attempting to verify DMDII document");
+		//Verify the document
+		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", doc.getOwnerId().toString(), "ProjectOfDMDII", "Documents", "id", "url");
+		ServiceLogger.log(logTag, "Verification Machine Response" + temp);
 		
 		return docMapper.mapToModel(docEntity);
 	}
