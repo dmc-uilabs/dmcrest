@@ -138,6 +138,9 @@ public class ServiceAuthorDao {
 					final CompanyDao companyDao = new CompanyDao();
 					int company = companyDao.getUserCompanyId(owner_id);
 					
+					if(jobTitle == null) {
+						jobTitle = new String();
+					}
 					
 					ServiceAuthor author = new ServiceAuthor();
 					author.setId(String.valueOf(owner_id));
