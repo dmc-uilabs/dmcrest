@@ -308,13 +308,14 @@ public class ServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/services/{serviceId}/specifications", method = RequestMethod.GET, produces = { "application/json" })
-	public ResponseEntity<?> getServiceSpecifications(@PathVariable("serviceId") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+	public ResponseEntity<?> getServiceSpecifications(@RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_order", required = false) String order, @RequestParam(value = "_sort", required = false) String sort, @PathVariable("serviceId") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "getServiceSpecifications, userEPPN: " + userEPPN);
 		ArrayList<ServiceSpecifications> specs = null;
 
 		try {
-			specs = specificationDao.getServiceSpecifications(-1, -1, null, null, userEPPN);
+			specs = specificationDao.getServiceSpecifications(id, limit, order, sort, userEPPN);
 			return new ResponseEntity<ArrayList<ServiceSpecifications>>(specs, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);

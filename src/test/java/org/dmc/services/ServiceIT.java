@@ -794,7 +794,7 @@ public class ServiceIT extends BaseIT {
 	@Test
 	public void testServiceGet_ServiceRunsFromListOfServiceIds(){
 		List<GetServiceRun> serviceRunsInTable = Arrays.asList(given().
-		header("AJP_eppn", "joeengineer").param(serviceId, 1).param(serviceId, 3).
+		header("AJP_eppn", "joeengineer").param("serviceId", 1).param("serviceId", 3).
 		expect().
 		statusCode(HttpStatus.OK.value()).
 		when().get("/service_runs/").as(GetServiceRun[].class));
