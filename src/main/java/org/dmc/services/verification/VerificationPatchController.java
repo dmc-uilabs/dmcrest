@@ -35,22 +35,22 @@ public class VerificationPatchController {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
-	/*
+	
 	//CONTROLLER ONLY FOR TESTING VERIFICATION MACHINE
 	@RequestMapping(value = "/verifyTest", method = RequestMethod.GET, produces = { "application/json" })
     public ResponseEntity testVerify()
 	{        
         int httpStatusCode = HttpStatus.OK.value();
-        
+
         try{
-        	VerificationPatch back = verificationTest.verify(1, "https://s3-us-west-2.amazonaws.com/test-temp-verify/test.jpeg", "verify", "noreply", 1);
-            return new ResponseEntity<VerificationPatch>(back, HttpStatus.valueOf(httpStatusCode));        
+        	String back = verificationTest.verify(1, "https://s3-us-west-2.amazonaws.com/test-temp-verify/test.jpeg", "doc2_files", "josh","noreply", "documents","filed", "fileanme");
+            return new ResponseEntity<String>(back, HttpStatus.valueOf(httpStatusCode));        
 
         } catch(DMCServiceException e) {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
-	*/
+	
 	
 	
 	
