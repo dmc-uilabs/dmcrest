@@ -177,7 +177,7 @@ public class ServiceSpecificationDao {
 	 * @return
 	 * @throws DMCServiceException
 	 */
-	public ArrayList<ServiceSpecifications> getServiceSpecifications(int serviceId, int limit, String order, String sort, String userEPPN) throws DMCServiceException {
+	public ArrayList<ServiceSpecifications> getServiceSpecifications(int serviceId, Integer limit, String order, String sort, String userEPPN) throws DMCServiceException {
 
 		ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
 		ServiceLogger.log(this.logTag, "User: " + userEPPN + " asking for all service specifications");
@@ -185,11 +185,34 @@ public class ServiceSpecificationDao {
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
+			ArrayList<String> columnsInSpecificationsTable = new ArrayList<String>();
+			columnsInSpecificationsTable.add("id");
+			columnsInSpecificationsTable.add("service_id");
+			columnsInSpecificationsTable.add("input");
+			columnsInSpecificationsTable.add("output");
+			columnsInSpecificationsTable.add("special");
+			columnsInSpecificationsTable.add("usage_stats");
+			columnsInSpecificationsTable.add("run_stats");
+			
 			String query = "SELECT * FROM service_specifications";
 			if (serviceId != -1) {
 				query += " WHERE service_id = " + serviceId;
+			}
+			
+			if (sort == null) {
+				query += " ORDER BY id";
+			} else if (!columnsInSpecificationsTable.contains(sort)) {
+				query += " ORDER BY id";
 			} else {
-				query += " ORDER BY " + sort + " " + order + " LIMIT " + limit;
+				query += " ORDER BY " + sort;
+			}
+
+			if (order == null) {
+				query += " ASC";
+			} else if (!order.equals("ASC") && !order.equals("DESC")) {
+				query += " ASC";
+			} else {
+				query += " " + order;
 			}
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
