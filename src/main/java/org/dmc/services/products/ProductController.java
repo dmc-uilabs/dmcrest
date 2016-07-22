@@ -27,6 +27,7 @@ public class ProductController {
 																			   @RequestParam(value = "rating", required = false) Integer rating,
 																			   @RequestParam(value = "status", required = false) Boolean status){
 	  ProductReviewDao productReviewDao = new ProductReviewDao();
-      return new ResponseEntity<List<ProductReview>>(productReviewDao.getProductReviews(), HttpStatus.OK);
+	  List<ProductReview> productReviews = productReviewDao.getProductReviews(serviceId, reviewId, limit, order, sort, rating, status);
+      return new ResponseEntity<List<ProductReview>>(productReviews, HttpStatus.OK);
   }
 }

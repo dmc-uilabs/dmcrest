@@ -11,12 +11,14 @@ public class ProductReviewDao {
 		return productReview;
 	}
 	
-	public ArrayList<ProductReview> getProductReviews() {
+	public ArrayList<ProductReview> getProductReviews(String serviceId, String reviewId,
+													  Integer limit, String order, String sort,
+													  Integer rating, Boolean status) {
 		ArrayList<ProductReview> productReviewList = new ArrayList<ProductReview>();
 		return productReviewList;
 	}
 
-	public ProductReview patchProductReviews(ProductReview productReview) {
+	public ProductReview patchProductReviews(ProductReview productReview, String reviewId) {
 		return productReview;
 	}
 

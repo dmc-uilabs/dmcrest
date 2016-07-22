@@ -25,7 +25,13 @@ public class ProductReviewsController {
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
 		ProductReviewDao productReviewDao = new ProductReviewDao();
-		return new ResponseEntity<List<ProductReview>>(productReviewDao.getProductReviews(), HttpStatus.OK);
+		
+		String x = new String();
+		Integer y = new Integer(0);
+		Boolean z = new Boolean(false);
+		
+		List<ProductReview> productReviews = productReviewDao.getProductReviews(x, x, limit, order, sort, y, z);
+		return new ResponseEntity<List<ProductReview>>(productReviews, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
@@ -38,7 +44,7 @@ public class ProductReviewsController {
 	public ResponseEntity<ProductReview> productReviewsReviewIdPatch(@PathVariable("reviewId") String reviewId,
 			@RequestBody ProductReview review) {
 		ProductReviewDao productReviewDao = new ProductReviewDao();
-		return new ResponseEntity<ProductReview>(productReviewDao.patchProductReviews(review), HttpStatus.OK);
+		return new ResponseEntity<ProductReview>(productReviewDao.patchProductReviews(review, reviewId), HttpStatus.OK);
 	}
 
 }
