@@ -1,72 +1,126 @@
 package org.dmc.services.tasks;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Task {
-	private final String logTag = Task.class.getName();
-	private final int id;
-	private final String title;
-	private final TaskProject tProject;
-	private final String assignee;
-	private final String reporter;
-	private final String dueDate;
-	private final int priority;
-	private final String summary;
-	private final String details;
 
-	public Task(int id, String title, TaskProject taskProject, String assignee, String reporter, String dueDate,
-			int priority, String summary, String details) {
-		this.id = id;
-		this.title = title;
-		this.tProject = taskProject;
-		this.assignee = assignee;
-		this.reporter = reporter;
-		this.dueDate = dueDate;
-		this.priority = priority;
-		this.summary = summary;
-		this.details = details;
-	}
+    private String id;
+    private String title;
+    private TaskProject taskProject;
+    private String assignee;
+    private String assigneeId;
+    private String reporter;
+    private String reporterId;
+    private long dueDate;
+    private String additionalDetails;
+    private String status;
+    private int priority;
 
-	public int getId()
-    {
-    	return id;
+    @JsonProperty("id")
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
     }
 
-	public String getTitle()
-    {
-    	return title;
+    @JsonProperty("title")
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-	public TaskProject getProject()
-    {
-    	return tProject;
+    @JsonProperty("taskProject")
+    public TaskProject getTaskProject() {
+        return taskProject;
+    }
+    public void setTaskProject(TaskProject taskProject) {
+        this.taskProject = taskProject;
     }
 
-	public String getAssignee() 
-	{
-		return assignee;
-	}
+    @JsonProperty("assignee")
+    public String getAssignee() {
+        return assignee;
+    }
+    public void setAssignee(String assignee) {
+        this.assignee = assignee;
+    }
 
-	public String getReporter() 
-	{
-		return reporter;
-	}
+    @JsonProperty("assigneeId")
+    public String getAssigneeId() {
+        return assigneeId;
+    }
+    public void setAssigneeId(String assigneeId) {
+        this.assigneeId = assigneeId;
+    }
 
-	public String getDueDate() 
-	{
-		return dueDate;
-	}
- 
-	public int getPriority() 
-	{
-		return priority;
-	}
-	
-	public String getSummary() 
-	{
-		return summary;
-	}
-	
-	public String getDetails() 
-	{
-		return details;
+    @JsonProperty("reporter")
+    public String getReporter() {
+        return reporter;
+    }
+    public void setReporter(String reporter) {
+        this.reporter = reporter;
+    }
+
+    @JsonProperty("reporterId")
+    public String getReporterId() {
+        return reporterId;
+    }
+    public void setReporterId(String reporterId) {
+        this.reporterId = reporterId;
+    }
+
+    @JsonProperty("dueDate")
+    public long getDueDate() {
+        return dueDate;
+    }
+    public void setDueDate(long dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    @JsonProperty("additionalDetails")
+    public String getAdditionalDetails() {
+        return additionalDetails;
+    }
+    public void setAdditionalDetails(String additionalDetails) {
+        this.additionalDetails = additionalDetails;
+    }
+
+    @JsonProperty("status")
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    @JsonProperty("priority")
+    public int getPriority() {
+        return priority;
+    }
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+	@Override
+	public String toString()  {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class Task {\n");
+		
+		sb.append("  id: ").append(id).append("\n");
+		sb.append("  title: ").append(title).append("\n");
+		sb.append("  taskProject: ").append(taskProject).append("\n");
+		sb.append("  assignee: ").append(assignee).append("\n");
+		sb.append("  assigneeId: ").append(assigneeId).append("\n");
+		sb.append("  reporter: ").append(reporter).append("\n");
+		sb.append("  reporterId: ").append(reporterId).append("\n");
+		sb.append("  dueDate: ").append(dueDate).append("\n");
+		sb.append("  additionalDetails: ").append(additionalDetails).append("\n");
+		sb.append("  status: ").append(status).append("\n");
+		sb.append("  priority: ").append(priority).append("\n");
+		sb.append("}\n");
+		return sb.toString();
 	}
 }

@@ -8,17 +8,17 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-07T17:42:57.404Z")
 public class RunStats  {
   
-  private BigDecimal success = null;
-  private BigDecimal fail = null;
+  private Integer success = null;
+  private Integer fail = null;
 
   
   /**
    **/
   @JsonProperty("success")
-  public BigDecimal getSuccess() {
+  public Integer getSuccess() {
     return success;
   }
-  public void setSuccess(BigDecimal success) {
+  public void setSuccess(Integer success) {
     this.success = success;
   }
 
@@ -26,10 +26,10 @@ public class RunStats  {
   /**
    **/
   @JsonProperty("fail")
-  public BigDecimal getFail() {
+  public Integer getFail() {
     return fail;
   }
-  public void setFail(BigDecimal fail) {
+  public void setFail(Integer fail) {
     this.fail = fail;
   }
 

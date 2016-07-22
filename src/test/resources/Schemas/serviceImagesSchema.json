@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/serviceImages",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "http://dmc-dev.geinspire.com/id/id",
+      "type": "integer"
+    },
+    "serviceId": {
+          "id": "http://dmc-dev.geinspire.com/serviceImages/0/serviceId",
+          "type": "integer"
+        },
+    "url": {
+      "id": "http://dmc-dev.geinspire.com/serviceImages/0/url",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "serviceId",
+    "url"
+  ]
+}

@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class CompanyReview  {
-  
+
   private String id = null;
   private String companyId = null;
   private String name = null;
@@ -23,7 +23,7 @@ public class CompanyReview  {
   private String comment = null;
   private String accountId = null;
 
-  
+
   /**
    **/
   @JsonProperty("id")
@@ -34,7 +34,7 @@ public class CompanyReview  {
     this.id = id;
   }
 
-  
+
   /**
    **/
   @JsonProperty("companyId")
@@ -45,7 +45,7 @@ public class CompanyReview  {
     this.companyId = companyId;
   }
 
-  
+
   /**
    **/
   @JsonProperty("name")
@@ -56,7 +56,7 @@ public class CompanyReview  {
     this.name = name;
   }
 
-  
+
   /**
    **/
   @JsonProperty("reply")
@@ -67,7 +67,7 @@ public class CompanyReview  {
     this.reply = reply;
   }
 
-  
+
   /**
    **/
   @JsonProperty("reviewId")
@@ -78,7 +78,7 @@ public class CompanyReview  {
     this.reviewId = reviewId;
   }
 
-  
+
   /**
    **/
   @JsonProperty("status")
@@ -89,7 +89,7 @@ public class CompanyReview  {
     this.status = status;
   }
 
-  
+
   /**
    **/
   @JsonProperty("date")
@@ -100,7 +100,7 @@ public class CompanyReview  {
     this.date = date;
   }
 
-  
+
   /**
    **/
   @JsonProperty("rating")
@@ -111,7 +111,7 @@ public class CompanyReview  {
     this.rating = rating;
   }
 
-  
+
   /**
    **/
   @JsonProperty("like")
@@ -122,7 +122,7 @@ public class CompanyReview  {
     this.like = like;
   }
 
-  
+
   /**
    **/
 
@@ -134,7 +134,7 @@ public class CompanyReview  {
     this.dislike = dislike;
   }
 
-  
+
   /**
    **/
 
@@ -146,7 +146,7 @@ public class CompanyReview  {
     this.comment = comment;
   }
 
-  
+
   /**
    **/
 
@@ -158,7 +158,7 @@ public class CompanyReview  {
     this.accountId = accountId;
   }
 
-  
+
 
   @Override
   public boolean equals(Object o) {
@@ -192,7 +192,7 @@ public class CompanyReview  {
   public String toString()  {
     StringBuilder sb = new StringBuilder();
     sb.append("class CompanyReview {\n");
-    
+
     sb.append("  id: ").append(id).append("\n");
     sb.append("  companyId: ").append(companyId).append("\n");
     sb.append("  name: ").append(name).append("\n");

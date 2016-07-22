@@ -48,7 +48,7 @@ public class ServiceLogger {
 		logMessage +="Class: " + logTag + "\n";
 		logMessage +="Error: " + e.getError() + "\n";
 		logMessage +="HttpStatus Code: " + e.getHttpStatusCode() + "\n";
-		logMessage +="Message: " + e.getErrorMessage() + "\n";
+		logMessage +="Message: " + e.getMessage() + "\n";
 		logMessage += "---------------------------------------------------------------------------------------------------------------\n";
 		
 	    logger.info(logMessage);	

@@ -10,10 +10,11 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionListDao;
 import org.dmc.services.discussions.IndividualDiscussion;
+import org.dmc.services.discussions.IndividualDiscussionComment;
+import org.dmc.services.discussions.IndividualDiscussionDao;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,7 @@ public class ProjectController {
 	private ProjectDao project = new ProjectDao();
 	private ProjectDao projectDao = new ProjectDao();
 	private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
+	private ProjectDocumentDao projectDocumentDao = new ProjectDocumentDao(); 
 
 	@RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
 	public Project getProject(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -48,6 +50,18 @@ public class ProjectController {
 		return project.getProjectList(userEPPN);
 	}
 
+	@RequestMapping(value = "projects/all", method = RequestMethod.GET)
+	public ArrayList<Project> getProjectList(
+	        @RequestParam(value="_order", required=false) String order,
+	        @RequestParam(value="_sort", required=false) String sort,
+            @RequestParam(value="_start", required=false) Integer start,
+            @RequestParam(value="_limit", required=false) Integer limit,
+	        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
+        // @TODO: expand to handle arguments and change return type to a ResponseEntity to match new approach for error handling
+        return project.getProjectList(userEPPN);
+	}
+	
 	// leaving this as an example of how to work with parameters to URL
 	// instead of json, but json is probably preferable
 	@RequestMapping(value = "/projects/createWithParameter", method = RequestMethod.POST)
@@ -153,28 +167,16 @@ public class ProjectController {
 		}
 	}
 
-	@RequestMapping(value = "/projects/{projectID}/projects_tags", method = RequestMethod.GET)
-	public ArrayList<ProjectTag> getProjectTagList(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-		ServiceLogger.log(logTag, "In getProjectTagList as user " + userEPPN);
-
-		return project.getProjectTagList(projectID, userEPPN);
-	}
-
-	@RequestMapping(value = "/projects_tags", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<GetProjectTag> projectsTagsPost(
-
-	@RequestBody PostProjectTag body) {
-		// do some magic!
-		return new ResponseEntity<GetProjectTag>(HttpStatus.NOT_IMPLEMENTED);
-	}
-
 	/**
 	 * Return Project Discussions
 	 **/
+    // this is same as below - yaml may be wrong as to what should be defined
 	@RequestMapping(value = "/projects/{projectID}/all-discussions", method = RequestMethod.GET, produces = { "application/json" })
-	public ResponseEntity getDiscussions(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
-			@RequestParam(value = "_limit", defaultValue = "100") int limit, @RequestParam(value = "_order", defaultValue = "DESC") String order,
-			@RequestParam(value = "_sort", defaultValue = "time_posted") String sort) {
+	public ResponseEntity getAllDiscussions(@PathVariable("projectID") int projectID,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
+            @RequestParam(value = "_limit", defaultValue = "100") Integer limit,
+            @RequestParam(value = "_order", defaultValue = "DESC") String order,
+            @RequestParam(value = "_sort", defaultValue = "time_posted") String sort) {
 
 		ServiceLogger.log(logTag, "getDiscussions, userEPPN: " + userEPPN);
 		int statusCode = HttpStatus.OK.value();
@@ -191,6 +193,22 @@ public class ProjectController {
 		}
 	}
 
+	@RequestMapping(value = "/projects/{projectID}/individual-discussion", method = RequestMethod.GET, produces = { "application/json" })
+	public ResponseEntity getIndividualDiscussionsFromProjectId(@PathVariable("projectID") Integer projectID,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_order", required = false) String order, @RequestParam(value = "_sort", required = false) String sort) {
+		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		ServiceLogger.log(logTag, "getIndividualDiscussionsFromProjectId, userEPPN: " + userEPPN);
+
+		try {
+			return new ResponseEntity<List<IndividualDiscussion>>(individualDiscussionDao.getIndividualDiscussionsFromProjectId(projectID, limit, order, sort), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
+	}
+    
+
 	@ExceptionHandler(Exception.class)
 	public ErrorMessage handleException(Exception ex) {
 		// prepare responseEntity
@@ -199,16 +217,6 @@ public class ProjectController {
 		return result;
 	}
 
-	/**	
-     *
-     **/
-	@RequestMapping(value = "/projects/{projectID}/project_documents", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ProjectDocument>> projectsProjectIDProjectDocumentsGet(@PathVariable("projectID") String projectID,
-			@RequestParam(value = "projectDocumentId", required = true) String projectDocumentId, @RequestParam(value = "limit", required = false) Integer limit,
-			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<List<ProjectDocument>>(HttpStatus.NOT_IMPLEMENTED);
-	}
 
 	@RequestMapping(value = "/projects/{projectID}/following_discussions", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<IndividualDiscussion>> projectsProjectIDFollowingDiscussionsGet(@PathVariable("projectID") String projectID,
@@ -235,7 +243,7 @@ public class ProjectController {
 			updatedId = projectDao.updateProject(id, project, userEPPN);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getErrorMessage(), e.getHttpStatusCode());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 
 		return new ResponseEntity<Id>(updatedId, HttpStatus.valueOf(httpStatusCode));

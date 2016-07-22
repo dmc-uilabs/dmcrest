@@ -21,9 +21,7 @@ import org.springframework.http.HttpStatus;
 
 public class UserDao {
 
-
-
-	private final String logTag = UserDao.class.getName();
+	private final static String logTag = UserDao.class.getName();
 	private ResultSet resultSet;
 
 	public UserDao(){}
@@ -196,19 +194,57 @@ public class UserDao {
     }
 
     public static int getUserID(String userEPPN) throws SQLException {
-    	String query = "select user_id from users where user_name = ?;";
-        
-		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-		preparedStatement.setString(1, userEPPN);
-        preparedStatement.execute();
-        
+        String query = "select user_id from users where user_name = ?;";
+        ServiceLogger.log(logTag, "userid query: " + query);
+        PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+        preparedStatement.setString(1, userEPPN);
+        ServiceLogger.log(logTag, "set user_name parameter to : " + userEPPN);
+        final boolean ok = preparedStatement.execute();
+        ServiceLogger.log(logTag, "execute status = " + ok);
+        if (!ok)
+            return -1;
+
         ResultSet resultSet = preparedStatement.getResultSet();
-		if (resultSet.next()) {
-			//id = resultSet.getString("id");
-			return resultSet.getInt("user_id");
-		}
-		// else no user in DB
-		return -1;
+        ServiceLogger.log(logTag, "resultSet = " + resultSet);
+        if (null == resultSet)
+            return -1;
+
+        if (resultSet.next()) {
+            ServiceLogger.log(logTag, "resultSet.next() is true ");
+            ServiceLogger.log(logTag, "resultSet.getInt(user_id) = " + resultSet.getInt("user_id"));
+            // id = resultSet.getString("id");
+            return resultSet.getInt("user_id");
+        }
+        ServiceLogger.log(logTag,  "resultSet.next() is false, so return -1 for user_id");
+        // else no user in DB
+        return -1;
     }
-    
+	
+	public static String getUserName(int userID) throws SQLException {
+		String query = "select user_name from users where user_id = ?;";
+		ServiceLogger.log(logTag, "user_name query: " + query);
+		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+		preparedStatement.setInt(1, userID);
+		ServiceLogger.log(logTag, "set user_id parameter to : " + userID);
+		final boolean ok = preparedStatement.execute();
+		ServiceLogger.log(logTag, "execute status = " + ok);
+		if (!ok)
+			return null;
+		
+		ResultSet resultSet = preparedStatement.getResultSet();
+		ServiceLogger.log(logTag, "resultSet = " + resultSet);
+		if (null == resultSet)
+			return null;
+		
+		if (resultSet.next()) {
+			ServiceLogger.log(logTag, "resultSet.next() is true ");
+			ServiceLogger.log(logTag, "resultSet.getString(user_name) = " + resultSet.getString("user_name"));
+			// id = resultSet.getString("id");
+			return resultSet.getString("user_name");
+		}
+		ServiceLogger.log(logTag,  "resultSet.next() is false, so return -1 for user_id");
+		// else no user in DB
+		return null;
+	}
+	
 }

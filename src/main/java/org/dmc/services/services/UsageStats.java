@@ -9,17 +9,17 @@ import java.util.Objects;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-07T17:42:57.404Z")
 public class UsageStats  {
   
-  private BigDecimal added = null;
-  private BigDecimal members = null;
+  private Integer added = null;
+  private Integer members = null;
 
   
   /**
    **/
   @JsonProperty("added")
-  public BigDecimal getAdded() {
+  public Integer getAdded() {
     return added;
   }
-  public void setAdded(BigDecimal added) {
+  public void setAdded(Integer added) {
     this.added = added;
   }
 
@@ -27,10 +27,10 @@ public class UsageStats  {
   /**
    **/
   @JsonProperty("members")
-  public BigDecimal getMembers() {
+  public Integer getMembers() {
     return members;
   }
-  public void setMembers(BigDecimal members) {
+  public void setMembers(Integer members) {
     this.members = members;
   }
 

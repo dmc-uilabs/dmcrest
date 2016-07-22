@@ -1,6 +1,7 @@
 package org.dmc.services.services;
 
 import java.lang.Integer;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ServiceCurrentStatus {
 
@@ -10,7 +11,9 @@ public class ServiceCurrentStatus {
     private final String startDate;    
     private final String startTime;   
     
-    public ServiceCurrentStatus(int percentCompleted, String startDate, String startTime) {
+    public ServiceCurrentStatus(@JsonProperty("percentCompleted") int percentCompleted, 
+            @JsonProperty("startDate") String startDate,
+            @JsonProperty("startTime") String startTime) {
         this.percentCompleted = percentCompleted;
         this.startDate = startDate;
         this.startTime = startTime;

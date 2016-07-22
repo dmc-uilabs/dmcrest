@@ -48,21 +48,26 @@ public class DBConnector {
 	
 	public static ResultSet executeQuery(String query) {
 		try {
-			if (connectorInstance == null) {
+			if (connectorInstance == null || connectorInstance.stmt.isClosed()) {
 				connectorInstance = new DBConnector();
-			} 
+			}
 			return connectorInstance.stmt.executeQuery(query);
-		} catch(SQLException e) {
+		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
 		return null;
 	}
 	
 	public static Connection connection() {
-		if (connectorInstance == null) {
-			connectorInstance = new DBConnector();
+		try {
+			if (connectorInstance == null || !connectorInstance.conn.isValid(0)) {
+				connectorInstance = new DBConnector();
+			}
+			return connectorInstance.conn;
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
 		}
-		return connectorInstance.conn;
+		return null;
 	}
 
 	//

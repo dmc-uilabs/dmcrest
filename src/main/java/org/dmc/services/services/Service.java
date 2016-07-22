@@ -2,17 +2,18 @@ package org.dmc.services.services;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dmc.services.sharedattributes.FeatureImage;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Objects;
 
-
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-05-03T15:13:20.207Z")
+
 public class Service  {
+
+    private final String logTag = Service.class.getName();
 	
 	private int id = -1;
 	private String companyId = null;
@@ -54,7 +55,6 @@ public class Service  {
 	public void setCompanyId(String companyId) {
 		this.companyId = companyId;
 	}
-	
 	
 	/**
 	 **/
@@ -109,7 +109,6 @@ public class Service  {
 	public void setReleaseDate(Date releaseDate) {
 		this.releaseDate = releaseDate;
 	}
-	
 	
 	/**
 	 **/
@@ -175,8 +174,7 @@ public class Service  {
 	public void setProjectId(String projectId) {
 		this.projectId = projectId;
 	}
-	
-	
+
 	/**
 	 **/
 	@JsonProperty("from")

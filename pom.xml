@@ -17,7 +17,10 @@
 
 	<!-- PROPERTIES -->
 	<properties>
-		<java.version>1.6</java.version>
+		<!-- The main class to start application execution, necessary if using 
+			spring-boot-starter-parent pom -->
+		<start-class>org.dmc.services.Application</start-class>
+		<java.version>1.8</java.version>
 	</properties>
 
 
@@ -30,7 +33,7 @@
 				<unit-tests.skip>true</unit-tests.skip>
 				<integration-tests.skip>false</integration-tests.skip>
 			</properties>
-			<!-- Exclude swagger during integration tests -->			
+			<!-- Exclude swagger during integration tests -->
 			<build>
 				<plugins>
 					<plugin>
@@ -53,7 +56,7 @@
 				<unit-tests.skip>false</unit-tests.skip>
 				<integration-tests.skip>true</integration-tests.skip>
 			</properties>
-			<!-- Exclude swagger during tests -->			
+			<!-- Exclude swagger during tests -->
 			<build>
 				<plugins>
 					<plugin>
@@ -130,6 +133,14 @@
 	<!-- DEPENDENCEIS -->
 	<dependencies>
 
+		<!--FOR all AWS function calls -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk</artifactId>
+			<version>1.11.0</version>
+		</dependency>
+
+
 		<!-- Postgres JDBC Driver -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -140,6 +151,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
 		<dependency>
@@ -180,12 +196,30 @@
 			<version>4.5.1</version>
 		</dependency>
 
-
 		<dependency>
 			<artifactId>solr-solrj</artifactId>
 			<groupId>org.apache.solr</groupId>
 			<version>5.4.1</version>
 			<type>jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mysema.querydsl</groupId>
+			<artifactId>querydsl-apt</artifactId>
+			<version>3.7.3</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.mysema.querydsl</groupId>
+			<artifactId>querydsl-jpa</artifactId>
+			<version>3.7.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.1</version>
 		</dependency>
 
 		<!-- Test Dependencies -->
@@ -224,25 +258,30 @@
 			<artifactId>json-schema-validator</artifactId>
 			<version>2.1.0</version>
 		</dependency>
-		
-		<!--  Dependency for ActiveMQ -->
+
+		<!-- Dependency for ActiveMQ -->
 		<dependency>
-      		<groupId>org.apache.geronimo.specs</groupId>
-      		<artifactId>geronimo-jms_1.1_spec</artifactId>
-      		<version>1.1</version>
-    	</dependency>
-    	<dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-client</artifactId>
-            <version>5.9.0</version>
-        </dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jms_1.1_spec</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-client</artifactId>
+			<version>5.9.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.1</version>
+		</dependency>
 	</dependencies>
 
 
 	<!-- BUILD -->
 	<build>
 		<plugins>
-		
+
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
@@ -272,16 +311,47 @@
 							<skipTests>${integration-tests.skip}</skipTests>
 							<includes>
 								<!-- By default failsafe-plugin includes tests with IT suffix -->
-								<!--
-
-								<include>**/*IT.class</include>
-								-->
+								<!-- <include>**/*IT.class</include> -->
 							</includes>
 							<!-- Exclude search tests by default -->
-							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT verify -P  "integration" -->
+							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT 
+								verify -P "integration" -->
+
+							<!-- Ignore above command for our specific build. To run all tests: 
+								mvn integration-test -P integration To run a specific test: mvn-Dtest=ProjectIT 
+								test -->
 							<excludes>
+								<!-- search tests -->
 								<exclude>**/SearchIT.java</exclude>
+								<!-- DOME server tests -->
+								<exclude>**/ServiceRunIT.java</exclude>
+								<exclude>**/DomeIT.java</exclude>
+								<exclude>**/AccountServerIT.java</exclude>
+								<!-- AWS tests -->
+								<exclude>**/ProfileIT.java</exclude>
+								<exclude>**/AwsProjectIT.java</exclude>
 							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.mysema.maven</groupId>
+				<artifactId>apt-maven-plugin</artifactId>
+				<version>1.1.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>process</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/generated-sources/java</outputDirectory>
+							<processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
+							<options>
+								<querydsl.entityAccessors>true</querydsl.entityAccessors>
+								<querydsl.useFields>false</querydsl.useFields>
+							</options>
 						</configuration>
 					</execution>
 				</executions>
@@ -299,9 +369,9 @@
 		</repository>
 		<!-- Repository for ActiveMQ -->
 		<repository>
-      		<id>Fusesource Snapshots</id>
-      		<url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
-    	</repository>
+			<id>Fusesource Snapshots</id>
+			<url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
+		</repository>
 	</repositories>
 
 	<!-- PLUGIN REPOSITORIES -->
@@ -311,6 +381,6 @@
 			<url>https://repo.spring.io/libs-release</url>
 		</pluginRepository>
 	</pluginRepositories>
-	
+
 
 </project>

@@ -29,7 +29,7 @@ public class CompanySkillController {
 			//return new ResponseEntity<CompanySkill>(HttpStatus.OK);
 			return new ResponseEntity<Id>(new Id.IdBuilder(id).build() ,HttpStatus.OK);
 		} catch (DMCServiceException e) {
-			ServiceLogger.log(this.logTag, "Exception:" + e.getErrorMessage());
+			ServiceLogger.log(this.logTag, "Exception:" + e.getMessage());
 			// HttpHeaders headers = new HttpHeaders();
 			//return new ResponseEntity<String>("DMCServerException:"
 			//		+ e.getErrorMessage(), headers, HttpStatus.BAD_REQUEST);

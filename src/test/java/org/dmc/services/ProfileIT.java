@@ -5,6 +5,14 @@ import java.util.ArrayList;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
+
+import com.amazonaws.services.devicefarm.model.Project;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.dmc.services.discussions.Discussion;
+import org.dmc.services.profile.Profile;
 import org.junit.Before; 
 import org.junit.After;
 import static org.junit.Assert.*;
@@ -13,12 +21,15 @@ import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 import org.dmc.services.utility.TestUserUtil;
-
+import java.net.URL;
+import java.net.*;
+import java.io.*;
 
 public class ProfileIT extends BaseIT {
 	
 	private static final String PROFILE_CREATE_RESOURCE = "/profiles";
 	private static final String PROFILE_READ_RESOURCE   = "/profiles/{id}";
+	private static final String PROFILES_READ_RESOURCE   = "/profiles";
 	private static final String PROFILE_UPDATE_RESOURCE = "/profiles/{id}";
 	private static final String PROFILE_DELETE_RESOURCE = "/profiles/{id}/delete";
 	private String profileId = "1";
@@ -26,6 +37,10 @@ public class ProfileIT extends BaseIT {
 	private Integer createdId = -1;
 //	String randomEPPN = UUID.randomUUID().toString();
     String unique = null;
+    
+    //for AWS Test
+    String preSignedURL = null;
+    URL url = null;
 		
 	// Setup test data
 	@Before
@@ -64,8 +79,46 @@ public class ProfileIT extends BaseIT {
 				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
 				.extract()
 				.path("id");
-	}
+		
+		//Adding test to get out preSignedURL 
+		Profile profile = given()
+               .header("AJP_eppn", "userEPPN" + unique)
+               .expect()
+               .statusCode(200)
+               .when()
+               .get(PROFILE_READ_RESOURCE, this.createdId.toString()).as(Profile.class); 
+		
+		//Extract
+		this.preSignedURL = profile.getImage(); 
+		assert(this.preSignedURL != null);
+		}
 	
+	
+	//Tests to see if presignedURL Works 
+	@Test
+	public void urlGet() { 
+		if(this.preSignedURL != null){ 
+			//Create URL object that is needed 
+			try{
+			this.url = new URL(this.preSignedURL);
+			}catch(Exception e){
+				assert(false); 
+			}
+			assert(this.url != null);
+		
+			//Simple Url check test
+			String host = this.url.getHost();
+            assertTrue("S3 Host doesn't match", host.equals("dmc-profiletest.s3.amazonaws.com"));
+
+            try{ 
+            	//Test Remote Connection to AWS to see if resource exists
+                URLConnection urlConnection = url.openConnection();
+                urlConnection.connect(); 
+            }catch (Exception e){ 
+            	assert(false);
+            }
+		}
+	}
     @Test
 	public void testProfileGet() {
         
@@ -83,9 +136,33 @@ public class ProfileIT extends BaseIT {
                 .path("id");
             assertTrue("Retrieved Id is not the same as newly created user's id", this.createdId.equals(retrivedId));
             assertTrue("Retrieved Id is " + retrivedId, retrivedId > 0);
+                          
         }
 	}
     
+    @Test
+	public void testProfilesGet() {
+        
+    	ObjectMapper mapper = new ObjectMapper();
+    	
+    	JsonNode projects =
+            given()
+                .header("AJP_eppn", "userEPPN" + unique)
+            .expect()
+                .statusCode(200)
+            .when()
+                .get(PROFILES_READ_RESOURCE)
+                .as(JsonNode.class);
+            
+		try {
+			ArrayList<Project> projectList =
+					mapper.readValue(mapper.treeAsTokens(projects),
+					new TypeReference<ArrayList<Discussion>>() {});
+		} catch (Exception e) {
+			//ServiceLogger.log(logTag, e.getMessage());
+		}
+	}
+ 
 	@Test
 	public void testProfilePatch() {
         
@@ -110,7 +187,36 @@ public class ProfileIT extends BaseIT {
 			}
 	}
 	
-	// Cleanup
+    @Test
+    public void testProfilePatchWithNullValues() {
+        final JSONObject json = createFixture("update");
+        json.put("jobTitle", JSONObject.NULL);
+        json.put("phone", JSONObject.NULL);
+        json.put("location", JSONObject.NULL);
+        json.put("image", JSONObject.NULL);
+        json.put("description", "");
+        json.put("skills", new ArrayList<String>());
+            if (this.createdId > 0) {
+                final Integer retrivedId =
+                given()
+                    .header("Content-type", "application/json")
+                    .header("AJP_eppn", "userEPPN" + unique)
+                    .body(json.toString())
+                .expect()
+                    .statusCode(200)
+                .when()
+                    .patch(PROFILE_UPDATE_RESOURCE, this.createdId.toString())
+                .then()
+                    .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+                    .extract()
+                    .path("id");
+
+                assertTrue("Retrieved Id is not the same as newly created user's id", this.createdId.equals(retrivedId));
+                assertTrue("Retrieved Id is " + retrivedId, retrivedId > 0);
+            }
+    }
+
+    // Cleanup
 	@After  
 	public void testProfileDelete() {
 		if (this.createdId > 0) {
@@ -138,7 +244,9 @@ public class ProfileIT extends BaseIT {
 		json.put("phone", "test phone " + type);
 		json.put("email", "test email " + type);
 		json.put("location", "test location " + type);
-		json.put("image", "test image " + type);
+		
+		//Adding a hardcoded test image
+		json.put("image", "https://s3.amazonaws.com/dmc-uploads2/test/cat.jpeg");
 		json.put("description", "test description " + type);
 		json.put("skills", skills);
         

@@ -1,9 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://dmc-dev.geinspire.com/task",
   "type": "object",
   "properties": {
     "id": {
-      "type": ["integer", "null"]
+      "type": ["string", "null"]
     },
     "title": {
       "type": ["string", "null"]
@@ -22,20 +23,26 @@
     "assignee": {
       "type": ["string", "null"]
     },
+    "assigneeId": {
+      "type": ["string", "null"]
+    },
     "reporter": {
       "type": ["string", "null"]
     },
+    "reporterId": {
+      "type": ["string", "null"]
+    },
     "dueDate": {
+      "type": ["integer", "null"]
+    },
+    "additionalDetails": {
+      "type": ["string", "null"]
+    },
+    "status": {
       "type": ["string", "null"]
     },
     "priority": {
       "type": ["integer", "null"]
-    },
-    "summary": {
-      "type": ["string", "null"]
-    },
-    "details": {
-      "type": ["string", "null"]
     }
   }
 }
