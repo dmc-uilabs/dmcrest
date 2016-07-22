@@ -7,6 +7,7 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.SqlTypeConverterUtility;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.company.CompanyDao;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -52,11 +53,12 @@ public class ServiceDao {
 
             // look up userID
             int userID = UserDao.getUserID(userEPPN);
+			int companyId = CompanyDao.getUserCompanyId(userID);
 
             String query = "insert into service (organization_id, title, description, owner_id, release_date, service_type, project_id, from_location, type, parent, published)";
             query += "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-            preparedStatement.setObject(1, SqlTypeConverterUtility.getInt(requestedBody.getCompanyId()), java.sql.Types.INTEGER);
+            preparedStatement.setInt(1, companyId);
             preparedStatement.setString(2, requestedBody.getTitle());
             preparedStatement.setString(3,  requestedBody.getDescription());
             preparedStatement.setInt(4,  userID);

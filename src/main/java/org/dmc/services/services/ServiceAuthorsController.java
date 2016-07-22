@@ -40,7 +40,7 @@ public class ServiceAuthorsController {
 	 * @param userEPPN
 	 * @return
 	 */
-	@RequestMapping(value = "/service_authors", method = RequestMethod.POST, produces = { "application/json", "text/html" })
+	@RequestMapping(value = "/service_authors", method = RequestMethod.POST, produces = { APPLICATION_JSON_VALUE })
 	public ResponseEntity serviceAuthorsPost(@RequestBody ServiceAuthor author, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		int httpStatusCode = HttpStatus.OK.value();
 		Id createdId = null;
@@ -82,7 +82,7 @@ public class ServiceAuthorsController {
 	 * @param userEPPN
 	 * @return
 	 */
-	@RequestMapping(value = "/service_authors", method = RequestMethod.DELETE, produces = { "application/json", "text/html" })
+	@RequestMapping(value = "/service_authors", method = RequestMethod.DELETE, produces = { APPLICATION_JSON_VALUE })
 	public ResponseEntity serviceAuthorsDelete(@PathVariable("id") int authorId, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		int httpStatusCode = HttpStatus.OK.value();
 		Id deletedId = null;
