@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
 
 import static com.jayway.restassured.RestAssured.*;
+import static org.springframework.http.MediaType.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -159,11 +160,16 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceAuthor(){
+		ArrayList<ServiceAuthor> authors =
         given().
-        header("AJP_eppn", userEPPN).
+			header("AJP_eppn", userEPPN).
+			header("Content-type", APPLICATION_JSON_VALUE).
         expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/service_authors");
+			statusCode(HttpStatus.OK.value()).
+        when().
+			get("/services/" + serviceId + "/service_authors").as(ArrayList.class);
+		
+		assertTrue("No service authors", authors.size() > 0);
     }
 
     /**
@@ -236,7 +242,7 @@ public class ServiceIT extends BaseIT {
         given().
         header("AJP_eppn", userEPPN).
 	expect().
-	statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	statusCode(HttpStatus.OK.value()).
 	when().get("/services/" + serviceId + "/services_statistic");
     }
 	
@@ -635,7 +641,7 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServiceGet_InputPositions(){
-		int sId = 300;
+		int sId = 3;
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
@@ -780,6 +786,24 @@ public class ServiceIT extends BaseIT {
 		expect().
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().get("/service_runs/" + serviceId);
+	}
+	
+	/**
+	 * test case for GET /service_runs
+	 */
+	@Test
+	public void testServiceGet_ServiceRunsFromListOfServiceIds(){
+		List<GetServiceRun> serviceRunsInTable = Arrays.asList(given().
+		header("AJP_eppn", "joeengineer").param(serviceId, 1).param(serviceId, 3).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().get("/service_runs/").as(GetServiceRun[].class));
+		
+		GetServiceRun expected = serviceRunsInTable.get(0);
+		
+		assertTrue("Status value was not expected", expected.getStatus().equals(new BigDecimal(1)));
+		assertTrue("AccountId value was not expected", expected.getAccountId().equals("550"));
+		assertTrue("ServiceId value was not expected", expected.getServiceId().equals("3"));
 	}
 	
 	/**
@@ -974,6 +998,7 @@ public class ServiceIT extends BaseIT {
     		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
     		specialList.add(special);
     		specification.setSpecial(specialList);
+    		// Need to modify after the service run is fixed.  Refer to DMC-878
     		RunStats runstats = new RunStats();
     		runstats.setFail(new Integer(0));
     		runstats.setSuccess(new Integer(0));

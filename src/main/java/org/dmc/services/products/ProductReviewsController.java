@@ -19,26 +19,32 @@ import static org.springframework.http.MediaType.*;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class ProductReviewsController {
 
-	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+	@RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
 	public ResponseEntity<List<ProductReview>> productReviewsGet(
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestParam(value = "order", required = false) String order,
 			@RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<List<ProductReview>>(HttpStatus.NOT_IMPLEMENTED);
+		ProductReviewDao productReviewDao = new ProductReviewDao();
+		
+		String x = new String();
+		Integer y = new Integer(0);
+		Boolean z = new Boolean(false);
+		
+		List<ProductReview> productReviews = productReviewDao.getProductReviews(x, x, limit, order, sort, y, z);
+		return new ResponseEntity<List<ProductReview>>(productReviews, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<ProductReview> productReviewsPost(@RequestBody ProductReview body) {
-		// do some magic!
-		return new ResponseEntity<ProductReview>(HttpStatus.NOT_IMPLEMENTED);
+	@RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
+	public ResponseEntity<ProductReview> productReviewsPost(@RequestBody ProductReview review) {
+		ProductReviewDao productReviewDao = new ProductReviewDao();
+		return new ResponseEntity<ProductReview>(productReviewDao.postProductReviews(review), HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/{reviewId}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
+	@RequestMapping(value = "/{reviewId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
 	public ResponseEntity<ProductReview> productReviewsReviewIdPatch(@PathVariable("reviewId") String reviewId,
 			@RequestBody ProductReview review) {
-		// do some magic!
-		return new ResponseEntity<ProductReview>(HttpStatus.NOT_IMPLEMENTED);
+		ProductReviewDao productReviewDao = new ProductReviewDao();
+		return new ResponseEntity<ProductReview>(productReviewDao.patchProductReviews(review, reviewId), HttpStatus.OK);
 	}
 
 }

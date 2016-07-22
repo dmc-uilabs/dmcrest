@@ -16,6 +16,16 @@ public class ServiceAuthor  {
   private String company = null;
 
   
+  public void ServiceAuthor() {
+	this.id = new String();
+	this.serviceId = new String();
+	this.displayName = new String();
+	this.jobTitle = new String();
+	this.follow = false;
+	this.avatar = new String();
+	this.company = new String();
+  }
+  
   /**
    **/
   @JsonProperty("id")
