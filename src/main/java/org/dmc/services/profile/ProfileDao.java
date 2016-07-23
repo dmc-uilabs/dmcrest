@@ -73,7 +73,7 @@ public class ProfileDao {
     
     public Profile getProfile(int requestId) throws HTTPException {
         ServiceLogger.log(LOGTAG, "In getProfile: user_id "+requestId);
-        final Profile profile = new Profile();
+		Profile profile = new Profile();
         profile.setId(Integer.toString(requestId));
         
         try {
@@ -85,26 +85,8 @@ public class ProfileDao {
             String userName = null;
             
             if (resultSet.next()) {
-                //id = resultSet.getString("id");
-                profile.setDisplayName(resultSet.getString("realname"));
-                
-                // get company
-                final CompanyDao companyDao = new CompanyDao();
-                final int companyId = companyDao.getUserCompanyId(requestId);
-                profile.setCompany(Integer.toString(companyId));
-                
-                profile.setJobTitle(resultSet.getString("title"));
-                profile.setPhone(resultSet.getString("phone"));
-                profile.setEmail(resultSet.getString("email"));
-                profile.setLocation(resultSet.getString("address"));
-                profile.setImage(resultSet.getString("image"));
-                profile.setDescription(resultSet.getString("people_resume"));
-                
-                // need to get skills;
-                profile.setSkills(new ArrayList<String>());
-                
+				profile = setProfileValues(profile, resultSet);
                 userName = resultSet.getString("user_name");
-                
             }
             
             int user_id_lookedup = -1;
