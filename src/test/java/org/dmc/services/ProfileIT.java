@@ -65,7 +65,7 @@ public class ProfileIT extends BaseIT {
 //        body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
 //        extract().path("id");
 
-        
+         
 		JSONObject json = createFixture("create");
 		this.createdId = given()
             .header("Content-type", "application/json")
