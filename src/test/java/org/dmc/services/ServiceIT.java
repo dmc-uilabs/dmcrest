@@ -325,12 +325,7 @@ public class ServiceIT extends BaseIT {
 		List<GetDomeInterface> receivedDomeInterfaces = Arrays.asList(given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).expect()
 				.statusCode(HttpStatus.OK.value()).when().get("/services/" + 2 + "/dome-interfaces").as(GetDomeInterface[].class));
 
-		for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
-			System.out.println("HERE");
-			System.out.println("HERE");
-			System.out.println("HERE");
-			System.out.println(receivedDomeInterfaces.get(i).toString());
-			
+		for (int i = 0; i < receivedDomeInterfaces.size(); i++) {			
 			assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Service id values are not equal",
 					(receivedDomeInterfaces.get(i).getServiceId().equals(new BigDecimal(2))));
 			assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Did not receive expected number of inputs",
