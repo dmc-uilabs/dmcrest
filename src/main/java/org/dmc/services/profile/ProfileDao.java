@@ -57,7 +57,7 @@ public class ProfileDao {
         
         // get company
         final CompanyDao companyDao = new CompanyDao();
-        final int companyId = companyDao.getUserCompanyId(resultSet.getInt("user_id"));
+        final int companyId = companyDao.getUserCompanyId(UserDao.getUserID("user_name"));
         profile.setCompany(Integer.toString(companyId));
         
         profile.setJobTitle(resultSet.getString("title"));
