@@ -4,16 +4,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.dmc.services.data.entities.BaseEntity;
-import org.dmc.services.data.entities.SecuredEntity;
 import org.dmc.services.data.models.BaseModel;
-import org.dmc.services.security.MapperFieldSecurityAspect;
 import org.springframework.beans.BeanUtils;
 
 public class DefaultMapper implements Mapper<BaseEntity, BaseModel> {
 	
 	private Class<? extends BaseEntity> entityClass;
 	private Class<? extends BaseModel> modelClass;
-	private MapperFieldSecurityAspect fieldSecurity = new MapperFieldSecurityAspect();
 	
 	private static final Logger LOGGER = Logger.getLogger("Mapper");
 	
@@ -39,17 +36,6 @@ public class DefaultMapper implements Mapper<BaseEntity, BaseModel> {
 	@Override
 	public BaseModel mapToModel(BaseEntity entity) {
 		if (entity == null) return null;
-		
-		// DefaultMapper is not a spring managed bean, so we cannot use AoP to nullify protected fields
-		// We have to do so manually here
-		if (SecuredEntity.class.isAssignableFrom(entity.getClass())) {
-			try {
-				fieldSecurity.nullifyProtectedFields((SecuredEntity) entity);
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				LOGGER.log(Level.SEVERE, "Exception in DefaultMapper attempting to map " + entity.getClass() + " to " + modelClass, e);
-				return null;
-			} 
-		}
 		
 		BaseModel model = null;
 		try {

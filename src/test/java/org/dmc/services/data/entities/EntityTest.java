@@ -2,7 +2,6 @@ package org.dmc.services.data.entities;
 
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.dmc.services.security.RequiredPermission;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -46,20 +44,6 @@ public class EntityTest {
 						
 						Assert.assertEquals("Failed on " + clazz.getSimpleName() + ".", actual, expected);
 					}
-				}
-			}
-		}
-	}
-	
-	@Test
-	public void testEntitySecuritySettings() throws IOException, ClassNotFoundException {
-		List<String> foundEntities = findEntities();
-		
-		for (String entityName : foundEntities) {
-			Class<?> clazz = Class.forName(entityName);
-			if (!SecuredEntity.class.isAssignableFrom(clazz)) {
-				for (Field field : clazz.getDeclaredFields()) {
-					Assert.assertFalse("Error for " + entityName + ". Only SecuredEntity classes may use @RequiredPermission", field.isAnnotationPresent(RequiredPermission.class));
 				}
 			}
 		}
