@@ -59,7 +59,10 @@ public class ServiceRunDOMEAPI {
 		// Create a queue in the activeMQ server
 		ServiceRunActiveMQ activeMQ = new ServiceRunActiveMQ();
 		activeMQ.createQueue(queue);
-			
+		
+		ServiceLogger.log(LOGTAG, "Here is what is sent to DOME:");
+		ServiceLogger.log(LOGTAG, domeJSonPars);
+		ServiceLogger.log(LOGTAG, queue);
 		// Run model
 		//TODO
 		// Note that these information are different from port information provided in the database
@@ -90,6 +93,7 @@ public class ServiceRunDOMEAPI {
 		  
 		  writer.close();
 		  out.close();
+		  ServiceLogger.log(LOGTAG, "Successfully communicated with DOME");
 
 		  if (conn.getResponseCode() != 200) {
 		    throw new IOException(conn.getResponseMessage());

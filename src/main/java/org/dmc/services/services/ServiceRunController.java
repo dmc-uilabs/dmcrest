@@ -14,6 +14,8 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +46,7 @@ public class ServiceRunController {
         }
         return new ResponseEntity<Id>(new Id.IdBuilder(runId).build(), HttpStatus.OK);
     }*/
-    @RequestMapping(value = "/model_run", method = RequestMethod.POST)
+    @RequestMapping(value = "/model_run", produces = { APPLICATION_JSON_VALUE }, consumes = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
     public ResponseEntity serviceRun (@RequestBody RunDomeModelInput runDomeModelInput, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
     	
     	int runId;
