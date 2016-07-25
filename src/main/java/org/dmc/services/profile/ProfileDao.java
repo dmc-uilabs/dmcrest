@@ -18,6 +18,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
+
 
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
@@ -30,7 +32,7 @@ public class ProfileDao {
 
     private AWSConnector AWS = new AWSConnector();
 
-    public ArrayList<Profile> getProfiles(String userEPPN) throws DMCServiceException {
+    public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
     	
     	ResultSet rs;
     	Profile profile = new Profile();
