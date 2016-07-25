@@ -620,9 +620,9 @@ public class DomeInterfacesDao {
 					tempInParam.setInstancename(resultSetParams.getString("instancename"));
 
 					if (resultSetParams.getBoolean("input_parameter")) {
-						newInParams.put(resultSet.getString("name"), tempInParam);
+						newInParams.put(resultSetParams.getString("name"), tempInParam);
 					} else {
-						newOutParams.put(resultSet.getString("name"), tempInParam);
+						newOutParams.put(resultSetParams.getString("name"), tempInParam);
 					}
 				}
 				retObj.setInParams(newInParams);
@@ -719,9 +719,9 @@ public class DomeInterfacesDao {
 					tempInParam.setInstancename(resultSetParams.getString("instancename"));
 
 					if (resultSetParams.getBoolean("input_parameter")) {
-						newInParams.put(resultSet.getString("name"), tempInParam);
+						newInParams.put(resultSetParams.getString("name"), tempInParam);
 					} else {
-						newOutParams.put(resultSet.getString("name"), tempInParam);
+						newOutParams.put(resultSetParams.getString("name"), tempInParam);
 					}
 				}
 				retObj.setInParams(newInParams);
