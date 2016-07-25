@@ -293,15 +293,19 @@ public class ServiceIT extends BaseIT {
 			domeInterface.setType("type");
 
 			DomeModelParam input = createDomeInterfaceParameter();
-			input.setName("Input for Model " + (i + 100));
+			DomeModelParam input2 = createDomeInterfaceParameter();
+			input.setName("First Input for Model " + (i + 100));
+			input2.setName("Second Input for Model " + (i + 100));
 			DomeModelParam output = createDomeInterfaceParameter();
-			output.setName("Output for Model " + (i + 100));
+			DomeModelParam output2 = createDomeInterfaceParameter();
+			output.setName("First Output for Model " + (i + 100));
+			output2.setName("Second Output for Model " + (i + 100));
 			Map<String, DomeModelParam> inputs = new HashMap<String, DomeModelParam>();
 			inputs.put(input.getName(), input);
-			inputs.put(input.getName(), input);
+			inputs.put(input2.getName(), input2);
 			Map<String, DomeModelParam> outputs = new HashMap<String, DomeModelParam>();
 			outputs.put(output.getName(), output);
-			outputs.put(output.getName(), output);
+			outputs.put(output2.getName(), output2);
 
 			domeInterface.setInParams(inputs);
 			domeInterface.setOutParams(outputs);
@@ -321,9 +325,13 @@ public class ServiceIT extends BaseIT {
 		List<GetDomeInterface> receivedDomeInterfaces = Arrays.asList(given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).expect()
 				.statusCode(HttpStatus.OK.value()).when().get("/services/" + 2 + "/dome-interfaces").as(GetDomeInterface[].class));
 
-		for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
+		for (int i = 0; i < receivedDomeInterfaces.size(); i++) {			
 			assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Service id values are not equal",
 					(receivedDomeInterfaces.get(i).getServiceId().equals(new BigDecimal(2))));
+			assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Did not receive expected number of inputs",
+					receivedDomeInterfaces.get(i).getInParams().size() == 2);		
+			assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Did not receive expected number of outputs",
+					receivedDomeInterfaces.get(i).getOutParams().size() == 2);
 		}
 
 	}
@@ -353,15 +361,19 @@ public class ServiceIT extends BaseIT {
 			domeInterface.setType("type");
 
 			DomeModelParam input = createDomeInterfaceParameter();
-			input.setName("Input for Model " + (i + 100));
+			DomeModelParam input2 = createDomeInterfaceParameter();
+			input.setName("First Input for Model " + (i + 100));
+			input2.setName("Second Input for Model " + (i + 100));
 			DomeModelParam output = createDomeInterfaceParameter();
-			output.setName("Output for Model " + (i + 100));
+			DomeModelParam output2 = createDomeInterfaceParameter();
+			output.setName("First Output for Model " + (i + 100));
+			output2.setName("Second Output for Model " + (i + 100));
 			Map<String, DomeModelParam> inputs = new HashMap<String, DomeModelParam>();
 			inputs.put(input.getName(), input);
-			inputs.put(input.getName(), input);
+			inputs.put(input2.getName(), input2);
 			Map<String, DomeModelParam> outputs = new HashMap<String, DomeModelParam>();
 			outputs.put(output.getName(), output);
-			outputs.put(output.getName(), output);
+			outputs.put(output2.getName(), output2);
 
 			domeInterface.setInParams(inputs);
 			domeInterface.setOutParams(outputs);
@@ -394,7 +406,11 @@ public class ServiceIT extends BaseIT {
 			path.add(new Integer(3 + 4 - i));
 			path.add(new Integer(4 + 4 - i));
 			path.add(new Integer(5 + 4 - i));
-
+			
+			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Did not receive expected number of inputs",
+					tempDome.getInParams().size() == 2);		
+			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Did not receive expected number of outputs",
+					tempDome.getOutParams().size() == 2);
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal",
 					(tempDome.getDomeServer().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Version values are not equal", (tempDome.getVersion().equals(new BigDecimal(20))));
@@ -441,15 +457,19 @@ public class ServiceIT extends BaseIT {
 		domeInterface.setType("type");
 
 		DomeModelParam input = createDomeInterfaceParameter();
-		input.setName("Created Parameter for Post Dome Interface");
+		DomeModelParam input2 = createDomeInterfaceParameter();
+		input.setName("Created Input for Post Dome Interface 1");
+		input2.setName("Created Input for Post Dome Interface 2");
 		DomeModelParam output = createDomeInterfaceParameter();
-		output.setName("Created Parameter for Post Dome Interface");
+		DomeModelParam output2 = createDomeInterfaceParameter();
+		output.setName("Created Output for Post Dome Interface 1");
+		output2.setName("Created Output for Post Dome Interface 2");
 		Map<String, DomeModelParam> inputs = new HashMap<String, DomeModelParam>();
 		inputs.put(input.getName(), input);
-		inputs.put(input.getName(), input);
+		inputs.put(input2.getName(), input2);
 		Map<String, DomeModelParam> outputs = new HashMap<String, DomeModelParam>();
 		outputs.put(output.getName(), output);
-		outputs.put(output.getName(), output);
+		outputs.put(output2.getName(), output2);
 
 		domeInterface.setInParams(inputs);
 		domeInterface.setOutParams(outputs);
@@ -520,6 +540,10 @@ public class ServiceIT extends BaseIT {
 		BigDecimal postUpdateVersion = new BigDecimal(Integer.toString(sentDomeInterface.getVersion()));
 		BigDecimal postUpdateServiceId = new BigDecimal(Integer.toString(sentDomeInterface.getServiceId()));
 
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Did not receive expected number of inputs",
+				receivedDomeInterface.getInParams().size() == 2);		
+		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Did not receive expected number of outputs",
+				receivedDomeInterface.getOutParams().size() == 2);
 		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Dome server values are not equal",
 				(receivedDomeInterface.getDomeServer().equals(sentDomeInterface.getDomeServer())));
 		assertTrue("testServicePost_DomeInterface_WhenValidInfoIsSent: Version values are not equal", (receivedDomeInterface.getVersion().equals(postUpdateVersion)));
