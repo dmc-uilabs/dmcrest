@@ -98,7 +98,26 @@ public class ProfileController {
 													 @RequestParam(value = "order", required = false) String order,
 													 @RequestParam(value = "sort", required = false) String sort,
 													 @RequestParam(value = "id", required = false) List<String> id){
-		// do some magic!
+		
+		
+		if(null != id) {
+			ServiceLogger.log(logTag, "getProfile, with ids: " + id.toString());
+		} else {
+			ServiceLogger.log(logTag, "getProfile");
+		}
+//		int httpStatusCode = HttpStatus.OK.value();
+//		Profile profile = null;
+//		
+//		try{
+//			profile = profileDao.getProfile(id);
+//		} catch(HTTPException httpException) {
+//			httpStatusCode = httpException.getStatusCode();
+//		}
+//		
+//		return new ResponseEntity<Profile>(profile, HttpStatus.valueOf(httpStatusCode));
+
+		
+		
 		return new ResponseEntity<List<Profile>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 	
