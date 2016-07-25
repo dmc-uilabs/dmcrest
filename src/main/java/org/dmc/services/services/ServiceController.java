@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.http.MediaType.*;
+
 @RestController
 public class ServiceController {
 
@@ -88,8 +90,7 @@ public class ServiceController {
         }
 	}
 
-	@RequestMapping(value = "/services/{serviceID}", produces = { "application/json",
-			"text/html" }, method = RequestMethod.PATCH)
+	@RequestMapping(value = "/services/{serviceID}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
 	public ResponseEntity<?> servicesServiceIDPatch(@PathVariable("serviceID") String serviceID,
 			@RequestBody Service service,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -102,13 +103,24 @@ public class ServiceController {
         }
 	}
 
-	@RequestMapping(value = "/services/{serviceID}/service_authors", produces = { "application/json",
-			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ServiceAuthor>> servicesServiceIDServiceAuthorsGet(
-			@PathVariable("serviceID") String serviceID) {
-		// do some magic!
-		return new ResponseEntity<List<ServiceAuthor>>(HttpStatus.NOT_IMPLEMENTED);
+	@RequestMapping(value = "/services/{serviceId}/service_authors", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+	public ResponseEntity<?> servicesServiceIDServiceAuthorsGet(
+					@PathVariable("serviceId") int serviceId,
+					@RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+		ServiceAuthorDao serviceAuthorDao = new ServiceAuthorDao();
+		int httpStatusCode = HttpStatus.OK.value();
+		ArrayList<ServiceAuthor> authors = null;
+		
+		try {
+			authors = serviceAuthorDao.getServiceAuthors(serviceId, userEPPN);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
+		
+		return new ResponseEntity<ArrayList<ServiceAuthor>>(authors, HttpStatus.valueOf(httpStatusCode));
 	}
+
 
 	@RequestMapping(value = "/services/{serviceID}/service_documents", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
@@ -173,8 +185,9 @@ public class ServiceController {
 			"text/html" }, method = RequestMethod.GET)
 	public ResponseEntity<List<ServiceStats>> servicesServiceIDServicesStatisticGet(
 			@PathVariable("serviceID") String serviceID) {
-		// do some magic!
-		return new ResponseEntity<List<ServiceStats>>(HttpStatus.NOT_IMPLEMENTED);
+		ServiceStatsDao ssd = new ServiceStatsDao();
+		List<ServiceStats> ssList = ssd.getServiceStats(serviceID);
+		return new ResponseEntity<List<ServiceStats>>(ssList, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/services/{serviceId}/dome-interfaces", produces = { "application/json",
@@ -295,13 +308,14 @@ public class ServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/services/{serviceId}/specifications", method = RequestMethod.GET, produces = { "application/json" })
-	public ResponseEntity<?> getServiceSpecifications(@PathVariable("serviceId") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+	public ResponseEntity<?> getServiceSpecifications(@RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_order", required = false) String order, @RequestParam(value = "_sort", required = false) String sort, @PathVariable("serviceId") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		
 		ServiceLogger.log(logTag, "getServiceSpecifications, userEPPN: " + userEPPN);
 		ArrayList<ServiceSpecifications> specs = null;
 
 		try {
-			specs = specificationDao.getServiceSpecifications(-1, -1, null, null, userEPPN);
+			specs = specificationDao.getServiceSpecifications(id, limit, order, sort, userEPPN);
 			return new ResponseEntity<ArrayList<ServiceSpecifications>>(specs, HttpStatus.valueOf(HttpStatus.OK.value()));
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
