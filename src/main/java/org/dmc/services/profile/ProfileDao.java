@@ -35,14 +35,20 @@ public class ProfileDao {
     public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
 		
 		//ToDo: handle id list
+//		String whereClause = "user_id in "
 		
-    	ResultSet rs;
     	ArrayList<Profile>  profiles = new ArrayList<Profile>();
     	
     	try {
-        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users " +
-								"ORDER BY " + sort + " " + order + " LIMIT " + limit;
-        	rs = DBConnector.executeQuery(query);
+        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users ORDER BY " + sort + " " + order + " LIMIT ?";
+			
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, limit);
+			ServiceLogger.log(LOGTAG, preparedStatement.toString());
+			
+			preparedStatement.execute();
+			ResultSet rs = preparedStatement.getResultSet();
+
         	while (rs.next()) {
 				Profile profile = new Profile();
 				profile = setProfileValues(profile, rs);
