@@ -55,7 +55,8 @@ public class ServiceRunDOMEAPI {
 		// Create database entry for this run.
 		ServiceRunServiceDAO serviceRun = new ServiceRunServiceDAO();
 		int modelRunID = serviceRun.createModelRunDBEntry(user_id, server_id, interface_id, queue);
-			
+		ServiceLogger.log(LOGTAG, "This is the returned model run id: " + Integer.toString(modelRunID));
+		
 		// Create a queue in the activeMQ server
 		ServiceRunActiveMQ activeMQ = new ServiceRunActiveMQ();
 		activeMQ.createQueue(queue);
