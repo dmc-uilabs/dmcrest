@@ -93,7 +93,7 @@ public class ProfileController {
 	
  /////newly added methods
 	@RequestMapping(value = "/profiles", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-	public ResponseEntity<List<Profile>> profilesGet(@RequestHeader(value="AJP_eppn", required=true) String userEPPN,
+	public ResponseEntity<?> profilesGet(@RequestHeader(value="AJP_eppn", required=true) String userEPPN,
 													 @RequestParam(value = "limit", required = false) Integer limit,
 													 @RequestParam(value = "order", required = false) String order,
 													 @RequestParam(value = "sort", required = false) String sort,
@@ -105,20 +105,17 @@ public class ProfileController {
 		} else {
 			ServiceLogger.log(logTag, "getProfile");
 		}
-//		int httpStatusCode = HttpStatus.OK.value();
-//		Profile profile = null;
-//		
-//		try{
-//			profile = profileDao.getProfile(id);
-//		} catch(HTTPException httpException) {
-//			httpStatusCode = httpException.getStatusCode();
-//		}
-//		
-//		return new ResponseEntity<Profile>(profile, HttpStatus.valueOf(httpStatusCode));
 
+		int httpStatusCode = HttpStatus.OK.value();
+		List<Profile> profiles = null;
 		
-		
-		return new ResponseEntity<List<Profile>>(HttpStatus.NOT_IMPLEMENTED);
+		try{
+			profiles = profileDao.getProfiles(userEPPN, limit, order, sort, id);
+			return new ResponseEntity<List<Profile>>(profiles, HttpStatus.valueOf(httpStatusCode));
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 	
 	

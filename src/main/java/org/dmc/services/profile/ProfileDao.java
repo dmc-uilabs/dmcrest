@@ -35,14 +35,15 @@ public class ProfileDao {
     public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
     	
     	ResultSet rs;
-    	Profile profile = new Profile();
-    	ArrayList<Profile>  profiles = null;
+    	ArrayList<Profile>  profiles = new ArrayList<Profile>();
     	
     	try {
         	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users";
         	rs = DBConnector.executeQuery(query);
         	while (rs.next()) {
-        		profile = setProfileValues(profile, rs);
+				Profile profile = new Profile();
+        		Profile profile = setProfileValues(profile, rs);
+				profiles.add(profile);
         	}	
     	} catch (SQLException e) {
     		throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());

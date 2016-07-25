@@ -1,6 +1,8 @@
 package org.dmc.services;
 
+import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -146,20 +148,20 @@ public class ProfileIT extends BaseIT {
         
     	ObjectMapper mapper = new ObjectMapper();
     	
-//    	JsonNode projects =
+    	List<Profile> profiles = Arrays.asList(
             given()
                 .header("AJP_eppn", "userEPPN" + unique)
 				.header("Content-type", "application/json")
             .expect()
-                .statusCode(HttpStatus.NOT_IMPLEMENTED.value())
+                .statusCode(HttpStatus.OK.value())
             .when()
-				.get(PROFILES_READ_RESOURCE);
-//                .as(JsonNode.class);
-//            
+				.get(PROFILES_READ_RESOURCE)
+                .as(Profile[].class));
+            
 //		try {
-//			ArrayList<Project> projectList =
-//					mapper.readValue(mapper.treeAsTokens(projects),
-//					new TypeReference<ArrayList<Discussion>>() {});
+//			ArrayList<Profile> profileList =
+//					mapper.readValue(mapper.treeAsTokens(profiles),
+//					new TypeReference<ArrayList<Profile>>() {});
 //		} catch (Exception e) {
 //			//ServiceLogger.log(logTag, e.getMessage());
 //		}
@@ -266,7 +268,7 @@ public class ProfileIT extends BaseIT {
 			header("AJP_eppn", "userEPPN" + unique).
 			header("Content-type", "application/json").
 		expect().
-			statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+			statusCode(HttpStatus.OK.value()).
 		when().
 			get(PROFILES_READ_RESOURCE);
 
