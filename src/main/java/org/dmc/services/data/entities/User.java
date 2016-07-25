@@ -9,13 +9,15 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")
@@ -41,6 +43,10 @@ public class User extends BaseEntity {
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
+
+	@OneToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name = "user_contact_info_id")
+	private UserContactInfo userContactInfo;
 
 	public String getUsername() {
 		return username;
@@ -106,6 +112,14 @@ public class User extends BaseEntity {
 		this.roles = roles;
 	}
 
+	public UserContactInfo getUserContactInfo() {
+		return userContactInfo;
+	}
+
+	public void setUserContactInfo(UserContactInfo userContactInfo) {
+		this.userContactInfo = userContactInfo;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -117,6 +131,7 @@ public class User extends BaseEntity {
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((phone == null) ? 0 : phone.hashCode());
 		result = prime * result + ((roles == null) ? 0 : roles.hashCode());
+		result = prime * result + ((userContactInfo == null) ? 0 : userContactInfo.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
@@ -164,6 +179,11 @@ public class User extends BaseEntity {
 			if (other.roles != null)
 				return false;
 		} else if (!roles.equals(other.roles))
+			return false;
+		if (userContactInfo == null) {
+			if (other.userContactInfo != null)
+				return false;
+		} else if (!userContactInfo.equals(other.userContactInfo))
 			return false;
 		if (username == null) {
 			if (other.username != null)
