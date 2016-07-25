@@ -77,8 +77,8 @@ public class DOMEServerDAO {
 				// This is hard coded because nowhere to store this info
 				//printNameString("port", ""+this.port) + "," +
 				printNameString("port", "7795") + "," +
-				printNameString("user",this.userName) + "," +
-				printNameString("pw", this.userPass) + "," +
+				printNameString("user","ceed") + "," +
+				printNameString("pw", "ceed") + "," +
 				printNameString("space",this.userSpace);
 	    result = "\"server\":{" + result + "}";		
 		return result;
