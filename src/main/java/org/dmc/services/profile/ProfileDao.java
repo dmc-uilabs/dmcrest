@@ -42,7 +42,7 @@ public class ProfileDao {
         	rs = DBConnector.executeQuery(query);
         	while (rs.next()) {
 				Profile profile = new Profile();
-        		Profile profile = setProfileValues(profile, rs);
+				profile = setProfileValues(profile, rs);
 				profiles.add(profile);
         	}	
     	} catch (SQLException e) {
