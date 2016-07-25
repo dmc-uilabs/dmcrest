@@ -8,6 +8,8 @@ import javax.inject.Inject;
 import org.dmc.services.data.models.DMDIIDocumentModel;
 import org.dmc.services.data.models.DMDIIDocumentTagModel;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.security.SecurityRoles;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@PreAuthorize(SecurityRoles.REQUIRED_ROLE_MEMBER)
 public class DMDIIDocumentController {
 
 	private final String logTag = DMDIIDocumentController.class.getName();
