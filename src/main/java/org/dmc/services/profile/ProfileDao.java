@@ -25,6 +25,8 @@ import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.util.StringUtils;
+
 
 public class ProfileDao {
 
@@ -35,12 +37,16 @@ public class ProfileDao {
     public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
 		
 		//ToDo: handle id list
-//		String whereClause = "user_id in "
-		
+		String whereClause = "";
+		if(null != id) {
+			String commaDelimitedIdList = StringUtils.collectionToCommaDelimitedString(id);
+			whereClause = " user_id in (" + commaDelimitedIdList + ") ";
+		}
     	ArrayList<Profile>  profiles = new ArrayList<Profile>();
     	
     	try {
-        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users ORDER BY " + sort + " " + order + " LIMIT ?";
+        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users " +
+									whereClause + " ORDER BY " + sort + " " + order + " LIMIT ?";
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, limit);
