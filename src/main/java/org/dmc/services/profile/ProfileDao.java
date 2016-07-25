@@ -33,12 +33,15 @@ public class ProfileDao {
     private AWSConnector AWS = new AWSConnector();
 
     public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
-    	
+		
+		//ToDo: handle id list
+		
     	ResultSet rs;
     	ArrayList<Profile>  profiles = new ArrayList<Profile>();
     	
     	try {
-        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users";
+        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users " +
+								"ORDER BY " + sort + " " + order + " LIMIT " + limit;
         	rs = DBConnector.executeQuery(query);
         	while (rs.next()) {
 				Profile profile = new Profile();

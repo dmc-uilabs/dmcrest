@@ -94,9 +94,9 @@ public class ProfileController {
  /////newly added methods
 	@RequestMapping(value = "/profiles", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
 	public ResponseEntity<?> profilesGet(@RequestHeader(value="AJP_eppn", required=true) String userEPPN,
-													 @RequestParam(value = "limit", required = false) Integer limit,
-													 @RequestParam(value = "order", required = false) String order,
-													 @RequestParam(value = "sort", required = false) String sort,
+													 @RequestParam(value = "limit", defaultValue="100") Integer limit,
+													 @RequestParam(value = "order", defaultValue="DESC") String order,
+													 @RequestParam(value = "sort", defaultValue="realname") String sort,
 													 @RequestParam(value = "id", required = false) List<String> id){
 		
 		
