@@ -4,19 +4,19 @@ package org.dmc.services.verification;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class VerificationPatch {
-	
-	private int id; 
-	private String url; 
+
+	private int id;
+	private String url;
 	private String table;
-	private String folder; 
-	private String resourceType; 
-	private String userEPPN; 
+	private String folder;
+	private String resourceType;
+	private String userEPPN;
 	private boolean verified;
-	private String urlColumn; 
-	private String idColumn; 
-	private String scanLog; 
-	private static String restIP = System.getenv("myIp");
-	
+	private String urlColumn;
+	private String idColumn;
+	private String scanLog;
+	private static String restIP = 54.242.234.240;//System.getenv("myIp");
+
     @JsonProperty("id")
 	public int getId() {
 		return id;
@@ -24,7 +24,7 @@ public class VerificationPatch {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
     @JsonProperty("url")
 	public String getUrl() {
 		return url;
@@ -32,8 +32,8 @@ public class VerificationPatch {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	
-	
+
+
     @JsonProperty("table")
 	public String getTable() {
 		return table;
@@ -41,7 +41,7 @@ public class VerificationPatch {
 	public void setTable(String table) {
 		this.table = table;
 	}
-	
+
     @JsonProperty("folder")
     public String getFolder() {
 		return folder;
@@ -49,7 +49,7 @@ public class VerificationPatch {
 	public void setFolder(String folder) {
 		this.folder = folder;
 	}
-	
+
     @JsonProperty("resourceType")
 	public String getResourceType() {
 		return resourceType;
@@ -57,7 +57,7 @@ public class VerificationPatch {
 	public void setResourceType(String resourceType) {
 		this.resourceType = resourceType;
 	}
-	
+
     @JsonProperty("userEPPN")
 	public String getUserEPPN() {
 		return userEPPN;
@@ -72,7 +72,7 @@ public class VerificationPatch {
 	public void setVerified(boolean verified) {
 		this.verified = verified;
 	}
-	
+
 	@JsonProperty("urlColumn")
 	public String getUrlColumn() {
 		return urlColumn;
@@ -80,7 +80,7 @@ public class VerificationPatch {
 	public void setUrlColumn(String urlColumn) {
 		this.urlColumn = urlColumn;
 	}
-	
+
 	@JsonProperty("idColumn")
 	public String getIdColumn() {
 		return idColumn;
@@ -94,11 +94,11 @@ public class VerificationPatch {
 	}
 	public void setScanLog(String scanLog) {
 		this.scanLog = scanLog;
-	} 
-	
-	
-	
-	
-	
-	
+	}
+
+
+
+
+
+
 }
