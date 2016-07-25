@@ -3,20 +3,20 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.springframework.web.client.RestTemplate;
 
-//A class that calls the Verfication machine with a JSON object with temp URL 
+//A class that calls the Verfication machine with a JSON object with temp URL
 
 
 public class Verification {
-	
-	//Env var for our verification machine 
+
+	//Env var for our verification machine
 	private static final String targetURL = "http://" + System.getenv("verifyURL") + ":3000/";//;//"http://localhost:3000/";//System.getenv("verifyURL");
-	
-	
+
+
 	public String verify (int id, String url, String table, String userEPPN, String folder, String resourceType, String idColumn, String urlColumn ) throws DMCServiceException {
-		try{ 
-			
+		try{
+
 			//Create upload object
-			VerificationPatch upload = new VerificationPatch(); 
+			VerificationPatch upload = new VerificationPatch();
 			upload.setId(id);
 			upload.setTable(table);
 			upload.setUrl(url);
@@ -25,16 +25,18 @@ public class Verification {
 			upload.setResourceType(resourceType);
 			upload.setIdColumn(idColumn);
 			upload.setUrlColumn(urlColumn);
-			
+			String Ip = System.getenv("myIp");
+			upload.setRestIP(Ip);
+
 			//REST API CLient class
 			RestTemplate restTemplate = new RestTemplate();
-			
+
 			//URL of API, body of post, data type of response
 	        String returnObject = restTemplate.postForObject(targetURL, upload, String.class);
-	        return returnObject; 
+	        return returnObject;
 
-		} 
-		catch (Exception e){ 
+		}
+		catch (Exception e){
 			throw new DMCServiceException(DMCError.AWSError, e.getMessage());
 		}
 

@@ -15,7 +15,7 @@ public class VerificationPatch {
 	private String urlColumn;
 	private String idColumn;
 	private String scanLog;
-	private String restIP = "54.242.234.240";//System.getenv("myIp");
+	private String restIP;// = "54.242.234.240";//System.getenv("myIp");
 
     @JsonProperty("id")
 	public int getId() {
@@ -94,6 +94,14 @@ public class VerificationPatch {
 	}
 	public void setScanLog(String scanLog) {
 		this.scanLog = scanLog;
+	}
+
+	@JsonProperty("restIP")
+	public String getRestIP() {
+		return restIP;
+	}
+	public void setRestIP(String restIP) {
+		this.restIP = restIP;
 	}
 
 
