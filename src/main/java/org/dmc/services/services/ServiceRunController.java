@@ -45,24 +45,24 @@ public class ServiceRunController {
         return new ResponseEntity<Id>(new Id.IdBuilder(runId).build(), HttpStatus.OK);
     }*/
     @RequestMapping(value = "/model_run", method = RequestMethod.POST)
-    public ResponseEntity<RunDomeModelResponse> serviceRun (@RequestBody RunDomeModelInput serviceId, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+    public ResponseEntity serviceRun (@RequestBody RunDomeModelInput runDomeModelInput, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
     	
     	int runId;
-    	String sId = serviceId.getServiceId();
+    	String sId = runDomeModelInput.getServiceId();
     	RunDomeModelResponse response = new RunDomeModelResponse();
     	try {      
     		int userId = CompanyUserUtil.getUserId(userEPPN);
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
     		runId = serviceRunInstance.runModel(new Integer(sId), userId);
-    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceId + " called by user " + userEPPN);
+    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + sId + " called by user " + userEPPN);
     		response.setRunId(runId);
+    		return new ResponseEntity<RunDomeModelResponse>(response, HttpStatus.OK);
         }
         catch (Exception e)
         {
-        	ServiceLogger.log(logTag, "Exception in serviceRun, serviceIdStr: " + serviceId + " called by user " + userEPPN);
-        	return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        	ServiceLogger.log(logTag, "Exception in serviceRun, serviceIdStr: " + sId + " called by user " + userEPPN);
+        	return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<RunDomeModelResponse>(response, HttpStatus.OK);
     }
     
     @RequestMapping(value = "/model_poll/{serviceRunID}", method = RequestMethod.GET, produces = { "application/json"})
