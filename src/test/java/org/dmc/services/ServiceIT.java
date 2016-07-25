@@ -26,12 +26,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
 
 import static com.jayway.restassured.RestAssured.*;
+import static org.springframework.http.MediaType.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Random;
 
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -140,6 +143,7 @@ public class ServiceIT extends BaseIT {
     public void testServicePost(){
         Service service = createNewServiceObjectToPost();
 
+		Service serviceResponce =
         given().
             header("Content-type", "application/json").
             header("AJP_eppn", userEPPN).
@@ -149,7 +153,24 @@ public class ServiceIT extends BaseIT {
         when().
             post("/services/").
         then().
-            body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
+            body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json")).
+			extract().as(Service.class);
+		
+		/*
+		service.setId(serviceResponce.getId());
+		
+		assertTrue("Service sent " + service.toString() +
+				   " does not equal service responce "+ serviceResponce.toString(),
+				   serviceResponce.equals(service));
+		*/
+		assertTrue("Title is not equal in sent and responce",
+				   service.getTitle().equals(serviceResponce.getTitle()));
+		assertTrue("Description is not equal in sent and responce",
+				   service.getDescription().equals(serviceResponce.getDescription()));
+		assertTrue("Service Type is not equal in sent and responce",
+				   service.getServiceType().equals(serviceResponce.getServiceType()));
+		assertTrue("Specifications is not equal in sent and responce",
+				   service.getSpecifications().equals(serviceResponce.getSpecifications()));
     }
 
     /**
@@ -157,12 +178,22 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceAuthor(){
+		ServiceAuthor[] authors =
         given().
-        header("AJP_eppn", userEPPN).
+			header("AJP_eppn", userEPPN).
+			header("Content-type", APPLICATION_JSON_VALUE).
         expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/service_authors");
-    }
+			statusCode(HttpStatus.OK.value()).
+        when().
+			get("/services/" + serviceId + "/service_authors").as(ServiceAuthor[].class);
+		
+		assertTrue("No service authors", authors[0] != null);
+		
+		ServiceAuthor firstAuthor = (ServiceAuthor) authors[0];
+		
+		assertTrue("First author id "+firstAuthor.getId()+" job title is null", firstAuthor.getJobTitle() != null);
+		assertTrue("First author id "+firstAuthor.getId()+" display name is null ", firstAuthor.getDisplayName() != null);
+	}
 
     /**
      * test case for get /services/{serviceID}/service_documents
@@ -234,7 +265,7 @@ public class ServiceIT extends BaseIT {
         given().
         header("AJP_eppn", userEPPN).
 	expect().
-	statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+	statusCode(HttpStatus.OK.value()).
 	when().get("/services/" + serviceId + "/services_statistic");
     }
 	
@@ -249,7 +280,7 @@ public class ServiceIT extends BaseIT {
 			domeInterface.setVersion(20);
 			domeInterface.setModelId((new Integer(i + 100)).toString());
 			domeInterface.setInterfaceId("John Wayne");
-			domeInterface.setDomeServer("1");
+			domeInterface.setDomeServer("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/");
 			domeInterface.setName("FOR /services/#/dome-interfaces TEST");
 			List<Integer> path = new ArrayList<Integer>();
 			path.add(new Integer(1 + i));
@@ -265,10 +296,12 @@ public class ServiceIT extends BaseIT {
 			input.setName("Input for Model " + (i + 100));
 			DomeModelParam output = createDomeInterfaceParameter();
 			output.setName("Output for Model " + (i + 100));
-			List<DomeModelParam> inputs = new ArrayList<DomeModelParam>();
-			inputs.add(input);
-			List<DomeModelParam> outputs = new ArrayList<DomeModelParam>();
-			outputs.add(output);
+			Map<String, DomeModelParam> inputs = new HashMap<String, DomeModelParam>();
+			inputs.put(input.getName(), input);
+			inputs.put(input.getName(), input);
+			Map<String, DomeModelParam> outputs = new HashMap<String, DomeModelParam>();
+			outputs.put(output.getName(), output);
+			outputs.put(output.getName(), output);
 
 			domeInterface.setInParams(inputs);
 			domeInterface.setOutParams(outputs);
@@ -289,7 +322,7 @@ public class ServiceIT extends BaseIT {
 				.statusCode(HttpStatus.OK.value()).when().get("/services/" + 2 + "/dome-interfaces").as(GetDomeInterface[].class));
 
 		for (int i = 0; i < receivedDomeInterfaces.size(); i++) {
-			assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Dome server values are not equal",
+			assertTrue("testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven: Service id values are not equal",
 					(receivedDomeInterfaces.get(i).getServiceId().equals(new BigDecimal(2))));
 		}
 
@@ -307,7 +340,7 @@ public class ServiceIT extends BaseIT {
 			domeInterface.setVersion(20);
 			domeInterface.setModelId((new Integer(i + 100)).toString());
 			domeInterface.setInterfaceId("John Wayne");
-			domeInterface.setDomeServer("1");
+			domeInterface.setDomeServer("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/");
 			domeInterface.setName("FOR /services/#/dome-interfaces TEST");
 			List<Integer> path = new ArrayList<Integer>();
 			path.add(new Integer(1 + i));
@@ -323,10 +356,12 @@ public class ServiceIT extends BaseIT {
 			input.setName("Input for Model " + (i + 100));
 			DomeModelParam output = createDomeInterfaceParameter();
 			output.setName("Output for Model " + (i + 100));
-			List<DomeModelParam> inputs = new ArrayList<DomeModelParam>();
-			inputs.add(input);
-			List<DomeModelParam> outputs = new ArrayList<DomeModelParam>();
-			outputs.add(output);
+			Map<String, DomeModelParam> inputs = new HashMap<String, DomeModelParam>();
+			inputs.put(input.getName(), input);
+			inputs.put(input.getName(), input);
+			Map<String, DomeModelParam> outputs = new HashMap<String, DomeModelParam>();
+			outputs.put(output.getName(), output);
+			outputs.put(output.getName(), output);
 
 			domeInterface.setInParams(inputs);
 			domeInterface.setOutParams(outputs);
@@ -360,7 +395,8 @@ public class ServiceIT extends BaseIT {
 			path.add(new Integer(4 + 4 - i));
 			path.add(new Integer(5 + 4 - i));
 
-			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal", (tempDome.getDomeServer().equals("1")));
+			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal",
+					(tempDome.getDomeServer().equals("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/")));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Version values are not equal", (tempDome.getVersion().equals(new BigDecimal(20))));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Model ID values are not equal",
 					(tempDome.getModelId().equals((new Integer(4 - i + 100)).toString())));
@@ -368,7 +404,7 @@ public class ServiceIT extends BaseIT {
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Type values are not equal", (tempDome.getType().equals("type")));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Name values are not equal", (tempDome.getName().equals("FOR /services/#/dome-interfaces TEST")));
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Path values are not equal", (tempDome.getPath().equals(convertIntegerListtoBigDecimalList(path))));
-			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Dome server values are not equal",
+			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Service id values are not equal",
 					(tempDome.getServiceId().equals(new BigDecimal(testDomeServerNum))));
 
 		}
@@ -392,7 +428,7 @@ public class ServiceIT extends BaseIT {
 		domeInterface.setVersion(20);
 		domeInterface.setModelId("1996");
 		domeInterface.setInterfaceId("John Wayne");
-		domeInterface.setDomeServer("1");
+		domeInterface.setDomeServer("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/");
 		domeInterface.setName("Brian");
 		List<Integer> path = new ArrayList<Integer>();
 		path.add(new Integer(1));
@@ -408,10 +444,12 @@ public class ServiceIT extends BaseIT {
 		input.setName("Created Parameter for Post Dome Interface");
 		DomeModelParam output = createDomeInterfaceParameter();
 		output.setName("Created Parameter for Post Dome Interface");
-		List<DomeModelParam> inputs = new ArrayList<DomeModelParam>();
-		inputs.add(input);
-		List<DomeModelParam> outputs = new ArrayList<DomeModelParam>();
-		outputs.add(output);
+		Map<String, DomeModelParam> inputs = new HashMap<String, DomeModelParam>();
+		inputs.put(input.getName(), input);
+		inputs.put(input.getName(), input);
+		Map<String, DomeModelParam> outputs = new HashMap<String, DomeModelParam>();
+		outputs.put(output.getName(), output);
+		outputs.put(output.getName(), output);
 
 		domeInterface.setInParams(inputs);
 		domeInterface.setOutParams(outputs);
@@ -518,7 +556,7 @@ public class ServiceIT extends BaseIT {
 		patchDomeInterface.setVersion(22);
 		patchDomeInterface.setModelId("2016");
 		patchDomeInterface.setInterfaceId("Marshall Mathers");
-		patchDomeInterface.setDomeServer("1");
+		patchDomeInterface.setDomeServer("http://ec2-52-88-73-23.us-west-2.compute.amazonaws.com:8080/DOMEApiServicesV7/");
 		patchDomeInterface.setName("Batman");
 		List<Integer> path = new ArrayList<Integer>();
 		path.add(new Integer(11));
@@ -595,7 +633,6 @@ public class ServiceIT extends BaseIT {
 		try {
 			postDomeInterfaceJSONString = mapper.writeValueAsString(postDomeInterface);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -627,11 +664,12 @@ public class ServiceIT extends BaseIT {
 	 */
 	@Test
 	public void testServiceGet_InputPositions(){
+		int sId = 3;
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/services/" + serviceId + "/input-positions");
+		statusCode(HttpStatus.OK.value()).
+		when().get("/services/" + sId + "/input-positions");
 	}
 	
 	
@@ -774,6 +812,24 @@ public class ServiceIT extends BaseIT {
 	}
 	
 	/**
+	 * test case for GET /service_runs
+	 */
+	@Test
+	public void testServiceGet_ServiceRunsFromListOfServiceIds(){
+		List<GetServiceRun> serviceRunsInTable = Arrays.asList(given().
+		header("AJP_eppn", "joeengineer").param("serviceId", 1).param("serviceId", 3).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().get("/service_runs/").as(GetServiceRun[].class));
+		
+		GetServiceRun expected = serviceRunsInTable.get(0);
+		
+		assertTrue("Status value was not expected", expected.getStatus().equals(new BigDecimal(1)));
+		assertTrue("AccountId value was not expected", expected.getAccountId().equals("550"));
+		assertTrue("ServiceId value was not expected", expected.getServiceId().equals("3"));
+	}
+	
+	/**
 	 * test case for PATCH /service_runs/{id}
 	 */
 	@Test
@@ -812,28 +868,43 @@ public class ServiceIT extends BaseIT {
 		when().delete("/service_runs/" + serviceId);
 	}
 	
-	/*
-	 * test case for POST /input-positions
-	 */
-	@Test
 	public void testPost_InputPosition(){
-		List<PostServiceInputPosition> obj = new ArrayList<PostServiceInputPosition>();
+		
+		ArrayList<ServiceInputPosition> positions = new ArrayList<ServiceInputPosition>();
+		ServiceInputPosition position1 = new ServiceInputPosition();
+		position1.setName("SpecimenWidth");
+		position1.setPosition(new BigDecimal(3.0));
+		position1.setName("CrackLength");
+		positions.add(position1);
+		
+		ServiceInputPosition position2 = new ServiceInputPosition();
+		position2.setPosition(new BigDecimal(4.0));
+		position2.setName("Alpha");
+		positions.add(position2);
+		
+		ServiceInputPosition position3 = new ServiceInputPosition();
+		position3.setPosition(new BigDecimal(5.0));
+		PostServiceInputPosition input = new PostServiceInputPosition();
+		positions.add(position3);
+		
+		input.setPositions(positions);
+		input.setServiceId("300");
+	
 		ObjectMapper mapper = new ObjectMapper();
-		String postedInputPositionJSONString = null;
+		String positionJSONString = null;
 		
 		try {
-			postedInputPositionJSONString = mapper.writeValueAsString(obj);
+			positionJSONString = mapper.writeValueAsString(input);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}		
 		given().
         header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
-        body(postedInputPositionJSONString).
+        body(positionJSONString).
 	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+        statusCode(HttpStatus.OK.value()).
 	when().
         post("/input-positions");
 		
@@ -848,7 +919,7 @@ public class ServiceIT extends BaseIT {
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().delete("/input-positions/" + positionInputId);
 	}
 	
@@ -859,13 +930,17 @@ public class ServiceIT extends BaseIT {
 	@Test
 	public void testPatch_InputPositionByPositionInputId(){
 		List<ServiceInputPosition> obj = new ArrayList<ServiceInputPosition>();
+		
+		int interfaceId = 100;
+		ServiceInputPosition position1 = new ServiceInputPosition();
+		position1.setName("SpecimenWidth");
+		position1.setPosition(new BigDecimal(5000.0));
+		obj.add(position1);
 		ObjectMapper mapper = new ObjectMapper();
 		String patchedServiceInputPositionJSONString = null;
-		
 		try {
 			patchedServiceInputPositionJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -873,13 +948,11 @@ public class ServiceIT extends BaseIT {
         header("Content-type", "application/json").
         header("AJP_eppn", userEPPN).
         body(patchedServiceInputPositionJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        patch("/input-positions/" + positionInputId);
-		
-	}
-	
+        	expect().
+        statusCode(HttpStatus.OK.value()).
+        	when().
+        patch("/input-positions/" + interfaceId);	
+	}	
 	
     // create a service object to use as body in post
     private Service createNewServiceObjectToPost()
@@ -888,6 +961,8 @@ public class ServiceIT extends BaseIT {
         service.setTitle("junit service test");
         service.setDescription("junit service test");
         service.setOwner(userEPPN);
+		service.setServiceType("service type");
+		service.setSpecifications("service specifications");
         return service;
     }
     
@@ -948,6 +1023,7 @@ public class ServiceIT extends BaseIT {
     		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
     		specialList.add(special);
     		specification.setSpecial(specialList);
+    		// Need to modify after the service run is fixed.  Refer to DMC-878
     		RunStats runstats = new RunStats();
     		runstats.setFail(new Integer(0));
     		runstats.setSuccess(new Integer(0));

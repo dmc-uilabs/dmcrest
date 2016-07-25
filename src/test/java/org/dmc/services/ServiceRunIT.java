@@ -18,14 +18,18 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.services.DomeEntity;
 import org.dmc.services.services.DomeModelParam;
 import org.dmc.services.services.DomeModelResponsePkg;
+import org.dmc.services.services.RunDomeModelInput;
 import org.dmc.services.services.ServiceRunController;
+import org.dmc.services.services.RunDomeModelResponse;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ServiceRunIT  extends BaseIT {
  
     private static final String logTag = ServiceRunIT.class.getName();
-
+    private static RunDomeModelResponse response = null;
     private int serviceRunId;
-
 
 /*    @Before
     public void runService () {
@@ -69,7 +73,7 @@ public void runService () {
 
     ServiceLogger.log(logTag, "starting runService");
     
-	// Now prepare a test case
+/*	// Now prepare a test case
 	DomeModelResponsePkg input2 = new DomeModelResponsePkg();
 	// We only need to set up the interface id string, and input parameter, all other things are available in the database for this service
 	DomeEntity de = new DomeEntity();
@@ -92,22 +96,32 @@ public void runService () {
 	par2.setUnit("meter");
 	par2.setParameterid("d9f30f37-d800-1004-8f53-704dbfababa8");
 	pars.put("CrackLength", par2);
-	input2.setInParams(pars);
+	input2.setInParams(pars);*/
 	
     // Now run service
     String testUser = "testUser";
-    serviceRunId= 
+    RunDomeModelInput input = new RunDomeModelInput();
+    input.setServiceId("300");
+    
+	ObjectMapper mapper = new ObjectMapper();
+	String postDomeRunString = null;
+	try {
+		postDomeRunString = mapper.writeValueAsString(input);
+	} catch (JsonProcessingException e) {
+		e.printStackTrace();
+	} 
+    
+    response = 
    		    given()
     	         	.header("Content-type", "application/json")
     	         	.header("AJP_eppn", testUser)
-    	         	.body(input2)
+    	         	.body(postDomeRunString)
     			.expect()
     	         	.statusCode(200)
     			.when()
-    	         	.post("/model_run")
-    	        .then()
-    	        	.extract().path("id");;
-    
+    	         	.post("/model_run").as(RunDomeModelResponse.class); 
+    	         
+    serviceRunId = response.getRunId();
     ServiceLogger.log(logTag, "Created service with id: " + serviceRunId);
 }
 
