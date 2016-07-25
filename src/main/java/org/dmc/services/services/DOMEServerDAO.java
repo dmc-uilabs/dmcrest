@@ -79,7 +79,7 @@ public class DOMEServerDAO {
 				printNameString("port", "7795") + "," +
 				printNameString("user","ceed") + "," +
 				printNameString("pw", "ceed") + "," +
-				printNameString("space",this.userSpace);
+				printNameString("space","USER");
 	    result = "\"server\":{" + result + "}";		
 		return result;
 	}
