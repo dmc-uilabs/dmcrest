@@ -104,7 +104,7 @@ public class ProfileIT extends BaseIT {
 	
 	
 	//Tests to see if presignedURL Works
-	@Test
+	/*@Test
 	public void urlGet() {
 		if(this.preSignedURL != null){
 			//Create URL object that is needed
@@ -127,7 +127,7 @@ public class ProfileIT extends BaseIT {
 				assert(false);
 			}
 		}
-	}
+	}*/
 	@Test
 	public void testProfileGet() {
 		
