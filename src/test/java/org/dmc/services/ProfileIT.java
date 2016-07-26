@@ -31,6 +31,8 @@ import java.io.*;
 
 public class ProfileIT extends BaseIT {
 	
+	private static final String LOGTAG = ProfileIT.class.getName();
+	
 	private static final String PROFILE_CREATE_RESOURCE = "/profiles";
 	private static final String PROFILE_READ_RESOURCE   = "/profiles/{id}";
 	private static final String PROFILES_READ_RESOURCE  = "/profiles";
@@ -50,7 +52,6 @@ public class ProfileIT extends BaseIT {
 	@Before
 	//@Test
 	public void testProfileCreate() {
-//        ServiceLogger.log(logTag, "starting testUserCreate");
         unique = TestUserUtil.generateTime();
         
 //        Integer id =
@@ -143,19 +144,6 @@ public class ProfileIT extends BaseIT {
                           
         }
 	}
- 
-	private List<Profile> getProfiles(String userEPPN) {
-		List<Profile> profiles = Arrays.asList(given().
-												header("AJP_eppn", userEPPN).
-												header("Content-type", APPLICATION_JSON_VALUE).
-												param(limit, null).
-											   expect().
-												statusCode(HttpStatus.OK.value()).
-											   when().
-												get(PROFILES_READ_RESOURCE).
-												as(Profile[].class));
-		return profiles;
-	}
 	
 	@Test
 	public void testProfilePatch() {
@@ -247,6 +235,29 @@ public class ProfileIT extends BaseIT {
 		return json;
 	}
 	
+	private List<Profile> getProfiles(String userEPPN) {
+		return getProfiles(userEPPN, 100, "DESC", "realname", null);
+	}
+ 
+	private List<Profile> getProfiles(String userEPPN, Integer limit) {
+		return getProfiles(userEPPN, limit, "DESC", "realname", null);
+	}
+	
+	private List<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> ids) {
+		List<Profile> profiles = Arrays.asList(given().
+												header("AJP_eppn", userEPPN).
+												header("Content-type", APPLICATION_JSON_VALUE).
+												param("limit", limit).
+												param("order", order).
+												param("sort", sort).
+											   expect().
+												statusCode(HttpStatus.OK.value()).
+											   when().
+												get(PROFILES_READ_RESOURCE).
+												as(Profile[].class));
+		return profiles;
+	}
+
 	
 	/**
 	 * test case for GET /profiles default responce
@@ -274,8 +285,8 @@ public class ProfileIT extends BaseIT {
 	 * test case for GET /profiles assending order responce
 	 */
 	@Test
-	public void testProfileGet_Profiles_defaultResponce(){
-		List<Profile> profiles = getProfiles("userEPPN" + unique);
+	public void testProfileGet_Profiles_assendingOrderResponce(){
+		List<Profile> profiles = getProfiles("userEPPN" + unique, 100, "ASC", "realname", null);
 		
 		assertTrue("No profiles retruned", profiles.size() > 0);
 		assertTrue("No profiles retruned", profiles.size() < 100);  // default limit
@@ -287,10 +298,54 @@ public class ProfileIT extends BaseIT {
 			String profileName = profile.getDisplayName();
 			String nextProfileName = nextProfile.getDisplayName();
 			
-			assertTrue("List is not sorted in decending order by default", profileName.compareTo(nextProfileName) >= 0);
+			assertTrue("List is not sorted in decending order by default", profileName.compareTo(nextProfileName) <= 0);
 		}
 	}
 
+	/**
+	 * test case for GET /profiles assending order for non-default order responce
+	 */
+	@Test
+	public void testProfileGet_Profiles_assendingOrderForTitleResponce(){
+		List<Profile> profiles = getProfiles("userEPPN" + unique, 100, "ASC", "title", null);
+		
+		assertTrue("No profiles retruned", profiles.size() > 0);
+		assertTrue("No profiles retruned", profiles.size() < 100);  // default limit
+		
+		Iterator<Profile> profilesIterator = profiles.iterator();
+		Profile profile = profilesIterator.next();
+
+		while (profilesIterator.hasNext()) {
+			Profile nextProfile = profilesIterator.next();
+			String profilePhone = profile.getPhone();
+			String nextProfilePhone = nextProfile.getPhone();
+			if(profilePhone != null && nextProfilePhone != null) {
+				assertTrue("List is not sorted in decending order by default", profilePhone.compareTo(nextProfilePhone) <= 0);
+			}
+		}
+	}
+
+	/**
+	 * test case for GET /profiles responce limit
+	 */
+	@Test
+	public void testProfileGet_Profiles_limitResponce(){
+		List<Profile> profiles = getProfiles("userEPPN" + unique, 1);
+		assertTrue("No profiles retruned", profiles.size() > 0);
+		assertTrue("More then 1 profile retruned", profiles.size() <= 1);
+		
+		profiles = getProfiles("userEPPN" + unique, 3);
+		assertTrue("No profiles retruned", profiles.size() > 0);
+		assertTrue("More then 3 profiles retruned", profiles.size() <= 3);
+		
+		profiles = getProfiles("userEPPN" + unique, 0);
+		assertTrue("Non-zero profiles returned", profiles.size() == 0);
+
+//		profiles = getProfiles("userEPPN" + unique, -1, "ASC", "title", null);
+//		assertTrue("No profiles retruned", profiles.size() == 0);
+	
+	}
+	
 	
 	/**
 	 * test case for GET /profiles/{profileID}/profile_history
