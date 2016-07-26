@@ -245,18 +245,39 @@ class AccountServersDao {
 		try {
 			// update user's record in users table
 			String createUserAccountServerQuery = "UPDATE servers SET url = ?, "
-					+ "alias = ? WHERE user_id = ? AND server_id = ?";  // ToDo: update status
+					+ "alias = ?, local_dome_user = ?, local_dome_user_password = ?, dome_user_space = ? WHERE user_id = ? AND server_id = ?";  // ToDo: update status
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery);
 			
 			if (!userAccountServer.getIp().contains("DOMEApiServicesV7"))
 				userAccountServer.setIp(userAccountServer.getIp() + "/DOMEApiServicesV7/");
 			//append DOME endpoint on target server's URL
+			String dome_user = "ceed";
+			String dome_pass = "ceed";
+			String domain_space = "USER";
+			
+			
+			/*
+			 if (userAccountServer.getServerUserName() != null)
+			 	dome_user = userAccountServer.getServerUserName();
+			 	
+			 if (userAccountServer.getUserPassword() != null)
+			 	dome_pass = userAccountServer.getUserPassword();
+			 	
+			 if (userAccountServer.getDomainSpace() != null)
+			 	domain_space = userAccountServer.getDomainSpace();
+			 	
+			 */
+			//In this code block, check if userAccountServer object has a set value; if so, replace the defaults with these
+			
 			
 			preparedStatement.setString(1, userAccountServer.getIp());
 			preparedStatement.setString(2, userAccountServer.getName());
-			preparedStatement.setInt(3, user_id_lookedup);
-			preparedStatement.setInt(4, Integer.parseInt(userAccountServer.getId()));
+			preparedStatement.setString(3, dome_user);
+			preparedStatement.setString(4, dome_pass);
+			preparedStatement.setString(5, domain_space);
+			preparedStatement.setInt(6, user_id_lookedup);
+			preparedStatement.setInt(7, Integer.parseInt(userAccountServer.getId()));
 			// ToDo: need to add status update
 
 			userAccountServer.setStatus(AccountServersDao.serverStatus(userAccountServer));
