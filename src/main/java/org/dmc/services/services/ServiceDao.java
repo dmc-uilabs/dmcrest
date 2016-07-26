@@ -7,6 +7,7 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.SqlTypeConverterUtility;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.company.CompanyDao;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -52,20 +53,22 @@ public class ServiceDao {
 
             // look up userID
             int userID = UserDao.getUserID(userEPPN);
+			int companyId = CompanyDao.getUserCompanyId(userID);
 
-            String query = "insert into service (organization_id, title, description, owner_id, release_date, service_type, project_id, from_location, type, parent, published)";
-            query += "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)";
+            String query = "insert into service (organization_id, title, description, owner_id, release_date, service_type, specifications, project_id, from_location, type, parent, published)";
+            query += "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-            preparedStatement.setObject(1, SqlTypeConverterUtility.getInt(requestedBody.getCompanyId()), java.sql.Types.INTEGER);
+            preparedStatement.setInt(1, companyId);
             preparedStatement.setString(2, requestedBody.getTitle());
             preparedStatement.setString(3,  requestedBody.getDescription());
             preparedStatement.setInt(4,  userID);
             preparedStatement.setObject(5, SqlTypeConverterUtility.getSqlDate(requestedBody.getReleaseDate()), java.sql.Types.DATE);
             preparedStatement.setString(6, requestedBody.getServiceType());
-            preparedStatement.setObject(7, SqlTypeConverterUtility.getInt(requestedBody.getProjectId()), java.sql.Types.INTEGER);
-            preparedStatement.setString(8, requestedBody.getFrom());
-            preparedStatement.setString(9, requestedBody.getType());
-            preparedStatement.setString(10, requestedBody.getParent());
+			preparedStatement.setString(7, requestedBody.getSpecifications());
+            preparedStatement.setObject(8, SqlTypeConverterUtility.getInt(requestedBody.getProjectId()), java.sql.Types.INTEGER);
+            preparedStatement.setString(9, requestedBody.getFrom());
+            preparedStatement.setString(10, requestedBody.getType());
+            preparedStatement.setString(11, requestedBody.getParent());
             preparedStatement.executeUpdate();
 
             query = "select currval('service_service_id_seq') as id";
@@ -361,6 +364,7 @@ public class ServiceDao {
         service.setProfileId(resultSet.getString("owner_id"));  // ToDo: up date
         service.setReleaseDate(resultSet.getDate("release_date"));
         if (resultSet.wasNull()) service.setReleaseDate(null);
+		service.setServiceType(resultSet.getString("service_type"));
         service.setType(resultSet.getString("service_type"));
         service.setTags(new ArrayList<String>()); // ToDo: up date
         service.setSpecifications(resultSet.getString("specifications"));

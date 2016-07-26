@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.json.JSONObject;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,28 +45,24 @@ public class ServiceRunController {
         return new ResponseEntity<Id>(new Id.IdBuilder(runId).build(), HttpStatus.OK);
     }*/
     @RequestMapping(value = "/model_run", method = RequestMethod.POST)
-    public ResponseEntity<Id> serviceRun (@RequestBody DomeModelResponsePkg inputPkg, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-    	//int serviceId=-9;
-    	String interfaceIdStr="";
+    public ResponseEntity<RunDomeModelResponse> serviceRun (@RequestBody RunDomeModelInput serviceId, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+    	
     	int runId;
-    	try {
-    		/*JSONObject in = new JSONObject(inputJson);
-    		String intStr = in.getJSONObject("interFace").getString("interfaceId");*/
-    		// !!!!!! If this interfaceId is the identifier of the interface?
-    		interfaceIdStr = inputPkg.getInterface().getInterfaceId();
-    		//serviceId = ServiceRunServiceInterfaceDAO.getServiceIdFromStr(intStr);        
+    	String sId = serviceId.getServiceId();
+    	RunDomeModelResponse response = new RunDomeModelResponse();
+    	try {      
     		int userId = CompanyUserUtil.getUserId(userEPPN);
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
-    		
-    		Map inPars = inputPkg.getInParams();
-    		runId = serviceRunInstance.runModel(interfaceIdStr, inPars, userId);
+    		runId = serviceRunInstance.runModel(new Integer(sId), userId);
+    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceId + " called by user " + userEPPN);
+    		response.setRunId(runId);
         }
         catch (Exception e)
         {
-        	ServiceLogger.log(logTag, "Exception in serviceRun, serviceIdStr: " + interfaceIdStr + " called by user " + userEPPN);
+        	ServiceLogger.log(logTag, "Exception in serviceRun, serviceIdStr: " + serviceId + " called by user " + userEPPN);
         	return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<Id>(new Id.IdBuilder(runId).build(), HttpStatus.OK);
+        return new ResponseEntity<RunDomeModelResponse>(response, HttpStatus.OK);
     }
     
     @RequestMapping(value = "/model_poll/{serviceRunID}", method = RequestMethod.GET, produces = { "application/json"})
