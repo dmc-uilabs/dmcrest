@@ -18,6 +18,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
+
 
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
@@ -30,7 +32,7 @@ public class ProfileDao {
 
     private AWSConnector AWS = new AWSConnector();
 
-    public ArrayList<Profile> getProfiles(String userEPPN) throws DMCServiceException {
+    public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
     	
     	ResultSet rs;
     	Profile profile = new Profile();
@@ -55,7 +57,7 @@ public class ProfileDao {
         
         // get company
         final CompanyDao companyDao = new CompanyDao();
-        final int companyId = companyDao.getUserCompanyId(resultSet.getInt("user_id"));
+        final int companyId = companyDao.getUserCompanyId(UserDao.getUserID("user_name"));
         profile.setCompany(Integer.toString(companyId));
         
         profile.setJobTitle(resultSet.getString("title"));
@@ -73,7 +75,7 @@ public class ProfileDao {
     
     public Profile getProfile(int requestId) throws HTTPException {
         ServiceLogger.log(LOGTAG, "In getProfile: user_id "+requestId);
-        final Profile profile = new Profile();
+		Profile profile = new Profile();
         profile.setId(Integer.toString(requestId));
         
         try {
@@ -85,26 +87,8 @@ public class ProfileDao {
             String userName = null;
             
             if (resultSet.next()) {
-                //id = resultSet.getString("id");
-                profile.setDisplayName(resultSet.getString("realname"));
-                
-                // get company
-                final CompanyDao companyDao = new CompanyDao();
-                final int companyId = companyDao.getUserCompanyId(requestId);
-                profile.setCompany(Integer.toString(companyId));
-                
-                profile.setJobTitle(resultSet.getString("title"));
-                profile.setPhone(resultSet.getString("phone"));
-                profile.setEmail(resultSet.getString("email"));
-                profile.setLocation(resultSet.getString("address"));
-                profile.setImage(resultSet.getString("image"));
-                profile.setDescription(resultSet.getString("people_resume"));
-                
-                // need to get skills;
-                profile.setSkills(new ArrayList<String>());
-                
+				profile = setProfileValues(profile, resultSet);
                 userName = resultSet.getString("user_name");
-                
             }
             
             int user_id_lookedup = -1;
