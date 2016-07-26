@@ -1,23 +1,26 @@
 package org.dmc.services.services;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class ModelInterface  {
   
-  private InterfaceInParams inParams = null;
-  private InterfaceOutParams outParams = null;
+  private Map<String, DomeModelParam> inParams = new HashMap<String, DomeModelParam>();
+  private Map<String, DomeModelParam> outParams = new HashMap<String, DomeModelParam>();
 
   
   /**
    **/
   @JsonProperty("inParams")
-  public InterfaceInParams getInParams() {
+  public Map<String, DomeModelParam> getInParams() {
     return inParams;
   }
-  public void setInParams(InterfaceInParams inParams) {
+  public void setInParams(Map<String, DomeModelParam> inParams) {
     this.inParams = inParams;
   }
 
@@ -25,10 +28,10 @@ public class ModelInterface  {
   /**
    **/
   @JsonProperty("outParams")
-  public InterfaceOutParams getOutParams() {
+  public Map<String, DomeModelParam> getOutParams() {
     return outParams;
   }
-  public void setOutParams(InterfaceOutParams outParams) {
+  public void setOutParams(Map<String, DomeModelParam> outParams) {
     this.outParams = outParams;
   }
 
@@ -57,8 +60,8 @@ public class ModelInterface  {
     StringBuilder sb = new StringBuilder();
     sb.append("class ModelInterface {\n");
     
-    sb.append("  inParams: ").append(inParams).append("\n");
-    sb.append("  outParams: ").append(outParams).append("\n");
+    sb.append("  inParams: ").append(inParams.toString()).append("\n");
+    sb.append("  outParams: ").append(outParams.toString()).append("\n");
     sb.append("}\n");
     return sb.toString();
   }

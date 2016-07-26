@@ -1,6 +1,7 @@
 package org.dmc.services.profile;
 
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.AWSConnector;
 import org.dmc.services.Config;
@@ -18,6 +19,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
+
 
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
@@ -32,9 +35,50 @@ public class ProfileDao {
 	private Verification verify = new Verification(); 
 
 
+    public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
+    	
+    	ResultSet rs;
+    	Profile profile = new Profile();
+    	ArrayList<Profile>  profiles = null;
+    	
+    	try {
+        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users";
+        	rs = DBConnector.executeQuery(query);
+        	while (rs.next()) {
+        		profile = setProfileValues(profile, rs);
+        	}	
+    	} catch (SQLException e) {
+    		throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+    	}
+
+    	return profiles;
+    }
+    
+    private Profile setProfileValues(Profile profile, ResultSet resultSet) throws SQLException {
+        //id = resultSet.getString("id");
+        profile.setDisplayName(resultSet.getString("realname"));
+        
+        // get company
+        final CompanyDao companyDao = new CompanyDao();
+        final int companyId = companyDao.getUserCompanyId(UserDao.getUserID("user_name"));
+        profile.setCompany(Integer.toString(companyId));
+        
+        profile.setJobTitle(resultSet.getString("title"));
+        profile.setPhone(resultSet.getString("phone"));
+        profile.setEmail(resultSet.getString("email"));
+        profile.setLocation(resultSet.getString("address"));
+        profile.setImage(resultSet.getString("image"));
+        profile.setDescription(resultSet.getString("people_resume"));
+        
+        // need to get skills;
+        profile.setSkills(new ArrayList<String>());
+        
+        return profile;
+    }
+    
     public Profile getProfile(int requestId) throws HTTPException {
         ServiceLogger.log(LOGTAG, "In getProfile: user_id "+requestId);
-        final Profile profile = new Profile();
+		Profile profile = new Profile();
         profile.setId(Integer.toString(requestId));
         
         try {
@@ -46,26 +90,8 @@ public class ProfileDao {
             String userName = null;
             
             if (resultSet.next()) {
-                //id = resultSet.getString("id");
-                profile.setDisplayName(resultSet.getString("realname"));
-                
-                // get company
-                final CompanyDao companyDao = new CompanyDao();
-                final int companyId = companyDao.getUserCompanyId(requestId);
-                profile.setCompany(Integer.toString(companyId));
-                
-                profile.setJobTitle(resultSet.getString("title"));
-                profile.setPhone(resultSet.getString("phone"));
-                profile.setEmail(resultSet.getString("email"));
-                profile.setLocation(resultSet.getString("address"));
-                profile.setImage(resultSet.getString("image"));
-                profile.setDescription(resultSet.getString("people_resume"));
-                
-                // need to get skills;
-                profile.setSkills(new ArrayList<String>());
-                
+				profile = setProfileValues(profile, resultSet);
                 userName = resultSet.getString("user_name");
-                
             }
             
             int user_id_lookedup = -1;

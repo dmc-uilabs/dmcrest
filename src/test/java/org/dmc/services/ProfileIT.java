@@ -5,6 +5,14 @@ import java.util.ArrayList;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import com.amazonaws.services.devicefarm.model.Project;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.dmc.services.discussions.Discussion;
 import org.dmc.services.profile.Profile;
 import org.junit.Before; 
 import org.junit.After;
@@ -22,6 +30,7 @@ public class ProfileIT extends BaseIT {
 	
 	private static final String PROFILE_CREATE_RESOURCE = "/profiles";
 	private static final String PROFILE_READ_RESOURCE   = "/profiles/{id}";
+	private static final String PROFILES_READ_RESOURCE  = "/profiles";
 	private static final String PROFILE_UPDATE_RESOURCE = "/profiles/{id}";
 	private static final String PROFILE_DELETE_RESOURCE = "/profiles/{id}/delete";
 	private String profileId = "1";
@@ -57,7 +66,7 @@ public class ProfileIT extends BaseIT {
 //        body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
 //        extract().path("id");
 
-        
+         
 		JSONObject json = createFixture("create");
 		this.createdId = given()
             .header("Content-type", "application/json")
@@ -130,6 +139,30 @@ public class ProfileIT extends BaseIT {
             assertTrue("Retrieved Id is " + retrivedId, retrivedId > 0);
                           
         }
+	}
+    
+    @Test
+	public void testProfilesGet() {
+        
+    	ObjectMapper mapper = new ObjectMapper();
+    	
+//    	JsonNode projects =
+            given()
+                .header("AJP_eppn", "userEPPN" + unique)
+				.header("Content-type", "application/json")
+            .expect()
+                .statusCode(HttpStatus.NOT_IMPLEMENTED.value())
+            .when()
+				.get(PROFILES_READ_RESOURCE);
+//                .as(JsonNode.class);
+//            
+//		try {
+//			ArrayList<Project> projectList =
+//					mapper.readValue(mapper.treeAsTokens(projects),
+//					new TypeReference<ArrayList<Discussion>>() {});
+//		} catch (Exception e) {
+//			//ServiceLogger.log(logTag, e.getMessage());
+//		}
 	}
  
 	@Test
@@ -228,11 +261,15 @@ public class ProfileIT extends BaseIT {
 	 */
 	@Test
 	public void testProfileGet_Profiles(){
+		
 		given().
-		header("AJP_eppn", userEPPN).
+			header("AJP_eppn", "userEPPN" + unique).
+			header("Content-type", "application/json").
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get(PROFILE_CREATE_RESOURCE);
+			statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		when().
+			get(PROFILES_READ_RESOURCE);
+
 	}
 	
 	
