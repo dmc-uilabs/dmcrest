@@ -124,7 +124,9 @@ public class TaskDao {
 		
 		try {
 			final Id id = insertTask(task, userEPPN);
-			assignTask(id.getId(), task.getAssignee());
+			if (task.getAssignee() != null) {
+				assignTask(id.getId(), task.getAssigneeId());
+			}
 			return id;
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(logTag, "got Exception in createTask: " + e.getMessage());
@@ -168,22 +170,25 @@ public class TaskDao {
 			String title = task.getTitle();
 			String description = task.getAdditionalDetails();
 			Integer priority = task.getPriority();
+			Date startDateTemp= new Date();
+			java.sql.Timestamp startDate = new java.sql.Timestamp(startDateTemp.getTime());
 			java.sql.Timestamp endDate = new java.sql.Timestamp(task.getDueDate());
 			Integer createdBy = userID;
 			Integer groupId = Integer.parseInt(task.getProjectId());
 			Integer statusId = TaskStatus.StatusValues.valueOf(task.getStatus().toUpperCase()).getValue();
 			
-			String query = "INSERT INTO project_task (summary, details, priority, end_date, created_by, group_project_id, status_id)"
-			+ "values ( ?, ?, ?, ?, ?, ?, ?)";
+			String query = "INSERT INTO project_task (summary, details, priority, start_date, end_date, created_by, group_project_id, status_id)"
+			+ "values ( ?, ?, ?, ?, ?, ?, ?, ?)";
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setString(1, title);
 			preparedStatement.setString(2, description);
 			preparedStatement.setInt(3, priority);
-			preparedStatement.setTimestamp(4, endDate);
-			preparedStatement.setInt(5, createdBy);
-			preparedStatement.setInt(6, groupId);
-			preparedStatement.setInt(7, statusId);
+			preparedStatement.setTimestamp(4, startDate);
+			preparedStatement.setTimestamp(5, endDate);
+			preparedStatement.setInt(6, createdBy);
+			preparedStatement.setInt(7, groupId);
+			preparedStatement.setInt(8, statusId);
 			ServiceLogger.log(logTag, "insert query for project_task prepared");
 			preparedStatement.executeUpdate();
 			ServiceLogger.log(logTag, "insert query performed");
@@ -204,15 +209,13 @@ public class TaskDao {
 		return new Id.IdBuilder(id).build();
 	}
 	
-	public boolean assignTask(Integer taskId, String assignee) throws DMCServiceException {
-		ServiceLogger.log(logTag, "assign task " + taskId + " to " + assignee);
+	public boolean assignTask(Integer taskId, String assigneeIdStr) throws DMCServiceException {
+		ServiceLogger.log(logTag, "assign task " + taskId + " to " + assigneeIdStr);
 		try {
-			if (null == assignee) return true; // nothing to insert
-			
-			int assigneeId = UserDao.getUserID(assignee);
+			int assigneeId = Integer.parseInt(assigneeIdStr);
 			if (assigneeId <= 0) {
-				ServiceLogger.log(logTag, "assignee " + assignee + " not found: " + assigneeId);
-				throw new DMCServiceException(DMCError.OtherSQLError, "user " + assignee + " not found");
+				ServiceLogger.log(logTag, "assignee " + assigneeIdStr + " not found: " + assigneeId);
+				throw new DMCServiceException(DMCError.OtherSQLError, "user " + assigneeIdStr + " not found");
 			}
 			final String query = createAssignTaskQuery();
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
@@ -220,7 +223,7 @@ public class TaskDao {
 			preparedStatement.setInt(2, assigneeId);
 			return preparedStatement.execute();
 		} catch (SQLException e) {
-			ServiceLogger.log(logTag, "assignee " + assignee + " cannot be assigned to task id " + taskId + ", may already be assigned");
+			ServiceLogger.log(logTag, "assignee " + assigneeIdStr + " cannot be assigned to task id " + taskId + ", may already be assigned");
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		}
 	}
