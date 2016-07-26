@@ -96,7 +96,7 @@ public class ProfileIT extends BaseIT {
 	
 	
 	//Tests to see if presignedURL Works 
-	@Test
+	/*@Test
 	public void urlGet() { 
 		if(this.preSignedURL != null){ 
 			//Create URL object that is needed 
@@ -119,7 +119,7 @@ public class ProfileIT extends BaseIT {
             	assert(false);
             }
 		}
-	}
+	}*/
     @Test
 	public void testProfileGet() {
         
@@ -195,7 +195,7 @@ public class ProfileIT extends BaseIT {
         json.put("jobTitle", JSONObject.NULL);
         json.put("phone", JSONObject.NULL);
         json.put("location", JSONObject.NULL);
-        json.put("image", JSONObject.NULL);
+        //json.put("image", JSONObject.NULL);
         json.put("description", "");
         json.put("skills", new ArrayList<String>());
             if (this.createdId > 0) {
