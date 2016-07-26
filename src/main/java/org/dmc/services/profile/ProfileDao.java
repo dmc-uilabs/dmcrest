@@ -141,7 +141,7 @@ public class ProfileDao {
 
         try {
             // AWS Profile Picture Upload
-            final String signedURL = AWS.upload(profile.getImage(), "Profiles", userEPPN, "ProfilePictures");
+           // final String signedURL = AWS.upload(profile.getImage(), "Profiles", userEPPN, "ProfilePictures");
 
             // update user
             query = "UPDATE users SET "
@@ -154,7 +154,7 @@ public class ProfileDao {
             statement.setString(3, profile.getPhone());
             statement.setString(4, profile.getEmail());
             statement.setString(5, profile.getLocation());
-            statement.setString(6, signedURL);
+            statement.setString(6, profile.getImage());
             statement.setString(7, profile.getDescription());
             statement.setInt(8, id);
             statement.setString(9, userEPPN);
