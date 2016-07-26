@@ -36,16 +36,19 @@ public class ProfileDao {
 
     public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
 		
-		//ToDo: handle id list
 		String whereClause = "";
 		if(null != id) {
-			String commaDelimitedIdList = StringUtils.collectionToDelimitedString(id, ",", "(", ")");
-			whereClause = " user_id in " + commaDelimitedIdList;
+			ServiceLogger.log(LOGTAG, "getProfiles intList equal " + id.toString());
+
+			
+			String commaDelimitedIdList = StringUtils.collectionToDelimitedString(id, ",");
+			whereClause = "WHERE user_id IN (" + commaDelimitedIdList + ")";
 		}
-    	ArrayList<Profile>  profiles = new ArrayList<Profile>();
+
+		ArrayList<Profile>  profiles = new ArrayList<Profile>();
     	
     	try {
-        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users " +
+        	final String query = "SELECT user_id, user_name, realname, title, phone, email, address, image, people_resume FROM users " +
 									whereClause + " ORDER BY " + sort + " " + order + " LIMIT ?";
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
@@ -76,6 +79,7 @@ public class ProfileDao {
         final int companyId = companyDao.getUserCompanyId(UserDao.getUserID("user_name"));
         profile.setCompany(Integer.toString(companyId));
         
+		profile.setId(resultSet.getString("user_id"));
         profile.setJobTitle(resultSet.getString("title"));
         profile.setPhone(resultSet.getString("phone"));
         profile.setEmail(resultSet.getString("email"));
@@ -95,7 +99,7 @@ public class ProfileDao {
         profile.setId(Integer.toString(requestId));
         
         try {
-            final String queryProfile = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users WHERE user_id = ?";
+            final String queryProfile = "SELECT user_id, user_name, realname, title, phone, email, address, image, people_resume FROM users WHERE user_id = ?";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(queryProfile);
             preparedStatement.setInt(1, requestId);
 

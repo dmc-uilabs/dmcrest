@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
@@ -98,12 +99,10 @@ public class ProfileController {
 													 @RequestParam(value = "order", defaultValue="DESC") String order,
 													 @RequestParam(value = "sort", defaultValue="realname") String sort,
 													 @RequestParam(value = "id", required = false) List<String> id){
-		
-		
 		if(null != id) {
-			ServiceLogger.log(logTag, "getProfile, with ids: " + id.toString());
+			ServiceLogger.log(logTag, "getProfile, with " + id.size() + " ids: " + id.toString());
 		} else {
-			ServiceLogger.log(logTag, "getProfile");
+			ServiceLogger.log(logTag, "getProfile, without ids");
 		}
 
 		int httpStatusCode = HttpStatus.OK.value();
@@ -117,7 +116,6 @@ public class ProfileController {
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
-	
 	
 	
 	@RequestMapping(value = "/profiles/{profileID}/profile_history", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
