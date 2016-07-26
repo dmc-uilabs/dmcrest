@@ -45,93 +45,6 @@ public class ProfileIT extends BaseIT {
 	private String profileId = "1";
 	
 	private Integer createdId = -1;
-<<<<<<< HEAD
-//	String randomEPPN = UUID.randomUUID().toString();
-    String unique = null;
-    
-    //for AWS Test
-    String preSignedURL = null;
-    URL url = null;
-		
- // Setup test data
- 	@Before
- 	//@Test
- 	public void testProfileCreate() {
-//         ServiceLogger.log(logTag, "starting testUserCreate");
-         unique = TestUserUtil.generateTime();
-         
-//         Integer id =
-         given().
-         header("Content-type", "text/plain").
-         header("AJP_eppn", "userEPPN" + unique).
-         header("AJP_givenName", "userGivenName" + unique).
-         header("AJP_sn", "userSurname" + unique).
-         header("AJP_displayName", unique).
-         header("AJP_mail", "userEmail" + unique).
-         expect().
-         statusCode(200).
- 		when().
-         get("/user");
-// 		then().
-//         body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
-//         extract().path("id");
-
-          
- 		JSONObject json = createFixture("create");
- 		this.createdId = given()
-             .header("Content-type", "application/json")
- 				.header("AJP_eppn", "userEPPN" + unique)
- 				.body(json.toString())
- 				.expect()
- 				.statusCode(200)
- 				.when()
- 				.post(PROFILE_CREATE_RESOURCE)
- 				.then()
- 				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
- 				.extract()
- 				.path("id");
- 		
- 		//Adding test to get out preSignedURL 
- 		Profile profile = given()
-                .header("AJP_eppn", "userEPPN" + unique)
-                .expect()
-                .statusCode(200)
-                .when()
-                .get(PROFILE_READ_RESOURCE, this.createdId.toString()).as(Profile.class); 
- 		
- 		//Extract
- 		this.preSignedURL = profile.getImage(); 
- 		assert(this.preSignedURL != null);
- 		}
- 	
- 	
- 	//Tests to see if presignedURL Works 
- 	/*@Test
- 	public void urlGet() { 
- 		if(this.preSignedURL != null){ 
- 			//Create URL object that is needed 
- 			try{
- 			this.url = new URL(this.preSignedURL);
- 			}catch(Exception e){
- 				assert(false); 
- 			}
- 			assert(this.url != null);
- 		
- 			//Simple Url check test
- 			String host = this.url.getHost();
-             assertTrue("S3 Host doesn't match", host.equals("dmc-profiletest.s3.amazonaws.com"));
-
-             try{ 
-             	//Test Remote Connection to AWS to see if resource exists
-                 URLConnection urlConnection = url.openConnection();
-                 urlConnection.connect(); 
-             }catch (Exception e){ 
-             	assert(false);
-             }
- 		}
- 	}*/
-    @Test
-=======
 	//	String randomEPPN = UUID.randomUUID().toString();
 	String unique = null;
 	
@@ -216,7 +129,6 @@ public class ProfileIT extends BaseIT {
 		}
 	}
 	@Test
->>>>>>> master
 	public void testProfileGet() {
 		
 		JSONObject json = createFixture("update");
