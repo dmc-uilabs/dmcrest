@@ -3,49 +3,22 @@ package org.dmc.services;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.UUID;
-
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import static com.jayway.restassured.RestAssured.*;
-
-import com.jayway.restassured.response.ValidatableResponse;
-
-import org.json.JSONObject;
-import org.json.JSONArray;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.dmc.services.projects.ProjectDocument;
-
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.junit.Assert.*;
-
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.CompanyUserUtil;
-import org.dmc.services.discussions.Discussion;
-import org.dmc.services.profile.Profile;
-import org.dmc.services.projects.ProjectCreateRequest;
-import org.dmc.services.projects.Project;
-import org.dmc.services.projects.ProjectJoinRequest;
-import org.dmc.services.projects.PostProjectJoinRequest;
-import org.dmc.services.projects.ProjectTag;
-import org.dmc.services.services.ServiceImages;
 import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.users.UserDao;
 import org.dmc.services.verification.VerificationPatch;
-
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 //@Ignore
