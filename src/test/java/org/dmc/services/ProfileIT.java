@@ -148,7 +148,7 @@ public class ProfileIT extends BaseIT {
 		List<Profile> profiles = Arrays.asList(given().
 												header("AJP_eppn", userEPPN).
 												header("Content-type", APPLICATION_JSON_VALUE).
-//												param().
+												param(limit, null).
 											   expect().
 												statusCode(HttpStatus.OK.value()).
 											   when().
@@ -268,7 +268,29 @@ public class ProfileIT extends BaseIT {
 			assertTrue("List is not sorted in decending order by default", profileName.compareTo(nextProfileName) >= 0);
 		}
 	}
+
 	
+	/**
+	 * test case for GET /profiles assending order responce
+	 */
+	@Test
+	public void testProfileGet_Profiles_defaultResponce(){
+		List<Profile> profiles = getProfiles("userEPPN" + unique);
+		
+		assertTrue("No profiles retruned", profiles.size() > 0);
+		assertTrue("No profiles retruned", profiles.size() < 100);  // default limit
+		
+		Iterator<Profile> profilesIterator = profiles.iterator();
+		Profile profile = profilesIterator.next();
+		while (profilesIterator.hasNext()) {
+			Profile nextProfile = profilesIterator.next();
+			String profileName = profile.getDisplayName();
+			String nextProfileName = nextProfile.getDisplayName();
+			
+			assertTrue("List is not sorted in decending order by default", profileName.compareTo(nextProfileName) >= 0);
+		}
+	}
+
 	
 	/**
 	 * test case for GET /profiles/{profileID}/profile_history
