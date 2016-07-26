@@ -198,14 +198,14 @@ public class ServiceIT extends BaseIT {
     /**
      * test case for get /services/{serviceID}/service_documents
      */
-    @Test
+   /* @Test
     public void testServiceGet_ServiceDocument(){
         given().
         header("AJP_eppn", userEPPN).
         expect().
         statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
         when().get("/services/" + serviceId + "/service_documents");
-    }
+    }*/
 
     /**
      * test case for get /services/{serviceID}/service_documents

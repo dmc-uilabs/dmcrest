@@ -34,6 +34,7 @@ public class AWSConnector {
     private static String accessKey = "AKIAJDE3BJULBHCYEX4Q";//System.getenv("AWS_UPLOAD_KEY");
     private static String secretKey = "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";//System.getenv("AWS_UPLOAD_SEC");
 
+
     // Source is the path the the resource in the bucket
     public static String upload(String tempURL, String Folder, String userEPPN, String ResourceType)
             throws DMCServiceException {
