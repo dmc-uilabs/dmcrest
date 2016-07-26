@@ -36,9 +36,9 @@ public class ServiceRunDOMEAPI {
 		{
 			e.printStackTrace();
 		}
-	}*/
-
-	public int runModel(int service_id, int user_id) throws Exception
+	}
+*/
+	public int runModel(int service_id, Map inPars, int user_id) throws Exception
 	{
 		// TODO: Leave checking if user_id can run the model here.
 
@@ -46,7 +46,9 @@ public class ServiceRunDOMEAPI {
 		ServiceRunServiceInterfaceDAO dInterface = new ServiceRunServiceInterfaceDAO(service_id);
 		int server_id = dInterface.getDOMEServer().getServerID();
 		int interface_id = dInterface.getInterfaceID();
-		String domeJSonPars = dInterface.toDOMEString();
+		
+		//String domeJSonPars = dInterface.toDOMEString();
+		String domeJSonPars = dInterface.toDOMEStringInPars(inPars);
 		// Get information of the DOMEServer
 		DOMEServerDAO dServer = new DOMEServerDAO(server_id);
 		// Get the unique queue id based on interface name and current time.
@@ -55,15 +57,11 @@ public class ServiceRunDOMEAPI {
 		// Create database entry for this run.
 		ServiceRunServiceDAO serviceRun = new ServiceRunServiceDAO();
 		int modelRunID = serviceRun.createModelRunDBEntry(user_id, server_id, interface_id, queue);
-		ServiceLogger.log(LOGTAG, "This is the returned model run id: " + Integer.toString(modelRunID));
-		
+			
 		// Create a queue in the activeMQ server
 		ServiceRunActiveMQ activeMQ = new ServiceRunActiveMQ();
 		activeMQ.createQueue(queue);
-		
-		ServiceLogger.log(LOGTAG, "Here is what is sent to DOME:");
-		ServiceLogger.log(LOGTAG, domeJSonPars);
-		ServiceLogger.log(LOGTAG, queue);
+			
 		// Run model
 		//TODO
 		// Note that these information are different from port information provided in the database
@@ -94,7 +92,6 @@ public class ServiceRunDOMEAPI {
 		  
 		  writer.close();
 		  out.close();
-		  ServiceLogger.log(LOGTAG, "Successfully communicated with DOME");
 
 		  if (conn.getResponseCode() != 200) {
 		    throw new IOException(conn.getResponseMessage());

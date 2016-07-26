@@ -14,9 +14,9 @@ import org.json.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -46,25 +46,39 @@ public class ServiceRunController {
         }
         return new ResponseEntity<Id>(new Id.IdBuilder(runId).build(), HttpStatus.OK);
     }*/
-    @RequestMapping(value = "/model_run", produces = { APPLICATION_JSON_VALUE }, consumes = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
-    public ResponseEntity serviceRun (@RequestBody RunDomeModelInput runDomeModelInput, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+    @RequestMapping(value = "/model_run", method = RequestMethod.POST)
+    public ResponseEntity<RunDomeModelResponse> serviceRun (@RequestBody RunDomeModelInput serviceInput, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
     	
     	int runId;
-    	String sId = runDomeModelInput.getServiceId();
+    	String sId = serviceInput.getServiceId();
     	RunDomeModelResponse response = new RunDomeModelResponse();
     	try {      
     		int userId = CompanyUserUtil.getUserId(userEPPN);
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
-    		runId = serviceRunInstance.runModel(new Integer(sId), userId);
-    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + sId + " called by user " + userEPPN);
+    		HashMap paras = new HashMap();
+    		Map ins = serviceInput.getInParams();
+    		Iterator it = ins.entrySet().iterator();
+    		while (it.hasNext()) {
+    			Map.Entry pair = (Map.Entry)it.next();
+    			paras.put(pair.getKey(), pair.getValue());
+    		}
+/*    		Map outs = serviceInput.getOutParams();
+    		Iterator ut = outs.entrySet().iterator();
+    		while (ut.hasNext()) {
+    			Map.Entry pair = (Map.Entry)ut.next();
+    			paras.put(pair.getKey(), pair.getValue());
+    		}*/
+    		int serviceId = new Integer(sId);
+    		runId = serviceRunInstance.runModel(serviceId,paras,userId);
+    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " called by user " + userEPPN);
     		response.setRunId(runId);
-    		return new ResponseEntity<RunDomeModelResponse>(response, HttpStatus.OK);
         }
         catch (Exception e)
         {
-        	ServiceLogger.log(logTag, "Exception in serviceRun, serviceIdStr: " + sId + " called by user " + userEPPN);
-        	return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+        	ServiceLogger.log(logTag, "Exception in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " called by user " + userEPPN);
+        	return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+        return new ResponseEntity<RunDomeModelResponse>(response, HttpStatus.OK);
     }
     
     @RequestMapping(value = "/model_poll/{serviceRunID}", method = RequestMethod.GET, produces = { "application/json"})
@@ -99,16 +113,13 @@ public class ServiceRunController {
     			"\"modelDescription\":\"\",\"server\":{\"name\":\"52.33.38.232\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed" +
     			"\",\"space\":\"USER\"}}";
     	
-    	// Now prepare a test case
-    	DomeModelResponsePkg input2 = new DomeModelResponsePkg();
-    	// We only need to set up the interface id string, and input parameter, all other things are available in the database for this service
-    	DomeEntity de = new DomeEntity();
-    	de.setInterfaceId("aff647db-d82f-1004-8e7b-5de38b2eeb0f");
-    	input2.setInterface(de);
+    	
+    	RunDomeModelInput inputs = new RunDomeModelInput();
+    	inputs.setServiceId("3");
     	HashMap<String, DomeModelParam> pars = new HashMap<String, DomeModelParam>();
     	DomeModelParam par1 = new DomeModelParam();
     	par1.setName("SpecimenWidth");
-    	par1.setValue("100");
+    	par1.setValue(new BigDecimal("1999"));
     	par1.setCategory("length");
     	par1.setType("Real");
     	par1.setUnit("meter");
@@ -116,18 +127,19 @@ public class ServiceRunController {
     	pars.put("SpecimenWidth", par1);
     	DomeModelParam par2 = new DomeModelParam();
     	par2.setName("CrackLength");
-    	par2.setValue("200");
+    	par2.setValue(new BigDecimal("2999"));
     	par2.setCategory("length");
     	par2.setType("Real");
     	par2.setUnit("meter");
     	par2.setParameterid("d9f30f37-d800-1004-8f53-704dbfababa8");
     	pars.put("CrackLength", par2);
-    	input2.setInParams(pars);
+    	inputs.setInParams(pars);
     	
     	// Run service
     	ServiceRunController c = new ServiceRunController();
-   	    ResponseEntity<Id> result = c.serviceRun(input2,"testUser"); 
+   	    ResponseEntity<RunDomeModelResponse> result = c.serviceRun(inputs,"testUser"); 
 //    	ResponseEntity<ServiceRunResult> result = c.servicePoll(9,"testUser");
-    	System.out.println("result: " + result.toString());
-    }
-*/}
+    	System.out.println("result: " + result.getBody().getRunId());
+    }*/
+
+}
