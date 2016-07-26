@@ -54,8 +54,19 @@ public class DMDIIProjectController {
 																		@RequestParam("pageSize") Integer pageSize) {
 		ServiceLogger.log(logTag, "In getDmdiiProjectsByDMDIIMemberId as member " + dmdiiMemberId);
 
-		List<? extends BaseModel> results = dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId, page, pageSize);
+		List<DMDIIProjectModel> results = dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId, page, pageSize);
 		Long count = dmdiiProjectService.countDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId);
+		return new PagedResponse(count, results);
+	}
+	
+	@RequestMapping(value = "/dmdiiprojects/member/active", method = RequestMethod.GET)
+	public PagedResponse getActiveDMDIIProjectsByDMDIIMemberId(@RequestParam("dmdiiMemberId") Integer dmdiiMemberId,
+																		@RequestParam("page") Integer page,
+																		@RequestParam("pageSize") Integer pageSize) {
+		ServiceLogger.log(logTag, "In getActiveDMDIIProjectsByDMDIIMemberId as member " + dmdiiMemberId);
+		
+		List<DMDIIProjectModel> results = dmdiiProjectService.findDMDIIProjectsByPrimeOrganizationIdAndIsActive(dmdiiMemberId, page, pageSize);
+		Long count = dmdiiProjectService.countDMDIIProjectsByPrimeOrganizationIdAndIsActive(dmdiiMemberId);
 		return new PagedResponse(count, results);
 	}
 
