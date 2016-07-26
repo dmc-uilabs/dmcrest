@@ -1,5 +1,6 @@
 package org.dmc.services.dmdiimember;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.dmc.services.data.entities.DMDIIMember;
@@ -10,13 +11,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface DMDIIMemberDao extends BaseRepository<DMDIIMember, Integer> {
+	
+	@Query("SELECT m.organization.id FROM DMDIIMember m "
+			+ "WHERE m.dmdiiType.tier in (1,2) "
+			+ "AND m.dmdiiType.dmdiiTypeCategory.category in ('Industry','Academic')")
+	Collection<Integer> findTier1And2IndustryAndAcademicMemberOrganizationIds();
 
-	Page<DMDIIMember> findByDmdiiTypeDmdiiTypeCategoryIdAndDmdiiTypeTier(Pageable pageable, Integer dmdiiTypeCategoryId, Integer dmdiiTypeTier);
-	
-	Page<DMDIIMember> findByDmdiiTypeDmdiiTypeCategoryId(Pageable pageable, Integer dmdiiTypeCategoryId);
-	
-	Page<DMDIIMember> findByDmdiiTypeTier(Pageable pageable, Integer dmdiiTypeTier);
-	
 	@Query("SELECT m FROM DMDIIProject p JOIN p.primeOrganization m "
 			+ "WHERE CURRENT_TIMESTAMP() BETWEEN p.awardedDate AND p.endDate")
 	Page<DMDIIMember> findByHasActiveProjects(Pageable pageable);

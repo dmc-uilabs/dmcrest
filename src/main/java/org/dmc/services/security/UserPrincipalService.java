@@ -1,10 +1,13 @@
 package org.dmc.services.security;
 
+import java.util.Collection;
+
 import javax.inject.Inject;
 
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.dmdiimember.DMDIIMemberDao;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +18,9 @@ public class UserPrincipalService implements UserDetailsService {
 	
 	@Inject
 	private UserRepository userRepository;
+	
+	@Inject
+	private DMDIIMemberDao dmdiiMemberDao;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -33,6 +39,10 @@ public class UserPrincipalService implements UserDetailsService {
 				principal.addAuthorities(PermissionEvaluationHelper.getInheritedRolesForRole(role));
 			}
 		}
+		
+		Collection<Integer> upperTierOrgIds = dmdiiMemberDao.findTier1And2IndustryAndAcademicMemberOrganizationIds();
+		Boolean isUpperTier = principal.getAllRoles().keySet().stream().anyMatch(upperTierOrgIds::contains);
+		principal.setIsUpperTierMember(isUpperTier);
 		
 		return principal;
 	}
