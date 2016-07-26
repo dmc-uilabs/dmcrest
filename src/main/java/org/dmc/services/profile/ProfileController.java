@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
@@ -93,34 +94,28 @@ public class ProfileController {
 	
  /////newly added methods
 	@RequestMapping(value = "/profiles", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-	public ResponseEntity<List<Profile>> profilesGet(@RequestHeader(value="AJP_eppn", required=true) String userEPPN,
-													 @RequestParam(value = "limit", required = false) Integer limit,
-													 @RequestParam(value = "order", required = false) String order,
-													 @RequestParam(value = "sort", required = false) String sort,
+	public ResponseEntity<?> profilesGet(@RequestHeader(value="AJP_eppn", required=true) String userEPPN,
+													 @RequestParam(value = "limit", defaultValue="100") Integer limit,
+													 @RequestParam(value = "order", defaultValue="DESC") String order,
+													 @RequestParam(value = "sort", defaultValue="realname") String sort,
 													 @RequestParam(value = "id", required = false) List<String> id){
-		
-		
 		if(null != id) {
-			ServiceLogger.log(logTag, "getProfile, with ids: " + id.toString());
+			ServiceLogger.log(logTag, "getProfile, with " + id.size() + " ids: " + id.toString());
 		} else {
-			ServiceLogger.log(logTag, "getProfile");
+			ServiceLogger.log(logTag, "getProfile, without ids");
 		}
-//		int httpStatusCode = HttpStatus.OK.value();
-//		Profile profile = null;
-//		
-//		try{
-//			profile = profileDao.getProfile(id);
-//		} catch(HTTPException httpException) {
-//			httpStatusCode = httpException.getStatusCode();
-//		}
-//		
-//		return new ResponseEntity<Profile>(profile, HttpStatus.valueOf(httpStatusCode));
 
+		int httpStatusCode = HttpStatus.OK.value();
+		List<Profile> profiles = null;
 		
-		
-		return new ResponseEntity<List<Profile>>(HttpStatus.NOT_IMPLEMENTED);
+		try{
+			profiles = profileDao.getProfiles(userEPPN, limit, order, sort, id);
+			return new ResponseEntity<List<Profile>>(profiles, HttpStatus.valueOf(httpStatusCode));
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
-	
 	
 	
 	@RequestMapping(value = "/profiles/{profileID}/profile_history", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
