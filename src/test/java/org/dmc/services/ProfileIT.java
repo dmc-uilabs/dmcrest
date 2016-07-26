@@ -3,6 +3,7 @@ package org.dmc.services;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -71,7 +72,7 @@ public class ProfileIT extends BaseIT {
          
 		JSONObject json = createFixture("create");
 		this.createdId = given()
-            .header("Content-type", "application/json")
+            .header("Content-type", APPLICATION_JSON_VALUE)
 				.header("AJP_eppn", "userEPPN" + unique)
 				.body(json.toString())
 				.expect()
@@ -142,31 +143,20 @@ public class ProfileIT extends BaseIT {
                           
         }
 	}
-    
-    @Test
-	public void testProfilesGet() {
-        
-    	ObjectMapper mapper = new ObjectMapper();
-    	
-    	List<Profile> profiles = Arrays.asList(
-            given()
-                .header("AJP_eppn", "userEPPN" + unique)
-				.header("Content-type", "application/json")
-            .expect()
-                .statusCode(HttpStatus.OK.value())
-            .when()
-				.get(PROFILES_READ_RESOURCE)
-                .as(Profile[].class));
-            
-//		try {
-//			ArrayList<Profile> profileList =
-//					mapper.readValue(mapper.treeAsTokens(profiles),
-//					new TypeReference<ArrayList<Profile>>() {});
-//		} catch (Exception e) {
-//			//ServiceLogger.log(logTag, e.getMessage());
-//		}
-	}
  
+	private List<Profile> getProfiles(String userEPPN) {
+		List<Profile> profiles = Arrays.asList(given().
+												header("AJP_eppn", userEPPN).
+												header("Content-type", APPLICATION_JSON_VALUE).
+//												param().
+											   expect().
+												statusCode(HttpStatus.OK.value()).
+											   when().
+												get(PROFILES_READ_RESOURCE).
+												as(Profile[].class));
+		return profiles;
+	}
+	
 	@Test
 	public void testProfilePatch() {
         
@@ -174,7 +164,7 @@ public class ProfileIT extends BaseIT {
 			if (this.createdId > 0) {
 				Integer retrivedId =
                 given()
-                    .header("Content-type", "application/json")
+                    .header("Content-type", APPLICATION_JSON_VALUE)
                     .header("AJP_eppn", "userEPPN" + unique)
                     .body(json.toString())
 				.expect()
@@ -203,7 +193,7 @@ public class ProfileIT extends BaseIT {
             if (this.createdId > 0) {
                 final Integer retrivedId =
                 given()
-                    .header("Content-type", "application/json")
+                    .header("Content-type", APPLICATION_JSON_VALUE)
                     .header("AJP_eppn", "userEPPN" + unique)
                     .body(json.toString())
                 .expect()
@@ -259,19 +249,24 @@ public class ProfileIT extends BaseIT {
 	
 	
 	/**
-	 * test case for GET /profiles
+	 * test case for GET /profiles default responce
 	 */
 	@Test
-	public void testProfileGet_Profiles(){
+	public void testProfileGet_Profiles_defaultResponce(){
+		List<Profile> profiles = getProfiles("userEPPN" + unique);
+			
+		assertTrue("No profiles retruned", profiles.size() > 0);
+		assertTrue("No profiles retruned", profiles.size() < 100);  // default limit
 		
-		given().
-			header("AJP_eppn", "userEPPN" + unique).
-			header("Content-type", "application/json").
-		expect().
-			statusCode(HttpStatus.OK.value()).
-		when().
-			get(PROFILES_READ_RESOURCE);
-
+		Iterator<Profile> profilesIterator = profiles.iterator();
+		Profile profile = profilesIterator.next();
+		while (profilesIterator.hasNext()) {
+			Profile nextProfile = profilesIterator.next();
+			String profileName = profile.getDisplayName();
+			String nextProfileName = nextProfile.getDisplayName();
+			
+			assertTrue("List is not sorted in decending order by default", profileName.compareTo(nextProfileName) >= 0);
+		}
 	}
 	
 	
