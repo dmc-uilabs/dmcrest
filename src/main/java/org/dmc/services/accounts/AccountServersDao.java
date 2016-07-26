@@ -136,6 +136,7 @@ class AccountServersDao {
 			 	domainSpace = userAccountServer.getDomainSpace();
 			 	
 			 */
+			//In this code block, check if userAccountServer object has a set value; if so, replace the defaults with these
 			
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(createUserAccountServerQuery, 
 					Statement.RETURN_GENERATED_KEYS);
