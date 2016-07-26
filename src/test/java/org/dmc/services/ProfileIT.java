@@ -2,8 +2,9 @@ package org.dmc.services;
 
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
+import java.util.HashMap;
+import java.util.List;
 
 import org.json.JSONObject;
 import org.junit.Test;
@@ -244,12 +245,23 @@ public class ProfileIT extends BaseIT {
 	}
 	
 	private List<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> ids) {
+
+		HashMap<String, String> idsMap = new HashMap<String, String>();
+		
+		if(null != ids) {
+			Iterator<String> idsIterator = ids.iterator();
+			while(idsIterator.hasNext()) {
+				idsMap.put("id", idsIterator.next());
+			}
+		}
+		
 		List<Profile> profiles = Arrays.asList(given().
 												header("AJP_eppn", userEPPN).
 												header("Content-type", APPLICATION_JSON_VALUE).
-												param("limit", limit).
-												param("order", order).
-												param("sort", sort).
+												queryParam("limit", limit).
+												queryParam("order", order).
+												queryParam("sort", sort).
+												queryParams(idsMap).
 											   expect().
 												statusCode(HttpStatus.OK.value()).
 											   when().
@@ -340,12 +352,19 @@ public class ProfileIT extends BaseIT {
 		
 		profiles = getProfiles("userEPPN" + unique, 0);
 		assertTrue("Non-zero profiles returned", profiles.size() == 0);
-
-//		profiles = getProfiles("userEPPN" + unique, -1, "ASC", "title", null);
-//		assertTrue("No profiles retruned", profiles.size() == 0);
-	
 	}
-	
+
+	/**
+	 * test case for GET /profiles responce with id list
+	 */
+	@Test
+	public void testProfileGet_Profiles_IdListResponce(){
+		List<Profile> hundredProfiles = getProfiles("userEPPN" + unique);
+		
+		// take subset and retrieve those ids
+		
+	}
+
 	
 	/**
 	 * test case for GET /profiles/{profileID}/profile_history

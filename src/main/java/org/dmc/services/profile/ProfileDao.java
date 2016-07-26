@@ -39,8 +39,8 @@ public class ProfileDao {
 		//ToDo: handle id list
 		String whereClause = "";
 		if(null != id) {
-			String commaDelimitedIdList = StringUtils.collectionToCommaDelimitedString(id);
-			whereClause = " user_id in (" + commaDelimitedIdList + ") ";
+			String commaDelimitedIdList = StringUtils.collectionToDelimitedString(id, ",", "(", ")");
+			whereClause = " user_id in " + commaDelimitedIdList;
 		}
     	ArrayList<Profile>  profiles = new ArrayList<Profile>();
     	
