@@ -25,6 +25,8 @@ import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.util.StringUtils;
+
 
 public class ProfileDao {
 
@@ -33,16 +35,33 @@ public class ProfileDao {
     private AWSConnector AWS = new AWSConnector();
 
     public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
-    	
-    	ResultSet rs;
-    	Profile profile = new Profile();
-    	ArrayList<Profile>  profiles = null;
+		
+		String whereClause = "";
+		if(null != id) {
+			ServiceLogger.log(LOGTAG, "getProfiles intList equal " + id.toString());
+
+			
+			String commaDelimitedIdList = StringUtils.collectionToDelimitedString(id, ",");
+			whereClause = "WHERE user_id IN (" + commaDelimitedIdList + ")";
+		}
+
+		ArrayList<Profile>  profiles = new ArrayList<Profile>();
     	
     	try {
-        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users";
-        	rs = DBConnector.executeQuery(query);
+        	final String query = "SELECT user_id, user_name, realname, title, phone, email, address, image, people_resume FROM users " +
+									whereClause + " ORDER BY " + sort + " " + order + " LIMIT ?";
+			
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, limit);
+			ServiceLogger.log(LOGTAG, preparedStatement.toString());
+			
+			preparedStatement.execute();
+			ResultSet rs = preparedStatement.getResultSet();
+
         	while (rs.next()) {
-        		profile = setProfileValues(profile, rs);
+				Profile profile = new Profile();
+				profile = setProfileValues(profile, rs);
+				profiles.add(profile);
         	}	
     	} catch (SQLException e) {
     		throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
@@ -60,6 +79,7 @@ public class ProfileDao {
         final int companyId = companyDao.getUserCompanyId(UserDao.getUserID("user_name"));
         profile.setCompany(Integer.toString(companyId));
         
+		profile.setId(resultSet.getString("user_id"));
         profile.setJobTitle(resultSet.getString("title"));
         profile.setPhone(resultSet.getString("phone"));
         profile.setEmail(resultSet.getString("email"));
@@ -79,7 +99,7 @@ public class ProfileDao {
         profile.setId(Integer.toString(requestId));
         
         try {
-            final String queryProfile = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users WHERE user_id = ?";
+            final String queryProfile = "SELECT user_id, user_name, realname, title, phone, email, address, image, people_resume FROM users WHERE user_id = ?";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(queryProfile);
             preparedStatement.setInt(1, requestId);
 
