@@ -15,6 +15,7 @@ public interface Mapper<T extends BaseEntity, S extends BaseModel> {
 		if (models == null) return null;
 		return models.stream()
 				.map((n) -> mapToEntity(n))
+				.filter((n) -> n != null)
 				.collect(Collectors.toList());
 	}
 	
@@ -24,6 +25,7 @@ public interface Mapper<T extends BaseEntity, S extends BaseModel> {
 		if (entities == null) return null;
 		return entities.stream()
 				.map((n) -> mapToModel(n))
+				.filter((n) -> n != null)
 				.collect(Collectors.toList());
 	}
 	

@@ -1,7 +1,6 @@
 package org.dmc.services.security;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -15,6 +14,7 @@ public class UserPrincipal implements UserDetails {
 	
 	private Integer id;
 	private String username;
+	private Boolean isUpperTierMember;
 	private Map<Integer, String> rolesByOrgId = new HashMap<Integer, String>();
 	private Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<SimpleGrantedAuthority>();
 	
@@ -87,6 +87,14 @@ public class UserPrincipal implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+
+	public Boolean getIsUpperTierMember() {
+		return isUpperTierMember;
+	}
+
+	public void setIsUpperTierMember(Boolean isUpperTierMember) {
+		this.isUpperTierMember = isUpperTierMember;
 	}
 
 }
