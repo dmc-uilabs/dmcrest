@@ -20,14 +20,14 @@ import org.json.JSONObject;
 public class ServiceRunDOMEAPI {
     private static final String LOGTAG = ServiceRunDOMEAPI.class.getName();
  
-/*	public static void main(String[] args)
+	public static void main(String[] args)
 	{
 		int user_id = 111;
 		int service_id = 3;
 		ServiceRunDOMEAPI instance = new ServiceRunDOMEAPI();
 		try 
 		{
-	    	HashMap<String, DomeModelParam> pars = new HashMap<String, DomeModelParam>();
+/*	    	HashMap<String, DomeModelParam> pars = new HashMap<String, DomeModelParam>();
 	    	DomeModelParam par1 = new DomeModelParam();
 	    	par1.setName("SpecimenWidth");
 	    	par1.setValue("1999");
@@ -46,16 +46,16 @@ public class ServiceRunDOMEAPI {
 	    	pars.put("CrackLength", par2);
 	    	
 			// This will create a service call return modelRunId
-			int modelRunId = instance.runModel(service_id,pars,user_id);	
-			int modelRunId = 10;
-			instance.pollService(modelRunId, service_id);
+			int modelRunId = instance.runModel(service_id,pars,user_id);	*/
+			int modelRunId = 15;
+			ServiceRunResult result = instance.pollService(modelRunId, service_id); 
 			System.out.println("The model runID = " + modelRunId);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-	}*/
+	}
 
 	public int runModel(int service_id, Map inPars, int user_id) throws Exception
 	{
@@ -287,13 +287,16 @@ public class ServiceRunDOMEAPI {
 					// Add new value to the database.
 					serviceRun.addNewValue(id,newValueString);
 					
-					// Now create an item to return
-					DomeModelParam out = new DomeModelParam();
-					out.setValue(newValueString);
-					out.setParameterid(id);
-					String n = msgObj.getString("param");
-					out.setName(n);
-					outs.put(n,out);
+					DomeModelParam par = serviceRun.outputParam(id);
+					if (par!=null)
+					{
+						// Now create an item to return
+						par.setValue(newValueString);
+						/*out.setParameterid(id); 
+						 * out.setName(n); */
+						String n = msgObj.getString("param");	
+						outs.put(n,par);
+					}				
 				}
 			}
 		}
