@@ -217,6 +217,7 @@ public class TaskIT extends BaseIT {
 		assertEquals(id.toString(), retrievedTask.getId());
 
 		retrievedTask.setAssignee(userEPPN);
+		retrievedTask.setAssigneeId("111");
 		
 		Task patchedTask = patchTask(userEPPN, retrievedTask, id);
 	}
@@ -234,9 +235,9 @@ public class TaskIT extends BaseIT {
 		assertEquals(id.toString(), retrievedTask.getId());
 		
 		retrievedTask.setAssignee(userEPPN);
+		retrievedTask.setAssigneeId("103");
 		
-		Task patchedTask = patchTask(userEPPN, retrievedTask, id, INTERNAL_SERVER_ERROR);
-		assertTrue("patchedTask is not null", null == patchedTask);
+		Task patchedTask = patchTask(userEPPN, retrievedTask, id, OK);
 	}
 
 	
@@ -296,10 +297,7 @@ public class TaskIT extends BaseIT {
 			expect().
 				statusCode(httpStatus.value()).
 			when().
-				patch(newGetRequest).
-			then().
-				log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
-				extract().as(Task.class);
+				patch(newGetRequest).as(Task.class);
 			
 			return patchedTask;
 		} else {  // handle error condition, no returned object

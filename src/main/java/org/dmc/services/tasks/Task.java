@@ -6,7 +6,7 @@ public class Task {
 
     private String id;
     private String title;
-    private TaskProject taskProject;
+    private String projectId;
     private String assignee;
     private String assigneeId;
     private String reporter;
@@ -32,12 +32,12 @@ public class Task {
         this.title = title;
     }
 
-    @JsonProperty("taskProject")
-    public TaskProject getTaskProject() {
-        return taskProject;
+    @JsonProperty("projectId")
+    public String getProjectId() {
+        return projectId;
     }
-    public void setTaskProject(TaskProject taskProject) {
-        this.taskProject = taskProject;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     @JsonProperty("assignee")
@@ -111,7 +111,7 @@ public class Task {
 		
 		sb.append("  id: ").append(id).append("\n");
 		sb.append("  title: ").append(title).append("\n");
-		sb.append("  taskProject: ").append(taskProject).append("\n");
+		sb.append("  projectId: ").append(projectId).append("\n");
 		sb.append("  assignee: ").append(assignee).append("\n");
 		sb.append("  assigneeId: ").append(assigneeId).append("\n");
 		sb.append("  reporter: ").append(reporter).append("\n");
