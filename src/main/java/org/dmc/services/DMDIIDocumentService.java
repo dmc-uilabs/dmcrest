@@ -22,12 +22,10 @@ import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
-import org.dmc.services.projects.ProjectDocumentDao;
 import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Verify;
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
 
@@ -113,15 +111,10 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		
-//		String signedURL = "temp";
-//		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getId().toString(), "Documents");
-//		String path = AWS.createPath(signedURL);
-		
 		DMDIIDocument docEntity = docMapper.mapToEntity(doc);
 		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwnerId()));
 		docEntity.setOwner(userEntity);
-//		docEntity.setDocumentUrl(signedURL);
-//		docEntity.setPath(path);
+		
 		//current time plus one hour
 		Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime() + (1000 * 60 * 60));
 		
