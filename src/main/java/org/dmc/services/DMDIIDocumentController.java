@@ -40,7 +40,7 @@ public class DMDIIDocumentController {
 	}
 
 	@RequestMapping(value = "/dmdiidocuments", params = {"page", "pageSize"}, method = RequestMethod.GET)
-	public List<DMDIIDocumentModel> filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
+	public List<DMDIIDocumentModel> filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException, DMCServiceException {
 		ServiceLogger.log(logTag, "In getAllDMDIIDocuments filter");
 		return dmdiiDocumentService.filter(params, page, pageSize);
 	}
