@@ -108,7 +108,7 @@ public void runService () {
 	Map<String, DomeModelParam> pars = new HashMap<String, DomeModelParam>();
 	DomeModelParam par1 = new DomeModelParam();
 	par1.setName("SpecimenWidth");
-	par1.setValue(new BigDecimal("100"));
+	par1.setValue("100");
 	par1.setCategory("length");
 	par1.setType("Real");
 	par1.setUnit("meter");
@@ -116,7 +116,7 @@ public void runService () {
 	pars.put("SpecimenWidth", par1);
 	DomeModelParam par2 = new DomeModelParam();
 	par2.setName("CrackLength");
-	par2.setValue(new BigDecimal("200"));
+	par2.setValue("200");
 	par2.setCategory("length");
 	par2.setType("Real");
 	par2.setUnit("meter");
@@ -127,7 +127,7 @@ public void runService () {
 	Map<String, DomeModelParam> parsOut = new HashMap<String, DomeModelParam>();
 	DomeModelParam par3 = new DomeModelParam();
 	par3.setName("Alpha");
-	par3.setValue(new BigDecimal("0.3333333333333333"));
+	par3.setValue("0.3333333333333333");
 	par3.setCategory("no unit");
 	par3.setType("Real");
 	par3.setUnit("no unit");

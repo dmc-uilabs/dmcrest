@@ -250,7 +250,7 @@ public class DomeInterfacesDao {
 					tempInParam.setType(resultSet.getString("type"));
 					tempInParam.setUnit(resultSet.getString("unit"));
 					tempInParam.setCategory(resultSet.getString("category"));
-					tempInParam.setValue(new BigDecimal(resultSet.getString("default_value")));
+					tempInParam.setValue(resultSet.getString("default_value"));
 					tempInParam.setParameterid(resultSet.getString("parameter_id_txt"));
 					tempInParam.setInstancename(resultSet.getString("instancename"));
 
@@ -615,7 +615,7 @@ public class DomeInterfacesDao {
 					tempInParam.setType(resultSetParams.getString("type"));
 					tempInParam.setUnit(resultSetParams.getString("unit"));
 					tempInParam.setCategory(resultSetParams.getString("category"));
-					tempInParam.setValue(new BigDecimal(resultSetParams.getString("default_value")));
+					tempInParam.setValue(resultSetParams.getString("default_value"));
 					tempInParam.setParameterid(resultSetParams.getString("parameter_id_txt"));
 					tempInParam.setInstancename(resultSetParams.getString("instancename"));
 
@@ -714,7 +714,7 @@ public class DomeInterfacesDao {
 					tempInParam.setType(resultSetParams.getString("type"));
 					tempInParam.setUnit(resultSetParams.getString("unit"));
 					tempInParam.setCategory(resultSetParams.getString("category"));
-					tempInParam.setValue(new BigDecimal(resultSetParams.getString("default_value")));
+					tempInParam.setValue(resultSetParams.getString("default_value"));
 					tempInParam.setParameterid(resultSetParams.getString("parameter_id_txt"));
 					tempInParam.setInstancename(resultSetParams.getString("instancename"));
 
