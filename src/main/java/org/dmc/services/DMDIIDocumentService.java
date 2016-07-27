@@ -46,17 +46,16 @@ public class DMDIIDocumentService {
 	@Inject
 	private MapperFactory mapperFactory;
 	
-	@Inject
 	private AWSConnector AWS;
 	
 	private final String logTag = DMDIIDocumentService.class.getName();
 	
 	private Verification verify = new Verification();
 
-	public List<DMDIIDocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
+	public List<DMDIIDocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
-		List<DMDIIDocument> results = dmdiiDocumentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		List<DMDIIDocument> results = dmdiiDocumentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
 		results = refreshDocuments(results);
 		return mapper.mapToModel(results);
 	}
@@ -113,14 +112,6 @@ public class DMDIIDocumentService {
 	public DMDIIDocumentModel save(DMDIIDocumentModel doc) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		
-//		String signedURL = "temp";
-//		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getId().toString(), "Documents");
-//		String path = AWS.createPath(signedURL);
-		
-		String signedURL = "temp";
-		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getOwner().getUsername(), "Documents");
-		String path = AWS.createPath(signedURL);
 		
 //		String signedURL = "temp";
 //		signedURL = AWS.upload(doc.getDocumentUrl(), "ProjectOfDMDII", doc.getId().toString(), "Documents");
@@ -210,43 +201,5 @@ public class DMDIIDocumentService {
 		}
 		
 		return freshDocs;
-	}
-
-	public List<DMDIIDocumentTagModel> getAllTags() {
-		Mapper<DMDIIDocumentTag, DMDIIDocumentTagModel> tagMapper = mapperFactory.mapperFor(DMDIIDocumentTag.class, DMDIIDocumentTagModel.class);
-		return tagMapper.mapToModel(dmdiiDocumentTagRepository.findAll());
-	}
-
-	public DMDIIDocumentTagModel saveDocumentTag(DMDIIDocumentTagModel tag) {
-		Mapper<DMDIIDocumentTag, DMDIIDocumentTagModel> tagMapper = mapperFactory.mapperFor(DMDIIDocumentTag.class, DMDIIDocumentTagModel.class);
-		return tagMapper.mapToModel(dmdiiDocumentTagRepository.save(tagMapper.mapToEntity(tag)));
-	}
-
-	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
-		Collection<Predicate> expressions = new ArrayList<Predicate>();
-
-		expressions.addAll(tagFilter(filterParams.get("tags")));
-
-		return expressions;
-	}
-
-	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
-		if(tagIds.equals(null))
-			return new ArrayList<Predicate>();
-
-		Collection<Predicate> returnValue = new ArrayList<Predicate>();
-		String[] tags = tagIds.split(",");
-		Integer tagIdInt = null;
-
-		for(String tag: tags) {
-			try{
-				tagIdInt = Integer.parseInt(tag);
-			} catch(NumberFormatException e) {
-				throw new InvalidFilterParameterException("tags", Integer.class);
-			}
-
-			returnValue.add(QDMDIIDocument.dMDIIDocument.tags.any().id.eq(tagIdInt));
-		}
-		return returnValue;
 	}
 }
