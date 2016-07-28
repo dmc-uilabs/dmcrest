@@ -1,40 +1,43 @@
 package org.dmc.services;
 
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-
+import org.dmc.services.company.CompanyUserUtil;
+import org.dmc.services.discussions.Discussion;
+import org.dmc.services.profile.Profile;
+import org.dmc.services.projects.PostProjectJoinRequest;
+import org.dmc.services.projects.Project;
+import org.dmc.services.projects.ProjectCreateRequest;
+import org.dmc.services.projects.ProjectJoinRequest;
+import org.dmc.services.projects.ProjectTag;
+import org.dmc.services.users.UserDao;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import static com.jayway.restassured.RestAssured.*;
-
-import com.jayway.restassured.response.ValidatableResponse;
-
-import org.json.JSONObject;
-import org.json.JSONArray;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.*;
-
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.CompanyUserUtil;
-import org.dmc.services.discussions.Discussion;
-import org.dmc.services.profile.Profile;
-import org.dmc.services.projects.ProjectCreateRequest;
-import org.dmc.services.projects.Project;
-import org.dmc.services.projects.ProjectJoinRequest;
-import org.dmc.services.projects.PostProjectJoinRequest;
-import org.dmc.services.projects.ProjectTag;
-import org.dmc.services.users.UserDao;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import com.jayway.restassured.response.ValidatableResponse;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -49,17 +52,22 @@ public class ProjectIT extends BaseIT {
     private static final String MEMBER_REJECT_RESOURCE = "/projects/{projectId}/reject/{memberId}";
     private static final String MEMBERS_RESOURCE = "/members";
 
+    private static final String PROJECT_GET_TAGS_FOR_PROJECT = "/projects/{projectId}/projects_tags";
+    private static final String PROJECT_TAGS = "/projects_tags";
+    private static final String PROJECT_DELETE_TAG = "/projects_tags/{tagId}";
+
     private static final String adminUser = "fforgeadmin";
     private final String logTag = ProjectIT.class.getName();
     private DiscussionIT discussionIT = new DiscussionIT();
     private Integer createdId = null;
+    private Integer createdTagId = null;
     String randomEPPN = UUID.randomUUID().toString();
 
     private String projectId = "1";
 
     @Test
     public void testProject6() {
-        given().header("AJP_eppn", userEPPN).expect().statusCode(200).when().get("/projects/6").then()
+        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
     }
 
@@ -67,14 +75,14 @@ public class ProjectIT extends BaseIT {
     public void testProject5() {
 
         // TODO: need to update to another demo project
-        given().header("AJP_eppn", userEPPN).expect().statusCode(200).when().get("/projects/6").then()
+        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
     }
 
     // this tests could do check more about what tests are returned
     @Test
     public void testProjectList() {
-        given().header("AJP_eppn", userEPPN).expect().statusCode(200).when().get("/projects").then()
+        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
     }
 
@@ -82,7 +90,7 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProjectListAll() {
         given().header("AJP_eppn", userEPPN).param("_order", "ASC").param("_sort", "most_recent").param("_start", 0)
-                .expect().statusCode(200).when().get(PROJECT_GET_ALL_RESOURCE).then()
+                .expect().statusCode(OK.value()).when().get(PROJECT_GET_ALL_RESOURCE).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
     }
 
@@ -96,7 +104,7 @@ public class ProjectIT extends BaseIT {
         json.put("unixname", "junit" + unique);
         ServiceLogger.log(logTag, "testProjectCreateJsonString: json = " + json.toString());
 
-        this.createdId = given().header("AJP_eppn", userEPPN).body(json.toString()).expect().statusCode(200).when()
+        this.createdId = given().header("AJP_eppn", userEPPN).body(json.toString()).expect().statusCode(OK.value()).when()
                 .post("/projects/oldcreate").then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
                 .extract().path("id");
     }
@@ -118,8 +126,8 @@ public class ProjectIT extends BaseIT {
         json.setTitle("junitjson" + unique);
 
         ServiceLogger.log(logTag, "testProjectCreateJsonObject: json = " + json.toString());
-        given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(json).expect()
-                .statusCode(200).when().post("/projects/create").then()
+        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
+                .statusCode(OK.value()).when().post("/projects/create").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
     }
 
@@ -136,13 +144,13 @@ public class ProjectIT extends BaseIT {
 
         // first time should work
         given().header("Content-type", "text/plain").header("AJP_eppn", userEPPN).body(json.toString()).expect()
-                .statusCode(200).when().post("/projects/oldcreate").then()
+                .statusCode(OK.value()).when().post("/projects/oldcreate").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 
         ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicate: try to create again");
         // second time should fail, because unixname is a duplicate
         given().header("Content-type", "text/plain").header("AJP_eppn", userEPPN).body(json.toString()).expect()
-                .statusCode(200).when().post("/projects/oldcreate").then().log().all()
+                .statusCode(OK.value()).when().post("/projects/oldcreate").then().log().all()
                 .body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
     }
 
@@ -162,15 +170,15 @@ public class ProjectIT extends BaseIT {
         ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicateJson: json = " + json.toString());
 
         // first time should work
-        given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(json).expect()
-                .statusCode(200).when().post("/projects/create").then()
+        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
+                .statusCode(OK.value()).when().post("/projects/create").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 
         ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicateJson: try to create again");
 
         // second time should fail, because unixname is a duplicate
-        given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(json).expect()
-                .statusCode(200).when().post("/projects/create").then().log().all()
+        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
+                .statusCode(OK.value()).when().post("/projects/create").then().log().all()
                 .body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
 
     }
@@ -190,8 +198,8 @@ public class ProjectIT extends BaseIT {
         if (this.createdId != null) {
             Integer discussionId = discussionIT.createDiscussion(this.createdId);
             if (discussionId != null) {
-                JsonNode discussions = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN)
-                        .expect().statusCode(200).when().get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
+                JsonNode discussions = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN)
+                        .expect().statusCode(OK.value()).when().get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
                         .as(JsonNode.class);
 
                 try {
@@ -221,8 +229,8 @@ public class ProjectIT extends BaseIT {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        JsonNode jsonSpecs = given().header("AJP_eppn", userEPPN).expect().statusCode(200).when()
-                .get("/projects/" + projectId + "/projects_tags").as(JsonNode.class);
+        JsonNode jsonSpecs = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
+                .get(PROJECT_GET_TAGS_FOR_PROJECT, projectId).as(JsonNode.class);
 
         try {
             tags = mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ProjectTag>>() {
@@ -232,6 +240,7 @@ public class ProjectIT extends BaseIT {
         }
 
         // assert that we've received tags for the requested project ID
+        assertTrue("no tags found for project " + projectId, tags.size() > 0);
         for (ProjectTag tag : tags) {
             assertTrue("Project Tag is for the project ID requested",
                     Integer.parseInt(tag.getProjectId()) == projectId);
@@ -239,15 +248,52 @@ public class ProjectIT extends BaseIT {
     }
 
     @Test
+    public void testGetAllTags() {
+        ArrayList<ProjectTag> tags = getAllTagsHelper();
+        // assert that we've received tags for the requested project ID
+        assertTrue("no tags found", tags.size() > 0);
+        int countProjects = 0;
+        int firstProject = -1;
+        for (ProjectTag tag : tags) {
+            if (0 == countProjects) {
+                firstProject = Integer.parseInt(tag.getProjectId());
+                countProjects++;
+            } else {
+                if (firstProject != Integer.parseInt(tag.getProjectId())) {
+                    countProjects++;
+                    break;
+                }
+            }
+        }
+        assertTrue("Only tags for one project returned", countProjects > 1);
+    }
+
+    private ArrayList<ProjectTag> getAllTagsHelper() {
+        ArrayList<ProjectTag> tags = new ArrayList<ProjectTag>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        JsonNode jsonSpecs = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
+                .get(PROJECT_TAGS).as(JsonNode.class);
+
+        try {
+            tags = mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ProjectTag>>() {
+            });
+        } catch (Exception e) {
+            ServiceLogger.log(logTag, e.getMessage());
+        }
+        return tags;
+    }
+
+    @Test
     public void testProject6Members() {
-        given().header("AJP_eppn", userEPPN).expect().statusCode(200).when().get("/projects/6/projects_members").then()
+        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6/projects_members").then()
                 .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
 
     }
 
     @Test
     public void testProjectJoinRequests() {
-        ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(200).when()
+        ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
                 .get("/projects_join_requests").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 
@@ -292,7 +338,7 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProjectJoinRequestsWithParamList() {
         ValidatableResponse response = given().header("AJP_eppn", userEPPN).param("projectId", "4,6")
-                .param("profileId", "145").expect().statusCode(200).when().get("/projects_join_requests").then()
+                .param("profileId", "145").expect().statusCode(OK.value()).when().get("/projects_join_requests").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 
         ServiceLogger.log(logTag, "testProjectJoinRequests " + response.extract().asString());
@@ -306,7 +352,7 @@ public class ProjectIT extends BaseIT {
 
     @Test
     public void testProjectJoinRequestsProject6() {
-        ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(200).when()
+        ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
                 .get("/projects/6/projects_join_requests").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 
@@ -351,7 +397,7 @@ public class ProjectIT extends BaseIT {
 
     @Test
     public void testProjectJoinRequestsProfile111() {
-        ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(200).when()
+        ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
                 .get("/profiles/111/projects_join_requests").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 
@@ -398,23 +444,23 @@ public class ProjectIT extends BaseIT {
         json.setProjectId("4");
         json.setProfileId("110");
 
-        String id = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(json).expect()
-                .statusCode(200).when().post("/projects_join_requests").then()
+        String id = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
+                .statusCode(OK.value()).when().post("/projects_join_requests").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestSchema.json")).extract().path("id");
 
         // forbidden
         String invalid_id = "12-44-102-483";
-        given().header("AJP_eppn", userEPPN).expect().statusCode(403).when()
+        given().header("AJP_eppn", userEPPN).expect().statusCode(FORBIDDEN.value()).when()
                 .delete("/projects_join_requests/" + invalid_id);
 
         // unauthorized
-        given().header("AJP_eppn", "testUser").expect().statusCode(401).when().delete("/projects_join_requests/" + id);
+        given().header("AJP_eppn", "testUser").expect().statusCode(UNAUTHORIZED.value()).when().delete("/projects_join_requests/" + id);
 
         // should be successful
-        given().header("AJP_eppn", userEPPN).expect().statusCode(204).when().delete("/projects_join_requests/" + id);
+        given().header("AJP_eppn", userEPPN).expect().statusCode(NO_CONTENT.value()).when().delete("/projects_join_requests/" + id);
 
         // forbidden - because it is already deleted
-        given().header("AJP_eppn", userEPPN).param("id", id).expect().statusCode(403).when()
+        given().header("AJP_eppn", userEPPN).param("id", id).expect().statusCode(FORBIDDEN.value()).when()
                 .delete("/projects_join_requests/" + id);
 
     }
@@ -425,10 +471,11 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProjectPost_ProjectTag() {
 
-        String tagName = "Test-tag-name";
+        String tagName = "Test-tag-name " + UUID.randomUUID().toString().substring(0, 24);;
         this.testProjectCreateJsonString();
 
         if (this.createdId != null) {
+            String projectId = Integer.toString(this.createdId);
             ProjectTag obj = new ProjectTag();
             obj.setProjectId(projectId);
             obj.setName(tagName);
@@ -443,10 +490,10 @@ public class ProjectIT extends BaseIT {
                 e.printStackTrace();
             }
 
-            ProjectTag tag = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-                    .body(postedProjectTagsJSONString).expect().statusCode(HttpStatus.OK.value()).when()
-                    .post("/projects_tags").as(ProjectTag.class);
-
+            ProjectTag tag = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN)
+                    .body(postedProjectTagsJSONString).expect().statusCode(OK.value()).when()
+                    .post(PROJECT_TAGS).as(ProjectTag.class);
+            createdTagId = Integer.parseInt(tag.getId());
             // assert some attributes on the created tag
             assertTrue("Created Project Tag name is as requested", tag.getName().equals(tagName));
             assertTrue("Created Project Project ID is as requested", tag.getProjectId().equals(projectId));
@@ -458,9 +505,15 @@ public class ProjectIT extends BaseIT {
      * test case for DELETE /projects_tags/{projectTagid}
      */
     @Test
-    public void testDelete_Project100Tag() {
-        given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
-                .delete("/projects_tags/100").then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
+    public void testDelete_ProjectTag() {
+        // create a tag to delete
+        testProjectPost_ProjectTag();
+        int tagCountBeforeDelete = getAllTagsHelper().size();
+        int deletedTagId = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
+                .delete(PROJECT_DELETE_TAG, createdTagId).then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+        int tagCountAfterDelete = getAllTagsHelper().size();
+        assertEquals(createdTagId, new Integer(deletedTagId));
+        assertTrue("tag count should change by 1 after deleting", tagCountBeforeDelete == tagCountAfterDelete + 1);
     }
 
     /**
@@ -469,7 +522,7 @@ public class ProjectIT extends BaseIT {
 
     @Test
     public void testProject_FollowingDiscussion() {
-        given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+        given().header("AJP_eppn", userEPPN).expect().statusCode(NOT_IMPLEMENTED.value()).when()
                 .get("/projects/" + projectId + "/following_discussions");
     }
 
@@ -488,8 +541,8 @@ public class ProjectIT extends BaseIT {
             json.put("description", "test project description update");
             json.put("dueDate", 0);
 
-            updatedId = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN)
-                    .body(json.toString()).expect().statusCode(200).when()
+            updatedId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN)
+                    .body(json.toString()).expect().statusCode(OK.value()).when()
                     .patch(PROJECT_UPDATE_RESOURCE, this.createdId).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 
@@ -507,7 +560,7 @@ public class ProjectIT extends BaseIT {
 
         this.testProjectCreateJsonString();
         if (this.createdId != null) {
-            given().header("Content-type", "application/json").header("AJP_eppn", adminUser).expect().statusCode(200)
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).expect().statusCode(OK.value())
                     .when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser).asString();
 
         }
@@ -524,8 +577,8 @@ public class ProjectIT extends BaseIT {
 
         this.testProjectCreateJsonString();
         if (this.createdId != null) {
-            String response = given().header("Content-type", "application/json").header("AJP_eppn", adminUser).expect()
-                    .statusCode(404).when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, testUser).asString();
+            String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).expect()
+                    .statusCode(NOT_FOUND.value()).when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, testUser).asString();
 
             assertTrue("No Existing Request", response.contains("no existing request to join the project"));
         }
@@ -541,8 +594,8 @@ public class ProjectIT extends BaseIT {
 
         this.testProjectCreateJsonString();
         if (this.createdId != null) {
-            String response = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect()
-                    .statusCode(403).when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser).asString();
+            String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN).expect()
+                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser).asString();
 
             assertTrue("Not Admin", response.contains("does not have permission to accept members"));
         }
@@ -558,8 +611,8 @@ public class ProjectIT extends BaseIT {
 
         this.testProjectCreateJsonString();
         if (this.createdId != null) {
-            String response = given().header("Content-type", "application/json").header("AJP_eppn", adminUser).expect()
-                    .statusCode(403).when().delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser).asString();
+            String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).expect()
+                    .statusCode(FORBIDDEN.value()).when().delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser).asString();
 
             assertTrue("No Existing Request", response.contains("is the only Admin of project"));
         }
@@ -575,8 +628,8 @@ public class ProjectIT extends BaseIT {
 
         this.testProjectCreateJsonString();
         if (this.createdId != null) {
-            String response = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect()
-                    .statusCode(403).when().delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser).asString();
+            String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN).expect()
+                    .statusCode(FORBIDDEN.value()).when().delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser).asString();
 
             assertTrue("Not Admin", response.contains("not have permission to remove members"));
         }
@@ -590,7 +643,7 @@ public class ProjectIT extends BaseIT {
         String userName;
         ObjectMapper mapper = new ObjectMapper();
         JsonNode members = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).expect()
-                .statusCode(HttpStatus.OK.value()).when().get(MEMBERS_RESOURCE).as(JsonNode.class);
+                .statusCode(OK.value()).when().get(MEMBERS_RESOURCE).as(JsonNode.class);
 
         ArrayList<Profile> membersList = mapper.readValue(mapper.treeAsTokens(members),
                 new TypeReference<ArrayList<Profile>>() {
