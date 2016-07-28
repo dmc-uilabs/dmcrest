@@ -100,6 +100,6 @@ public class UserRole extends BaseEntity {
 				return false;
 		} else if (!role.equals(other.role))
 			return false;
-		return super.equals(obj);
+		return true;
 	}
 }

@@ -4,4 +4,6 @@ import org.dmc.services.data.entities.UserRole;
 
 public interface UserRoleRepository extends BaseRepository<UserRole, Integer>{
 
+	UserRole findByUserId(Integer dmdiiMemberId);
+
 }
