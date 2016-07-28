@@ -57,6 +57,9 @@ public class DMDIIDocument extends BaseEntity {
 
 	@Column(name = "is_deleted")
 	private Boolean isDeleted;
+	
+	@Column(name = "access_level")
+	private String accessLevel;
 
 	public Integer getId() {
 		return id;
@@ -144,6 +147,14 @@ public class DMDIIDocument extends BaseEntity {
 
 	public void setIsDeleted(Boolean isDeleted) {
 		this.isDeleted = isDeleted;
+	}
+
+	public String getAccessLevel() {
+		return accessLevel;
+	}
+
+	public void setAccessLevel(String accessLevel) {
+		this.accessLevel = accessLevel;
 	}
 
 	@Override

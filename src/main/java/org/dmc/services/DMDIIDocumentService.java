@@ -58,7 +58,7 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(dmdiiDocumentRepository.findByDmdiiProjectIdAndIsDeletedFalse(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent());
 	}
 
-	public DMDIIDocumentModel getDMDIIDocumentByDMDIIDocumentId(Integer dmdiiDocumentId) {
+	public DMDIIDocumentModel findOne(Integer dmdiiDocumentId) {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		return mapper.mapToModel(dmdiiDocumentRepository.findOne(dmdiiDocumentId));
 	}

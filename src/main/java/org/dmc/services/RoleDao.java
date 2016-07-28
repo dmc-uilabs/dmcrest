@@ -3,6 +3,8 @@ package org.dmc.services;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.dmc.services.data.models.Role;
+
 public class RoleDao {
 
 	private final String logTag = RoleDao.class.getName();

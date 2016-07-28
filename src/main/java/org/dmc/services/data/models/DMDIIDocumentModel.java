@@ -22,6 +22,8 @@ public class DMDIIDocumentModel extends BaseModel {
 	private Date expires;
 
 	private Boolean isDeleted;
+	
+	private String accessLevel;
 
 	public String getDocumentName() {
 		return documentName;
@@ -93,5 +95,13 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	public void setIsDeleted(Boolean isDeleted) {
 		this.isDeleted = isDeleted;
+	}
+
+	public String getAccessLevel() {
+		return accessLevel;
+	}
+
+	public void setAccessLevel(String accessLevel) {
+		this.accessLevel = accessLevel;
 	}
 }
