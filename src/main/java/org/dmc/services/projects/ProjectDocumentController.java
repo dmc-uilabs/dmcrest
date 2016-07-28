@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,7 +23,7 @@ public class ProjectDocumentController {
 	/*
 	 * POST PROJECT DOCUMENT, returns a the uploaded ProjectDocument POJO
 	 */
-	@RequestMapping(value = "/projects/{projectID}/project_documents",method = RequestMethod.POST, consumes = "application/json", produces = {"application/json"} )
+	@RequestMapping(value = "/project_documents",method = RequestMethod.POST, consumes = "application/json", produces = {"application/json"} )
 	public ResponseEntity postProjectDocument(@RequestBody ProjectDocument payload){
 		ServiceLogger.log(logTag, " POST ProjectDocuments by Project " + payload.getProjectId());
 		int statusCode = HttpStatus.OK.value();
@@ -38,27 +39,22 @@ public class ProjectDocumentController {
 		}		
 	}
 	
-	/* 
-	 * POST PROJECT DOCUMENT, returns an array of ProjectDocuments POJO
-	 */
-	@RequestMapping(value = "/projects/{projectID}/project_documents",method = RequestMethod.GET,  produces = {"application/json"} )
-	public ResponseEntity getProjectDocumentsId(@PathVariable("projectID") int projectID,
-			@RequestParam(value = "documentGroupId", required = true) int documentGroupId, 
-			@RequestParam(value = "limit", defaultValue = "100", required=false) Integer limit,
-	        @RequestParam(value = "order", defaultValue = "ASC", required=false) String order,
-	        @RequestParam(value = "sort", defaultValue = "file_id", required=false) String sort) {
 
-		ServiceLogger.log(logTag, " GET ProjectDocuments by Project " + projectID);
-		int statusCode = HttpStatus.OK.value();
-		ArrayList<ProjectDocument> documentList = null;
-		
-		try {
-			documentList = projectDocumentDao.getProjectDocuments(projectID, documentGroupId, limit, order, sort);
-			return new ResponseEntity<ArrayList<ProjectDocument>>(documentList, HttpStatus.valueOf(statusCode));
+	
+	@RequestMapping(value = "/project_documents/{id}", method = RequestMethod.DELETE, produces = "application/json")
+		public ResponseEntity deleteProjectDoc(@PathVariable("id") int id,
+				@RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
+			ServiceLogger.log(logTag, "In delete ProjectTag: as user " + userEPPN);
 
-		} catch(DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-		}		
-	}
+			Id deleted = null;
+
+			try {
+				deleted = projectDocumentDao.deleteProjectDoc(id, userEPPN);
+				return new ResponseEntity<Id>(deleted, HttpStatus.valueOf(HttpStatus.OK.value()));
+			} catch (DMCServiceException e) {
+				ServiceLogger.logException(logTag, e);
+				return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+			}
+		}
+
 }

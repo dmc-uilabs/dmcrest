@@ -25,7 +25,7 @@ import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.verification.Verification;
 
-public class ServiceImagesDao {
+public class ServiceDocumentDao {
 
 	private final String logTag = ServiceImagesDao.class.getName();
 	private ResultSet resultSet;
@@ -33,7 +33,7 @@ public class ServiceImagesDao {
 	private AWSConnector AWS = new AWSConnector();
 	private Verification verify = new Verification(); 
 
-	public Id createServiceImages(ServiceImages payload, String userEPPN) throws DMCServiceException {
+	public Id createServiceDocument(ServiceDocument payload, String userEPPN) throws DMCServiceException {
 
 		connection = DBConnector.connection();
 		PreparedStatement statement;
@@ -60,10 +60,15 @@ public class ServiceImagesDao {
 		}
 
 		try {
-			String query = "INSERT INTO service_images (service_id, url) VALUES (?, ?)";
+			String query = "INSERT INTO service_document (service_id, service_document_id, owner_id, title, modified, size,file) VALUES (?,?,?,?,?,?,?)";
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			statement.setInt(1, payload.getServiceId());
-			statement.setString(2, payload.getUrl());
+			statement.setInt(1, Integer.parseInt(payload.getServiceId()));
+			statement.setString(2, payload.getServiceDocumentId());
+			statement.setInt(3, Integer.parseInt(payload.getOwnerId()));
+			statement.setString(4, payload.getTitle());
+			statement.setString(5, payload.getModifed());
+			statement.setString(6, payload.getSize());
+			statement.setString(7, payload.getFile());
 			statement.executeUpdate();
 			id = util.getGeneratedKey(statement, "id");
 			ServiceLogger.log(logTag, "Creating discussion, returning ID: " + id);
@@ -95,7 +100,7 @@ public class ServiceImagesDao {
 		
 		ServiceLogger.log(logTag, "Attempting to verify document");
 		//Verify the document 
-		String temp = verify.verify(id,payload.getUrl(),"service_images", userEPPN, "Projects", "ServiceDocuments", "id", "url");
+		String temp = verify.verify(id,payload.getFile(),"service_document", userEPPN, "Projects", "ServiceDocuments", "id", "file");
 		ServiceLogger.log(logTag, "Verification Machine Response" + temp);
 
 		ServiceLogger.log(logTag, "Returned from Verification machine");
@@ -106,24 +111,31 @@ public class ServiceImagesDao {
 	}//END Create
 
 
-	public ArrayList<ServiceImages> getServiceImages(int input) throws DMCServiceException {
-		ServiceLogger.log(logTag, "Inside get service images with input " + input);
+	public ArrayList<ServiceDocument> getServiceDocs(int serviceId, String sort, String order, Integer limit) throws DMCServiceException {
 
-		ArrayList<ServiceImages> list =new ArrayList<ServiceImages>();
+		ArrayList<ServiceDocument> list =new ArrayList<ServiceDocument>();
 		try {
+		
 
-			String query = "SELECT * FROM service_images WHERE service_id = " + input;
+			String query = "SELECT * FROM service_document WHERE service_id = " + serviceId;
+			query += " ORDER BY " + sort + " " + order + " LIMIT " + limit;
 			resultSet = DBConnector.executeQuery(query);
 			while (resultSet.next()) {
 				//Collect output and push to a list
 				int id = resultSet.getInt("id");
-				int serviceId = resultSet.getInt("service_id");
-				String url = resultSet.getString("url");
-				ServiceImages img = new ServiceImages();
-				img.setId(id);
-				img.setServiceId(serviceId);
-				img.setUrl(url);
-				list.add(img);
+				int service_Id = resultSet.getInt("service_id");
+				
+				ServiceDocument doc = new ServiceDocument();
+				doc.setId(Integer.toString(id));
+				doc.setServiceId(Integer.toString(service_Id));
+				doc.setServiceDocumentId(null);
+				doc.setModifed(resultSet.getString("modified"));
+				doc.setTitle(resultSet.getString("title"));
+				doc.setSize(resultSet.getString("size"));
+				doc.setOwnerId(Integer.toString(resultSet.getInt("owner_id")));
+				doc.setOwner("Temp");
+				doc.setFile(resultSet.getString("file"));
+				list.add(doc);
 			}
 		}
 		catch (SQLException e) {
@@ -134,7 +146,7 @@ public class ServiceImagesDao {
 	}//END GET
 
 
-	public boolean deleteServiceImages(int imageId, String userEPPN) throws DMCServiceException {
+	public boolean deleteServiceDocument(int id, String userEPPN) throws DMCServiceException {
         //Tests to see if valid user, exits function if so
     	try {
       	int userId = UserDao.getUserID(userEPPN);
@@ -154,14 +166,13 @@ public class ServiceImagesDao {
 			// delete Image
 			connection.setAutoCommit(false);
 			
-			
 			/*
 			 * To delete from S3 bucket
 			 */
             //Get the Image URL to delete 
-           /* final String AWSquery = "SELECT url FROM service_images WHERE id = ?";  
+           /* final String AWSquery = "SELECT file FROM service_document WHERE id = ?";  
             final PreparedStatement AWSstatement = DBConnector.prepareStatement(AWSquery);
-            AWSstatement.setInt(1, imageId);
+            AWSstatement.setInt(1, id);
             final ResultSet url = AWSstatement.executeQuery();
             
             String URL = null;
@@ -177,9 +188,9 @@ public class ServiceImagesDao {
             }*/
             //End S3 delete
 
-	        String query = "DELETE FROM service_images WHERE id = ?";
+	        String query = "DELETE FROM service_document WHERE id = ?";
 	        statement = DBConnector.prepareStatement(query);
-	        statement.setInt(1, imageId);
+	        statement.setInt(1, id);
 	        rows = statement.executeUpdate();
 			connection.commit();
 	    }
