@@ -172,7 +172,7 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/projects/{projectID}/project_documents",method = RequestMethod.GET,  produces = {"application/json"} )
 	public ResponseEntity getProjectDocumentsId(@PathVariable("projectID") int projectID,
-			@RequestParam(value = "documentGroupId", required = true) int documentGroupId, 
+			@RequestParam(value = "documentGroupId", required = true, defaultValue="0") Integer documentGroupId, 
 			@RequestParam(value = "limit", defaultValue = "100", required=false) Integer limit,
 	        @RequestParam(value = "order", defaultValue = "ASC", required=false) String order,
 	        @RequestParam(value = "sort", defaultValue = "file_id", required=false) String sort) {

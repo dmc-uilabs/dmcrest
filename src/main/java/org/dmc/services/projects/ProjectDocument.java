@@ -43,7 +43,7 @@ public class ProjectDocument  {
   
   /**
    **/
-  @JsonProperty("project-documentId")
+  @JsonProperty("projectDocumentId")
   public String getProjectDocumentId() {
     return projectDocumentId;
   }
