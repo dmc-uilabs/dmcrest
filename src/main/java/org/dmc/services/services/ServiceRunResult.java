@@ -1,5 +1,8 @@
 package org.dmc.services.services;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ServiceRunResult  {
@@ -8,21 +11,20 @@ public class ServiceRunResult  {
 	public static final int COMPLETE=1;
 	public static final int NOTSET=-1;
 	
-	private ServiceRunOuts outs;
+	private Map<String, DomeModelParam> outParams=new HashMap<String, DomeModelParam>();
 	private int status;
 	
 	public ServiceRunResult()
 	{
-		outs=null;
 		status=ServiceRunResult.NOTSET;
 	}
 	
-	@JsonProperty("outs")
-	public ServiceRunOuts getOuts() {
-		return outs;
+	@JsonProperty("outParams")
+	public Map<String, DomeModelParam> getOutParams() {
+		return outParams;
 	}
-	public void setOuts(ServiceRunOuts os) {
-		this.outs = os;
+	public void setOuts(Map<String, DomeModelParam> os) {
+		this.outParams = os;
 	}
 	@JsonProperty("status")
 	public int getStatus() {
