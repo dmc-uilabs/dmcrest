@@ -483,7 +483,7 @@ public class ServiceIT extends BaseIT {
 		param.setName("name");
 		param.setUnit("unit");
 		param.setCategory("category");
-		param.setValue(new BigDecimal(5));
+		param.setValue("5");
 		param.setParameterid("parameterId");
 		param.setInstancename("instancename");
 

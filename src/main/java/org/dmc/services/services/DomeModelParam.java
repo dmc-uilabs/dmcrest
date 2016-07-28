@@ -10,7 +10,7 @@ public class DomeModelParam {
 	private String name = null;
 	private String unit = null;
 	private String category = null;
-	private BigDecimal value = null;
+	private String value = null;
 	private String parameterid = null;
 	private String instancename = null;
 
@@ -51,11 +51,11 @@ public class DomeModelParam {
 	}
 
 	@JsonProperty("value")
-	public BigDecimal getValue() {
+	public String getValue() {
 		return value;
 	}
 
-	public void setValue(BigDecimal value) {
+	public void setValue(String value) {
 		this.value = value;
 	}
 

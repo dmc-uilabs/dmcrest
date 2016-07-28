@@ -93,7 +93,7 @@ public class ServiceRunsDao {
 						parameter.setType(resultSetParameter.getString("type"));
 						parameter.setUnit(resultSetParameter.getString("unit"));
 						parameter.setCategory(resultSetParameter.getString("category"));
-						parameter.setValue(new BigDecimal(resultSetParameter.getString("default_value")));
+						parameter.setValue(resultSetParameter.getString("default_value"));
 						parameter.setParameterid(resultSetParameter.getString("parameter_id_txt"));
 						parameter.setInstancename(resultSetParameter.getString("instancename"));
 						

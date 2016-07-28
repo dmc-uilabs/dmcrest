@@ -30,6 +30,35 @@ public class ServiceRunServiceDAO {
 	private Date startDate;
 	private String queueName;
 	
+	public DomeModelParam outputParam(String parId) throws DMCServiceException
+	{
+		DomeModelParam result=null;
+		try{
+			String query = "select * from service_interface_parameter where interface_id=? and parameter_id_txt=?";
+			PreparedStatement preparedStatement = DBConnector
+				.prepareStatement(query);
+			preparedStatement.setInt(1, interfaceId);
+			preparedStatement.setString(2,parId);
+			ResultSet rs = preparedStatement.executeQuery();
+			rs.next();
+			if (!rs.getBoolean("input_parameter"))
+			{
+				result = new DomeModelParam();
+				result.setName(rs.getString("name"));
+				result.setParameterid(parId);
+				result.setType(rs.getString("type"));
+				result.setCategory(rs.getString("category"));
+				result.setUnit(rs.getString("unit"));
+			}
+			return result;
+		}
+		catch (SQLException e)
+		{
+			ServiceLogger.log(this.logTag, "SQLException: " + e.toString());
+			throw new DMCServiceException(DMCError.OtherSQLError,"SQLException: " + e.toString());
+		}	
+	}
+	
 	public void getData(int run_id) throws DMCServiceException
 	{
 		this.run_id = run_id;
