@@ -27,7 +27,7 @@ public class ServiceRunDOMEAPI {
 		ServiceRunDOMEAPI instance = new ServiceRunDOMEAPI();
 		try 
 		{
-/*	    	HashMap<String, DomeModelParam> pars = new HashMap<String, DomeModelParam>();
+	    	HashMap<String, DomeModelParam> pars = new HashMap<String, DomeModelParam>();
 	    	DomeModelParam par1 = new DomeModelParam();
 	    	par1.setName("SpecimenWidth");
 	    	par1.setValue("1999");
@@ -46,10 +46,12 @@ public class ServiceRunDOMEAPI {
 	    	pars.put("CrackLength", par2);
 	    	
 			// This will create a service call return modelRunId
-			int modelRunId = instance.runModel(service_id,pars,user_id);	*/
-			int modelRunId = 15;
-			ServiceRunResult result = instance.pollService(modelRunId, service_id); 
+			int modelRunId = instance.runModel(service_id,pars,user_id);
 			System.out.println("The model runID = " + modelRunId);
+//			int modelRunId = 15;
+			ServiceRunResult result = instance.pollService(modelRunId, service_id); 
+			System.out.println("Done");
+			
 		}
 		catch (Exception e)
 		{
@@ -87,7 +89,11 @@ public class ServiceRunDOMEAPI {
 		// Database information for DOME server is provided for local execution, 8080/DOMEApiServicesV7/runModel need to be parameterized later.
 		//String servicePath = "http://" + dServer.getServerURL() + ":" + dServer.getPort() + "/DOMEApiServicesV7/runModel";
 		String servicePath = dServer.getServerURL() + "runModel";
-		  URL url = new URL(servicePath);
+		RunDomeModel run = new RunDomeModel(servicePath, domeJSonPars, queue);
+		Thread thr = new Thread(run);
+		thr.start();
+
+/*		  URL url = new URL(servicePath);
 		  HttpURLConnection conn =
 		      (HttpURLConnection) url.openConnection();
 		  conn.setRequestMethod("POST");
@@ -126,7 +132,7 @@ public class ServiceRunDOMEAPI {
 		  }
 		  rd.close();
 
-		  conn.disconnect();
+		  conn.disconnect();    */
 		  
 		  return modelRunID;
 	}
@@ -311,4 +317,69 @@ public class ServiceRunDOMEAPI {
 		result.setOuts(outs);
 		return result;
 	}	
+	
+	class RunDomeModel implements Runnable {
+		private String serverString;
+		private String runParameterString;
+		private String queueName;
+		private final String logTag = RunDomeModel.class.getName();
+		
+		RunDomeModel(String ss, String rp, String qn)
+		{
+			serverString = ss;
+			runParameterString = rp;
+			queueName = qn;
+		}
+		public void run()
+		{
+		 try {	
+		 URL url = new URL(serverString);
+				  HttpURLConnection conn =
+				      (HttpURLConnection) url.openConnection();
+				  conn.setRequestMethod("POST");
+				  conn.setDoOutput(true);
+				  conn.setDoInput(true);
+				  conn.setUseCaches(false);
+				  conn.setAllowUserInteraction(false);
+				  conn.setRequestProperty("Content-Type",
+				      "application/x-www-form-urlencoded");
+		
+				  // Create the form content
+				  OutputStream out = conn.getOutputStream();
+				  Writer writer = new OutputStreamWriter(out, "UTF-8");
+				  writer.write("data");
+				  writer.write("=");
+				  writer.write(URLEncoder.encode(runParameterString, "UTF-8"));
+				  writer.write("&");
+				  writer.write("queue");
+				  writer.write("=");
+				  writer.write(URLEncoder.encode(queueName, "UTF-8"));
+				  
+				  writer.close();
+				  out.close();
+		
+				  if (conn.getResponseCode() != 200) {
+				    throw new IOException(conn.getResponseMessage());
+				  }
+		
+				  // Buffer the result into a string
+				  BufferedReader rd = new BufferedReader(
+				      new InputStreamReader(conn.getInputStream()));
+				  StringBuilder sb = new StringBuilder();
+				  String line;
+				  while ((line = rd.readLine()) != null) {
+				    sb.append(line);
+				  }
+				  rd.close();
+		
+				  conn.disconnect();
+		 }
+		 catch (Exception e)
+		 {
+			 // Write to the log
+			 //System.out.println("Exception: " + e.toString());
+			 ServiceLogger.log(logTag, "Exception in RunDomeModel, parameter string: " + runParameterString);
+		 }
+	}
+	}
 }
