@@ -30,10 +30,10 @@ public class DMDIIDocument extends BaseEntity {
 
 	@Column(name = "url")
 	private String documentUrl;
-
+	
 	@Column(name = "path")
 	private String path;
-
+	
 	@ManyToOne
 	@JoinColumn(name = "dmdii_project_id")
 	private DMDIIProject dmdiiProject;

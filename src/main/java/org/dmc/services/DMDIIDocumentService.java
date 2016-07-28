@@ -58,7 +58,7 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(results);
 	}
 
-	public List<DMDIIDocumentModel> findPage(Integer pageNumber, Integer pageSize) {
+	public List<DMDIIDocumentModel> findPage(Integer pageNumber, Integer pageSize) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findAll(new PageRequest(pageNumber, pageSize)).getContent();
 		
