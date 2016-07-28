@@ -29,7 +29,7 @@ public class DMDIIMemberController {
 	private DMDIIMemberService dmdiiMemberService;
 	
 	@Inject
-	private DMDIIMemberEventService dmdiiMemberEventsService;
+	private DMDIIMemberEventService dmdiiMemberEventService;
 	
 	@Inject
 	private DMDIIMemberNewsService dmdiiMemberNewsService;
@@ -77,7 +77,7 @@ public class DMDIIMemberController {
 	
 	@RequestMapping(value = "/dmdiiMember/events", method = RequestMethod.POST)
 	public DMDIIMemberEventModel saveDMDIIMemberEvent (@RequestBody DMDIIMemberEventModel memberEvent) {
-		return dmdiiMemberEventsService.save(memberEvent);
+		return dmdiiMemberEventService.save(memberEvent);
 	}
 	
 	@RequestMapping(value = "/dmdiiMember/news", method = RequestMethod.POST)

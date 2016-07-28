@@ -18,6 +18,10 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.Util;
 
+import org.dmc.services.verification.Verification;
+import org.dmc.services.verification.VerificationPatch;
+
+
 
 /*
  * A class for project document upload and retrieval
@@ -27,7 +31,7 @@ public class ProjectDocumentDao {
 	private final String logTag = ProjectDocumentDao.class.getName();
 	Util util = Util.getInstance();
 	private AWSConnector AWS = new AWSConnector();
-
+	private Verification verify = new Verification(); 
 
 	public Id postProjectDocuments (ProjectDocument payload) throws DMCServiceException{ 
     	Connection connection = DBConnector.connection();
@@ -58,9 +62,9 @@ public class ProjectDocumentDao {
 		try {
 			
 			//AWS Profile Picture Upload
-			String signedURL = "temp";
-			signedURL = AWS.upload(payload.getFile(),"Projects", payload.getId(), "Documents");
-			String path = AWS.createPath(signedURL);
+			//String signedURL = "temp";
+			//signedURL = AWS.upload(payload.getFile(),"Projects", payload.getId(), "Documents");
+			//String path = AWS.createPath(signedURL);
 			
 			
 			String query = "INSERT INTO doc2_files (owner, owner_id, filename, description, "
@@ -68,13 +72,13 @@ public class ProjectDocumentDao {
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, payload.getOwner());
 			statement.setInt(2, Integer.parseInt(payload.getOwnerId()));
-			statement.setString(3,signedURL);
+			statement.setString(3,payload.getFile());
 			statement.setString(4,payload.getTitle());
 			statement.setInt(5,Integer.parseInt(payload.getModifed()));
 			statement.setInt(6, Integer.parseInt(payload.getSize()));
 			statement.setInt(7, Integer.parseInt(payload.getProjectDocumentId()));
 			statement.setInt(8, Integer.parseInt(payload.getProjectId()));
-			statement.setString(9, path);
+			statement.setString(9, "temp_path");
 			statement.setTimestamp(10, expires);
 			statement.executeUpdate();
 			id = util.getGeneratedKey(statement, "file_id");
@@ -104,7 +108,16 @@ public class ProjectDocumentDao {
 					throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
 				}
 			}
-			return new Id.IdBuilder(id).build();		
+		
+			int tempId = id; 
+			ServiceLogger.log(logTag, "Attempting to verify document");
+			//Verify the document 
+			String temp = verify.verify(id,payload.getFile(),"doc2_files", payload.getOwner(), "Projects", "Documents", "file_id", "filename");
+			ServiceLogger.log(logTag, "Verification Machine Response" + temp);
+
+			ServiceLogger.log(logTag, "Returned from Verification machine");
+
+			return new Id.IdBuilder(tempId).build();		
 	}
 
 	public ArrayList<ProjectDocument> getProjectDocuments(int projectID, int projectDocumentId, int limit,String order,String sort) throws DMCServiceException {
@@ -133,7 +146,7 @@ public class ProjectDocumentDao {
 				doc.setModifed(Integer.toString(resultSet.getInt("modified_date")));
 				doc.setSize(Integer.toString(resultSet.getInt("size"))); 
 				String filename = resultSet.getString("filename"); 
-				
+				/*
 				//Refresh Check 
 				if(AWS.isTimeStampExpired(resultSet.getTimestamp("expiration_date"))){
 					//Refresh URL
@@ -151,10 +164,10 @@ public class ProjectDocumentDao {
 		    		Calendar calendar = Calendar.getInstance();
 		    		 
 		    		//  get a java.util.Date from the calendar instance.
-		    		java.util.Date now = calendar.getTime();
+		    		Date now = calendar.getTime();
 		    		 
 		    		// a java current time (now) instance
-		    		java.sql.Timestamp expires = new java.sql.Timestamp(now.getTime()); 
+		    		Timestamp expires = new Timestamp(now.getTime()); 
 		    		
 		    		//Add an hour 
 		    		long duration = 1000 * 60 * 60; // Add 1 hour.
@@ -166,7 +179,7 @@ public class ProjectDocumentDao {
 		            update.setInt(3, resultSet.getInt("file_id"));
 		            update.executeUpdate();
 			    } //end refresh check 
-				
+				*/
 				doc.setFile(filename);
 				docs.add(doc);
 			}
