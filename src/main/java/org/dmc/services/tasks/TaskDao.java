@@ -59,7 +59,12 @@ public class TaskDao {
 				throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, "User can not delete requested task");
 			} // else the tasks can be deleted
 			
-			String deleteQuery = "DELETE FROM project_task WHERE project_task_id = ?";
+			final String query = "DELETE FROM project_assigned_to WHERE project_task_id = ?";
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, taskId);
+			preparedStatement.executeUpdate();
+			
+			final String deleteQuery = "DELETE FROM project_task WHERE project_task_id = ?";
 			PreparedStatement statement = DBConnector.prepareStatement(deleteQuery);
 			statement.setInt(1, taskId);
 			statement.executeUpdate();
@@ -411,7 +416,7 @@ public class TaskDao {
 			
 			task.setId(id.toString());
 			task.setTitle(title);
-			task.setProjectId(group_project_id.toString());
+			task.setProject(taskProject);
 			task.setAssignee(assignee);
 			task.setAssigneeId(assigneeIdStr);
 			task.setReporter(reporter);
