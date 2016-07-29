@@ -170,7 +170,6 @@ public class DMDIIDocument extends BaseEntity {
 	public void setVerified(Boolean verified) {
 		this.verified = verified;
 	}
-	}
 
 	public String getAccessLevel() {
 		return accessLevel;
