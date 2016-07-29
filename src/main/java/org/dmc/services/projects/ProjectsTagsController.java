@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class ProjectsTagsController {
@@ -54,13 +55,17 @@ public class ProjectsTagsController {
      */
 
     @RequestMapping(value = "/projects_tags", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAllProjectTags(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
+    public ResponseEntity<?> getAllProjectTags(@RequestParam(value="_order", required=false) String order,
+            @RequestParam(value="_sort", required=false) String sort,
+            @RequestParam(value="_start", required=false) Integer start,
+            @RequestParam(value="_limit", required=false) Integer limit,
+@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
 
     {
         ServiceLogger.log(LOGTAG, "In getAllProjectTags: as user " + userEPPN);
 
         try {
-            return new ResponseEntity<ArrayList<ProjectTag>>(projectsTagsDao.getProjectTags(null, userEPPN),
+            return new ResponseEntity<ArrayList<ProjectTag>>(projectsTagsDao.getProjectTags(null, order, sort, start, limit, userEPPN),
                     HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
@@ -78,11 +83,15 @@ public class ProjectsTagsController {
      */
     @RequestMapping(value = "/projects/{projectId}/projects_tags", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getProjectTags(@PathVariable("projectId") int projectId,
+            @RequestParam(value="_order", required=false) String order,
+            @RequestParam(value="_sort", required=false) String sort,
+            @RequestParam(value="_start", required=false) Integer start,
+            @RequestParam(value="_limit", required=false) Integer limit,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         ServiceLogger.log(LOGTAG, "In getProjectTags: for project" + projectId + " as user " + userEPPN);
 
         try {
-            return new ResponseEntity<ArrayList<ProjectTag>>(projectsTagsDao.getProjectTags(projectId, userEPPN),
+            return new ResponseEntity<ArrayList<ProjectTag>>(projectsTagsDao.getProjectTags(projectId, order, sort, start, limit, userEPPN),
                     HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);

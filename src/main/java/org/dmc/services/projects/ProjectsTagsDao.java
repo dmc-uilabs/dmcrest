@@ -11,6 +11,7 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.sharedattributes.Util;
+import org.springframework.web.bind.annotation.RequestParam;
 
 public class ProjectsTagsDao {
 
@@ -53,7 +54,7 @@ public class ProjectsTagsDao {
      * @return
      * @throws DMCServiceException
      */
-    public ArrayList<ProjectTag> getProjectTags(Integer projectId, String userEPPN) throws DMCServiceException {
+    public ArrayList<ProjectTag> getProjectTags(Integer projectId, String order, String sort, Integer start, Integer limit, String userEPPN) throws DMCServiceException {
         final ArrayList<ProjectTag> tags = new ArrayList<ProjectTag>();
 
         try {
