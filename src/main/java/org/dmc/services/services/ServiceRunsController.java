@@ -57,9 +57,15 @@ public class ServiceRunsController {
 	}
 
 	@RequestMapping(value = "/{id}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
-	public ResponseEntity<GetServiceRun> serviceRunsIdPatch(@PathVariable("id") String id, @RequestBody UpdateServiceRun body) {
-		// do some magic!
-		return new ResponseEntity<GetServiceRun>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity patchServiceRun(@PathVariable("id") String id, @RequestBody GetServiceRun body) {
+		final ServiceRunsDao serviceRunsDao = new ServiceRunsDao();
+		try {
+			ServiceLogger.log(LOGTAG, "In patchServiceRun");
+			return new ResponseEntity<GetServiceRun>(serviceRunsDao.updateServiceRun(id, body), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(LOGTAG, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 }

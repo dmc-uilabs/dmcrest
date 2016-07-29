@@ -807,56 +807,57 @@ public class ServiceIT extends BaseIT {
 	public void testServiceGet_ServiceRunId(){
 		String serviceRunId = "1";
 		
-		GetServiceRun recevied = given().
+		GetServiceRun received = given().
 		header("AJP_eppn", userEPPN).
 		expect().
 		statusCode(HttpStatus.OK.value()).
 		when().get("/service_runs/" + serviceRunId).as(GetServiceRun.class);
 		
-		assertTrue("testServiceGet_ServiceRunId: serviceRunId values are not equal", recevied.getId().equals(serviceRunId));
-		assertTrue("testServiceGet_ServiceRunId: serviceId values are not equal", recevied.getServiceId().equals("3"));
+		assertTrue("testServiceGet_ServiceRunId: serviceRunId values are not equal", received.getId().equals(serviceRunId));
+		assertTrue("testServiceGet_ServiceRunId: serviceId values are not equal", received.getServiceId().equals("3"));
 	}
 	
 	/**
 	 * test case for GET /service_runs
 	 */
 	@Test
-	public void testServiceGet_ServiceRunsFromListOfServiceIds(){
-		List<GetServiceRun> serviceRunsInTable = Arrays.asList(given().
-		header("AJP_eppn", "joeengineer").param("serviceId", 1).param("serviceId", 3).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().get("/service_runs/").as(GetServiceRun[].class));
-		
+	public void testServiceGet_ServiceRunsFromListOfServiceIds() {
+		List<GetServiceRun> serviceRunsInTable = Arrays.asList(given().header("AJP_eppn", "joeengineer").param("serviceId", 1).param("serviceId", 3).expect()
+				.statusCode(HttpStatus.OK.value()).when().get("/service_runs/").as(GetServiceRun[].class));
+
 		GetServiceRun expected = serviceRunsInTable.get(0);
-		
+
 		assertTrue("Status value was not expected", expected.getStatus().equals(new BigDecimal(1)));
 		assertTrue("AccountId value was not expected", expected.getAccountId().equals("550"));
 		assertTrue("ServiceId value was not expected", expected.getServiceId().equals("3"));
 	}
-	
+
 	/**
 	 * test case for PATCH /service_runs/{id}
 	 */
 	@Test
-	public void testServicePatch_ServiceRunId(){
+	public void testServicePatch_ServiceRunId() {
 		ObjectMapper mapper = new ObjectMapper();
+		String serviceRunId = "1";
+		GetServiceRun serviceRun = new GetServiceRun();
+		serviceRun.setStatus(new BigDecimal(1));
+		serviceRun.setPercentCompleted(new BigDecimal(100));
+
 		String patchedServiceRunIdJSONString = null;
 		try {
-			patchedServiceRunIdJSONString = mapper.writeValueAsString(service);
+			patchedServiceRunIdJSONString = mapper.writeValueAsString(serviceRun);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		GetServiceRun patched = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(patchedServiceRunIdJSONString).expect().statusCode(HttpStatus.OK.value())
+				.when().patch("/service_runs/" + serviceRunId).as(GetServiceRun.class);
 		
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(patchedServiceRunIdJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        patch("/service_runs/" + serviceId);
+		assertTrue("testServicePatch_ServiceRunId: serviceRunId values are not equal", patched.getId().equals(serviceRunId));
+		assertTrue("testServicePatch_ServiceRunId: serviceId values are not equal", patched.getServiceId().equals("3"));
+		assertTrue("testServicePatch_ServiceRunId: status values are not equal", patched.getStatus().equals(new BigDecimal(1)));
+		assertTrue("testServicePatch_ServiceRunId: percentage_complete values are not equal", patched.getPercentCompleted().equals(new BigDecimal(100)));
+
 	}
 	
 	

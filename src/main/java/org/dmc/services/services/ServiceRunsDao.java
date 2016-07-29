@@ -114,6 +114,64 @@ public class ServiceRunsDao {
 		return serviceRun;
 	}
 
+	public GetServiceRun updateServiceRun(String id, GetServiceRun serviceRunObj) throws DMCServiceException {
+		final Connection connection = DBConnector.connection();
+		GetServiceRun retObj = new GetServiceRun();
+
+		try {
+			connection.setAutoCommit(false);
+
+			String serviceRunQuery = "UPDATE service_run SET ";
+
+			if (serviceRunObj.getStatus() != null) {
+				serviceRunQuery += "status = ?, ";
+			}
+			if (serviceRunObj.getPercentCompleted() != null) {
+				serviceRunQuery += "percent_complete = ? ";
+			}
+
+			serviceRunQuery += "WHERE run_id = ?";
+
+			int i = 1;
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(serviceRunQuery);
+			if (serviceRunObj.getStatus() != null) {
+				preparedStatement.setInt(i, serviceRunObj.getStatus().intValue());
+				i++;
+			}
+			if (serviceRunObj.getPercentCompleted() != null) {
+				preparedStatement.setInt(i, serviceRunObj.getPercentCompleted().intValue());
+				i++;
+			}
+			preparedStatement.setInt(i, Integer.parseInt(id));
+			int rowsAffected = preparedStatement.executeUpdate();
+			if (rowsAffected != 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "unable to update serviceRun " + serviceRunObj.toString());
+			}
+
+			retObj = getSingleServiceRun(id);
+
+		} catch (SQLException se) {
+			ServiceLogger.log(LOGTAG, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(LOGTAG, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(LOGTAG, se.getMessage());
+			}
+
+		}
+
+		return retObj;
+	}
+
 	public List<GetServiceRun> getListOfServiceRuns(Integer limit, String order, String sort, ArrayList<String> serviceIdsList) throws DMCServiceException {
 		final Connection connection = DBConnector.connection();
 		final List<GetServiceRun> serviceRuns = new ArrayList<GetServiceRun>();
