@@ -63,6 +63,9 @@ public class DMDIIDocument extends BaseEntity {
 	
 	@Column(name = "verified")
 	private Boolean verified = false;
+	
+	@Column(name = "access_level")
+	private String accessLevel;
 
 	public Integer getId() {
 		return id;
@@ -166,6 +169,15 @@ public class DMDIIDocument extends BaseEntity {
 
 	public void setVerified(Boolean verified) {
 		this.verified = verified;
+	}
+	}
+
+	public String getAccessLevel() {
+		return accessLevel;
+	}
+
+	public void setAccessLevel(String accessLevel) {
+		this.accessLevel = accessLevel;
 	}
 
 	@Override
