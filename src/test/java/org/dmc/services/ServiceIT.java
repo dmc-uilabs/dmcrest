@@ -799,40 +799,22 @@ public class ServiceIT extends BaseIT {
 		assertTrue("Number of Specifications created is number posted", specs.size() == numSpecs);
 	}
     	
-	/**
-	 * test case for POST /service_runs
-	 */
-	@Test
-	public void testServicePost_ServiceRunId(){
-		ObjectMapper mapper = new ObjectMapper();
-		String postedServiceRunJSONString = null;
-		try {
-			postedServiceRunJSONString = mapper.writeValueAsString(service);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(postedServiceRunJSONString).
-	expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-	when().
-        post("/service_runs/");
-	}
 	
 	/**
 	 * test case for GET /service_runs/{id}
 	 */
 	@Test
 	public void testServiceGet_ServiceRunId(){
-		given().
+		String serviceRunId = "1";
+		
+		GetServiceRun recevied = given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().get("/service_runs/" + serviceId);
+		statusCode(HttpStatus.OK.value()).
+		when().get("/service_runs/" + serviceRunId).as(GetServiceRun.class);
+		
+		assertTrue("testServiceGet_ServiceRunId: serviceRunId values are not equal", recevied.getId().equals(serviceRunId));
+		assertTrue("testServiceGet_ServiceRunId: serviceId values are not equal", recevied.getServiceId().equals("3"));
 	}
 	
 	/**
