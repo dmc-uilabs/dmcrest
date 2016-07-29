@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +26,7 @@ public class ServiceRunsDao {
 	public GetServiceRun getSingleServiceRun(String id) throws DMCServiceException {
 		final Connection connection = DBConnector.connection();
 		final GetServiceRun serviceRun = new GetServiceRun();
+		final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
 		try {
 			connection.setAutoCommit(false);
@@ -47,9 +50,9 @@ public class ServiceRunsDao {
 				serviceRun.setRunBy(Integer.toString(resultSet.getInt("run_by")));
 				serviceRun.setServiceId(Integer.toString(resultSet.getInt("service_id")));
 				serviceRun.setPercentCompleted(new BigDecimal(resultSet.getInt("percent_complete")));
-				serviceRun.setStartDate(resultSet.getDate("start_date").toString());
+				serviceRun.setStartDate(df.format(resultSet.getDate("start_date")));
 				if (resultSet.getDate("stop_date") != null) {
-					serviceRun.setStopDate(resultSet.getDate("stop_date").toString());
+					serviceRun.setStopDate(df.format(resultSet.getDate("stop_date")));
 				}
 
 				String parameterQuery = "SELECT * FROM service_interface_parameter WHERE interface_id = ?";
