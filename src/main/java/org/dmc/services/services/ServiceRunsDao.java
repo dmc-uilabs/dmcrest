@@ -79,7 +79,9 @@ public class ServiceRunsDao {
 					singleServiceRun.setServiceId(Integer.toString(resultSet.getInt("service_id")));
 					singleServiceRun.setPercentCompleted(new BigDecimal(resultSet.getInt("percent_complete")));
 					singleServiceRun.setStartDate(resultSet.getDate("start_date").toString());
-					singleServiceRun.setStopDate(resultSet.getDate("stop_date").toString());
+					if (resultSet.getDate("stop_date") != null) {
+						singleServiceRun.setStopDate(resultSet.getDate("stop_date").toString());
+					}
 					
 					String parameterQuery = "SELECT * FROM service_interface_parameter WHERE interface_id = ?";
 					PreparedStatement preparedStatementParameter = DBConnector.prepareStatement(parameterQuery);
