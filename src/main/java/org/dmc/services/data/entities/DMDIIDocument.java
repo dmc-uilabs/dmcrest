@@ -1,5 +1,6 @@
 package org.dmc.services.data.entities;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -31,10 +32,10 @@ public class DMDIIDocument extends BaseEntity {
 
 	@Column(name = "url")
 	private String documentUrl;
-
+	
 	@Column(name = "path")
 	private String path;
-
+	
 	@ManyToOne
 	@JoinColumn(name = "dmdii_project_id")
 	private DMDIIProject dmdiiProject;
@@ -54,15 +55,20 @@ public class DMDIIDocument extends BaseEntity {
 	private Date modified;
 
 	@Column(name = "expires")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date expires;
-
+	private Timestamp expires;
+	
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 	
 	@Column(name = "access_level")
 	@Enumerated(EnumType.STRING)
 	private DMDIIProjectItemAccessLevel accessLevel;
+	
+	@Column(name = "file_type_id")
+	private Integer fileType;
+	
+	@Column(name = "verified")
+	private Boolean verified = false;
 
 	public Integer getId() {
 		return id;
@@ -87,7 +93,7 @@ public class DMDIIDocument extends BaseEntity {
 	public void setDocumentUrl(String documentUrl) {
 		this.documentUrl = documentUrl;
 	}
-
+	
 	public String getPath() {
 		return path;
 	}
@@ -127,12 +133,12 @@ public class DMDIIDocument extends BaseEntity {
 	public void setModified(Date modified) {
 		this.modified = modified;
 	}
-
-	public Date getExpires() {
+	
+	public Timestamp getExpires() {
 		return expires;
 	}
 
-	public void setExpires(Date expires) {
+	public void setExpires(Timestamp expires) {
 		this.expires = expires;
 	}
 
@@ -150,6 +156,22 @@ public class DMDIIDocument extends BaseEntity {
 
 	public void setAccessLevel(DMDIIProjectItemAccessLevel accessLevel) {
 		this.accessLevel = accessLevel;
+	}
+
+	public Integer getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(Integer fileType) {
+		this.fileType = fileType;
+	}
+
+	public Boolean getVerified() {
+		return verified;
+	}
+
+	public void setVerified(Boolean verified) {
+		this.verified = verified;
 	}
 
 	@Override

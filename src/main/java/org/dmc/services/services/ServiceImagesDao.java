@@ -14,6 +14,7 @@ import org.json.JSONException;
 
 import javax.xml.ws.http.HTTPException;
 
+import org.dmc.services.AWSConnector;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -22,12 +23,15 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.verification.Verification;
 
 public class ServiceImagesDao {
 
 	private final String logTag = ServiceImagesDao.class.getName();
 	private ResultSet resultSet;
 	private Connection connection;
+	private AWSConnector AWS = new AWSConnector();
+	private Verification verify = new Verification(); 
 
 	public Id createServiceImages(ServiceImages payload, String userEPPN) throws DMCServiceException {
 
@@ -88,11 +92,22 @@ public class ServiceImagesDao {
 				throw new DMCServiceException(DMCError.OtherSQLError, et.getMessage());
 			}
 		}
+		
+		ServiceLogger.log(logTag, "Attempting to verify document");
+		//Verify the document 
+		String temp = verify.verify(id,payload.getUrl(),"service_images", userEPPN, "Projects", "ServiceDocuments", "id", "url");
+		ServiceLogger.log(logTag, "Verification Machine Response" + temp);
+
+		ServiceLogger.log(logTag, "Returned from Verification machine");
+
+
+		
 		return new Id.IdBuilder(id).build();
 	}//END Create
 
 
 	public ArrayList<ServiceImages> getServiceImages(int input) throws DMCServiceException {
+		ServiceLogger.log(logTag, "Inside get service images with input " + input);
 
 		ArrayList<ServiceImages> list =new ArrayList<ServiceImages>();
 		try {
@@ -138,6 +153,30 @@ public class ServiceImagesDao {
 	    try {
 			// delete Image
 			connection.setAutoCommit(false);
+			
+			
+			/*
+			 * To delete from S3 bucket
+			 */
+            //Get the Image URL to delete 
+           /* final String AWSquery = "SELECT url FROM service_images WHERE id = ?";  
+            final PreparedStatement AWSstatement = DBConnector.prepareStatement(AWSquery);
+            AWSstatement.setInt(1, imageId);
+            final ResultSet url = AWSstatement.executeQuery();
+            
+            String URL = null;
+            if(url.next()){
+            	URL = url.getString(1); 
+            }
+            
+            //Call function to delete 
+            try{
+            	AWS.remove(URL, userEPPN);
+            } catch (DMCServiceException e) {
+            	return false;
+            }*/
+            //End S3 delete
+
 	        String query = "DELETE FROM service_images WHERE id = ?";
 	        statement = DBConnector.prepareStatement(query);
 	        statement.setInt(1, imageId);

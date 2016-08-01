@@ -10,6 +10,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.users.UserOnboardingDao;
+import org.dmc.services.verification.Verification;
 import org.dmc.services.company.CompanyDao;
 import org.json.JSONException;
 import java.sql.PreparedStatement;
@@ -18,10 +19,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
+
 
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.util.StringUtils;
 
 
 public class ProfileDao {
@@ -29,18 +34,37 @@ public class ProfileDao {
     private static final String LOGTAG = ProfileDao.class.getName();
 
     private AWSConnector AWS = new AWSConnector();
+	private Verification verify = new Verification(); 
 
-    public ArrayList<Profile> getProfiles(String userEPPN) throws DMCServiceException {
-    	
-    	ResultSet rs;
-    	Profile profile = new Profile();
-    	ArrayList<Profile>  profiles = null;
+
+    public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id) throws DMCServiceException {
+		
+		String whereClause = "";
+		if(null != id) {
+			ServiceLogger.log(LOGTAG, "getProfiles intList equal " + id.toString());
+
+			
+			String commaDelimitedIdList = StringUtils.collectionToDelimitedString(id, ",");
+			whereClause = "WHERE user_id IN (" + commaDelimitedIdList + ")";
+		}
+
+		ArrayList<Profile>  profiles = new ArrayList<Profile>();
     	
     	try {
-        	final String query = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users";
-        	rs = DBConnector.executeQuery(query);
+        	final String query = "SELECT user_id, user_name, realname, title, phone, email, address, image, people_resume FROM users " +
+									whereClause + " ORDER BY " + sort + " " + order + " LIMIT ?";
+			
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, limit);
+			ServiceLogger.log(LOGTAG, preparedStatement.toString());
+			
+			preparedStatement.execute();
+			ResultSet rs = preparedStatement.getResultSet();
+
         	while (rs.next()) {
-        		profile = setProfileValues(profile, rs);
+				Profile profile = new Profile();
+				profile = setProfileValues(profile, rs);
+				profiles.add(profile);
         	}	
     	} catch (SQLException e) {
     		throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
@@ -55,9 +79,10 @@ public class ProfileDao {
         
         // get company
         final CompanyDao companyDao = new CompanyDao();
-        final int companyId = companyDao.getUserCompanyId(resultSet.getInt("user_id"));
+        final int companyId = companyDao.getUserCompanyId(UserDao.getUserID("user_name"));
         profile.setCompany(Integer.toString(companyId));
         
+		profile.setId(resultSet.getString("user_id"));
         profile.setJobTitle(resultSet.getString("title"));
         profile.setPhone(resultSet.getString("phone"));
         profile.setEmail(resultSet.getString("email"));
@@ -73,11 +98,11 @@ public class ProfileDao {
     
     public Profile getProfile(int requestId) throws HTTPException {
         ServiceLogger.log(LOGTAG, "In getProfile: user_id "+requestId);
-        final Profile profile = new Profile();
+		Profile profile = new Profile();
         profile.setId(Integer.toString(requestId));
         
         try {
-            final String queryProfile = "SELECT user_name, realname, title, phone, email, address, image, people_resume FROM users WHERE user_id = ?";
+            final String queryProfile = "SELECT user_id, user_name, realname, title, phone, email, address, image, people_resume FROM users WHERE user_id = ?";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(queryProfile);
             preparedStatement.setInt(1, requestId);
 
@@ -85,26 +110,8 @@ public class ProfileDao {
             String userName = null;
             
             if (resultSet.next()) {
-                //id = resultSet.getString("id");
-                profile.setDisplayName(resultSet.getString("realname"));
-                
-                // get company
-                final CompanyDao companyDao = new CompanyDao();
-                final int companyId = companyDao.getUserCompanyId(requestId);
-                profile.setCompany(Integer.toString(companyId));
-                
-                profile.setJobTitle(resultSet.getString("title"));
-                profile.setPhone(resultSet.getString("phone"));
-                profile.setEmail(resultSet.getString("email"));
-                profile.setLocation(resultSet.getString("address"));
-                profile.setImage(resultSet.getString("image"));
-                profile.setDescription(resultSet.getString("people_resume"));
-                
-                // need to get skills;
-                profile.setSkills(new ArrayList<String>());
-                
+				profile = setProfileValues(profile, resultSet);
                 userName = resultSet.getString("user_name");
-                
             }
             
             int user_id_lookedup = -1;
@@ -156,8 +163,6 @@ public class ProfileDao {
         }
 
         try {
-            // AWS Profile Picture Upload
-            final String signedURL = AWS.upload(profile.getImage(), "Profiles", userEPPN, "ProfilePictures");
 
             // update user
             query = "UPDATE users SET "
@@ -170,7 +175,7 @@ public class ProfileDao {
             statement.setString(3, profile.getPhone());
             statement.setString(4, profile.getEmail());
             statement.setString(5, profile.getLocation());
-            statement.setString(6, signedURL);
+            statement.setString(6, profile.getImage());
             statement.setString(7, profile.getDescription());
             statement.setInt(8, id);
             statement.setString(9, userEPPN);
@@ -211,6 +216,13 @@ public class ProfileDao {
                 }
             }
         }
+        
+		ServiceLogger.log(LOGTAG, "Attempting to verify document");
+		//Verify the document 
+		String temp = verify.verify(id,profile.getImage(),"users", userEPPN, "Profiles", "ProfilePictures", "user_id", "image");
+		ServiceLogger.log(LOGTAG, "Verification Machine Response" + temp);
+
+		ServiceLogger.log(LOGTAG, "Returned from Verification machine");
 
         return new Id.IdBuilder(id).build();
     }
@@ -231,7 +243,7 @@ public class ProfileDao {
             userOnboardingDao.deleteUserOnboarding(id);
             
             //Get the Image URL to delete 
-            final String AWSquery = "SELECT image FROM users WHERE user_id = ? AND user_name = ?"; 
+          /*  final String AWSquery = "SELECT image FROM users WHERE user_id = ? AND user_name = ?"; 
             final PreparedStatement AWSstatement = DBConnector.prepareStatement(AWSquery);
             AWSstatement.setInt(1, id);
             AWSstatement.setString(2, userEPPN);
@@ -243,11 +255,11 @@ public class ProfileDao {
             }
             
             //Call function to delete 
-            try{
+           try{
             	AWS.remove(URL, userEPPN);
             } catch (DMCServiceException e) {
             	return null;
-            }
+            }*/
 
             this.deleteSkills(id);
             final String query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";

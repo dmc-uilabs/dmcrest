@@ -16,8 +16,11 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.ServiceLogger;
 
 public class ServiceRunActiveMQ {
+	
+	private static final String LOGTAG = ServiceRunActiveMQ.class.getName();
 	
     private String activeMQServer; // = "52.36.23.38";
     private String activeMQServerPort = "61616";
@@ -40,6 +43,7 @@ public class ServiceRunActiveMQ {
 		String pass = System.getenv("ActiveMQ_Password");
 		if (pass != null)  activeMQUserPass = pass;
 		activeMQServerURL = "tcp://"+activeMQServer+":"+activeMQServerPort;
+		ServiceLogger.log(LOGTAG, "Successfully initialized necessary variables for activeMQ...");
 	}
 		
     public ArrayList<String> readMessageFromMQ(String queueName) throws DMCServiceException
@@ -88,6 +92,7 @@ public class ServiceRunActiveMQ {
 	
     public void createQueue(String queueName) throws DMCServiceException
     {
+    	ServiceLogger.log(LOGTAG, "Starting createQueue function...");
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(activeMQUser, activeMQUserPass, activeMQServerURL);
         Connection connection = null;
         try {
@@ -100,6 +105,7 @@ public class ServiceRunActiveMQ {
             MessageProducer producer = session.createProducer(destination);
             producer.close();
             session.close();
+            ServiceLogger.log(LOGTAG, "Successfully communicated with activeMQ");
 
         } catch (Exception e) {
         	throw (new DMCServiceException(DMCError.CanNotCreateQueue, "Can not create ActiveMQ queue: " + e.toString()));

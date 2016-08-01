@@ -204,6 +204,14 @@ public class DMDIIMember extends BaseEntity {
 		this.id = id;
 	}
 
+	public Set<DMDIIProject> getProjects() {
+		return projects;
+	}
+
+	public void setProjects(Set<DMDIIProject> projects) {
+		this.projects = projects;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -305,14 +313,6 @@ public class DMDIIMember extends BaseEntity {
 		} else if (!users.equals(other.users))
 			return false;
 		return true;
-	}
-
-	public Set<DMDIIProject> getProjects() {
-		return projects;
-	}
-
-	public void setProjects(Set<DMDIIProject> projects) {
-		this.projects = projects;
 	}
 
 }

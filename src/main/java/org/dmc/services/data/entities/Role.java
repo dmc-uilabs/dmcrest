@@ -9,11 +9,10 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "role")
-public class Role extends BaseEntity {
+public class Role extends BaseEntity{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
 	private Integer id;
 	
 	@Column(name = "role")

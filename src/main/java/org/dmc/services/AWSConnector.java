@@ -3,6 +3,7 @@ package org.dmc.services;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Date;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -25,14 +26,14 @@ public class AWSConnector {
 
     // The Temp Bucket where resource is initially stored by FrontEnd Upload
     // SOURCE AND DEST BUCKETS SHOULD BE ENV VARIABLES!
-    private static String sourceBucket = System.getenv("S3SourceBucket");
+    private static String sourceBucket = System.getenv("AWS_UPLOAD_BUCKET");
     // private static String sourceKey = "test/cat.jpeg";
 
     // The Perm Bucket where resource
-    private static String destBucket = System.getenv("S3DestBucket");
+    private static String destBucket = System.getenv("AWS_UPLOAD_BUCKET_FINAL");
 
-    private static String accessKey = System.getenv("S3AccessKey");
-    private static String secretKey = System.getenv("S3SecretKey");
+    private static String accessKey = System.getenv("AWS_UPLOAD_KEY");
+    private static String secretKey = System.getenv("AWS_UPLOAD_SEC");
 
     // Source is the path the the resource in the bucket
     public static String upload(String tempURL, String Folder, String userEPPN, String ResourceType)
@@ -155,10 +156,10 @@ public class AWSConnector {
         // create a java calendar instance
         final Calendar calendar = Calendar.getInstance();
         // get a java.util.Date from the calendar instance.
-        final java.util.Date now = calendar.getTime();
+        final Date now = calendar.getTime();
 
         // a java current time (now) instance
-        final java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
+        final Timestamp currentTimestamp = new Timestamp(now.getTime());
 
         if (expiration.after(currentTimestamp)) {
             return true;

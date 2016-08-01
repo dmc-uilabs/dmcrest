@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.dmc.services.ServiceLogger;
@@ -19,26 +20,44 @@ import org.json.JSONObject;
 public class ServiceRunDOMEAPI {
     private static final String LOGTAG = ServiceRunDOMEAPI.class.getName();
  
-/*	public static void main(String[] args)
+	public static void main(String[] args)
 	{
 		int user_id = 111;
-		int service_id = 300;
+		int service_id = 3;
 		ServiceRunDOMEAPI instance = new ServiceRunDOMEAPI();
 		try 
 		{
+/*	    	HashMap<String, DomeModelParam> pars = new HashMap<String, DomeModelParam>();
+	    	DomeModelParam par1 = new DomeModelParam();
+	    	par1.setName("SpecimenWidth");
+	    	par1.setValue("1999");
+	    	par1.setCategory("length");
+	    	par1.setType("Real");
+	    	par1.setUnit("meter");
+	    	par1.setParameterid("d9f30f3a-d800-1004-8f53-704dbfababa8");
+	    	pars.put("SpecimenWidth", par1);
+	    	DomeModelParam par2 = new DomeModelParam();
+	    	par2.setName("CrackLength");
+	    	par2.setValue("2999");
+	    	par2.setCategory("length");
+	    	par2.setType("Real");
+	    	par2.setUnit("meter");
+	    	par2.setParameterid("d9f30f37-d800-1004-8f53-704dbfababa8");
+	    	pars.put("CrackLength", par2);
+	    	
 			// This will create a service call return modelRunId
-			int modelRunId = instance.runModel(service_id,user_id);	
-			//int modelRunId = 57;
-			//instance.pollService(modelRunId, service_id);
+			int modelRunId = instance.runModel(service_id,pars,user_id);	*/
+			int modelRunId = 15;
+			ServiceRunResult result = instance.pollService(modelRunId, service_id); 
 			System.out.println("The model runID = " + modelRunId);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-	}*/
+	}
 
-	public int runModel(int service_id, int user_id) throws Exception
+	public int runModel(int service_id, Map inPars, int user_id) throws Exception
 	{
 		// TODO: Leave checking if user_id can run the model here.
 
@@ -46,7 +65,9 @@ public class ServiceRunDOMEAPI {
 		ServiceRunServiceInterfaceDAO dInterface = new ServiceRunServiceInterfaceDAO(service_id);
 		int server_id = dInterface.getDOMEServer().getServerID();
 		int interface_id = dInterface.getInterfaceID();
-		String domeJSonPars = dInterface.toDOMEString();
+		
+		//String domeJSonPars = dInterface.toDOMEString();
+		String domeJSonPars = dInterface.toDOMEStringInPars(inPars);
 		// Get information of the DOMEServer
 		DOMEServerDAO dServer = new DOMEServerDAO(server_id);
 		// Get the unique queue id based on interface name and current time.
@@ -204,6 +225,7 @@ public class ServiceRunDOMEAPI {
 				result.setStatus(ServiceRunResult.COMPLETE);
 				return result;
 			}
+		
 		// Otherwise try to find out if there is any new messages from ActiveMQ
 		String queueName = serviceRun.getQueueName();
 		ServiceRunActiveMQ activeMQ = new ServiceRunActiveMQ();
@@ -235,7 +257,7 @@ public class ServiceRunDOMEAPI {
 		// Get message with:  "event":"class mit.cadlab.dome3.api.ParameterStatusChangeEvent"  || "param":8   (2*num of input + 3*num of output + 1), indication of finish of the run
 */
 		int msgNum = newResult.size();
-		ServiceRunOuts outs = new ServiceRunOuts();
+		Map<String, DomeModelParam> outs = new HashMap<String, DomeModelParam>();
 		for (int i=0;i<msgNum;i++)
 		{
 			JSONObject msgObj = new JSONObject(newResult.get(i));
@@ -252,6 +274,7 @@ public class ServiceRunDOMEAPI {
 				{
 					String id = msgObj.getJSONObject("id").getString("idString");
 					JSONArray newValues = msgObj.getJSONArray("new_val");
+					// TODO: need change if the return is array or other type of results
 					// Can we deal with string array?  :--(
 					String newValueString ="";
 					for (int j=0;j<newValues.length();j++)
@@ -261,11 +284,19 @@ public class ServiceRunDOMEAPI {
 						if (!( j==(newValues.length()-1) )) 
 							newValueString = newValueString + ","; 
 					}
+					// Add new value to the database.
 					serviceRun.addNewValue(id,newValueString);
-					ServiceRunOut r = new ServiceRunOut();
-					r.setParameterid(id);
-					r.setValue(newValueString);
-					outs.add(r);
+					
+					DomeModelParam par = serviceRun.outputParam(id);
+					if (par!=null)
+					{
+						// Now create an item to return
+						par.setValue(newValueString);
+						/*out.setParameterid(id); 
+						 * out.setName(n); */
+						String n = msgObj.getString("param");	
+						outs.put(n,par);
+					}				
 				}
 			}
 		}

@@ -17,7 +17,7 @@
 
 	<!-- PROPERTIES -->
 	<properties>
-		<!-- The main class to start application execution, necessary if using 
+		<!-- The main class to start application execution, necessary if using
 			spring-boot-starter-parent pom -->
 		<start-class>org.dmc.services.Application</start-class>
 		<java.version>1.8</java.version>
@@ -164,7 +164,7 @@
 			<version>18.0</version>
 		</dependency>
 
-		<!-- prevents the tomcat servlet container from being included in the packaged 
+		<!-- prevents the tomcat servlet container from being included in the packaged
 			WAR. This way the local tomcat (not embedded) will be used instead -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -352,11 +352,11 @@
 								<!-- <include>**/*IT.class</include> -->
 							</includes>
 							<!-- Exclude search tests by default -->
-							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT 
+							<!-- to run single test: mvn -Dit.test=org.dmc.services.search.SearchIT
 								verify -P "integration" -->
 
-							<!-- Ignore above command for our specific build. To run all tests: 
-								mvn integration-test -P integration To run a specific test: mvn-Dtest=ProjectIT 
+							<!-- Ignore above command for our specific build. To run all tests:
+								mvn integration-test -P integration To run a specific test: mvn-Dtest=ProjectIT
 								test -->
 							<excludes>
 								<!-- search tests -->
@@ -367,7 +367,9 @@
 								<exclude>**/AccountServerIT.java</exclude>
 								<!-- AWS tests -->
 								<exclude>**/ProfileIT.java</exclude>
-								<exclude>**/AwsProjectIT.java</exclude>
+								<exclude>**/AWSProjectUploadIT.java</exclude>
+								<exclude>**/AWSProfileUploadIT.java</exclude>
+								<exclude>**/AWSServiceUploadIT.java</exclude>
 							</excludes>
 						</configuration>
 					</execution>

@@ -25,7 +25,7 @@ public class DOMEServerDAO {
 	private String userSpace;
 	private String userPass;
 
-	/*public static void main(String[] args)
+	/* public static void main(String[] args)
 	{ 
 		try{
 		int server_id = 3;
@@ -37,7 +37,7 @@ public class DOMEServerDAO {
 			e.printStackTrace();
 		}
 		
-	}*/
+	} */
 
 	public DOMEServerDAO(int serverId) throws DMCServiceException
 	{
@@ -71,15 +71,22 @@ public class DOMEServerDAO {
 	//\"server\":{\"name\":\"localhost\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed\",\"space\":\"USER\"}
 	public String toDOMEString()
 	{
-		//Hard coded because the url in the table is a string contains url and other information.  This localhost is just for DOME to run so localhost is fine.
+		String uName=this.userName;
+		String uPass=this.userPass;
+		String uSpace=this.userSpace;
+		if (uName==null )  uName = "ceed";
+		if (uPass==null )  uPass = "ceed";
+		if (uSpace==null )  uSpace = "USER";
+		
+		//Hard code url as in the table it is a string contains url and other information.  The localhost is just for DOME to run.
 		String result = printNameString("name","localhost") + "," +
 		//String result = printNameString("name",this.serverURL) + "," +
 				// This is hard coded because nowhere to store this info
 				//printNameString("port", ""+this.port) + "," +
 				printNameString("port", "7795") + "," +
-				printNameString("user",this.userName) + "," +
-				printNameString("pw", this.userPass) + "," +
-				printNameString("space",this.userSpace);
+				printNameString("user",uName) + "," +
+				printNameString("pw", uPass) + "," +
+				printNameString("space",uSpace);
 	    result = "\"server\":{" + result + "}";		
 		return result;
 	}

@@ -17,6 +17,7 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 	@Override
 	public User mapToEntity(UserModel model) {
 		if (model == null) return null;
+
 		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
 		
 		User entity = copyProperties(model, new User());
@@ -28,6 +29,7 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 	@Override
 	public UserModel mapToModel(User entity) {
 		if (entity == null) return null;
+
 		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
 		
 		UserModel model = copyProperties(entity, new UserModel());
