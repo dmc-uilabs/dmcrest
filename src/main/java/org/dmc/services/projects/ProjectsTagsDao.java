@@ -11,6 +11,7 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.utils.SQLUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 
 public class ProjectsTagsDao {
@@ -61,8 +62,11 @@ public class ProjectsTagsDao {
             String query = "SELECT * FROM project_tags ";
             if (null != projectId) {
                 query += "WHERE project_id = ?";
-
             }
+            final ArrayList<String> validSortFields = getValidTagsFields();
+            query += SQLUtils.buildOrderByClause(order, sort, validSortFields);
+            query += SQLUtils.buildLimitClause(limit);
+            query += SQLUtils.buildOffsetClause(start);
 
             final PreparedStatement statement = DBConnector.prepareStatement(query);
             if (null != projectId) {
@@ -87,6 +91,12 @@ public class ProjectsTagsDao {
         }
     }
 
+    private static ArrayList<String> getValidTagsFields() {
+        final ArrayList<String> validTagsFields = new ArrayList<String>();
+        validTagsFields.add("tag_name");
+        validTagsFields.add("project_id");
+        return validTagsFields;
+    }
     /**
      * Delete Projects Tags
      * 

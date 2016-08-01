@@ -83,4 +83,12 @@ public class SQLUtils {
         }
         return limitClause;
     }
+
+    public static String buildOffsetClause(Integer start) {
+        String offsetClause = null;
+        if (start != null) {
+            offsetClause = "OFFSET " + start;
+        }
+        return offsetClause;
+    }
 }

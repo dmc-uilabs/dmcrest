@@ -105,4 +105,16 @@ public class SQLUtilsTest {
         assertEquals("LIMIT 15", limitClause);
     }
 
+    @Test
+    public void setsOffsetString() {
+        final String offsetClause = SQLUtils.buildOffsetClause(5);
+        assertEquals("OFFSET 5", offsetClause);
+    }
+
+    @Test
+    public void returnsNullIfStartIsNull() {
+        final String offsetClause = SQLUtils.buildOffsetClause(null);
+        assertNull(offsetClause);
+    }
+
 }
