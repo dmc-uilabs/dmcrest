@@ -4,6 +4,10 @@ package org.dmc.services.utils;
  * Created by 200005921 on 6/13/2016.
  */
 public class SQLUtils {
+    public static final Integer DEFAULT_LIMIT = 100;
+    public static final String DEFAULT_LIMIT_TEXT = "100";
+    public static final String SORT_ASCENDING = "ASC";
+    public static final String SORT_DESCENDING = "DESC";
 
      /**
       * Build an ORDER BY clause:
