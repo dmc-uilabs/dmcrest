@@ -1,39 +1,33 @@
 package org.dmc.services;
 
-import static org.junit.Assert.*;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertTrue;
 
-import java.util.UUID;
+import java.util.ArrayList;
 
-import org.dmc.services.users.User;
-import org.json.JSONObject;
-import org.json.JSONArray;
-import org.junit.*;
 import org.dmc.services.company.Company;
 import org.dmc.services.company.CompanyImage;
 import org.dmc.services.company.CompanyReview;
 import org.dmc.services.company.CompanyReviewFlagged;
 import org.dmc.services.company.CompanyReviewHelpful;
-import org.dmc.services.company.CompanySkill;
 import org.dmc.services.company.CompanySkillImage;
 import org.dmc.services.company.CompanyVideo;
-import org.dmc.services.utility.TestUserUtil;
-
 import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.users.User;
+import org.dmc.services.utility.TestUserUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-
-import java.util.ArrayList;
-
-import static com.jayway.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 public class CompanyIT extends BaseIT {
 
@@ -73,6 +67,7 @@ public class CompanyIT extends BaseIT {
 	private String company_featuredId = "1";
 	private String serviceId = "1";
 	String randomEPPN = "fforgeadmin";
+	private String randomNonOwnerEPPN;
 
 	@Before
 	public void testCompanyCreate() {
@@ -92,7 +87,9 @@ public class CompanyIT extends BaseIT {
 			extract().
 				path("id");
 		ServiceLogger.log(logTag, "Company created " + this.createdId);
-
+		if (randomNonOwnerEPPN == null) {
+			randomNonOwnerEPPN = TestUserUtil.createNewUser();
+		}
 	}
 
 	@Test
@@ -166,7 +163,7 @@ public class CompanyIT extends BaseIT {
 		if (this.createdId != null) {
 			given().
 				header("Content-type", "application/json").
-				header("AJP_eppn", randomEPPN + "random").
+				header("AJP_eppn", randomNonOwnerEPPN).
 			expect().
 				statusCode(403).
 			when().
@@ -194,7 +191,7 @@ public class CompanyIT extends BaseIT {
 		String json = updateFixture();
 		given().
 			body(json).
-			header("AJP_eppn", randomEPPN + "-random").
+			header("AJP_eppn", randomNonOwnerEPPN).
 			header("Content-type", "application/json").
 		expect().
 			statusCode(403).
@@ -248,7 +245,7 @@ public class CompanyIT extends BaseIT {
 			json.put("link", "test video link update");
 			json.put("companyId", this.createdId);
 
-			given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN + "-not-owner")
+			given().header("Content-type", "application/json").header("AJP_eppn", randomNonOwnerEPPN)
 					.body(json.toString()).expect().statusCode(403).when()
 					.patch(COMPANY_VIDEO_UPDATE_RESOURCE, videoId);
 		}

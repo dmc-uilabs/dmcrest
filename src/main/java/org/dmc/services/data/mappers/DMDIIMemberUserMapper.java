@@ -14,6 +14,8 @@ public class DMDIIMemberUserMapper extends AbstractMapper<DMDIIMemberUser, DMDII
 
 	@Override
 	public DMDIIMemberUser mapToEntity(DMDIIMemberUserModel model) {
+		if (model == null) return null;
+		
 		DMDIIMemberUser entity = copyProperties(model, new DMDIIMemberUser());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -27,6 +29,8 @@ public class DMDIIMemberUserMapper extends AbstractMapper<DMDIIMemberUser, DMDII
 
 	@Override
 	public DMDIIMemberUserModel mapToModel(DMDIIMemberUser entity) {
+		if (entity == null) return null;
+		
 		DMDIIMemberUserModel model = copyProperties(entity, new DMDIIMemberUserModel());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);

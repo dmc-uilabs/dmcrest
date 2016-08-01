@@ -20,6 +20,8 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 	@Override
 	public DMDIIProject mapToEntity(DMDIIProjectModel model) {
+		if (model == null) return null;
+		
 		DMDIIProject entity = copyProperties(model, new DMDIIProject());
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
@@ -41,6 +43,8 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 	@Override
 	public DMDIIProjectModel mapToModel(DMDIIProject entity) {
+		if (entity == null) return null;
+		
 		DMDIIProjectModel model = copyProperties(entity, new DMDIIProjectModel());
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);

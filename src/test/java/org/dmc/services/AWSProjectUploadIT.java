@@ -11,6 +11,8 @@ import java.sql.Timestamp;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import static com.jayway.restassured.RestAssured.*;
+
+import com.amazonaws.util.JavaVersionParser.KnownJavaVersions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dmc.services.projects.ProjectDocument;
@@ -219,6 +221,7 @@ public class AWSProjectUploadIT extends BaseIT {
         VerificationPatch returnPatch = 
 		given()
         	.header("Content-type", "application/json")
+        	.header("AJP_eppn", userEPPN)
             .body(patchedJSONString)
             .expect()
             .statusCode(HttpStatus.OK.value())
@@ -269,6 +272,7 @@ public class AWSProjectUploadIT extends BaseIT {
         Integer createdId  = 
         given().
                 header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).

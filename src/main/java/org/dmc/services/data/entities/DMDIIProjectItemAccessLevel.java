@@ -1,0 +1,8 @@
+package org.dmc.services.data.entities;
+
+public enum DMDIIProjectItemAccessLevel {
+	ALL_MEMBERS,
+	PROJECT_PARTICIPANTS,
+	PROJECT_PARTICIPANTS_AND_UPPER_TIER_MEMBERS,
+	PROJECT_PARTICIPANT_VIPS
+}

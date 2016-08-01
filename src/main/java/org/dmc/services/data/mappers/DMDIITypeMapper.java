@@ -11,6 +11,7 @@ public class DMDIITypeMapper extends AbstractMapper<DMDIIType, DMDIITypeModel> {
 
 	@Override
 	public DMDIIType mapToEntity(DMDIITypeModel model) {
+		if (model == null) return null;
 		DMDIIType entity = copyProperties(model, new DMDIIType());
 		Mapper<DMDIITypeCategory, DMDIITypeCategoryModel> categoryMapper = getCategoryMapper();
 		entity.setDmdiiTypeCategory(categoryMapper.mapToEntity(model.getDmdiiTypeCategory()));
@@ -19,6 +20,7 @@ public class DMDIITypeMapper extends AbstractMapper<DMDIIType, DMDIITypeModel> {
 
 	@Override
 	public DMDIITypeModel mapToModel(DMDIIType entity) {
+		if (entity == null) return null;
 		DMDIITypeModel model = copyProperties(entity, new DMDIITypeModel());
 		Mapper<DMDIITypeCategory, DMDIITypeCategoryModel> categoryMapper = getCategoryMapper();
 		model.setDmdiiTypeCategory(categoryMapper.mapToModel(entity.getDmdiiTypeCategory()));

@@ -76,6 +76,7 @@ public class ResourceIT extends BaseIT {
     	//Get a list of the current images
         ArrayList<ResourceAssessmentModel> original =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -90,6 +91,7 @@ public class ResourceIT extends BaseIT {
         //Get a list of the new images 
         ArrayList<ResourceAssessmentModel> newList =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -106,6 +108,7 @@ public class ResourceIT extends BaseIT {
         Integer checkId  = 
                 given().
         				header("Content-type", "application/json").
+        				header("AJP_eppn", userEPPN).
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
@@ -121,6 +124,7 @@ public class ResourceIT extends BaseIT {
 
         ArrayList<ResourceAssessmentModel> after =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -138,6 +142,7 @@ public class ResourceIT extends BaseIT {
     	//Get a list of the current images
         ArrayList<ResourceJobModel> original =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -152,6 +157,7 @@ public class ResourceIT extends BaseIT {
         //Get a list of the new images 
         ArrayList<ResourceJobModel> newList =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -170,6 +176,7 @@ public class ResourceIT extends BaseIT {
         Integer checkId  = 
                 given().
         				header("Content-type", "application/json").
+        				header("AJP_eppn", userEPPN).
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
@@ -184,6 +191,7 @@ public class ResourceIT extends BaseIT {
 
         ArrayList<ResourceJobModel> after =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -202,6 +210,7 @@ public class ResourceIT extends BaseIT {
     	//Get a list of the current images
         ArrayList<ResourceCourseModel> original =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -216,6 +225,7 @@ public class ResourceIT extends BaseIT {
         //Get a list of the new images 
         ArrayList<ResourceCourseModel> newList =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -233,6 +243,7 @@ public class ResourceIT extends BaseIT {
         Integer checkId  = 
                 given().
         				header("Content-type", "application/json").
+        				header("AJP_eppn", userEPPN).
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
@@ -247,6 +258,7 @@ public class ResourceIT extends BaseIT {
 
         ArrayList<ResourceCourseModel> after =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -265,6 +277,7 @@ public class ResourceIT extends BaseIT {
     	//Get a list of the current images
         ArrayList<ResourceProjectModel> original =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -279,6 +292,7 @@ public class ResourceIT extends BaseIT {
         //Get a list of the new images 
         ArrayList<ResourceProjectModel> newList =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -296,6 +310,7 @@ public class ResourceIT extends BaseIT {
         Integer checkId  = 
                 given().
         				header("Content-type", "application/json").
+        				header("AJP_eppn", userEPPN).
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
@@ -310,6 +325,7 @@ public class ResourceIT extends BaseIT {
 
         ArrayList<ResourceProjectModel> after =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -329,6 +345,7 @@ public class ResourceIT extends BaseIT {
     	//Get a list of the current images
         ArrayList<ResourceLabModel> original =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -343,6 +360,7 @@ public class ResourceIT extends BaseIT {
         //Get a list of the new images 
         ArrayList<ResourceLabModel> newList =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -360,6 +378,7 @@ public class ResourceIT extends BaseIT {
         Integer checkId  = 
                 given().
         				header("Content-type", "application/json").
+        				header("AJP_eppn", userEPPN).
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
@@ -374,6 +393,7 @@ public class ResourceIT extends BaseIT {
 
         ArrayList<ResourceLabModel> after =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -392,6 +412,7 @@ public class ResourceIT extends BaseIT {
     	//Get a list of the current images
         ArrayList<ResourceBayModel> original =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -405,6 +426,7 @@ public class ResourceIT extends BaseIT {
 
         ArrayList<ResourceBayModel> newList =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -422,6 +444,7 @@ public class ResourceIT extends BaseIT {
         Integer checkId  = 
                 given().
         				header("Content-type", "application/json").
+        				header("AJP_eppn", userEPPN).
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
@@ -435,6 +458,7 @@ public class ResourceIT extends BaseIT {
 
         ArrayList<ResourceBayModel> after =
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().
@@ -468,6 +492,7 @@ public class ResourceIT extends BaseIT {
         Integer createdId  = 
         given().
         		header("Content-type", "application/json").
+        		header("AJP_eppn", userEPPN).
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
@@ -496,6 +521,7 @@ public class ResourceIT extends BaseIT {
         Integer createdId  = 
         given().
 				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
@@ -524,6 +550,7 @@ public class ResourceIT extends BaseIT {
         Integer createdId  = 
         given().
 				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
@@ -552,6 +579,7 @@ public class ResourceIT extends BaseIT {
         Integer createdId  = 
         given().
 				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
@@ -580,6 +608,7 @@ public class ResourceIT extends BaseIT {
         Integer createdId  = 
         given().
 				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
@@ -609,6 +638,7 @@ public class ResourceIT extends BaseIT {
         Integer createdId  = 
         given().
 				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
@@ -626,6 +656,7 @@ public class ResourceIT extends BaseIT {
         //Get all the machines in the bay
         ArrayList<ResourceMachineModel> machines =
                 given().
+                		header("AJP_eppn", userEPPN).
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
@@ -659,6 +690,7 @@ public class ResourceIT extends BaseIT {
         Integer createdId  = 
         given().
 				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
                 body(json).
                 expect().
                 statusCode(HttpStatus.OK.value()).
@@ -674,6 +706,7 @@ public class ResourceIT extends BaseIT {
     
     public void delete (int id, String endpoint) {
         given().
+        		header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(HttpStatus.OK.value()).
                 when().

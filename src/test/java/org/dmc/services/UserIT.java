@@ -1,24 +1,24 @@
 package org.dmc.services;
 
-import org.junit.Test;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.SQLException;
-import static com.jayway.restassured.RestAssured.*;
-import static org.junit.Assert.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import org.dmc.services.utility.TestUserUtil;
-import org.json.JSONObject;
 
 import org.dmc.services.users.User;
 import org.dmc.services.users.UserDao;
-import org.dmc.services.users.UserOnboarding;
-import org.dmc.services.users.UserNotifications;
-import org.dmc.services.users.UserRunningServices;
 import org.dmc.services.users.UserMessages;
+import org.dmc.services.users.UserNotifications;
+import org.dmc.services.users.UserOnboarding;
+import org.dmc.services.users.UserRunningServices;
+import org.dmc.services.utility.TestUserUtil;
+import org.json.JSONObject;
+import org.junit.Test;
 
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 //@Ignore
 public class UserIT extends BaseIT {
@@ -27,17 +27,17 @@ public class UserIT extends BaseIT {
 
 	@Test
 	public void testNewUserWithCompany() {
-        String unique = TestUserUtil.generateTime();
+        String newUserEPPN = TestUserUtil.createNewUser();
 
 		// create user; will not have company
         User newUser =
         given().
 			header("Content-type", "application/json").
-			header("AJP_eppn", unique).
-			header("AJP_givenName",unique).
-			header("AJP_sn",unique).
-			header("AJP_displayName",unique).
-			header("AJP_givenName",unique).
+			header("AJP_eppn", newUserEPPN).
+			header("AJP_givenName",newUserEPPN).
+			header("AJP_sn",newUserEPPN).
+			header("AJP_displayName",newUserEPPN).
+			header("AJP_givenName",newUserEPPN).
 		expect().
 			statusCode(200).
 		when().
@@ -55,7 +55,7 @@ public class UserIT extends BaseIT {
 
 		given()
 			.header("Content-type", "application/json")
-			.header("AJP_eppn", unique)
+			.header("AJP_eppn", newUserEPPN)
 			.body(json.toString())
 		.expect()
 			.statusCode(200)
@@ -65,11 +65,11 @@ public class UserIT extends BaseIT {
 		User newUserGet =
         given().
 			header("Content-type", "application/json").
-			header("AJP_eppn", unique).
-			header("AJP_givenName",unique).
-			header("AJP_sn",unique).
-			header("AJP_displayName",unique).
-			header("AJP_givenName",unique).
+			header("AJP_eppn", newUserEPPN).
+			header("AJP_givenName",newUserEPPN).
+			header("AJP_sn",newUserEPPN).
+			header("AJP_displayName",newUserEPPN).
+			header("AJP_givenName",newUserEPPN).
 		expect().
 			statusCode(200).
 		when().
@@ -175,16 +175,14 @@ public class UserIT extends BaseIT {
     @Test
 	public void testUserGet_UnknownUser(){
 		ServiceLogger.log(logTag, "starting testUserGet_UnknownUser");
-        String unknownUser = "unknown";
+        String unknownUser = TestUserUtil.uniqueUserEPPN();
         
 		given().
         header("AJP_eppn", unknownUser).
 		expect().
-        statusCode(200).
+        statusCode(500).
 		when().
-        get("/user").
-		then().
-        body(matchesJsonSchemaInClasspath("Schemas/userSchema.json"));
+        get("/user");
 	}
 
     @Test
