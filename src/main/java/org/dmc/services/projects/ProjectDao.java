@@ -388,7 +388,7 @@ public class ProjectDao {
     // pfo_user_role.role_id = pfo_role.role_id AND
     // pfo_role.home_group_id = 6 AND
     // pfo_user_role.user_id = 102
-    boolean hasProjectRole(int projectId, String userEPPN) throws SQLException {
+    public boolean hasProjectRole(int projectId, String userEPPN) throws SQLException {
         int userId = UserDao.getUserID(userEPPN);
         String findUsersRoleInProjectQuery = "SELECT " + "role_name " + "FROM  " + "  public.pfo_user_role, "
                 + "  public.pfo_role " + "WHERE  " + "  pfo_user_role.role_id = pfo_role.role_id AND "

@@ -15,6 +15,7 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.projects.ProjectDao;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -77,9 +78,23 @@ public class TaskDao {
 	
 	public Task patchTask(String taskIdStr, Task task, String userEPPN) throws DMCServiceException {
 		int id = -99999;
+		final ProjectDao projectDao = new ProjectDao();
 		
 		try {
-			int userID = UserDao.getUserID(userEPPN);
+			int projectId = 0;
+			String projectQuery = "SELECT group_project_id FROM project_task WHERE project_task_id = ?";
+			PreparedStatement preparedStatementProject = DBConnector.prepareStatement(projectQuery);
+			preparedStatementProject.setInt(1, Integer.parseInt(taskIdStr));
+			preparedStatementProject.execute();
+			
+			ResultSet resultSetProject = preparedStatementProject.getResultSet();
+			if (resultSetProject.next()) {
+				projectId = resultSetProject.getInt("group_project_id");
+			}
+			if (!projectDao.hasProjectRole(projectId, userEPPN)) {
+				throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "User is not authorized to edit task");
+			}
+			
 			Integer taskId = Integer.parseInt(taskIdStr);
 			String title = task.getTitle();
 			String description = task.getAdditionalDetails();
