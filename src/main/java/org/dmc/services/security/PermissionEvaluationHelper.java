@@ -10,6 +10,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class PermissionEvaluationHelper {
 	
+	public static boolean userMeetsProjectAccessRequirement(DMDIIProjectItemAccessLevel accessLevel, Integer projectOrganization) {
+		List<Integer> wrapper = new ArrayList<Integer>();
+		wrapper.add(projectOrganization);
+		return userMeetsProjectAccessRequirement(accessLevel, wrapper);
+	}
+	
 	public static boolean userMeetsProjectAccessRequirement(DMDIIProjectItemAccessLevel accessLevel, List<Integer> projectOrganizations) {
 		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
