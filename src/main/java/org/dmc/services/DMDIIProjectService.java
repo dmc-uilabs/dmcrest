@@ -155,6 +155,15 @@ public class DMDIIProjectService {
 		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationId(new PageRequest(pageNumber, pageSize), primeOrganizationId).getContent());
 	}
 
+	public List<DMDIIProjectModel> findDMDIIProjectsByPrimeOrganizationIdAndIsActive(Integer dmdiiMemberId, Integer pageNumber, Integer pageSize) {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationIdAndIsActive(new PageRequest(pageNumber, pageSize), dmdiiMemberId).getContent());
+	}
+
+	public Long countDMDIIProjectsByPrimeOrganizationIdAndIsActive(Integer dmdiiMemberId) {
+		return dmdiiProjectRepository.countByPrimeOrganizationIdAndIsActive(dmdiiMemberId);
+	}
+
 	public Long countDmdiiProjectsByPrimeOrganizationId(Integer dmdiiMemberId) {
 		return dmdiiProjectRepository.countByPrimeOrganizationId(dmdiiMemberId);
 	}
