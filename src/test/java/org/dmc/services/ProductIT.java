@@ -43,7 +43,7 @@ public class ProductIT extends BaseIT {
 	@Test
 	public void testProductGet_ProductReview() {
 		given().
-		header("AJP_eppn", "user_EPPN").
+		header("AJP_eppn", knownEPPN).
 		header("Content-type", APPLICATION_JSON_VALUE).
 		expect().
 		statusCode(HttpStatus.OK.value()).
@@ -70,7 +70,7 @@ public class ProductIT extends BaseIT {
 		
 		given().
 		header("Content-type", APPLICATION_JSON_VALUE).
-		header("AJP_eppn", "user_EPPN").
+		header("AJP_eppn", knownEPPN).
 		body(postedProductReviewJSONString).
 		expect().
 		statusCode(HttpStatus.OK.value()).
@@ -95,7 +95,7 @@ public class ProductIT extends BaseIT {
 		}
 		given().
 		header("Content-type", "application/json").
-		header("AJP_eppn", "user_EPPN").
+		header("AJP_eppn", knownEPPN).
 		body(patchedProductReviewJSONString).
 		expect().
 		statusCode(HttpStatus.OK.value()).
