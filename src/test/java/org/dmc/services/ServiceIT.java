@@ -809,7 +809,7 @@ public class ServiceIT extends BaseIT {
 		
 		ArrayList<ServiceSpecifications> specs = given().
 		header("Content-type", "application/json").
-		header("AJP_eppn", knownEPPN).
+		header("AJP_eppn", userEPPN).
 		body(postedSpecificationJSONString).
 		expect().
 		statusCode(HttpStatus.OK.value()).
