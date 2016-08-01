@@ -33,10 +33,19 @@ public class UserPrincipalService implements UserDetailsService {
 		
 		for (UserRoleAssignment roleAssignment : user.getRoles()) {
 			String role = roleAssignment.getRole().getRole();
-			principal.addRole(roleAssignment.getOrganizationId(), role);
 			
-			if (!principal.hasAuthority(role)) {
+			if (role.equals(SecurityRoles.SUPERADMIN)) {
 				principal.addAuthorities(PermissionEvaluationHelper.getInheritedRolesForRole(role));
+			} else {
+				principal.addRole(roleAssignment.getOrganization().getId(), role);
+				
+				if (!principal.hasAuthority(role)) {
+					principal.addAuthorities(PermissionEvaluationHelper.getInheritedRolesForRole(role));
+				}
+				
+				if (!principal.hasAuthority(SecurityRoles.DMDII_MEMBER) && roleAssignment.getOrganization().getDmdiiMember() != null) {
+					principal.addAuthority(SecurityRoles.DMDII_MEMBER);
+				}
 			}
 		}
 		

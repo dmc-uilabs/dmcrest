@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -23,8 +24,9 @@ public class UserRoleAssignment extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User user;
 	
-	@Column(name = "organization_id")
-	private Integer organizationId;
+	@OneToOne
+	@JoinColumn(name = "organization_id")
+	private Organization organization;
 	
 	@JoinColumn(name = "role_id")
 	@ManyToOne
@@ -46,12 +48,12 @@ public class UserRoleAssignment extends BaseEntity {
 		this.user = user;
 	}
 
-	public Integer getOrganizationId() {
-		return organizationId;
+	public Organization getOrganization() {
+		return organization;
 	}
 
-	public void setOrganizationId(Integer organizationId) {
-		this.organizationId = organizationId;
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
 	}
 
 	public Role getRole() {
@@ -67,7 +69,7 @@ public class UserRoleAssignment extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((organizationId == null) ? 0 : organizationId.hashCode());
+		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
 		result = prime * result + ((user == null) ? 0 : user.hashCode());
 		return result;
@@ -87,10 +89,10 @@ public class UserRoleAssignment extends BaseEntity {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (organizationId == null) {
-			if (other.organizationId != null)
+		if (organization == null) {
+			if (other.organization != null)
 				return false;
-		} else if (!organizationId.equals(other.organizationId))
+		} else if (!organization.equals(other.organization))
 			return false;
 		if (role == null) {
 			if (other.role != null)
