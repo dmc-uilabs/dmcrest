@@ -60,7 +60,7 @@ public class PermissionEvaluationHelper {
 			return false;
 		}
 		
-		userRoles.addAll(getInheritedRolesForRole(requiredRole));
+		userRoles.addAll(getInheritedRolesForRole(assignedRole));
 		return userRoles.contains(requiredRole);
 	}
 	
