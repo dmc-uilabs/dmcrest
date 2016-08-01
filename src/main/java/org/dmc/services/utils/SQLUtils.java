@@ -1,5 +1,8 @@
 package org.dmc.services.utils;
 
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
+
 /**
  * Created by 200005921 on 6/13/2016.
  */
@@ -26,8 +29,11 @@ public class SQLUtils {
 
         // order only added if ORDER BY
         if (orderByClause != null && order != null && order.trim().length() >0) {
-
-            orderByClause += " " + order;
+            if (order.equals(SORT_ASCENDING) || order.equals(SORT_DESCENDING)) {
+                orderByClause += " " + order;
+            } else {
+                throw new DMCServiceException(DMCError.BadURL, "invalid sort option");
+            }
         }
 
         return orderByClause;
