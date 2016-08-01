@@ -219,7 +219,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedFollowDiscussionsJSONString)
+		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString)
 				.expect().statusCode(HttpStatus.CREATED.value()).when().post("/follow_discussions").as(FollowingIndividualDiscussion.class);
 
 		assertTrue("testPost_followDiscussionWithValidObject: individual discussion id values are not equal",
@@ -969,7 +969,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		IndividualDiscussionCommentFlagged postedFlag = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
+		IndividualDiscussionCommentFlagged postedFlag = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
 				.body(postedIndividualDiscussionCommentFlaggedJSONString).expect().statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion-comments-flagged")
 				.as(IndividualDiscussionCommentFlagged.class);
 
