@@ -26,6 +26,7 @@ public class UserRoleAssignmentMapper extends AbstractMapper<UserRoleAssignment,
 		Mapper<Role, RoleModel> roleMapper = mapperFactory.mapperFor(Role.class, RoleModel.class);
 		UserRoleAssignmentModel model = copyProperties(entity, new UserRoleAssignmentModel());
 		model.setRole(roleMapper.mapToModel(entity.getRole()));
+		model.setOrganizationId(entity.getOrganization().getId());
 		return model;
 	}
 

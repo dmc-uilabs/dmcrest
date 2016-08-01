@@ -1,6 +1,6 @@
 package org.dmc.services.data.models;
 
-import java.util.List;
+import java.util.Map;
 
 public class UserModel extends BaseModel {
 
@@ -10,8 +10,9 @@ public class UserModel extends BaseModel {
 	private String email;
 	private String address;
 	private String phone;
+	private Map<Integer, String> roles;	
 	private UserContactInfoModel userContactInfo;
-	private List<UserRoleAssignmentModel> roles;
+	private boolean isDMDIIMember;
 
 	public String getUsername() {
 		return username;
@@ -51,6 +52,14 @@ public class UserModel extends BaseModel {
 		this.phone = phone;
 	}
 
+	public Map<Integer, String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Map<Integer, String> roles) {
+		this.roles = roles;
+	}
+	
 	public UserContactInfoModel getUserContactInfo() {
 		return userContactInfo;
 	}
@@ -59,13 +68,12 @@ public class UserModel extends BaseModel {
 		this.userContactInfo = userContactInfo;
 	}
 
-	public List<UserRoleAssignmentModel> getRoles() {
-		return roles;
+	public boolean isDMDIIMember() {
+		return isDMDIIMember;
 	}
 
-	public void setRoles(List<UserRoleAssignmentModel> roles) {
-		this.roles = roles;
+	public void setDMDIIMember(boolean isDMDIIMember) {
+		this.isDMDIIMember = isDMDIIMember;
 	}
-
 
 }
