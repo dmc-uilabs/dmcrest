@@ -123,6 +123,7 @@ public class AWSProfileUploadIT extends BaseIT {
         VerificationPatch returnPatch = 
 		given()
         	.header("Content-type", "application/json")
+        	.header("AJP_eppn", TestUserUtil.createNewUser())
             .body(patchedJSONString)
             .expect()
             .statusCode(HttpStatus.OK.value())
