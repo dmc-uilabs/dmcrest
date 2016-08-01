@@ -8,6 +8,10 @@ public interface DMDIIDocumentRepository extends BaseRepository<DMDIIDocument, I
 
 	Page<DMDIIDocument> findByDmdiiProjectIdAndIsDeletedFalse(Pageable pageable, Integer dmdiiProjectId);
 
+	Page<DMDIIDocument> findByDmdiiProjectId(Pageable pageable, Integer dmdiiProjectId);
+
 	Page<DMDIIDocument> findByIsDeletedFalse(Pageable pageable);
+
+	DMDIIDocument findTopByFileTypeOrderByModifiedDesc(Integer fileType);
 
 }

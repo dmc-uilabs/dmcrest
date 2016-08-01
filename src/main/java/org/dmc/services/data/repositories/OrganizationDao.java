@@ -1,4 +1,4 @@
-package org.dmc.services.dmdiimember;
+package org.dmc.services.data.repositories;
 
 import org.dmc.services.data.entities.Organization;
 import org.springframework.data.repository.CrudRepository;

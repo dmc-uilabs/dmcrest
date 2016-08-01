@@ -1,4 +1,6 @@
-package org.dmc.services;
+package org.dmc.services.data.models;
+
+import org.dmc.services.Test;
 
 public class Role {
 
