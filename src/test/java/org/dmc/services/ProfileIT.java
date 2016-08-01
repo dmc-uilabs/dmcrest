@@ -1,8 +1,19 @@
 package org.dmc.services;
 
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertTrue;
+
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 
+import org.dmc.services.discussions.Discussion;
+import org.dmc.services.profile.Profile;
+import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -10,20 +21,6 @@ import com.amazonaws.services.devicefarm.model.Project;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.dmc.services.discussions.Discussion;
-import org.dmc.services.profile.Profile;
-import org.junit.Before; 
-import org.junit.After;
-import static org.junit.Assert.*;
-
-import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-
-import org.dmc.services.utility.TestUserUtil;
-import java.net.URL;
-import java.net.*;
-import java.io.*;
 
 public class ProfileIT extends BaseIT {
 	
@@ -36,7 +33,7 @@ public class ProfileIT extends BaseIT {
 	
 	private Integer createdId = -1;
 //	String randomEPPN = UUID.randomUUID().toString();
-    String unique = null;
+    private String knownEPPN;
     
     //for AWS Test
     String preSignedURL = null;
@@ -46,30 +43,15 @@ public class ProfileIT extends BaseIT {
 	@Before
 	//@Test
 	public void testProfileCreate() {
-//        ServiceLogger.log(logTag, "starting testUserCreate");
-        unique = TestUserUtil.generateTime();
-        
-//        Integer id =
-        given().
-        header("Content-type", "text/plain").
-        header("AJP_eppn", "userEPPN" + unique).
-        header("AJP_givenName", "userGivenName" + unique).
-        header("AJP_sn", "userSurname" + unique).
-        header("AJP_displayName", unique).
-        header("AJP_mail", "userEmail" + unique).
-        expect().
-        statusCode(200).
-		when().
-        get("/user");
-//		then().
-//        body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
-//        extract().path("id");
+		if (knownEPPN == null) {
+			knownEPPN = TestUserUtil.createNewUser();
+		}
 
         
 		JSONObject json = createFixture("create");
 		this.createdId = given()
             .header("Content-type", "application/json")
-				.header("AJP_eppn", "userEPPN" + unique)
+				.header("AJP_eppn", knownEPPN)
 				.body(json.toString())
 				.expect()
 				.statusCode(200)
@@ -82,7 +64,7 @@ public class ProfileIT extends BaseIT {
 		
 		//Adding test to get out preSignedURL 
 		Profile profile = given()
-               .header("AJP_eppn", "userEPPN" + unique)
+               .header("AJP_eppn", knownEPPN)
                .expect()
                .statusCode(200)
                .when()
@@ -125,7 +107,7 @@ public class ProfileIT extends BaseIT {
 		JSONObject json = createFixture("update");
         if (this.createdId > 0) {
             Integer retrivedId = given()
-                .header("AJP_eppn", "userEPPN" + unique)
+                .header("AJP_eppn", knownEPPN)
             .expect()
                 .statusCode(200)
             .when()
@@ -147,7 +129,7 @@ public class ProfileIT extends BaseIT {
     	
     	JsonNode projects =
             given()
-                .header("AJP_eppn", "userEPPN" + unique)
+                .header("AJP_eppn", knownEPPN)
             .expect()
                 .statusCode(200)
             .when()
@@ -171,7 +153,7 @@ public class ProfileIT extends BaseIT {
 				Integer retrivedId =
                 given()
                     .header("Content-type", "application/json")
-                    .header("AJP_eppn", "userEPPN" + unique)
+                    .header("AJP_eppn", knownEPPN)
                     .body(json.toString())
 				.expect()
                     .statusCode(200)
@@ -200,7 +182,7 @@ public class ProfileIT extends BaseIT {
                 final Integer retrivedId =
                 given()
                     .header("Content-type", "application/json")
-                    .header("AJP_eppn", "userEPPN" + unique)
+                    .header("AJP_eppn", knownEPPN)
                     .body(json.toString())
                 .expect()
                     .statusCode(200)
@@ -221,7 +203,7 @@ public class ProfileIT extends BaseIT {
 	public void testProfileDelete() {
 		if (this.createdId > 0) {
 			given()
-			.header("AJP_eppn", "userEPPN" + unique)
+			.header("AJP_eppn", knownEPPN)
 			.expect().statusCode(200)
 			.when()
 			.get(PROFILE_DELETE_RESOURCE, this.createdId.toString())
