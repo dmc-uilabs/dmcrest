@@ -163,9 +163,8 @@ public class DiscussionIT extends BaseIT {
 	public void testGet_FollowDiscussionsFromAccountIdWithIndividualDiscussionId() {
 		String individualDiscussionId = "1";
 		String accountId = "550";
-		String userEppn = "joeengineer";
 
-		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", userEppn).param("individual-discussionId", individualDiscussionId)
+		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", knownEPPN).param("individual-discussionId", individualDiscussionId)
 				.expect().statusCode(HttpStatus.OK.value()).when().get("/accounts/" + accountId + "/follow_discussions").as(FollowingIndividualDiscussion[].class));
 
 		assertTrue(
@@ -184,9 +183,8 @@ public class DiscussionIT extends BaseIT {
 	@Test
 	public void testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId() {
 		String accountId = "550";
-		String userEppn = "joeengineer";
 
-		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", userEppn).param("limit", 2).expect().statusCode(HttpStatus.OK.value())
+		List<FollowingIndividualDiscussion> followedDiscussions = Arrays.asList(given().header("AJP_eppn", knownEPPN).param("limit", 2).expect().statusCode(HttpStatus.OK.value())
 				.when().get("/accounts/" + accountId + "/follow_discussions").as(FollowingIndividualDiscussion[].class));
 
 		assertTrue("testGet_FollowDiscussionsFromAccountIdWithoutIndividualDiscussionId: limit parameter didn't work", followedDiscussions.size() == 2);
@@ -208,7 +206,6 @@ public class DiscussionIT extends BaseIT {
 
 		String accountId = "550";
 		String individualDiscussionId = "3";
-		String userEPPN = "joeengineer";
 
 		followToPost.setIndividualDiscussionId(individualDiscussionId);
 		followToPost.setAccountId(accountId);
@@ -265,7 +262,6 @@ public class DiscussionIT extends BaseIT {
 
 		String accountId = "550";
 		String individualDiscussionId = "0";
-		String userEPPN = "joeengineer";
 
 		followToPost.setIndividualDiscussionId(individualDiscussionId);
 		followToPost.setAccountId(accountId);
@@ -276,7 +272,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString).expect().statusCode(HttpStatus.BAD_REQUEST.value())
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedFollowDiscussionsJSONString).expect().statusCode(HttpStatus.BAD_REQUEST.value())
 				.when().post("/follow_discussions");
 
 	}
@@ -292,7 +288,6 @@ public class DiscussionIT extends BaseIT {
 
 		String accountId = "102";
 		String individualDiscussionId = "4";
-		String userEPPN = "fforgeadmin";
 
 		followToPost.setIndividualDiscussionId(individualDiscussionId);
 		followToPost.setAccountId(accountId);
@@ -303,10 +298,10 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString)
+		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedFollowDiscussionsJSONString)
 				.expect().statusCode(HttpStatus.CREATED.value()).when().post("/follow_discussions").as(FollowingIndividualDiscussion.class);
 
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().delete("/follow_discussions/" + postedFollow.getId());
+		given().header("AJP_eppn", knownEPPN).expect().statusCode(HttpStatus.OK.value()).when().delete("/follow_discussions/" + postedFollow.getId());
 	}
 
 	/*
@@ -320,7 +315,6 @@ public class DiscussionIT extends BaseIT {
 
 		String accountId = "102";
 		String individualDiscussionId = "4";
-		String userEPPN = "fforgeadmin";
 
 		followToPost.setIndividualDiscussionId(individualDiscussionId);
 		followToPost.setAccountId(accountId);
@@ -331,10 +325,10 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString)
+		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedFollowDiscussionsJSONString)
 				.expect().statusCode(HttpStatus.CREATED.value()).when().post("/follow_discussions").as(FollowingIndividualDiscussion.class);
 
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when().delete("/follow_discussions/" + 0);
+		given().header("AJP_eppn", knownEPPN).expect().statusCode(HttpStatus.NOT_FOUND.value()).when().delete("/follow_discussions/" + 0);
 	}
 
 	/*
@@ -930,7 +924,6 @@ public class DiscussionIT extends BaseIT {
 		String commentId = "1";
 		String reason = "Bad";
 		String comment = "Inappropriate";
-		String userEPPN = "joeengineer";
 
 		flagInTable.setId("1");
 		flagInTable.setAccountId(accountId);
@@ -952,7 +945,6 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionCommentFlagged flagToPost = new IndividualDiscussionCommentFlagged();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentFlaggedJSONString = null;
-		String userEPPN = "fforgeadmin";
 		String accountId = "102";
 		String commentId = "2";
 		String reason = "Bad";
@@ -988,7 +980,6 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionCommentFlagged flagToPost = new IndividualDiscussionCommentFlagged();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentFlaggedJSONString = null;
-		String userEPPN = "joeengineer";
 		String accountId = "0";
 		String commentId = "2";
 		String reason = "Bad";
@@ -1005,7 +996,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentFlaggedJSONString).expect()
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedIndividualDiscussionCommentFlaggedJSONString).expect()
 				.statusCode(HttpStatus.UNAUTHORIZED.value()).when().post("/individual-discussion-comments-flagged");
 
 	}
@@ -1018,7 +1009,6 @@ public class DiscussionIT extends BaseIT {
 		IndividualDiscussionCommentFlagged flagToPost = new IndividualDiscussionCommentFlagged();
 		ObjectMapper mapper = new ObjectMapper();
 		String postedIndividualDiscussionCommentFlaggedJSONString = null;
-		String userEPPN = "fforgeadmin";
 		String accountId = "102";
 		String commentId = "0";
 		String reason = "Bad";
@@ -1035,7 +1025,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionCommentFlaggedJSONString).expect()
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedIndividualDiscussionCommentFlaggedJSONString).expect()
 				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post("/individual-discussion-comments-flagged");
 
 	}
