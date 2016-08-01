@@ -85,7 +85,10 @@ public class TaskDao {
 			String description = task.getAdditionalDetails();
 			Integer priority = task.getPriority();
 			java.sql.Timestamp endDate = new java.sql.Timestamp(task.getDueDate());
-			Integer statusId = TaskStatus.StatusValues.valueOf(task.getStatus().toUpperCase()).getValue();
+			Integer statusId = new Integer(1);
+			if (task.getStatus() != null) {
+				statusId = TaskStatus.StatusValues.valueOf(task.getStatus().toUpperCase()).getValue();
+			}
 			
 			String query = "UPDATE project_task SET summary=?, details=?, priority=?, end_date=?, status_id=? WHERE project_task_id=?";
 			
@@ -101,11 +104,6 @@ public class TaskDao {
 			ServiceLogger.log(logTag, "update query performed");
 			id = taskId.intValue();
 			
-//			query = "select currval('project_task_pk_seq') as id";
-//			ResultSet resultSet = DBConnector.executeQuery(query);
-//			while (resultSet.next()) {
-//				id = resultSet.getInt("id");
-//			}
 			assignTask(id, task.getAssigneeId());
 			
 			ServiceLogger.log(logTag, "created task ID in insertTask: " + id);
@@ -282,58 +280,32 @@ public class TaskDao {
 	 */
 	
 	private String createTaskListQuery(Integer projectId, Integer taskId) {
-//		String query = "select "
-//		+ "T.project_task_id,"
-//		+ "T.summary as title,"
-//		+ "T.group_project_id,"
-//		+ "G.group_name as project_title,"
-//		+ "x.user_name as assignee,"
-//		+ "U.user_name as created_by,"
-//		+ "x.assigned_to_id, "
-//		+ "T.end_date, "
-//		+ "T.priority, "
-//		+ "T.details, "
-//		+ "S.status_name as status "
-//		+ "from project_task T "
-//		+ "LEFT JOIN (select * from Users U2, project_assigned_to p, groups G2 "
-//		+ "where U2.user_id = p.assigned_to_id and G2.group_id = p.project_assigned_id) x "
-//		+ "on T.project_task_id = x.project_task_id, "
-//		+ "users U,groups G, project_status S "
-//		+ "where T.created_by=U.user_id and G.group_id=T.group_project_id "
-//		+ "and T.status_id = S.status_id ";
-//		if (null != projectId) {
-//			query += "and G.group_id = " + projectId + " ";
-//		}
-//		if (null != taskId) {
-//			query += "and T.project_task_id = " + taskId + " ";
-//		}
-//		return query;
 		String query = "select "
-				+ "T.project_task_id,"
-				+ "T.summary as title,"
-				+ "T.group_project_id,"
-				+ "G.group_name as project_title,"
-				+ "x.user_name as assignee,"
-				+ "U.user_name as created_by,"
-				+ "x.assigned_to_id, "
-				+ "T.end_date, "
-				+ "T.priority, "
-				+ "T.details, "
-				+ "S.status_name as status "
-				+ "from project_task T "
-				+ "LEFT JOIN (select * from Users U2, project_assigned_to p "
-				+ "where U2.user_id = p.assigned_to_id) x "
-				+ "on T.project_task_id = x.project_task_id, "
-				+ "users U,groups G, project_status S "
-				+ "where T.created_by=U.user_id and G.group_id=T.group_project_id "
-				+ "and T.status_id = S.status_id ";
-				if (null != projectId) {
-					query += "and G.group_id = " + projectId + " ";
-				}
-				if (null != taskId) {
-					query += "and T.project_task_id = " + taskId + " ";
-				}
-				return query;
+			+ "T.project_task_id,"
+			+ "T.summary as title,"
+			+ "T.group_project_id,"
+			+ "G.group_name as project_title,"
+			+ "x.user_name as assignee,"
+			+ "U.user_name as created_by,"
+			+ "x.assigned_to_id, "
+			+ "T.end_date, "
+			+ "T.priority, "
+			+ "T.details, "
+			+ "S.status_name as status "
+			+ "from project_task T "
+			+ "LEFT JOIN (select * from Users U2, project_assigned_to p "
+			+ "where U2.user_id = p.assigned_to_id) x "
+			+ "on T.project_task_id = x.project_task_id, "
+			+ "users U,groups G, project_status S "
+			+ "where T.created_by=U.user_id and G.group_id=T.group_project_id "
+			+ "and T.status_id = S.status_id ";
+			if (null != projectId) {
+				query += "and G.group_id = " + projectId + " ";
+			}
+			if (null != taskId) {
+				query += "and T.project_task_id = " + taskId + " ";
+			}
+			return query;
 	}
 	
 	private String createAssignTaskQuery() {
