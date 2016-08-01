@@ -3,6 +3,7 @@ package org.dmc.services;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Date;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -155,10 +156,10 @@ public class AWSConnector {
         // create a java calendar instance
         final Calendar calendar = Calendar.getInstance();
         // get a java.util.Date from the calendar instance.
-        final java.util.Date now = calendar.getTime();
+        final Date now = calendar.getTime();
 
         // a java current time (now) instance
-        final java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(now.getTime());
+        final Timestamp currentTimestamp = new Timestamp(now.getTime());
 
         if (expiration.after(currentTimestamp)) {
             return true;

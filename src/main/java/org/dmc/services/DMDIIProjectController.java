@@ -11,6 +11,7 @@ import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIProjectEventModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.DMDIIProjectNewsModel;
+import org.dmc.services.data.models.DMDIIProjectUpdateModel;
 import org.dmc.services.data.models.PagedResponse;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.http.MediaType;
@@ -35,6 +36,9 @@ public class DMDIIProjectController {
 	@Inject
 	private DMDIIProjectNewsService dmdiiProjectNewsService;
 
+	@Inject
+	private DMDIIProjectUpdateService dmdiiProjectUpdateService;
+
 	@RequestMapping(value = "/dmdiiprojects", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
 		ServiceLogger.log(logTag, "In filter");
@@ -50,8 +54,19 @@ public class DMDIIProjectController {
 																		@RequestParam("pageSize") Integer pageSize) {
 		ServiceLogger.log(logTag, "In getDmdiiProjectsByDMDIIMemberId as member " + dmdiiMemberId);
 
-		List<? extends BaseModel> results = dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId, page, pageSize);
+		List<DMDIIProjectModel> results = dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId, page, pageSize);
 		Long count = dmdiiProjectService.countDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId);
+		return new PagedResponse(count, results);
+	}
+	
+	@RequestMapping(value = "/dmdiiprojects/member/active", method = RequestMethod.GET)
+	public PagedResponse getActiveDMDIIProjectsByDMDIIMemberId(@RequestParam("dmdiiMemberId") Integer dmdiiMemberId,
+																		@RequestParam("page") Integer page,
+																		@RequestParam("pageSize") Integer pageSize) {
+		ServiceLogger.log(logTag, "In getActiveDMDIIProjectsByDMDIIMemberId as member " + dmdiiMemberId);
+		
+		List<DMDIIProjectModel> results = dmdiiProjectService.findDMDIIProjectsByPrimeOrganizationIdAndIsActive(dmdiiMemberId, page, pageSize);
+		Long count = dmdiiProjectService.countDMDIIProjectsByPrimeOrganizationIdAndIsActive(dmdiiMemberId);
 		return new PagedResponse(count, results);
 	}
 
@@ -113,4 +128,16 @@ public class DMDIIProjectController {
 	public DMDIIProjectNewsModel saveDMDIIProjectNews (@RequestBody DMDIIProjectNewsModel projectNews) {
 		return dmdiiProjectNewsService.save(projectNews);
 	}
-}
+	
+	@RequestMapping(value = "/dmdiiProjectUpdate", params = {"limit", "projectId"}, method = RequestMethod.GET)
+	public List<DMDIIProjectUpdateModel> getDMDIIProjectUpdates (@RequestParam("limit") Integer limit, @RequestParam("projectId") Integer projectId) {
+		ServiceLogger.log(logTag, "In getDMDIIProjectUpdates");
+		return dmdiiProjectUpdateService.getDMDIIProjectUpdatesByProjectId(limit, projectId);
+	}
+	
+	@RequestMapping(value = "/dmdiiProjectUpdate", method = RequestMethod.POST)
+	public DMDIIProjectUpdateModel saveDMDIIProjectUpdate (@RequestBody DMDIIProjectUpdateModel projectUpdate) {
+		ServiceLogger.log(logTag, "In saveDMDIIProjectUpdate");
+		return dmdiiProjectUpdateService.save(projectUpdate);
+	}
+ }

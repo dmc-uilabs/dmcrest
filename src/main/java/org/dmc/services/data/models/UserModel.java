@@ -3,30 +3,31 @@ package org.dmc.services.data.models;
 public class UserModel extends BaseModel {
 
 	private String username;
-	private String firstname;
-	private String lastname;
+	private String firstName;
+	private String lastName;
 	private String email;
 	private String address;
 	private String phone;
-	
+	private UserContactInfoModel userContactInfo;
+
 	public String getUsername() {
 		return username;
 	}
-	
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	public String getFirstname() {
-		return firstname;
+	public String getFirstName() {
+		return firstName;
 	}
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
+	public void setFirstName(String firstname) {
+		this.firstName = firstname;
 	}
-	public String getLastname() {
-		return lastname;
+	public String getLastName() {
+		return lastName;
 	}
-	public void setLastname(String lastname) {
-		this.lastname = lastname;
+	public void setLastName(String lastname) {
+		this.lastName = lastname;
 	}
 	public String getEmail() {
 		return email;
@@ -46,6 +47,14 @@ public class UserModel extends BaseModel {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	
-	
+
+	public UserContactInfoModel getUserContactInfo() {
+		return userContactInfo;
+	}
+
+	public void setUserContactInfo(UserContactInfoModel userContactInfo) {
+		this.userContactInfo = userContactInfo;
+	}
+
+
 }

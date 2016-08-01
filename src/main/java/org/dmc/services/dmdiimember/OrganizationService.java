@@ -6,6 +6,7 @@ import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationModel;
+import org.dmc.services.data.repositories.OrganizationDao;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -38,5 +39,10 @@ public class OrganizationService {
 
 	public Organization save(Organization organization) {
 		return organizationDao.save(organization);
+	}
+	
+	public OrganizationModel findOne(Integer id) {
+		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
+		return mapper.mapToModel(organizationDao.findOne(id));
 	}
 }

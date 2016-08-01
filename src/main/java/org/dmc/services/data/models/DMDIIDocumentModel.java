@@ -13,7 +13,7 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	private Integer dmdiiProjectId;
 
-	private Integer userId;
+	private Integer ownerId;
 
 	private List<DMDIIDocumentModel> tags;
 
@@ -22,6 +22,12 @@ public class DMDIIDocumentModel extends BaseModel {
 	private Date expires;
 
 	private Boolean isDeleted;
+	
+	private Integer fileType;
+	
+	private Boolean verified;
+	
+	private String accessLevel;
 
 	public String getDocumentName() {
 		return documentName;
@@ -55,12 +61,12 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.dmdiiProjectId = dmdiiProjectId;
 	}
 
-	public Integer getUserId() {
-		return userId;
+	public Integer getOwnerId() {
+		return ownerId;
 	}
 
-	public void setUserId(Integer userId) {
-		this.userId = userId;
+	public void setOwnerId(Integer ownerId) {
+		this.ownerId = ownerId;
 	}
 
 	public List<DMDIIDocumentModel> getTags() {
@@ -94,4 +100,30 @@ public class DMDIIDocumentModel extends BaseModel {
 	public void setIsDeleted(Boolean isDeleted) {
 		this.isDeleted = isDeleted;
 	}
+
+	public Integer getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(Integer fileType) {
+		this.fileType = fileType;
+	}
+
+	public Boolean getVerified() {
+		return verified;
+	}
+
+	public void setVerified(Boolean verified) {
+		this.verified = verified;
+	}
+
+	public String getAccessLevel() {
+		return accessLevel;
+	}
+
+	public void setAccessLevel(String accessLevel) {
+		this.accessLevel = accessLevel;
+	}
+
+	
 }
