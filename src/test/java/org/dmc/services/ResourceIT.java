@@ -108,6 +108,7 @@ public class ResourceIT extends BaseIT {
         Integer checkId  = 
                 given().
         				header("Content-type", "application/json").
+        				header("AJP_eppn", userEPPN).
                         expect().
                         statusCode(HttpStatus.OK.value()).
                         when().
