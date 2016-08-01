@@ -288,6 +288,10 @@ public class ServiceController {
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			
+			// TEMPORARY LOGGING since logException isn't working in ITs
+			String errorlog = "ERRORERRORERROR\n\n" + e.getMessage() + "\n\n\n" + e.getError();
+			ServiceLogger.log(logTag + "ERROR", errorlog);
+			
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		} 
 	}
