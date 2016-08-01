@@ -35,7 +35,7 @@ public class VerificationPatchController {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
-	
+	/*
 	//CONTROLLER ONLY FOR TESTING VERIFICATION MACHINE
 	@RequestMapping(value = "/verifyTest", method = RequestMethod.GET, produces = { "application/json" })
     public ResponseEntity testVerify()
@@ -50,7 +50,7 @@ public class VerificationPatchController {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
-	
+	*/
 	
 	
 	
