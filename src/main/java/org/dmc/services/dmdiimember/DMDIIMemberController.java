@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@PreAuthorize(SecurityRoles.REQUIRED_ROLE_MEMBER)
+@PreAuthorize(SecurityRoles.REQUIRED_ROLE_DMDII_MEMBER)
 public class DMDIIMemberController {
 
 	@Inject

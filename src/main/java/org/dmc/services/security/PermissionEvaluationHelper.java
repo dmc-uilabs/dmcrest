@@ -64,6 +64,7 @@ public class PermissionEvaluationHelper {
 		switch (role) {
 		case SecurityRoles.SUPERADMIN:
 			completeRoleSetForRole.add(SecurityRoles.SUPERADMIN);
+			completeRoleSetForRole.add(SecurityRoles.DMDII_MEMBER);
 		case SecurityRoles.ADMIN:
 			completeRoleSetForRole.add(SecurityRoles.ADMIN);
 		case SecurityRoles.VIP:
