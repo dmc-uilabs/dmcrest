@@ -35,4 +35,8 @@ public class OrganizationUserService {
 		return mapper.mapToModel(organizationUserRepository.save(mapper.mapToEntity(model)));
 	}
 
+	public Integer getNumberOfVerifiedUsers(Integer organizationId) {
+		return organizationUserRepository.findNumberOfVerifiedUsersByOrganizationId(organizationId);
+	}
+
 }
