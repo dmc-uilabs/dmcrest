@@ -336,6 +336,10 @@ public class ProjectDao {
 
             statement.executeUpdate();
             projectId = util.getGeneratedKey(statement, "group_id");
+            if (id != projectId) {
+                throw new DMCServiceException(DMCError.OtherSQLError, "mismatched project ids: expecting " + id + " found " + projectId);
+            }
+            ServiceLogger.log(logTag, "updated project " + projectId);
 
             connection.commit();
         } catch (SQLException e) {
