@@ -88,7 +88,8 @@ public class ProfileDao {
         profile.setDescription(resultSet.getString("people_resume"));
 
         // need to get skills;
-        profile.setSkills(new ArrayList<String>());
+		ArrayList<String> skills = getSkills(profile.getId());
+		profile.setSkills(skills);
 		
         return profile;
     }
@@ -324,6 +325,27 @@ public class ProfileDao {
         return true;
     }
 
+	public ArrayList<String> getSkills(int userId) throws SQLException {
+		ArrayList<String> skills = new ArrayList<String>();
+		
+		String query = "SELECT people_skill.name "+
+					   "FROM people_skill INNER JOIN people_skill_inventory "+
+		               "ON people_skill.skill_id=people_skill_inventory.skill_id "+
+		               "WHERE people_skill_inventory.user_id = ?";
+		
+		PreparedStatement statement = DBConnector.prepareStatement(query);
+		statement.setInt(1, userId);
+		final ResultSet resultSet = statement.executeQuery();
+		while(resultSet.next()) {
+			String skill = resultSet.getString("name");
+			skills.add(skill);
+		}
+		
+		return skills;
+	}
+
+	
+	
     public boolean deleteSkills(int userId) throws SQLException {
         PreparedStatement statement;
         String query;
