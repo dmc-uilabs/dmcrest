@@ -23,7 +23,7 @@ public class SQLUtils {
      */
     public static String buildOrderByClause (String order,  String sort, List<String> validSortFields)  {
 
-        String orderByClause = null;
+        String orderByClause = "";
         boolean lastFieldHasOrder = false;
         if (sort != null && sort.trim().length() > 0) {
             orderByClause = "ORDER ";
@@ -51,11 +51,11 @@ public class SQLUtils {
             }
         }
 
-        if (orderByClause != null) {
+        if (orderByClause.length() > 0) {
             orderByClause = orderByClause.substring(0, orderByClause.length()-2);   // remove last ", "
         }
         // order only added if ORDER BY
-        if (orderByClause != null && order != null && order.trim().length() >0) {
+        if (orderByClause.length() > 0 && order != null && order.trim().length() >0) {
             if (lastFieldHasOrder) {
                 throw new DMCServiceException(DMCError.BadURL, "specified order, but last field already had order");
             }
@@ -77,7 +77,7 @@ public class SQLUtils {
      */
     public static String buildLimitClause (Integer limit)  {
 
-        String limitClause = null;
+        String limitClause = "";
         if (limit != null) {
             limitClause = "LIMIT " + limit;
         }
@@ -85,7 +85,7 @@ public class SQLUtils {
     }
 
     public static String buildOffsetClause(Integer start) {
-        String offsetClause = null;
+        String offsetClause = "";
         if (start != null) {
             offsetClause = "OFFSET " + start;
         }

@@ -19,15 +19,15 @@ public class SQLUtilsTest {
     }
 
     @Test
-    public void setsStringToNullIfNoOrderOrSort() {
+    public void returnsEmptyStringIfNullOrderOrSort() {
         final String orderByClause = SQLUtils.buildOrderByClause(null, null, validSortFields);
-        assertNull(orderByClause);
+        assertEquals("", orderByClause);
     }
 
     @Test
-    public void setsStringToNullIfEmptyOrderAndSort() {
+    public void returnsEmptyStringIfEmptyOrderAndSort() {
         final String orderByClause = SQLUtils.buildOrderByClause("", "", validSortFields);
-        assertNull(orderByClause);
+        assertEquals("", orderByClause);
     }
 
     @Test
@@ -43,9 +43,9 @@ public class SQLUtilsTest {
     }
 
     @Test
-    public void setsStringToNullIfSortIsNull() {
+    public void returnsEmptyStringIfSortIsNull() {
         final String orderByClause = SQLUtils.buildOrderByClause("couldBeAnything", null, validSortFields);
-        assertNull(orderByClause);
+        assertEquals("", orderByClause);
     }
 
     @Test
@@ -94,9 +94,9 @@ public class SQLUtilsTest {
     }
 
     @Test
-    public void setsStringToNullIfLimitIsNull() {
+    public void returnsEmptyStringIfLimitIsNull() {
         final String limitClause = SQLUtils.buildLimitClause(null);
-        assertNull(limitClause);
+        assertEquals("", limitClause);
     }
 
     @Test
@@ -112,9 +112,9 @@ public class SQLUtilsTest {
     }
 
     @Test
-    public void returnsNullIfStartIsNull() {
+    public void returnsEmptyStringIfStartIsNull() {
         final String offsetClause = SQLUtils.buildOffsetClause(null);
-        assertNull(offsetClause);
+        assertEquals("", offsetClause);
     }
 
 }
