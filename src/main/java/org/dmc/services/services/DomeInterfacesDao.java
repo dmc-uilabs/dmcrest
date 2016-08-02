@@ -380,15 +380,6 @@ public class DomeInterfacesDao {
 				throw new DMCServiceException(DMCError.OtherSQLError, "unable to update dome interface " + postUpdateDomeInterface.toString());
 			}
 
-			//retObj.setId(domeInterfaceId.toString());
-			//retObj.setDomeServer(postUpdateDomeInterface.getDomeServer());
-			//retObj.setInterfaceId(postUpdateDomeInterface.getInterfaceId());
-			//retObj.setModelId(postUpdateDomeInterface.getModelId());
-			//retObj.setName(postUpdateDomeInterface.getName());
-			//retObj.setServiceId(new BigDecimal(Integer.toString(postUpdateDomeInterface.getServiceId())));
-			//retObj.setType(postUpdateDomeInterface.getType());
-			//retObj.setVersion(new BigDecimal(Integer.toString(postUpdateDomeInterface.getVersion())));
-
 			// Delete old path values
 			String query = "DELETE FROM service_interface_path WHERE interface_id=" + domeInterfaceId.toString();
 
@@ -422,8 +413,6 @@ public class DomeInterfacesDao {
 				}
 
 			}
-
-			//retObj.setPath(retPathList);
 
 			// Delete old parameters
 			String paramQuery = "DELETE FROM service_interface_parameter WHERE interface_id = ?";
@@ -465,8 +454,6 @@ public class DomeInterfacesDao {
 				i++;
 			}
 
-			//retObj.setInParams(postUpdateDomeInterface.getInParams());
-
 			Iterator<DomeModelParam> outParamsListIter = postUpdateDomeInterface.getOutParams().values().iterator();
 			String outParamsQuery = "INSERT into service_interface_parameter (interface_id, name, type, unit, category, default_value, parameter_id_txt, parameter_position, input_parameter, instancename) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			i = 1;
@@ -494,8 +481,6 @@ public class DomeInterfacesDao {
 
 				i++;
 			}
-
-			//retObj.setOutParams(postUpdateDomeInterface.getOutParams());
 
 		} catch (SQLException se) {
 			ServiceLogger.log(logTag, se.getMessage());
