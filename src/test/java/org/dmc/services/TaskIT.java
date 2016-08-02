@@ -221,6 +221,8 @@ public class TaskIT extends BaseIT {
 		retrievedTask.setStatus(null);
 		
 		Task patchedTask = patchTask(userEPPN, retrievedTask, id);
+		
+		assertTrue("testPatchTask: task did not patch correctly", patchedTask.getTitle().equals(retrievedTask.getTitle()));
 	}
 
 	@Test
@@ -240,6 +242,8 @@ public class TaskIT extends BaseIT {
 		retrievedTask.setStatus(null);
 		
 		Task patchedTask = patchTask(userEPPN, retrievedTask, id, OK);
+		
+		assertTrue("testPatchTask_withPreviouslyAssignedUser: task did not patch correctly", patchedTask.getTitle().equals(retrievedTask.getTitle()));
 	}
 
 	
