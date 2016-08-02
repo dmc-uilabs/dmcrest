@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -86,6 +87,16 @@ public class UserController {
     @RequestMapping(value = "/user/save", method = RequestMethod.POST)
 	public UserModel saveUser(@RequestBody UserModel user) {
 		return userService.save(user);
+	}
+
+//    @RequestMapping(value = "/user/createtoken", method = RequestMethod.POST)
+//    public String saveToken(@RequestParam("userId") Integer userId) {
+//    	return userService.save(userId);
+//    }
+
+	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)
+	public VerifyUserResponse getUserToken(@RequestParam("userId") Integer id, @RequestParam("token") String token) {
+		return userService.verifyUser(id, token);
 	}
 
     /*
