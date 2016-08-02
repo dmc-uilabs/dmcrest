@@ -7,4 +7,6 @@ import org.dmc.services.data.entities.OrganizationUser;
 public interface OrganizationUserRepository extends BaseRepository<OrganizationUser, Integer> {
 
 	List<OrganizationUser> findByOrganizationId (Integer organizationId);
+
+	OrganizationUser findByUserId(Integer userId);
 }

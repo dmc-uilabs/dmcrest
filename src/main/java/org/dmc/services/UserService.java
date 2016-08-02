@@ -1,5 +1,7 @@
 package org.dmc.services;
 
+import java.text.SimpleDateFormat;
+
 import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -7,6 +9,7 @@ import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserToken;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.data.repositories.UserRepository;
@@ -24,7 +27,12 @@ public class UserService {
 	private UserTokenRepository userTokenRepository;
 
 	@Inject
+	private OrganizationUserService orgUserService;
+
+	@Inject
 	private MapperFactory mapperFactory;
+
+	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
 
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -36,14 +44,32 @@ public class UserService {
 		return mapper.mapToModel(userRepository.save(mapper.mapToEntity(userModel)));
 	}
 
-//	public UserTokenModel save(Integer userId) {
-//		Mapper<UserToken, UserTokenModel> mapper = mapperFactory.mapperFor(UserToken.class, UserTokenModel.class);
-//		UserToken token = new UserToken();
-//		token.setUserId(userId);
-//		token.set
-//		token.setToken(DigestUtils.sha256Hex(token.getToken()));
-//		return mapper.mapToModel(userTokenRepository.save(token));
-//	}
+	public UserTokenModel createToken(Integer userId) {
+		Mapper<UserToken, UserTokenModel> mapper = mapperFactory.mapperFor(UserToken.class, UserTokenModel.class);
+		UserToken token = userTokenRepository.findByUserId(userId);
+		User userEntity = userRepository.findOne(userId);
+
+		java.util.Date todayDate = new java.util.Date();
+		java.sql.Date todayTimestamp = new java.sql.Date(todayDate.getTime());
+		String unhashedToken = userEntity.getFirstName() + userEntity.getLastName() + todayTimestamp.getTime();
+		String hashedToken = DigestUtils.sha256Hex(unhashedToken);
+
+		// If null, create a new token, else update existing
+		if(token == null) {
+			token = new UserToken();
+			token.setUserId(userId);
+			token.setDateIssued(todayTimestamp);
+			token.setToken(hashedToken);
+			token.setAttemptsMade(0);
+			token = userTokenRepository.save(token);
+		} else {
+			token.setDateIssued(todayTimestamp);
+			token.setToken(hashedToken);
+			token = userTokenRepository.save(token);
+		}
+
+		return mapper.mapToModel(token);
+	}
 
 	public VerifyUserResponse verifyUser(Integer userId, String token) {
 		Mapper<UserToken, UserTokenModel> mapper = mapperFactory.mapperFor(UserToken.class, UserTokenModel.class);
@@ -56,23 +82,25 @@ public class UserService {
 			return response;
 		}
 
-		if(tokenEntity.getAttemptsMade() <= 5) {
+		if(tokenEntity.getAttemptsMade() >= 5) {
 			userTokenRepository.delete(tokenEntity.getId());
 			response.setResponseCode(1000);
 			response.setResponseDescription("Too many unsuccessful attempts made to validate, please contact your administrator.");
 		} else {
+			if(tokenEntity.getToken().equals(token)) {
+				userTokenRepository.delete(tokenEntity.getId());
 
-			String sha256Token = DigestUtils.sha256Hex(token);
+				OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
+				orgUserModel.setIsVerified(true);
+				orgUserService.saveOrganizationUser(orgUserModel);
 
-			if(tokenEntity.getToken().equals(sha256Token)) {
-				//TODO update organization_user.is_verified column to true
 				response.setResponseCode(0);
 				response.setResponseDescription("Successfully verified user.");
 			} else {
 				tokenEntity.setAttemptsMade(tokenEntity.getAttemptsMade() + 1);
 				userTokenRepository.save(tokenEntity);
 				response.setResponseCode(1000);
-				response.setResponseDescription("Tokens did not match, " + tokenEntity.getAttemptsMade() + " attempts remaining.");
+				response.setResponseDescription("Tokens did not match, " + (5 - tokenEntity.getAttemptsMade()) + " attempts remaining.");
 			}
 		}
 
