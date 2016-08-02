@@ -95,25 +95,33 @@ public class TaskDao {
 				throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "User is not authorized to edit task");
 			}
 			
-			Integer taskId = Integer.parseInt(taskIdStr);
-			String title = task.getTitle();
-			String description = task.getAdditionalDetails();
-			Integer priority = task.getPriority();
-			java.sql.Timestamp endDate = new java.sql.Timestamp(task.getDueDate());
-			Integer statusId = new Integer(1);
+			final Integer taskId = Integer.parseInt(taskIdStr);
+			final String title;
+			final String description;
+			final Integer priority;
+			final java.sql.Timestamp endDate;
+			final Integer statusId;
+			final String query;
+			final PreparedStatement preparedStatement;
 			if (task.getStatus() != null) {
 				statusId = TaskStatus.StatusValues.valueOf(task.getStatus().toUpperCase()).getValue();
+				query = "UPDATE project_task SET status_id=? WHERE project_task_id=?";
+				preparedStatement = DBConnector.prepareStatement(query);
+				preparedStatement.setInt(1, statusId);
+			} else {
+				title = task.getTitle();
+				description = task.getAdditionalDetails();
+				priority = task.getPriority();
+				endDate = new java.sql.Timestamp(task.getDueDate());
+				query = "UPDATE project_task SET summary=?, details=?, priority=?, end_date=? WHERE project_task_id=?";
+				preparedStatement = DBConnector.prepareStatement(query);
+				preparedStatement.setString(1, title);
+				preparedStatement.setString(2, description);
+				preparedStatement.setInt(3, priority);
+				preparedStatement.setTimestamp(4, endDate);
+				preparedStatement.setInt(5, taskId);
 			}
-			
-			String query = "UPDATE project_task SET summary=?, details=?, priority=?, end_date=?, status_id=? WHERE project_task_id=?";
-			
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-			preparedStatement.setString(1, title);
-			preparedStatement.setString(2, description);
-			preparedStatement.setInt(3, priority);
-			preparedStatement.setTimestamp(4, endDate);
-			preparedStatement.setInt(5, statusId);
-			preparedStatement.setInt(6, taskId);
+
 			ServiceLogger.log(logTag, "update query for project_task prepared");
 			preparedStatement.executeUpdate();
 			ServiceLogger.log(logTag, "update query performed");
