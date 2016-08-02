@@ -1,37 +1,27 @@
 package org.dmc.services;
 
-import java.util.Arrays;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import org.dmc.services.profile.Profile;
+import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import com.amazonaws.services.devicefarm.model.Project;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.dmc.services.discussions.Discussion;
-import org.dmc.services.profile.Profile;
-import org.junit.Before;
-import org.junit.After;
-import static org.junit.Assert.*;
 
 import com.jayway.restassured.specification.RequestSpecification;
-import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-
-import org.dmc.services.utility.TestUserUtil;
-import java.net.URL;
-import java.net.*;
-import java.io.*;
 
 public class ProfileIT extends BaseIT {
 	
@@ -45,57 +35,44 @@ public class ProfileIT extends BaseIT {
 	private String profileId = "1";
 	
 	private Integer createdId = -1;
-	//	String randomEPPN = UUID.randomUUID().toString();
-	String unique = null;
-	
-	//for AWS Test
-	String preSignedURL = null;
-	URL url = null;
-	
+//	String randomEPPN = UUID.randomUUID().toString();
+    private String knownEPPN;
+    
+    //for AWS Test
+    String preSignedURL = null;
+    URL url = null;
+
 	// Setup test data
 	@Before
 	//@Test
 	public void testProfileCreate() {
-		unique = TestUserUtil.generateTime();
-		
-		//        Integer id =
-		given().
-		header("Content-type", "text/plain").
-		header("AJP_eppn", "userEPPN" + unique).
-		header("AJP_givenName", "userGivenName" + unique).
-		header("AJP_sn", "userSurname" + unique).
-		header("AJP_displayName", unique).
-		header("AJP_mail", "userEmail" + unique).
-		expect().
-		statusCode(200).
-		when().
-		get("/user");
-		//		then().
-		//        body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
-		//        extract().path("id");
-		
-		
+		if (knownEPPN == null) {
+			knownEPPN = TestUserUtil.createNewUser();
+		}
+
+        
 		JSONObject json = createFixture("create");
 		this.createdId = given()
-		.header("Content-type", APPLICATION_JSON_VALUE)
-		.header("AJP_eppn", "userEPPN" + unique)
-		.body(json.toString())
-		.expect()
-		.statusCode(200)
-		.when()
-		.post(PROFILE_CREATE_RESOURCE)
-		.then()
-		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-		.extract()
-		.path("id");
+            .header("Content-type", "application/json")
+				.header("AJP_eppn", knownEPPN)
+				.body(json.toString())
+				.expect()
+				.statusCode(200)
+				.when()
+				.post(PROFILE_CREATE_RESOURCE)
+				.then()
+				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+				.extract()
+				.path("id");
 		
 		//Adding test to get out preSignedURL
 		Profile profile = given()
-		.header("AJP_eppn", "userEPPN" + unique)
-		.expect()
-		.statusCode(200)
-		.when()
-		.get(PROFILE_READ_RESOURCE, this.createdId.toString()).as(Profile.class);
+               .header("AJP_eppn", knownEPPN)
+               .expect()
+               .statusCode(200)
+               .when()
+               .get(PROFILE_READ_RESOURCE, this.createdId.toString()).as(Profile.class); 
+
 		
 		//Extract
 		this.preSignedURL = profile.getImage();
@@ -134,7 +111,7 @@ public class ProfileIT extends BaseIT {
 		JSONObject json = createFixture("update");
 		if (this.createdId > 0) {
 			Integer retrivedId = given()
-			.header("AJP_eppn", "userEPPN" + unique)
+			.header("AJP_eppn", knownEPPN)
 			.expect()
 			.statusCode(200)
 			.when()
@@ -157,7 +134,7 @@ public class ProfileIT extends BaseIT {
 			Integer retrivedId =
 			given()
 			.header("Content-type", APPLICATION_JSON_VALUE)
-			.header("AJP_eppn", "userEPPN" + unique)
+			.header("AJP_eppn", knownEPPN)
 			.body(json.toString())
 			.expect()
 			.statusCode(200)
@@ -186,7 +163,7 @@ public class ProfileIT extends BaseIT {
 			final Integer retrivedId =
 			given()
 			.header("Content-type", APPLICATION_JSON_VALUE)
-			.header("AJP_eppn", "userEPPN" + unique)
+			.header("AJP_eppn", knownEPPN)
 			.body(json.toString())
 			.expect()
 			.statusCode(200)
@@ -207,7 +184,7 @@ public class ProfileIT extends BaseIT {
 	public void testProfileDelete() {
 		if (this.createdId > 0) {
 			given()
-			.header("AJP_eppn", "userEPPN" + unique)
+			.header("AJP_eppn", knownEPPN)
 			.expect().statusCode(200)
 			.when()
 			.get(PROFILE_DELETE_RESOURCE, this.createdId.toString())
@@ -298,7 +275,7 @@ public class ProfileIT extends BaseIT {
 	 */
 	@Test
 	public void testProfileGet_Profiles_defaultResponce(){
-		List<Profile> profiles = getProfiles("userEPPN" + unique);
+		List<Profile> profiles = getProfiles(knownEPPN);
 		
 		assertTrue("No profiles retruned", profiles.size() > 0);
 		assertTrue("No profiles retruned", profiles.size() < 100);  // default limit
@@ -320,7 +297,7 @@ public class ProfileIT extends BaseIT {
 	 */
 	@Test
 	public void testProfileGet_Profiles_assendingOrderResponce(){
-		List<Profile> profiles = getProfiles("userEPPN" + unique, 100, "ASC", "realname", null);
+		List<Profile> profiles = getProfiles(knownEPPN, 100, "ASC", "realname", null);
 		
 		assertTrue("No profiles retruned", profiles.size() > 0);
 		assertTrue("No profiles retruned", profiles.size() < 100);  // default limit
@@ -341,7 +318,7 @@ public class ProfileIT extends BaseIT {
 	 */
 	@Test
 	public void testProfileGet_Profiles_assendingOrderForTitleResponce(){
-		List<Profile> profiles = getProfiles("userEPPN" + unique, 100, "ASC", "title", null);
+		List<Profile> profiles = getProfiles(knownEPPN, 100, "ASC", "title", null);
 		
 		assertTrue("No profiles retruned", profiles.size() > 0);
 		assertTrue("No profiles retruned", profiles.size() < 100);  // default limit
@@ -364,15 +341,15 @@ public class ProfileIT extends BaseIT {
 	 */
 	@Test
 	public void testProfileGet_Profiles_limitResponce(){
-		List<Profile> profiles = getProfiles("userEPPN" + unique, 1);
+		List<Profile> profiles = getProfiles(knownEPPN, 1);
 		assertTrue("No profiles retruned", profiles.size() > 0);
 		assertTrue("More then 1 profile retruned", profiles.size() <= 1);
 		
-		profiles = getProfiles("userEPPN" + unique, 3);
+		profiles = getProfiles(knownEPPN, 3);
 		assertTrue("No profiles retruned", profiles.size() > 0);
 		assertTrue("More then 3 profiles retruned", profiles.size() <= 3);
 		
-		profiles = getProfiles("userEPPN" + unique, 0);
+		profiles = getProfiles(knownEPPN, 0);
 		assertTrue("Non-zero profiles returned", profiles.size() == 0);
 	}
 	
@@ -381,7 +358,7 @@ public class ProfileIT extends BaseIT {
 	 */
 	@Test
 	public void testProfileGet_Profiles_IdListResponce(){
-		List<Profile> hundredProfiles = getProfiles("userEPPN" + unique);
+		List<Profile> hundredProfiles = getProfiles(knownEPPN);
 		
 		Random random = new Random();
 		int numberOfSamples = random.nextInt(hundredProfiles.size());
@@ -398,7 +375,7 @@ public class ProfileIT extends BaseIT {
 		ServiceLogger.log(LOGTAG, "ids equal " + ids.toString());
 		
 		// retrieve subset profiles
-		List<Profile> profilesSubset = getProfiles("userEPPN" + unique, 100, "DESC", "realname", ids);
+		List<Profile> profilesSubset = getProfiles(knownEPPN, 100, "DESC", "realname", ids);
 		
 		assertTrue("size of ids is " + ids.size() +
 				   " and size of profilesSubset is " + profilesSubset.size() +

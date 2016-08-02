@@ -3,6 +3,7 @@ package org.dmc.services.data.entities;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -106,6 +107,9 @@ public class Organization extends BaseEntity {
 	private String isOwner;
 
 	private String owner;
+	
+	@OneToOne(mappedBy = "organization", fetch = FetchType.LAZY)
+	private DMDIIMember dmdiiMember;
 
 	public Integer getId() {
 		return id;
@@ -379,6 +383,14 @@ public class Organization extends BaseEntity {
 		this.owner = owner;
 	}
 
+	public DMDIIMember getDmdiiMember() {
+		return dmdiiMember;
+	}
+
+	public void setDmdiiMember(DMDIIMember dmdiiMember) {
+		this.dmdiiMember = dmdiiMember;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -392,6 +404,7 @@ public class Organization extends BaseEntity {
 		result = prime * result + ((dateJoining == null) ? 0 : dateJoining.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((division == null) ? 0 : division.hashCode());
+		result = prime * result + ((dmdiiMember == null) ? 0 : dmdiiMember.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((favoritesCount == null) ? 0 : favoritesCount.hashCode());
 		result = prime * result + ((featureImage == null) ? 0 : featureImage.hashCode());
@@ -473,6 +486,11 @@ public class Organization extends BaseEntity {
 			if (other.division != null)
 				return false;
 		} else if (!division.equals(other.division))
+			return false;
+		if (dmdiiMember == null) {
+			if (other.dmdiiMember != null)
+				return false;
+		} else if (!dmdiiMember.equals(other.dmdiiMember))
 			return false;
 		if (email == null) {
 			if (other.email != null)
@@ -601,4 +619,5 @@ public class Organization extends BaseEntity {
 			return false;
 		return true;
 	}
+	
 }

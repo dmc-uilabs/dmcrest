@@ -1,16 +1,15 @@
 package org.dmc.services;
 
-import org.dmc.services.utility.TestUserUtil;
-import org.json.JSONObject;
-import org.junit.Test;
-import org.junit.Before; 
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.Matchers.equalTo;
 
 import java.util.UUID;
 
-
-import static com.jayway.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.equalTo;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import org.dmc.services.utility.TestUserUtil;
+import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class UserBasicInformationIT extends BaseIT {  
@@ -128,7 +127,7 @@ public class UserBasicInformationIT extends BaseIT {
 			.header("Content-type", "application/json")
 			.body(json.toString())
 			.expect()
-			.statusCode(200)
+			.statusCode(500)
 			.when()
 			.post(UPDATE_RESOURCE)
 			.then()

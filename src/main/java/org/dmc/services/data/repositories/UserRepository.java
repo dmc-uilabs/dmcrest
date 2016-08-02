@@ -4,4 +4,6 @@ import org.dmc.services.data.entities.User;
 
 public interface UserRepository extends BaseRepository<User, Integer> {
 
+	User findFirstByUsername(String username);
+
 }
