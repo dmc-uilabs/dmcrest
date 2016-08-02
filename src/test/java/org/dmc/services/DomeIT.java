@@ -151,11 +151,11 @@ public class DomeIT extends BaseIT {
 	@Test
 	public void testGetModelWhenTypeIsInterface() {
 		BigDecimal version = new BigDecimal(1);
-		String interfaceId = "12bb9d5f-d8ec-1004-8394-4597bfb6a5f0";
-		String modelId = "12bb9d5e-d8ec-1004-8394-4597bfb6a5f0";
-		String name = "Default+Interface";
+		String interfaceId = "aff647db-d82f-1004-8e7b-5de38b2eeb0f";
+		String modelId = "aff647da-d82f-1004-8e7b-5de38b2eeb0f";
+		String name = "Default Interface";
 		List<BigDecimal> path = new ArrayList<BigDecimal>();
-		path.add(new BigDecimal(32));
+		path.add(new BigDecimal(30));
 		String type = "interface";
 
 		DomeModelResponse received = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("domeServer", domeServer)
@@ -168,7 +168,7 @@ public class DomeIT extends BaseIT {
 		assertTrue("testGetModelWhenTypeIsInterface: Description from dome server does not match expected result",
 				(received.getPkg().getDescription().equals("")));
 		assertTrue("testGetModelWhenTypeIsInterface: ModelId from dome server does not match expected result",
-				(received.getPkg().getInterface().getModelId().equals("12bb9d5e-d8ec-1004-8394-4597bfb6a5f0")));
+				(received.getPkg().getInterface().getModelId().equals("aff647da-d82f-1004-8e7b-5de38b2eeb0f")));
 
 	}
 
