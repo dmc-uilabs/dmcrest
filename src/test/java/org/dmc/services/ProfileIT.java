@@ -109,8 +109,6 @@ public class ProfileIT extends BaseIT {
 	}
 
 	
-	
-	
     // Tests to see if presignedURL Works
     /*
      * @Test public void urlGet() { if(this.preSignedURL != null){ //Create URL
@@ -128,8 +126,7 @@ public class ProfileIT extends BaseIT {
     @Test
     public void testProfileGet() {
 
-//        Profile json = createFixture("update");
-        if (this.createdId > 0) {
+		if (this.createdId > 0) {
             Integer retrivedId = given().header("AJP_eppn", "userEPPN" + unique).expect().statusCode(200).when()
                     .get(PROFILE_READ_RESOURCE, this.createdId.toString()).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");

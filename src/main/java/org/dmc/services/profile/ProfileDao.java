@@ -128,7 +128,6 @@ public class ProfileDao {
             ServiceLogger.log(LOGTAG, e.getMessage());
             throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value());
         }
-//		ServiceLogger.log(LOGTAG+" getProfile", profile.toString());
         return profile;
     }
 
