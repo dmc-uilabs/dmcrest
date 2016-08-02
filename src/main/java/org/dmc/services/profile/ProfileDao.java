@@ -60,7 +60,7 @@ public class ProfileDao {
 
             while (rs.next()) {
                 Profile profile = new Profile();
-                profile = setProfileValues(profile, rs);
+                profile = setProfileValues(rs);
                 profiles.add(profile);
             }
         } catch (SQLException e) {
@@ -70,9 +70,8 @@ public class ProfileDao {
         return profiles;
     }
 
-    private Profile setProfileValues(Profile profile, ResultSet resultSet) throws SQLException {
-        // id = resultSet.getString("id");
-        profile.setDisplayName(resultSet.getString("realname"));
+    private Profile setProfileValues(ResultSet resultSet) throws SQLException {
+		Profile profile = new Profile();
 
         // get company
         final CompanyDao companyDao = new CompanyDao();
@@ -80,6 +79,7 @@ public class ProfileDao {
         profile.setCompany(Integer.toString(companyId));
 
         profile.setId(resultSet.getString("user_id"));
+		profile.setDisplayName(resultSet.getString("realname"));
         profile.setJobTitle(resultSet.getString("title"));
         profile.setPhone(resultSet.getString("phone"));
         profile.setEmail(resultSet.getString("email"));
@@ -89,7 +89,7 @@ public class ProfileDao {
 
         // need to get skills;
         profile.setSkills(new ArrayList<String>());
-
+		
         return profile;
     }
 
@@ -107,7 +107,7 @@ public class ProfileDao {
             String userName = null;
 
             if (resultSet.next()) {
-                profile = setProfileValues(profile, resultSet);
+                profile = setProfileValues(resultSet);
                 userName = resultSet.getString("user_name");
             }
 
@@ -127,7 +127,7 @@ public class ProfileDao {
             ServiceLogger.log(LOGTAG, e.getMessage());
             throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value());
         }
-
+//		ServiceLogger.log(LOGTAG+" getProfile", profile.toString());
         return profile;
     }
 
