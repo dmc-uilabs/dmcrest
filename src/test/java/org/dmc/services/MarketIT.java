@@ -1,33 +1,31 @@
 package org.dmc.services;
 
-import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+
+import org.dmc.services.utility.TestUserUtil;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
 
-import java.util.ArrayList;
-
 public class MarketIT extends BaseIT {
     private final String logTag = MarketIT.class.getName();
-
-	/*
-	 * test case for GET /market/components
-	 */
-	@Test
-	public void testMarketGet_Component() {
-		given().
-		header("AJP_eppn", "user_EPPN").
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().
-		get("/market/components");
-	}
-	
+    
+    private String knownEPPN;
+    
+    @Before
+    public void before() {
+    	if (knownEPPN == null) {
+    		knownEPPN = TestUserUtil.createNewUser();
+    	}
+    }
 	
 	/*
 	 * test case for GET /market/services
@@ -36,7 +34,7 @@ public class MarketIT extends BaseIT {
 	public void testMarketGet_Service() {
         ValidatableResponse response =
                 given().
-                header("AJP_eppn", "user_EPPN").
+                header("AJP_eppn", knownEPPN).
                 parameter("dates", "1y").
                 expect().
                 statusCode(HttpStatus.OK.value()).
@@ -70,7 +68,7 @@ public class MarketIT extends BaseIT {
 
         ValidatableResponse response =
     		given().
-    		header("AJP_eppn", "user_EPPN").
+    		header("AJP_eppn", knownEPPN).
     		expect().
     		statusCode(HttpStatus.OK.value()).
     		when().
@@ -91,20 +89,6 @@ public class MarketIT extends BaseIT {
             fail("unable to map response to Service object: " + e.getMessage());
         }
 
-	}
-	
-	
-	/*
-	 * test case for GET /market/popular_services
-	 */
-	@Test
-	public void testMarketGet_PopularService() {
-		given().
-		header("AJP_eppn", "user_EPPN").
-		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-		when().
-		get("/market/popular_services");
 	}
 
 }

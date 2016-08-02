@@ -1,40 +1,39 @@
 package org.dmc.services;
 
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-
+import org.dmc.services.company.CompanyUserUtil;
+import org.dmc.services.discussions.Discussion;
+import org.dmc.services.profile.Profile;
+import org.dmc.services.projects.PostProjectJoinRequest;
+import org.dmc.services.projects.Project;
+import org.dmc.services.projects.ProjectCreateRequest;
+import org.dmc.services.projects.ProjectJoinRequest;
+import org.dmc.services.projects.ProjectTag;
+import org.dmc.services.users.UserDao;
+import org.dmc.services.utility.TestUserUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import static com.jayway.restassured.RestAssured.*;
-
-import com.jayway.restassured.response.ValidatableResponse;
-
-import org.json.JSONObject;
-import org.json.JSONArray;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.*;
-
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.CompanyUserUtil;
-import org.dmc.services.discussions.Discussion;
-import org.dmc.services.profile.Profile;
-import org.dmc.services.projects.ProjectCreateRequest;
-import org.dmc.services.projects.Project;
-import org.dmc.services.projects.ProjectJoinRequest;
-import org.dmc.services.projects.PostProjectJoinRequest;
-import org.dmc.services.projects.ProjectTag;
-import org.dmc.services.users.UserDao;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import com.jayway.restassured.response.ValidatableResponse;
 
 //@Ignore
 public class ProjectIT extends BaseIT {
@@ -53,9 +52,16 @@ public class ProjectIT extends BaseIT {
     private final String logTag = ProjectIT.class.getName();
     private DiscussionIT discussionIT = new DiscussionIT();
     private Integer createdId = null;
-    String randomEPPN = UUID.randomUUID().toString();
 
     private String projectId = "1";
+    private String knownEPPN;
+    
+    @Before
+    public void before() {
+    	if (knownEPPN == null) {
+    		knownEPPN = TestUserUtil.createNewUser();
+    	}
+    }
 
     @Test
     public void testProject6() {
@@ -188,9 +194,9 @@ public class ProjectIT extends BaseIT {
         this.testProjectCreateJsonString();
 
         if (this.createdId != null) {
-            Integer discussionId = discussionIT.createDiscussion(this.createdId);
+            Integer discussionId = createDiscussion(this.createdId);
             if (discussionId != null) {
-                JsonNode discussions = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN)
+                JsonNode discussions = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
                         .expect().statusCode(200).when().get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
                         .as(JsonNode.class);
 
@@ -211,6 +217,30 @@ public class ProjectIT extends BaseIT {
                 }
             }
         }
+    }
+    
+    private Integer createDiscussion(Integer projectId) {
+    	String projId = (projectId != null) ? projectId.toString() : "123";
+		JSONObject json = new JSONObject();
+		json.put("title", "test discussion title");
+		json.put("message", "test discussion message");
+		json.put("createdBy", "test-disc-created-by");
+		json.put("createdAt", 1232000);
+		json.put("accountId", "123");
+		json.put("projectId", projId);
+		
+		return given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", knownEPPN)
+				.body(json.toString())
+				.expect()
+				.statusCode(200)
+				.when()
+				.post("/discussions/create")
+				.then()
+				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+				.extract()
+				.path("id");
     }
 
     @Test
@@ -488,7 +518,7 @@ public class ProjectIT extends BaseIT {
             json.put("description", "test project description update");
             json.put("dueDate", 0);
 
-            updatedId = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN)
+            updatedId = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
                     .body(json.toString()).expect().statusCode(200).when()
                     .patch(PROJECT_UPDATE_RESOURCE, this.createdId).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
@@ -541,7 +571,7 @@ public class ProjectIT extends BaseIT {
 
         this.testProjectCreateJsonString();
         if (this.createdId != null) {
-            String response = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect()
+            String response = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).expect()
                     .statusCode(403).when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser).asString();
 
             assertTrue("Not Admin", response.contains("does not have permission to accept members"));
@@ -572,10 +602,11 @@ public class ProjectIT extends BaseIT {
     public void testProjectMemberRejecttNotAdmin() {
 
         String adminUser = "fforgeadmin";
+        
 
         this.testProjectCreateJsonString();
         if (this.createdId != null) {
-            String response = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect()
+            String response = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).expect()
                     .statusCode(403).when().delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser).asString();
 
             assertTrue("Not Admin", response.contains("not have permission to remove members"));
