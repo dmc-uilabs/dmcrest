@@ -218,6 +218,7 @@ public class TaskIT extends BaseIT {
 
 		retrievedTask.setAssignee(userEPPN);
 		retrievedTask.setAssigneeId("111");
+		retrievedTask.setStatus(null);
 		
 		Task patchedTask = patchTask(userEPPN, retrievedTask, id);
 	}
@@ -236,6 +237,7 @@ public class TaskIT extends BaseIT {
 		
 		retrievedTask.setAssignee(userEPPN);
 		retrievedTask.setAssigneeId("103");
+		retrievedTask.setStatus(null);
 		
 		Task patchedTask = patchTask(userEPPN, retrievedTask, id, OK);
 	}
