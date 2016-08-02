@@ -1,15 +1,9 @@
 package org.dmc.services.event;
 import org.dmc.services.DMCServiceException;
-import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.Company;
-import org.dmc.services.company.CompanyController;
-import org.dmc.services.company.CompanyDao;
-import org.dmc.services.company.CompanyVideo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -20,11 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.ws.http.HTTPException;
-
-import static org.springframework.http.MediaType.*;
 
 //@RequestMapping(value = "/events", produces = {APPLICATION_JSON_VALUE})
 //@javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
