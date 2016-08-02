@@ -1,14 +1,19 @@
 package org.dmc.services.company;
 
-import org.dmc.services.*;
-import org.dmc.services.utils.SQLUtils;
-
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.DMCError;
+import org.dmc.services.DBConnector;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.Id;
+import org.dmc.services.utils.SQLUtils;
+
 
 /**
  * Created by 200005921 on 6/9/2016.
@@ -74,7 +79,8 @@ public class CompanyReviewDao {
             }
 
             // "ORDER BY " + sort + " " + order + " LIMIT " + limit;
-            String orderByClause = SQLUtils.buildOrderByClause(order, sort);
+            final ArrayList<String> validFieldsForSort = getReviewFields();
+            String orderByClause = SQLUtils.buildOrderByClause(order, sort, validFieldsForSort);
             String limitClause = SQLUtils.buildLimitClause(limit);
 
 //            String query =
@@ -161,6 +167,31 @@ public class CompanyReviewDao {
         return reviews;
     }
 
+    private static ArrayList<String> getReviewFields() {
+        final ArrayList<String> reviewFields = new ArrayList<String>();
+        reviewFields.add("id");
+        reviewFields.add("organization_id");
+        reviewFields.add("name");
+        reviewFields.add("accountId");
+        reviewFields.add("review_timestamp");
+        reviewFields.add("comment");
+        reviewFields.add("rating");
+        reviewFields.add("count_helpfulOrNot");
+        return reviewFields;
+    }
+
+    private static ArrayList<String> getReviewReplyFields() {
+        final ArrayList<String> reviewReplyFields = new ArrayList<String>();
+        reviewReplyFields.add("id");
+        reviewReplyFields.add("organization_id");
+        reviewReplyFields.add("name");
+        reviewReplyFields.add("accountId");
+        reviewReplyFields.add("review_reply_timestamp");
+        reviewReplyFields.add("comment");
+        reviewReplyFields.add("count_helpfulOrNot");
+        return reviewReplyFields;
+    }
+
     public List<CompanyReview> getReviewReplies (int companyId,
                                            String reviewId,
                                            Integer limit,
@@ -222,7 +253,9 @@ public class CompanyReviewDao {
 //            }
 
             // "ORDER BY " + sort + " " + order + " LIMIT " + limit;
-            String orderByClause = SQLUtils.buildOrderByClause(order, sort);
+
+            final ArrayList<String> validFieldsForSort = getReviewReplyFields();
+            String orderByClause = SQLUtils.buildOrderByClause(order, sort, validFieldsForSort);
             String limitClause = SQLUtils.buildLimitClause(limit);
 
             String query =
