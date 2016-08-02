@@ -108,6 +108,7 @@ public class TaskDao {
 				query = "UPDATE project_task SET status_id=? WHERE project_task_id=?";
 				preparedStatement = DBConnector.prepareStatement(query);
 				preparedStatement.setInt(1, statusId);
+				preparedStatement.setInt(2, taskId);
 			} else {
 				title = task.getTitle();
 				description = task.getAdditionalDetails();
