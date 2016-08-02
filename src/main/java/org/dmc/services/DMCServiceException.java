@@ -3,9 +3,10 @@ package org.dmc.services;
 import org.springframework.http.HttpStatus;
 
 
-public class DMCServiceException extends Exception {
+public class DMCServiceException extends RuntimeException {
 
-	private DMCError error;
+    private static final long serialVersionUID = 3203632117392984971L;
+    private DMCError error;
 
 	public DMCServiceException(DMCError e, String m)
 	{
