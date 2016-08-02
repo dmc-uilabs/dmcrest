@@ -109,6 +109,11 @@ public class TaskDao {
 				preparedStatement = DBConnector.prepareStatement(query);
 				preparedStatement.setInt(1, statusId);
 				preparedStatement.setInt(2, taskId);
+				
+				ServiceLogger.log(logTag, "update query for project_task prepared");
+				preparedStatement.executeUpdate();
+				ServiceLogger.log(logTag, "update query performed");
+				id = taskId.intValue();
 			} else {
 				title = task.getTitle();
 				description = task.getAdditionalDetails();
@@ -121,14 +126,16 @@ public class TaskDao {
 				preparedStatement.setInt(3, priority);
 				preparedStatement.setTimestamp(4, endDate);
 				preparedStatement.setInt(5, taskId);
+				
+				ServiceLogger.log(logTag, "update query for project_task prepared");
+				preparedStatement.executeUpdate();
+				ServiceLogger.log(logTag, "update query performed");
+				id = taskId.intValue();
+				
+				assignTask(id, task.getAssigneeId());
 			}
 
-			ServiceLogger.log(logTag, "update query for project_task prepared");
-			preparedStatement.executeUpdate();
-			ServiceLogger.log(logTag, "update query performed");
-			id = taskId.intValue();
 			
-			assignTask(id, task.getAssigneeId());
 			
 			ServiceLogger.log(logTag, "created task ID in insertTask: " + id);
 		} catch (SQLException e) {
