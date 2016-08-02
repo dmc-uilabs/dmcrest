@@ -13,16 +13,26 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OrganizationUserService {
-	
+
 	@Inject
 	private OrganizationUserRepository organizationUserRepository;
-	
+
 	@Inject
 	private MapperFactory mapperFactory;
-	
+
 	public List<OrganizationUserModel> getUsersByOrganizationId (Integer organizationId) {
 		Mapper<OrganizationUser, OrganizationUserModel> mapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
 		return mapper.mapToModel(organizationUserRepository.findByOrganizationId(organizationId));
+	}
+
+	public OrganizationUserModel getOrganizationUserByUserId(Integer userId) {
+		Mapper<OrganizationUser, OrganizationUserModel> mapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
+		return mapper.mapToModel(organizationUserRepository.findByUserId(userId));
+	}
+
+	public OrganizationUserModel saveOrganizationUser(OrganizationUserModel model) {
+		Mapper<OrganizationUser, OrganizationUserModel> mapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
+		return mapper.mapToModel(organizationUserRepository.save(mapper.mapToEntity(model)));
 	}
 
 }

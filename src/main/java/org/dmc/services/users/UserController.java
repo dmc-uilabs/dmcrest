@@ -8,6 +8,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
 import org.dmc.services.data.models.UserModel;
+import org.dmc.services.data.models.UserTokenModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -89,10 +90,10 @@ public class UserController {
 		return userService.save(user);
 	}
 
-//    @RequestMapping(value = "/user/createtoken", method = RequestMethod.POST)
-//    public String saveToken(@RequestParam("userId") Integer userId) {
-//    	return userService.save(userId);
-//    }
+	@RequestMapping(value = "/user/createtoken", method = RequestMethod.POST)
+	public UserTokenModel saveToken(@RequestParam("userId") Integer userId) {
+		return userService.createToken(userId);
+	}
 
 	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)
 	public VerifyUserResponse getUserToken(@RequestParam("userId") Integer id, @RequestParam("token") String token) {
