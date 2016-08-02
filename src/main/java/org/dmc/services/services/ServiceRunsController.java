@@ -32,9 +32,15 @@ public class ServiceRunsController {
 	}
 
 	@RequestMapping(value = "/{id}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-	public ResponseEntity<GetServiceRun> serviceRunsIdGet(@PathVariable("id") String id) {
-		// do some magic!
-		return new ResponseEntity<GetServiceRun>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity getServiceRunsFromId(@PathVariable("id") String id) {
+		final ServiceRunsDao serviceRunsDao = new ServiceRunsDao();
+		try {
+			ServiceLogger.log(LOGTAG, "In getServiceRunsFromId");
+			return new ResponseEntity<GetServiceRun>(serviceRunsDao.getSingleServiceRun(id), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(LOGTAG, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	@RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
@@ -51,16 +57,15 @@ public class ServiceRunsController {
 	}
 
 	@RequestMapping(value = "/{id}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
-	public ResponseEntity<GetServiceRun> serviceRunsIdPatch(@PathVariable("id") String id, @RequestBody UpdateServiceRun body) {
-		// do some magic!
-		return new ResponseEntity<GetServiceRun>(HttpStatus.NOT_IMPLEMENTED);
-	}
-
-	@RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
-	public ResponseEntity<GetServiceRun> serviceRunsPost(@RequestBody PostServiceRun body, @RequestParam(value = "limit", required = false) Integer limit,
-			@RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<GetServiceRun>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity patchServiceRun(@PathVariable("id") String id, @RequestBody GetServiceRun body) {
+		final ServiceRunsDao serviceRunsDao = new ServiceRunsDao();
+		try {
+			ServiceLogger.log(LOGTAG, "In patchServiceRun");
+			return new ResponseEntity<GetServiceRun>(serviceRunsDao.updateServiceRun(id, body), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(LOGTAG, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 }
