@@ -30,6 +30,9 @@ public class UserService {
 	private OrganizationUserService orgUserService;
 
 	@Inject
+	private UserRoleService userRoleService;
+
+	@Inject
 	private MapperFactory mapperFactory;
 
 	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
@@ -93,6 +96,11 @@ public class UserService {
 				OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
 				orgUserModel.setIsVerified(true);
 				orgUserService.saveOrganizationUser(orgUserModel);
+
+				// TODO: make user a company admin if they're the first verified user
+				if(orgUserService.getNumberOfVerifiedUsers(orgUserModel.getOrganizationId()) == 0) {
+
+				}
 
 				response.setResponseCode(0);
 				response.setResponseDescription("Successfully verified user.");

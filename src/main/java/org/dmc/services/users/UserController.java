@@ -5,13 +5,18 @@ import javax.xml.ws.http.HTTPException;
 
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
+import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
+import org.dmc.services.security.PermissionEvaluationHelper;
+import org.dmc.services.security.SecurityRoles;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +35,9 @@ public class UserController {
 
 	@Inject
 	private UserService userService;
+
+	@Inject
+	private OrganizationUserService orgUserService;
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     public Id createUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
@@ -90,9 +98,15 @@ public class UserController {
 		return userService.save(user);
 	}
 
+    @PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
 	@RequestMapping(value = "/user/createtoken", method = RequestMethod.POST)
 	public UserTokenModel saveToken(@RequestParam("userId") Integer userId) {
-		return userService.createToken(userId);
+    	Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
+    	if(PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
+    		return userService.createToken(userId);
+    	} else {
+    		throw new AccessDeniedException("403 Permission Denied");
+    	}
 	}
 
 	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)

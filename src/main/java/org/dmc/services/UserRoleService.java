@@ -14,15 +14,15 @@ public class UserRoleService {
 
 	@Inject
 	private UserRoleRepository userRoleRepository;
-	
+
 	@Inject
 	private MapperFactory mapperFactory;
-	
+
 	public UserRoleModel findOne(Integer id) {
 		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
 		return mapper.mapToModel(userRoleRepository.findOne(id));
 	}
-	
+
 	public UserRoleModel save (UserRoleModel userRoleModel) {
 		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
 		return mapper.mapToModel(userRoleRepository.save(mapper.mapToEntity(userRoleModel)));
@@ -32,4 +32,13 @@ public class UserRoleService {
 		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
 		return mapper.mapToModel(userRoleRepository.findByUserId(dmdiiMemberId));
 	}
+
+//	public UserRoleModel createCompanyAdmin(Integer userId, Integer organizationId) {
+//		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
+//		UserRole role = new UserRole();
+//		role.setOrganizationId(organizationId);
+//		role.setRoleId(2);
+//		role.setUserId(orgUserModel.getUserId());
+//		userRoleRepository.save(role);
+//	}
 }
