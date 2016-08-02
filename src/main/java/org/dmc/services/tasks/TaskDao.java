@@ -34,6 +34,8 @@ public class TaskDao {
 	
 	public Id deleteTask(String taskID, String userEPPN) throws DMCServiceException {
 		ServiceLogger.log(logTag, "deleteTask; TaskID " +taskID+ " User: " + userEPPN);
+		Connection connection = DBConnector.connection();
+		int rowsAffected;
 		
 		ResultSet resultSet = queryTask(taskID);
 		if(null == resultSet) {
@@ -51,6 +53,7 @@ public class TaskDao {
 		}
 		
 		try {
+			connection.setAutoCommit(false);
 			int reporterId = UserDao.getUserID(task.getReporter());
 			int assigneeId = UserDao.getUserID(task.getAssignee());
 			
@@ -63,24 +66,47 @@ public class TaskDao {
 			final String query = "DELETE FROM project_assigned_to WHERE project_task_id = ?";
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, taskId);
-			preparedStatement.executeUpdate();
+			rowsAffected = preparedStatement.executeUpdate();
+			if (rowsAffected < 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove task " + taskID);
+			}
 			
 			final String deleteQuery = "DELETE FROM project_task WHERE project_task_id = ?";
 			PreparedStatement statement = DBConnector.prepareStatement(deleteQuery);
 			statement.setInt(1, taskId);
-			statement.executeUpdate();
+			rowsAffected = statement.executeUpdate();
+			if (rowsAffected < 1) {
+				connection.rollback();
+				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove task " + taskID);
+			}
+			
 			return new Id.IdBuilder(taskId).build();
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, "deleteTask; Other SQL Error");
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				ServiceLogger.log(logTag, e1.getMessage());
+			}
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
 		}
 	}
 	
 	public Task patchTask(String taskIdStr, Task task, String userEPPN) throws DMCServiceException {
 		int id = -99999;
 		final ProjectDao projectDao = new ProjectDao();
+		Connection connection = DBConnector.connection();
+		int rowsAffected;
 		
 		try {
+			connection.setAutoCommit(false);
 			int projectId = 0;
 			String projectQuery = "SELECT group_project_id FROM project_task WHERE project_task_id = ?";
 			PreparedStatement preparedStatementProject = DBConnector.prepareStatement(projectQuery);
@@ -111,7 +137,11 @@ public class TaskDao {
 				preparedStatement.setInt(2, taskId);
 				
 				ServiceLogger.log(logTag, "update query for project_task prepared");
-				preparedStatement.executeUpdate();
+				rowsAffected = preparedStatement.executeUpdate();
+				if (rowsAffected < 1) {
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove task " + taskIdStr);
+				}
 				ServiceLogger.log(logTag, "update query performed");
 				id = taskId.intValue();
 			} else {
@@ -128,7 +158,11 @@ public class TaskDao {
 				preparedStatement.setInt(5, taskId);
 				
 				ServiceLogger.log(logTag, "update query for project_task prepared");
-				preparedStatement.executeUpdate();
+				rowsAffected = preparedStatement.executeUpdate();
+				if (rowsAffected < 1) {
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "error trying to remove task " + taskIdStr);
+				}
 				ServiceLogger.log(logTag, "update query performed");
 				id = taskId.intValue();
 				
@@ -140,10 +174,21 @@ public class TaskDao {
 			ServiceLogger.log(logTag, "created task ID in insertTask: " + id);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				ServiceLogger.log(logTag, e1.getMessage());
+			}
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
 		} catch (JSONException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(logTag, se.getMessage());
+			}
 		}
 		return getTask(Integer.toString(id), userEPPN);
 	}
