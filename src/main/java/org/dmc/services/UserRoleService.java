@@ -33,12 +33,21 @@ public class UserRoleService {
 		return mapper.mapToModel(userRoleRepository.findByUserId(dmdiiMemberId));
 	}
 
-//	public UserRoleModel createCompanyAdmin(Integer userId, Integer organizationId) {
-//		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
-//		UserRole role = new UserRole();
-//		role.setOrganizationId(organizationId);
-//		role.setRoleId(2);
-//		role.setUserId(orgUserModel.getUserId());
-//		userRoleRepository.save(role);
-//	}
+	public UserRoleModel setUserAsCompanyAdmin(Integer userId, Integer organizationId) {
+		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
+		UserRoleModel role = new UserRoleModel();
+		role.setOrganizationId(organizationId);
+		role.setRoleId(2);
+		role.setUserId(userId);
+		return this.save(role);
+	}
+
+	public UserRoleModel setUserAsCompanyMember(Integer userId, Integer organizationId) {
+		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
+		UserRoleModel role = new UserRoleModel();
+		role.setOrganizationId(organizationId);
+		role.setRoleId(4);
+		role.setUserId(userId);
+		return this.save(role);
+	}
 }
