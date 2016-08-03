@@ -55,12 +55,12 @@ public class TaskController {
     }
 
 	@RequestMapping(value = "/tasks/{taskID}", method = PATCH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> patchTask(@RequestBody Task payload,
+	public ResponseEntity<?> patchTask(@PathVariable("taskID") String taskId, @RequestBody Task payload,
 									   @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(LOGTAG, "PATCH /tasks/{taskID} called by user " +userEPPN+ " with Payload: " + payload);
 		
 		try {
-			final Task patchedTask = task.patchTask(payload, userEPPN);
+			final Task patchedTask = task.patchTask(taskId, payload, userEPPN);
 			return new ResponseEntity<Task>(patchedTask, OK);
 		} catch (DMCServiceException e) {
 			return new ResponseEntity<String>(e.getMessage(), INTERNAL_SERVER_ERROR);
