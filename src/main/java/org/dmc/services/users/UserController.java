@@ -12,6 +12,8 @@ import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
+import org.dmc.services.security.UserPrincipalService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +33,16 @@ public class UserController {
 
 	private final String logTag = UserController.class.getName();
 
-	private UserDao user = new UserDao();
+	private UserDao userDAO = new UserDao();
 
 	@Inject
 	private UserService userService;
 
 	@Inject
 	private OrganizationUserService orgUserService;
+	
+	@Inject
+	private UserPrincipalService userPrincipalService;
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
     public Id createUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
@@ -53,7 +58,7 @@ public class UserController {
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
 
-        return user.createUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+        return userDAO.createUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
 
     	//Create role and update db through JDBC then return role using new role's id
     }
@@ -66,8 +71,13 @@ public class UserController {
                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
+        
+        User user = userDAO.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+        UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userEPPN);
+        user.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
+        user.setRoles(userPrincipal.getAllRoles());
 
-        return user.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+        return user;
     }
 
     @RequestMapping(value = "/user", produces = { "application/json" }, method = RequestMethod.PATCH)
@@ -80,7 +90,7 @@ public class UserController {
         User patchedUser = null;
 
         try{
-            patchedUser = user.patchUser(userEPPN, patchUser);
+            patchedUser = userDAO.patchUser(userEPPN, patchUser);
         } catch(HTTPException httpException) {
             httpStatusCode = httpException.getStatusCode();
         }
