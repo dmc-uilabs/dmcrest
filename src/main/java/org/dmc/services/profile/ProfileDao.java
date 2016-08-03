@@ -60,7 +60,7 @@ public class ProfileDao {
 
             while (rs.next()) {
                 Profile profile = new Profile();
-                profile = setProfileValues(profile, rs);
+                profile = setProfileValues(rs);
                 profiles.add(profile);
             }
         } catch (SQLException e) {
@@ -70,9 +70,8 @@ public class ProfileDao {
         return profiles;
     }
 
-    private Profile setProfileValues(Profile profile, ResultSet resultSet) throws SQLException {
-        // id = resultSet.getString("id");
-        profile.setDisplayName(resultSet.getString("realname"));
+    private Profile setProfileValues(ResultSet resultSet) throws SQLException {
+		Profile profile = new Profile();
 
         // get company
         final CompanyDao companyDao = new CompanyDao();
@@ -80,6 +79,7 @@ public class ProfileDao {
         profile.setCompany(Integer.toString(companyId));
 
         profile.setId(resultSet.getString("user_id"));
+		profile.setDisplayName(resultSet.getString("realname"));
         profile.setJobTitle(resultSet.getString("title"));
         profile.setPhone(resultSet.getString("phone"));
         profile.setEmail(resultSet.getString("email"));
@@ -88,8 +88,9 @@ public class ProfileDao {
         profile.setDescription(resultSet.getString("people_resume"));
 
         // need to get skills;
-        profile.setSkills(new ArrayList<String>());
-
+		ArrayList<String> skills = getSkills(profile.getId());
+		profile.setSkills(skills);
+		
         return profile;
     }
 
@@ -107,7 +108,7 @@ public class ProfileDao {
             String userName = null;
 
             if (resultSet.next()) {
-                profile = setProfileValues(profile, resultSet);
+                profile = setProfileValues(resultSet);
                 userName = resultSet.getString("user_name");
             }
 
@@ -127,7 +128,6 @@ public class ProfileDao {
             ServiceLogger.log(LOGTAG, e.getMessage());
             throw new HTTPException(HttpStatus.GATEWAY_TIMEOUT.value());
         }
-
         return profile;
     }
 
@@ -324,6 +324,27 @@ public class ProfileDao {
         return true;
     }
 
+	public ArrayList<String> getSkills(int userId) throws SQLException {
+		ArrayList<String> skills = new ArrayList<String>();
+		
+		String query = "SELECT people_skill.name "+
+					   "FROM people_skill INNER JOIN people_skill_inventory "+
+		               "ON people_skill.skill_id=people_skill_inventory.skill_id "+
+		               "WHERE people_skill_inventory.user_id = ?";
+		
+		PreparedStatement statement = DBConnector.prepareStatement(query);
+		statement.setInt(1, userId);
+		final ResultSet resultSet = statement.executeQuery();
+		while(resultSet.next()) {
+			String skill = resultSet.getString("name");
+			skills.add(skill);
+		}
+		
+		return skills;
+	}
+
+	
+	
     public boolean deleteSkills(int userId) throws SQLException {
         PreparedStatement statement;
         String query;
