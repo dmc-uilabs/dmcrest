@@ -6,6 +6,13 @@ public class VerifyUserResponse {
 
 	String responseDescription;
 
+	public VerifyUserResponse() {}
+
+	public VerifyUserResponse(Integer responseCode, String responseDescription) {
+		this.responseCode = responseCode;
+		this.responseDescription = responseDescription;
+	}
+
 	public Integer getResponseCode() {
 		return responseCode;
 	}

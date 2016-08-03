@@ -12,6 +12,6 @@ public interface OrganizationUserRepository extends BaseRepository<OrganizationU
 
 	OrganizationUser findByUserId(Integer userId);
 
-	@Query(value = "select count(*) from organization_user where is_verified is true and organization_id = :organizationId", nativeQuery = true)
+	@Query(value = "select count(user_id) from organization_user where is_verified is true and organization_id = :organizationId", nativeQuery = true)
 	Integer findNumberOfVerifiedUsersByOrganizationId(@Param("organizationId") Integer organizationId);
 }

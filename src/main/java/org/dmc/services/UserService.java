@@ -86,34 +86,42 @@ public class UserService {
 		}
 
 		if(tokenEntity.getAttemptsMade() >= 5) {
-			userTokenRepository.delete(tokenEntity.getId());
-			response.setResponseCode(1000);
-			response.setResponseDescription("Too many unsuccessful attempts made to validate, please contact your administrator.");
+			response = tooManyAttempts(tokenEntity);
 		} else {
-			if(tokenEntity.getToken().equals(token)) {
-				userTokenRepository.delete(tokenEntity.getId());
-
-				OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
-				orgUserModel.setIsVerified(true);
-				orgUserService.saveOrganizationUser(orgUserModel);
-
-				// TODO: make user a company admin if they're the first verified user
-				if(orgUserService.getNumberOfVerifiedUsers(orgUserModel.getOrganizationId()) == 0) {
-
-				}
-
-				response.setResponseCode(0);
-				response.setResponseDescription("Successfully verified user.");
-			} else {
-				tokenEntity.setAttemptsMade(tokenEntity.getAttemptsMade() + 1);
-				userTokenRepository.save(tokenEntity);
-				response.setResponseCode(1000);
-				response.setResponseDescription("Tokens did not match, " + (5 - tokenEntity.getAttemptsMade()) + " attempts remaining.");
-			}
+			response = ( tokenEntity.getToken().equals(token) ) ? correctToken(userId, tokenEntity) : incorrectToken(tokenEntity);
 		}
 
 		return response;
 
+	}
+
+	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {
+		userTokenRepository.delete(tokenEntity.getId());
+		return new VerifyUserResponse(1000, "Too many unsuccessful attempts made to validate, please contact your administrator.");
+	}
+
+	private VerifyUserResponse correctToken(Integer userId, UserToken tokenEntity) {
+		userTokenRepository.delete(tokenEntity.getId());
+
+		OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
+		orgUserModel.setIsVerified(true);
+		orgUserService.saveOrganizationUser(orgUserModel);
+
+		// if this user is the only verified user of this organization, they're defaulted to company admin, else defaulted to member
+		Integer numberOfUsersVerified = orgUserService.getNumberOfVerifiedUsers(orgUserModel.getOrganizationId());
+
+		if(numberOfUsersVerified == 1)
+			userRoleService.setUserAsCompanyAdmin(userId, orgUserModel.getOrganizationId());
+		else if (numberOfUsersVerified > 1)
+			userRoleService.setUserAsCompanyMember(userId, orgUserModel.getOrganizationId());
+
+		return new VerifyUserResponse(0, "Successfully verified user.");
+	}
+
+	private VerifyUserResponse incorrectToken(UserToken tokenEntity) {
+		tokenEntity.setAttemptsMade(tokenEntity.getAttemptsMade() + 1);
+		userTokenRepository.save(tokenEntity);
+		return new VerifyUserResponse(1000, "Tokens did not match, " + (5 - tokenEntity.getAttemptsMade()) + " attempts remaining.");
 	}
 
 
