@@ -71,15 +71,17 @@ public class ProfileDao {
     }
 
     private Profile setProfileValues(ResultSet resultSet) throws SQLException {
-		Profile profile = new Profile();
-
+        Profile profile = new Profile();
+        String user_id_string = resultSet.getString("user_id");
+        int user_id = Integer.parseInt(user_id_string);
+		
         // get company
         final CompanyDao companyDao = new CompanyDao();
-        final int companyId = companyDao.getUserCompanyId(UserDao.getUserID("user_name"));
+        final int companyId = companyDao.getUserCompanyId(user_id);
         profile.setCompany(Integer.toString(companyId));
 
-        profile.setId(resultSet.getString("user_id"));
-		profile.setDisplayName(resultSet.getString("realname"));
+        profile.setId(user_id_string);
+        profile.setDisplayName(resultSet.getString("realname"));
         profile.setJobTitle(resultSet.getString("title"));
         profile.setPhone(resultSet.getString("phone"));
         profile.setEmail(resultSet.getString("email"));
