@@ -101,12 +101,12 @@ public class UserController {
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
 	@RequestMapping(value = "/user/createtoken", method = RequestMethod.POST)
 	public UserTokenModel saveToken(@RequestParam("userId") Integer userId) {
-    	Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
-    	if(PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
-    		return userService.createToken(userId);
-    	} else {
-    		throw new AccessDeniedException("403 Permission Denied");
-    	}
+		Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
+		if(PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
+			return userService.createToken(userId);
+		} else {
+			throw new AccessDeniedException("403 Permission Denied");
+		}
 	}
 
 	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)
