@@ -98,7 +98,7 @@ public class UserController {
 		return userService.save(user);
 	}
 
-    @PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
 	@RequestMapping(value = "/user/createtoken", method = RequestMethod.POST)
 	public UserTokenModel saveToken(@RequestParam("userId") Integer userId) {
     	Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
