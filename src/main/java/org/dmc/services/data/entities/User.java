@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -40,13 +41,19 @@ public class User extends BaseEntity {
 
 	@Column(name = "phone")
 	private String phone;
-	
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
 
 	@OneToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "user_contact_info_id")
 	private UserContactInfo userContactInfo;
+
+	@OneToOne
+	@JoinTable(name = "organization_user",
+			   joinColumns = @JoinColumn(name="user_id"),
+			   inverseJoinColumns = @JoinColumn(name="organization_id"))
+	private Organization organization;
 
 	public String getUsername() {
 		return username;
