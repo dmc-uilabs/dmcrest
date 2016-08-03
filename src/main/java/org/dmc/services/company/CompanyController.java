@@ -7,7 +7,6 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.components.Component;
 import org.dmc.services.services.Service;
 import org.dmc.services.users.User;
-import org.springframework.format.annotation.NumberFormat;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

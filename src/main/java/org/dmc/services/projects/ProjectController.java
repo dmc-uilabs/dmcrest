@@ -258,7 +258,7 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/projects/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
 	public ResponseEntity updateProject(@PathVariable("id") int id, @RequestBody Project project, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
-		ServiceLogger.log(logTag, "updateProject, project: " + project.toString());
+		ServiceLogger.log(logTag, "updateProject, for id = " + id + " (body) project: " + project.toString());
 
 		int httpStatusCode = HttpStatus.OK.value();
 		Id updatedId = null;

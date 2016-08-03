@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -43,6 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		http
 			.csrf().disable()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 			.addFilter(authFilter)
 			.authorizeRequests().anyRequest().permitAll()
 			.and().exceptionHandling().authenticationEntryPoint(new AuthenticationExceptionHandler())
@@ -51,6 +53,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/users/create", "/swagger-ui.html", "/webjars/springfox-swagger-ui/**", "/configuration/security", "/configuration/ui", "/swagger-resources", "/v2/api-docs");
+		web.ignoring().antMatchers("/users/create",
+				"/user",
+				"/companies",
+				"/swagger-ui.html",
+				"/webjars/springfox-swagger-ui/**",
+				"/configuration/security",
+				"/configuration/ui",
+				"/swagger-resources",
+				"/v2/api-docs");
 	}
 }
