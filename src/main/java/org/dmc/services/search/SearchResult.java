@@ -2,6 +2,7 @@ package org.dmc.services.search;
 
 import org.dmc.services.company.Company;
 import org.dmc.services.components.Component;
+import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.Project;
 import org.dmc.services.services.Service;
 import org.dmc.services.users.User;
@@ -19,6 +20,9 @@ public class SearchResult {
     private List<Project> projects;
     private List<Service> services;
     private List<User> users;
+
+
+    private List<Profile> profiles;
 
 
     public List<Component> getComponents() {
@@ -65,5 +69,14 @@ public class SearchResult {
 
     public void setCompanies(List<Company> companies) {
         this.companies = companies;
+    }
+
+
+    public List<Profile> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(List<Profile> profiles) {
+        this.profiles = profiles;
     }
 }
