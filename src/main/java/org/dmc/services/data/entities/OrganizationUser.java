@@ -5,24 +5,27 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "organization_user")
 
 public class OrganizationUser extends BaseEntity{
-	
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer id;
 
-	@ManyToOne
+	@OneToOne
+	@JoinColumn(name = "user_id")
 	private User user;
-	
-	@ManyToOne
+
+	@OneToOne
+	@JoinColumn(name = "organization_id")
 	private Organization organization;
-	
+
 	@Column(name = "is_verified")
 	private Boolean isVerified;
 
@@ -95,6 +98,6 @@ public class OrganizationUser extends BaseEntity{
 			return false;
 		return true;
 	}
-	
-	
+
+
 }

@@ -1,5 +1,7 @@
 package org.dmc.services.users;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.xml.ws.http.HTTPException;
 
@@ -87,6 +89,12 @@ public class UserController {
 	public UserModel saveUser(@RequestBody UserModel user) {
 		return userService.save(user);
 	}
+
+	@RequestMapping(value = "/user/organization/{organizationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<UserModel> getUsersByOrganizationId(@PathVariable Integer organizationId) {
+		return userService.findByOrganizationId(organizationId);
+	}
+
 
     /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)

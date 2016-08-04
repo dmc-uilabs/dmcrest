@@ -1,5 +1,7 @@
 package org.dmc.services;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.dmc.services.data.entities.User;
@@ -26,6 +28,11 @@ public class UserService {
 	public UserModel save(UserModel userModel) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.save(mapper.mapToEntity(userModel)));
+	}
+
+	public List<UserModel> findByOrganizationId(Integer organizationId) {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
 	}
 
 }

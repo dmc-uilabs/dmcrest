@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -49,11 +48,8 @@ public class User extends BaseEntity {
 	@JoinColumn(name = "user_contact_info_id")
 	private UserContactInfo userContactInfo;
 
-	@OneToOne
-	@JoinTable(name = "organization_user",
-			   joinColumns = @JoinColumn(name="user_id"),
-			   inverseJoinColumns = @JoinColumn(name="organization_id"))
-	private Organization organization;
+	@OneToOne(mappedBy = "user")
+	private OrganizationUser organizationUser;
 
 	public String getUsername() {
 		return username;
@@ -125,6 +121,14 @@ public class User extends BaseEntity {
 
 	public void setUserContactInfo(UserContactInfo userContactInfo) {
 		this.userContactInfo = userContactInfo;
+	}
+
+	public OrganizationUser getOrganizationUser() {
+		return organizationUser;
+	}
+
+	public void setOrganizationUser(OrganizationUser organizationUser) {
+		this.organizationUser = organizationUser;
 	}
 
 	@Override
