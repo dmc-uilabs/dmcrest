@@ -37,6 +37,7 @@ public class ProfileIT extends BaseIT {
 
     private final String profileId = "1";
     private String knownEPPN;
+    String unique = null;
     Integer createdId = -1;
 
     // Setup test data

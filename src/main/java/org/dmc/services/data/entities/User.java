@@ -48,9 +48,6 @@ public class User extends BaseEntity {
 	@JoinColumn(name = "user_contact_info_id")
 	private UserContactInfo userContactInfo;
 	
-	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-	private List<UserRoleAssignment> roles;
-
 	public String getUsername() {
 		return username;
 	}
@@ -121,14 +118,6 @@ public class User extends BaseEntity {
 
 	public void setUserContactInfo(UserContactInfo userContactInfo) {
 		this.userContactInfo = userContactInfo;
-	}
-
-	public List<UserRoleAssignment> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(List<UserRoleAssignment> roles) {
-		this.roles = roles;
 	}
 
 	@Override

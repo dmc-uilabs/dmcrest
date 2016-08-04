@@ -6,6 +6,4 @@ public interface UserRepository extends BaseRepository<User, Integer> {
 	
 	User findFirstByUsername(String username);
 
-	User findFirstByUsername(String username);
-
 }
