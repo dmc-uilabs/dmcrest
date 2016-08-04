@@ -26,7 +26,7 @@ public class DMDIIProjectModel extends BaseModel {
 	
 	private DMDIIProjectThrustModel projectThrust;
 	
-	private List<DMDIIMemberModel> contributingCompanies;
+	private List<Integer> contributingCompanyIds;
 	
 	private Integer rootNumber;
 	
@@ -95,12 +95,12 @@ public class DMDIIProjectModel extends BaseModel {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 
-	public List<DMDIIMemberModel> getContributingCompanies() {
-		return contributingCompanies;
+	public List<Integer> getContributingCompanyIds() {
+		return contributingCompanyIds;
 	}
 
-	public void setContributingCompanies(List<DMDIIMemberModel> contributingCompanies) {
-		this.contributingCompanies = contributingCompanies;
+	public void setContributingCompanies(List<Integer> contributingCompanyIds) {
+		this.contributingCompanyIds = contributingCompanyIds;
 	}
 
 	public DMDIIProjectStatusModel getProjectStatus() {
