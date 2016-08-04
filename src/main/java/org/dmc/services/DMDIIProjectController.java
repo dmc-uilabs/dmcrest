@@ -143,4 +143,10 @@ public class DMDIIProjectController {
 		ServiceLogger.log(logTag, "In saveDMDIIProjectUpdate");
 		return dmdiiProjectUpdateService.save(projectUpdate);
 	}
+	
+	@RequestMapping(value = "/contributingCompanies", params = "dmdiiMemberId", method = RequestMethod.GET)
+	public List<DMDIIProjectModel> getDMDIIProjectsByContributingCompany (@RequestParam ("dmdiiMemberId") Integer dmdiiMemberId) {
+		ServiceLogger.log(logTag, "In getDMDIIProjectsByContributingCompany: " + dmdiiMemberId);
+		return dmdiiProjectService.findDMDIIProjectsByContributingCompany(dmdiiMemberId);
+	}
  }
