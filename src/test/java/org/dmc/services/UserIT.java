@@ -180,9 +180,11 @@ public class UserIT extends BaseIT {
 		given().
         header("AJP_eppn", unknownUser).
 		expect().
-        statusCode(500).
+        statusCode(200).
 		when().
-        get("/user");
+        get("/user").
+        then().
+        body(matchesJsonSchemaInClasspath("Schemas/userSchema.json"));
 	}
 
     @Test
