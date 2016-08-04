@@ -2,24 +2,20 @@ package org.dmc.services.data.mappers;
 
 import javax.inject.Inject;
 
-import org.dmc.services.UserService;
-import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.OrganizationUser;
-import org.dmc.services.data.entities.User;
-import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.OrganizationUserModel;
-import org.dmc.services.data.models.UserModel;
-import org.dmc.services.dmdiimember.OrganizationService;
+import org.dmc.services.data.repositories.OrganizationDao;
+import org.dmc.services.data.repositories.UserRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OrganizationUserMapper extends AbstractMapper<OrganizationUser, OrganizationUserModel> {
 
 	@Inject
-	private UserService userService;
+	private UserRepository userRepository;
 
 	@Inject
-	private OrganizationService organizationService;
+	private OrganizationDao organizationDao;
 
 	@Override
 	public OrganizationUser mapToEntity(OrganizationUserModel model) {
@@ -27,11 +23,8 @@ public class OrganizationUserMapper extends AbstractMapper<OrganizationUser, Org
 
 		OrganizationUser entity = copyProperties(model, new OrganizationUser());
 
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-
-		entity.setUser(userMapper.mapToEntity(userService.findOne(model.getUserId())));
-		entity.setOrganization(orgMapper.mapToEntity(organizationService.findOne(model.getOrganizationId())));
+		entity.setUser(userRepository.findOne(model.getUserId()));
+		entity.setOrganization(organizationDao.findOne(model.getOrganizationId()));
 
 		return entity;
 	}

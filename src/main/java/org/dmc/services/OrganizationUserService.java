@@ -25,6 +25,11 @@ public class OrganizationUserService {
 		return mapper.mapToModel(organizationUserRepository.findByOrganizationId(organizationId));
 	}
 
+	public OrganizationUserModel getOrganizationUserByUserId(Integer userId) {
+		Mapper<OrganizationUser, OrganizationUserModel> mapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
+		return mapper.mapToModel(organizationUserRepository.findByUserId(userId));
+	}
+
 	public OrganizationUserModel getByUserId (Integer userId) {
 		Mapper<OrganizationUser, OrganizationUserModel> mapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
 		return mapper.mapToModel(organizationUserRepository.findByUserId(userId));

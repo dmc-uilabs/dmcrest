@@ -5,17 +5,14 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.dmc.services.OrganizationUserService;
-import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
-import org.dmc.services.data.models.OrganizationModel;
-import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserContactInfoModel;
 import org.dmc.services.data.models.UserModel;
-import org.dmc.services.dmdiimember.OrganizationService;
+import org.dmc.services.data.repositories.OrganizationDao;
+import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Component;
 
@@ -23,26 +20,24 @@ import org.springframework.stereotype.Component;
 public class UserMapper extends AbstractMapper<User, UserModel> {
 
 	@Inject
-	private OrganizationService organizationService;
+	private OrganizationDao organizationDao;
 
 	@Inject
-	private OrganizationUserService organizationUserService;
+	private OrganizationUserRepository organizationUserRepository;
 
 	@Override
 	public User mapToEntity(UserModel model) {
 		if (model == null) return null;
 
 		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
-		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-		Mapper<OrganizationUser, OrganizationUserModel> orgUserMapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
 
 		User entity = copyProperties(model, new User());
 		entity.setUserContactInfo(contactInfoMapper.mapToEntity(model.getUserContactInfo()));
 
-		OrganizationUser orgUserEntity = orgUserMapper.mapToEntity(organizationUserService.getByUserIdAndOrganizationId(entity.getId(), model.getOrganization()));
+		OrganizationUser orgUserEntity = organizationUserRepository.findByUserIdAndOrganizationId(entity.getId(), model.getOrganization());
 		if(orgUserEntity == null) {
 			orgUserEntity = new OrganizationUser();
-			orgUserEntity.setOrganization(orgMapper.mapToEntity(organizationService.findOne(model.getOrganization())));
+			orgUserEntity.setOrganization(organizationDao.findOne(model.getOrganization()));
 		}
 
 		entity.setOrganizationUser(orgUserEntity);

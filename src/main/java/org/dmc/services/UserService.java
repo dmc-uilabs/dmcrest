@@ -1,10 +1,6 @@
 package org.dmc.services;
 
-<<<<<<< HEAD
 import java.util.List;
-=======
-import java.text.SimpleDateFormat;
->>>>>>> dmdii-members
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -39,8 +35,6 @@ public class UserService {
 
 	@Inject
 	private MapperFactory mapperFactory;
-
-	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
 
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -97,11 +91,11 @@ public class UserService {
 			return response;
 		}
 
-		if(tokenEntity.getAttemptsMade() >= 5) {
+		if(tokenEntity.getAttemptsMade() >= 5)
 			response = tooManyAttempts(tokenEntity);
-		} else {
+		else
 			response = ( tokenEntity.getToken().equals(token) ) ? correctToken(userId, tokenEntity) : incorrectToken(tokenEntity);
-		}
+
 
 		return response;
 
