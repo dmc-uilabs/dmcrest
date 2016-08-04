@@ -91,11 +91,11 @@ public class UserService {
 			return response;
 		}
 
-		if(tokenEntity.getAttemptsMade() >= 5)
+		if(tokenEntity.getAttemptsMade() >= 5) {
 			response = tooManyAttempts(tokenEntity);
-		else
+		} else {
 			response = ( tokenEntity.getToken().equals(token) ) ? correctToken(userId, tokenEntity) : incorrectToken(tokenEntity);
-
+		}
 
 		return response;
 
@@ -116,10 +116,12 @@ public class UserService {
 		// if this user is the only verified user of this organization, they're defaulted to company admin, else defaulted to member
 		Integer numberOfUsersVerified = orgUserService.getNumberOfVerifiedUsers(orgUserModel.getOrganizationId());
 
-		if(numberOfUsersVerified == 1)
+		if(numberOfUsersVerified == 1) {
 			userRoleService.setUserAsCompanyAdmin(userId, orgUserModel.getOrganizationId());
-		else if (numberOfUsersVerified > 1)
+		}
+		else if (numberOfUsersVerified > 1) {
 			userRoleService.setUserAsCompanyMember(userId, orgUserModel.getOrganizationId());
+		}
 
 		return new VerifyUserResponse(0, "Successfully verified user.");
 	}
