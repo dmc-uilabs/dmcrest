@@ -249,7 +249,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString).expect().statusCode(HttpStatus.UNAUTHORIZED.value())
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedFollowDiscussionsJSONString).expect().statusCode(HttpStatus.UNAUTHORIZED.value())
 				.when().post("/follow_discussions");
 
 	}
@@ -512,7 +512,7 @@ public class DiscussionIT extends BaseIT {
 	 */
 	@Test
 	public void testGet_IndividualDiscussionTags() {
-		List<IndividualDiscussionTag> tags = Arrays.asList(given().header("AJP_eppn", userEPPN).param("_limit", 2).expect().statusCode(HttpStatus.OK.value()).when()
+		List<IndividualDiscussionTag> tags = Arrays.asList(given().header("AJP_eppn", knownEPPN).param("_limit", 2).expect().statusCode(HttpStatus.OK.value()).when()
 				.get("/individual-discussion/" + 1 + "/individual-discussion-tags").as(IndividualDiscussionTag[].class));
 
 		assertTrue("testGet_IndividualDiscussionTags: limit parameter didn't work", tags.size() == 2);
@@ -740,7 +740,7 @@ public class DiscussionIT extends BaseIT {
 		String commentId = "2";
 		Boolean helpful = true;
 
-		IndividualDiscussionCommentHelpful received = given().param("accountId", accountId).param("commentId", commentId).header("AJP_eppn", userEPPN).expect()
+		IndividualDiscussionCommentHelpful received = given().param("accountId", accountId).param("commentId", commentId).header("AJP_eppn", knownEPPN).expect()
 				.statusCode(HttpStatus.OK.value()).when().get("/individual-discussion-comments-helpful").as(IndividualDiscussionCommentHelpful.class);
 
 		assertTrue("testGet_IndividualDiscussionCommentHelpful: id values are not equal", (received.getId().equals("1")));
@@ -1061,7 +1061,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		IndividualDiscussionTag postedTag = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionTagJSONString).expect()
+		IndividualDiscussionTag postedTag = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedIndividualDiscussionTagJSONString).expect()
 				.statusCode(HttpStatus.CREATED.value()).when().post("/individual-discussion-tags").as(IndividualDiscussionTag.class);
 
 		assertTrue("testPost_IndividualDiscussionTagWithValidDiscussionId: individual discussion id values are not equal",
@@ -1090,7 +1090,7 @@ public class DiscussionIT extends BaseIT {
 			e.printStackTrace();
 		}
 
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedIndividualDiscussionTagJSONString).expect()
+		given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).body(postedIndividualDiscussionTagJSONString).expect()
 				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post("/individual-discussion-tags");
 
 	}

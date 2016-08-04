@@ -1,5 +1,7 @@
 package org.dmc.services.data.entities;
 
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,6 +9,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -35,6 +40,9 @@ public class User extends BaseEntity {
 
 	@Column(name = "phone")
 	private String phone;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+	private List<UserRoleAssignment> roles;
 
 	@OneToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "user_contact_info_id")
@@ -99,6 +107,14 @@ public class User extends BaseEntity {
 		this.id = id;
 	}
 
+	public List<UserRoleAssignment> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<UserRoleAssignment> roles) {
+		this.roles = roles;
+	}
+
 	public UserContactInfo getUserContactInfo() {
 		return userContactInfo;
 	}
@@ -126,8 +142,8 @@ public class User extends BaseEntity {
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((phone == null) ? 0 : phone.hashCode());
 		result = prime * result + ((roles == null) ? 0 : roles.hashCode());
-		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		result = prime * result + ((userContactInfo == null) ? 0 : userContactInfo.hashCode());
+		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
 

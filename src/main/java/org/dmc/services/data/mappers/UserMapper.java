@@ -8,7 +8,6 @@ import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.models.UserContactInfoModel;
 import org.dmc.services.data.models.UserModel;
-import org.dmc.services.data.models.UserRoleAssignmentModel;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Component;
 
@@ -17,14 +16,11 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 
 	@Override
 	public User mapToEntity(UserModel model) {
-		if(model == null)
-			return null;
+		if (model == null) return null;
 
-		User entity = copyProperties(model, new User());
-
-		Mapper<UserRoleAssignment, UserRoleAssignmentModel> roleMapper = mapperFactory.mapperFor(UserRoleAssignment.class, UserRoleAssignmentModel.class);
 		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
-		entity.setRoles(roleMapper.mapToEntity(model.getRoles()));
+		
+		User entity = copyProperties(model, new User());
 		entity.setUserContactInfo(contactInfoMapper.mapToEntity(model.getUserContactInfo()));
 
 		return entity;
@@ -32,13 +28,12 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 
 	@Override
 	public UserModel mapToModel(User entity) {
-		if(entity == null)
-			return null;
-
-		UserModel model = copyProperties(entity, new UserModel());
+		if (entity == null) return null;
 
 		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
-		Mapper<UserRoleAssignment, UserRoleAssignmentModel> roleMapper = mapperFactory.mapperFor(UserRoleAssignment.class, UserRoleAssignmentModel.class);
+		
+		UserModel model = copyProperties(entity, new UserModel());
+		model.setDMDIIMember(entity.getRoles().stream().anyMatch(this::orgIsDMDIIMember));
 		model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
 		
 		Map<Integer, String> roles = new HashMap<Integer, String>();

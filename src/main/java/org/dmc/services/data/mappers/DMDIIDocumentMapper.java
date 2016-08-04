@@ -38,9 +38,9 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 
 		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getOwnerId())));
 		if(model.getDmdiiProjectId() != null)
-			entity.setDMDIIProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProjectId())));
+			entity.setDmdiiProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProjectId())));
 		else
-			entity.setDMDIIProject(null);
+			entity.setDmdiiProject(null);
 
 		return entity;
 	}
@@ -63,8 +63,8 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 		DMDIIDocumentModel model = copyProperties(entity, new DMDIIDocumentModel());
 		
 		model.setOwnerId(entity.getOwner().getId());
-		if(entity.getDMDIIProject() != null)
-			model.setDmdiiProjectId(entity.getDMDIIProject().getId());
+		if(entity.getDmdiiProject() != null)
+			model.setDmdiiProjectId(entity.getDmdiiProject().getId());
 		else
 			model.setDmdiiProjectId(null);
 

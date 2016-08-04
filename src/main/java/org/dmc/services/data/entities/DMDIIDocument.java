@@ -60,14 +60,15 @@ public class DMDIIDocument extends BaseEntity {
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
 	
+	@Column(name = "access_level")
+	@Enumerated(EnumType.STRING)
+	private DMDIIProjectItemAccessLevel accessLevel;
+	
 	@Column(name = "file_type_id")
 	private Integer fileType;
 	
 	@Column(name = "verified")
 	private Boolean verified = false;
-	
-	@Column(name = "access_level")
-	private String accessLevel;
 
 	public Integer getId() {
 		return id;
@@ -171,14 +172,6 @@ public class DMDIIDocument extends BaseEntity {
 
 	public void setVerified(Boolean verified) {
 		this.verified = verified;
-	}
-
-	public String getAccessLevel() {
-		return accessLevel;
-	}
-
-	public void setAccessLevel(String accessLevel) {
-		this.accessLevel = accessLevel;
 	}
 
 	@Override

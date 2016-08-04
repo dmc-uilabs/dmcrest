@@ -5,13 +5,13 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -28,10 +28,11 @@ import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.ProjectTag;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -60,10 +61,18 @@ public class ProjectIT extends BaseIT {
     private final String logTag = ProjectIT.class.getName();
     private DiscussionIT discussionIT = new DiscussionIT();
     private Integer createdId = null;
+    
     private Integer createdTagId = null;
-    String randomEPPN = UUID.randomUUID().toString();
 
     private String projectId = "1";
+    private String knownEPPN;
+    
+    @Before
+    public void before() {
+    	if (knownEPPN == null) {
+    		knownEPPN = TestUserUtil.createNewUser();
+    	}
+    }
 
     @Test
     public void testProject6() {
@@ -189,10 +198,10 @@ public class ProjectIT extends BaseIT {
         this.testProjectCreateJsonString();
 
         if (this.createdId != null) {
-            final Integer discussionId = discussionIT.createDiscussion(this.createdId);
+            Integer discussionId = createDiscussion(this.createdId);
             if (discussionId != null) {
-                final JsonNode discussions = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN)
-                        .expect().statusCode(OK.value()).when().get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
+                JsonNode discussions = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
+                        .expect().statusCode(200).when().get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
                         .as(JsonNode.class);
 
                 try {
@@ -551,8 +560,8 @@ public class ProjectIT extends BaseIT {
             json.put("description", "test project description update");
             json.put("dueDate", 0);
 
-            final int updatedId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN)
-                    .body(json.toString()).expect().statusCode(OK.value()).when()
+            final int updatedId = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
+                    .body(json.toString()).expect().statusCode(200).when()
                     .patch(PROJECT_UPDATE_RESOURCE, this.createdId).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 
@@ -604,8 +613,8 @@ public class ProjectIT extends BaseIT {
 
         this.testProjectCreateJsonString();
         if (this.createdId != null) {
-            final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN).expect()
-                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser).asString();
+            String response = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).expect()
+                    .statusCode(403).when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser).asString();
 
             assertTrue("Not Admin", response.contains("does not have permission to accept members"));
         }
@@ -634,12 +643,13 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProjectMemberRejecttNotAdmin() {
 
-        final String adminUser = "fforgeadmin";
+        String adminUser = "fforgeadmin";
+        
 
         this.testProjectCreateJsonString();
         if (this.createdId != null) {
-            final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN).expect()
-                    .statusCode(FORBIDDEN.value()).when().delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser).asString();
+            String response = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN).expect()
+                    .statusCode(403).when().delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser).asString();
 
             assertTrue("Not Admin", response.contains("not have permission to remove members"));
         }

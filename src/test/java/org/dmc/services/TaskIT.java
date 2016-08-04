@@ -17,11 +17,7 @@ import org.dmc.services.tasks.TaskToCreate;
 import org.dmc.services.utility.TestUserUtil;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.springframework.http.HttpStatus;
-
-import com.jayway.restassured.response.ExtractableResponse;
-import com.jayway.restassured.response.ValidatableResponse;
 
 public class TaskIT extends BaseIT {
     private static final String TASKS_BASE = "/tasks";
