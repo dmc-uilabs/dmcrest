@@ -34,9 +34,4 @@ public class DMDIIAccessController {
 		return userRoleService.save(userRole);
 	}
 
-	/*@RequestMapping(value = "/user/verify", method = RequestMethod.GET)
-	public List<OrganizationUserModel> getUsersByOrganizationId(@RequestParam("organizationId") Integer organizationId) {
-		ServiceLogger.log(logTag, "In getUsersByOrganizationId: " + organizationId);
-		return organizationUserService.getUsersByOrganizationId(organizationId);
-	}*/
 }
