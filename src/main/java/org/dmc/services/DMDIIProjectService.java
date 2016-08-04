@@ -220,4 +220,9 @@ public class DMDIIProjectService {
 		return mapper.mapToModel(dmdiiProjectEventsRepository.findAllByOrderByEventDateDesc(new PageRequest(0, limit)).getContent());
 	}
 
+	public List<DMDIIProjectModel> findDMDIIProjectsByContributingCompany(Integer dmdiiMemberId) {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findByContributingCompanyId(dmdiiMemberId));
+	}
+
 }
