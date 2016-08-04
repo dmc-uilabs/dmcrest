@@ -3,6 +3,7 @@ package org.dmc.services;
 import java.text.SimpleDateFormat;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dmc.services.data.entities.User;
@@ -47,6 +48,7 @@ public class UserService {
 		return mapper.mapToModel(userRepository.save(mapper.mapToEntity(userModel)));
 	}
 
+	@Transactional
 	public UserTokenModel createToken(Integer userId) {
 		Mapper<UserToken, UserTokenModel> mapper = mapperFactory.mapperFor(UserToken.class, UserTokenModel.class);
 		UserToken token = userTokenRepository.findByUserId(userId);
@@ -74,6 +76,7 @@ public class UserService {
 		return mapper.mapToModel(token);
 	}
 
+	@Transactional
 	public VerifyUserResponse verifyUser(Integer userId, String token) {
 		Mapper<UserToken, UserTokenModel> mapper = mapperFactory.mapperFor(UserToken.class, UserTokenModel.class);
 		VerifyUserResponse response = new VerifyUserResponse();
