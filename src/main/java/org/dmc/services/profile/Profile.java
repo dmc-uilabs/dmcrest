@@ -134,6 +134,25 @@ public class Profile {
 		this.skills = skills;
 	}
 
+	
+	@Override
+	public String toString()  {
+		StringBuilder sb = new StringBuilder();
+		sb.append("class Profile {\n");
+		
+		sb.append("  id: ").append(id).append("\n");
+		sb.append("  displayName: ").append(displayName).append("\n");
+		sb.append("  company: ").append(company).append("\n");
+		sb.append("  jobTitle: ").append(jobTitle).append("\n");
+		sb.append("  phone: ").append(phone).append("\n");
+		sb.append("  email: ").append(email).append("\n");
+		sb.append("  location: ").append(location).append("\n");
+		sb.append("  image: ").append(image).append("\n");
+		sb.append("  description: ").append(description).append("\n");
+		sb.append("  skills: ").append(skills).append("\n");
+		sb.append("}\n");
+		return sb.toString();
+	}
     
 	// Service Builder
 	public static class ProfileBuilder {

@@ -191,15 +191,15 @@ public class User extends BaseEntity {
 				return false;
 		} else if (!roles.equals(other.roles))
 			return false;
-		if (userContactInfo == null) {
-			if (other.userContactInfo != null)
-				return false;
-		} else if (!userContactInfo.equals(other.userContactInfo))
-			return false;
 		if (username == null) {
 			if (other.username != null)
 				return false;
 		} else if (!username.equals(other.username))
+			return false;
+		if (userContactInfo == null) {
+			if (other.userContactInfo != null)
+				return false;
+		} else if (!userContactInfo.equals(other.userContactInfo))
 			return false;
 		return true;
 	}

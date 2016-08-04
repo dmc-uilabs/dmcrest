@@ -37,6 +37,7 @@ public class ProfileIT extends BaseIT {
 
     private final String profileId = "1";
     private String knownEPPN;
+    String unique = null;
     Integer createdId = -1;
 
     // Setup test data
@@ -56,9 +57,9 @@ public class ProfileIT extends BaseIT {
         // body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
         // extract().path("id");
 
-        JSONObject json = createFixture("create");
+        Profile json = createFixture("create");
         this.createdId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN)
-                .body(json.toString()).expect().statusCode(200).when().post(PROFILE_CREATE_RESOURCE).then()
+                .body(json).expect().statusCode(200).when().post(PROFILE_CREATE_RESOURCE).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 
         // Adding test to get out preSignedURL
@@ -70,6 +71,47 @@ public class ProfileIT extends BaseIT {
         assertNotNull(preSignedURL);
     }
 
+	
+	@Test
+	public void testProfileCreateAndGet() {
+		unique = TestUserUtil.generateTime();
+		
+		// Integer id =
+		given().header("Content-type", "text/plain").header("AJP_eppn", "userEPPN" + unique)
+		.header("AJP_givenName", "userGivenName" + unique).header("AJP_sn", "userSurname" + unique)
+		.header("AJP_displayName", unique).header("AJP_mail", "userEmail" + unique).expect().statusCode(200)
+		.when().get("/user");
+		// then().
+		// body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
+		// extract().path("id");
+		
+		
+		Profile orginalProfile = createFixture("create");
+		this.createdId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", "userEPPN" + unique)
+		.body(orginalProfile).expect().statusCode(200).when().post(PROFILE_CREATE_RESOURCE).then()
+		.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+		
+		// Adding test to get out preSignedURL
+		Profile responceProfile = given().header("AJP_eppn", "userEPPN" + unique).expect().statusCode(200).when()
+		.get(PROFILE_READ_RESOURCE, this.createdId.toString()).as(Profile.class);
+		
+		// Extract
+		final String preSignedURL = responceProfile.getImage();
+		assertNotNull(preSignedURL);
+		
+		ServiceLogger.log(LOGTAG, "orginalProfile " + orginalProfile.toString());
+		ServiceLogger.log(LOGTAG, "responceProfile " + responceProfile.toString());
+		
+		assertTrue("Display names are not equal", orginalProfile.getDisplayName().equals(responceProfile.getDisplayName()));
+		assertTrue("Job titles are not equal", orginalProfile.getJobTitle().equals(responceProfile.getJobTitle()));
+		assertTrue("Phone numbers are not equal", orginalProfile.getPhone().equals(responceProfile.getPhone()));
+		assertTrue("Emails are not equal", orginalProfile.getEmail().equals(responceProfile.getEmail()));
+		assertTrue("Locations are not equal", orginalProfile.getLocation().equals(responceProfile.getLocation()));
+		assertTrue("Images are not equal", orginalProfile.getImage().equals(responceProfile.getImage()));
+		assertTrue("Descriptions are not equal", orginalProfile.getDescription().equals(responceProfile.getDescription()));
+	}
+
+	
     // Tests to see if presignedURL Works
     /*
      * @Test public void urlGet() { if(this.preSignedURL != null){ //Create URL
@@ -87,8 +129,7 @@ public class ProfileIT extends BaseIT {
     @Test
     public void testProfileGet() {
 
-        JSONObject json = createFixture("update");
-        if (this.createdId > 0) {
+		if (this.createdId > 0) {
             Integer retrivedId = given().header("AJP_eppn", knownEPPN).expect().statusCode(200).when()
                     .get(PROFILE_READ_RESOURCE, this.createdId.toString()).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
@@ -100,7 +141,7 @@ public class ProfileIT extends BaseIT {
 
     @Test
     public void testProfilePatch() {
-        final JSONObject json = createFixture("update");
+        final Profile json = createFixture("update");
         if (this.createdId > 0) {
             final Integer retrievedId = given().header("Content-type", APPLICATION_JSON_VALUE)
                     .header("AJP_eppn", knownEPPN).body(json.toString()).expect().statusCode(OK.value()).when()
@@ -114,13 +155,13 @@ public class ProfileIT extends BaseIT {
 
     @Test
     public void testProfilePatchWithNullValues() {
-        final JSONObject json = createFixture("update");
-        json.put("jobTitle", JSONObject.NULL);
-        json.put("phone", JSONObject.NULL);
-        json.put("location", JSONObject.NULL);
+        final Profile json = createFixture("update");
+		json.setJobTitle(null);
+		json.setPhone(null);
+		json.setLocation(null);
         // json.put("image", JSONObject.NULL);
-        json.put("description", "");
-        json.put("skills", new ArrayList<String>());
+        json.setDescription("");
+        json.setSkills(new ArrayList<String>());
         if (this.createdId > 0) {
             final Integer retrivedId = given().header("Content-type", APPLICATION_JSON_VALUE)
                     .header("AJP_eppn", knownEPPN).body(json.toString()).expect().statusCode(OK.value()).when()
@@ -142,27 +183,27 @@ public class ProfileIT extends BaseIT {
         }
     }
 
-    public JSONObject createFixture(String type) {
+    public Profile createFixture(String type) {
 
-        final JSONObject json = new JSONObject();
+        Profile profile = new Profile();
         final ArrayList<String> skills = new ArrayList<String>();
         skills.add("Skill one " + type);
         skills.add("Skill two " + type);
         skills.add("Skill three " + type);
 
-        json.put("displayName", "test displayName " + type);
-        json.put("company", "1");
-        json.put("jobTitle", "test jobTitle " + type);
-        json.put("phone", "test phone " + type);
-        json.put("email", "test email " + type);
-        json.put("location", "test location " + type);
+        profile.setDisplayName("test displayName " + type);
+        profile.setCompany("1");
+        profile.setJobTitle("test jobTitle " + type);
+        profile.setPhone("test phone " + type);
+        profile.setEmail("test email " + type);
+        profile.setLocation("test location " + type);
 
         // Adding a hardcoded test image
-        json.put("image", "https://s3.amazonaws.com/dmc-uploads2/test/cat.jpeg");
-        json.put("description", "test description " + type);
-        json.put("skills", skills);
+        profile.setImage("https://s3.amazonaws.com/dmc-uploads2/test/cat.jpeg");
+        profile.setDescription("test description " + type);
+        profile.setSkills(skills);
 
-        return json;
+        return profile;
     }
 
     private List<Profile> getProfiles(String userEPPN) {

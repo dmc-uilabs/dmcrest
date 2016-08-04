@@ -2,7 +2,10 @@ package org.dmc.services;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -221,8 +224,12 @@ public class TaskIT extends BaseIT {
 		assertEquals(id.toString(), retrievedTask.getId());
 
 		retrievedTask.setAssignee(userEPPN);
+		retrievedTask.setAssigneeId("111");
+		retrievedTask.setStatus(null);
 		
 		Task patchedTask = patchTask(userEPPN, retrievedTask, id);
+		
+		assertTrue("testPatchTask: task did not patch correctly", patchedTask.getTitle().equals(retrievedTask.getTitle()));
 	}
 
 	@Test
@@ -238,9 +245,12 @@ public class TaskIT extends BaseIT {
 		assertEquals(id.toString(), retrievedTask.getId());
 		
 		retrievedTask.setAssignee(userEPPN);
+		retrievedTask.setAssigneeId("103");
+		retrievedTask.setStatus(null);
 		
-		Task patchedTask = patchTask(userEPPN, retrievedTask, id, INTERNAL_SERVER_ERROR);
-		assertTrue("patchedTask is not null", null == patchedTask);
+		Task patchedTask = patchTask(userEPPN, retrievedTask, id, OK);
+		
+		assertTrue("testPatchTask_withPreviouslyAssignedUser: task did not patch correctly", patchedTask.getTitle().equals(retrievedTask.getTitle()));
 	}
 
 	
@@ -300,10 +310,7 @@ public class TaskIT extends BaseIT {
 			expect().
 				statusCode(httpStatus.value()).
 			when().
-				patch(newGetRequest).
-			then().
-				log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).
-				extract().as(Task.class);
+				patch(newGetRequest).as(Task.class);
 			
 			return patchedTask;
 		} else {  // handle error condition, no returned object

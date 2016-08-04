@@ -61,10 +61,7 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 		}
 
 		DMDIIDocumentModel model = copyProperties(entity, new DMDIIDocumentModel());
-
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-
+		
 		model.setOwnerId(entity.getOwner().getId());
 		if(entity.getDmdiiProject() != null)
 			model.setDmdiiProjectId(entity.getDmdiiProject().getId());
