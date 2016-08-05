@@ -41,6 +41,7 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		}
 
 		entity.setOrganizationUser(orgUserEntity);
+		entity.getOrganizationUser().setUser(entity);
 
 		return entity;
 	}
@@ -65,7 +66,7 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			}
 		}
 		model.setRoles(roles);
-		model.setOrganization(entity.getOrganizationUser().getOrganization().getId());
+		model.setOrganization( (entity.getOrganizationUser() == null ) ? null : entity.getOrganizationUser().getOrganization().getId());
 
 		return model;
 	}

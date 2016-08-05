@@ -14,6 +14,7 @@ public class UserModel extends BaseModel {
 	private UserContactInfoModel userContactInfo;
 	private boolean isDMDIIMember;
 	private Integer organization;
+	private String aboutMe;
 
 	public String getUsername() {
 		return username;
@@ -83,6 +84,14 @@ public class UserModel extends BaseModel {
 
 	public void setOrganization(Integer organization) {
 		this.organization = organization;
+	}
+
+	public String getAboutMe() {
+		return aboutMe;
+	}
+
+	public void setAboutMe(String aboutMe) {
+		this.aboutMe = aboutMe;
 	}
 
 }
