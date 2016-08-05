@@ -1,5 +1,8 @@
 package org.dmc.services.services;
 
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -8,12 +11,15 @@ import org.dmc.services.SqlTypeConverterUtility;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.company.CompanyDao;
+import org.dmc.services.services.ServiceHistory.PeriodEnum;
+import org.dmc.services.services.ServiceHistory.SectionEnum;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
@@ -418,5 +424,95 @@ public class ServiceDao {
         }
         return convertedIntervalType;
     }
+
+	public List<ServiceHistory> getHistory(String serviceID, String period, String section, String userEPPN) {
+		// TODO Auto-generated method stub
+		
+		String permissionsQuery1 = "SELECT published, project_id FROM service WHERE service_id = " + serviceID;
+		
+		
+		try {
+			ResultSet rs = DBConnector.executeQuery(permissionsQuery1);
+			boolean published = false;
+			int projectID = -1;
+			while (rs.next()){
+				published = rs.getBoolean("published");
+				projectID = rs.getInt("project_id");
+			}
+			
+			if (!published){
+				int uid = UserDao.getUserID(userEPPN);
+				String permissionsQuery2 = "SELECT * FROM group_join_request WHERE group_id = ? AND user_id = ? "
+						+ "AND accept_date IS NOT NULL";
+				PreparedStatement ps = DBConnector.prepareStatement(permissionsQuery2);
+				ps.setInt(1, projectID);
+				ps.setInt(2, uid);
+				
+				rs = ps.executeQuery();
+				
+				rs.last();
+				if (rs.getRow() <= 0)
+					throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "You are not allowed to view this service");
+				
+			}
+			
+			StringBuilder serviceHistoryQuery = new StringBuilder("SELECT * FROM service_history WHERE service_id = ?");
+			if (period != null)
+				serviceHistoryQuery.append(" AND period = " + period);
+			
+			if (section != null)
+				serviceHistoryQuery.append(" AND section = " + section);
+			
+			PreparedStatement ps = DBConnector.prepareStatement(serviceHistoryQuery.toString());
+			ps.setInt(1, Integer.parseInt(serviceID));
+			rs = ps.executeQuery();
+			
+			ArrayList<ServiceHistory> historyList = new ArrayList<ServiceHistory>();
+			
+			while(rs.next()){
+				ServiceHistory history = new ServiceHistory();
+				history.setId(Integer.toString(rs.getInt("id")));
+				history.setLink(rs.getString("link"));
+				SectionEnum sectionVal = rs.getString("section").equals("project") ? SectionEnum.project : SectionEnum.marketplace;
+				history.setSection(sectionVal);
+				history.setServiceId(Integer.toString(rs.getInt("service_id")));
+				history.setTitle(rs.getString("title"));
+				CharSequence logged = rs.getString("date");
+				history.setDate(logged.toString());
+				history.setUser(rs.getString("user"));
+				
+				String dateFormat = "yyyy-MM-dd HH:mm:ss";
+				DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateFormat);
+				LocalDateTime loggedDate = LocalDateTime.parse(logged, dtf);
+				
+				LocalDateTime now = LocalDateTime.now();
+				
+				Duration dur = Duration.between(loggedDate, now);
+
+				PeriodEnum pd;
+				if (dur.toDays() >= 365)
+					pd = PeriodEnum.year;
+				else if (dur.toDays() >= 30) //calculate based on start month soon enough
+					pd = PeriodEnum.month;
+				else if (dur.toDays() >= 1)
+					pd = PeriodEnum.week;
+				else
+					pd = PeriodEnum.today;
+				
+				history.setPeriod(pd);
+				
+				historyList.add(history);
+					
+				
+				
+			}
+			return historyList;
+			
+		} catch (SQLException e) {
+			throw new DMCServiceException(DMCError.UnknownSQLError, e.getMessage());
+		}
+		
+		
+	}
     
 }

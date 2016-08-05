@@ -147,14 +147,21 @@ public class ServiceController {
 		}
 	}
 
-	@RequestMapping(value = "/services/{serviceID}/service_history", produces = { "application/json",
+	@RequestMapping(value = "/services/{serviceID}/services_history", produces = { "application/json",
 			"text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<ServiceHistory>> servicesServiceIDServiceHistoryGet(
+	public ResponseEntity<?> servicesServiceIDServiceHistoryGet(
 			@PathVariable("serviceID") String serviceID,
 			@RequestParam(value = "period", required = false) String period,
-			@RequestParam(value = "section", required = false) String section) {
+			@RequestParam(value = "section", required = false) String section, 
+			@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
 		// do some magic!
-		return new ResponseEntity<List<ServiceHistory>>(HttpStatus.NOT_IMPLEMENTED);
+		ServiceLogger.log(logTag, "getServiceHistory, id: " + serviceID);
+		try {
+		    return new ResponseEntity<List<ServiceHistory>>(serviceDao.getHistory(serviceID, period, section, userEPPN), HttpStatus.OK);
+		} catch (DMCServiceException e) {
+		    ServiceLogger.logException(logTag, e);
+		    return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	@RequestMapping(value = "/services/{serviceID}/service_images", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
