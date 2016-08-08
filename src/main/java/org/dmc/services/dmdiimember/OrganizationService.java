@@ -6,7 +6,7 @@ import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationModel;
-import org.dmc.services.data.repositories.OrganizationDao;
+import org.dmc.services.data.repositories.OrganizationRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class OrganizationService {
 
 	@Inject
-	private OrganizationDao organizationDao;
+	private OrganizationRepository organizationRepository;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -26,11 +26,11 @@ public class OrganizationService {
 		Organization organizationEntity = mapper.mapToEntity(organizationModel);
 
 		if(organizationEntity.getId() == null) {
-			organizationEntity = organizationDao.save(organizationEntity);
+			organizationEntity = organizationRepository.save(organizationEntity);
 		} else {
-			Organization existingOrganization = organizationDao.findOne(organizationEntity.getId());
+			Organization existingOrganization = organizationRepository.findOne(organizationEntity.getId());
 			BeanUtils.copyProperties(organizationEntity, existingOrganization);
-			organizationEntity = organizationDao.save(existingOrganization);
+			organizationEntity = organizationRepository.save(existingOrganization);
 		}
 
 		return mapper.mapToModel(organizationEntity);
@@ -38,11 +38,11 @@ public class OrganizationService {
 	}
 
 	public Organization save(Organization organization) {
-		return organizationDao.save(organization);
+		return organizationRepository.save(organization);
 	}
 	
 	public OrganizationModel findOne(Integer id) {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-		return mapper.mapToModel(organizationDao.findOne(id));
+		return mapper.mapToModel(organizationRepository.findOne(id));
 	}
 }

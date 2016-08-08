@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -16,10 +15,7 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.projects.ProjectDao;
-import org.dmc.services.users.UserDao;
-import org.dmc.services.DMCError;
-import org.dmc.services.DMCServiceException;
-
+import org.dmc.services.data.dao.user.UserDao;
 
 public class TaskDao {
 	private static final String logTag = TaskDao.class.getName();

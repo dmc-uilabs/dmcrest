@@ -27,11 +27,10 @@ import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.ProjectTag;
-import org.dmc.services.users.UserDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

@@ -9,6 +9,7 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.dmc.services.data.dao.user.UserOnboardingDao;
 
 // This class' name should be changed to UserDetails to match yaml
 public class User {

@@ -3,6 +3,7 @@ package org.dmc.services.users;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.dmc.services.data.dao.user.UserOnboardingDao;
 
 public class UserOnboarding {
     private boolean profile;

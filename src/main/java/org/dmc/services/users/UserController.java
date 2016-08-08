@@ -7,6 +7,7 @@ import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.models.UserModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

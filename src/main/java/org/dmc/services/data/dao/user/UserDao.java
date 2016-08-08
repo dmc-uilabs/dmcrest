@@ -1,4 +1,4 @@
-package org.dmc.services.users;
+package org.dmc.services.data.dao.user;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +9,9 @@ import java.sql.Connection;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.dmc.services.users.User;
+import org.dmc.services.users.UserOnboarding;
 import org.json.JSONException;
 import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;

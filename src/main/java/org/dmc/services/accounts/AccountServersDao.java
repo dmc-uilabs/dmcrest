@@ -15,11 +15,9 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.users.UserDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.sharedattributes.Util;
 
-import org.apache.http.client.*;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.http.HttpStatus;
 import javax.xml.ws.http.HTTPException;
 

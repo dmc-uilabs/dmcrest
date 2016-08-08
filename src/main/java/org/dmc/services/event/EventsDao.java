@@ -11,18 +11,12 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.Company;
-import org.dmc.services.company.CompanyUserUtil;
-import org.dmc.services.services.ServiceImages;
-import org.dmc.services.services.ServiceImagesDao;
 import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.users.User;
-import org.dmc.services.users.UserDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.json.JSONException;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 

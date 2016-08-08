@@ -4,3 +4,13 @@
 /.classpath
 /.project
 /.settings
+
+
+# IntelliJ specific files
+.idea
+*.iml
+
+
+# SonarQube directory and backup files
+.sonar
+sonar-project.properties.bak

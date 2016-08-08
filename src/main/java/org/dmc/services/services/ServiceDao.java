@@ -6,18 +6,15 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.SqlTypeConverterUtility;
 import org.dmc.services.sharedattributes.FeatureImage;
-import org.dmc.services.users.UserDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.company.CompanyDao;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Date;
-
 
 public class ServiceDao {
 

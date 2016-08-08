@@ -12,7 +12,7 @@ import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 
 import org.dmc.services.users.User;
-import org.dmc.services.users.UserDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.users.UserOnboarding;
 import org.dmc.services.users.UserNotifications;
 import org.dmc.services.users.UserRunningServices;

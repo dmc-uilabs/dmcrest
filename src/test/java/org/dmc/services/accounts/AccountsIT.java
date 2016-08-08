@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,10 +18,7 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 
 import org.dmc.services.BaseIT;
 import org.dmc.services.utility.TestUserUtil;
-import org.dmc.services.accounts.UserAccount;
-import org.dmc.services.accounts.UserAccountServer;
 import org.dmc.services.users.User;
-import org.dmc.services.users.UserDao;
 
 public class AccountsIT extends BaseIT {
 	private final String logTag = AccountsIT.class.getName();
