@@ -108,6 +108,7 @@ public class DMDIIProjectController {
 	}
 
 	@RequestMapping(value = "/dmdiiProject/save", method = RequestMethod.POST)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectModel saveDMDIIProject (@RequestBody DMDIIProjectModel project) {
 		return dmdiiProjectService.save(project);
 	}
@@ -123,11 +124,13 @@ public class DMDIIProjectController {
 	}
 	
 	@RequestMapping(value = "/dmdiiProject/events", method = RequestMethod.POST)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectEventModel saveDMDIIProjectEvent (@RequestBody DMDIIProjectEventModel projectEvent) {
 		return dmdiiProjectEventsService.save(projectEvent);
 	}
 	
 	@RequestMapping(value = "/dmdiiProject/news", method = RequestMethod.POST)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectNewsModel saveDMDIIProjectNews (@RequestBody DMDIIProjectNewsModel projectNews) {
 		return dmdiiProjectNewsService.save(projectNews);
 	}
@@ -139,6 +142,7 @@ public class DMDIIProjectController {
 	}
 	
 	@RequestMapping(value = "/dmdiiProjectUpdate", method = RequestMethod.POST)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectUpdateModel saveDMDIIProjectUpdate (@RequestBody DMDIIProjectUpdateModel projectUpdate) {
 		ServiceLogger.log(logTag, "In saveDMDIIProjectUpdate");
 		return dmdiiProjectUpdateService.save(projectUpdate);
