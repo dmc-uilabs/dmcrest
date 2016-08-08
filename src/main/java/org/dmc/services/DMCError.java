@@ -45,6 +45,7 @@ public enum DMCError {
 	// Service queries
 	ServiceInterfaceNotMatch,
 	ServiceIDNotExist,
+	UnableToLogServiceHistory, 
 	
 	//account_server errors
 	CannotCreateDOMEServerEntry, 

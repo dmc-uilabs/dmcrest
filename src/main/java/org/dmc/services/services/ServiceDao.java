@@ -155,6 +155,24 @@ public class ServiceDao {
                 throw new Exception("didn't correctly modify service " + requestedBody.getId());
             }
             Service service = getService(requestedBody.getId(), userEPPN);
+            
+            
+            String updateServiceHistoryQuery = "INSERT INTO service_history (service_id, title, date, user_id, link, section, period)"
+            		+ " values (?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement historyUpdate = DBConnector.prepareStatement(updateServiceHistoryQuery);
+            Date now = new Date();
+            historyUpdate.setInt(1, serviceId);
+            historyUpdate.setString(2, UserDao.getUserName(userID) + " updated the service on " +  now.toString());
+            historyUpdate.setObject(3, SqlTypeConverterUtility.getSqlDate(now), java.sql.Types.DATE);
+            historyUpdate.setInt(4, userID);
+            historyUpdate.setString(5, "");
+            historyUpdate.setString(6, "marketplace");
+            historyUpdate.setString(7, now.toString());
+            int historyAffected = historyUpdate.executeUpdate();
+            
+            if (historyAffected != 1)
+            	throw new DMCServiceException(DMCError.UnableToLogServiceHistory, "Could not log service history!");
+            
             connection.commit();
             return service;
         } catch (Exception e) {
@@ -473,7 +491,7 @@ public class ServiceDao {
 				ServiceHistory history = new ServiceHistory();
 				history.setId(Integer.toString(rs.getInt("id")));
 				history.setLink(rs.getString("link"));
-				SectionEnum sectionVal = rs.getString("section").equals("project") ? SectionEnum.project : SectionEnum.marketplace;
+				SectionEnum sectionVal = rs.getString("section").toLowerCase().equals("project") ? SectionEnum.project : SectionEnum.marketplace;
 				history.setSection(sectionVal);
 				history.setServiceId(Integer.toString(rs.getInt("service_id")));
 				history.setTitle(rs.getString("title"));

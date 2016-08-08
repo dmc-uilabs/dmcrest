@@ -54,6 +54,7 @@ public class DMCServiceException extends RuntimeException {
 			case CannotDeleteDOMEServerEntry:
 			case CannotCreateDOMEServerEntry:
 			case UnknownSQLError:
+			case UnableToLogServiceHistory:
 				status = HttpStatus.INTERNAL_SERVER_ERROR;
 				break;
 			case IncorrectType:
