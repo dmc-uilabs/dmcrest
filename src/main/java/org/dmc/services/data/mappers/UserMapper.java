@@ -1,10 +1,5 @@
 package org.dmc.services.data.mappers;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
 import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
@@ -15,6 +10,10 @@ import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class UserMapper extends AbstractMapper<User, UserModel> {

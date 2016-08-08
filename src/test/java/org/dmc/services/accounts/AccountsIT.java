@@ -17,7 +17,6 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-
 public class AccountsIT extends BaseIT {
 	private final String logTag = AccountsIT.class.getName();
 	private String knownUserEPPN = "fforgeadmin";
