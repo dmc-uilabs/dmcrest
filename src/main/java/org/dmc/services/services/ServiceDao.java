@@ -483,21 +483,21 @@ public class ServiceDao {
 			
 			PreparedStatement ps = DBConnector.prepareStatement(serviceHistoryQuery.toString());
 			ps.setInt(1, Integer.parseInt(serviceID));
-			rs = ps.executeQuery();
+			ResultSet resSet = ps.executeQuery();
 			
 			ArrayList<ServiceHistory> historyList = new ArrayList<ServiceHistory>();
 			
-			while(rs.next()){
+			while(resSet.next()){
 				ServiceHistory history = new ServiceHistory();
-				history.setId(Integer.toString(rs.getInt("id")));
-				history.setLink(rs.getString("link"));
-				SectionEnum sectionVal = rs.getString("section").toLowerCase().equals("project") ? SectionEnum.project : SectionEnum.marketplace;
+				history.setId(Integer.toString(resSet.getInt("id")));
+				history.setLink(resSet.getString("link"));
+				SectionEnum sectionVal = resSet.getString("section").toLowerCase().equals("project") ? SectionEnum.project : SectionEnum.marketplace;
 				history.setSection(sectionVal);
-				history.setServiceId(Integer.toString(rs.getInt("service_id")));
-				history.setTitle(rs.getString("title"));
-				CharSequence logged = rs.getString("date");
+				history.setServiceId(Integer.toString(resSet.getInt("service_id")));
+				history.setTitle(resSet.getString("title"));
+				CharSequence logged = resSet.getString("date");
 				history.setDate(logged.toString());
-				history.setUser(rs.getString("user"));
+				history.setUser(resSet.getString("user"));
 				
 				String dateFormat = "yyyy-MM-dd HH:mm:ss";
 				DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateFormat);
