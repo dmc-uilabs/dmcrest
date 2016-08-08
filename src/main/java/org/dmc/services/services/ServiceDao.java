@@ -468,7 +468,8 @@ public class ServiceDao {
 				
 				rs = ps.executeQuery();
 				
-				rs.last();
+				while (rs.next()); // loop to end of set
+				
 				if (rs.getRow() <= 0)
 					throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "You are not allowed to view this service");
 				
