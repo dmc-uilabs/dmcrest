@@ -521,6 +521,7 @@ public class ServiceDao {
 				
 				historyList.add(history);
 					
+				ServiceLogger.log(logTag, "found history for serviceID: " + serviceID + "\n" + history.toString());
 				
 				
 			}
