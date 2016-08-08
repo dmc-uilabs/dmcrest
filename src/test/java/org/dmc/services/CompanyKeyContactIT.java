@@ -88,8 +88,6 @@ public class CompanyKeyContactIT  extends BaseIT {
         this.companyDao.addMember(this.companyId, this.adminMemberUserId, this.ownerEPPN);
         this.companyDao.addAdministrator(this.companyId, this.adminMemberUserId, this.ownerEPPN);
         
-        //Make sure the company is a DMDII member
-        addToDMDII(this.companyId);
         System.out.println("Org admin created: " + this.companyId);
 
         // Create a user that is not a member of the company
