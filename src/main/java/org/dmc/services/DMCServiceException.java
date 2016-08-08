@@ -44,6 +44,7 @@ public class DMCServiceException extends RuntimeException {
 			case NotDMDIIMember:
 			case NotProjectAdmin:
 			case OnlyProjectAdmin:
+			case MemberNotAssignedToProject:
 				status = HttpStatus.FORBIDDEN;
 				break;
 			case OtherSQLError:
@@ -52,6 +53,7 @@ public class DMCServiceException extends RuntimeException {
 			case CannotPatchDOMEServerEntry:
 			case CannotDeleteDOMEServerEntry:
 			case CannotCreateDOMEServerEntry:
+			case UnknownSQLError:
 				status = HttpStatus.INTERNAL_SERVER_ERROR;
 				break;
 			case IncorrectType:
