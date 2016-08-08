@@ -33,16 +33,14 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		User entity = copyProperties(model, new User());
 		entity.setUserContactInfo(contactInfoMapper.mapToEntity(model.getUserContactInfo()));
 
-		if (model.getOrganization() != null) {
-			OrganizationUser orgUserEntity = organizationUserRepository.findByUserIdAndOrganizationId(entity.getId(), model.getOrganization());
-			if(orgUserEntity == null) {
-				orgUserEntity = new OrganizationUser();
-				orgUserEntity.setOrganization(organizationRepository.findOne(model.getOrganization()));
-			}
-
-			entity.setOrganizationUser(orgUserEntity);
-			entity.getOrganizationUser().setUser(entity);
+		OrganizationUser orgUserEntity = organizationUserRepository.findByUserIdAndOrganizationId(entity.getId(), model.getOrganization());
+		if(orgUserEntity == null) {
+			orgUserEntity = new OrganizationUser();
+			orgUserEntity.setOrganization(organizationRepository.findOne(model.getOrganization()));
 		}
+
+		entity.setOrganizationUser(orgUserEntity);
+		entity.getOrganizationUser().setUser(entity);
 
 		return entity;
 	}
