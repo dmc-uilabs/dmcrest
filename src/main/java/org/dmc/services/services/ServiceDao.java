@@ -528,6 +528,7 @@ public class ServiceDao {
 			return historyList;
 			
 		} catch (SQLException e) {
+			ServiceLogger.log(logTag, "getServiceHistory error logging: " + e.getMessage());
 			throw new DMCServiceException(DMCError.UnknownSQLError, e.getMessage());
 		}
 		
