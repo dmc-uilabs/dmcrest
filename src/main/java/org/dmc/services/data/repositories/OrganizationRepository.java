@@ -6,5 +6,6 @@ import org.dmc.services.data.entities.Organization;
 import java.util.List;
 
 public interface OrganizationRepository extends BaseRepository<Organization, Integer> {
+
 	List<Organization> findAll(Predicate predicate);
 }
