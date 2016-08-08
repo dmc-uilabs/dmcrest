@@ -10,6 +10,7 @@ import org.dmc.services.services.ServiceSpecifications;
 import org.dmc.services.services.RunStats;
 import org.dmc.services.services.UsageStats;
 import org.dmc.services.services.specifications.ArraySpecifications;
+import org.dmc.services.users.UserDao;
 import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.services.*;
 import org.dmc.services.utility.TestUserUtil;
@@ -29,6 +30,7 @@ import static com.jayway.restassured.RestAssured.*;
 import static org.springframework.http.MediaType.*;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,164 +43,164 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 
 
 public class ServiceIT extends BaseIT {
-	
-    private final String logTag = ServiceIT.class.getName();
+
+	private final String logTag = ServiceIT.class.getName();
 
 	private static final String SERVICE_RESOURCE = "/services/{id}";
 	private static final String SERVICE_TAGS_GET_BY_SERVICE_ID = "/services/{serviceID}/service_tags";
 	private static final String SERVICE_TAGS_RESOURCE = "/service_tags";
 
-    private Service service = null;
-    private Random r = new Random();
-    private String serviceId = "1"; // the serviceId need to be assigned new value
-    private String domeInterfaceId = "1";
-    private String positionInputId = "1";
+	private Service service = null;
+	private Random r = new Random();
+	private String serviceId = "1"; // the serviceId need to be assigned new value
+	private String domeInterfaceId = "1";
+	private String positionInputId = "1";
 
-    @Test
-    public void testService() {
-        // perform actual GET request against the embedded container for the service we know exists
-        // provide the same ID the test service above was created with
-        // Expect
-        expect().
-          statusCode(200).
-        when().
-          get(SERVICE_RESOURCE, Integer.toString(2)).then().
-          body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
-    }
+	@Test
+	public void testService() {
+		// perform actual GET request against the embedded container for the service we know exists
+		// provide the same ID the test service above was created with
+		// Expect
+		expect().
+		statusCode(200).
+		when().
+		get(SERVICE_RESOURCE, Integer.toString(2)).then().
+		body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
+	}
 
-    @Test
-    public void testServiceList(){
-        expect().statusCode(200).when().get("/services").then().
-        body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
-    }
+	@Test
+	public void testServiceList(){
+		expect().statusCode(200).when().get("/services").then().
+		body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
+	}
 
-    @Test
-    public void testServiceListProject(){
-        expect().statusCode(200).when().get("/projects/6/services").then().
-        body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
-    }
+	@Test
+	public void testServiceListProject(){
+		expect().statusCode(200).when().get("/projects/6/services").then().
+		body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
+	}
 
-    @Test
-    public void testServiceListComponent(){
-        
-        expect().statusCode(200).when().get("/components/" + (r.nextInt(190) + 30) + "/services").then().
-        body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
-    }
+	@Test
+	public void testServiceListComponent(){
 
-    /**
-     * test case for patch /services/{serviceID}
-     */
-    @Test
-    public void testServicePatch_ServiceId(){
-        
-        //TODO: Create a service
-        //Change description and use PATCH
-        // what other things can be changed?
-        // service type
-        // Publish a service - not sure if it calls patch or something else.
-        Service service = createNewServiceObjectToPost();    
-        ValidatableResponse response =
-            given().
-                header("Content-type", "application/json").
-                header("AJP_eppn", userEPPN).
-                body(service).
-            expect().
-                statusCode(HttpStatus.OK.value()).
-            when().
-                post("/services/").
-            then().
-                body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
+		expect().statusCode(200).when().get("/components/" + (r.nextInt(190) + 30) + "/services").then().
+		body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
+	}
 
-        String jsonResponse = response.extract().asString();
-        ServiceLogger.log(logTag, "response = " + jsonResponse);
+	/**
+	 * test case for patch /services/{serviceID}
+	 */
+	@Test
+	public void testServicePatch_ServiceId(){
 
-        ObjectMapper mapper = new ObjectMapper();
-        Service patchService = null;
-        try {
-            patchService = mapper.readValue(jsonResponse, Service.class);
-        } catch (Exception e) {
-            fail("unable to map response to Service object: " + e.getMessage());
-        }
+		//TODO: Create a service
+		//Change description and use PATCH
+		// what other things can be changed?
+		// service type
+		// Publish a service - not sure if it calls patch or something else.
+		Service service = createNewServiceObjectToPost();    
+		ValidatableResponse response =
+				given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
+				body(service).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				post("/services/").
+				then().
+				body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
 
-        patchService.setDescription(patchService.getDescription() + " - now patching");
-        String patchUrl = "/services/" + patchService.getId();
-        ServiceLogger.log(logTag, "patch url = " + patchUrl);
+				String jsonResponse = response.extract().asString();
+				ServiceLogger.log(logTag, "response = " + jsonResponse);
 
-        given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(patchService).
-        expect().
-            statusCode(HttpStatus.OK.value()).
-        when().
-                patch(patchUrl).
-        then().
-            body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
-    }
+				ObjectMapper mapper = new ObjectMapper();
+				Service patchService = null;
+				try {
+					patchService = mapper.readValue(jsonResponse, Service.class);
+				} catch (Exception e) {
+					fail("unable to map response to Service object: " + e.getMessage());
+				}
 
-    /**
-     * test case for post /services
-     */
-    @Test
-    public void testServicePost(){
-        Service service = createNewServiceObjectToPost();
+				patchService.setDescription(patchService.getDescription() + " - now patching");
+				String patchUrl = "/services/" + patchService.getId();
+				ServiceLogger.log(logTag, "patch url = " + patchUrl);
+
+				given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
+				body(patchService).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				patch(patchUrl).
+				then().
+				body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
+	}
+
+	/**
+	 * test case for post /services
+	 */
+	@Test
+	public void testServicePost(){
+		Service service = createNewServiceObjectToPost();
 
 		Service serviceResponce =
-        given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(service).
-        expect().
-            statusCode(HttpStatus.OK.value()).
-        when().
-            post("/services/").
-        then().
-            body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json")).
-			extract().as(Service.class);
-		
+				given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
+				body(service).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				post("/services/").
+				then().
+				body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json")).
+				extract().as(Service.class);
+
 		/*
 		service.setId(serviceResponce.getId());
-		
+
 		assertTrue("Service sent " + service.toString() +
 				   " does not equal service responce "+ serviceResponce.toString(),
 				   serviceResponce.equals(service));
-		*/
+		 */
 		assertTrue("Title is not equal in sent and responce",
-				   service.getTitle().equals(serviceResponce.getTitle()));
+				service.getTitle().equals(serviceResponce.getTitle()));
 		assertTrue("Description is not equal in sent and responce",
-				   service.getDescription().equals(serviceResponce.getDescription()));
+				service.getDescription().equals(serviceResponce.getDescription()));
 		assertTrue("Service Type is not equal in sent and responce",
-				   service.getServiceType().equals(serviceResponce.getServiceType()));
+				service.getServiceType().equals(serviceResponce.getServiceType()));
 		assertTrue("Specifications is not equal in sent and responce",
-				   service.getSpecifications().equals(serviceResponce.getSpecifications()));
-    }
+				service.getSpecifications().equals(serviceResponce.getSpecifications()));
+	}
 
-    /**
-     * test case for get /services/{serviceID}/service_authors
-     */
-    @Test
-    public void testServiceGet_ServiceAuthor(){
+	/**
+	 * test case for get /services/{serviceID}/service_authors
+	 */
+	@Test
+	public void testServiceGet_ServiceAuthor(){
 		ServiceAuthor[] authors =
-        given().
-			header("AJP_eppn", userEPPN).
-			header("Content-type", APPLICATION_JSON_VALUE).
-        expect().
-			statusCode(HttpStatus.OK.value()).
-        when().
-			get("/services/" + serviceId + "/service_authors").as(ServiceAuthor[].class);
-		
+				given().
+				header("AJP_eppn", userEPPN).
+				header("Content-type", APPLICATION_JSON_VALUE).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				get("/services/" + serviceId + "/service_authors").as(ServiceAuthor[].class);
+
 		assertTrue("No service authors", authors[0] != null);
-		
+
 		ServiceAuthor firstAuthor = (ServiceAuthor) authors[0];
-		
+
 		assertTrue("First author id "+firstAuthor.getId()+" job title is null", firstAuthor.getJobTitle() != null);
 		assertTrue("First author id "+firstAuthor.getId()+" display name is null ", firstAuthor.getDisplayName() != null);
 	}
 
-    /**
-     * test case for get /services/{serviceID}/service_documents
-     */
-   /* @Test
+	/**
+	 * test case for get /services/{serviceID}/service_documents
+	 */
+	/* @Test
     public void testServiceGet_ServiceDocument(){
         given().
         header("AJP_eppn", userEPPN).
@@ -207,70 +209,149 @@ public class ServiceIT extends BaseIT {
         when().get("/services/" + serviceId + "/service_documents");
     }*/
 
-    /**
-     * test case for get /services/{serviceID}/service_documents
-     */
-    @Test
-    public void testServiceGet_ServiceHistory(){
-        List<ServiceHistory> history = given().
-        header("AJP_eppn", userEPPN).
-        expect().
-        statusCode(HttpStatus.OK.value()).
-        when().get("/services/" + serviceId + "/services_history").as(List.class);
-        
-        assertTrue("Got back nonempty history with unupdated service", history.size() == 0 && history.isEmpty());
-    }
+	/**
+	 * test case for get /services/{serviceID}/service_documents
+	 */
+	@Test
+	public void testServiceGet_ServiceHistory(){
+		List<ServiceHistory> history = given().
+				header("AJP_eppn", userEPPN).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().get("/services/" + serviceId + "/services_history").as(List.class);
 
-   
-    
+		assertTrue("Got back nonempty history with unupdated service", history.size() == 0 && history.isEmpty());
+	}
+	//this will get back an empty list of history since there is only the PATCH serviceID, which isn't called, writes to service_history
 
-    /**
-     * test case for get /services/{serviceID}/service_tags
-     */
-    @Test
-    public void testServiceGet_ServiceTags(){
+	@Test
+	public void testService_GetHistory(){
 
-        int serviceId = 2;
-        String tag1 = "tag_" + TestUserUtil.generateTime();
+		//TODO: Create a service
+		//Change description and use PATCH
+		// what other things can be changed?
+		// service type
+		// Publish a service - not sure if it calls patch or something else.
+		Service service = createNewServiceObjectToPost();    
+		ValidatableResponse response =
+				given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
+				body(service).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				post("/services/").
+				then().
+				body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
 
-        ServiceTag json = new ServiceTag();
-        json.setServiceId(Integer.toString(serviceId));
-        json.setName(tag1);
+				String jsonResponse = response.extract().asString();
+				ServiceLogger.log(logTag, "response = " + jsonResponse);
 
-        given().
-           header("Content-type", "application/json").
-           header("AJP_eppn", userEPPN).
-           body(json).
-        expect().
-           statusCode(HttpStatus.OK.value()).
-        when().
-           post(SERVICE_TAGS_RESOURCE);
+				ObjectMapper mapper = new ObjectMapper();
+				Service patchService = null;
+				try {
+					patchService = mapper.readValue(jsonResponse, Service.class);
+				} catch (Exception e) {
+					fail("unable to map response to Service object: " + e.getMessage());
+				}
 
-        ArrayList<ServiceTag> tags =
-           given().
-               header("AJP_eppn", userEPPN).
-           expect().
-               statusCode(200).
-           when().
-               get(SERVICE_TAGS_GET_BY_SERVICE_ID, serviceId).
-               as(ArrayList.class);
+				patchService.setDescription(patchService.getDescription() + " - now patching");
+				String patchUrl = "/services/" + patchService.getId();
+				ServiceLogger.log(logTag, "patch url = " + patchUrl);
 
-        assertTrue(tags != null);
-        assertTrue(tags.size() > 0);
-    }
-	
-    /**
-     * test case for get /services/{serviceID}/services_statistic
-     */
-    @Test
-    public void testServiceGet_ServiceStatistic(){
-        given().
-        header("AJP_eppn", userEPPN).
-	expect().
-	statusCode(HttpStatus.OK.value()).
-	when().get("/services/" + serviceId + "/services_statistic");
-    }
-	
+				given().
+				header("Content-type", "application/json").
+				header("AJP_eppn", userEPPN).
+				body(patchService).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				patch(patchUrl).
+				then().
+				body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
+
+
+
+				List<ServiceHistory> history = given().
+						header("AJP_eppn", userEPPN).
+						expect().
+						statusCode(HttpStatus.OK.value()).
+						when().get("/services/" + patchService.getId() + "/services_history").as(List.class);
+
+				assertTrue("Got back nonempty history with unupdated service", history.size() != 0);
+
+				ServiceHistory verify = history.get(0);
+				
+				int uid;
+				String uname = null;
+				
+
+				assertTrue("IDs do not match", Integer.parseInt(verify.getServiceId()) == patchService.getId());
+				assertTrue("Link is not empty string", verify.getLink().equals(""));
+				assertTrue("Section is not marketplace", verify.getSection() == ServiceHistory.SectionEnum.marketplace);
+				assertTrue("History period is not today", verify.getPeriod() == ServiceHistory.PeriodEnum.today);
+				try {
+					uid = UserDao.getUserID(userEPPN);
+					uname = UserDao.getUserName(uid);
+					assertTrue("User IDs do not match", verify.getUser().equals(Integer.toString(uid)));
+				} catch (SQLException e) {
+					fail("Failed user lookup");
+				}
+				assertTrue("Message does not match expected", verify.getTitle().matches(uname + " updated the service on *"));
+
+	}
+
+
+
+
+	/**
+	 * test case for get /services/{serviceID}/service_tags
+	 */
+	@Test
+	public void testServiceGet_ServiceTags(){
+
+		int serviceId = 2;
+		String tag1 = "tag_" + TestUserUtil.generateTime();
+
+		ServiceTag json = new ServiceTag();
+		json.setServiceId(Integer.toString(serviceId));
+		json.setName(tag1);
+
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(json).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		post(SERVICE_TAGS_RESOURCE);
+
+		ArrayList<ServiceTag> tags =
+				given().
+				header("AJP_eppn", userEPPN).
+				expect().
+				statusCode(200).
+				when().
+				get(SERVICE_TAGS_GET_BY_SERVICE_ID, serviceId).
+				as(ArrayList.class);
+
+		assertTrue(tags != null);
+		assertTrue(tags.size() > 0);
+	}
+
+	/**
+	 * test case for get /services/{serviceID}/services_statistic
+	 */
+	@Test
+	public void testServiceGet_ServiceStatistic(){
+		given().
+		header("AJP_eppn", userEPPN).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().get("/services/" + serviceId + "/services_statistic");
+	}
+
 	/**
 	 * test case 1 of 3 for get /services/{serviceID}/dome-interfaces
 	 */
@@ -321,7 +402,7 @@ public class ServiceIT extends BaseIT {
 			}
 
 			given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postDomeInterfaceJSONString).expect().statusCode(HttpStatus.OK.value()).when()
-					.post("/dome-interfaces");
+			.post("/dome-interfaces");
 		}
 
 		List<GetDomeInterface> receivedDomeInterfaces = Arrays.asList(given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).expect()
@@ -389,7 +470,7 @@ public class ServiceIT extends BaseIT {
 			}
 
 			given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postDomeInterfaceJSONString).expect().statusCode(HttpStatus.OK.value()).when()
-					.post("/dome-interfaces");
+			.post("/dome-interfaces");
 		}
 
 		List<GetDomeInterface> receivedDomeInterfaces = Arrays
@@ -408,7 +489,7 @@ public class ServiceIT extends BaseIT {
 			path.add(new Integer(3 + 4 - i));
 			path.add(new Integer(4 + 4 - i));
 			path.add(new Integer(5 + 4 - i));
-			
+
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Did not receive expected number of inputs",
 					tempDome.getInParams().size() == 2);		
 			assertTrue("testServiceGet_DomeInterfaceWhenSortParametersAreGiven: Did not receive expected number of outputs",
@@ -517,7 +598,7 @@ public class ServiceIT extends BaseIT {
 		String jsonString = "{\"version\":23,\"modelId\":\"1996\",\"interfaceId\":\"John Wayne\",\"type\":\"type\",\"name\":\"Brian\",\"path\":null,\"serviceId\":19,\"domeServer\":\"1900\"}";
 
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(jsonString).expect().statusCode(HttpStatus.METHOD_NOT_ALLOWED.value()).when()
-				.post("/dome-interfaces");
+		.post("/dome-interfaces");
 
 	}
 
@@ -684,7 +765,7 @@ public class ServiceIT extends BaseIT {
 		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().delete("/dome-interfaces/" + postedDomeInterface.getId());
 
 	}
-	
+
 	/**
 	 * test case for get /services/{serviceID}/input-positions
 	 */
@@ -697,89 +778,89 @@ public class ServiceIT extends BaseIT {
 		statusCode(HttpStatus.OK.value()).
 		when().get("/services/" + sId + "/input-positions");
 	}
-	
-	
+
+
 	/**
 	 * test case for POST /service/{serviceID}/specifications
 	 */
 	@Test
 	public void testServicePost_Specification(){
 		String postedSpecificationJSONString = getSpecJSONString();
-		
-        //pathParam("serviceID", serviceId).
+
+		//pathParam("serviceID", serviceId).
 		ServiceLogger.log(logTag, "ServiceSpecifications object json = " + postedSpecificationJSONString);
 		ServiceLogger.log(logTag, "posting for serviceId = " + serviceId);
 		given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(postedSpecificationJSONString).
-    	expect().
-            statusCode(HttpStatus.OK.value()).
-    	when().
-            post("/service/" + serviceId + "/specifications");
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(postedSpecificationJSONString).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		post("/service/" + serviceId + "/specifications");
 	}
-	
-    /**
-     * test case for POST /service/{serviceID}/specifications
-     */
-    @Test
-    public void testServicePost_EmptySpecification(){
-        ServiceSpecifications specification = new ServiceSpecifications();
-        ObjectMapper mapper = new ObjectMapper();
-        String postedSpecificationJSONString = null;
-        try {
-            postedSpecificationJSONString = mapper.writeValueAsString(specification);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        ServiceLogger.log(logTag, "ServiceSpecifications object json = " + postedSpecificationJSONString);
-        ServiceLogger.log(logTag, "posting for serviceId = " + serviceId);
-        given().
-            header("Content-type", "application/json").
-            header("AJP_eppn", userEPPN).
-            body(postedSpecificationJSONString).
-        expect().
-            statusCode(HttpStatus.OK.value()).
-        when().
-            post("/service/" + serviceId + "/specifications");
-    }
-    
+
+	/**
+	 * test case for POST /service/{serviceID}/specifications
+	 */
+	@Test
+	public void testServicePost_EmptySpecification(){
+		ServiceSpecifications specification = new ServiceSpecifications();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedSpecificationJSONString = null;
+		try {
+			postedSpecificationJSONString = mapper.writeValueAsString(specification);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		ServiceLogger.log(logTag, "ServiceSpecifications object json = " + postedSpecificationJSONString);
+		ServiceLogger.log(logTag, "posting for serviceId = " + serviceId);
+		given().
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(postedSpecificationJSONString).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		post("/service/" + serviceId + "/specifications");
+	}
+
 	/**
 	 * test GET /array_specifications
 	 */
 	@Test
 	public void testGet_ArraySpecification() {
-		
+
 		ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
 		int previousSpecId = 0;
-		
+
 		ObjectMapper mapper = new ObjectMapper();
-		
+
 		JsonNode jsonSpecs = given().
 				param("_sort", "id").
 				param("_order", "ASC").
 				header("AJP_eppn", userEPPN).
-		expect().
-			statusCode(HttpStatus.OK.value()).
-		when().
-			get("/array_specifications").
-		as(JsonNode.class);
-		
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				get("/array_specifications").
+				as(JsonNode.class);
+
 		try {
 			specs= mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ServiceSpecifications>>() {
 			});
 		} catch (Exception e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
-		
+
 		// assert that items are ordered correctly
 		for (ServiceSpecifications spec : specs) {
 			assertTrue("Items are ordered by the id column ASC", Integer.parseInt(spec.getId()) > previousSpecId);
 		}
 	}
-	
+
 	/**
 	 * test case for POST /array_specifications
 	 */
@@ -787,38 +868,38 @@ public class ServiceIT extends BaseIT {
 	public void testPost_ArraySpecification() {
 		int numSpecs = 2;
 		String postedSpecificationJSONString = getSpecsJSONString(numSpecs);
-		
+
 		ArrayList<ServiceSpecifications> specs = given().
-		header("Content-type", "application/json").
-		header("AJP_eppn", "user_EPPN").
-		body(postedSpecificationJSONString).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().
-		post("/array_specifications").
-		as(ArrayList.class);
-		
+				header("Content-type", "application/json").
+				header("AJP_eppn", "user_EPPN").
+				body(postedSpecificationJSONString).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().
+				post("/array_specifications").
+				as(ArrayList.class);
+
 		assertTrue("Number of Specifications created is number posted", specs.size() == numSpecs);
 	}
-    	
-	
+
+
 	/**
 	 * test case for GET /service_runs/{id}
 	 */
 	@Test
 	public void testServiceGet_ServiceRunId(){
 		String serviceRunId = "1";
-		
+
 		GetServiceRun received = given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(HttpStatus.OK.value()).
-		when().get("/service_runs/" + serviceRunId).as(GetServiceRun.class);
-		
+				header("AJP_eppn", userEPPN).
+				expect().
+				statusCode(HttpStatus.OK.value()).
+				when().get("/service_runs/" + serviceRunId).as(GetServiceRun.class);
+
 		assertTrue("testServiceGet_ServiceRunId: serviceRunId values are not equal", received.getId().equals(serviceRunId));
 		assertTrue("testServiceGet_ServiceRunId: serviceId values are not equal", received.getServiceId().equals("3"));
 	}
-	
+
 	/**
 	 * test case for GET /service_runs
 	 */
@@ -854,17 +935,17 @@ public class ServiceIT extends BaseIT {
 
 		GetServiceRun patched = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(patchedServiceRunIdJSONString).expect().statusCode(HttpStatus.OK.value())
 				.when().patch("/service_runs/" + serviceRunId).as(GetServiceRun.class);
-		
+
 		assertTrue("testServicePatch_ServiceRunId: serviceRunId values are not equal", patched.getId().equals(serviceRunId));
 		assertTrue("testServicePatch_ServiceRunId: serviceId values are not equal", patched.getServiceId().equals("3"));
 		assertTrue("testServicePatch_ServiceRunId: status values are not equal", patched.getStatus().equals(new BigDecimal(1)));
 		assertTrue("testServicePatch_ServiceRunId: percentage_complete values are not equal", patched.getPercentCompleted().equals(new BigDecimal(100)));
 
 	}
-	
-	
-	
-	
+
+
+
+
 	/*
 	 * test case for DELETE /service_runs/{id}
 	 */
@@ -876,32 +957,32 @@ public class ServiceIT extends BaseIT {
 		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
 		when().delete("/service_runs/" + serviceId);
 	}
-	
+
 	public void testPost_InputPosition(){
-		
+
 		ArrayList<ServiceInputPosition> positions = new ArrayList<ServiceInputPosition>();
 		ServiceInputPosition position1 = new ServiceInputPosition();
 		position1.setName("SpecimenWidth");
 		position1.setPosition(new BigDecimal(3.0));
 		position1.setName("CrackLength");
 		positions.add(position1);
-		
+
 		ServiceInputPosition position2 = new ServiceInputPosition();
 		position2.setPosition(new BigDecimal(4.0));
 		position2.setName("Alpha");
 		positions.add(position2);
-		
+
 		ServiceInputPosition position3 = new ServiceInputPosition();
 		position3.setPosition(new BigDecimal(5.0));
 		PostServiceInputPosition input = new PostServiceInputPosition();
 		positions.add(position3);
-		
+
 		input.setPositions(positions);
 		input.setServiceId("300");
-	
+
 		ObjectMapper mapper = new ObjectMapper();
 		String positionJSONString = null;
-		
+
 		try {
 			positionJSONString = mapper.writeValueAsString(input);
 		} catch (JsonProcessingException e) {
@@ -909,17 +990,17 @@ public class ServiceIT extends BaseIT {
 			e.printStackTrace();
 		}		
 		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(positionJSONString).
-	expect().
-        statusCode(HttpStatus.OK.value()).
-	when().
-        post("/input-positions");
-		
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(positionJSONString).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		post("/input-positions");
+
 	}
-	
-	
+
+
 	/*
 	 * test case for DELETE /input-positions/{positionInputId}
 	 */
@@ -931,15 +1012,15 @@ public class ServiceIT extends BaseIT {
 		statusCode(HttpStatus.OK.value()).
 		when().delete("/input-positions/" + positionInputId);
 	}
-	
-	
+
+
 	/*
 	 * test case for PATCH /input-positions/{positionInputId}
 	 */
 	@Test
 	public void testPatch_InputPositionByPositionInputId(){
 		List<ServiceInputPosition> obj = new ArrayList<ServiceInputPosition>();
-		
+
 		int interfaceId = 100;
 		ServiceInputPosition position1 = new ServiceInputPosition();
 		position1.setName("SpecimenWidth");
@@ -952,32 +1033,32 @@ public class ServiceIT extends BaseIT {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
+
 		given().
-        header("Content-type", "application/json").
-        header("AJP_eppn", userEPPN).
-        body(patchedServiceInputPositionJSONString).
-        	expect().
-        statusCode(HttpStatus.OK.value()).
-        	when().
-        patch("/input-positions/" + interfaceId);	
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(patchedServiceInputPositionJSONString).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		patch("/input-positions/" + interfaceId);	
 	}	
-	
-    // create a service object to use as body in post
-    private Service createNewServiceObjectToPost()
-    {
-        Service service = new Service();
-        service.setTitle("junit service test");
-        service.setDescription("junit service test");
-        service.setOwner(userEPPN);
+
+	// create a service object to use as body in post
+	private Service createNewServiceObjectToPost()
+	{
+		Service service = new Service();
+		service.setTitle("junit service test");
+		service.setDescription("junit service test");
+		service.setOwner(userEPPN);
 		service.setServiceType("service type");
 		service.setSpecifications("service specifications");
-        return service;
-    }
-    
-    // create a specification JSON String 
-    private String getSpecJSONString() {
-    	
+		return service;
+	}
+
+	// create a specification JSON String 
+	private String getSpecJSONString() {
+
 		ServiceSpecifications specification = new ServiceSpecifications();
 		specification.setId("16703234");
 		specification.setServiceId(serviceId);
@@ -999,7 +1080,7 @@ public class ServiceIT extends BaseIT {
 		usagestats.setAdded(new Integer(0));
 		usagestats.setMembers(new Integer(0));
 		specification.setUsageStats(usagestats);
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 		String postedSpecificationJSONString = null;
 		try {
@@ -1008,44 +1089,44 @@ public class ServiceIT extends BaseIT {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		return postedSpecificationJSONString;
-    }
-    
-    // create multiple specifications JSON String 
-    private String getSpecsJSONString(int num) {
-    	
-    	ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
-    	
-    	for  (int i=0; i<num; i++) {
-    		
-        	ServiceSpecifications specification = new ServiceSpecifications();
-    		specification.setId("16703234" + i);
-    		specification.setServiceId(serviceId);
-    		specification.setDescription("testing with junit" + i);
-    		specification.setInput(new Integer(1));
-    		specification.setOutput(new Integer(1));
-    		ServiceSpecialSpecifications special = new ServiceSpecialSpecifications();
-    		special.setSpecification("stuck");
-    		special.setSpecificationId("morejunk " + i);
-    		special.setData("this is the data " + i);
-    		ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
-    		specialList.add(special);
-    		specification.setSpecial(specialList);
-    		// Need to modify after the service run is fixed.  Refer to DMC-878
-    		RunStats runstats = new RunStats();
-    		runstats.setFail(new Integer(0));
-    		runstats.setSuccess(new Integer(0));
-    		specification.setRunStats(runstats);
-    		UsageStats usagestats = new UsageStats();
-    		usagestats.setAdded(new Integer(0));
-    		usagestats.setMembers(new Integer(0));
-    		specification.setUsageStats(usagestats);
-    		
-    		specs.add(specification);
-    	}
 
-		
+		return postedSpecificationJSONString;
+	}
+
+	// create multiple specifications JSON String 
+	private String getSpecsJSONString(int num) {
+
+		ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
+
+		for  (int i=0; i<num; i++) {
+
+			ServiceSpecifications specification = new ServiceSpecifications();
+			specification.setId("16703234" + i);
+			specification.setServiceId(serviceId);
+			specification.setDescription("testing with junit" + i);
+			specification.setInput(new Integer(1));
+			specification.setOutput(new Integer(1));
+			ServiceSpecialSpecifications special = new ServiceSpecialSpecifications();
+			special.setSpecification("stuck");
+			special.setSpecificationId("morejunk " + i);
+			special.setData("this is the data " + i);
+			ArrayList<ServiceSpecialSpecifications> specialList = new ArrayList<ServiceSpecialSpecifications>();
+			specialList.add(special);
+			specification.setSpecial(specialList);
+			// Need to modify after the service run is fixed.  Refer to DMC-878
+			RunStats runstats = new RunStats();
+			runstats.setFail(new Integer(0));
+			runstats.setSuccess(new Integer(0));
+			specification.setRunStats(runstats);
+			UsageStats usagestats = new UsageStats();
+			usagestats.setAdded(new Integer(0));
+			usagestats.setMembers(new Integer(0));
+			specification.setUsageStats(usagestats);
+
+			specs.add(specification);
+		}
+
+
 		ObjectMapper mapper = new ObjectMapper();
 		String postedSpecificationJSONString = null;
 		try {
@@ -1054,8 +1135,8 @@ public class ServiceIT extends BaseIT {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return postedSpecificationJSONString;
-    }
-	
+	}
+
 }
