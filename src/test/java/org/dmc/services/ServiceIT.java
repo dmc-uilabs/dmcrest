@@ -216,7 +216,7 @@ public class ServiceIT extends BaseIT {
         header("AJP_eppn", userEPPN).
         expect().
         statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/service_history");
+        when().get("/services/" + serviceId + "/services_history");
     }
 
    
