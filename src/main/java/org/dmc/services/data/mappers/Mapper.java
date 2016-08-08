@@ -12,16 +12,20 @@ public interface Mapper<T extends BaseEntity, S extends BaseModel> {
 	T mapToEntity(S model);
 	
 	default List<T> mapToEntity(Collection<S> models) {
+		if (models == null) return null;
 		return models.stream()
 				.map((n) -> mapToEntity(n))
+				.filter((n) -> n != null)
 				.collect(Collectors.toList());
 	}
 	
 	S mapToModel(T entity);
 	
 	default List<S> mapToModel(Collection<T> entities) {
+		if (entities == null) return null;
 		return entities.stream()
 				.map((n) -> mapToModel(n))
+				.filter((n) -> n != null)
 				.collect(Collectors.toList());
 	}
 	

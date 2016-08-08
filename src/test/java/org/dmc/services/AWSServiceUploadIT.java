@@ -249,6 +249,7 @@ public class AWSServiceUploadIT extends BaseIT {
         VerificationPatch returnPatch = 
 		given()
         	.header("Content-type", "application/json")
+        	.header("AJP_eppn", userEPPN)
             .body(patchedJSONString)
             .expect()
             .statusCode(HttpStatus.OK.value())
@@ -537,6 +538,7 @@ public class AWSServiceUploadIT extends BaseIT {
         VerificationPatch returnPatch = 
 		given()
         	.header("Content-type", "application/json")
+        	.header("AJP_eppn", userEPPN)
             .body(patchedJSONString)
             .expect()
             .statusCode(HttpStatus.OK.value())

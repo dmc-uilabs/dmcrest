@@ -14,15 +14,15 @@ public class UserRoleService {
 
 	@Inject
 	private UserRoleRepository userRoleRepository;
-	
+
 	@Inject
 	private MapperFactory mapperFactory;
-	
+
 	public UserRoleModel findOne(Integer id) {
 		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
 		return mapper.mapToModel(userRoleRepository.findOne(id));
 	}
-	
+
 	public UserRoleModel save (UserRoleModel userRoleModel) {
 		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
 		return mapper.mapToModel(userRoleRepository.save(mapper.mapToEntity(userRoleModel)));
@@ -31,5 +31,23 @@ public class UserRoleService {
 	public UserRoleModel findByUserId(Integer dmdiiMemberId) {
 		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
 		return mapper.mapToModel(userRoleRepository.findByUserId(dmdiiMemberId));
+	}
+
+	public UserRoleModel setUserAsCompanyAdmin(Integer userId, Integer organizationId) {
+		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
+		UserRoleModel role = new UserRoleModel();
+		role.setOrganizationId(organizationId);
+		role.setRoleId(2);
+		role.setUserId(userId);
+		return this.save(role);
+	}
+
+	public UserRoleModel setUserAsCompanyMember(Integer userId, Integer organizationId) {
+		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
+		UserRoleModel role = new UserRoleModel();
+		role.setOrganizationId(organizationId);
+		role.setRoleId(4);
+		role.setUserId(userId);
+		return this.save(role);
 	}
 }

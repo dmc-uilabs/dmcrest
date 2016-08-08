@@ -2,12 +2,12 @@ package org.dmc.services;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.dmc.services.utils.SQLUtils.DEFAULT_LIMIT;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.dmc.services.utils.SQLUtils.DEFAULT_LIMIT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +36,7 @@ public class ProfileIT extends BaseIT {
     private static final String PROFILE_DELETE_RESOURCE = "/profiles/{id}/delete";
 
     private final String profileId = "1";
+    private String knownEPPN;
     String unique = null;
     Integer createdId = -1;
 
@@ -43,24 +44,26 @@ public class ProfileIT extends BaseIT {
     @Before
     // @Test
     public void testProfileCreate() {
-        unique = TestUserUtil.generateTime();
+        if (knownEPPN == null) {
+        	knownEPPN = TestUserUtil.createNewUser();
+        }
 
         // Integer id =
-        given().header("Content-type", "text/plain").header("AJP_eppn", "userEPPN" + unique)
-                .header("AJP_givenName", "userGivenName" + unique).header("AJP_sn", "userSurname" + unique)
-                .header("AJP_displayName", unique).header("AJP_mail", "userEmail" + unique).expect().statusCode(200)
+        given().header("Content-type", "text/plain").header("AJP_eppn", knownEPPN)
+                .header("AJP_givenName", "userGivenName" + knownEPPN).header("AJP_sn", "userSurname" + knownEPPN)
+                .header("AJP_displayName", knownEPPN).header("AJP_mail", "userEmail" + knownEPPN).expect().statusCode(200)
                 .when().get("/user");
         // then().
         // body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
         // extract().path("id");
 
         Profile json = createFixture("create");
-        this.createdId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", "userEPPN" + unique)
+        this.createdId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN)
                 .body(json).expect().statusCode(200).when().post(PROFILE_CREATE_RESOURCE).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 
         // Adding test to get out preSignedURL
-        Profile profile = given().header("AJP_eppn", "userEPPN" + unique).expect().statusCode(200).when()
+        Profile profile = given().header("AJP_eppn", knownEPPN).expect().statusCode(200).when()
                 .get(PROFILE_READ_RESOURCE, this.createdId.toString()).as(Profile.class);
 
         // Extract
@@ -127,7 +130,7 @@ public class ProfileIT extends BaseIT {
     public void testProfileGet() {
 
 		if (this.createdId > 0) {
-            Integer retrivedId = given().header("AJP_eppn", "userEPPN" + unique).expect().statusCode(200).when()
+            Integer retrivedId = given().header("AJP_eppn", knownEPPN).expect().statusCode(200).when()
                     .get(PROFILE_READ_RESOURCE, this.createdId.toString()).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
             assertTrue("Retrieved Id is not the same as newly created user's id", this.createdId.equals(retrivedId));
@@ -141,7 +144,7 @@ public class ProfileIT extends BaseIT {
         final Profile json = createFixture("update");
         if (this.createdId > 0) {
             final Integer retrievedId = given().header("Content-type", APPLICATION_JSON_VALUE)
-                    .header("AJP_eppn", "userEPPN" + unique).body(json).expect().statusCode(OK.value()).when()
+                    .header("AJP_eppn", knownEPPN).body(json.toString()).expect().statusCode(OK.value()).when()
                     .patch(PROFILE_UPDATE_RESOURCE, this.createdId.toString()).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 
@@ -161,7 +164,7 @@ public class ProfileIT extends BaseIT {
         json.setSkills(new ArrayList<String>());
         if (this.createdId > 0) {
             final Integer retrivedId = given().header("Content-type", APPLICATION_JSON_VALUE)
-                    .header("AJP_eppn", "userEPPN" + unique).body(json).expect().statusCode(OK.value()).when()
+                    .header("AJP_eppn", knownEPPN).body(json.toString()).expect().statusCode(OK.value()).when()
                     .patch(PROFILE_UPDATE_RESOURCE, this.createdId.toString()).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 
@@ -174,7 +177,7 @@ public class ProfileIT extends BaseIT {
     @After
     public void testProfileDelete() {
         if (this.createdId > 0) {
-            given().header("AJP_eppn", "userEPPN" + unique).expect().statusCode(OK.value()).when()
+            given().header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when()
                     .get(PROFILE_DELETE_RESOURCE, this.createdId.toString()).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
         }
@@ -235,7 +238,7 @@ public class ProfileIT extends BaseIT {
      */
     @Test
     public void testProfileGet_Profiles_defaultResponse() {
-        final List<Profile> profiles = getProfiles("userEPPN" + unique);
+        final List<Profile> profiles = getProfiles(knownEPPN);
 
         assertTrue("No profiles returned", profiles.size() > 0);
         assertTrue("Too many profiles returned: " + profiles.size(), profiles.size() <= DEFAULT_LIMIT);
@@ -257,7 +260,7 @@ public class ProfileIT extends BaseIT {
      */
     @Test
     public void testProfileGet_Profiles_ascendingOrderResponse() {
-        final List<Profile> profiles = getProfiles("userEPPN" + unique, DEFAULT_LIMIT, "ASC", "realname", null);
+        final List<Profile> profiles = getProfiles(knownEPPN, DEFAULT_LIMIT, "ASC", "realname", null);
 
         assertTrue("No profiles returned", profiles.size() > 0);
         assertTrue("Too many profiles returned: " + profiles.size(), profiles.size() <= DEFAULT_LIMIT);
@@ -281,7 +284,7 @@ public class ProfileIT extends BaseIT {
      */
     @Test
     public void testProfileGet_Profiles_ascendingOrderForTitleResponse() {
-        final List<Profile> profiles = getProfiles("userEPPN" + unique, DEFAULT_LIMIT, "ASC", "title", null);
+        final List<Profile> profiles = getProfiles(knownEPPN, DEFAULT_LIMIT, "ASC", "title", null);
 
         assertTrue("No profiles returned", profiles.size() > 0);
         assertTrue("Too many profiles returned: " + profiles.size(), profiles.size() <= DEFAULT_LIMIT);
@@ -306,15 +309,15 @@ public class ProfileIT extends BaseIT {
      */
     @Test
     public void testProfileGet_Profiles_limitResponse() {
-        List<Profile> profiles = getProfiles("userEPPN" + unique, 1);
+        List<Profile> profiles = getProfiles(knownEPPN, 1);
         assertTrue("No profiles returned", profiles.size() > 0);
         assertTrue("More then 1 profile returned", profiles.size() <= 1);
 
-        profiles = getProfiles("userEPPN" + unique, 3);
+        profiles = getProfiles(knownEPPN, 3);
         assertTrue("No profiles returned", profiles.size() > 0);
         assertTrue("More then 3 profiles returned", profiles.size() <= 3);
 
-        profiles = getProfiles("userEPPN" + unique, 0);
+        profiles = getProfiles(knownEPPN, 0);
         assertTrue("Non-zero profiles returned", profiles.size() == 0);
     }
 
@@ -323,7 +326,7 @@ public class ProfileIT extends BaseIT {
      */
     @Test
     public void testProfileGet_Profiles_IdListResponse() {
-        final List<Profile> hundredProfiles = getProfiles("userEPPN" + unique);
+        final List<Profile> hundredProfiles = getProfiles(knownEPPN);
 
         final Random random = new Random();
         final int numberOfSamples = random.nextInt(hundredProfiles.size()) + 1;
@@ -342,7 +345,7 @@ public class ProfileIT extends BaseIT {
         ServiceLogger.log(LOGTAG, "subset ids equal " + ids.toString());
 
         // retrieve subset profiles
-        final List<Profile> profilesSubset = getProfiles("userEPPN" + unique, DEFAULT_LIMIT, "DESC", "realname", ids);
+        final List<Profile> profilesSubset = getProfiles(knownEPPN, DEFAULT_LIMIT, "DESC", "realname", ids);
 
         assertTrue("size of ids is " + ids.size() + " and size of profilesSubset is " + profilesSubset.size()
                 + ", which are not the same", ids.size() == profilesSubset.size());

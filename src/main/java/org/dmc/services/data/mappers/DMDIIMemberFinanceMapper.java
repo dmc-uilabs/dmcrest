@@ -12,6 +12,8 @@ public class DMDIIMemberFinanceMapper extends AbstractMapper<DMDIIMemberFinance,
 
 	@Override
 	public DMDIIMemberFinance mapToEntity(DMDIIMemberFinanceModel model) {
+		if (model == null) return null;
+		
 		DMDIIMemberFinance entity = copyProperties(model, new DMDIIMemberFinance());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -22,6 +24,8 @@ public class DMDIIMemberFinanceMapper extends AbstractMapper<DMDIIMemberFinance,
 
 	@Override
 	public DMDIIMemberFinanceModel mapToModel(DMDIIMemberFinance entity) {
+		if (entity == null) return null;
+		
 		DMDIIMemberFinanceModel model = copyProperties(entity, new DMDIIMemberFinanceModel());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);

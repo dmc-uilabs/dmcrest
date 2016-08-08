@@ -1,12 +1,12 @@
 package org.dmc.services.data.entities;
 
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.annotation.Generated;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Assert;
@@ -20,20 +20,7 @@ public class EntityTest {
 
 	@Test
 	public void testGettersAndSetters() throws Exception {
-		
-		ClassPath classPath = ClassPath.from(Thread.currentThread().getContextClassLoader());
-		ImmutableSet<ClassPath.ClassInfo> classes = classPath.getTopLevelClasses("org.dmc.services.data.entities");
-		
-		List<String> foundEntities = classes
-										.stream()
-										.filter(c -> {
-											if(!c.getSimpleName().equals("BaseEntity") && c.load().isAssignableFrom(BaseEntity.class))
-												return c.getName() != null;
-											return false;
-										})
-										.map(s -> s.getName())
-										.collect(Collectors.toList());
-		
+		List<String> foundEntities = findEntities();
 		
 		for(String name : foundEntities) {
 			Object obj = null;
@@ -60,6 +47,21 @@ public class EntityTest {
 				}
 			}
 		}
+	}
+	
+	private List<String> findEntities() throws IOException {
+		ClassPath classPath = ClassPath.from(Thread.currentThread().getContextClassLoader());
+		ImmutableSet<ClassPath.ClassInfo> classes = classPath.getTopLevelClasses("org.dmc.services.data.entities");
+		
+		return classes
+				.stream()
+				.filter(c -> {
+					if(!c.getSimpleName().equals("BaseEntity") && BaseEntity.class.isAssignableFrom(c.load()))
+						return c.getName() != null;
+					return false;
+				})
+				.map(s -> s.getName())
+				.collect(Collectors.toList());
 	}
 
 	private Object getValueForSetter(PropertyDescriptor descriptor) throws NoSuchMethodException, SecurityException {
@@ -94,6 +96,8 @@ public class EntityTest {
 			} else {
 				System.out.println("Skipped tests for Getters and Setters on a Final class: " + type.getSimpleName());
 			}
+		} else if(type == List.class) {
+			returnObj = new ArrayList();
 		} else {
 			returnObj = Mockito.mock(descriptor.getPropertyType());
 		}
