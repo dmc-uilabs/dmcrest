@@ -212,11 +212,13 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceHistory(){
-        given().
+        List<ServiceHistory> history = given().
         header("AJP_eppn", userEPPN).
         expect().
-        statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/services_history");
+        statusCode(HttpStatus.OK.value()).
+        when().get("/services/" + serviceId + "/services_history").as(List.class);
+        
+        assertTrue("Got back nonempty history with unupdated service", history.size() == 0 && history.isEmpty());
     }
 
    
