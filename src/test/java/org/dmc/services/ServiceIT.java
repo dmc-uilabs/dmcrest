@@ -1,32 +1,10 @@
 package org.dmc.services;
 
-import org.dmc.services.services.PostServiceInputPosition;
-import org.dmc.services.services.PostUpdateDomeInterface;
-import org.dmc.services.services.Service;
-import org.dmc.services.services.ServiceDao;
-import org.dmc.services.services.ServiceInputPosition;
-import org.dmc.services.services.ServiceSpecialSpecifications;
-import org.dmc.services.services.ServiceSpecifications;
-import org.dmc.services.services.RunStats;
-import org.dmc.services.services.UsageStats;
-import org.dmc.services.services.specifications.ArraySpecifications;
-import org.dmc.services.company.CompanyVideo;
-import org.dmc.services.services.*;
-import org.dmc.services.utility.TestUserUtil;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-import org.springframework.http.HttpStatus;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.response.ValidatableResponse;
-
-import static com.jayway.restassured.RestAssured.*;
-import static org.springframework.http.MediaType.*;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -37,8 +15,29 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import org.dmc.services.services.DomeModelParam;
+import org.dmc.services.services.GetDomeInterface;
+import org.dmc.services.services.GetServiceRun;
+import org.dmc.services.services.PostServiceInputPosition;
+import org.dmc.services.services.PostUpdateDomeInterface;
+import org.dmc.services.services.RunStats;
+import org.dmc.services.services.Service;
+import org.dmc.services.services.ServiceAuthor;
+import org.dmc.services.services.ServiceInputPosition;
+import org.dmc.services.services.ServiceSpecialSpecifications;
+import org.dmc.services.services.ServiceSpecifications;
+import org.dmc.services.services.ServiceTag;
+import org.dmc.services.services.UsageStats;
+import org.dmc.services.utility.TestUserUtil;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.restassured.response.ValidatableResponse;
 
 public class ServiceIT extends BaseIT {
 	
@@ -53,12 +52,22 @@ public class ServiceIT extends BaseIT {
     private String serviceId = "1"; // the serviceId need to be assigned new value
     private String domeInterfaceId = "1";
     private String positionInputId = "1";
+    
+    private String knownEPPN;
+    
+    @Before
+    public void before() {
+    	if (knownEPPN == null) {
+    		knownEPPN = TestUserUtil.createNewUser();
+    	}
+    }
 
     @Test
     public void testService() {
         // perform actual GET request against the embedded container for the service we know exists
         // provide the same ID the test service above was created with
         // Expect
+    	given().header("AJP_eppn", knownEPPN).
         expect().
           statusCode(200).
         when().
@@ -68,19 +77,21 @@ public class ServiceIT extends BaseIT {
 
     @Test
     public void testServiceList(){
+    	given().header("AJP_eppn", knownEPPN).
         expect().statusCode(200).when().get("/services").then().
         body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
     }
 
     @Test
     public void testServiceListProject(){
+    	given().header("AJP_eppn", knownEPPN).
         expect().statusCode(200).when().get("/projects/6/services").then().
         body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
     }
 
     @Test
     public void testServiceListComponent(){
-        
+    	given().header("AJP_eppn", knownEPPN).
         expect().statusCode(200).when().get("/components/" + (r.nextInt(190) + 30) + "/services").then().
         body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
     }
@@ -788,7 +799,7 @@ public class ServiceIT extends BaseIT {
 		
 		ArrayList<ServiceSpecifications> specs = given().
 		header("Content-type", "application/json").
-		header("AJP_eppn", "user_EPPN").
+		header("AJP_eppn", userEPPN).
 		body(postedSpecificationJSONString).
 		expect().
 		statusCode(HttpStatus.OK.value()).

@@ -13,6 +13,7 @@ public class Role extends BaseEntity{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Integer id;
 	
 	@Column(name = "role")
@@ -49,6 +50,8 @@ public class Role extends BaseEntity{
 			return true;
 		if (obj == null)
 			return false;
+		if (getClass() != obj.getClass())
+			return false;
 		Role other = (Role) obj;
 		if (id == null) {
 			if (other.id != null)
@@ -62,4 +65,5 @@ public class Role extends BaseEntity{
 			return false;
 		return true;
 	}
+
 }

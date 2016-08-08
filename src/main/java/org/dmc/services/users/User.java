@@ -1,11 +1,12 @@
 package org.dmc.services.users;
 
+import java.util.Map;
 /**
  * Created by 200005921 on 2/8/2016.
  */
 import java.util.Objects;
-import org.dmc.services.ServiceLogger;
 
+import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,6 +25,8 @@ public class User {
     private UserRunningServices runningServices;
     private UserMessages messages;
     private UserOnboarding onboarding;
+    private Map<Integer, String> roles;
+    private Boolean isDMDIIMember;
     
     public User() {
         this.displayName = null; //TODO: fix
@@ -281,6 +284,22 @@ public class User {
         public void companyId (int companyId) { this.companyId = companyId; }
 
     }
+
+	public Map<Integer, String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Map<Integer, String> roles) {
+		this.roles = roles;
+	}
+
+	public Boolean getIsDMDIIMember() {
+		return isDMDIIMember;
+	}
+
+	public void setIsDMDIIMember(Boolean isDMDIIMember) {
+		this.isDMDIIMember = isDMDIIMember;
+	}
 
 
 }
