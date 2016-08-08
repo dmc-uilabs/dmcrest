@@ -8,10 +8,6 @@ import org.dmc.services.data.dao.user.UserOnboardingDao;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Created by 200005921 on 2/8/2016.
- */
-
 // This class' name should be changed to UserDetails to match yaml
 public class User {
     private final String logTag = User.class.getName();
