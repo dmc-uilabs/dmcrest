@@ -11,7 +11,7 @@ import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.models.UserContactInfoModel;
 import org.dmc.services.data.models.UserModel;
-import org.dmc.services.data.repositories.OrganizationDao;
+import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 public class UserMapper extends AbstractMapper<User, UserModel> {
 
 	@Inject
-	private OrganizationDao organizationDao;
+	private OrganizationRepository organizationRepository;
 
 	@Inject
 	private OrganizationUserRepository organizationUserRepository;
@@ -37,7 +37,7 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		OrganizationUser orgUserEntity = organizationUserRepository.findByUserIdAndOrganizationId(entity.getId(), model.getOrganization());
 		if(orgUserEntity == null) {
 			orgUserEntity = new OrganizationUser();
-			orgUserEntity.setOrganization(organizationDao.findOne(model.getOrganization()));
+			orgUserEntity.setOrganization(organizationRepository.findOne(model.getOrganization()));
 		}
 
 		entity.setOrganizationUser(orgUserEntity);

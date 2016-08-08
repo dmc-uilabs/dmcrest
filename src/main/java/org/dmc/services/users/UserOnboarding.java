@@ -15,7 +15,7 @@ public class UserOnboarding {
         this(false, false, false, false);
     }
                    
-    UserOnboarding(boolean profile, boolean account, boolean company, boolean storefront) {
+    public UserOnboarding(boolean profile, boolean account, boolean company, boolean storefront) {
         this.profile = profile;
         this.account = account;
         this.company = company;
