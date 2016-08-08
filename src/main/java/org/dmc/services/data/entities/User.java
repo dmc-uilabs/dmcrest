@@ -40,14 +40,20 @@ public class User extends BaseEntity {
 
 	@Column(name = "phone")
 	private String phone;
-	
+
+	@Column(name = "about_me")
+	private String aboutMe;
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
 
 	@OneToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name = "user_contact_info_id")
 	private UserContactInfo userContactInfo;
-	
+
+	@OneToOne(mappedBy = "user")
+	private OrganizationUser organizationUser;
+
 	public String getUsername() {
 		return username;
 	}
@@ -96,6 +102,14 @@ public class User extends BaseEntity {
 		this.phone = phone;
 	}
 
+	public String getAboutMe() {
+		return aboutMe;
+	}
+
+	public void setAboutMe(String aboutMe) {
+		this.aboutMe = aboutMe;
+	}
+
 	public Integer getId() {
 		return id;
 	}
@@ -120,15 +134,25 @@ public class User extends BaseEntity {
 		this.userContactInfo = userContactInfo;
 	}
 
+	public OrganizationUser getOrganizationUser() {
+		return organizationUser;
+	}
+
+	public void setOrganizationUser(OrganizationUser organizationUser) {
+		this.organizationUser = organizationUser;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((aboutMe == null) ? 0 : aboutMe.hashCode());
 		result = prime * result + ((address == null) ? 0 : address.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
+		result = prime * result + ((organizationUser == null) ? 0 : organizationUser.hashCode());
 		result = prime * result + ((phone == null) ? 0 : phone.hashCode());
 		result = prime * result + ((roles == null) ? 0 : roles.hashCode());
 		result = prime * result + ((userContactInfo == null) ? 0 : userContactInfo.hashCode());
@@ -145,6 +169,11 @@ public class User extends BaseEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
+		if (aboutMe == null) {
+			if (other.aboutMe != null)
+				return false;
+		} else if (!aboutMe.equals(other.aboutMe))
+			return false;
 		if (address == null) {
 			if (other.address != null)
 				return false;
@@ -170,6 +199,11 @@ public class User extends BaseEntity {
 				return false;
 		} else if (!lastName.equals(other.lastName))
 			return false;
+		if (organizationUser == null) {
+			if (other.organizationUser != null)
+				return false;
+		} else if (!organizationUser.equals(other.organizationUser))
+			return false;
 		if (phone == null) {
 			if (other.phone != null)
 				return false;
@@ -180,15 +214,15 @@ public class User extends BaseEntity {
 				return false;
 		} else if (!roles.equals(other.roles))
 			return false;
-		if (username == null) {
-			if (other.username != null)
-				return false;
-		} else if (!username.equals(other.username))
-			return false;
 		if (userContactInfo == null) {
 			if (other.userContactInfo != null)
 				return false;
 		} else if (!userContactInfo.equals(other.userContactInfo))
+			return false;
+		if (username == null) {
+			if (other.username != null)
+				return false;
+		} else if (!username.equals(other.username))
 			return false;
 		return true;
 	}
