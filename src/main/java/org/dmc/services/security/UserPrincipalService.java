@@ -36,6 +36,7 @@ public class UserPrincipalService implements UserDetailsService {
 			
 			if (role.equals(SecurityRoles.SUPERADMIN)) {
 				principal.addAuthorities(PermissionEvaluationHelper.getInheritedRolesForRole(role));
+				principal.addRole(0, role);
 			} else {
 				principal.addRole(roleAssignment.getOrganization().getId(), role);
 				
