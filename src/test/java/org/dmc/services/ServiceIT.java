@@ -12,6 +12,7 @@ import org.dmc.services.services.UsageStats;
 import org.dmc.services.services.specifications.ArraySpecifications;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.company.CompanyVideo;
+import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.services.*;
 import org.dmc.services.utility.TestUserUtil;
 import org.junit.Test;
@@ -27,12 +28,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
 
 import static com.jayway.restassured.RestAssured.*;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.*;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -226,13 +230,27 @@ public class ServiceIT extends BaseIT {
 
 	@Test
 	public void testService_GetHistory(){
+		
+		final Date date = new Date();
+        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        final String unique = format.format(date);
+
+        final ProjectCreateRequest json = new ProjectCreateRequest();
+        json.setDescription("junit testProjectCreateJsonObject " + unique);
+        json.setTitle("junitjson" + unique);
+
+        ServiceLogger.log(logTag, "testProjectCreateJsonObject: json = " + json.toString());
+        Id pid = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
+                .statusCode(OK.value()).when().post("/projects/create").then()
+                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().as(Id.class);
 
 		//TODO: Create a service
 		//Change description and use PATCH
 		// what other things can be changed?
 		// service type
 		// Publish a service - not sure if it calls patch or something else.
-		Service service = createNewServiceObjectToPost();    
+		Service service = createNewServiceObjectToPost();  
+		service.setId(pid.getId());
 		ValidatableResponse response =
 				given().
 				header("Content-type", "application/json").
@@ -243,7 +261,7 @@ public class ServiceIT extends BaseIT {
 				when().
 				post("/services/").
 				then().
-				body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
+				body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
 
 				String jsonResponse = response.extract().asString();
 				ServiceLogger.log(logTag, "response = " + jsonResponse);
