@@ -48,8 +48,8 @@ public class ProjectIT extends BaseIT {
     private static final String PROJECT_GET_ALL_RESOURCE = "/projects/all";
 
     // Member
-    private static final String MEMBER_ACCEPT_RESOURCE = "/projects/{projectId}/accept/{memberId}";
-    private static final String MEMBER_REJECT_RESOURCE = "/projects/{projectId}/reject/{memberId}";
+    private static final String MEMBER_ACCEPT_RESOURCE = "/projects_members/{requestId}";
+    private static final String MEMBER_REJECT_RESOURCE = "/projects_members/{requestId}";
     private static final String MEMBERS_RESOURCE = "/members";
 
     private static final String PROJECT_GET_TAGS_FOR_PROJECT = "/projects/{projectId}/projects_tags";

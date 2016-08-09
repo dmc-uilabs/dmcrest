@@ -253,7 +253,7 @@ public class ServiceIT extends BaseIT {
 		// service type
 		// Publish a service - not sure if it calls patch or something else.
 		Service service = createNewServiceObjectToPost();  
-		service.setId(pid.getInt("id"));
+		service.setProjectId(Integer.toString(pid.getInt("id")));
 		ValidatableResponse response =
 				given().
 				header("Content-type", "application/json").
