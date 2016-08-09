@@ -28,12 +28,12 @@ public class AssignUserController {
 	
 	private final String logTag = AssignUserController.class.getName();
 	private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
-	
+
 	/**
-	 * GET assign_users
+	 * Handle GET request for assign users
 	 * @param userEPPN
-	 * @param project number
-	 * @return
+	 * @param projectId
+	 * @return List<AssignUser>
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/assign_users", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
@@ -60,15 +60,11 @@ public class AssignUserController {
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
-	
-	
-	
-	
-	
+
 	/**
-	 * GET assign_users
+	 * Handle GET request for
 	 * @param userEPPN
-	 * @param project number
+	 * @param projectId
 	 * @return
 	 * @throws Exception
 	 */
