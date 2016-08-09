@@ -30,7 +30,13 @@ public class UserRoleService {
 
 	public UserRoleModel findByUserId(Integer dmdiiMemberId) {
 		Mapper<UserRole, UserRoleModel> mapper = mapperFactory.mapperFor(UserRole.class, UserRoleModel.class);
-		return mapper.mapToModel(userRoleRepository.findByUserId(dmdiiMemberId));
+		UserRole role = userRoleRepository.findByUserId(dmdiiMemberId);
+		UserRoleModel roleModel = mapper.mapToModel(role);
+		return roleModel;
+	}
+
+	public void deleteByUserId(Integer userId) {
+		userRoleRepository.deleteByUserId(userId);
 	}
 
 	public UserRoleModel setUserAsCompanyAdmin(Integer userId, Integer organizationId) {

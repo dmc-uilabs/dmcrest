@@ -42,7 +42,7 @@ public class UserController {
 
 	@Inject
 	private OrganizationUserService orgUserService;
-	
+
 	@Inject
 	private UserPrincipalService userPrincipalService;
 
@@ -73,7 +73,7 @@ public class UserController {
                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
-        
+
         User user = userDAO.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
         UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userEPPN);
         user.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
@@ -127,8 +127,13 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)
-	public VerifyUserResponse getUserToken(@RequestParam("userId") Integer id, @RequestParam("token") String token) {
+	public VerifyUserResponse verifyUser(@RequestParam("userId") Integer id, @RequestParam("token") String token) {
 		return userService.verifyUser(id, token);
+	}
+
+	@RequestMapping(value = "/user/unverify", method = RequestMethod.POST)
+	public VerifyUserResponse unverifyUser(@RequestParam("userId") Integer id) {
+		return userService.unverifyUser(id);
 	}
 
     /*

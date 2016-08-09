@@ -12,6 +12,7 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
+import org.dmc.services.data.models.UserRoleModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
@@ -99,6 +100,23 @@ public class UserService {
 
 		return response;
 
+	}
+
+	@Transactional
+	public VerifyUserResponse unverifyUser(Integer userId) {
+		VerifyUserResponse response = new VerifyUserResponse();
+
+		OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
+		orgUserModel.setIsVerified(true);
+		orgUserService.saveOrganizationUser(orgUserModel);
+
+		UserRoleModel userRoleModel = userRoleService.findByUserId(userId);
+		userRoleService.deleteByUserId(userRoleModel.getUserId());
+
+		response.setResponseCode(0);
+		response.setResponseDescription("Successfully unverified user.");
+
+		return response;
 	}
 
 	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {

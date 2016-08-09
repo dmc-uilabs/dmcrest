@@ -6,4 +6,6 @@ public interface UserRoleRepository extends BaseRepository<UserRole, Integer>{
 
 	UserRole findByUserId(Integer dmdiiMemberId);
 
+	void deleteByUserId(Integer userId);
+
 }
