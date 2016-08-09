@@ -90,7 +90,7 @@ public class ProjectMemberDao {
 	// join users u on gjr.user_id = u.user_id
 	// where gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join
 	// pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-	public ArrayList<ProjectMember> getProjectMembers(String userEPPN) throws DMCServiceException {
+	public ArrayList<ProjectMember> getProjectMembers(Boolean accept, String userEPPN) throws DMCServiceException {
 		
 		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
 
@@ -105,12 +105,26 @@ public class ProjectMemberDao {
 					+ "FROM group_join_request gjr " + "JOIN users u ON gjr.user_id = u.user_id " + "JOIN users ur ON gjr.requester_id = ur.user_id "
 					+ "WHERE gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId
 					+ " and adr.role_name = 'Admin') ";
+			
+			projectMembersQuery = addAcceptClause(accept, projectMembersQuery);
 
 			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException se) {
 			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
 		}
 		return list;
+	}
+
+	private String addAcceptClause(Boolean accept, String projectMembersQuery) {
+		if (accept != null){
+			if (accept.booleanValue()){
+				projectMembersQuery += " and gjr.accept_date is not null";
+			}
+			else{
+				projectMembersQuery += " and gjr.accept_date is null and gjr.reject_date is null";
+			}
+		}
+		return projectMembersQuery;
 	}
 
 	// sample query for member 111 by fforgeadmin user (102), If by and member
@@ -122,7 +136,7 @@ public class ProjectMemberDao {
 	// where u.user_id = 111
 	// AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join
 	// pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-	public ArrayList<ProjectMember> getProjectsForMember(String memberIdString, String userEPPN) throws DMCServiceException {
+	public ArrayList<ProjectMember> getProjectsForMember(String memberIdString, Boolean accept, String userEPPN) throws DMCServiceException {
 
 		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
 
@@ -138,6 +152,8 @@ public class ProjectMemberDao {
 				projectMembersQuery += "AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId
 						+ " and adr.role_name = 'Admin') ";
 			}
+			
+			projectMembersQuery = addAcceptClause(accept, projectMembersQuery);
 
 			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException se) {
@@ -154,7 +170,7 @@ public class ProjectMemberDao {
 	// where gjr.group_id = 6
 	// AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join
 	// pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-	public ArrayList<ProjectMember> getMembersForProject(String projectIdString, String userEPPN) throws DMCServiceException {
+	public ArrayList<ProjectMember> getMembersForProject(String projectIdString, Boolean accept, String userEPPN) throws DMCServiceException {
 		ArrayList<ProjectMember> list = new ArrayList<ProjectMember>();
 
 		try {
@@ -167,6 +183,9 @@ public class ProjectMemberDao {
 					+ "FROM group_join_request gjr " + "JOIN users u ON gjr.user_id = u.user_id " + "JOIN users ur ON gjr.requester_id = ur.user_id " + "WHERE gjr.group_id = " + projectId + " "
 					+ "AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = " + userId
 					+ " and adr.role_name = 'Admin') ";
+			
+			projectMembersQuery = addAcceptClause(accept, projectMembersQuery);
+			
 			list = getProjectsMembersFromQuery(projectMembersQuery);
 		} catch (SQLException e) {
 			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
@@ -230,12 +249,20 @@ public class ProjectMemberDao {
 		}
 	}
 
-	public ProjectMember acceptMemberInProject(String projectIdString, String memberIdString, String userEPPN) throws DMCServiceException {
+	public ProjectMember acceptMemberInProject(String requestID, String userEPPN) throws DMCServiceException {
 		try {
-			int userId = UserDao.getUserID(userEPPN);
-			int memberId = UserDao.getUserID(memberIdString);
-			int projectId = Integer.parseInt(projectIdString);
-			return acceptMemberInProject(projectId, memberId, userId, userEPPN);
+			
+			String[] parts = requestID.split("-");
+			if (parts.length != 3)
+				throw new DMCServiceException(DMCError.BadURL, "Invalid request ID");
+			int requesterId = Integer.parseInt(parts[2]);
+			int memberId = Integer.parseInt(parts[1]);
+			int projectId = Integer.parseInt(parts[0]);
+			
+			if (memberId != UserDao.getUserID(userEPPN))
+				throw new DMCServiceException(DMCError.UnknownUser, "Not the correct user");
+			
+			return acceptMemberInProject(projectId, memberId, requesterId, userEPPN);
 		} catch (DMCServiceException e) {
 			throw e;
 		} catch (Exception e) {
@@ -256,16 +283,16 @@ public class ProjectMemberDao {
 	// then insert into the pfo_user_role table
 	// INSERT pfo_user_role (user_id, role_id) values (111, 27);
 	//
-	private ProjectMember acceptMemberInProject(int projectId, int memberId, int userId, String userName) throws DMCServiceException {
-		boolean ok = IsRequesterAdmin(projectId, userId);
+	private ProjectMember acceptMemberInProject(int projectId, int memberId, int requesterId, String userName) throws DMCServiceException {
+		boolean ok = IsRequesterAdmin(projectId, requesterId);
 		
 		if (!ok) {
-			throw new DMCServiceException(DMCError.NotProjectAdmin, userId + " does not have permission to accept members, you must be a project Admin");
+			throw new DMCServiceException(DMCError.NotProjectAdmin, requesterId + " does not have permission to accept members, you must be a project Admin");
 		}
 
 		int roleId = GetRole(projectId, "Project Member");
 
-		ProjectMember member = acceptMember(memberId, roleId, projectId, userId, userName);
+		ProjectMember member = acceptMember(memberId, roleId, projectId, requesterId, userName);
 
 		if (null == member) {
 			throw new DMCServiceException(DMCError.Generic, "problem adding user " + memberId + " from project " + projectId);
@@ -364,7 +391,7 @@ public class ProjectMemberDao {
 				throw new DMCServiceException(DMCError.NoExistingRequest, "no existing request to join the project " + projectId + " for memberId " + memberId);
 			}
 
-			ArrayList<ProjectMember> projectMemberList = getMembersForProject(Integer.toString(projectId), userName);
+			ArrayList<ProjectMember> projectMemberList = getMembersForProject(Integer.toString(projectId), new Boolean(true), userName);
 			for (ProjectMember member : projectMemberList) {
 				if (member.getProfileId().equals(Integer.toString(memberId))) {
 					return member;
@@ -401,28 +428,34 @@ public class ProjectMemberDao {
 	// then delete into the pfo_user_role table
 	// DELETE pfo_user_role where user_id = 111;
 	//
-	public ProjectMember rejectMemberInProject(String projectIdString, String memberIdString, String userEPPN) throws DMCServiceException {
+	public ProjectMember rejectMemberInProject(String requestId, String userEPPN) throws DMCServiceException {
 
 		try {
-			int userId = UserDao.getUserID(userEPPN);
-			int memberId = UserDao.getUserID(memberIdString);
-			int projectId = Integer.parseInt(projectIdString);
+			String[] parts = requestId.split("-");
+			if (parts.length != 3)
+				throw new DMCServiceException(DMCError.BadURL, "Invalid request ID");
+			int requesterId = Integer.parseInt(parts[2]);
+			int memberId = Integer.parseInt(parts[1]);
+			int projectId = Integer.parseInt(parts[0]);
+			
+			if (memberId != UserDao.getUserID(userEPPN))
+				throw new DMCServiceException(DMCError.UnknownUser, "Not the correct user");
 
-			boolean ok = IsRequesterAdmin(projectId, userId);
+			boolean ok = IsRequesterAdmin(projectId, requesterId);
 			if (!ok) {
 				throw new DMCServiceException(DMCError.NotProjectAdmin, userEPPN + " does not have permission to remove members, you must be a project Admin");
 			}
 
-			if (userId == memberId) {
+			if (requesterId == memberId) {
 				int count = GetCountOfMembersWithRole(projectId, "Admin");
 				if (count < 2) {
 					throw new DMCServiceException(DMCError.OnlyProjectAdmin, "user " + userEPPN + " is the only Admin of project " + projectId + " Another member must be added to Admin role.");
 				}
 			}
 
-			ProjectMember member = deleteMember(memberId, projectId, userId, userEPPN);
+			ProjectMember member = deleteMember(memberId, projectId, requesterId, userEPPN);
 			if (null == member) {
-				throw new DMCServiceException(DMCError.Generic, "problem deleting user " + memberIdString + " from project " + projectIdString);
+				throw new DMCServiceException(DMCError.Generic, "problem deleting user " + memberId + " from project " + projectId);
 			}
 
 			return member;
@@ -433,6 +466,8 @@ public class ProjectMemberDao {
 			throw new DMCServiceException(DMCError.Generic, e.getMessage());
 		}
 	}
+	
+
 
 	private int GetCountOfMembersWithRole(int projectId, String roleName) throws Exception {
 		int count = -1;
@@ -485,7 +520,7 @@ public class ProjectMemberDao {
 				throw new Exception("error updating group join request to show memberId " + memberId + " rejects request for project " + projectId);
 			}
 
-			ArrayList<ProjectMember> projectMemberList = getMembersForProject(Integer.toString(projectId), fromUsername);
+			ArrayList<ProjectMember> projectMemberList = getMembersForProject(Integer.toString(projectId), new Boolean(true), fromUsername);
 			for (ProjectMember member : projectMemberList) {
 				if (member.getProfileId().equals(Integer.toString(memberId))) {
 					return member;

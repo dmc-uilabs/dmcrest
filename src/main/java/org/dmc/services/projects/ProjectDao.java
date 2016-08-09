@@ -488,7 +488,7 @@ public class ProjectDao {
         return createProjectJoinRequest(projectId, profileId, userId);
     } 
     
-    private void selfAutoJoin(String projectId, String profileId, int requesterId){
+    private int selfAutoJoin(String projectId, String profileId, int requesterId){
     	if (Integer.parseInt(profileId) == requesterId){
     		String autoJoinProject = "UPDATE group_join_request SET accept_date = now() WHERE user_id = ? AND requester_id = ?";
     		PreparedStatement preparedStatement = DBConnector.prepareStatement(autoJoinProject);
@@ -496,11 +496,15 @@ public class ProjectDao {
 				preparedStatement.setInt(1, requesterId);
 				preparedStatement.setInt(2, requesterId);
 				preparedStatement.executeUpdate();
+				
+				return 0;
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				throw new DMCServiceException(DMCError.UnknownSQLError, e.getMessage());
 			}
     	}
+    	
+    	return -9999;
     }
 
     private ProjectJoinRequest createProjectJoinRequest(String projectId, String profileId, int requesterId)
@@ -513,7 +517,10 @@ public class ProjectDao {
         preparedStatement.setInt(3, requesterId);
         preparedStatement.executeUpdate();
         
-        this.selfAutoJoin(projectId, profileId, requesterId);
+        if (this.selfAutoJoin(projectId, profileId, requesterId) == 0)
+        	ServiceLogger.log(logTag, "selfAutoJoin done");
+        else
+        	ServiceLogger.log(logTag, "not a selfAutoJoin");
 
         ArrayList<String> projects = new ArrayList<String>();
         projects.add(projectId);

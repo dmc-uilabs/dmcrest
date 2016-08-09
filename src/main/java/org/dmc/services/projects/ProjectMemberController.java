@@ -57,11 +57,11 @@ public class ProjectMemberController {
         try {
             
             if (null != projectIdString) {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectIdString, userEPPN), HttpStatus.OK);
+                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectIdString, accept, userEPPN), HttpStatus.OK);
             } else if (null != profileIdString) {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(profileIdString, userEPPN), HttpStatus.OK);
+                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(profileIdString, accept, userEPPN), HttpStatus.OK);
             } else {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(userEPPN), HttpStatus.OK);
+                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(accept, userEPPN), HttpStatus.OK);
             }
             
         } catch (DMCServiceException e) {
@@ -126,7 +126,7 @@ public class ProjectMemberController {
             throws Exception {
         ServiceLogger.log(logTag, "In getProjectsForMember: for member" + memberId + " as user " + userEPPN);
 
-        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(memberId, userEPPN), HttpStatus.OK);
+        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(memberId, new Boolean(true),  userEPPN), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/projects/{projectId}/projects_members", method = RequestMethod.GET, produces = "application/json")
@@ -134,7 +134,7 @@ public class ProjectMemberController {
             throws Exception {
         ServiceLogger.log(logTag, "In getMembersForProject: for project" + projectId + " as user " + userEPPN);
 
-        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectId, userEPPN), HttpStatus.OK);
+        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectId, new Boolean(true), userEPPN), HttpStatus.OK);
     }
 
     /**
@@ -143,14 +143,14 @@ public class ProjectMemberController {
      * @param memberId
      * @param userEPPN
      */
-    @RequestMapping(value = "/projects/{projectId}/accept/{memberId}", method = RequestMethod.PATCH, produces = "application/json")
-    public ResponseEntity acceptMemberInProject(@PathVariable("projectId") String projectId, @PathVariable("memberId") String memberId,
+    @RequestMapping(value = "/projects_members/{requestId}", method = RequestMethod.PATCH, produces = "application/json")
+    public ResponseEntity acceptMemberInProject(@PathVariable("requestId") String requestId,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         
-        ServiceLogger.log(logTag, "In acceptMemberInProject: for member " + memberId + " as user " + userEPPN);
+        ServiceLogger.log(logTag, "In acceptMemberInProject: for request " + requestId + " as user " + userEPPN);
         
         try {
-            return new ResponseEntity<ProjectMember>(projectMemberDao.acceptMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
+            return new ResponseEntity<ProjectMember>(projectMemberDao.acceptMemberInProject(requestId, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -163,14 +163,14 @@ public class ProjectMemberController {
      * @param memberId
      * @param userEPPN
      */
-    @RequestMapping(value = "/projects/{projectId}/reject/{memberId}", method = RequestMethod.DELETE, produces = "application/json")
-    public ResponseEntity rejectMemberInProject(@PathVariable("projectId") String projectId, @PathVariable("memberId") String memberId,
+    @RequestMapping(value = "/projects_members/{requestId}", method = RequestMethod.DELETE, produces = "application/json")
+    public ResponseEntity rejectMemberInProject(@PathVariable("requestId") String requestId, 
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)  {
         
-        ServiceLogger.log(logTag, "In rejectMemberInProject: for member " + memberId + " as user " + userEPPN);
+        ServiceLogger.log(logTag, "In rejectMemberInProject: for requestId " + requestId + " as user " + userEPPN);
         
         try {
-            return new ResponseEntity<ProjectMember>(projectMemberDao.rejectMemberInProject(projectId, memberId, userEPPN), HttpStatus.OK);
+            return new ResponseEntity<ProjectMember>(projectMemberDao.rejectMemberInProject(requestId, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
