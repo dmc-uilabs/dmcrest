@@ -1,4 +1,4 @@
-package org.dmc.services.data;
+package org.dmc.services.data.entities;
 
 import java.math.BigDecimal;
 import java.sql.Date;
