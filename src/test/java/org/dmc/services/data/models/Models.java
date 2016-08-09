@@ -1,4 +1,4 @@
-package org.dmc.services.data;
+package org.dmc.services.data.models;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -22,14 +22,19 @@ public class Models {
 	public static final String ADDRESS = "Address";
 	public static final String PHONE = "Phone";
 	public static final String LOCATION = "Location";
+	public static final String DATE = "2016/07/04";
+	public static final String PROJECT_NEWS_TITLE = "Project News Title";
+	public static final String PROJECT_NEWS_CONTENT = "Project News Content";
+	public static final String PROJECT_EVENT_TITLE = "Project Event Title";
+	public static final String PROJECT_EVENT_DESCRIPTION = "Project Event Description";
 
 	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
 	
 	public static DMDIIProjectModel dmdiiProjectModel() throws Exception {
 		DMDIIProjectModel dmdiiProjectModel = new DMDIIProjectModel();
 		
-		List<DMDIIMemberModel> contributingCompanies = new ArrayList<DMDIIMemberModel>();
-		contributingCompanies.add(dmdiiMemberModel());
+		List<Integer> contributingCompanyIds = new ArrayList<Integer>();
+		contributingCompanyIds.add(dmdiiMemberModel().getId());
 		
 		dmdiiProjectModel.setId(2000);
 		dmdiiProjectModel.setPrimeOrganization(dmdiiMemberModel());
@@ -42,7 +47,7 @@ public class Models {
 		dmdiiProjectModel.setPrincipalPointOfContact(user());
 		dmdiiProjectModel.setProjectFocusArea(projectFocusArea());
 		dmdiiProjectModel.setProjectThrust(projectThrust());
-		dmdiiProjectModel.setContributingCompanies(contributingCompanies);
+		dmdiiProjectModel.setContributingCompanies(contributingCompanyIds);
 		dmdiiProjectModel.setRootNumber(2016);
 		dmdiiProjectModel.setCallNumber(07);
 		dmdiiProjectModel.setProjectNumber(01);
@@ -281,4 +286,21 @@ public class Models {
 		return news;
 	}
 
+	public static DMDIIProjectNewsModel dmdiiProjectNews() {
+		DMDIIProjectNewsModel news = new DMDIIProjectNewsModel();
+		news.setId(1);
+		news.setTitle(PROJECT_NEWS_TITLE);
+		news.setContent(PROJECT_NEWS_CONTENT);
+		news.setDateCreated(DATE);
+		return news;
+	}
+
+	public static DMDIIProjectEventModel dmdiiProjectEvent() {
+		DMDIIProjectEventModel event = new DMDIIProjectEventModel();
+		event.setId(1);
+		event.setEventName(PROJECT_EVENT_TITLE);
+		event.setEventDescription(PROJECT_EVENT_DESCRIPTION);
+		event.setEventDate(DATE);
+		return event;
+	}
 }
