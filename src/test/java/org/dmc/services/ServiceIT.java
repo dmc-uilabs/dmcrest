@@ -15,6 +15,7 @@ import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.services.*;
 import org.dmc.services.utility.TestUserUtil;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -240,9 +241,11 @@ public class ServiceIT extends BaseIT {
         json.setTitle("junitjson" + unique);
 
         ServiceLogger.log(logTag, "testProjectCreateJsonObject: json = " + json.toString());
-        Id pid = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
+        String idJSON = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
                 .statusCode(OK.value()).when().post("/projects/create").then()
-                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().as(Id.class);
+                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().asString();
+        
+        JSONObject pid = new JSONObject(idJSON);
 
 		//TODO: Create a service
 		//Change description and use PATCH
@@ -250,7 +253,7 @@ public class ServiceIT extends BaseIT {
 		// service type
 		// Publish a service - not sure if it calls patch or something else.
 		Service service = createNewServiceObjectToPost();  
-		service.setId(pid.getId());
+		service.setId(pid.getInt("id"));
 		ValidatableResponse response =
 				given().
 				header("Content-type", "application/json").
