@@ -107,7 +107,7 @@ public class UserService {
 		VerifyUserResponse response = new VerifyUserResponse();
 
 		OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
-		orgUserModel.setIsVerified(true);
+		orgUserModel.setIsVerified(false);
 		orgUserService.saveOrganizationUser(orgUserModel);
 
 		UserRoleModel userRoleModel = userRoleService.findByUserId(userId);
