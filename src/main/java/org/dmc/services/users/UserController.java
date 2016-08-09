@@ -131,9 +131,15 @@ public class UserController {
 		return userService.verifyUser(id, token);
 	}
 
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
 	@RequestMapping(value = "/user/unverify", method = RequestMethod.POST)
-	public VerifyUserResponse unverifyUser(@RequestParam("userId") Integer id) {
-		return userService.unverifyUser(id);
+	public VerifyUserResponse unverifyUser(@RequestParam("userId") Integer userId) {
+		Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
+		if(PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
+			return userService.unverifyUser(userId);
+		} else {
+			throw new AccessDeniedException("403 Permission Denied");
+		}
 	}
 
     /*
