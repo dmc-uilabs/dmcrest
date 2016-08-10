@@ -2,10 +2,8 @@ package org.dmc.services;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.junit.Assert.*;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -14,6 +12,7 @@ import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,8 +25,10 @@ import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.ProjectJoinRequest;
+import org.dmc.services.projects.ProjectMember;
 import org.dmc.services.projects.ProjectTag;
 import org.dmc.services.users.UserDao;
+import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -48,7 +49,8 @@ public class ProjectIT extends BaseIT {
     private static final String PROJECT_GET_ALL_RESOURCE = "/projects/all";
 
     // Member
-    private static final String MEMBER_ACCEPT_RESOURCE = "/projects_members/{requestId}";
+    private static final String MEMBER_INVITE_RESOURCE = "/projects_members";
+    private static final String MEMBER_ACCEPT_RESOURCE = "/new_members/{requestId}";
     private static final String MEMBER_REJECT_RESOURCE = "/projects_members/{requestId}";
     private static final String MEMBERS_RESOURCE = "/members";
 
@@ -543,11 +545,40 @@ public class ProjectIT extends BaseIT {
     public void testProjectMemberAcceptAfterProjectCreate() {
 
         final String adminUser = "fforgeadmin";
+        String unique = TestUserUtil.generateTime();
+        Integer id = UserIT.createUserAndReturnID(unique);
+        
+        Integer adminId = null;
+        try {
+			adminId = UserDao.getUserID(adminUser);
+		} catch (SQLException e) {
+			fail("caught SQL exception looking up fforgeadmin");
+		}
 
         this.testProjectCreateJsonString();
+        
+        final String requestId = this.createdId.toString() + "-" + id.toString() + "-" + adminId.toString();
+        ProjectMember newRequestedMember = new ProjectMember();
+        newRequestedMember.setAccept(false);
+        newRequestedMember.setFrom(adminId.toString());
+        newRequestedMember.setProfileId(id.toString());
+        
+        newRequestedMember.setFromProfileId(adminId.toString());
+        newRequestedMember.setProjectId(this.createdId.toString());
+        newRequestedMember.setDate(System.currentTimeMillis());
+        
         if (this.createdId != null) {
+        	ProjectMember reply = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).body(newRequestedMember)
+        			.expect().statusCode(HttpStatus.OK.value())
+        		.when().post(MEMBER_INVITE_RESOURCE).as(ProjectMember.class);
+        	
+        	assertTrue("admin id not equal", adminId.intValue() == Integer.parseInt(reply.getFromProfileId()));
+        	assertTrue("invitee not equal", reply.getProfileId().equals(id.toString()));
+        	assertTrue("not correct project", this.createdId.toString().equals(reply.getProjectId()));
+        	
             given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).expect().statusCode(OK.value())
-                    .when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser).asString();
+                    .when().patch(MEMBER_ACCEPT_RESOURCE, requestId)
+                    .asString();
 
         }
     }

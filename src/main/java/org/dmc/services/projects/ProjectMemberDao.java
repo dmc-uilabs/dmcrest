@@ -258,8 +258,9 @@ public class ProjectMemberDao {
 			int requesterId = Integer.parseInt(parts[2]);
 			int memberId = Integer.parseInt(parts[1]);
 			int projectId = Integer.parseInt(parts[0]);
+			int userLookup = UserDao.getUserID(userEPPN);
 			
-			if (memberId != UserDao.getUserID(userEPPN))
+			if (requesterId != userLookup)
 				throw new DMCServiceException(DMCError.UnknownUser, "Not the correct user");
 			
 			return acceptMemberInProject(projectId, memberId, requesterId, userEPPN);

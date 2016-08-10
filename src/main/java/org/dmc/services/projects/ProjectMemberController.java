@@ -6,6 +6,7 @@ import java.lang.Exception;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.profile.Profile;
+import org.dmc.services.users.UserDao;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,12 +81,27 @@ public class ProjectMemberController {
     @RequestMapping(value = "/projects_members", method = RequestMethod.POST, produces = "application/json")
     public ResponseEntity addProjectMember(@RequestBody ProjectMember member, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) throws Exception {
         ServiceLogger.log(logTag, "In addProjectMember: as user " + userEPPN);
-
-        ProjectMember createdMember = null;
-        
         try {
-            createdMember = projectMemberDao.addProjectMember(member, userEPPN);
-            return new ResponseEntity<ProjectMember>(createdMember, HttpStatus.valueOf(HttpStatus.OK.value()));
+        ProjectMember createdMember = new ProjectMember();
+        
+        PostProjectJoinRequest request = new PostProjectJoinRequest();
+        request.setProfileId(member.getId().split("-")[1]);
+        request.setProjectId(member.getProjectId());
+        /**
+         * Note: this is rather messy, but there already exists code to handle insertions in to project_join_requests
+         * so I am extracting the data and sending to that function call in ProjectDao
+         */
+        
+        ProjectDao project = new ProjectDao();
+        project.createProjectJoinRequest(request, userEPPN);
+        createdMember.setAccept(member.getFromProfileId().equals(member.getProfileId()) ? true : false);
+        createdMember.setDate(System.currentTimeMillis());
+        createdMember.setFrom(member.getFrom());
+        createdMember.setFromProfileId(member.getFromProfileId());
+        createdMember.setProfileId(member.getProfileId());
+        createdMember.setProjectId(member.getProjectId());
+        return new ResponseEntity<ProjectMember>(createdMember, HttpStatus.valueOf(HttpStatus.OK.value()));
+        
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -143,7 +159,7 @@ public class ProjectMemberController {
      * @param memberId
      * @param userEPPN
      */
-    @RequestMapping(value = "/projects_members/{requestId}", method = RequestMethod.PATCH, produces = "application/json")
+    @RequestMapping(value = "/new_members/{requestId}", method = RequestMethod.PATCH, produces = "application/json")
     public ResponseEntity acceptMemberInProject(@PathVariable("requestId") String requestId,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         

@@ -127,12 +127,9 @@ public class UserIT extends BaseIT {
         // could also check email syntax
         
 	}
-
-	
-	@Test
-	public void testGetUserNameAndGetUserID(){
-		ServiceLogger.log(logTag, "starting testUserCreate");
-		String unique = TestUserUtil.generateTime();
+    
+    public static Integer createUserAndReturnID(String unique){
+    	ServiceLogger.log(logTag, "starting testUserCreate: in helper");
 		
 		Integer id =
 		given().
@@ -150,6 +147,16 @@ public class UserIT extends BaseIT {
 		body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).
 		extract().path("id");
 		
+		return id;
+    }
+	
+	@Test
+	public void testGetUserNameAndGetUserID(){
+		
+		ServiceLogger.log(logTag, "starting testUserCreate");
+		String unique = TestUserUtil.generateTime();
+		
+		Integer id = createUserAndReturnID(unique);
 		// check return value > 0
 		assertTrue("Added user: " + "userEPPN" + unique + " Valid user ID must be greater then zero.  Value is " + id + ".", id > 0);
 		// could also check email syntax

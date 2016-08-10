@@ -11,6 +11,7 @@ public class ProjectMember {
 	private int fromProfileId;
 	private String from;
 	private Date date;
+	private String id;
 	
 	public ProjectMember()
 	{ 
@@ -18,7 +19,13 @@ public class ProjectMember {
 
 	@JsonProperty("id")
 	public String getId(){
-		return getProjectId() + "-" + getProfileId() + "-" + getFromProfileId();
+		id = getProjectId() + "-" + getProfileId() + "-" + getFromProfileId();
+		return id;
+	}
+	
+	@JsonProperty("id")
+	public void setId(String value){
+		id = getProjectId() + "-" + getProfileId() + "-" + getFromProfileId();
 	}
 	
 	@JsonProperty("profileId")
