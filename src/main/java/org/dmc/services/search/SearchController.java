@@ -3,6 +3,7 @@ package org.dmc.services.search;
 
 import org.dmc.services.company.Company;
 import org.dmc.services.components.Component;
+import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.Project;
 import org.dmc.services.services.Service;
 import org.dmc.services.users.User;
@@ -49,10 +50,18 @@ public class SearchController implements SearchInterface {
     }
 
     @Override
+    @RequestMapping(value = "/searchMembers/{query}", method = RequestMethod.GET)
+    public List<Profile> searchMembers(@PathVariable("query") String query, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
+        return searchImpl.searchMembers(query, userEPPN);
+    }
+
+    /**
+    @Override
     @RequestMapping(value = "/searchUsers/{query}", method = RequestMethod.GET)
     public List<User> searchUsers(@PathVariable("query") String query, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
         return searchImpl.searchUsers(query, userEPPN);
     }
+     **/
 
     @Override
     @RequestMapping(value = "/searchCompanies/{query}", method = RequestMethod.GET)

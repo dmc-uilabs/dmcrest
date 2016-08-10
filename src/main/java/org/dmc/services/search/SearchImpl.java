@@ -8,6 +8,7 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.Company;
 import org.dmc.services.components.Component;
+import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.Project;
 import org.dmc.services.search.handlers.*;
 import org.dmc.services.services.Service;
@@ -30,8 +31,9 @@ public class SearchImpl implements SearchInterface {
     private CompanyResponseHandler companyHandler = new CompanyResponseHandler();
     private ComponentResponseHandler componentHandler = new ComponentResponseHandler();
     private ProjectResponseHandler   projectHandler = new ProjectResponseHandler();
-    private UserResponseHandler      userHandler = new UserResponseHandler();
+    //private UserResponseHandler      userHandler = new UserResponseHandler();
     private ServiceResponseHandler   serviceHandler = new ServiceResponseHandler();
+    private ProfileResponseHandler profileHandler = new ProfileResponseHandler();
 
     public static final String COLLECTION_COMPANIES  = "gforge_companies";
     public static final String COLLECTION_COMPONENTS = "gforge_components";
@@ -70,6 +72,11 @@ public class SearchImpl implements SearchInterface {
         fieldsUsers.add("user_name");
         fieldsUsers.add("realname");
         fieldsUsers.add("company");
+        fieldsUsers.add("title");
+        fieldsUsers.add("phone");
+        fieldsUsers.add("email");
+        fieldsUsers.add("address");
+        fieldsUsers.add("people_resume");
         fieldMap.put(COLLECTION_USERS, fieldsUsers);
 
         List<String> fieldsServices = new ArrayList<String>();
@@ -163,16 +170,25 @@ public class SearchImpl implements SearchInterface {
             throw new SearchException(e.toString());
         }
 
+//        QueryResponse responseUsers = null;
+//        try {
+//            responseUsers = searchSolr(query, COLLECTION_USERS);
+//            List<User> userResults = userHandler.retrieve(responseUsers, userEPPN);
+//            searchResult.setUsers(userResults);
+//        } catch (SearchException e) {
+//            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
+//            throw new SearchException(e.toString());
+//        }
+
         QueryResponse responseUsers = null;
         try {
             responseUsers = searchSolr(query, COLLECTION_USERS);
-            List<User> userResults = userHandler.retrieve(responseUsers, userEPPN);
-            searchResult.setUsers(userResults);
+            List<Profile> profileResults = profileHandler.retrieve(responseUsers, userEPPN);
+            searchResult.setProfiles(profileResults);
         } catch (SearchException e) {
             ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
             throw new SearchException(e.toString());
         }
-
         QueryResponse responseServices = null;
         try {
             responseServices = searchSolr(query, COLLECTION_SERVICES);
@@ -238,18 +254,34 @@ public class SearchImpl implements SearchInterface {
         return projectResults;
     }
 
+//    @Override
+//    public List<User> searchUsers(String query, String userEPPN) throws SearchException {
+//        QueryResponse responseUsers = null;
+//        List<User> userResults = null;
+//        try {
+//            responseUsers = searchSolr(query, COLLECTION_USERS);
+//            userResults = userHandler.retrieve(responseUsers, userEPPN);
+//        } catch (SearchException e) {
+//            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
+//            throw new SearchException(e.toString());
+//        }
+//        return userResults;
+//    }
+
     @Override
-    public List<User> searchUsers(String query, String userEPPN) throws SearchException {
+    public List<Profile> searchMembers(String query, String userEPPN) throws SearchException {
         QueryResponse responseUsers = null;
         List<User> userResults = null;
+        List<Profile> profileResults = null;
         try {
             responseUsers = searchSolr(query, COLLECTION_USERS);
-            userResults = userHandler.retrieve(responseUsers, userEPPN);
+            profileResults = profileHandler.retrieve(responseUsers, userEPPN);
         } catch (SearchException e) {
             ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
             throw new SearchException(e.toString());
         }
-        return userResults;
+
+        return profileResults;
     }
 
     @Override
