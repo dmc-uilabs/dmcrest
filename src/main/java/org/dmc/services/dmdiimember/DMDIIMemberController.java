@@ -55,6 +55,7 @@ public class DMDIIMemberController {
 	}
 
 	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
 		return dmdiiMemberService.save(member);
 	}
@@ -79,11 +80,13 @@ public class DMDIIMemberController {
 	}
 	
 	@RequestMapping(value = "/dmdiiMember/events", method = RequestMethod.POST)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIMemberEventModel saveDMDIIMemberEvent (@RequestBody DMDIIMemberEventModel memberEvent) {
 		return dmdiiMemberEventService.save(memberEvent);
 	}
 	
 	@RequestMapping(value = "/dmdiiMember/news", method = RequestMethod.POST)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIMemberNewsModel saveDMDIIMemberNews (@RequestBody DMDIIMemberNewsModel memberNews) {
 		return dmdiiMemberNewsService.save(memberNews);
 	}

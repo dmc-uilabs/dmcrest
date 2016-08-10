@@ -55,6 +55,7 @@ public class DMDIIDocumentController {
 	}
 	
 	@RequestMapping(value = "/dmdiidocument", method = RequestMethod.POST, consumes = {"application/json"})
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIDocumentModel postDMDIIDocument (@RequestBody DMDIIDocumentModel doc) throws DMCServiceException {
 		ServiceLogger.log(logTag, "Post DMDIIDocument " + doc.getDocumentName());
 		return dmdiiDocumentService.save(doc);
@@ -66,6 +67,7 @@ public class DMDIIDocumentController {
 	}
 
 	@RequestMapping(value = "/dmdiidocuments/saveDocumentTag", method = RequestMethod.POST, consumes = {"application/json"})
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIDocumentTagModel postDmdiiDocuemntTag (@RequestBody DMDIIDocumentTagModel tag) {
 		ServiceLogger.log(logTag, "Post DMDIIDocumentTag " + tag.getTagName());
 		return dmdiiDocumentService.saveDocumentTag(tag);
