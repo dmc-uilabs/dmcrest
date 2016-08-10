@@ -1,5 +1,7 @@
 package org.dmc.services.users;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.xml.ws.http.HTTPException;
 
@@ -41,7 +43,7 @@ public class UserController {
 
 	@Inject
 	private OrganizationUserService orgUserService;
-	
+
 	@Inject
 	private UserPrincipalService userPrincipalService;
 
@@ -72,7 +74,7 @@ public class UserController {
                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
-        
+
         User user = userDAO.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
         UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userEPPN);
         user.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
@@ -109,6 +111,11 @@ public class UserController {
 		return userService.save(user);
 	}
 
+	@RequestMapping(value = "/user/organization/{organizationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<UserModel> getUsersByOrganizationId(@PathVariable Integer organizationId) {
+		return userService.findByOrganizationId(organizationId);
+	}
+
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
 	@RequestMapping(value = "/user/createtoken", method = RequestMethod.POST)
 	public UserTokenModel saveToken(@RequestParam("userId") Integer userId) {
@@ -126,7 +133,19 @@ public class UserController {
 		if (id != loggedIn.getId()) {
 			throw new AccessDeniedException("403 Permission Denied");
 		}
+
 		return userService.verifyUser(id, token);
+	}
+
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
+	@RequestMapping(value = "/user/unverify", method = RequestMethod.POST)
+	public VerifyUserResponse unverifyUser(@RequestParam("userId") Integer userId) {
+		Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
+		if(PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
+			return userService.unverifyUser(userId);
+		} else {
+			throw new AccessDeniedException("403 Permission Denied");
+		}
 	}
 
     /*

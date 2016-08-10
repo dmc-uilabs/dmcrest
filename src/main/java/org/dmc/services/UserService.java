@@ -1,6 +1,6 @@
 package org.dmc.services;
 
-import java.text.SimpleDateFormat;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -36,8 +36,6 @@ public class UserService {
 	@Inject
 	private MapperFactory mapperFactory;
 
-	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findOne(id));
@@ -46,6 +44,11 @@ public class UserService {
 	public UserModel save(UserModel userModel) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.save(mapper.mapToEntity(userModel)));
+	}
+
+	public List<UserModel> findByOrganizationId(Integer organizationId) {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
 	}
 
 	@Transactional
@@ -98,6 +101,22 @@ public class UserService {
 
 	}
 
+	@Transactional
+	public VerifyUserResponse unverifyUser(Integer userId) {
+		VerifyUserResponse response = new VerifyUserResponse();
+
+		OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
+		orgUserModel.setIsVerified(false);
+		orgUserService.saveOrganizationUser(orgUserModel);
+
+		userRoleService.deleteByUserId(userId);
+
+		response.setResponseCode(0);
+		response.setResponseDescription("Successfully unverified user.");
+
+		return response;
+	}
+
 	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {
 		userTokenRepository.delete(tokenEntity.getId());
 		return new VerifyUserResponse(1000, "Too many unsuccessful attempts made to validate, please contact your administrator.");
@@ -113,10 +132,12 @@ public class UserService {
 		// if this user is the only verified user of this organization, they're defaulted to company admin, else defaulted to member
 		Integer numberOfUsersVerified = orgUserService.getNumberOfVerifiedUsers(orgUserModel.getOrganizationId());
 
-		if(numberOfUsersVerified == 1)
+		if(numberOfUsersVerified == 1) {
 			userRoleService.setUserAsCompanyAdmin(userId, orgUserModel.getOrganizationId());
-		else if (numberOfUsersVerified > 1)
+		}
+		else if (numberOfUsersVerified > 1) {
 			userRoleService.setUserAsCompanyMember(userId, orgUserModel.getOrganizationId());
+		}
 
 		return new VerifyUserResponse(0, "Successfully verified user.");
 	}
@@ -126,6 +147,5 @@ public class UserService {
 		userTokenRepository.save(tokenEntity);
 		return new VerifyUserResponse(1000, "Tokens did not match, " + (5 - tokenEntity.getAttemptsMade()) + " attempts remaining.");
 	}
-
 
 }

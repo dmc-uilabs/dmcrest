@@ -11,6 +11,8 @@ public class DMDIIQuickLinkModel extends BaseModel {
 	private DMDIIDocumentModel doc;
 	
 	private Date created;
+	
+	private String displayName;
 
 	public String getText() {
 		return text;
@@ -42,5 +44,13 @@ public class DMDIIQuickLinkModel extends BaseModel {
 
 	public void setCreated(Date created) {
 		this.created = created;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 }
