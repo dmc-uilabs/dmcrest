@@ -101,6 +101,22 @@ public class UserService {
 
 	}
 
+	@Transactional
+	public VerifyUserResponse unverifyUser(Integer userId) {
+		VerifyUserResponse response = new VerifyUserResponse();
+
+		OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
+		orgUserModel.setIsVerified(false);
+		orgUserService.saveOrganizationUser(orgUserModel);
+
+		userRoleService.deleteByUserId(userId);
+
+		response.setResponseCode(0);
+		response.setResponseDescription("Successfully unverified user.");
+
+		return response;
+	}
+
 	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {
 		userTokenRepository.delete(tokenEntity.getId());
 		return new VerifyUserResponse(1000, "Too many unsuccessful attempts made to validate, please contact your administrator.");
