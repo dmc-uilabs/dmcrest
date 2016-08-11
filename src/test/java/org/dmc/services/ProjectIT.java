@@ -31,6 +31,7 @@ import org.dmc.services.users.UserDao;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -40,7 +41,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
 
-//@Ignore
+//
 public class ProjectIT extends BaseIT {
 
     private static final String PROJECT_DISCUSSIONS_RESOURCE = "/projects/{projectID}/all-discussions";
@@ -66,13 +67,13 @@ public class ProjectIT extends BaseIT {
     String randomEPPN = UUID.randomUUID().toString();
 
     private String projectId = "1";
-
+    
     @Test
     public void testProject6() {
         given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
     }
-
+    
     @Test
     public void testProject5() {
 
@@ -80,14 +81,14 @@ public class ProjectIT extends BaseIT {
         given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
     }
-
+    
     // this tests could do check more about what tests are returned
     @Test
     public void testProjectList() {
         given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
     }
-
+    
     // this tests could do check more about what tests are returned
     @Test
     public void testProjectListAll() {
@@ -95,7 +96,7 @@ public class ProjectIT extends BaseIT {
                 .expect().statusCode(OK.value()).when().get(PROJECT_GET_ALL_RESOURCE).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
     }
-
+    
     @Test
     public void testProjectCreateJsonString() {
 
@@ -110,7 +111,7 @@ public class ProjectIT extends BaseIT {
                 .post("/projects/oldcreate").then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
                 .extract().path("id");
     }
-
+    
     // see as an example to configure the object
     // https://github.com/jayway/rest-assured/wiki/Usage#serialization
     @Test
@@ -128,7 +129,7 @@ public class ProjectIT extends BaseIT {
                 .statusCode(OK.value()).when().post("/projects/create").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
     }
-
+    
     @Test
     public void ftestProjectCreateFailOnDuplicate() {
         final JSONObject json = new JSONObject();
@@ -151,7 +152,7 @@ public class ProjectIT extends BaseIT {
                 .statusCode(OK.value()).when().post("/projects/oldcreate").then().log().all()
                 .body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
     }
-
+    
     @Test
     public void testProjectCreateFailOnDuplicateJson() throws IOException {
         final Date date = new Date();
@@ -177,13 +178,13 @@ public class ProjectIT extends BaseIT {
                 .body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
 
     }
-
+    
     @Test
     public void testProjectTypeChecks() {
         assertEquals(1, Project.IsPublic("Public"));
         assertEquals(0, Project.IsPublic("PRIVATE"));
     }
-
+    
     @Test
     public void testAllProjectDiscussions() {
 
@@ -215,7 +216,7 @@ public class ProjectIT extends BaseIT {
             }
         }
     }
-
+    
     @Test
     public void testGetProject1Tags() {
 
@@ -238,7 +239,7 @@ public class ProjectIT extends BaseIT {
             throw new DMCServiceException(DMCError.IncorrectType, "unable to parse tag array list: " + e.getMessage());
         }
     }
-
+    
     @Test
     public void testGetAllTags() {
         final ArrayList<ProjectTag> tags = getAllTagsHelper();
@@ -273,14 +274,14 @@ public class ProjectIT extends BaseIT {
             throw new DMCServiceException(DMCError.IncorrectType, "error parsing tags array list: " + e.getMessage());
         }
     }
-
+    
     @Test
     public void testProject6Members() {
         given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6/projects_members").then()
                 .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
 
     }
-
+    
     @Test
     public void testProjectJoinRequests() {
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
@@ -324,7 +325,7 @@ public class ProjectIT extends BaseIT {
         expected.setProfileId("111");
         assertTrue(list.contains(expected));
     }
-
+    
     @Test
     public void testProjectJoinRequestsWithParamList() {
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).param("projectId", "4,6")
@@ -339,7 +340,7 @@ public class ProjectIT extends BaseIT {
         final JSONArray jsonArray = new JSONArray(response.extract().asString());
         assertTrue(0 == jsonArray.length());
     }
-
+    
     @Test
     public void testProjectJoinRequestsProject6() {
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
@@ -384,7 +385,7 @@ public class ProjectIT extends BaseIT {
         expected.setProfileId("111");
         assertFalse(list.contains(expected));
     }
-
+    
     @Test
     public void testProjectJoinRequestsProfile111() {
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
@@ -427,7 +428,7 @@ public class ProjectIT extends BaseIT {
         expected.setProfileId("111");
         assertTrue(list.contains(expected));
     }
-
+    
     @Test
     public void testCreateAndDeleteProjectJoinRequests() {
         final PostProjectJoinRequest json = new PostProjectJoinRequest();
@@ -454,7 +455,7 @@ public class ProjectIT extends BaseIT {
                 .delete("/projects_join_requests/" + id);
 
     }
-
+    
     /**
      * test case for post /projects_tags
      */
@@ -490,7 +491,7 @@ public class ProjectIT extends BaseIT {
         }
 
     }
-
+    
     /**
      * test case for DELETE /projects_tags/{projectTagid}
      */
@@ -509,13 +510,13 @@ public class ProjectIT extends BaseIT {
     /**
      * test case for GET /projects/{projectID}/following_discussions
      */
-
+    
     @Test
     public void testProject_FollowingDiscussion() {
         given().header("AJP_eppn", userEPPN).expect().statusCode(NOT_IMPLEMENTED.value()).when()
                 .get("/projects/" + projectId + "/following_discussions");
     }
-
+    
     /**
      * PATCH /projects/{projectId}
      */
@@ -537,9 +538,10 @@ public class ProjectIT extends BaseIT {
             assertTrue("Updated project is the one identified in URL param", updatedId == this.createdId);
         }
     }
-
+    
     /**
-     * PATCH /projects/{projectId}/accept/{memberId}
+     * POST /projects_members
+     * PATCH /new_members/{request_id}
      */
     @Test
     public void testProjectMemberAcceptAfterProjectCreate() {
@@ -582,7 +584,7 @@ public class ProjectIT extends BaseIT {
 
         }
     }
-
+    
     /**
      * PATCH /projects/{projectId}/accept/{memberId}
      */
@@ -590,12 +592,25 @@ public class ProjectIT extends BaseIT {
     public void testProjectMemberAcceptNoRequest() {
 
         final String adminUser = "fforgeadmin";
-        final String testUser = "testUser";
-
-        this.testProjectCreateJsonString();
+        String unique = TestUserUtil.generateTime();
+        Integer toJoinId = UserIT.createUserAndReturnID(unique);
+        
+        Integer adminId = null;
+        try {
+			adminId = UserDao.getUserID(adminUser);
+		} catch (SQLException e) {
+			fail("caught SQL exception looking up fforgeadmin");
+		}
+        
+        this.testProjectCreateJsonString();     
+        
+        String requestId = this.createdId.toString();
+        requestId += "-" + toJoinId.toString();
+        requestId += "-" + adminId.toString();
+        
         if (this.createdId != null) {
             final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).expect()
-                    .statusCode(NOT_FOUND.value()).when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, testUser).asString();
+                    .statusCode(NOT_FOUND.value()).when().patch(MEMBER_ACCEPT_RESOURCE, requestId).asString();
 
             assertTrue("No Existing Request", response.contains("no existing request to join the project"));
         }
@@ -608,11 +623,26 @@ public class ProjectIT extends BaseIT {
     public void testProjectMemberAcceptNotAdmin() {
 
         final String adminUser = "fforgeadmin";
-
-        this.testProjectCreateJsonString();
+        
+        String unique = TestUserUtil.generateTime();
+        
+        Integer toBeAddedId = null;
+        try {
+        	toBeAddedId = UserDao.getUserID(adminUser);
+		} catch (SQLException e) {
+			fail("caught SQL exception looking up fforgeadmin");
+		}
+        
+        Integer fakeAdminId = UserIT.createUserAndReturnID(unique);
+       
+        this.testProjectCreateJsonString();  
+        String requestId = this.createdId.toString();
+        requestId += "-" + toBeAddedId.toString();
+        requestId += "-" + fakeAdminId.toString();
+        
         if (this.createdId != null) {
-            final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN).expect()
-                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_ACCEPT_RESOURCE, this.createdId, adminUser).asString();
+            final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", "userEPPN" + unique).expect()
+                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_ACCEPT_RESOURCE, requestId).asString();
 
             assertTrue("Not Admin", response.contains("does not have permission to accept members"));
         }
@@ -621,15 +651,28 @@ public class ProjectIT extends BaseIT {
     /**
      * PATCH /projects/{projectId}/reject/{memberId}
      */
+    
     @Test
     public void testProjectMemberRejectOnlyAdmin() {
 
         final String adminUser = "fforgeadmin";
 
-        this.testProjectCreateJsonString();
+        Integer adminId = null;
+        try {
+			adminId = UserDao.getUserID(adminUser);
+		} catch (SQLException e) {
+			fail("caught SQL exception looking up fforgeadmin");
+		}
+        
+        this.testProjectCreateJsonString();     
+        
+        String requestId = this.createdId.toString();
+        requestId += "-" + adminId.toString();
+        requestId += "-" + adminId.toString();
+        
         if (this.createdId != null) {
             final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).expect()
-                    .statusCode(FORBIDDEN.value()).when().delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser).asString();
+                    .statusCode(FORBIDDEN.value()).when().delete(MEMBER_REJECT_RESOURCE, requestId).asString();
 
             assertTrue("No Existing Request", response.contains("is the only Admin of project"));
         }
@@ -641,17 +684,32 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProjectMemberRejecttNotAdmin() {
 
-        final String adminUser = "fforgeadmin";
-
-        this.testProjectCreateJsonString();
+final String adminUser = "fforgeadmin";
+        
+        String unique = TestUserUtil.generateTime();
+        
+        Integer toBeAddedId = null;
+        try {
+        	toBeAddedId = UserDao.getUserID(adminUser);
+		} catch (SQLException e) {
+			fail("caught SQL exception looking up fforgeadmin");
+		}
+        
+        Integer fakeAdminId = UserIT.createUserAndReturnID(unique);
+       
+        this.testProjectCreateJsonString();  
+        String requestId = this.createdId.toString();
+        requestId += "-" + toBeAddedId.toString();
+        requestId += "-" + fakeAdminId.toString();
+        
         if (this.createdId != null) {
-            final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN).expect()
-                    .statusCode(FORBIDDEN.value()).when().delete(MEMBER_REJECT_RESOURCE, this.createdId, adminUser).asString();
+            final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", "userEPPN" + unique).expect()
+                    .statusCode(FORBIDDEN.value()).when().delete(MEMBER_REJECT_RESOURCE, requestId).asString();
 
-            assertTrue("Not Admin", response.contains("not have permission to remove members"));
+            assertTrue("Not Admin", response.contains("does not have permission"));
         }
     }
-
+    
     /**
      * GET /members
      */

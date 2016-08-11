@@ -439,7 +439,7 @@ public class ProjectMemberDao {
 			int memberId = Integer.parseInt(parts[1]);
 			int projectId = Integer.parseInt(parts[0]);
 			
-			if (memberId != UserDao.getUserID(userEPPN))
+			if (requesterId != UserDao.getUserID(userEPPN))
 				throw new DMCServiceException(DMCError.UnknownUser, "Not the correct user");
 
 			boolean ok = IsRequesterAdmin(projectId, requesterId);
