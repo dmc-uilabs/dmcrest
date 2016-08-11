@@ -444,13 +444,12 @@ public class ServiceDao {
     }
 
 	public List<ServiceHistory> getHistory(String serviceID, String period, String section, String userEPPN) {
-		// TODO Auto-generated method stub
-		
-		String permissionsQuery1 = "SELECT published, project_id FROM service WHERE service_id = " + serviceID;
-		
 		
 		try {
-			ResultSet rs = DBConnector.executeQuery(permissionsQuery1);
+			String permissionsQuery1 =  "SELECT published, project_id FROM service WHERE service_id = ?";
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(permissionsQuery1);
+			preparedStatement.setString(1, serviceID);
+			ResultSet rs = preparedStatement.executeQuery();
 			boolean published = false;
 			int projectID = -1;
 			while (rs.next()){
@@ -477,13 +476,18 @@ public class ServiceDao {
 			
 			StringBuilder serviceHistoryQuery = new StringBuilder("SELECT * FROM service_history WHERE service_id = ?");
 			if (period != null)
-				serviceHistoryQuery.append(" AND period = " + period);
+				serviceHistoryQuery.append(" AND period = ?");
 			
 			if (section != null)
-				serviceHistoryQuery.append(" AND section = " + section);
+				serviceHistoryQuery.append(" AND section = ?");
 			
 			PreparedStatement ps = DBConnector.prepareStatement(serviceHistoryQuery.toString());
 			ps.setInt(1, Integer.parseInt(serviceID));
+			if (period != null)
+				ps.setString(2, period);
+			
+			if (section != null)
+				ps.setString(3, section);
 			ResultSet resSet = ps.executeQuery();
 			
 			ArrayList<ServiceHistory> historyList = new ArrayList<ServiceHistory>();
