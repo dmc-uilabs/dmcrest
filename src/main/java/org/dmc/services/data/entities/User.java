@@ -26,6 +26,12 @@ public class User extends BaseEntity {
 	@Column(name = "user_name")
 	private String username;
 
+	@Column(name = "realname")
+	private String realname;
+
+	@Column(name = "title")
+	private String title;
+
 	@Column(name = "firstname")
 	private String firstName;
 
@@ -38,11 +44,17 @@ public class User extends BaseEntity {
 	@Column(name = "address")
 	private String address;
 
+	@Column(name = "image")
+	private String image;
+
 	@Column(name = "phone")
 	private String phone;
 
 	@Column(name = "about_me")
 	private String aboutMe;
+
+	@Column(name = "people_resume")
+	private String resume;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
@@ -54,12 +66,37 @@ public class User extends BaseEntity {
 	@OneToOne(mappedBy = "user")
 	private OrganizationUser organizationUser;
 
+	@Override
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
 	public String getUsername() {
 		return username;
 	}
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getRealname() {
+		return realname;
+	}
+
+	public void setRealname(String realname) {
+		this.realname = realname;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getFirstName() {
@@ -94,6 +131,14 @@ public class User extends BaseEntity {
 		this.address = address;
 	}
 
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
 	public String getPhone() {
 		return phone;
 	}
@@ -110,12 +155,12 @@ public class User extends BaseEntity {
 		this.aboutMe = aboutMe;
 	}
 
-	public Integer getId() {
-		return id;
+	public String getResume() {
+		return resume;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public void setResume(String resume) {
+		this.resume = resume;
 	}
 
 	public List<UserRoleAssignment> getRoles() {

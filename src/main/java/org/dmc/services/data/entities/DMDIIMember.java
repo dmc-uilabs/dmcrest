@@ -1,9 +1,5 @@
 package org.dmc.services.data.entities;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,15 +14,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import org.dmc.services.dmdiitype.DMDIIType;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "organization_dmdii_member")
 public class DMDIIMember extends BaseEntity {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@ManyToOne
@@ -43,43 +40,35 @@ public class DMDIIMember extends BaseEntity {
 	@Column(name = "expire_date")
 	private Date expireDate;
 
-	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "dmdiiMember", cascade = CascadeType.ALL)
 	private List<DMDIIAward> awards;
 
 	@ManyToMany
-	@JoinTable(name = "dmdii_member_area_of_expertise",
-			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
-			   inverseJoinColumns = @JoinColumn(name="dmdii_area_of_expertise_id"))
+	@JoinTable(name = "dmdii_member_area_of_expertise", joinColumns = @JoinColumn(name = "organization_dmdii_member_id"), inverseJoinColumns = @JoinColumn(name = "dmdii_area_of_expertise_id"))
 	private List<DMDIIAreaOfExpertise> areasOfExpertise;
 
 	@ManyToMany
-	@JoinTable(name = "dmdii_member_desired_area_of_expertise",
-			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
-			   inverseJoinColumns = @JoinColumn(name="dmdii_area_of_expertise_id"))
+	@JoinTable(name = "dmdii_member_desired_area_of_expertise", joinColumns = @JoinColumn(name = "organization_dmdii_member_id"), inverseJoinColumns = @JoinColumn(name = "dmdii_area_of_expertise_id"))
 	private List<DMDIIAreaOfExpertise> desiredAreasOfExpertise;
 
-	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "dmdiiMember", cascade = CascadeType.ALL)
 	private List<DMDIIMemberContact> contacts;
 
-	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "dmdiiMember", cascade = CascadeType.ALL)
 	private List<DMDIIMemberCustomer> customers;
 
-	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "dmdiiMember", cascade = CascadeType.ALL)
 	private List<DMDIIMemberFinance> finances;
 
-	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "dmdiiMember", cascade = CascadeType.ALL)
 	private List<DMDIIInstituteInvolvement> instituteInvolvement;
 
 	@ManyToMany
-	@JoinTable(name = "dmdii_member_skill",
-			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
-			   inverseJoinColumns = @JoinColumn(name="dmdii_skill_id"))
+	@JoinTable(name = "dmdii_member_skill", joinColumns = @JoinColumn(name = "organization_dmdii_member_id"), inverseJoinColumns = @JoinColumn(name = "dmdii_skill_id"))
 	private List<DMDIISkill> skills;
 
 	@ManyToMany
-	@JoinTable(name = "dmdii_member_user",
-			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
-			   inverseJoinColumns = @JoinColumn(name="id"))
+	@JoinTable(name = "dmdii_member_user", joinColumns = @JoinColumn(name = "organization_dmdii_member_id"), inverseJoinColumns = @JoinColumn(name = "id"))
 	private List<DMDIIMemberUser> users;
 
 	@OneToMany(fetch = FetchType.LAZY)
@@ -93,7 +82,6 @@ public class DMDIIMember extends BaseEntity {
 	public void setDmdiiType(DMDIIType dmdiiType) {
 		this.dmdiiType = dmdiiType;
 	}
-
 
 	public Organization getOrganization() {
 		return organization;
@@ -314,5 +302,4 @@ public class DMDIIMember extends BaseEntity {
 			return false;
 		return true;
 	}
-
 }

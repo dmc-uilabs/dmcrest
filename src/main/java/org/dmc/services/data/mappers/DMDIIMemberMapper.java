@@ -9,6 +9,7 @@ import org.dmc.services.data.entities.DMDIIMemberCustomer;
 import org.dmc.services.data.entities.DMDIIMemberFinance;
 import org.dmc.services.data.entities.DMDIIMemberUser;
 import org.dmc.services.data.entities.DMDIISkill;
+import org.dmc.services.data.entities.DMDIIType;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.models.DMDIIAreaOfExpertiseModel;
 import org.dmc.services.data.models.DMDIIAwardModel;
@@ -21,7 +22,6 @@ import org.dmc.services.data.models.DMDIIMemberUserModel;
 import org.dmc.services.data.models.DMDIISkillModel;
 import org.dmc.services.data.models.DMDIITypeModel;
 import org.dmc.services.data.models.OrganizationModel;
-import org.dmc.services.dmdiitype.DMDIIType;
 import org.springframework.stereotype.Component;
 
 @Component
