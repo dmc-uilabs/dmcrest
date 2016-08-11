@@ -1,14 +1,34 @@
 package org.dmc.services;
 
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Random;
+
+import org.dmc.services.services.DomeModelParam;
+import org.dmc.services.services.GetDomeInterface;
+import org.dmc.services.services.GetServiceRun;
 import org.dmc.services.services.PostServiceInputPosition;
 import org.dmc.services.services.PostUpdateDomeInterface;
+import org.dmc.services.services.RunStats;
 import org.dmc.services.services.Service;
-import org.dmc.services.services.ServiceDao;
+import org.dmc.services.services.ServiceAuthor;
 import org.dmc.services.services.ServiceInputPosition;
 import org.dmc.services.services.ServiceSpecialSpecifications;
 import org.dmc.services.services.ServiceSpecifications;
-import org.dmc.services.services.RunStats;
+import org.dmc.services.services.ServiceTag;
 import org.dmc.services.services.UsageStats;
+
 import org.dmc.services.services.specifications.ArraySpecifications;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.company.CompanyVideo;
@@ -17,10 +37,10 @@ import org.dmc.services.services.*;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.Ignore;
+
+import org.dmc.services.utility.TestUserUtil;
+import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,6 +48,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.response.ValidatableResponse;
+
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.springframework.http.HttpStatus.OK;
@@ -56,93 +77,98 @@ public class ServiceIT extends BaseIT {
 	private static final String SERVICE_TAGS_GET_BY_SERVICE_ID = "/services/{serviceID}/service_tags";
 	private static final String SERVICE_TAGS_RESOURCE = "/service_tags";
 
-	private Service service = null;
-	private Random r = new Random();
-	private String serviceId = "1"; // the serviceId need to be assigned new value
-	private String domeInterfaceId = "1";
-	private String positionInputId = "1";
 
-	@Test
-	public void testService() {
-		// perform actual GET request against the embedded container for the service we know exists
-		// provide the same ID the test service above was created with
-		// Expect
-		expect().
-		statusCode(200).
-		when().
-		get(SERVICE_RESOURCE, Integer.toString(2)).then().
-		body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
-	}
+    private Service service = null;
+    private Random r = new Random();
+    private String serviceId = "1"; // the serviceId need to be assigned new value
+    private String domeInterfaceId = "1";
+    private String positionInputId = "1";
+    
+    private String knownEPPN;
+    
+    @Before
+    public void before() {
+    	if (knownEPPN == null) {
+    		knownEPPN = TestUserUtil.createNewUser();
+    	}
+    }
 
-	@Test
-	public void testServiceList(){
-		expect().statusCode(200).when().get("/services").then().
-		body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
-	}
+    @Test
+    public void testService() {
+        // perform actual GET request against the embedded container for the service we know exists
+        // provide the same ID the test service above was created with
+        // Expect
+    	given().header("AJP_eppn", knownEPPN).
+        expect().
+          statusCode(200).
+        when().
+          get(SERVICE_RESOURCE, Integer.toString(2)).then().
+          body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
+    }
 
-	@Test
-	public void testServiceListProject(){
-		expect().statusCode(200).when().get("/projects/6/services").then().
-		body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
-	}
+    @Test
+    public void testServiceList(){
+    	given().header("AJP_eppn", knownEPPN).
+        expect().statusCode(200).when().get("/services").then().
+        body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
+    }
 
-	@Test
-	public void testServiceListComponent(){
+    @Test
+    public void testServiceListProject(){
+    	given().header("AJP_eppn", knownEPPN).
+        expect().statusCode(200).when().get("/projects/6/services").then().
+        body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
+    }
 
-		expect().statusCode(200).when().get("/components/" + (r.nextInt(190) + 30) + "/services").then().
-		body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
-	}
+    @Test
+    public void testServiceListComponent(){
+    	given().header("AJP_eppn", knownEPPN).
+        expect().statusCode(200).when().get("/components/" + (r.nextInt(190) + 30) + "/services").then().
+        body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
+    }
 
-	/**
-	 * test case for patch /services/{serviceID}
-	 */
-	@Test
-	public void testServicePatch_ServiceId(){
+    /**
+     * test case for patch /services/{serviceID}
+     */
+    @Test
+    public void testServicePatch_ServiceId(){
+        
+        //TODO: Create a service
+        //Change description and use PATCH
+        // what other things can be changed?
+        // service type
+        // Publish a service - not sure if it calls patch or something else.
+        Service service = createNewServiceObjectToPost();    
+        ValidatableResponse response =
+            given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).
+                body(service).
+            expect().
+                statusCode(HttpStatus.OK.value()).
+            when().
+                post("/services/").
+            then().
+                body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
 
-		//TODO: Create a service
-		//Change description and use PATCH
-		// what other things can be changed?
-		// service type
-		// Publish a service - not sure if it calls patch or something else.
-		Service service = createNewServiceObjectToPost();    
-		ValidatableResponse response =
-				given().
-				header("Content-type", "application/json").
-				header("AJP_eppn", userEPPN).
-				body(service).
-				expect().
-				statusCode(HttpStatus.OK.value()).
-				when().
-				post("/services/").
-				then().
-				body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
+        String jsonResponse = response.extract().asString();
+        ServiceLogger.log(logTag, "response = " + jsonResponse);
 
-				String jsonResponse = response.extract().asString();
-				ServiceLogger.log(logTag, "response = " + jsonResponse);
+        ObjectMapper mapper = new ObjectMapper();
+        Service patchService = null;
+        try {
+            patchService = mapper.readValue(jsonResponse, Service.class);
+        } catch (Exception e) {
+            fail("unable to map response to Service object: " + e.getMessage());
+        }
 
-				ObjectMapper mapper = new ObjectMapper();
-				Service patchService = null;
-				try {
-					patchService = mapper.readValue(jsonResponse, Service.class);
-				} catch (Exception e) {
-					fail("unable to map response to Service object: " + e.getMessage());
-				}
+        patchService.setDescription(patchService.getDescription() + " - now patching");
+        String patchUrl = "/services/" + patchService.getId();
+        ServiceLogger.log(logTag, "patch url = " + patchUrl);
+    }
 
-				patchService.setDescription(patchService.getDescription() + " - now patching");
-				String patchUrl = "/services/" + patchService.getId();
-				ServiceLogger.log(logTag, "patch url = " + patchUrl);
 
-				given().
-				header("Content-type", "application/json").
-				header("AJP_eppn", userEPPN).
-				body(patchService).
-				expect().
-				statusCode(HttpStatus.OK.value()).
-				when().
-				patch(patchUrl).
-				then().
-				body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
-	}
+	
 
 	/**
 	 * test case for post /services
@@ -896,14 +922,16 @@ public class ServiceIT extends BaseIT {
 		String postedSpecificationJSONString = getSpecsJSONString(numSpecs);
 
 		ArrayList<ServiceSpecifications> specs = given().
-				header("Content-type", "application/json").
-				header("AJP_eppn", "user_EPPN").
-				body(postedSpecificationJSONString).
-				expect().
-				statusCode(HttpStatus.OK.value()).
-				when().
-				post("/array_specifications").
-				as(ArrayList.class);
+
+		header("Content-type", "application/json").
+		header("AJP_eppn", userEPPN).
+		body(postedSpecificationJSONString).
+		expect().
+		statusCode(HttpStatus.OK.value()).
+		when().
+		post("/array_specifications").
+		as(ArrayList.class);
+		
 
 		assertTrue("Number of Specifications created is number posted", specs.size() == numSpecs);
 	}

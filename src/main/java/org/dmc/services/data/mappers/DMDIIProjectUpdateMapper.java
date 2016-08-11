@@ -13,6 +13,7 @@ import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.DMDIIProjectUpdateModel;
 import org.dmc.services.data.models.UserModel;
+import org.dmc.services.security.PermissionEvaluationHelper;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -44,6 +45,15 @@ public class DMDIIProjectUpdateMapper extends AbstractMapper<DMDIIProjectUpdate,
 	@Override
 	public DMDIIProjectUpdateModel mapToModel(DMDIIProjectUpdate entity) {
 		Assert.notNull(entity);
+		
+		if (entity.getAccessLevel() != null) {
+			Boolean isAuthorized = PermissionEvaluationHelper.userMeetsProjectAccessRequirement(entity.getAccessLevel(), entity.getProject().getId());
+			
+			if (!isAuthorized) {
+				return null;
+			}
+		}
+		
 		DMDIIProjectUpdateModel model = copyProperties(entity, new DMDIIProjectUpdateModel());
 		
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);

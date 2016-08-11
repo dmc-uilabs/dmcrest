@@ -93,8 +93,6 @@ public class CompanySkillIT  extends BaseIT {
         this.companyDao.addMember(this.companyId, this.adminMemberUserId, this.ownerEPPN);
         this.companyDao.addAdministrator(this.companyId, this.adminMemberUserId, this.ownerEPPN);
         
-        //Make sure the company is a DMDII member
-        addToDMDII(this.companyId);
         System.out.println("Org admin created: " + this.companyId);
 
         // Create a user that is not a member of the company
@@ -273,23 +271,6 @@ public class CompanySkillIT  extends BaseIT {
 		}
 		return companyJSONString;
     }
-
-        
-    public void addToDMDII(int companyID)  {
-    	String update = "insert into organization_dmdii_member " +
-    			"(organization_id,dmdii_type_id,modification_date,start_date,expire_date) values "+
-    			" (?,1,now(),now(),date(now())+integer'1')";
-    	try {
-		PreparedStatement preparedStatementOrg = DBConnector.prepareStatement(update);
-		preparedStatementOrg.setInt(1, companyID);
-		int orgSet = preparedStatementOrg.executeUpdate();
-    	}
-    	catch (SQLException e)
-    	{
-			ServiceLogger.log(this.logTag, "SQL Error occurs: "+e.getMessage());
-    	}
-    }
-    
 
     private JSONObject createFixture(String s)
     {

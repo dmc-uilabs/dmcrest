@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,6 +43,10 @@ public class DMDIIProjectUpdate extends BaseEntity {
 	@ManyToOne
 	@JoinColumn(name="project_id")
 	private DMDIIProject project;
+	
+	@Column(name = "access_level")
+	@Enumerated(EnumType.STRING)
+	private DMDIIProjectItemAccessLevel accessLevel;
 
 	public Integer getId() {
 		return id;
@@ -90,58 +96,70 @@ public class DMDIIProjectUpdate extends BaseEntity {
 		this.project = project;
 	}
 
+	public DMDIIProjectItemAccessLevel getAccessLevel() {
+		return accessLevel;
+	}
+
+	public void setAccessLevel(DMDIIProjectItemAccessLevel accessLevel) {
+		this.accessLevel = accessLevel;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((accessLevel == null) ? 0 : accessLevel.hashCode());
+		result = prime * result + ((creator == null) ? 0 : creator.hashCode());
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
-		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((project == null) ? 0 : project.hashCode());
+		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if(this == obj)
+		if (this == obj)
 			return true;
-		if(obj == null)
+		if (obj == null)
 			return false;
-		if(getClass() != obj.getClass())
+		if (getClass() != obj.getClass())
 			return false;
 		DMDIIProjectUpdate other = (DMDIIProjectUpdate) obj;
-		if(title == null) {
-			if(other.title != null)
-				return false;
-		} else if (!title.equals(other.title))
+		if (accessLevel != other.accessLevel)
 			return false;
-		if(id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if(description == null) {
-			if (other.description != null)
-				return false;
-		} else if (!description.equals(other.description))
-			return false;
-		if(date == null) {
-			if (other.date != null)
-				return false;
-		} else if (!date.equals(other.date))
-			return false;
-		if(creator == null) {
+		if (creator == null) {
 			if (other.creator != null)
 				return false;
 		} else if (!creator.equals(other.creator))
 			return false;
-		if(project == null) {
+		if (date == null) {
+			if (other.date != null)
+				return false;
+		} else if (!date.equals(other.date))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (project == null) {
 			if (other.project != null)
 				return false;
 		} else if (!project.equals(other.project))
 			return false;
-
+		if (title == null) {
+			if (other.title != null)
+				return false;
+		} else if (!title.equals(other.title))
+			return false;
 		return true;
 	}
-	
+
 }

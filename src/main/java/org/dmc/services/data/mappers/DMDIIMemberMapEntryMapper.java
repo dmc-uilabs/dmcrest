@@ -14,6 +14,8 @@ public class DMDIIMemberMapEntryMapper extends AbstractMapper<DMDIIMember, DMDII
 
 	@Override
 	public DMDIIMemberMapEntryModel mapToModel(DMDIIMember entity) {
+		if (entity == null) return null;
+		
 		DMDIIMemberMapEntryModel model = new DMDIIMemberMapEntryModel();
 		model.setId(entity.getId());
 		model.setName(entity.getOrganization().getName());

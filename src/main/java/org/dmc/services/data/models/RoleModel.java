@@ -11,4 +11,5 @@ public class RoleModel extends BaseModel {
 	public void setRole(String role) {
 		this.role = role;
 	}
+
 }

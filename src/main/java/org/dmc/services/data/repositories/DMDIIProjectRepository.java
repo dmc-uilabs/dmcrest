@@ -1,6 +1,7 @@
 package org.dmc.services.data.repositories;
 
 import java.util.Date;
+import java.util.List;
 
 import org.dmc.services.data.entities.DMDIIProject;
 import org.springframework.data.domain.Page;
@@ -31,4 +32,8 @@ public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Int
 	@Query("SELECT COUNT (p) FROM DMDIIProject p WHERE p.primeOrganization.id = :dmdiiMemberId AND " +
 			"CURRENT_TIMESTAMP() BETWEEN p.awardedDate AND p.endDate")
 	Long countByPrimeOrganizationIdAndIsActive(@Param("dmdiiMemberId") Integer dmdiiMemberId);
+
+	@Query(value = "SELECT * FROM dmdii_project dp JOIN dmdii_project_contributing_company cc on " +
+			"cc.dmdii_project_id=dp.id WHERE cc.contributing_company_id = :dmdiiMemberId", nativeQuery = true)
+	List<DMDIIProject> findByContributingCompanyId(@Param("dmdiiMemberId") Integer dmdiiMemberId);
 }

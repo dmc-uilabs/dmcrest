@@ -2,14 +2,19 @@ package org.dmc.services;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -32,6 +37,7 @@ import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -63,11 +69,20 @@ public class ProjectIT extends BaseIT {
     private final String logTag = ProjectIT.class.getName();
     private DiscussionIT discussionIT = new DiscussionIT();
     private Integer createdId = null;
+    
     private Integer createdTagId = null;
-    String randomEPPN = UUID.randomUUID().toString();
 
     private String projectId = "1";
+
+    private String knownEPPN;
     
+    @Before
+    public void before() {
+    	if (knownEPPN == null) {
+    		knownEPPN = TestUserUtil.createNewUser();
+    	}
+    }
+
     @Test
     public void testProject6() {
         given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6").then()
@@ -192,10 +207,10 @@ public class ProjectIT extends BaseIT {
         this.testProjectCreateJsonString();
 
         if (this.createdId != null) {
-            final Integer discussionId = discussionIT.createDiscussion(this.createdId);
+            Integer discussionId = createDiscussion(this.createdId);
             if (discussionId != null) {
-                final JsonNode discussions = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN)
-                        .expect().statusCode(OK.value()).when().get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
+                JsonNode discussions = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
+                        .expect().statusCode(200).when().get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
                         .as(JsonNode.class);
 
                 try {
@@ -217,6 +232,32 @@ public class ProjectIT extends BaseIT {
         }
     }
     
+
+    private Integer createDiscussion(Integer projectId) {
+    	String projId = (projectId != null) ? projectId.toString() : "123";
+		JSONObject json = new JSONObject();
+		json.put("title", "test discussion title");
+		json.put("message", "test discussion message");
+		json.put("createdBy", "test-disc-created-by");
+		json.put("createdAt", 1232000);
+		json.put("accountId", "123");
+		json.put("projectId", projId);
+		
+		return given()
+				.header("Content-type", "application/json")
+				.header("AJP_eppn", knownEPPN)
+				.body(json.toString())
+				.expect()
+				.statusCode(200)
+				.when()
+				.post("/discussions/create")
+				.then()
+				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+				.extract()
+				.path("id");
+    }
+
+
     @Test
     public void testGetProject1Tags() {
 
@@ -530,8 +571,8 @@ public class ProjectIT extends BaseIT {
             json.put("description", "test project description update");
             json.put("dueDate", 0);
 
-            final int updatedId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", randomEPPN)
-                    .body(json.toString()).expect().statusCode(OK.value()).when()
+            final int updatedId = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
+                    .body(json.toString()).expect().statusCode(200).when()
                     .patch(PROJECT_UPDATE_RESOURCE, this.createdId).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 
@@ -641,8 +682,12 @@ public class ProjectIT extends BaseIT {
         requestId += "-" + fakeAdminId.toString();
         
         if (this.createdId != null) {
+
             final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", "userEPPN" + unique).expect()
                     .statusCode(FORBIDDEN.value()).when().patch(MEMBER_ACCEPT_RESOURCE, requestId).asString();
+
+
+
 
             assertTrue("Not Admin", response.contains("does not have permission to accept members"));
         }
@@ -684,6 +729,7 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProjectMemberRejecttNotAdmin() {
 
+
 final String adminUser = "fforgeadmin";
         
         String unique = TestUserUtil.generateTime();
@@ -705,6 +751,8 @@ final String adminUser = "fforgeadmin";
         if (this.createdId != null) {
             final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", "userEPPN" + unique).expect()
                     .statusCode(FORBIDDEN.value()).when().delete(MEMBER_REJECT_RESOURCE, requestId).asString();
+
+       
 
             assertTrue("Not Admin", response.contains("does not have permission"));
         }

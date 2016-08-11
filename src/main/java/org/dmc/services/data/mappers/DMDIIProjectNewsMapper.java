@@ -14,7 +14,8 @@ public class DMDIIProjectNewsMapper extends AbstractMapper<DMDIIProjectNews, DMD
 
 	@Override
 	public DMDIIProjectNews mapToEntity(DMDIIProjectNewsModel model) {
-		Assert.notNull(model);
+		if (model == null) return null;
+		
 		DMDIIProjectNews entity = copyProperties(model, new DMDIIProjectNews());
 		
 		entity.setDateCreated(new DateTime(model.getDateCreated()).toDate());
@@ -24,7 +25,8 @@ public class DMDIIProjectNewsMapper extends AbstractMapper<DMDIIProjectNews, DMD
 
 	@Override
 	public DMDIIProjectNewsModel mapToModel(DMDIIProjectNews entity) {
-		Assert.notNull(entity);
+		if (entity == null) return null;
+		
 		DMDIIProjectNewsModel model = copyProperties(entity, new DMDIIProjectNewsModel());
 		
 		Format formatter = new SimpleDateFormat("yyyy-MM-dd");
