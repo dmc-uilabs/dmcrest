@@ -11,6 +11,7 @@ import org.dmc.services.UserService;
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIProject;
+import org.dmc.services.data.entities.DMDIIProjectItemAccessLevel;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DMDIIDocumentModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
@@ -41,6 +42,10 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 			entity.setDmdiiProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProjectId())));
 		else
 			entity.setDmdiiProject(null);
+		
+		if (model.getAccessLevel() != null) {
+			entity.setAccessLevel(DMDIIProjectItemAccessLevel.valueOf(model.getAccessLevel()));
+		}
 
 		return entity;
 	}
@@ -67,6 +72,10 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 			model.setDmdiiProjectId(entity.getDmdiiProject().getId());
 		else
 			model.setDmdiiProjectId(null);
+		
+		if (entity.getAccessLevel() != null) {
+			model.setAccessLevel(entity.getAccessLevel().toString());
+		}
 
 		return model;
 	}
