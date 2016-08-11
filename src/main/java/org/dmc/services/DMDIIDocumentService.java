@@ -107,6 +107,14 @@ public class DMDIIDocumentService {
 		
 	}
 	
+	public DMDIIDocumentModel findMostRecentDocumentByFileTypeIdAndDMDIIProjectId (Integer fileTypeId, Integer dmdiiProjectId) {
+		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
+		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeAndDmdiiProjectIdOrderByModifiedDesc(fileTypeId, dmdiiProjectId));
+		
+		docList = refreshDocuments(docList);
+		return mapper.mapToModel(docList.get(0));
+	}
+	
 	public DMDIIDocumentModel save(DMDIIDocumentModel doc) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -126,7 +134,7 @@ public class DMDIIDocumentService {
 		
 		ServiceLogger.log(logTag, "Attempting to verify DMDII document");
 		//Verify the document
-		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", doc.getOwnerId().toString(), "ProjectOfDMDII", "Documents", "id", "url");
+		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", userEntity.getUsername(), "ProjectOfDMDII", "Documents", "id", "url");
 		ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
 		
 		return docMapper.mapToModel(docEntity);

@@ -14,4 +14,6 @@ public interface DMDIIDocumentRepository extends BaseRepository<DMDIIDocument, I
 
 	DMDIIDocument findTopByFileTypeOrderByModifiedDesc(Integer fileType);
 
+	DMDIIDocument findTopByFileTypeAndDmdiiProjectIdOrderByModifiedDesc(Integer fileTypeId, Integer dmdiiProjectId);
+
 }

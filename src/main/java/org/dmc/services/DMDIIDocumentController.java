@@ -78,4 +78,10 @@ public class DMDIIDocumentController {
 		ServiceLogger.log(logTag, "In getMostRecentStaticDocumentByFileTypeId: " + fileTypeId);
 		return dmdiiDocumentService.findMostRecentStaticFileByFileTypeId(fileTypeId);
 	}
+	
+	@RequestMapping(value = "/dmdiidocument/filetype", params = {"fileTypeId", "dmdiiProjectId"}, method = RequestMethod.GET)
+	public DMDIIDocumentModel getMostRecentDocumentByFileTypeIdAndDMDIIProjectId (@RequestParam("fileTypeId") Integer fileTypeId, @RequestParam("dmdiiProjectId") Integer dmdiiProjectId) {
+		ServiceLogger.log(logTag, "In getMostRecentDocumentByFileTypeIdAndDMDIIProjectId: fileType = " + fileTypeId + " dmdiiProject = " + dmdiiProjectId);
+		return dmdiiDocumentService.findMostRecentDocumentByFileTypeIdAndDMDIIProjectId(fileTypeId, dmdiiProjectId);
+	}
 }
