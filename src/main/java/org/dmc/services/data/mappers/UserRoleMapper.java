@@ -12,7 +12,7 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.RoleModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserRoleModel;
-import org.dmc.services.dmdiimember.OrganizationService;
+import org.dmc.services.organization.OrganizationService;
 import org.springframework.stereotype.Component;
 
 @Component

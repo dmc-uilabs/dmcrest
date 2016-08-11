@@ -1,4 +1,4 @@
-package org.dmc.services.dmdiimember;
+package org.dmc.services.organization;
 
 import javax.inject.Inject;
 

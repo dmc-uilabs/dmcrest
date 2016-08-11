@@ -24,6 +24,7 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.repositories.DMDIIMemberEventRepository;
 import org.dmc.services.data.repositories.DMDIIMemberNewsRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.organization.OrganizationService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
