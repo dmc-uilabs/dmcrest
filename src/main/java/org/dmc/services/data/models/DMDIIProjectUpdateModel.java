@@ -1,7 +1,5 @@
 package org.dmc.services.data.models;
 
-import java.util.Date;
-
 public class DMDIIProjectUpdateModel extends BaseModel {
 
 	private String created;
@@ -13,6 +11,8 @@ public class DMDIIProjectUpdateModel extends BaseModel {
 	private Integer creator;
 	
 	private Integer dmdiiProject;
+	
+	private String accessLevel;
 
 	public String getCreated() {
 		return created;
@@ -52,5 +52,13 @@ public class DMDIIProjectUpdateModel extends BaseModel {
 
 	public void setDmdiiProject(Integer dmdiiProject) {
 		this.dmdiiProject = dmdiiProject;
+	}
+
+	public String getAccessLevel() {
+		return accessLevel;
+	}
+
+	public void setAccessLevel(String accessLevel) {
+		this.accessLevel = accessLevel;
 	}
 }

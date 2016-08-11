@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.UserService;
 import org.dmc.services.data.entities.DMDIIProject;
+import org.dmc.services.data.entities.DMDIIProjectItemAccessLevel;
 import org.dmc.services.data.entities.DMDIIProjectUpdate;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DMDIIProjectModel;
@@ -39,6 +40,10 @@ public class DMDIIProjectUpdateMapper extends AbstractMapper<DMDIIProjectUpdate,
 		entity.setProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProject())));
 		entity.setDate(new DateTime(model.getCreated()).toDate());
 		
+		if (model.getAccessLevel() != null) {
+			entity.setAccessLevel(DMDIIProjectItemAccessLevel.valueOf(model.getAccessLevel()));
+		}
+		
 		return entity;
 	}
 
@@ -64,6 +69,10 @@ public class DMDIIProjectUpdateMapper extends AbstractMapper<DMDIIProjectUpdate,
 		model.setCreator(entity.getCreator().getId());
 		model.setDmdiiProject(entity.getProject().getId());
 		model.setCreated(formatter.format(entity.getDate()));
+		
+		if (entity.getAccessLevel() != null) {
+			model.setAccessLevel(entity.getAccessLevel().toString());
+		}
 		
 		return model;
 	}
