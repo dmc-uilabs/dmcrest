@@ -14,6 +14,7 @@ import org.dmc.services.data.models.DMDIIMemberMapEntryModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIMemberNewsModel;
 import org.dmc.services.data.models.PagedResponse;
+import org.dmc.services.dmdiimember.DMDIIMemberService.DuplicateDMDIIMemberException;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.http.MediaType;
@@ -57,7 +58,7 @@ public class DMDIIMemberController {
 
 	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
-	public DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
+	public DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) throws DuplicateDMDIIMemberException {
 		return dmdiiMemberService.save(member);
 	}
 
