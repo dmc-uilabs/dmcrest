@@ -31,6 +31,8 @@ public class UserModel extends BaseModel {
 	private String realname;
 	private String title;
 	private boolean termsConditions;
+	private String realname;
+	private String title;
 	private String firstName;
 	private String lastName;
 	private String email;
@@ -41,6 +43,7 @@ public class UserModel extends BaseModel {
 	private UserRunningServices runningServices;
 	private UserMessages messages;
 	private UserOnboarding onboarding;
+	private String image;
 	private Map<Integer, String> roles;
 	private Boolean isDMDIIMember;
 	private UserContactInfoModel userContactInfo;
@@ -118,6 +121,22 @@ public class UserModel extends BaseModel {
 
 	public void setTermsConditions(boolean termsConditions) {
 		this.termsConditions = termsConditions;
+	}
+
+	public String getRealname() {
+		return realname;
+	}
+
+	public void setRealname(String realname) {
+		this.realname = realname;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getFirstName() {
@@ -198,6 +217,14 @@ public class UserModel extends BaseModel {
 
 	public void setOnboarding(UserOnboarding onboarding) {
 		this.onboarding = onboarding;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
 	}
 
 	public Map<Integer, String> getRoles() {
