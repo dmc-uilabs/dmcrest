@@ -127,11 +127,6 @@ public class UserService {
 		return response;
 	}
 
-	public List<UserModel> findAllWhereDmdiiMemberExpiryDateIsAfterNow() {
-		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		return mapper.mapToModel(userRepository.findAllWhereDmdiiMemberExpiryDateIsAfterNow());
-	}
-
 	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {
 		userTokenRepository.delete(tokenEntity.getId());
 		return new VerifyUserResponse(1000,
@@ -197,5 +192,10 @@ public class UserService {
 		user.setEmail(email);
 		user.setAddDate(0);
 		return userRepository.save(user);
+	}
+
+	public List<UserModel> findAllWhereDmdiiMemberExpiryDateIsAfterNow() {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		return mapper.mapToModel(userRepository.findAllWhereDmdiiMemberExpiryDateIsAfterNow());
 	}
 }
