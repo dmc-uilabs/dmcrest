@@ -5,16 +5,20 @@ import java.util.Map;
 public class UserModel extends BaseModel {
 
 	private String username;
+	private String realname;
+	private String title;
 	private String firstName;
 	private String lastName;
 	private String email;
 	private String address;
 	private String phone;
+	private String image;
 	private Map<Integer, String> roles;
 	private UserContactInfoModel userContactInfo;
 	private boolean isDMDIIMember;
 	private Integer organization;
 	private String aboutMe;
+	private String resume;
 
 	public String getUsername() {
 		return username;
@@ -23,35 +27,69 @@ public class UserModel extends BaseModel {
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
+	public String getRealname() {
+		return realname;
+	}
+
+	public void setRealname(String realname) {
+		this.realname = realname;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 	public String getFirstName() {
 		return firstName;
 	}
-	public void setFirstName(String firstname) {
-		this.firstName = firstname;
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
+
 	public String getLastName() {
 		return lastName;
 	}
-	public void setLastName(String lastname) {
-		this.lastName = lastname;
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
+
 	public String getEmail() {
 		return email;
 	}
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
 	public String getAddress() {
 		return address;
 	}
+
 	public void setAddress(String address) {
 		this.address = address;
 	}
+
 	public String getPhone() {
 		return phone;
 	}
+
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
 	}
 
 	public Map<Integer, String> getRoles() {
@@ -74,8 +112,8 @@ public class UserModel extends BaseModel {
 		return isDMDIIMember;
 	}
 
-	public void setDMDIIMember(boolean isDMDIIMember) {
-		this.isDMDIIMember = isDMDIIMember;
+	public void setDMDIIMember(boolean DMDIIMember) {
+		isDMDIIMember = DMDIIMember;
 	}
 
 	public Integer getOrganization() {
@@ -94,4 +132,11 @@ public class UserModel extends BaseModel {
 		this.aboutMe = aboutMe;
 	}
 
+	public String getResume() {
+		return resume;
+	}
+
+	public void setResume(String resume) {
+		this.resume = resume;
+	}
 }

@@ -44,11 +44,11 @@ public class User extends BaseEntity {
 	@Column(name = "address")
 	private String address;
 
-	@Column(name = "image")
-	private String image;
-
 	@Column(name = "phone")
 	private String phone;
+
+	@Column(name = "image")
+	private String image;
 
 	@Column(name = "about_me")
 	private String aboutMe;
