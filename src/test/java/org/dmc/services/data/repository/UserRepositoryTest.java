@@ -25,6 +25,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by kskronek on 8/10/2016.
@@ -79,6 +80,6 @@ public class UserRepositoryTest {
 		final List<User> users = userRepo.findAllWhereDmdiiMemberExpiryDateIsAfterNow();
 		assertNotNull(users);
 		assertEquals(1, users.size());
-//		assertTrue(member.)
+		assertTrue(users.contains(user));
 	}
 }
