@@ -101,6 +101,11 @@ public class UserService {
 
 	}
 
+	public List<UserModel> findAllWhereDmdiiMemberExpiryDateIsAfterNow() {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		return mapper.mapToModel(userRepository.findAllWhereDmdiiMemberExpiryDateIsAfterNow());
+	}
+
 	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {
 		userTokenRepository.delete(tokenEntity.getId());
 		return new VerifyUserResponse(1000, "Too many unsuccessful attempts made to validate, please contact your administrator.");
