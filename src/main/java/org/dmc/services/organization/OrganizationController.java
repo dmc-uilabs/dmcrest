@@ -1,5 +1,7 @@
 package org.dmc.services.organization;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.dmc.services.data.models.OrganizationModel;
@@ -22,4 +24,8 @@ public class OrganizationController {
 		return organizationService.findOne(organizationId);
 	}
 
+	@RequestMapping(value = "/organization/nonMember", method = RequestMethod.GET)
+	public List<OrganizationModel> getNonDmdiiMembers() {
+		return organizationService.findNonDmdiiMembers();
+	}
 }

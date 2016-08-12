@@ -1,14 +1,22 @@
 package org.dmc.services.organization;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.dmc.services.data.entities.Organization;
+import org.dmc.services.data.entities.QDMDIIMember;
+import org.dmc.services.data.entities.QOrganization;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.repositories.OrganizationDao;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import com.mysema.query.jpa.JPASubQuery;
+import com.mysema.query.types.Predicate;
+import com.mysema.query.types.query.ListSubQuery;
 
 @Service
 public class OrganizationService {
@@ -44,5 +52,13 @@ public class OrganizationService {
 	public OrganizationModel findOne(Integer id) {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 		return mapper.mapToModel(organizationDao.findOne(id));
+	}
+	
+	public List<OrganizationModel> findNonDmdiiMembers() {
+		ListSubQuery<Integer> subQuery = new JPASubQuery().from(QDMDIIMember.dMDIIMember).list(QDMDIIMember.dMDIIMember.organization().id);
+		Predicate predicate = QOrganization.organization.id.notIn(subQuery);
+		
+		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
+		return mapper.mapToModel(organizationDao.findAll(predicate));
 	}
 }
