@@ -6,9 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dmc.services.data.entities.*;
-import org.dmc.services.dmdiitype.DMDIIType;
-
 public class Entities {
 	
 	public static final String PROJECT_TITLE = "ProjectTitle";

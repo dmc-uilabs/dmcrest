@@ -1,29 +1,92 @@
 package org.dmc.services.data.models;
 
+import org.dmc.services.users.UserMessages;
+import org.dmc.services.users.UserNotifications;
+import org.dmc.services.users.UserOnboarding;
+import org.dmc.services.users.UserRunningServices;
+
 import java.util.Map;
 
 public class UserModel extends BaseModel {
 
+//	private String username;
+//	private boolean
+//	private String firstName;
+//	private String lastName;
+//	private String email;
+//	private String address;
+//	private String phone;
+//	private Map<Integer, String> roles;
+//	private UserContactInfoModel userContactInfo;
+//	private boolean isDMDIIMember;
+//	private Integer organization;
+//	private String aboutMe;
+
+	private String displayName;
+	private int accountId;
+	private int profileId;
+	private int companyId;
+	private int role;
 	private String username;
 	private String realname;
 	private String title;
+	private boolean termsConditions;
 	private String firstName;
 	private String lastName;
 	private String email;
 	private String address;
 	private String phone;
 	private String image;
+	private UserNotifications notifications;
+	private UserRunningServices runningServices;
+	private UserMessages messages;
+	private UserOnboarding onboarding;
 	private Map<Integer, String> roles;
+	private Boolean isDMDIIMember;
 	private UserContactInfoModel userContactInfo;
-	private boolean isDMDIIMember;
 	private Integer organization;
 	private String aboutMe;
 	private String resume;
-	private boolean termsConditions;
-	private int accountId;
-	private int profileId;
-	private int companyId;
-	private int role;
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public int getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(int accountId) {
+		this.accountId = accountId;
+	}
+
+	public int getProfileId() {
+		return profileId;
+	}
+
+	public void setProfileId(int profileId) {
+		this.profileId = profileId;
+	}
+
+	public int getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(int companyId) {
+		this.companyId = companyId;
+	}
+
+	public int getRole() {
+		return role;
+	}
+
+	public void setRole(int role) {
+		this.role = role;
+	}
 
 	public String getUsername() {
 		return username;
@@ -47,6 +110,14 @@ public class UserModel extends BaseModel {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public boolean isTermsConditions() {
+		return termsConditions;
+	}
+
+	public void setTermsConditions(boolean termsConditions) {
+		this.termsConditions = termsConditions;
 	}
 
 	public String getFirstName() {
@@ -97,6 +168,38 @@ public class UserModel extends BaseModel {
 		this.image = image;
 	}
 
+	public UserNotifications getNotifications() {
+		return notifications;
+	}
+
+	public void setNotifications(UserNotifications notifications) {
+		this.notifications = notifications;
+	}
+
+	public UserRunningServices getRunningServices() {
+		return runningServices;
+	}
+
+	public void setRunningServices(UserRunningServices runningServices) {
+		this.runningServices = runningServices;
+	}
+
+	public UserMessages getMessages() {
+		return messages;
+	}
+
+	public void setMessages(UserMessages messages) {
+		this.messages = messages;
+	}
+
+	public UserOnboarding getOnboarding() {
+		return onboarding;
+	}
+
+	public void setOnboarding(UserOnboarding onboarding) {
+		this.onboarding = onboarding;
+	}
+
 	public Map<Integer, String> getRoles() {
 		return roles;
 	}
@@ -105,20 +208,20 @@ public class UserModel extends BaseModel {
 		this.roles = roles;
 	}
 
+	public Boolean getDMDIIMember() {
+		return isDMDIIMember;
+	}
+
+	public void setDMDIIMember(Boolean DMDIIMember) {
+		isDMDIIMember = DMDIIMember;
+	}
+
 	public UserContactInfoModel getUserContactInfo() {
 		return userContactInfo;
 	}
 
 	public void setUserContactInfo(UserContactInfoModel userContactInfo) {
 		this.userContactInfo = userContactInfo;
-	}
-
-	public boolean isDMDIIMember() {
-		return isDMDIIMember;
-	}
-
-	public void setDMDIIMember(boolean DMDIIMember) {
-		isDMDIIMember = DMDIIMember;
 	}
 
 	public Integer getOrganization() {
@@ -143,45 +246,5 @@ public class UserModel extends BaseModel {
 
 	public void setResume(String resume) {
 		this.resume = resume;
-	}
-
-	public boolean isTermsConditions() {
-		return termsConditions;
-	}
-
-	public void setTermsConditions(boolean termsConditions) {
-		this.termsConditions = termsConditions;
-	}
-
-	public int getAccountId() {
-		return accountId;
-	}
-
-	public void setAccountId(int accountId) {
-		this.accountId = accountId;
-	}
-
-	public int getProfileId() {
-		return profileId;
-	}
-
-	public void setProfileId(int profileId) {
-		this.profileId = profileId;
-	}
-
-	public int getCompanyId() {
-		return companyId;
-	}
-
-	public void setCompanyId(int companyId) {
-		this.companyId = companyId;
-	}
-
-	public int getRole() {
-		return role;
-	}
-
-	public void setRole(int role) {
-		this.role = role;
 	}
 }

@@ -54,6 +54,7 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		UserModel model = copyProperties(entity, new UserModel());
 		model.setDMDIIMember(entity.getRoles().stream().anyMatch(this::orgIsDMDIIMember));
 		model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
+		model.setTermsConditions(entity.getTermsAndCondition()!=null);
 
 		Map<Integer, String> roles = new HashMap<Integer, String>();
 		for (UserRoleAssignment assignment : entity.getRoles()) {

@@ -31,6 +31,10 @@ public class User extends BaseEntity {
 	@Column(name = "user_pw")
 	private String password;
 
+	@Column(name = "accept_term_cond_time")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date termsAndCondition;
+
 	@Column(name = "realname")
 	private String realname;
 
@@ -60,10 +64,6 @@ public class User extends BaseEntity {
 
 	@Column(name = "people_resume")
 	private String resume;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "accept_term_cond_time")
-	private Date termsConditions;
 
 	/**
 	 * Time record was inserted into database stored as millis?
@@ -104,6 +104,14 @@ public class User extends BaseEntity {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Date getTermsAndCondition() {
+		return termsAndCondition;
+	}
+
+	public void setTermsAndCondition(Date termsAndCondition) {
+		this.termsAndCondition = termsAndCondition;
 	}
 
 	public String getRealname() {
@@ -154,20 +162,20 @@ public class User extends BaseEntity {
 		this.address = address;
 	}
 
-	public String getImage() {
-		return image;
-	}
-
-	public void setImage(String image) {
-		this.image = image;
-	}
-
 	public String getPhone() {
 		return phone;
 	}
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
 	}
 
 	public String getAboutMe() {
@@ -184,6 +192,14 @@ public class User extends BaseEntity {
 
 	public void setResume(String resume) {
 		this.resume = resume;
+	}
+
+	public Integer getAddDate() {
+		return addDate;
+	}
+
+	public void setAddDate(Integer addDate) {
+		this.addDate = addDate;
 	}
 
 	public List<UserRoleAssignment> getRoles() {
@@ -208,22 +224,6 @@ public class User extends BaseEntity {
 
 	public void setOrganizationUser(OrganizationUser organizationUser) {
 		this.organizationUser = organizationUser;
-	}
-
-	public Date getTermsConditions() {
-		return termsConditions;
-	}
-
-	public void setTermsConditions(Date termsConditions) {
-		this.termsConditions = termsConditions;
-	}
-
-	public Integer getAddDate() {
-		return addDate;
-	}
-
-	public void setAddDate(Integer addDate) {
-		this.addDate = addDate;
 	}
 
 	@Override
