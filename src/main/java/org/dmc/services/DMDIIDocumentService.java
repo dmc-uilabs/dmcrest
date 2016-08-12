@@ -184,7 +184,7 @@ public class DMDIIDocumentService {
 		for (DMDIIDocument doc : docs) {
 			if(AWS.isTimeStampExpired(doc.getExpires())) {
 				//Refresh URL
-				String newURL = AWS.refreshURL(doc.getPath());
+				String newURL = AWS.refreshURL(doc.getDocumentUrl());
 				
 				//create a timestamp
 				Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime());
