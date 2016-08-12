@@ -207,7 +207,7 @@ public class DMDIIProjectService {
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 
 		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
-		DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization()));
+		DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
 		projectEntity.setPrimeOrganization(memberEntity);
 
 		projectEntity = dmdiiProjectRepository.save(projectEntity);

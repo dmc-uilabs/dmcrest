@@ -35,7 +35,7 @@ public class Models {
 		contributingCompanyIds.add(dmdiiMemberModel().getId());
 
 		dmdiiProjectModel.setId(2000);
-		dmdiiProjectModel.setPrimeOrganization(dmdiiMemberModel().getId());
+		dmdiiProjectModel.setPrimeOrganization(new DMDIIPrimeOrganizationModel(dmdiiMemberModel().getId(), dmdiiMemberModel().getOrganization().getName()));
 		dmdiiProjectModel.setPrincipalInvestigator(user());
 		dmdiiProjectModel.setProjectStatus(projectStatus());
 		dmdiiProjectModel.setAwardedDate(format.parse("2016/07/01"));

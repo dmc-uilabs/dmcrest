@@ -6,7 +6,7 @@ import java.util.List;
 
 public class DMDIIProjectModel extends BaseModel {
 
-	private Integer primeOrganization;
+	private DMDIIPrimeOrganizationModel primeOrganization;
 
 	private UserModel principalInvestigator;
 
@@ -39,11 +39,11 @@ public class DMDIIProjectModel extends BaseModel {
 	private BigDecimal dmdiiFunding;
 
 
-	public Integer getPrimeOrganization() {
+	public DMDIIPrimeOrganizationModel getPrimeOrganization() {
 		return primeOrganization;
 	}
 
-	public void setPrimeOrganization(Integer primeOrganization) {
+	public void setPrimeOrganization(DMDIIPrimeOrganizationModel primeOrganization) {
 		this.primeOrganization = primeOrganization;
 	}
 

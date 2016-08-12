@@ -12,6 +12,7 @@ import org.dmc.services.data.entities.DMDIIProjectStatus;
 import org.dmc.services.data.entities.DMDIIProjectThrust;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DMDIIMemberModel;
+import org.dmc.services.data.models.DMDIIPrimeOrganizationModel;
 import org.dmc.services.data.models.DMDIIProjectFocusAreaModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.DMDIIProjectStatusModel;
@@ -43,7 +44,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 				.stream()
 				.map(e -> dmdiiMemberService.findOne(e))
 				.collect(Collectors.toList());
-		entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization())));
+		entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
 		entity.setPrincipalInvestigator(userMapper.mapToEntity(model.getPrincipalInvestigator()));
 		entity.setPrincipalPointOfContact(userMapper.mapToEntity(model.getPrincipalPointOfContact()));
 		entity.setProjectStatus(statusMapper.mapToEntity(model.getProjectStatus()));
@@ -70,7 +71,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 				.stream()
 				.map(e -> e.getId())
 				.collect(Collectors.toList());
-		model.setPrimeOrganization(entity.getPrimeOrganization().getId());
+		model.setPrimeOrganization(new DMDIIPrimeOrganizationModel(entity.getPrimeOrganization().getId(), entity.getPrimeOrganization().getOrganization().getName()));
 		model.setPrincipalInvestigator(userMapper.mapToModel(entity.getPrincipalInvestigator()));
 		model.setPrincipalPointOfContact(userMapper.mapToModel(entity.getPrincipalPointOfContact()));
 		model.setProjectStatus(statusMapper.mapToModel(entity.getProjectStatus()));
