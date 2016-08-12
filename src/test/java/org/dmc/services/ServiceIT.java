@@ -259,7 +259,7 @@ public class ServiceIT extends BaseIT {
 	//TODO: this test needs to create a project, upload a service, then patch that service (update description, for instance), then 
 	//call the services_history endpoint. 
 	//Need to correctly create a project from REST services, then upload and patch service should be straightforward
-	@Ignore
+	
 	@Test
 	public void testService_GetHistory(){
 		

@@ -252,12 +252,10 @@ public class ProjectMemberDao {
 	public ProjectMember acceptMemberInProject(String requestID, String userEPPN) throws DMCServiceException {
 		try {
 			
-			String[] parts = requestID.split("-");
-			if (parts.length != 3)
-				throw new DMCServiceException(DMCError.BadURL, "Invalid request ID");
-			int requesterId = Integer.parseInt(parts[2]);
-			int memberId = Integer.parseInt(parts[1]);
-			int projectId = Integer.parseInt(parts[0]);
+			RequestIDParser.interpret(requestID);
+			int projectId = RequestIDParser.getProjectId();
+			int requesterId = RequestIDParser.getRequesterId();
+			int memberId = RequestIDParser.getMemberId();
 			int userLookup = UserDao.getUserID(userEPPN);
 			
 			if (requesterId != userLookup)
@@ -432,14 +430,13 @@ public class ProjectMemberDao {
 	public ProjectMember rejectMemberInProject(String requestId, String userEPPN) throws DMCServiceException {
 
 		try {
-			String[] parts = requestId.split("-");
-			if (parts.length != 3)
-				throw new DMCServiceException(DMCError.BadURL, "Invalid request ID");
-			int requesterId = Integer.parseInt(parts[2]);
-			int memberId = Integer.parseInt(parts[1]);
-			int projectId = Integer.parseInt(parts[0]);
+			RequestIDParser.interpret(requestId);
+			int projectId = RequestIDParser.getProjectId();
+			int requesterId = RequestIDParser.getRequesterId();
+			int memberId = RequestIDParser.getMemberId();
+			int userLookup = UserDao.getUserID(userEPPN);
 			
-			if (requesterId != UserDao.getUserID(userEPPN))
+			if (requesterId != userLookup)
 				throw new DMCServiceException(DMCError.UnknownUser, "Not the correct user");
 
 			boolean ok = IsRequesterAdmin(projectId, requesterId);
