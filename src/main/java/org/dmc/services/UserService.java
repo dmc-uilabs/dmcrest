@@ -1,10 +1,5 @@
 package org.dmc.services;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserToken;
@@ -17,6 +12,10 @@ import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.users.VerifyUserResponse;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -63,7 +62,7 @@ public class UserService {
 		String hashedToken = DigestUtils.sha256Hex(unhashedToken);
 
 		// If null, create a new token, else update existing
-		if(token == null) {
+		if (token == null) {
 			token = new UserToken();
 			token.setUserId(userId);
 			token.setDateIssued(todayTimestamp);
@@ -85,24 +84,21 @@ public class UserService {
 		VerifyUserResponse response = new VerifyUserResponse();
 		UserToken tokenEntity = userTokenRepository.findByUserId(userId);
 
-		if(tokenEntity == null) {
+		if (tokenEntity == null) {
 			response.setResponseCode(1000);
 			response.setResponseDescription("No tokens found for user.");
 			return response;
 		}
 
-		if(tokenEntity.getAttemptsMade() >= 5) {
+		if (tokenEntity.getAttemptsMade() >= 5) {
 			response = tooManyAttempts(tokenEntity);
 		} else {
-			response = ( tokenEntity.getToken().equals(token) ) ? correctToken(userId, tokenEntity) : incorrectToken(tokenEntity);
+			response = (tokenEntity.getToken().equals(token)) ?
+					correctToken(userId, tokenEntity) :
+					incorrectToken(tokenEntity);
 		}
 
 		return response;
-	}
-
-	public List<UserModel> findAllWhereDmdiiMemberExpiryDateIsAfterNow() {
-		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		return mapper.mapToModel(userRepository.findAllWhereDmdiiMemberExpiryDateIsAfterNow());
 	}
 
 	@Transactional
@@ -121,9 +117,15 @@ public class UserService {
 		return response;
 	}
 
+	public List<UserModel> findAllWhereDmdiiMemberExpiryDateIsAfterNow() {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		return mapper.mapToModel(userRepository.findAllWhereDmdiiMemberExpiryDateIsAfterNow());
+	}
+
 	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {
 		userTokenRepository.delete(tokenEntity.getId());
-		return new VerifyUserResponse(1000, "Too many unsuccessful attempts made to validate, please contact your administrator.");
+		return new VerifyUserResponse(1000,
+				"Too many unsuccessful attempts made to validate, please contact your administrator.");
 	}
 
 	private VerifyUserResponse correctToken(Integer userId, UserToken tokenEntity) {
@@ -136,10 +138,9 @@ public class UserService {
 		// if this user is the only verified user of this organization, they're defaulted to company admin, else defaulted to member
 		Integer numberOfUsersVerified = orgUserService.getNumberOfVerifiedUsers(orgUserModel.getOrganizationId());
 
-		if(numberOfUsersVerified == 1) {
+		if (numberOfUsersVerified == 1) {
 			userRoleService.setUserAsCompanyAdmin(userId, orgUserModel.getOrganizationId());
-		}
-		else if (numberOfUsersVerified > 1) {
+		} else if (numberOfUsersVerified > 1) {
 			userRoleService.setUserAsCompanyMember(userId, orgUserModel.getOrganizationId());
 		}
 
@@ -149,7 +150,7 @@ public class UserService {
 	private VerifyUserResponse incorrectToken(UserToken tokenEntity) {
 		tokenEntity.setAttemptsMade(tokenEntity.getAttemptsMade() + 1);
 		userTokenRepository.save(tokenEntity);
-		return new VerifyUserResponse(1000, "Tokens did not match, " + (5 - tokenEntity.getAttemptsMade()) + " attempts remaining.");
+		return new VerifyUserResponse(1000,
+				"Tokens did not match, " + (5 - tokenEntity.getAttemptsMade()) + " attempts remaining.");
 	}
-
 }
