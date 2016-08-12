@@ -23,14 +23,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjectModel> {
-	
+
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
 
 	@Override
 	public DMDIIProject mapToEntity(DMDIIProjectModel model) {
 		if (model == null) return null;
-		
+
 		DMDIIProject entity = copyProperties(model, new DMDIIProject());
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
@@ -43,7 +43,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 				.stream()
 				.map(e -> dmdiiMemberService.findOne(e))
 				.collect(Collectors.toList());
-		entity.setPrimeOrganization(memberMapper.mapToEntity(model.getPrimeOrganization()));
+		entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization())));
 		entity.setPrincipalInvestigator(userMapper.mapToEntity(model.getPrincipalInvestigator()));
 		entity.setPrincipalPointOfContact(userMapper.mapToEntity(model.getPrincipalPointOfContact()));
 		entity.setProjectStatus(statusMapper.mapToEntity(model.getProjectStatus()));
@@ -57,7 +57,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 	@Override
 	public DMDIIProjectModel mapToModel(DMDIIProject entity) {
 		if (entity == null) return null;
-		
+
 		DMDIIProjectModel model = copyProperties(entity, new DMDIIProjectModel());
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
@@ -70,7 +70,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 				.stream()
 				.map(e -> e.getId())
 				.collect(Collectors.toList());
-		model.setPrimeOrganization(memberMapper.mapToModel(entity.getPrimeOrganization()));
+		model.setPrimeOrganization(entity.getPrimeOrganization().getId());
 		model.setPrincipalInvestigator(userMapper.mapToModel(entity.getPrincipalInvestigator()));
 		model.setPrincipalPointOfContact(userMapper.mapToModel(entity.getPrincipalPointOfContact()));
 		model.setProjectStatus(statusMapper.mapToModel(entity.getProjectStatus()));

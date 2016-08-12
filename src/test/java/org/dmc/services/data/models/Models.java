@@ -6,10 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dmc.services.data.models.*;
-
 public class Models {
-	
+
 	public static final String PROJECT_TITLE = "ProjectTitle";
 	public static final String PROJECT_SUMMARY = "ProjectSummary";
 	public static final String THRUST_CODE = "ThrustCode";
@@ -29,15 +27,15 @@ public class Models {
 	public static final String PROJECT_EVENT_DESCRIPTION = "Project Event Description";
 
 	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-	
+
 	public static DMDIIProjectModel dmdiiProjectModel() throws Exception {
 		DMDIIProjectModel dmdiiProjectModel = new DMDIIProjectModel();
-		
+
 		List<Integer> contributingCompanyIds = new ArrayList<Integer>();
 		contributingCompanyIds.add(dmdiiMemberModel().getId());
-		
+
 		dmdiiProjectModel.setId(2000);
-		dmdiiProjectModel.setPrimeOrganization(dmdiiMemberModel());
+		dmdiiProjectModel.setPrimeOrganization(dmdiiMemberModel().getId());
 		dmdiiProjectModel.setPrincipalInvestigator(user());
 		dmdiiProjectModel.setProjectStatus(projectStatus());
 		dmdiiProjectModel.setAwardedDate(format.parse("2016/07/01"));
@@ -53,7 +51,7 @@ public class Models {
 		dmdiiProjectModel.setProjectNumber(01);
 		dmdiiProjectModel.setCostShare(new BigDecimal("50000"));
 		dmdiiProjectModel.setDmdiiFunding(new BigDecimal("5000"));
-		
+
 		return dmdiiProjectModel;
 	}
 
@@ -62,25 +60,25 @@ public class Models {
 
 		dmdiiProjectThrustModel.setId(2000);
 		dmdiiProjectThrustModel.setCode(THRUST_CODE);
-		
+
 		return dmdiiProjectThrustModel;
 	}
 
 	private static DMDIIProjectFocusAreaModel projectFocusArea() {
 		DMDIIProjectFocusAreaModel dmdiiProjectFocusAreaModel = new DMDIIProjectFocusAreaModel();
-		
+
 		dmdiiProjectFocusAreaModel.setId(2000);
 		dmdiiProjectFocusAreaModel.setName(FOCUS_AREA_NAME);
-		
+
 		return dmdiiProjectFocusAreaModel;
 	}
 
 	private static DMDIIProjectStatusModel projectStatus() {
 		DMDIIProjectStatusModel dmdiiProjectStatusModel = new DMDIIProjectStatusModel();
-		
+
 		dmdiiProjectStatusModel.setId(2000);
 		dmdiiProjectStatusModel.setName(STATUS_NAME);
-		
+
 		return dmdiiProjectStatusModel;
 	}
 

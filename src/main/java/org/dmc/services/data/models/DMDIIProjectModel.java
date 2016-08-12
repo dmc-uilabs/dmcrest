@@ -5,45 +5,45 @@ import java.util.Date;
 import java.util.List;
 
 public class DMDIIProjectModel extends BaseModel {
-	
-	private DMDIIMemberModel primeOrganization;
-	
-	private UserModel principalInvestigator;
-	
-	private DMDIIProjectStatusModel projectStatus;
-	
-	private Date awardedDate;
-	
-	private Date endDate;
-	
-	private String projectTitle;
-	
-	private String projectSummary;
-	
-	private UserModel principalPointOfContact;
-	
-	private DMDIIProjectFocusAreaModel projectFocusArea;
-	
-	private DMDIIProjectThrustModel projectThrust;
-	
-	private List<Integer> contributingCompanyIds;
-	
-	private Integer rootNumber;
-	
-	private Integer callNumber;
-	
-	private Integer projectNumber;
-	
-	private BigDecimal costShare;
-	
-	private BigDecimal dmdiiFunding;
-	
 
-	public DMDIIMemberModel getPrimeOrganization() {
+	private Integer primeOrganization;
+
+	private UserModel principalInvestigator;
+
+	private DMDIIProjectStatusModel projectStatus;
+
+	private Date awardedDate;
+
+	private Date endDate;
+
+	private String projectTitle;
+
+	private String projectSummary;
+
+	private UserModel principalPointOfContact;
+
+	private DMDIIProjectFocusAreaModel projectFocusArea;
+
+	private DMDIIProjectThrustModel projectThrust;
+
+	private List<Integer> contributingCompanyIds;
+
+	private Integer rootNumber;
+
+	private Integer callNumber;
+
+	private Integer projectNumber;
+
+	private BigDecimal costShare;
+
+	private BigDecimal dmdiiFunding;
+
+
+	public Integer getPrimeOrganization() {
 		return primeOrganization;
 	}
 
-	public void setPrimeOrganization(DMDIIMemberModel primeOrganization) {
+	public void setPrimeOrganization(Integer primeOrganization) {
 		this.primeOrganization = primeOrganization;
 	}
 
@@ -150,7 +150,7 @@ public class DMDIIProjectModel extends BaseModel {
 	public void setProjectNumber(Integer projectNumber) {
 		this.projectNumber = projectNumber;
 	}
-	
+
 	public String getProjectIdentifier() {
 		return rootNumber + "-" + callNumber + "-" + projectNumber;
 	}
