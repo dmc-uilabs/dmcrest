@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.Company;
+import org.dmc.services.profile.Profile;
 import org.dmc.services.services.Service;
 import org.dmc.services.users.User;
 import org.junit.Assert;
@@ -251,60 +252,132 @@ public class SearchIT {
 //        Assert.assertTrue("Company: " + company.getName() + " does not match: " + queryString, company.getName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
     }
 
+//    @Test
+//    public void testSearchUsers () {
+//
+//        String queryString = "berlier";
+//
+//        SearchController searchController = new SearchController();
+//        List<User> users = null;
+//        try {
+//            users = searchController.searchUsers(queryString, USER_TEST_USER);
+//        } catch (SearchException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+//        String jsonString = null;
+//        try {
+//            jsonString = objectMapper.writeValueAsString(users);
+//            ServiceLogger.log(logTag, jsonString);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Assert.assertTrue(users != null);
+//        Assert.assertTrue(users.size() > 0);
+//
+//        User user  = users.get(0);
+//        Assert.assertTrue(user != null);
+//        Assert.assertTrue(user.getDisplayName() != null);
+//        Assert.assertTrue("User: " + user.getDisplayName() + " does not match: " + queryString, user.getDisplayName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
+//    }
+
+//    @Test
+//    public void testSearchUsersCompany () {
+//
+//        String queryString = "Joe";
+//
+//        SearchController searchController = new SearchController();
+//        List<User> users = null;
+//        try {
+//            users = searchController.searchUsers(queryString, USER_TEST_USER);
+//        } catch (SearchException e) {
+//            e.printStackTrace();
+//        }
+//
+//        ServiceLogger.log(logTag, "testSearchUsersCompany: searchUsers returns: " + ((users != null) ? users.size() : 0));
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+//        String jsonString = null;
+//        try {
+//            jsonString = objectMapper.writeValueAsString(users);
+//            ServiceLogger.log(logTag, "testSearchUsersCompany: " + jsonString);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Assert.assertTrue(users != null);
+//        Assert.assertTrue(users.size() > 0);
+//
+//        int expectedCompanyId = 15;
+//
+//        User user  = users.get(0);
+//        Assert.assertTrue(user != null);
+//        Assert.assertTrue(user.getDisplayName() != null);
+//        ServiceLogger.log(logTag, "testSearchUsersCompany: user.getDisplayName=" + user.getDisplayName());
+//        ServiceLogger.log(logTag, "testSearchUsersCompany: user.getCompanyId=" + user.getCompanyId());
+//        Assert.assertTrue("User: " + user.getDisplayName() + " does not match: " + queryString, user.getDisplayName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
+//        Assert.assertTrue("User: " + user.getDisplayName() + " companyId does not match: " + expectedCompanyId , user.getCompanyId() == expectedCompanyId);
+//    }
+
+//    @Test
+//    public void testSearchUsers () {
+//
+//        String queryString = "berlier";
+//
+//        SearchController searchController = new SearchController();
+//        List<User> users = null;
+//        try {
+//            users = searchController.searchUsers(queryString, USER_TEST_USER);
+//        } catch (SearchException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+//        String jsonString = null;
+//        try {
+//            jsonString = objectMapper.writeValueAsString(users);
+//            ServiceLogger.log(logTag, jsonString);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Assert.assertTrue(users != null);
+//        Assert.assertTrue(users.size() > 0);
+//
+//        User user  = users.get(0);
+//        Assert.assertTrue(user != null);
+//        Assert.assertTrue(user.getDisplayName() != null);
+//        Assert.assertTrue("User: " + user.getDisplayName() + " does not match: " + queryString, user.getDisplayName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
+//    }
+
     @Test
-    public void testSearchUsers () {
-
-        String queryString = "berlier";
-
-        SearchController searchController = new SearchController();
-        List<User> users = null;
-        try {
-            users = searchController.searchUsers(queryString, USER_TEST_USER);
-        } catch (SearchException e) {
-            e.printStackTrace();
-        }
-
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        String jsonString = null;
-        try {
-            jsonString = objectMapper.writeValueAsString(users);
-            ServiceLogger.log(logTag, jsonString);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        Assert.assertTrue(users != null);
-        Assert.assertTrue(users.size() > 0);
-
-        User user  = users.get(0);
-        Assert.assertTrue(user != null);
-        Assert.assertTrue(user.getDisplayName() != null);
-        Assert.assertTrue("User: " + user.getDisplayName() + " does not match: " + queryString, user.getDisplayName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
-    }
-
-    @Test
-    public void testSearchUsersCompany () {
+    public void testSearchMembersCompany () {
 
         String queryString = "Joe";
 
         SearchController searchController = new SearchController();
-        List<User> users = null;
+        List<Profile> users = null;
         try {
-            users = searchController.searchUsers(queryString, USER_TEST_USER);
+            users = searchController.searchMembers(queryString, USER_TEST_USER);
         } catch (SearchException e) {
             e.printStackTrace();
         }
 
-        ServiceLogger.log(logTag, "testSearchUsersCompany: searchUsers returns: " + ((users != null) ? users.size() : 0));
+        ServiceLogger.log(logTag, "testSearchMembersCompany: searchMembers returns: " + ((users != null) ? users.size() : 0));
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         String jsonString = null;
         try {
             jsonString = objectMapper.writeValueAsString(users);
-            ServiceLogger.log(logTag, "testSearchUsersCompany: " + jsonString);
+            ServiceLogger.log(logTag, "testSearchMembersCompany: " + jsonString);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -312,15 +385,17 @@ public class SearchIT {
         Assert.assertTrue(users != null);
         Assert.assertTrue(users.size() > 0);
 
-        int expectedCompanyId = 15;
+        //int expectedCompanyId = 15;
+        String expectedCompany = "GE Global Research";
 
-        User user  = users.get(0);
+
+        Profile user  = users.get(0);
         Assert.assertTrue(user != null);
         Assert.assertTrue(user.getDisplayName() != null);
         ServiceLogger.log(logTag, "testSearchUsersCompany: user.getDisplayName=" + user.getDisplayName());
-        ServiceLogger.log(logTag, "testSearchUsersCompany: user.getCompanyId=" + user.getCompanyId());
+        ServiceLogger.log(logTag, "testSearchUsersCompany: user.getCompany=" + user.getCompany());
         Assert.assertTrue("User: " + user.getDisplayName() + " does not match: " + queryString, user.getDisplayName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
-        Assert.assertTrue("User: " + user.getDisplayName() + " companyId does not match: " + expectedCompanyId , user.getCompanyId() == expectedCompanyId);
+        Assert.assertTrue("User: " + user.getCompany() + " company does not match: " + expectedCompany , user.getCompany().equals(expectedCompany));
     }
 
 }

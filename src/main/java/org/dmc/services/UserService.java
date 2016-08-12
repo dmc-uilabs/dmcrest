@@ -98,12 +98,27 @@ public class UserService {
 		}
 
 		return response;
-
 	}
 
 	public List<UserModel> findAllWhereDmdiiMemberExpiryDateIsAfterNow() {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findAllWhereDmdiiMemberExpiryDateIsAfterNow());
+	}
+
+	@Transactional
+	public VerifyUserResponse unverifyUser(Integer userId) {
+		VerifyUserResponse response = new VerifyUserResponse();
+
+		OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
+		orgUserModel.setIsVerified(false);
+		orgUserService.saveOrganizationUser(orgUserModel);
+
+		userRoleService.deleteByUserId(userId);
+
+		response.setResponseCode(0);
+		response.setResponseDescription("Successfully unverified user.");
+
+		return response;
 	}
 
 	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {

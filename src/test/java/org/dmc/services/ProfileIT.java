@@ -144,7 +144,7 @@ public class ProfileIT extends BaseIT {
         final Profile json = createFixture("update");
         if (this.createdId > 0) {
             final Integer retrievedId = given().header("Content-type", APPLICATION_JSON_VALUE)
-                    .header("AJP_eppn", knownEPPN).body(json.toString()).expect().statusCode(OK.value()).when()
+                    .header("AJP_eppn", knownEPPN).body(json).expect().statusCode(OK.value()).when()
                     .patch(PROFILE_UPDATE_RESOURCE, this.createdId.toString()).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 
@@ -164,7 +164,7 @@ public class ProfileIT extends BaseIT {
         json.setSkills(new ArrayList<String>());
         if (this.createdId > 0) {
             final Integer retrivedId = given().header("Content-type", APPLICATION_JSON_VALUE)
-                    .header("AJP_eppn", knownEPPN).body(json.toString()).expect().statusCode(OK.value()).when()
+                    .header("AJP_eppn", knownEPPN).body(json).expect().statusCode(OK.value()).when()
                     .patch(PROFILE_UPDATE_RESOURCE, this.createdId.toString()).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 
