@@ -28,6 +28,7 @@ import org.dmc.services.data.repositories.DMDIIProjectRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.dmdiimember.DMDIIMemberDao;
 import org.dmc.services.dmdiimember.DMDIIMemberService;
+import org.dmc.services.dmdiimember.DMDIIMemberService.DuplicateDMDIIMemberException;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.junit.Before;
 import org.junit.Test;
@@ -281,7 +282,7 @@ public class DMDIIProjectServiceTest {
     }
     
     @Test
-    public void testSave() {
+    public void testSave() throws DuplicateDMDIIMemberException {
     	when(this.mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class))
     		.thenReturn(testDMDIIProjectMapper);
     	when(this.mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class))
