@@ -244,6 +244,7 @@ public class ServiceIT extends BaseIT {
 	/**
 	 * test case for get /services/{serviceID}/service_documents
 	 */
+	@Ignore
 	@Test
 	public void testServiceGet_ServiceHistory(){
 		List<ServiceHistory> history = given().
