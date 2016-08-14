@@ -28,7 +28,6 @@ public class UserResponseHandler implements ResponseHandler<UserModel> {
 	public static final String FIELD_COMPANY_ID = "company_id";
 	public static final String FIELD_COMPANY = "company";
 
-	@Override
 	public List<UserModel> retrieve(QueryResponse queryResponse, String userEPPN) {
 
 		List<UserModel> users = new ArrayList<UserModel>();
