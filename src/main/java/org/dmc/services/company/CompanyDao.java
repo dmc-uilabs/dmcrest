@@ -1,26 +1,25 @@
 package org.dmc.services.company;
 
+import org.dmc.services.DBConnector;
+import org.dmc.services.Id;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.users.User;
+import org.json.JSONException;
+import org.springframework.http.HttpStatus;
+
+import javax.xml.ws.http.HTTPException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-
-import org.dmc.services.DBConnector;
-import org.dmc.services.Id;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.sharedattributes.FeatureImage;
-import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.users.User;
-import org.dmc.services.data.dao.user.UserDao;
-import org.json.JSONException;
-import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import javax.xml.ws.http.HTTPException;
 
 import static org.dmc.services.company.CompanyUserUtil.isMemberOfCompany;
 
@@ -878,9 +877,7 @@ public class CompanyDao {
 					if(termsAndConditionsTimeStamp != null) {
 						termsAndConditions = true;
 					}
-					// public UserBuilder (int id, String userName, String realName, int companyId)
-					User user = new User.UserBuilder(userId, userName, displayName, companyId).build();
-					user.setTermsConditions(termsAndConditions);
+					User user = new User(userId, userName, displayName, termsAndConditions, companyId);
 					members.add(user);
 				}
 			}

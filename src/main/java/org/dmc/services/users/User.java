@@ -1,16 +1,16 @@
 package org.dmc.services.users;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.company.CompanyDao;
+import org.dmc.services.data.dao.user.UserOnboardingDao;
+
 import java.util.Map;
+import java.util.Objects;
+
 /**
  * Created by 200005921 on 2/8/2016.
  */
-import java.util.Objects;
-
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.CompanyDao;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.dmc.services.data.dao.user.UserOnboardingDao;
 
 // This class' name should be changed to UserDetails to match yaml
 public class User {
@@ -71,19 +71,19 @@ public class User {
 		this(id, userName, realName, termsConditions);
         this.companyId = companyId;
     }
-	
-    public User (UserBuilder userBuilder) {
-        this.displayName = userBuilder.realName;
-        this.accountId = userBuilder.id;
-        this.profileId = -1;
-        this.companyId = userBuilder.companyId;
-        this.role = -1;
-        this.termsConditions = false;
-        this.notifications = new UserNotifications();
-        this.runningServices = new UserRunningServices();
-        this.messages = new UserMessages();
-        this.onboarding = UserOnboardingDao.getUserOnboarding(userBuilder.id);
-    }
+
+	//    public User (UserBuilder userBuilder) {
+	//        this.displayName = userBuilder.realName;
+	//        this.accountId = userBuilder.id;
+	//        this.profileId = -1;
+	//        this.companyId = userBuilder.companyId;
+	//        this.role = -1;
+	//        this.termsConditions = false;
+	//        this.notifications = new UserNotifications();
+	//        this.runningServices = new UserRunningServices();
+	//        this.messages = new UserMessages();
+	//        this.onboarding = UserOnboardingDao.getUserOnboarding(userBuilder.id);
+	//    }
 
     
     /**
@@ -240,51 +240,50 @@ public class User {
         return sb.toString();
     }
 
-
-    public static class UserBuilder {
-
-        private int id;
-        private String userName;
-        private String realName;
-        private int companyId;
-
-        public UserBuilder (int id) {
-            this.id = id;
-        }
-
-        public UserBuilder (int id, String userName) {
-            this.id = id;
-            this.userName = userName;
-        }
-
-        public UserBuilder (int id, String userName, String realName) {
-            this.id = id;
-            this.realName = realName;
-            this.userName = userName;
-        }
-
-        public UserBuilder (int id, String userName, String realName, int companyId) {
-            this.id = id;
-            this.realName = realName;
-            this.userName = userName;
-            this.companyId = companyId;
-        }
-
-        public void userName (String userName) {
-            this.userName = userName;
-        }
-
-        public void realName (String realName) {
-            this.realName = realName;
-        }
-
-        public User build() {
-            return new User(this);
-        }
-
-        public void companyId (int companyId) { this.companyId = companyId; }
-
-    }
+	//    public static class UserBuilder {
+	//
+	//        private int id;
+	//        private String userName;
+	//        private String realName;
+	//        private int companyId;
+	//
+	//        public UserBuilder (int id) {
+	//            this.id = id;
+	//        }
+	//
+	//        public UserBuilder (int id, String userName) {
+	//            this.id = id;
+	//            this.userName = userName;
+	//        }
+	//
+	//        public UserBuilder (int id, String userName, String realName) {
+	//            this.id = id;
+	//            this.realName = realName;
+	//            this.userName = userName;
+	//        }
+	//
+	//        public UserBuilder (int id, String userName, String realName, int companyId) {
+	//            this.id = id;
+	//            this.realName = realName;
+	//            this.userName = userName;
+	//            this.companyId = companyId;
+	//        }
+	//
+	//        public void userName (String userName) {
+	//            this.userName = userName;
+	//        }
+	//
+	//        public void realName (String realName) {
+	//            this.realName = realName;
+	//        }
+	//
+	//        public User build() {
+	//            return new User(this);
+	//        }
+	//
+	//        public void companyId (int companyId) { this.companyId = companyId; }
+	//
+	//    }
 
 	public Map<Integer, String> getRoles() {
 		return roles;
