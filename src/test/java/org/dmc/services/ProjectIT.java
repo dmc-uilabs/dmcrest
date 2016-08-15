@@ -3,11 +3,7 @@ package org.dmc.services;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
@@ -78,9 +74,9 @@ public class ProjectIT extends BaseIT {
     
     @Before
     public void before() {
-    	if (knownEPPN == null) {
-    		knownEPPN = TestUserUtil.createNewUser();
-    	}
+        if (knownEPPN == null) {
+            knownEPPN = TestUserUtil.createNewUser();
+        }
     }
 
     @Test
@@ -209,7 +205,7 @@ public class ProjectIT extends BaseIT {
         if (this.createdId != null) {
             Integer discussionId = createDiscussion(this.createdId);
             if (discussionId != null) {
-                JsonNode discussions = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
+                JsonNode discussions = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN)
                         .expect().statusCode(200).when().get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
                         .as(JsonNode.class);
 
@@ -234,27 +230,27 @@ public class ProjectIT extends BaseIT {
     
 
     private Integer createDiscussion(Integer projectId) {
-    	String projId = (projectId != null) ? projectId.toString() : "123";
-		JSONObject json = new JSONObject();
-		json.put("title", "test discussion title");
-		json.put("message", "test discussion message");
-		json.put("createdBy", "test-disc-created-by");
-		json.put("createdAt", 1232000);
-		json.put("accountId", "123");
-		json.put("projectId", projId);
-		
-		return given()
-				.header("Content-type", "application/json")
-				.header("AJP_eppn", knownEPPN)
-				.body(json.toString())
-				.expect()
-				.statusCode(200)
-				.when()
-				.post("/discussions/create")
-				.then()
-				.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-				.extract()
-				.path("id");
+        String projId = (projectId != null) ? projectId.toString() : "123";
+        JSONObject json = new JSONObject();
+        json.put("title", "test discussion title");
+        json.put("message", "test discussion message");
+        json.put("createdBy", "test-disc-created-by");
+        json.put("createdAt", 1232000);
+        json.put("accountId", "123");
+        json.put("projectId", projId);
+        
+        return given()
+                .header("Content-type", APPLICATION_JSON_VALUE)
+                .header("AJP_eppn", knownEPPN)
+                .body(json.toString())
+                .expect()
+                .statusCode(200)
+                .when()
+                .post("/discussions/create")
+                .then()
+                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
+                .extract()
+                .path("id");
     }
 
 
@@ -593,10 +589,10 @@ public class ProjectIT extends BaseIT {
         
         Integer adminId = null;
         try {
-			adminId = UserDao.getUserID(adminUser);
-		} catch (SQLException e) {
-			fail("caught SQL exception looking up fforgeadmin");
-		}
+            adminId = UserDao.getUserID(adminUser);
+        } catch (SQLException e) {
+            fail("caught SQL exception looking up fforgeadmin");
+        }
 
         this.testProjectCreateJsonString();
         
@@ -611,14 +607,14 @@ public class ProjectIT extends BaseIT {
         newRequestedMember.setDate(System.currentTimeMillis());
         
         if (this.createdId != null) {
-        	ProjectMember reply = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).body(newRequestedMember)
-        			.expect().statusCode(HttpStatus.OK.value())
-        		.when().post(MEMBER_INVITE_RESOURCE).as(ProjectMember.class);
-        	
-        	assertTrue("admin id not equal", adminId.intValue() == Integer.parseInt(reply.getFromProfileId()));
-        	assertTrue("invitee not equal", reply.getProfileId().equals(id.toString()));
-        	assertTrue("not correct project", this.createdId.toString().equals(reply.getProjectId()));
-        	
+            ProjectMember reply = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).body(newRequestedMember)
+                    .expect().statusCode(HttpStatus.OK.value())
+                .when().post(MEMBER_INVITE_RESOURCE).as(ProjectMember.class);
+            
+            assertTrue("admin id not equal", adminId.intValue() == Integer.parseInt(reply.getFromProfileId()));
+            assertTrue("invitee not equal", reply.getProfileId().equals(id.toString()));
+            assertTrue("not correct project", this.createdId.toString().equals(reply.getProjectId()));
+            
             given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).expect().statusCode(OK.value())
                     .when().patch(MEMBER_ACCEPT_RESOURCE, requestId)
                     .asString();
@@ -638,10 +634,10 @@ public class ProjectIT extends BaseIT {
         
         Integer adminId = null;
         try {
-			adminId = UserDao.getUserID(adminUser);
-		} catch (SQLException e) {
-			fail("caught SQL exception looking up fforgeadmin");
-		}
+            adminId = UserDao.getUserID(adminUser);
+        } catch (SQLException e) {
+            fail("caught SQL exception looking up fforgeadmin");
+        }
         
         this.testProjectCreateJsonString();     
         
@@ -669,10 +665,10 @@ public class ProjectIT extends BaseIT {
         
         Integer toBeAddedId = null;
         try {
-        	toBeAddedId = UserDao.getUserID(adminUser);
-		} catch (SQLException e) {
-			fail("caught SQL exception looking up fforgeadmin");
-		}
+            toBeAddedId = UserDao.getUserID(adminUser);
+        } catch (SQLException e) {
+            fail("caught SQL exception looking up fforgeadmin");
+        }
         
         Integer fakeAdminId = UserIT.createUserAndReturnID(unique);
        
@@ -704,10 +700,10 @@ public class ProjectIT extends BaseIT {
 
         Integer adminId = null;
         try {
-			adminId = UserDao.getUserID(adminUser);
-		} catch (SQLException e) {
-			fail("caught SQL exception looking up fforgeadmin");
-		}
+            adminId = UserDao.getUserID(adminUser);
+        } catch (SQLException e) {
+            fail("caught SQL exception looking up fforgeadmin");
+        }
         
         this.testProjectCreateJsonString();     
         
@@ -736,10 +732,10 @@ final String adminUser = "fforgeadmin";
         
         Integer toBeAddedId = null;
         try {
-        	toBeAddedId = UserDao.getUserID(adminUser);
-		} catch (SQLException e) {
-			fail("caught SQL exception looking up fforgeadmin");
-		}
+            toBeAddedId = UserDao.getUserID(adminUser);
+        } catch (SQLException e) {
+            fail("caught SQL exception looking up fforgeadmin");
+        }
         
         Integer fakeAdminId = UserIT.createUserAndReturnID(unique);
        
@@ -751,8 +747,6 @@ final String adminUser = "fforgeadmin";
         if (this.createdId != null) {
             final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", "userEPPN" + unique).expect()
                     .statusCode(FORBIDDEN.value()).when().delete(MEMBER_REJECT_RESOURCE, requestId).asString();
-
-       
 
             assertTrue("Not Admin", response.contains("does not have permission"));
         }

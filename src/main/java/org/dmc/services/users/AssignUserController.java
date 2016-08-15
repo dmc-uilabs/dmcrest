@@ -25,77 +25,80 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 public class AssignUserController {
-	
-	private final String logTag = AssignUserController.class.getName();
-	private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
-	
-	/**
-	 * GET assign_users
-	 * @param userEPPN
-	 * @param project number
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/assign_users", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getAssignUsers(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
-											@RequestHeader(value = "projectId", defaultValue = "-1") Integer projectId) throws Exception {
-		
-		ServiceLogger.log(logTag, "In getAssignUsers: as user " + userEPPN);
-		
-		try {
-			final ArrayList<Profile> members = projectMemberDao.getMembers(userEPPN);
-			final ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
-			
-			final Iterator<Profile> iter = members.iterator();
-			while(iter.hasNext()) {
-				final Profile userProfile = iter.next();
-				final AssignUser user = new AssignUser(userProfile.getId(), userProfile.getDisplayName());
-				assignUser.add(user);
-			}
-			
-			return new ResponseEntity<ArrayList<AssignUser>>(assignUser, HttpStatus.OK);
-			
-		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-		}
-	}
-	
-	
-	
-	
-	
-	/**
-	 * GET assign_users
-	 * @param userEPPN
-	 * @param project number
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/assign_users/{projectId}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getAssignUsersForProject(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
-													  @PathVariable(value = "projectId") Integer projectId) throws Exception {
-		
-		ServiceLogger.log(logTag, "In getAssignUsers: as user " + userEPPN);
-		
-		try {
-			final ArrayList<ProjectMember> members =  projectMemberDao.getMembersForProject(projectId.toString(), null, userEPPN);
-			final ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
-			final ProfileDao profileDao = new ProfileDao();
-			
-			final Iterator<ProjectMember> iter = members.iterator();
-			while(iter.hasNext()) {
-				final ProjectMember projectMember = iter.next();
-				final Profile userProfile = profileDao.getProfile(Integer.parseInt(projectMember.getProfileId()));
-				final AssignUser user = new AssignUser(userProfile.getId(), userProfile.getDisplayName());
-				assignUser.add(user);
-			}
-			
-			return new ResponseEntity<ArrayList<AssignUser>>(assignUser, HttpStatus.OK);
-			
-		} catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-		}
-	}
+
+    private final static String LOGTAG = AssignUserController.class.getName();
+    private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
+
+    /**
+     * GET assign_users
+     * 
+     * @param userEPPN
+     * @param project
+     *            number
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/assign_users", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAssignUsers(
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
+            @RequestHeader(value = "projectId", defaultValue = "-1") Integer projectId) throws Exception {
+
+        ServiceLogger.log(LOGTAG, "In getAssignUsers: as user " + userEPPN);
+
+        try {
+            final ArrayList<Profile> members = projectMemberDao.getMembers(userEPPN);
+            final ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
+
+            final Iterator<Profile> iter = members.iterator();
+            while (iter.hasNext()) {
+                final Profile userProfile = iter.next();
+                final AssignUser user = new AssignUser(userProfile.getId(), userProfile.getDisplayName());
+                assignUser.add(user);
+            }
+
+            return new ResponseEntity<ArrayList<AssignUser>>(assignUser, HttpStatus.OK);
+
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(LOGTAG, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+
+    /**
+     * GET assign_users
+     * 
+     * @param userEPPN
+     * @param project
+     *            number
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/assign_users/{projectId}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAssignUsersForProject(
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
+            @PathVariable(value = "projectId") Integer projectId) throws Exception {
+
+        ServiceLogger.log(LOGTAG, "In getAssignUsers: as user " + userEPPN);
+
+        try {
+            final ArrayList<ProjectMember> members = projectMemberDao.getMembersForProject(projectId.toString(), null,
+                    userEPPN);
+            final ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
+            final ProfileDao profileDao = new ProfileDao();
+
+            final Iterator<ProjectMember> iter = members.iterator();
+            while (iter.hasNext()) {
+                final ProjectMember projectMember = iter.next();
+                final Profile userProfile = profileDao.getProfile(Integer.parseInt(projectMember.getProfileId()));
+                final AssignUser user = new AssignUser(userProfile.getId(), userProfile.getDisplayName());
+                assignUser.add(user);
+            }
+
+            return new ResponseEntity<ArrayList<AssignUser>>(assignUser, HttpStatus.OK);
+
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(LOGTAG, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
 }
