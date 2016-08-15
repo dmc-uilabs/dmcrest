@@ -18,7 +18,11 @@ public interface DMDIIDocumentRepository extends BaseRepository<DMDIIDocument, I
 
 	DMDIIDocument findTopByFileTypeAndDmdiiProjectIdOrderByModifiedDesc(Integer fileTypeId, Integer dmdiiProjectId);
 	
+<<<<<<< HEAD
 	@Query("SELECT d FROM DMDIIDocument d WHERE d.id = :dmdiiDocumentId")
+=======
+	@Query("SELECT d from DMDIIDocument d WHERE d.id = :dmdiiDocumentId")
+>>>>>>> master
 	DMDIIDocument findOne (@Param("dmdiiDocumentId") Integer dmdiiDocumentId);
 
 }
