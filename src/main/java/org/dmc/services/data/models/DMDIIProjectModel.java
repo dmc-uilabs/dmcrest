@@ -12,9 +12,9 @@ public class DMDIIProjectModel extends BaseModel {
 
 	private DMDIIProjectStatusModel projectStatus;
 
-	private Date awardedDate;
+	private String awardedDate;
 
-	private Date endDate;
+	private String endDate;
 
 	private String projectTitle;
 
@@ -55,19 +55,19 @@ public class DMDIIProjectModel extends BaseModel {
 		this.principalInvestigator = principalInvestigator;
 	}
 
-	public Date getAwardedDate() {
+	public String getAwardedDate() {
 		return awardedDate;
 	}
 
-	public void setAwardedDate(Date awardedDate) {
+	public void setAwardedDate(String awardedDate) {
 		this.awardedDate = awardedDate;
 	}
 
-	public Date getEndDate() {
+	public String getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
+	public void setEndDate(String endDate) {
 		this.endDate = endDate;
 	}
 

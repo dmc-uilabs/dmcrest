@@ -1,10 +1,13 @@
 package org.dmc.services.data.mappers;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIProject;
 import org.dmc.services.data.entities.DMDIIProjectContact;
@@ -35,6 +38,8 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		if (model == null) return null;
 
 		DMDIIProject entity = copyProperties(model, new DMDIIProject());
+		
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		Mapper<DMDIIProjectContact, DMDIIProjectContactModel> contactMapper = mapperFactory.mapperFor(DMDIIProjectContact.class, DMDIIProjectContactModel.class);
@@ -53,6 +58,13 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		entity.setProjectFocusArea(focusMapper.mapToEntity(model.getProjectFocusArea()));
 		entity.setProjectThrust(thrustMapper.mapToEntity(model.getProjectThrust()));
 		entity.setContributingCompanies(memberMapper.mapToEntity(contributingCompanyModels));
+		
+		try{
+			entity.setAwardedDate(format.parse(model.getAwardedDate()));
+			entity.setEndDate(format.parse(model.getEndDate()));
+		} catch (Exception e){
+			throw new DMCServiceException(DMCError.ParseError, e.getMessage());
+		}
 
 		return entity;
 	}
@@ -62,6 +74,8 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		if (entity == null) return null;
 
 		DMDIIProjectModel model = copyProperties(entity, new DMDIIProjectModel());
+		
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		Mapper<DMDIIProjectContact, DMDIIProjectContactModel> contactMapper = mapperFactory.mapperFor(DMDIIProjectContact.class, DMDIIProjectContactModel.class);
@@ -80,6 +94,8 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		model.setProjectFocusArea(focusMapper.mapToModel(entity.getProjectFocusArea()));
 		model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));
 		model.setContributingCompanies(contributingCompanyIds);
+		model.setAwardedDate(format.format(entity.getAwardedDate()));
+		model.setEndDate(format.format(entity.getEndDate()));
 
 		return model;
 	}
