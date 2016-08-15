@@ -28,5 +28,8 @@ public interface DMDIIMemberDao extends BaseRepository<DMDIIMember, Integer> {
 	@Query(value = "SELECT * FROM organization_dmdii_member dm JOIN dmdii_project_contributing_company dpcc on " +
 					"dm.id=dpcc.contributing_company_id WHERE dpcc.dmdii_project_id = :projectId", nativeQuery = true)
 	List<DMDIIMember> findByDMDIIProjectContributingCompanyDMDIIProject(@Param("projectId") Integer projectId);
+	
+	@Query("SELECT CASE WHEN COUNT(d) > 0 THEN 'true' ELSE 'false' END FROM DMDIIMember d where d.organization.id = :organizationId")
+	Boolean existsByOrganizationId(@Param("organizationId") Integer organizationId);
 
 }

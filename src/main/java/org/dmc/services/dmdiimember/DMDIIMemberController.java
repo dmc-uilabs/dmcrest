@@ -8,11 +8,13 @@ import javax.inject.Inject;
 import org.dmc.services.DMDIIMemberEventService;
 import org.dmc.services.DMDIIMemberNewsService;
 import org.dmc.services.data.models.BaseModel;
+import org.dmc.services.data.models.DMDIIMemberAutocompleteModel;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
 import org.dmc.services.data.models.DMDIIMemberMapEntryModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIMemberNewsModel;
 import org.dmc.services.data.models.PagedResponse;
+import org.dmc.services.dmdiimember.DMDIIMemberService.DuplicateDMDIIMemberException;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.http.MediaType;
@@ -30,20 +32,20 @@ public class DMDIIMemberController {
 
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
-	
+
 	@Inject
 	private DMDIIMemberEventService dmdiiMemberEventService;
-	
+
 	@Inject
 	private DMDIIMemberNewsService dmdiiMemberNewsService;
-	
+
 	@RequestMapping(value = "/dmdiiMember", params = {"page", "pageSize"}, method = RequestMethod.GET)
 	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
 		List<? extends BaseModel> results = dmdiiMemberService.filter(params, page, pageSize);
 		Long count = dmdiiMemberService.count(params);
 		return new PagedResponse(count, results);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/mapEntry", method = RequestMethod.GET)
 	public List<DMDIIMemberMapEntryModel> getMapEntries() {
 		return dmdiiMemberService.getMapEntries();
@@ -55,10 +57,11 @@ public class DMDIIMemberController {
 	}
 
 	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
-	public DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) {
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	public DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) throws DuplicateDMDIIMemberException {
 		return dmdiiMemberService.save(member);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/search", method = RequestMethod.GET,params = {"page", "pageSize", "name"})
 	public PagedResponse findMembersByName(@RequestParam("page") Integer page,
 																@RequestParam("pageSize") Integer pageSize,
@@ -67,25 +70,32 @@ public class DMDIIMemberController {
 		Long count = dmdiiMemberService.countByName(name);
 		return new PagedResponse(count, results);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/news", params = "limit", method = RequestMethod.GET)
 	public List<DMDIIMemberNewsModel> getDmdiiMemberNews(@RequestParam("limit") Integer limit) {
 		return dmdiiMemberService.getDmdiiMemberNews(limit);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/events", params = "limit", method = RequestMethod.GET)
 	public List<DMDIIMemberEventModel> getDmdiiMemberEvents(@RequestParam("limit") Integer limit) {
 		return dmdiiMemberService.getDmdiiMemberEvents(limit);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/events", method = RequestMethod.POST)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIMemberEventModel saveDMDIIMemberEvent (@RequestBody DMDIIMemberEventModel memberEvent) {
 		return dmdiiMemberEventService.save(memberEvent);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/news", method = RequestMethod.POST)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIMemberNewsModel saveDMDIIMemberNews (@RequestBody DMDIIMemberNewsModel memberNews) {
 		return dmdiiMemberNewsService.save(memberNews);
+	}
+
+	@RequestMapping(value = "/dmdiiMember/all", method = RequestMethod.GET)
+	public List<DMDIIMemberAutocompleteModel> getAllMembers() {
+		return dmdiiMemberService.getAllMembers();
 	}
 
 }

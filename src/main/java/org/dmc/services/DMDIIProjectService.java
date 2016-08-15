@@ -27,6 +27,7 @@ import org.dmc.services.dmdiimember.DMDIIMemberService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
@@ -45,7 +46,7 @@ public class DMDIIProjectService {
 
 	@Inject
 	private DMDIIProjectEventsRepository dmdiiProjectEventsRepository;
-	
+
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
 
@@ -57,7 +58,7 @@ public class DMDIIProjectService {
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
 	}
-	
+
 	public Long count(Map<String, String> filterParams) throws InvalidFilterParameterException {
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		return dmdiiProjectRepository.count(where);
@@ -151,50 +152,60 @@ public class DMDIIProjectService {
 	}
 
 	public List<DMDIIProjectModel> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId, Integer pageNumber, Integer pageSize) {
+		Assert.notNull(primeOrganizationId);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationId(new PageRequest(pageNumber, pageSize), primeOrganizationId).getContent());
 	}
 
 	public List<DMDIIProjectModel> findDMDIIProjectsByPrimeOrganizationIdAndIsActive(Integer dmdiiMemberId, Integer pageNumber, Integer pageSize) {
+		Assert.notNull(dmdiiMemberId);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationIdAndIsActive(new PageRequest(pageNumber, pageSize), dmdiiMemberId).getContent());
 	}
 
 	public Long countDMDIIProjectsByPrimeOrganizationIdAndIsActive(Integer dmdiiMemberId) {
+		Assert.notNull(dmdiiMemberId);
 		return dmdiiProjectRepository.countByPrimeOrganizationIdAndIsActive(dmdiiMemberId);
 	}
 
 	public Long countDmdiiProjectsByPrimeOrganizationId(Integer dmdiiMemberId) {
+		Assert.notNull(dmdiiMemberId);
 		return dmdiiProjectRepository.countByPrimeOrganizationId(dmdiiMemberId);
 	}
 
 	public List<DMDIIProjectModel> findDMDIIProjectsByAwardedDate(Date awardedDate, Integer pageNumber, Integer pageSize) {
+		Assert.notNull(awardedDate);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByAwardedDate(new PageRequest(pageNumber, pageSize), awardedDate).getContent());
 	}
-	
+
 	public Long countDMDIIProjectsByAwardedDate(Date awardedDate) {
+		Assert.notNull(awardedDate);
 		return dmdiiProjectRepository.countByAwardedDate(awardedDate);
 	}
 
 	public List<DMDIIProjectModel> findByTitle(String title, Integer pageNumber, Integer pageSize) {
+		Assert.notNull(title);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByProjectTitleLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+title+"%").getContent());
 	}
-	
+
 	public Long countByTitle(String title) {
+		Assert.notNull(title);
 		return dmdiiProjectRepository.countByProjectTitleLikeIgnoreCase("%"+title+"%");
 	}
 
 	public DMDIIProjectModel findOne(Integer id) {
+		Assert.notNull(id);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findOne(id));
 	}
 
 	public DMDIIProjectModel save(DMDIIProjectModel project) {
+		Assert.notNull(project);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		
+
 		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
 		DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
 		projectEntity.setPrimeOrganization(memberEntity);
@@ -205,6 +216,7 @@ public class DMDIIProjectService {
 	}
 
 	public List<DMDIIMemberModel> findContributingCompanyByProjectId(Integer projectId) {
+		Assert.notNull(projectId);
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 
 		return mapper.mapToModel(dmdiiMemberDao.findByDMDIIProjectContributingCompanyDMDIIProject(projectId));
@@ -221,6 +233,7 @@ public class DMDIIProjectService {
 	}
 
 	public List<DMDIIProjectModel> findDMDIIProjectsByContributingCompany(Integer dmdiiMemberId) {
+		Assert.notNull(dmdiiMemberId);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByContributingCompanyId(dmdiiMemberId));
 	}

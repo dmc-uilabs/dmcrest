@@ -12,7 +12,7 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.RoleModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserRoleModel;
-import org.dmc.services.dmdiimember.OrganizationService;
+import org.dmc.services.organization.OrganizationService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,7 +37,9 @@ public class UserRoleMapper extends AbstractMapper <UserRole, UserRoleModel> {
 		
 		entity.setRole(roleMapper.mapToEntity(roleService.findOne(model.getRoleId())));
 		entity.setUser(userMapper.mapToEntity(userService.findOne(model.getUserId())));
-		entity.setOrganization(orgMapper.mapToEntity(organizationService.findOne(model.getOrganizationId())));
+		if (model.getOrganizationId() != null) {
+			entity.setOrganization(orgMapper.mapToEntity(organizationService.findOne(model.getOrganizationId())));
+		}
 		
 		return entity;
 	}
@@ -52,7 +54,9 @@ public class UserRoleMapper extends AbstractMapper <UserRole, UserRoleModel> {
 		
 		model.setRoleId(entity.getRole().getId());
 		model.setUserId(entity.getUser().getId());
-		model.setOrganizationId(entity.getOrganization().getId());
+		if (entity.getOrganization() != null) {
+			model.setOrganizationId(entity.getOrganization().getId());
+		}
 		
 		return model;
 	}
