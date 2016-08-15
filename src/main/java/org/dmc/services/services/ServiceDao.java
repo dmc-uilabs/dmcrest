@@ -496,9 +496,9 @@ public class ServiceDao {
                 history.setTitle(resSet.getString("title"));
                 final CharSequence logged = resSet.getString("date");
                 history.setDate(logged.toString());
-                history.setUser(resSet.getString("user"));
+                history.setUser(resSet.getString("user_id"));
 
-                final String dateFormat = "yyyy-MM-dd HH:mm:ss";
+                final String dateFormat = "yyyy-MM-dd";
                 final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateFormat);
                 final LocalDateTime loggedDate = LocalDateTime.parse(logged, dtf);
 
@@ -527,7 +527,7 @@ public class ServiceDao {
             return historyList;
 
         } catch (SQLException e) {
-            ServiceLogger.log(logTag, "getServiceHistory error logging: " + e.getMessage());
+            ServiceLogger.log(logTag, "getHistory error logging: " + e.getMessage());
             throw new DMCServiceException(DMCError.UnknownSQLError, e.getMessage());
         }
 

@@ -72,6 +72,7 @@ public class ServiceIT extends BaseIT {
     private static final String SERVICE_RUN_LIST_RESOURCE = "/service_runs";
     private static final String INPUT_POS_RESOURCE = "/input-positions";
     private static final String INPUT_POS_BY_ID_RESOURCE = "/input-positions/{positionId}";
+    private static final String SERVICE_DOCUMENTS_RESOURCE = "/services/{serviceId}/service_documents";
 
     private Random r = new Random();
     private String serviceId = "1"; // the serviceId need to be assigned new value
@@ -231,21 +232,21 @@ public class ServiceIT extends BaseIT {
     /**
      * test case for get /services/{serviceID}/service_documents
      */
-    /* @Test
+    @Test
     public void testServiceGet_ServiceDocument(){
         given().
         header("AJP_eppn", userEPPN).
         expect().
         statusCode(NOT_IMPLEMENTED.value()).
-        when().get("/services/" + serviceId + "/service_documents");
-    }*/
+        when().get(SERVICE_DOCUMENTS_RESOURCE, serviceId);
+    }
 
     /**
-     * test case for get /services/{serviceID}/service_documents
+     * test case for get /services/{serviceID}/service_history
+     * this will get back an empty list of history since history is only created when we PATCH the serviceID and we haven't called patch for this service
      */
-    @Ignore
     @Test
-    public void testServiceGet_ServiceHistory(){
+    public void testService_GetEmptyServiceHistory(){
         List<ServiceHistory> history = given().
                 header("AJP_eppn", userEPPN).
                 expect().
@@ -254,15 +255,24 @@ public class ServiceIT extends BaseIT {
 
         assertTrue("Got back nonempty history with unupdated service", history.size() == 0 && history.isEmpty());
     }
-    //this will get back an empty list of history since there is only the PATCH serviceID, which isn't called, writes to service_history
-    
-    //TODO: this test needs to create a project, upload a service, then patch that service (update description, for instance), then 
-    //call the services_history endpoint. 
-    //Need to correctly create a project from REST services, then upload and patch service should be straightforward
-    @Ignore
+    /**
+     * test case for get /services/{serviceID}/service_history
+     *
+     * to create some sample history:
+     * 1) create a test project
+     * 2) upload a test service to that project
+     * 3) update the description of the service
+     * 4) check the history - should be one entry
+     */
     @Test
-    public void testService_GetHistory(){
-        
+    public void testService_GetHistory() {
+        Id projectId = createTestProject();
+        Service testService = uploadTestService(projectId);
+        updateService(testService);
+        checkHistory(testService);
+    }
+    
+    private Id createTestProject() {
         final Date date = new Date();
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         final String unique = format.format(date);
@@ -272,19 +282,20 @@ public class ServiceIT extends BaseIT {
         json.setTitle("junitjson" + unique);
 
         ServiceLogger.log(logTag, "testProjectCreateJsonObject: json = " + json.toString());
-        final String idJSON = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
+        final Id pid = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
                 .statusCode(OK.value()).when().post("/projects/create").then()
-                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().asString();
+                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().as(Id.class);
         
-        final JSONObject pid = new JSONObject(idJSON);
+        return pid;
+    }
 
-        //TODO: Create a service
+    private Service uploadTestService(Id projectId) {
         //Change description and use PATCH
         // what other things can be changed?
         // service type
         // Publish a service - not sure if it calls patch or something else.
         final Service service = createNewServiceObjectToPost();  
-        service.setProjectId(Integer.toString(pid.getInt("id")));
+        service.setProjectId(Integer.toString(projectId.getId()));
         final ValidatableResponse response =
                 given().
                 header("Content-type", APPLICATION_JSON_VALUE).
@@ -308,6 +319,9 @@ public class ServiceIT extends BaseIT {
             fail("unable to map response to Service object: " + e.getMessage());
         }
 
+        return patchService;
+    }
+    private void updateService(Service patchService) {
         patchService.setDescription(patchService.getDescription() + " - now patching");
         ServiceLogger.log(logTag, "testService_GetHistory: patch url = " + SERVICE_RESOURCE + " + id = " + patchService.getId());
 
@@ -321,7 +335,8 @@ public class ServiceIT extends BaseIT {
             patch(SERVICE_RESOURCE, patchService.getId()).
             then().
             body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
-
+    }
+    private void checkHistory(Service patchService) {
         List<ServiceHistory> history = given().
                 header("AJP_eppn", userEPPN).
                 expect().
@@ -345,9 +360,6 @@ public class ServiceIT extends BaseIT {
         }
 
     }
-
-
-
 
     /**
      * test case for get /services/{serviceID}/service_tags
