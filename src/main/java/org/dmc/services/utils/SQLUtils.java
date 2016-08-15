@@ -84,6 +84,14 @@ public class SQLUtils {
         return limitClause;
     }
 
+    /**
+     * Build a OFFSET clause
+     * OFFSET start
+     * This starts the result set at the "start" record number instead of the first.
+     * The start value is 0-based
+     * @param start
+     * @return null or the OFFSET clause
+     */
     public static String buildOffsetClause(Integer start) {
         String offsetClause = "";
         if (start != null) {
@@ -91,4 +99,42 @@ public class SQLUtils {
         }
         return offsetClause;
     }
+    /**
+     * Build a dates query clause
+     * fieldName >= current_date - interval 'n intervalType'
+     * example: "WHERE release_date > current_date - interval '1 month' "
+     * dateCriteria is a number followed by d (for day), m for month, y for year
+     * @dateCriteria string like 7d, 1m, 1y that indicates how far back to search
+     * @fieldName string that is the date/timestamp field name in the database table being queried
+     * @appending boolean, if true then connect with AND, otherwise with WHERE
+     * @return null or the date condition clause
+     */
+    public static String buildDateClause (String dateCriteria, String fieldName, boolean appending)  {
+        String dateClause = "";
+        String intervalType = null;
+        if (null != dateCriteria && dateCriteria.length() > 0) {
+            if (dateCriteria.toLowerCase().endsWith("d")) {
+                intervalType = "day";
+            } else if (dateCriteria.toLowerCase().endsWith("m")) {
+                intervalType = "month";
+            } else if (dateCriteria.toLowerCase().endsWith("y")) {
+                intervalType = "year";
+            } else {
+                throw new DMCServiceException(DMCError.BadURL, "invalid date criteria - type");
+            }
+            if (null == fieldName || fieldName.length() == 0) {
+                throw new DMCServiceException(DMCError.OtherSQLError, "no date fieldname specified for query");
+            }
+            final String intervalCount = dateCriteria.substring(0, dateCriteria.length()-1);
+            try {
+                Integer.parseUnsignedInt(intervalCount);
+            } catch (Exception e) { 
+                throw new DMCServiceException(DMCError.OtherSQLError, "invalid date criteria - number");
+            }
+            final String appendClause = appending ? "AND " : "WHERE ";
+            dateClause = appendClause + fieldName + " >= CURRENT_DATE - INTERVAL '" + intervalCount + " " + intervalType + "' ";
+        }
+        return dateClause;
+    }
+
 }

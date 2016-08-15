@@ -117,4 +117,54 @@ public class SQLUtilsTest {
         assertEquals("", offsetClause);
     }
 
+    @Test
+    public void returnsCorrectResultForDay() {
+        final String dateClause = SQLUtils.buildDateClause("6d", "testField", false);
+        assertEquals("WHERE testField >= CURRENT_DATE - INTERVAL '6 day' ", dateClause);
+    }
+
+    @Test
+    public void returnsCorrectResultForMonth() {
+        final String dateClause = SQLUtils.buildDateClause("4m", "testDateField", false);
+        assertEquals("WHERE testDateField >= CURRENT_DATE - INTERVAL '4 month' ", dateClause);
+    }
+
+    @Test
+    public void returnsCorrectResultForYear() {
+        final String dateClause = SQLUtils.buildDateClause("3y", "testField", false);
+        assertEquals("WHERE testField >= CURRENT_DATE - INTERVAL '3 year' ", dateClause);
+    }
+
+    @Test
+    public void returnsCorrectResultForAppending() {
+        final String dateClause = SQLUtils.buildDateClause("4m", "testDateField", true);
+        assertEquals("AND testDateField >= CURRENT_DATE - INTERVAL '4 month' ", dateClause);
+    }
+
+    @Test(expected = DMCServiceException.class)
+    public void throwsExceptionWhenDateCriteriaHasBadType() {
+        SQLUtils.buildDateClause("7x", "testDateField", false);
+    }
+
+    @Test(expected = DMCServiceException.class)
+    public void throwsExceptionWhenDateCriteriaHasBadNumber() {
+        SQLUtils.buildDateClause("w3y", "testDateField", false);
+    }
+
+    @Test
+    public void returnsEmptyStringIfDateCriteriaIsNull() {
+        final String dateClause = SQLUtils.buildDateClause(null, "testDateField", false);
+        assertEquals("", dateClause);
+    }
+
+    @Test(expected = DMCServiceException.class)
+    public void throwsExceptionWhenFieldNameIsNull() {
+        SQLUtils.buildDateClause("4m", null, false);
+    }
+
+    @Test(expected = DMCServiceException.class)
+    public void throwsExceptionWhenFieldNameIsEmpty() {
+        SQLUtils.buildDateClause("4m", "", false);
+    }
+
 }
