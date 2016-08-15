@@ -1,5 +1,6 @@
 package org.dmc.services.data.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,8 +15,10 @@ public class DMDIIProjectContact extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
+	@Column(name = "first_name")
 	private String firstName;
 	
+	@Column(name = "last_name")
 	private String lastName;
 	
 	private String email;
