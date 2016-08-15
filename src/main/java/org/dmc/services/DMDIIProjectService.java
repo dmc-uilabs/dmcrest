@@ -46,7 +46,7 @@ public class DMDIIProjectService {
 
 	@Inject
 	private DMDIIProjectEventsRepository dmdiiProjectEventsRepository;
-	
+
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
 
@@ -58,7 +58,7 @@ public class DMDIIProjectService {
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
 	}
-	
+
 	public Long count(Map<String, String> filterParams) throws InvalidFilterParameterException {
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		return dmdiiProjectRepository.count(where);
@@ -178,7 +178,7 @@ public class DMDIIProjectService {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByAwardedDate(new PageRequest(pageNumber, pageSize), awardedDate).getContent());
 	}
-	
+
 	public Long countDMDIIProjectsByAwardedDate(Date awardedDate) {
 		Assert.notNull(awardedDate);
 		return dmdiiProjectRepository.countByAwardedDate(awardedDate);
@@ -189,7 +189,7 @@ public class DMDIIProjectService {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByProjectTitleLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+title+"%").getContent());
 	}
-	
+
 	public Long countByTitle(String title) {
 		Assert.notNull(title);
 		return dmdiiProjectRepository.countByProjectTitleLikeIgnoreCase("%"+title+"%");
@@ -205,7 +205,7 @@ public class DMDIIProjectService {
 		Assert.notNull(project);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		
+
 		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
 		DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
 		projectEntity.setPrimeOrganization(memberEntity);

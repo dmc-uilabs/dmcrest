@@ -16,6 +16,7 @@ import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDMDIIProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.DMDIIMemberAutocompleteModel;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
 import org.dmc.services.data.models.DMDIIMemberMapEntryModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
@@ -97,6 +98,11 @@ public class DMDIIMemberService {
 	public Long count(Map filterParams) throws InvalidFilterParameterException {
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		return dmdiiMemberDao.count(where);
+	}
+
+	public List<DMDIIMemberAutocompleteModel> getAllMembers() {
+		Mapper<DMDIIMember, DMDIIMemberAutocompleteModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberAutocompleteModel.class);
+		return mapper.mapToModel(dmdiiMemberDao.findAll());
 	}
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
