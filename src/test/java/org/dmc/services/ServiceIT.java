@@ -72,7 +72,6 @@ public class ServiceIT extends BaseIT {
     private static final String SERVICE_RUN_LIST_RESOURCE = "/service_runs";
     private static final String INPUT_POS_RESOURCE = "/input-positions";
     private static final String INPUT_POS_BY_ID_RESOURCE = "/input-positions/{positionId}";
-    private static final String SERVICE_DOCUMENTS_RESOURCE = "/services/{serviceId}/service_documents";
 
     private Random r = new Random();
     private String serviceId = "1"; // the serviceId need to be assigned new value
@@ -227,18 +226,6 @@ public class ServiceIT extends BaseIT {
 
         assertTrue("First author id "+firstAuthor.getId()+" job title is null", firstAuthor.getJobTitle() != null);
         assertTrue("First author id "+firstAuthor.getId()+" display name is null ", firstAuthor.getDisplayName() != null);
-    }
-
-    /**
-     * test case for get /services/{serviceID}/service_documents
-     */
-    @Test
-    public void testServiceGet_ServiceDocument(){
-        given().
-        header("AJP_eppn", userEPPN).
-        expect().
-        statusCode(NOT_IMPLEMENTED.value()).
-        when().get(SERVICE_DOCUMENTS_RESOURCE, serviceId);
     }
 
     /**
