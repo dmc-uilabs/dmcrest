@@ -34,13 +34,13 @@ public class Entities {
 		
 		dmdiiProject.setId(2000);
 		dmdiiProject.setPrimeOrganization(dmdiiMember());
-		dmdiiProject.setPrincipalInvestigator(user());
+		dmdiiProject.setPrincipalInvestigator(dmdiiProjectContact1());
 		dmdiiProject.setProjectStatus(projectStatus());
 		dmdiiProject.setAwardedDate(format.parse("2016/07/04"));
 		dmdiiProject.setEndDate(format.parse("2017/01/01"));
 		dmdiiProject.setProjectTitle(PROJECT_TITLE);
 		dmdiiProject.setProjectSummary(PROJECT_SUMMARY);
-		dmdiiProject.setPrincipalPointOfContact(user());
+		dmdiiProject.setPrincipalPointOfContact(dmdiiProjectContact2());
 		dmdiiProject.setProjectFocusArea(projectFocusArea());
 		dmdiiProject.setProjectThrust(projectThrust());
 		dmdiiProject.setContributingCompanies(contributingCompanies);
@@ -61,13 +61,13 @@ public class Entities {
 		
 		dmdiiProject.setId(2001);
 		dmdiiProject.setPrimeOrganization(dmdiiMember());
-		dmdiiProject.setPrincipalInvestigator(user());
+		dmdiiProject.setPrincipalInvestigator(dmdiiProjectContact1());
 		dmdiiProject.setProjectStatus(projectStatus());
 		dmdiiProject.setAwardedDate(format.parse("2015/07/04"));
 		dmdiiProject.setEndDate(format.parse("2016/01/01"));
 		dmdiiProject.setProjectTitle(PROJECT_TITLE);
 		dmdiiProject.setProjectSummary(PROJECT_SUMMARY);
-		dmdiiProject.setPrincipalPointOfContact(user());
+		dmdiiProject.setPrincipalPointOfContact(dmdiiProjectContact2());
 		dmdiiProject.setProjectFocusArea(projectFocusArea());
 		dmdiiProject.setProjectThrust(projectThrust());
 		dmdiiProject.setContributingCompanies(contributingCompanies);
@@ -88,13 +88,13 @@ public class Entities {
 		
 		dmdiiProject.setId(2002);
 		dmdiiProject.setPrimeOrganization(dmdiiMember1());
-		dmdiiProject.setPrincipalInvestigator(user());
+		dmdiiProject.setPrincipalInvestigator(dmdiiProjectContact1());
 		dmdiiProject.setProjectStatus(projectStatus());
 		dmdiiProject.setAwardedDate(format.parse("2016/07/04"));
 		dmdiiProject.setEndDate(format.parse("2017/01/01"));
 		dmdiiProject.setProjectTitle(PROJECT_TITLE);
 		dmdiiProject.setProjectSummary(PROJECT_SUMMARY);
-		dmdiiProject.setPrincipalPointOfContact(user());
+		dmdiiProject.setPrincipalPointOfContact(dmdiiProjectContact2());
 		dmdiiProject.setProjectFocusArea(projectFocusArea());
 		dmdiiProject.setProjectThrust(projectThrust());
 		dmdiiProject.setContributingCompanies(contributingCompanies);
@@ -350,6 +350,24 @@ public class Entities {
 		dmdiiRole.setId(1);
 		dmdiiRole.setRole("Role");
 		return dmdiiRole;
+	}
+	
+	public static DMDIIProjectContact dmdiiProjectContact1() {
+		DMDIIProjectContact contact = new DMDIIProjectContact();
+		contact.setId(200);
+		contact.setFirstName(FIRST_NAME);
+		contact.setLastName(LAST_NAME);
+		contact.setEmail(EMAIL);
+		return contact;
+	}
+	
+	public static DMDIIProjectContact dmdiiProjectContact2() {
+		DMDIIProjectContact contact = new DMDIIProjectContact();
+		contact.setId(201);
+		contact.setFirstName(FIRST_NAME + "2");
+		contact.setLastName(LAST_NAME + "2");
+		contact.setEmail(EMAIL + "2");
+		return contact;
 	}
 
 

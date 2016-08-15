@@ -36,13 +36,13 @@ public class Models {
 
 		dmdiiProjectModel.setId(2000);
 		dmdiiProjectModel.setPrimeOrganization(new DMDIIPrimeOrganizationModel(dmdiiMemberModel().getId(), dmdiiMemberModel().getOrganization().getName()));
-		dmdiiProjectModel.setPrincipalInvestigator(user());
+		dmdiiProjectModel.setPrincipalInvestigator(dmdiiProjectContact1());
 		dmdiiProjectModel.setProjectStatus(projectStatus());
 		dmdiiProjectModel.setAwardedDate(format.parse("2016/07/01"));
 		dmdiiProjectModel.setEndDate(format.parse("2017/01/01"));
 		dmdiiProjectModel.setProjectTitle(PROJECT_TITLE);
 		dmdiiProjectModel.setProjectSummary(PROJECT_SUMMARY);
-		dmdiiProjectModel.setPrincipalPointOfContact(user());
+		dmdiiProjectModel.setPrincipalPointOfContact(dmdiiProjectContact2());
 		dmdiiProjectModel.setProjectFocusArea(projectFocusArea());
 		dmdiiProjectModel.setProjectThrust(projectThrust());
 		dmdiiProjectModel.setContributingCompanies(contributingCompanyIds);
@@ -300,5 +300,23 @@ public class Models {
 		event.setEventDescription(PROJECT_EVENT_DESCRIPTION);
 		event.setEventDate(DATE);
 		return event;
+	}
+	
+	public static DMDIIProjectContactModel dmdiiProjectContact1() {
+		DMDIIProjectContactModel contact = new DMDIIProjectContactModel();
+		contact.setId(200);
+		contact.setFirstName(FIRST_NAME);
+		contact.setLastName(LAST_NAME);
+		contact.setEmail(EMAIL);
+		return contact;
+	}
+	
+	public static DMDIIProjectContactModel dmdiiProjectContact2() {
+		DMDIIProjectContactModel contact = new DMDIIProjectContactModel();
+		contact.setId(201);
+		contact.setFirstName(FIRST_NAME + "2");
+		contact.setLastName(LAST_NAME + "2");
+		contact.setEmail(EMAIL + "2");
+		return contact;
 	}
 }

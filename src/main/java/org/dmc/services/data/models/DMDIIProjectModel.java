@@ -8,7 +8,7 @@ public class DMDIIProjectModel extends BaseModel {
 
 	private DMDIIPrimeOrganizationModel primeOrganization;
 
-	private UserModel principalInvestigator;
+	private DMDIIProjectContactModel principalInvestigator;
 
 	private DMDIIProjectStatusModel projectStatus;
 
@@ -20,7 +20,7 @@ public class DMDIIProjectModel extends BaseModel {
 
 	private String projectSummary;
 
-	private UserModel principalPointOfContact;
+	private DMDIIProjectContactModel principalPointOfContact;
 
 	private DMDIIProjectFocusAreaModel projectFocusArea;
 
@@ -47,11 +47,11 @@ public class DMDIIProjectModel extends BaseModel {
 		this.primeOrganization = primeOrganization;
 	}
 
-	public UserModel getPrincipalInvestigator() {
+	public DMDIIProjectContactModel getPrincipalInvestigator() {
 		return principalInvestigator;
 	}
 
-	public void setPrincipalInvestigator(UserModel principalInvestigator) {
+	public void setPrincipalInvestigator(DMDIIProjectContactModel principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
 	}
 
@@ -87,11 +87,11 @@ public class DMDIIProjectModel extends BaseModel {
 		this.projectSummary = projectSummary;
 	}
 
-	public UserModel getPrincipalPointOfContact() {
+	public DMDIIProjectContactModel getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(UserModel principalPointOfContact) {
+	public void setPrincipalPointOfContact(DMDIIProjectContactModel principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 
