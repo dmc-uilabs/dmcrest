@@ -5,6 +5,8 @@ public class DMDIIPrimeOrganizationModel extends BaseModel {
 	Integer id;
 
 	String name;
+	
+	public DMDIIPrimeOrganizationModel() {}
 
 	public DMDIIPrimeOrganizationModel(Integer id, String name) {
 		this.id = id;
