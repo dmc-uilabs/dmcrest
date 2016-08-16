@@ -62,6 +62,7 @@ public class MarketController {
             ServiceLogger.log(logTag, "In marketNewServicesGet");
             ArrayList<String> fromLocations = new ArrayList<String>();
             fromLocations.add("marketplace");
+            fromLocations.add("project");
             if (null == order && null == sort) {
                 order = "DESC";
                 sort = "release_date";
