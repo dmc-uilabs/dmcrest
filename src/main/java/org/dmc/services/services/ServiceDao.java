@@ -434,12 +434,13 @@ public class ServiceDao {
         return convertedIntervalType;
     }
 
-    public List<ServiceHistory> getHistory(String serviceID, String period, String section, String userEPPN) {
+    public List<ServiceHistory> getHistory(String serviceIdText, String period, String section, String userEPPN) {
 
         try {
+            Integer serviceId = Integer.parseInt(serviceIdText);
             final String permissionsQuery1 = "SELECT published, project_id FROM service WHERE service_id = ?";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(permissionsQuery1);
-            preparedStatement.setString(1, serviceID);
+            preparedStatement.setInt(1, serviceId);
             ResultSet rs = preparedStatement.executeQuery();
             boolean published = false;
             int projectID = -1;
@@ -452,18 +453,17 @@ public class ServiceDao {
                 final int uid = UserDao.getUserID(userEPPN);
                 final String permissionsQuery2 = "SELECT * FROM group_join_request WHERE group_id = ? AND user_id = ? "
                         + "AND accept_date IS NOT NULL";
+
                 final PreparedStatement ps = DBConnector.prepareStatement(permissionsQuery2);
                 ps.setInt(1, projectID);
                 ps.setInt(2, uid);
 
                 rs = ps.executeQuery();
 
-                while (rs.next())
-                    ; // loop to end of set
-
-                if (rs.getRow() <= 0)
+                if (!rs.next()) {
                     throw new DMCServiceException(DMCError.MemberNotAssignedToProject,
                             "You are not allowed to view this service");
+                }
 
             }
 
@@ -475,7 +475,7 @@ public class ServiceDao {
                 serviceHistoryQuery.append(" AND section = ?");
 
             final PreparedStatement ps = DBConnector.prepareStatement(serviceHistoryQuery.toString());
-            ps.setInt(1, Integer.parseInt(serviceID));
+            ps.setInt(1, serviceId);
             if (period != null)
                 ps.setString(2, period);
 
@@ -500,11 +500,11 @@ public class ServiceDao {
 
                 final String dateFormat = "yyyy-MM-dd";
                 final DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateFormat);
-                final LocalDateTime loggedDate = LocalDateTime.parse(logged, dtf);
+                final LocalDate loggedDate = LocalDate.parse(logged, dtf);
 
-                final LocalDateTime now = LocalDateTime.now();
+                final LocalDate now = LocalDate.now();
 
-                final Duration dur = Duration.between(loggedDate, now);
+                final Duration dur = Duration.between(loggedDate.atStartOfDay(), now.atStartOfDay());
 
                 PeriodEnum pd;
                 if (dur.toDays() >= 365)
@@ -521,7 +521,7 @@ public class ServiceDao {
 
                 historyList.add(history);
 
-                ServiceLogger.log(logTag, "found history for serviceID: " + serviceID + "\n" + history.toString());
+                ServiceLogger.log(logTag, "found history for serviceId: " + serviceId + "\n" + history.toString());
 
             }
             return historyList;

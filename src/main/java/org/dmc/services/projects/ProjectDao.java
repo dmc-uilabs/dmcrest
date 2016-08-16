@@ -272,6 +272,13 @@ public class ProjectDao {
                 connection.rollback();
             }
             throw ex;
+        } catch (DMCServiceException ex) {
+            ServiceLogger.log(LOGTAG, "got DMCServiceException in createProject: " + ex.getMessage());
+            if (null != connection) {
+                ServiceLogger.log(LOGTAG, "Transaction Project Create Rolled back");
+                connection.rollback();
+            }
+            throw ex;
         } catch (Exception ex) {
             ServiceLogger.log(LOGTAG, "got Exception in createProject: " + ex.getMessage());
             if (null != connection) {
@@ -407,29 +414,28 @@ public class ProjectDao {
 
     public ArrayList<ProjectJoinRequest> getProjectJoinRequest(ArrayList<String> projects, ArrayList<String> profiles,
             String userEPPN) throws Exception {
-        try {
-            final int userId = UserDao.getUserID(userEPPN);
+        final int userId = UserDao.getUserID(userEPPN);
+        return getProjectJoinRequest(projects, profiles, userId);
+    }
 
-            // requesting user must be administrator of the project to get the
-            // list of members.
-            String projectJoinRequestQuery = "SELECT gjr.group_id, gjr.user_id, gjr.requester_id "
-                    + "FROM group_join_request gjr ";
-            final String projectsInClause = CreateInClause(projects);
-            final String profilesInClause = CreateInClause(profiles);
-            if (projectsInClause.length() > 0 && profilesInClause.length() > 0) {
-                projectJoinRequestQuery += "WHERE gjr.group_id " + projectsInClause;
-                projectJoinRequestQuery += "AND gjr.user_id " + profilesInClause;
-            } else if (projectsInClause.length() > 0) {
-                projectJoinRequestQuery += "WHERE gjr.group_id " + projectsInClause;
-            } else if (profilesInClause.length() > 0) {
-                projectJoinRequestQuery += "WHERE gjr.user_id " + profilesInClause;
-            }
-
-            return getProjectJoinRequestsFromQuery(projectJoinRequestQuery, userId);
-        } catch (SQLException se) {
-            ServiceLogger.log(LOGTAG, se.getMessage());
+    public ArrayList<ProjectJoinRequest> getProjectJoinRequest(ArrayList<String> projects, ArrayList<String> profiles,
+            Integer userId) throws Exception {
+        // requesting user must be administrator of the project to get the
+        // list of members.
+        String projectJoinRequestQuery = "SELECT gjr.group_id, gjr.user_id, gjr.requester_id "
+                + "FROM group_join_request gjr ";
+        final String projectsInClause = CreateInClause(projects);
+        final String profilesInClause = CreateInClause(profiles);
+        if (projectsInClause.length() > 0 && profilesInClause.length() > 0) {
+            projectJoinRequestQuery += "WHERE gjr.group_id " + projectsInClause;
+            projectJoinRequestQuery += "AND gjr.user_id " + profilesInClause;
+        } else if (projectsInClause.length() > 0) {
+            projectJoinRequestQuery += "WHERE gjr.group_id " + projectsInClause;
+        } else if (profilesInClause.length() > 0) {
+            projectJoinRequestQuery += "WHERE gjr.user_id " + profilesInClause;
         }
-        return null;
+
+        return getProjectJoinRequestsFromQuery(projectJoinRequestQuery, userId);
     }
 
     private String CreateInClause(ArrayList<String> listOfInts) throws Exception {
@@ -523,15 +529,17 @@ public class ProjectDao {
         final ArrayList<String> profiles = new ArrayList<String>();
         profiles.add(profileId);
         final ArrayList<ProjectJoinRequest> requests = getProjectJoinRequest(projects, profiles,
-                Integer.toString(requesterId));
+                requesterId);
+        ServiceLogger.log(LOGTAG, "getProjectJoinRequest returned " + requests.size() + " entries");
         // TODO - should only be one, but we aren't restricting by requester in
         // query, so need to do it here.
         for (ProjectJoinRequest pjr : requests) {
+            ServiceLogger.log(LOGTAG, "checking project join request: " + pjr.getId() + " equals? " + projectId + "-" + profileId + "-" + Integer.toString(requesterId));
             if (pjr.getId().equals(projectId + "-" + profileId + "-" + Integer.toString(requesterId)))
                 return pjr;
         }
-
-        throw new Exception("Failed to create join request");
+        ServiceLogger.log(LOGTAG, "going to fail now because we didn't find the expected ProjectJoinRequest");
+        throw new DMCServiceException(DMCError.NoExistingRequest, "Failed to create join request - we should have found one and returned");
     }
 
     // sample query for member 111 by fforgeadmin user (102), If by and member

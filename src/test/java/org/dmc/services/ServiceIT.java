@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.HttpStatus.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +35,6 @@ import org.dmc.services.users.UserDao;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.services.*;
 import org.dmc.services.utility.TestUserUtil;
-import org.json.JSONObject;
-import org.junit.Ignore;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -72,6 +71,7 @@ public class ServiceIT extends BaseIT {
     private static final String SERVICE_RUN_LIST_RESOURCE = "/service_runs";
     private static final String INPUT_POS_RESOURCE = "/input-positions";
     private static final String INPUT_POS_BY_ID_RESOURCE = "/input-positions/{positionId}";
+    private static final String PROJECT_CREATE_RESOURCE = "projects/create";
 
     private Random r = new Random();
     private String serviceId = "1"; // the serviceId need to be assigned new value
@@ -88,6 +88,7 @@ public class ServiceIT extends BaseIT {
 
     @Test
     public void testService() {
+        ServiceLogger.log(logTag, "starting testService");
         // perform actual GET request against the embedded container for the service we know exists
         // provide the same ID the test service above was created with
         // Expect
@@ -101,6 +102,7 @@ public class ServiceIT extends BaseIT {
 
     @Test
     public void testServiceList(){
+        ServiceLogger.log(logTag, "starting testServiceList");
         given().header("AJP_eppn", knownEPPN).
         expect().statusCode(OK.value()).when().get(SERVICE_LIST_RESOURCE).then().
         body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
@@ -108,6 +110,7 @@ public class ServiceIT extends BaseIT {
 
     @Test
     public void testServiceListProject(){
+        ServiceLogger.log(logTag, "starting testServiceListProject");
         given().header("AJP_eppn", knownEPPN).
         expect().statusCode(OK.value()).when().get(PROJECT_SERVICES_RESOURCE, "6").then().
         body(matchesJsonSchemaInClasspath("Schemas/serviceListSchema.json"));
@@ -115,6 +118,7 @@ public class ServiceIT extends BaseIT {
 
     @Test
     public void testServiceListComponent(){
+        ServiceLogger.log(logTag, "starting testServiceListComponent");
         Integer randomComponentId =  (r.nextInt(190) + 30);
         given().header("AJP_eppn", knownEPPN).
         expect().statusCode(OK.value()).when().get(COMPONENT_SERVICES_RESOURCE, randomComponentId.toString()).then().
@@ -126,6 +130,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServicePatch_ServiceId(){
+        ServiceLogger.log(logTag, "starting testServicePatch_ServiceId");
         
         //TODO: Create a service
         //Change description and use PATCH
@@ -180,6 +185,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServicePost(){
+        ServiceLogger.log(logTag, "starting testServicePost");
         Service service = createNewServiceObjectToPost();
 
         Service serviceResponse =
@@ -210,6 +216,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceAuthor(){
+        ServiceLogger.log(logTag, "starting testServiceGet_ServiceAuthor");
         ServiceAuthor[] authors =
                 given().
                 header("AJP_eppn", userEPPN).
@@ -234,6 +241,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testService_GetEmptyServiceHistory(){
+        ServiceLogger.log(logTag, "starting testService_GetEmptyServiceHistory");
         List<ServiceHistory> history = given().
                 header("AJP_eppn", userEPPN).
                 expect().
@@ -253,9 +261,13 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testService_GetHistory() {
+        ServiceLogger.log(logTag, "starting testService_GetHistory");
         Id projectId = createTestProject();
+        ServiceLogger.log(logTag,  "created project for testing history: " + projectId.getId());
         Service testService = uploadTestService(projectId);
+        ServiceLogger.log(logTag,  "created service for testing history: " + testService.getId());
         updateService(testService);
+        ServiceLogger.log(logTag,  "updated service for testing history: " + testService.getId());
         checkHistory(testService);
     }
     
@@ -269,10 +281,10 @@ public class ServiceIT extends BaseIT {
         json.setTitle("junitjson" + unique);
 
         ServiceLogger.log(logTag, "testProjectCreateJsonObject: json = " + json.toString());
-        final Id pid = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
-                .statusCode(OK.value()).when().post("/projects/create").then()
-                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().as(Id.class);
-        
+        final Integer testProjectId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
+                .statusCode(OK.value()).when().post(PROJECT_CREATE_RESOURCE).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+        Id pid = new Id.IdBuilder(testProjectId).build();
         return pid;
     }
 
@@ -281,8 +293,9 @@ public class ServiceIT extends BaseIT {
         // what other things can be changed?
         // service type
         // Publish a service - not sure if it calls patch or something else.
-        final Service service = createNewServiceObjectToPost();  
+        final Service service = createNewServiceObjectToPost();
         service.setProjectId(Integer.toString(projectId.getId()));
+        ServiceLogger.log(logTag, "local variable service constructed to send as body to post: " + service.getDescription());
         final ValidatableResponse response =
                 given().
                 header("Content-type", APPLICATION_JSON_VALUE).
@@ -324,26 +337,35 @@ public class ServiceIT extends BaseIT {
             body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
     }
     private void checkHistory(Service patchService) {
-        List<ServiceHistory> history = given().
+        final ObjectMapper mapper = new ObjectMapper();
+        final JsonNode jsonHistory = given().
                 header("AJP_eppn", userEPPN).
                 expect().
                 statusCode(OK.value()).
-                when().get(SERVICE_HISTORY_RESOURCE, patchService.getId()).as(List.class);
-
-        assertTrue("Expected history, but none returned", history.size() != 0);
-
-        final ServiceHistory verify = history.get(0);
-        assertTrue("IDs do not match", Integer.parseInt(verify.getServiceId()) == patchService.getId());
-        assertTrue("Link is not empty string", verify.getLink().equals(""));
-        assertTrue("Section is not marketplace", verify.getSection() == ServiceHistory.SectionEnum.marketplace);
-        assertTrue("History period is not today", verify.getPeriod() == ServiceHistory.PeriodEnum.today);
+                when().get(SERVICE_HISTORY_RESOURCE, patchService.getId()).as(JsonNode.class);
         try {
-            final int uid = UserDao.getUserID(userEPPN);
-            final String uname = UserDao.getUserName(uid);
-            assertTrue("User IDs do not match", verify.getUser().equals(Integer.toString(uid)));
-            assertTrue("Message does not match expected", verify.getTitle().matches(uname + " updated the service on *"));
-        } catch (SQLException e) {
-            fail("Failed user lookup");
+            final ArrayList<ServiceHistory> history = mapper.readValue(mapper.treeAsTokens(jsonHistory),  new TypeReference<ArrayList<ServiceHistory>>() {});
+            assertTrue("Expected history, but none returned", history.size() != 0);
+
+            final ServiceHistory verify = history.get(0);
+            assertTrue("IDs do not match", Integer.parseInt(verify.getServiceId()) == patchService.getId());
+            assertTrue("Link is not empty string", verify.getLink().equals(""));
+            assertTrue("Section is not marketplace", verify.getSection() == ServiceHistory.SectionEnum.marketplace);
+            assertTrue("History period is not today", verify.getPeriod() == ServiceHistory.PeriodEnum.today);
+            try {
+                final int uid = UserDao.getUserID(userEPPN);
+                final String uname = UserDao.getUserName(uid);
+                assertTrue("User IDs do not match", verify.getUser().equals(Integer.toString(uid)));
+                ServiceLogger.log(logTag, "ServiceHistory - title - expecting startWith: " + uname + " updated the service on");
+                ServiceLogger.log(logTag, "ServiceHistory - title - actual             : " + verify.getTitle());
+                assertTrue("Message does not match expected", verify.getTitle().startsWith(uname + " updated the service on"));
+            } catch (SQLException e) {
+                fail("Failed user lookup");
+            }
+        } catch (JsonProcessingException e) {
+            fail("Failed to map GET history response to array of ServiceHistory (JsonProcessingException)" + e.getMessage());
+        } catch (IOException e) {
+            fail("Failed to map GET history response to array of ServiceHistory (IOException)" + e.getMessage());
         }
 
     }
@@ -353,6 +375,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceTags(){
+        ServiceLogger.log(logTag, "starting testServiceGet_ServiceTags");
 
         final int serviceId = 2;
         final String tag1 = "tag_" + TestUserUtil.generateTime();
@@ -388,6 +411,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceStatistic(){
+        ServiceLogger.log(logTag, "starting testServiceGet_ServiceStatistic");
         given().
             header("AJP_eppn", userEPPN).
             expect().
@@ -400,6 +424,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven() {
+        ServiceLogger.log(logTag, "starting testServiceGet_DomeInterfaceWhenNoSortParametersAreGiven");
 
         for (int i = 0; i < 5; i++) {
             final PostUpdateDomeInterface domeInterface = new PostUpdateDomeInterface();
@@ -469,6 +494,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_DomeInterfaceWhenSortParametersAreGiven() {
+        ServiceLogger.log(logTag, "starting testServiceGet_DomeInterfaceWhenSortParametersAreGiven");
         final String testDomeServerNum = "2";
 
         for (int i = 0; i < 5; i++) {
@@ -562,6 +588,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_DomeInterfaceWhenNoObjectsInReturnEntity() {
+        ServiceLogger.log(logTag, "starting testServiceGet_DomeInterfaceWhenNoObjectsInReturnEntity");
         final String testDomeServerNum = "2";
 
         final List<GetDomeInterface> receivedDomeInterfaces = Arrays.asList(given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN)
@@ -641,6 +668,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServicePost_DomeInterface_WhenInvalidInputIsSent() {
+        ServiceLogger.log(logTag, "starting testServicePost_DomeInterface_WhenInvalidInputIsSent");
 
         // "domeServer is a very large number, something not in the database so
         // a foreign key error occurs
@@ -656,6 +684,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServicePost_DomeInterface_WhenValidInfoIsSent() {
+        ServiceLogger.log(logTag, "starting testServicePost_DomeInterface_WhenValidInfoIsSent");
         final PostUpdateDomeInterface sentDomeInterface = createPostUpdateDomeInterface();
 
         final ObjectMapper mapper = new ObjectMapper();
@@ -695,6 +724,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServicePatch_DomeInterface() {
+        ServiceLogger.log(logTag, "starting testServicePatch_DomeInterface");
         final PostUpdateDomeInterface newDomeInterface = createPostUpdateDomeInterface();
 
         final ObjectMapper postMapper = new ObjectMapper();
@@ -754,6 +784,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceDelete_DomeInterface() {
+        ServiceLogger.log(logTag, "starting testServiceDelete_DomeInterface");
         final PostUpdateDomeInterface postDomeInterface = createPostUpdateDomeInterface();
         postDomeInterface.setInterfaceId("DELETE ME");
         postDomeInterface.setName("DELETEEEEE");
@@ -781,6 +812,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_DomeInterfaceById() {
+        ServiceLogger.log(logTag, "starting testServiceGet_DomeInterfaceById");
 
         final PostUpdateDomeInterface postDomeInterface = createPostUpdateDomeInterface();
 
@@ -820,6 +852,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_InputPositions(){
+        ServiceLogger.log(logTag, "starting testServiceGet_InputPositions");
         int sId = 3;
         given().
         header("AJP_eppn", userEPPN).
@@ -834,6 +867,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServicePost_Specification(){
+        ServiceLogger.log(logTag, "starting testServicePost_Specification");
         final String postedSpecificationJSONString = getSpecJSONString();
 
         //pathParam("serviceID", serviceId).
@@ -854,6 +888,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServicePost_EmptySpecification(){
+        ServiceLogger.log(logTag, "starting testServicePost_EmptySpecification");
         final ServiceSpecifications specification = new ServiceSpecifications();
         final ObjectMapper mapper = new ObjectMapper();
         String postedSpecificationJSONString = null;
@@ -881,6 +916,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testGet_ArraySpecification() {
+        ServiceLogger.log(logTag, "starting testGet_ArraySpecification");
 
         ArrayList<ServiceSpecifications> specs = new ArrayList<ServiceSpecifications>();
         int previousSpecId = 0;
@@ -917,6 +953,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testPost_ArraySpecification() {
+        ServiceLogger.log(logTag, "starting testPost_ArraySpecification");
         final int numSpecs = 2;
         final String postedSpecificationJSONString = getSpecsJSONString(numSpecs);
 
@@ -939,6 +976,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceRunId(){
+        ServiceLogger.log(logTag, "starting testServiceGet_ServiceRunId");
         final String serviceRunId = "1";
 
         final GetServiceRun received = given().
@@ -956,6 +994,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceGet_ServiceRunsFromListOfServiceIds() {
+        ServiceLogger.log(logTag, "starting testServiceGet_ServiceRunsFromListOfServiceIds");
         final List<GetServiceRun> serviceRunsInTable = Arrays.asList(given().header("AJP_eppn", "joeengineer").param("serviceId", 1).param("serviceId", 3).expect()
                 .statusCode(OK.value()).when().get(SERVICE_RUN_LIST_RESOURCE).as(GetServiceRun[].class));
 
@@ -972,6 +1011,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServicePatch_ServiceRunId() {
+        ServiceLogger.log(logTag, "starting testServicePatch_ServiceRunId");
         final ObjectMapper mapper = new ObjectMapper();
         final String serviceRunId = "1";
         final GetServiceRun serviceRun = new GetServiceRun();
@@ -1003,6 +1043,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testServiceDelete_ServiceRunId(){
+        ServiceLogger.log(logTag, "starting testServiceDelete_ServiceRunId");
         given().
         header("AJP_eppn", userEPPN).
         expect().
@@ -1011,6 +1052,7 @@ public class ServiceIT extends BaseIT {
     }
 
     public void testPost_InputPosition(){
+        ServiceLogger.log(logTag, "starting testPost_InputPosition");
 
         final ArrayList<ServiceInputPosition> positions = new ArrayList<ServiceInputPosition>();
         final ServiceInputPosition position1 = new ServiceInputPosition();
@@ -1058,6 +1100,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testDelete_InputPositionByPositionInputId(){
+        ServiceLogger.log(logTag, "starting testDelete_InputPositionByPositionInputId");
         given().
         header("AJP_eppn", userEPPN).
         expect().
@@ -1071,6 +1114,7 @@ public class ServiceIT extends BaseIT {
      */
     @Test
     public void testPatch_InputPositionByPositionInputId(){
+        ServiceLogger.log(logTag, "starting testPatch_InputPositionByPositionInputId");
         final List<ServiceInputPosition> obj = new ArrayList<ServiceInputPosition>();
 
         final int interfaceId = 100;

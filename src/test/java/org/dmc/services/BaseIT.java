@@ -39,10 +39,10 @@ public class BaseIT {
 	  String baseURI = System.getProperty("baseURI", "not specified");
 	  if (baseURI.equals("not specified")){
 		RestAssured.port = serverPort;
-		ServiceLogger.log("BaseIT", "BASE URI not specified.");
+		ServiceLogger.log("BaseIT::"+this.getClass().getSimpleName(), "BASE URI not specified.");
 	  }
 	  else{
-		  ServiceLogger.log("BaseIT", "BASE URI specified, setting attributes");
+		  ServiceLogger.log("BaseIT::"+this.getClass().getSimpleName(), "BASE URI specified, setting attributes");
 		  RestAssured.baseURI = baseURI; 
 		  RestAssured.port = Integer.getInteger("port", 8080).intValue();
 		  RestAssured.basePath = "";
