@@ -670,7 +670,7 @@ public class CompanyIT extends BaseIT {
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
 		get("/companies/" + companyId + "/company_services");
 	}
