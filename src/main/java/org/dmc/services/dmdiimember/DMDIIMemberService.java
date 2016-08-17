@@ -77,17 +77,15 @@ public class DMDIIMemberService {
 		if (memberModel.getId() == null && dmdiiMemberDao.existsByOrganizationId(memberModel.getOrganization().getId())) {
 			throw new DuplicateDMDIIMemberException("This organization is already a DMDII member");
 		}
-		
+
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
+		memberModel.setOrganization(organizationService.save(memberModel.getOrganization()));
+
 		DMDIIMember memberEntity = memberMapper.mapToEntity(memberModel);
-		Organization organizationEntity = orgMapper.mapToEntity(organizationService.findOne(memberModel.getOrganization().getId()));
-		memberEntity.setOrganization(organizationEntity);
 
-		memberEntity = dmdiiMemberDao.save(memberEntity);
-
-		return memberMapper.mapToModel(memberEntity);
+		return memberMapper.mapToModel(dmdiiMemberDao.save(memberEntity));
 	}
 
 	public List<DMDIIMemberModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
@@ -196,7 +194,7 @@ public class DMDIIMemberService {
 		Mapper<DMDIIMemberEvent, DMDIIMemberEventModel> mapper = mapperFactory.mapperFor(DMDIIMemberEvent.class, DMDIIMemberEventModel.class);
 		return mapper.mapToModel(dmdiiMemberEventRepository.findFutureEvents(new PageRequest(0, limit)).getContent());
 	}
-	
+
 	public class DuplicateDMDIIMemberException extends Exception {
 		public DuplicateDMDIIMemberException(String message) {
 			super(message);
