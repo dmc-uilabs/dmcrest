@@ -68,10 +68,6 @@ public class CompanyDao {
 		
 		Company company = new Company();
 		try {
-			if (!CompanyUserUtil.isDMDIIMember(userEPPN)) {
-				ServiceLogger.log(logTag, "User: " + userEPPN + " is not DMDII Member");
-				throw new HTTPException(HttpStatus.FORBIDDEN.value());
-			}
 			
 			String query = "SELECT * FROM organization o "
 					+ "JOIN common_address a ON o.addressId = a.id "
@@ -627,12 +623,12 @@ public class CompanyDao {
 
 	/**
 	 * Add an administrator for a company
-	 * @param companyId the company id
-	 * @param userId the user id
-	 * @param userEPPN user name of the requestor
-	 * @return the id of the new organization_admin record
+	 * @param companyId
+	 * @param userId
+	 * @param userEPPN
+	 * @return
 	 * @throws HTTPException
-     */
+	 */
 	public Id addAdministrator (int companyId, int userId, String userEPPN) throws HTTPException {
 
 		connection = DBConnector.connection();
@@ -710,13 +706,12 @@ public class CompanyDao {
 		return new Id.IdBuilder(organizationAdminId).build();
 	}
 
-
 	/**
 	 * Add a member for a company
-	 * @param companyId the company id
-	 * @param userId the user id
-	 * @param userEPPN user name of the requestor
-	 * @return the id of the new organization_user record
+	 * @param companyId
+	 * @param userId
+	 * @param userEPPN
+	 * @return
 	 * @throws HTTPException
 	 */
 	public Id addMember (int companyId, int userId, String userEPPN) throws HTTPException {
