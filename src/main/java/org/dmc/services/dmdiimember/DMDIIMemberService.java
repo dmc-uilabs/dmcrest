@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIMemberEvent;
 import org.dmc.services.data.entities.DMDIIMemberNews;
@@ -110,7 +111,7 @@ public class DMDIIMemberService {
 
 		expressions.add(categoryIdFilter(filterParams.get("categoryId")));
 		expressions.add(tierFilter(filterParams.get("tier")));
-		expressions.add(hasActiveProjectsFilter(filterParams.get("hasActiveProjects")));
+		expressions.add(hasActiveProjectsFilter(filterParams.get("activeProjects")));
 		expressions.addAll(tagFilter(filterParams.get("expertiseTags"), "expertiseTags"));
 		expressions.addAll(tagFilter(filterParams.get("desiredExpertiseTags"), "desiredExpertiseTags"));
 
@@ -179,7 +180,7 @@ public class DMDIIMemberService {
 		Date today = new Date();
 		QDMDIIProject qdmdiiProject = QDMDIIProject.dMDIIProject;
 		ListSubQuery subQuery = new JPASubQuery().from(qdmdiiProject).where(qdmdiiProject.awardedDate.before(today), qdmdiiProject.endDate.after(today)).list(qdmdiiProject.id);
-		if (Boolean.valueOf(hasActiveProjects)) {
+		if (BooleanUtils.toBoolean(hasActiveProjects)) {
 			return QDMDIIMember.dMDIIMember.projects.any().in(subQuery);
 		} else {
 			return new BooleanBuilder().and(QDMDIIMember.dMDIIMember.projects.any().in(subQuery)).not().getValue();
