@@ -47,6 +47,7 @@ public class UserModel extends BaseModel {
 	private Integer organization;
 	private String aboutMe;
 	private String resume;
+	private int account;
 
 	public String getDisplayName() {
 		return displayName;
@@ -246,5 +247,13 @@ public class UserModel extends BaseModel {
 
 	public void setResume(String resume) {
 		this.resume = resume;
+	}
+
+	public int getAccount() {
+		return account;
+	}
+
+	public void setAccount(int account) {
+		this.account = account;
 	}
 }
