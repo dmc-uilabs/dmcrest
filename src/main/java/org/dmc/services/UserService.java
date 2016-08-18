@@ -198,4 +198,38 @@ public class UserService {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findAllWhereDmdiiMemberExpiryDateIsAfterNow());
 	}
+
+	public UserModel readOrCreateUser(String userEPPN, String userFirstName, String userSurname, String userFullname,
+			String userEmail) {
+		User user = userRepository.findByUsername(userEPPN);
+		if (user == null) {
+			user = createUser(userEPPN, userFirstName, userSurname, userFullname, userEmail);
+			OnboardingStatus onboardingStatus = createOnboardingStatus(user.getId());
+		}
+		final Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		final UserModel userModel = mapper.mapToModel(user);
+		return userModel;
+	}
+
+	private OnboardingStatus createOnboardingStatus(Integer id) {
+		OnboardingStatus status = new OnboardingStatus();
+		status.setId(id);
+		status.setAccount(false);
+		status.setCompany(false);
+		status.setProfile(false);
+		status.setStorefront(false);
+		return onboardingStatusRepository.save(status);
+	}
+
+	private User createUser(String userEPPN, String firstName, String lastName, String fullName, String email) {
+		User user = new User();
+		user.setUsername(userEPPN);
+		user.setPassword(DEFAULT_PASSWORD);
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		user.setRealname(fullName);
+		user.setEmail(email);
+		user.setAddDate(0);
+		return userRepository.save(user);
+	}
 }
