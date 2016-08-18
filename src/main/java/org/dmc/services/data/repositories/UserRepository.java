@@ -23,5 +23,5 @@ public interface UserRepository extends BaseRepository<User, Integer> {
 			+ " WHERE dmdii.expire_date >= now()", nativeQuery = true)
 	List<User> findAllWhereDmdiiMemberExpiryDateIsAfterNow();
 
-
+	User findByUsername(String username);
 }
