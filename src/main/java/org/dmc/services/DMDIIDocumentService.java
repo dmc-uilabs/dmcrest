@@ -44,8 +44,6 @@ public class DMDIIDocumentService {
 	@Inject
 	private MapperFactory mapperFactory;
 	
-	private AWSConnector AWS;
-	
 	private final String logTag = DMDIIDocumentService.class.getName();
 	
 	private Verification verify = new Verification();
@@ -92,10 +90,9 @@ public class DMDIIDocumentService {
 	}
 
 	public DMDIIDocument findOneEntity(Integer id) throws DMCServiceException {
-		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(id));
+		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(id);
 		
-		docList = refreshDocuments(docList);
-		return docList.get(0);
+		return docEntity;
 	}
 	
 	public DMDIIDocumentModel findMostRecentStaticFileByFileTypeId (Integer fileTypeId) throws DMCServiceException {
@@ -182,9 +179,12 @@ public class DMDIIDocumentService {
 		List<DMDIIDocument> freshDocs = new ArrayList<DMDIIDocument>();
 		//Refresh check
 		for (DMDIIDocument doc : docs) {
-			if(AWS.isTimeStampExpired(doc.getExpires())) {
+			if(AWSConnector.isTimeStampExpired(doc.getExpires())) {
+				//Get path from URL
+				String path = AWSConnector.createPath(doc.getDocumentUrl());
+				
 				//Refresh URL
-				String newURL = AWS.refreshURL(doc.getDocumentUrl());
+				String newURL = AWSConnector.refreshURL(path);
 				
 				//create a timestamp
 				Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime());
