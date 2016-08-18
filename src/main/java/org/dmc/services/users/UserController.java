@@ -1,10 +1,5 @@
 package org.dmc.services.users;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.xml.ws.http.HTTPException;
-
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.OrganizationUserService;
@@ -30,6 +25,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import javax.xml.ws.http.HTTPException;
+import java.util.List;
 
 @RestController
 public class UserController {
@@ -76,6 +75,9 @@ public class UserController {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
 
         User user = userDAO.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+
+		UserModel model = userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+
         UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userEPPN);
         user.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
         user.setRoles(userPrincipal.getAllRoles());
