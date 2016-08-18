@@ -28,22 +28,21 @@ public class User {
     private UserOnboarding onboarding;
     private Map<Integer, String> roles;
     private Boolean isDMDIIMember;
-    
-    public User() {
-        this.displayName = null; //TODO: fix
-        this.accountId = -1;
-        this.profileId = -1;
-        this.companyId = -1;
-        this.role = -1;
-        this.termsConditions = false;
-        this.notifications = new UserNotifications();
-        this.runningServices = new UserRunningServices();
-        this.messages = new UserMessages();
-        this.onboarding = new UserOnboarding(false, false, false, false);
-        
-    }
-    
-    public User (int id, String userName, String realName, boolean termsConditions) {
+
+	//    public User() {
+	//        this.displayName = null; //TODO: fix
+	//        this.accountId = -1;
+	//        this.profileId = -1;
+	//        this.companyId = -1;
+	//        this.role = -1;
+	//        this.termsConditions = false;
+	//        this.notifications = new UserNotifications();
+	//        this.runningServices = new UserRunningServices();
+	//        this.messages = new UserMessages();
+	//        this.onboarding = new UserOnboarding(false, false, false, false);
+	//    }
+
+	public User (int id, String userName, String realName, boolean termsConditions) {
         ServiceLogger.log(logTag, "In User with id " + id + " userName " + userName);
         this.displayName = realName;
         this.accountId = id;
@@ -54,10 +53,6 @@ public class User {
 		int companyId = companyDao.getUserCompanyId(id);
 
         this.companyId = companyId;
-		
-		
-
-		
         this.role = -1;
         this.termsConditions = termsConditions;
         this.notifications = new UserNotifications();
