@@ -48,16 +48,21 @@ public class OrganizationService {
 	public Organization save(Organization organization) {
 		return organizationDao.save(organization);
 	}
-	
-	public OrganizationModel findOne(Integer id) {
+
+	public OrganizationModel findById(Integer id) {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 		return mapper.mapToModel(organizationDao.findOne(id));
 	}
-	
+
+	public List<OrganizationModel> findAll() {
+		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
+		return mapper.mapToModel(organizationDao.findAll());
+	}
+
 	public List<OrganizationModel> findNonDmdiiMembers() {
 		ListSubQuery<Integer> subQuery = new JPASubQuery().from(QDMDIIMember.dMDIIMember).list(QDMDIIMember.dMDIIMember.organization().id);
 		Predicate predicate = QOrganization.organization.id.notIn(subQuery);
-		
+
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 		return mapper.mapToModel(organizationDao.findAll(predicate));
 	}
