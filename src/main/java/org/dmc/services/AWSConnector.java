@@ -133,7 +133,7 @@ public class AWSConnector {
         generatePresignedUrlRequest.setExpiration(expiration);
 
         final URL url = s3client.generatePresignedUrl(generatePresignedUrlRequest);
-        final String preSignedURL = url.getProtocol() + "://" + url.getHost() + url.getPath();
+        final String preSignedURL = url.getProtocol() + "://" + url.getHost() + url.getPath() + "?" + url.getQuery();
         return preSignedURL;
     }
 
