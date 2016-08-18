@@ -19,6 +19,11 @@ public class UserModel extends BaseModel {
 	private Integer organization;
 	private String aboutMe;
 	private String resume;
+	private boolean termsConditions;
+	private int accountId;
+	private int profileId;
+	private int companyId;
+	private int role;
 
 	public String getUsername() {
 		return username;
@@ -138,5 +143,45 @@ public class UserModel extends BaseModel {
 
 	public void setResume(String resume) {
 		this.resume = resume;
+	}
+
+	public boolean isTermsConditions() {
+		return termsConditions;
+	}
+
+	public void setTermsConditions(boolean termsConditions) {
+		this.termsConditions = termsConditions;
+	}
+
+	public int getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(int accountId) {
+		this.accountId = accountId;
+	}
+
+	public int getProfileId() {
+		return profileId;
+	}
+
+	public void setProfileId(int profileId) {
+		this.profileId = profileId;
+	}
+
+	public int getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(int companyId) {
+		this.companyId = companyId;
+	}
+
+	public int getRole() {
+		return role;
+	}
+
+	public void setRole(int role) {
+		this.role = role;
 	}
 }
