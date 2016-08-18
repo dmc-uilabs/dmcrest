@@ -1,7 +1,5 @@
 package org.dmc.services.data.entities;
 
-import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +11,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -25,6 +27,9 @@ public class User extends BaseEntity {
 
 	@Column(name = "user_name")
 	private String username;
+
+	@Column(name = "user_pw")
+	private String password;
 
 	@Column(name = "realname")
 	private String realname;
@@ -56,6 +61,16 @@ public class User extends BaseEntity {
 	@Column(name = "people_resume")
 	private String resume;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "accept_term_cond_time")
+	private Date termsConditions;
+
+	/**
+	 * Time record was inserted into database stored as millis?
+	 */
+	@Column(name = "add_date")
+	private Integer addDate;
+
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
 
@@ -81,6 +96,14 @@ public class User extends BaseEntity {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getRealname() {
@@ -185,6 +208,22 @@ public class User extends BaseEntity {
 
 	public void setOrganizationUser(OrganizationUser organizationUser) {
 		this.organizationUser = organizationUser;
+	}
+
+	public Date getTermsConditions() {
+		return termsConditions;
+	}
+
+	public void setTermsConditions(Date termsConditions) {
+		this.termsConditions = termsConditions;
+	}
+
+	public Integer getAddDate() {
+		return addDate;
+	}
+
+	public void setAddDate(Integer addDate) {
+		this.addDate = addDate;
 	}
 
 	@Override
