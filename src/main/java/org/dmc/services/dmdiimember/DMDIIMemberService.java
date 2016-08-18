@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.dmc.services.data.entities.DMDIIMember;
@@ -73,6 +74,7 @@ public class DMDIIMemberService {
 		return dmdiiMemberDao.countByOrganizationNameLikeIgnoreCase("%"+name+"%");
 	}
 
+	@Transactional
 	public DMDIIMemberModel save(DMDIIMemberModel memberModel) throws DuplicateDMDIIMemberException {
 		if (memberModel.getId() == null && dmdiiMemberDao.existsByOrganizationId(memberModel.getOrganization().getId())) {
 			throw new DuplicateDMDIIMemberException("This organization is already a DMDII member");
@@ -84,6 +86,13 @@ public class DMDIIMemberService {
 		memberModel.setOrganization(organizationService.save(memberModel.getOrganization()));
 
 		DMDIIMember memberEntity = memberMapper.mapToEntity(memberModel);
+		
+		// Projects on DMDII member entity are not mapped to/from model
+		// So if this is an existing DMDII member being updated, we need to get any existing projects and add them to the member for data integrity
+		if (memberEntity.getId() != null) {
+			DMDIIMember originalEntity = dmdiiMemberDao.findOne(memberEntity.getId());
+			memberEntity.setProjects(originalEntity.getProjects());
+		}
 
 		return memberMapper.mapToModel(dmdiiMemberDao.save(memberEntity));
 	}
