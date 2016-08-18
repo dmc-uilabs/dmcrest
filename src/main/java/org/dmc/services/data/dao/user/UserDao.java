@@ -1,25 +1,24 @@
 package org.dmc.services.data.dao.user;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Connection;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
+import org.dmc.services.Config;
+import org.dmc.services.DBConnector;
+import org.dmc.services.Id;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.User;
 import org.dmc.services.users.UserOnboarding;
 import org.json.JSONException;
-import org.dmc.services.DBConnector;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.Id;
-import org.dmc.services.Config;
-import org.dmc.services.sharedattributes.Util;
-import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
+
+import javax.xml.ws.http.HTTPException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class UserDao {
@@ -90,17 +89,8 @@ public class UserDao {
 			ServiceLogger.log(logTag, e.getMessage());
 			return new Id.IdBuilder(id).build();
 		}
-		*/
-		catch(SQLException e){
+		*/ catch (JSONException | SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			return new Id.IdBuilder(id).build();
-		}
-		catch(JSONException j){
-			ServiceLogger.log(logTag, j.getMessage());
-			return new Id.IdBuilder(id).build();
-		}
-		catch(Exception ee){
-			ServiceLogger.log(logTag, ee.getMessage());
 			return new Id.IdBuilder(id).build();
 		}
 	}
