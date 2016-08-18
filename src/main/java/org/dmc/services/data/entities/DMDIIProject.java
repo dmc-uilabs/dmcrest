@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,9 +32,9 @@ public class DMDIIProject extends BaseEntity {
 	@JoinColumn(name = "organization_dmdii_member_id", nullable = false)
 	private DMDIIMember primeOrganization;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "principal_investigator_id")
-	private User principalInvestigator;
+	private DMDIIProjectContact principalInvestigator;
 
 	@ManyToOne
 	@JoinColumn(name = "status_id")
@@ -53,9 +54,9 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "project_summary")
 	private String projectSummary;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "principal_point_of_contact_id")
-	private User principalPointOfContact;
+	private DMDIIProjectContact principalPointOfContact;
 
 	@ManyToOne
 	@JoinColumn(name = "focus_area_id")
@@ -98,11 +99,11 @@ public class DMDIIProject extends BaseEntity {
 		this.primeOrganization = primeOrganization;
 	}
 
-	public User getPrincipalInvestigator() {
+	public DMDIIProjectContact getPrincipalInvestigator() {
 		return principalInvestigator;
 	}
 
-	public void setPrincipalInvestigator(User principalInvestigator) {
+	public void setPrincipalInvestigator(DMDIIProjectContact principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
 	}
 
@@ -146,11 +147,11 @@ public class DMDIIProject extends BaseEntity {
 		this.projectSummary = projectSummary;
 	}
 
-	public User getPrincipalPointOfContact() {
+	public DMDIIProjectContact getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(User principalPointOfContact) {
+	public void setPrincipalPointOfContact(DMDIIProjectContact principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 

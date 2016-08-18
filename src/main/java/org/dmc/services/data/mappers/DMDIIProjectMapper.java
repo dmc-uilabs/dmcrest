@@ -7,11 +7,14 @@ import javax.inject.Inject;
 
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIProject;
+import org.dmc.services.data.entities.DMDIIProjectContact;
 import org.dmc.services.data.entities.DMDIIProjectFocusArea;
 import org.dmc.services.data.entities.DMDIIProjectStatus;
 import org.dmc.services.data.entities.DMDIIProjectThrust;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DMDIIMemberModel;
+import org.dmc.services.data.models.DMDIIPrimeOrganizationModel;
+import org.dmc.services.data.models.DMDIIProjectContactModel;
 import org.dmc.services.data.models.DMDIIProjectFocusAreaModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.DMDIIProjectStatusModel;
@@ -23,18 +26,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjectModel> {
-	
+
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
 
 	@Override
 	public DMDIIProject mapToEntity(DMDIIProjectModel model) {
 		if (model == null) return null;
-		
+
 		DMDIIProject entity = copyProperties(model, new DMDIIProject());
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<DMDIIProjectContact, DMDIIProjectContactModel> contactMapper = mapperFactory.mapperFor(DMDIIProjectContact.class, DMDIIProjectContactModel.class);
 		Mapper<DMDIIProjectStatus, DMDIIProjectStatusModel> statusMapper = mapperFactory.mapperFor(DMDIIProjectStatus.class, DMDIIProjectStatusModel.class);
 		Mapper<DMDIIProjectFocusArea, DMDIIProjectFocusAreaModel> focusMapper = mapperFactory.mapperFor(DMDIIProjectFocusArea.class, DMDIIProjectFocusAreaModel.class);
 		Mapper<DMDIIProjectThrust, DMDIIProjectThrustModel> thrustMapper = mapperFactory.mapperFor(DMDIIProjectThrust.class, DMDIIProjectThrustModel.class);
@@ -43,9 +46,9 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 				.stream()
 				.map(e -> dmdiiMemberService.findOne(e))
 				.collect(Collectors.toList());
-		entity.setPrimeOrganization(memberMapper.mapToEntity(model.getPrimeOrganization()));
-		entity.setPrincipalInvestigator(userMapper.mapToEntity(model.getPrincipalInvestigator()));
-		entity.setPrincipalPointOfContact(userMapper.mapToEntity(model.getPrincipalPointOfContact()));
+		entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
+		entity.setPrincipalInvestigator(contactMapper.mapToEntity(model.getPrincipalInvestigator()));
+		entity.setPrincipalPointOfContact(contactMapper.mapToEntity(model.getPrincipalPointOfContact()));
 		entity.setProjectStatus(statusMapper.mapToEntity(model.getProjectStatus()));
 		entity.setProjectFocusArea(focusMapper.mapToEntity(model.getProjectFocusArea()));
 		entity.setProjectThrust(thrustMapper.mapToEntity(model.getProjectThrust()));
@@ -57,11 +60,11 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 	@Override
 	public DMDIIProjectModel mapToModel(DMDIIProject entity) {
 		if (entity == null) return null;
-		
+
 		DMDIIProjectModel model = copyProperties(entity, new DMDIIProjectModel());
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<DMDIIProjectContact, DMDIIProjectContactModel> contactMapper = mapperFactory.mapperFor(DMDIIProjectContact.class, DMDIIProjectContactModel.class);
 		Mapper<DMDIIProjectStatus, DMDIIProjectStatusModel> statusMapper = mapperFactory.mapperFor(DMDIIProjectStatus.class, DMDIIProjectStatusModel.class);
 		Mapper<DMDIIProjectFocusArea, DMDIIProjectFocusAreaModel> focusMapper = mapperFactory.mapperFor(DMDIIProjectFocusArea.class, DMDIIProjectFocusAreaModel.class);
 		Mapper<DMDIIProjectThrust, DMDIIProjectThrustModel> thrustMapper = mapperFactory.mapperFor(DMDIIProjectThrust.class, DMDIIProjectThrustModel.class);
@@ -70,9 +73,9 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 				.stream()
 				.map(e -> e.getId())
 				.collect(Collectors.toList());
-		model.setPrimeOrganization(memberMapper.mapToModel(entity.getPrimeOrganization()));
-		model.setPrincipalInvestigator(userMapper.mapToModel(entity.getPrincipalInvestigator()));
-		model.setPrincipalPointOfContact(userMapper.mapToModel(entity.getPrincipalPointOfContact()));
+		model.setPrimeOrganization(new DMDIIPrimeOrganizationModel(entity.getPrimeOrganization().getId(), entity.getPrimeOrganization().getOrganization().getName()));
+		model.setPrincipalInvestigator(contactMapper.mapToModel(entity.getPrincipalInvestigator()));
+		model.setPrincipalPointOfContact(contactMapper.mapToModel(entity.getPrincipalPointOfContact()));
 		model.setProjectStatus(statusMapper.mapToModel(entity.getProjectStatus()));
 		model.setProjectFocusArea(focusMapper.mapToModel(entity.getProjectFocusArea()));
 		model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));

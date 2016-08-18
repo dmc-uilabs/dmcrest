@@ -161,7 +161,7 @@ public class AWSConnector {
         // a java current time (now) instance
         final Timestamp currentTimestamp = new Timestamp(now.getTime());
 
-        if (expiration.after(currentTimestamp)) {
+        if (currentTimestamp.after(expiration)) {
             return true;
         }
         // should be false, but true for now for testing

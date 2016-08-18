@@ -4,6 +4,8 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.security.PermissionEvaluationHelper;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.User;
@@ -844,9 +846,9 @@ public class CompanyDao {
 			}
 		}
 
-		// Check that the user is a member of the company
+		// Check that the user is a member of the company or a superadmin
 		try {
-			if (!isMemberOfCompany(companyId, userIdEPPN)) {
+			if (!isMemberOfCompany(companyId, userIdEPPN) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
 				ServiceLogger.log(logTag, "User " + userIdEPPN + " is not a member of comapny " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}

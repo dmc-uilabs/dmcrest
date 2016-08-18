@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -130,7 +131,12 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)
-	public VerifyUserResponse verifyUser(@RequestParam("userId") Integer id, @RequestParam("token") String token) {
+	public VerifyUserResponse getUserToken(@RequestParam("userId") Integer id, @RequestParam("token") String token) {
+		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (id != loggedIn.getId()) {
+			throw new AccessDeniedException("403 Permission Denied");
+		}
+
 		return userService.verifyUser(id, token);
 	}
 
