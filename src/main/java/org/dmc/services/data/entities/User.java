@@ -35,6 +35,9 @@ public class User extends BaseEntity {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date termsAndCondition;
 
+	@Column(name = "user_pw")
+	private String password;
+
 	@Column(name = "realname")
 	private String realname;
 
@@ -112,6 +115,14 @@ public class User extends BaseEntity {
 
 	public void setTermsAndCondition(Date termsAndCondition) {
 		this.termsAndCondition = termsAndCondition;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getRealname() {
