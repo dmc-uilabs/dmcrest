@@ -3,7 +3,7 @@ package org.dmc.services.search.handlers;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.dmc.services.users.User;
+import org.dmc.services.data.models.UserModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by 200005921 on 2/2/2016.
  */
-public class UserResponseHandler implements ResponseHandler<User> {
+public class UserResponseHandler implements ResponseHandler<UserModel> {
 
 	//    {
 	//        "user_name": "berlier",
@@ -29,9 +29,9 @@ public class UserResponseHandler implements ResponseHandler<User> {
 	public static final String FIELD_COMPANY = "company";
 
 	@Override
-	public List<User> retrieve(QueryResponse queryResponse, String userEPPN) {
+	public List<UserModel> retrieve(QueryResponse queryResponse, String userEPPN) {
 
-		List<User> users = new ArrayList<User>();
+		List<UserModel> users = new ArrayList<UserModel>();
 
 		if (queryResponse != null) {
 			SolrDocumentList documents = queryResponse.getResults();
@@ -40,10 +40,17 @@ public class UserResponseHandler implements ResponseHandler<User> {
 				String idStr = (String) doc.getFieldValue(FIELD_ID);
 				int id = Integer.parseInt(idStr);
 				String realname = (String) doc.getFieldValue(FIELD_REALNAME);
-				String user_name = (String) doc.getFieldValue(FIELD_USER_NAME);
+				String username = (String) doc.getFieldValue(FIELD_USER_NAME);
 				String companyIdStr = (String) doc.getFieldValue(FIELD_COMPANY_ID);
 				int companyId = (companyIdStr != null) ? Integer.parseInt(companyIdStr) : -1;
-				users.add(new User(id, user_name, realname, false, companyId));
+
+				UserModel u = new UserModel();
+				u.setId(id);
+				u.setUsername(username);
+				u.setRealname(realname);
+				u.setTermsConditions(false);
+				u.setCompanyId(companyId);
+				users.add(u);
 			}
 		}
 		return users;
