@@ -82,4 +82,10 @@ public class UserRepositoryTest {
 		assertEquals(1, users.size());
 		assertTrue(users.contains(user));
 	}
+
+	@Test
+	void findByUsername_exists() {
+		final User foundUser = userRepo.findByUsername(user.getUsername());
+		assertEquals(user, foundUser);
+	}
 }
