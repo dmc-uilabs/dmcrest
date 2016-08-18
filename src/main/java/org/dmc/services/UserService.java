@@ -1,6 +1,7 @@
 package org.dmc.services;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.dmc.services.data.entities.OnboardingStatus;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserToken;
 import org.dmc.services.data.mappers.Mapper;
@@ -8,6 +9,7 @@ import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
+import org.dmc.services.data.repositories.OnboardingStatusRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.users.VerifyUserResponse;
@@ -20,11 +22,16 @@ import java.util.List;
 @Service
 public class UserService {
 
+	public static final String DEFAULT_PASSWORD = "password";
+
 	@Inject
 	private UserRepository userRepository;
 
 	@Inject
 	private UserTokenRepository userTokenRepository;
+
+	@Inject
+	private OnboardingStatusRepository onboardingStatusRepository;
 
 	@Inject
 	private OrganizationUserService orgUserService;
@@ -61,7 +68,7 @@ public class UserService {
 		String unhashedToken = userEntity.getFirstName() + userEntity.getLastName() + todayTimestamp.getTime();
 		String hashedToken = DigestUtils.sha256Hex(unhashedToken);
 
-		// If null, create a new token, else update existing
+		// If null, createUser a new token, else update existing
 		if (token == null) {
 			token = new UserToken();
 			token.setUserId(userId);
@@ -152,5 +159,39 @@ public class UserService {
 		userTokenRepository.save(tokenEntity);
 		return new VerifyUserResponse(1000,
 				"Tokens did not match, " + (5 - tokenEntity.getAttemptsMade()) + " attempts remaining.");
+	}
+
+	public UserModel readOrCreateUser(String userEPPN, String userFirstName, String userSurname, String userFullname,
+			String userEmail) {
+		User user = userRepository.findByUsername(userEPPN);
+		if (user == null) {
+			user = createUser(userEPPN, userFirstName, userSurname, userFullname, userEmail);
+			OnboardingStatus onboardingStatus = createOnboardingStatus(user.getId());
+		}
+		final Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		final UserModel userModel = mapper.mapToModel(user);
+		return userModel;
+	}
+
+	private OnboardingStatus createOnboardingStatus(Integer id) {
+		OnboardingStatus status = new OnboardingStatus();
+		status.setId(id);
+		status.setAccount(false);
+		status.setCompany(false);
+		status.setProfile(false);
+		status.setStorefront(false);
+		return onboardingStatusRepository.save(status);
+	}
+
+	private User createUser(String userEPPN, String firstName, String lastName, String fullName, String email) {
+		User user = new User();
+		user.setUsername(userEPPN);
+		user.setPassword(DEFAULT_PASSWORD);
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		user.setRealname(fullName);
+		user.setEmail(email);
+		user.setAddDate(0);
+		return userRepository.save(user);
 	}
 }
