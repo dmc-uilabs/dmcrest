@@ -133,7 +133,7 @@ public class UserController {
 	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)
 	public VerifyUserResponse getUserToken(@RequestParam("userId") Integer id, @RequestParam("token") String token) {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (id != loggedIn.getId()) {
+		if (!id.equals(loggedIn.getId())) {
 			throw new AccessDeniedException("403 Permission Denied");
 		}
 
