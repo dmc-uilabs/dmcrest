@@ -1,6 +1,6 @@
 package org.dmc.services.data.models;
 
-public class DMDIIAwardModel extends BaseModel {
+public class AwardModel extends BaseModel {
 
 	private String name;
 

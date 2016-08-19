@@ -64,22 +64,21 @@ public class DMDIIMemberController {
 		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, member.getOrganization().getId())) {
 			throw new AccessDeniedException("403 Access denied");
 		}
-		
+
 		// Only a superadmin may create a new dmdiiMember
 		if (member.getId() == null && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
 			throw new AccessDeniedException("403 Access denied");
 		}
-		
+
 		// If user is not a superadmin, only certain fields may be updated
 		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
 			DMDIIMemberModel existingMember = dmdiiMemberService.findOne(member.getId());
 			existingMember.setAreasOfExpertise(member.getAreasOfExpertise());
 			existingMember.setDesiredAreasOfExpertise(member.getDesiredAreasOfExpertise());
 			existingMember.setContacts(member.getContacts());
-			existingMember.setAwards(member.getAwards());
 			member = existingMember;
 		}
-		
+
 		return dmdiiMemberService.save(member);
 	}
 

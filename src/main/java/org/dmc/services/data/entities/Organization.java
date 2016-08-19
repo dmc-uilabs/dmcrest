@@ -1,5 +1,7 @@
 package org.dmc.services.data.entities;
 
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -41,7 +44,8 @@ public class Organization extends BaseEntity {
 
 	private String customers;
 
-	private String awards;
+	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL)
+	private List<Award> awards;
 
 	@Column(name = "tech_expertise")
 	private String techExpertise;
@@ -107,7 +111,7 @@ public class Organization extends BaseEntity {
 	private String isOwner;
 
 	private String owner;
-	
+
 	@OneToOne(mappedBy = "organization", fetch = FetchType.LAZY)
 	private DMDIIMember dmdiiMember;
 
@@ -191,11 +195,12 @@ public class Organization extends BaseEntity {
 		this.customers = customers;
 	}
 
-	public String getAwards() {
+	public List<Award> getAwards() {
 		return awards;
 	}
 
-	public void setAwards(String awards) {
+	public void setAwards(List<Award> awards) {
+		awards.stream().forEach((a) -> a.setOrganization(this));
 		this.awards = awards;
 	}
 
@@ -619,5 +624,5 @@ public class Organization extends BaseEntity {
 			return false;
 		return true;
 	}
-	
+
 }

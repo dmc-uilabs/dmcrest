@@ -1,7 +1,6 @@
 package org.dmc.services.data.mappers;
 
 import org.dmc.services.data.entities.DMDIIAreaOfExpertise;
-import org.dmc.services.data.entities.DMDIIAward;
 import org.dmc.services.data.entities.DMDIIInstituteInvolvement;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIMemberContact;
@@ -11,7 +10,6 @@ import org.dmc.services.data.entities.DMDIIMemberUser;
 import org.dmc.services.data.entities.DMDIISkill;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.models.DMDIIAreaOfExpertiseModel;
-import org.dmc.services.data.models.DMDIIAwardModel;
 import org.dmc.services.data.models.DMDIIInstituteInvolvementModel;
 import org.dmc.services.data.models.DMDIIMemberContactModel;
 import org.dmc.services.data.models.DMDIIMemberCustomerModel;
@@ -30,12 +28,11 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 	@Override
 	public DMDIIMember mapToEntity(DMDIIMemberModel model) {
 		if (model == null) return null;
-		
+
 		DMDIIMember entity = copyProperties(model, new DMDIIMember(), new String[]{"awards", "contacts", "customers", "finances", "instituteInvolvement"});
 
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class,	OrganizationModel.class);
-		Mapper<DMDIIAward, DMDIIAwardModel> awardMapper = mapperFactory.mapperFor(DMDIIAward.class, DMDIIAwardModel.class);
 		Mapper<DMDIIAreaOfExpertise, DMDIIAreaOfExpertiseModel> aoeMapper = mapperFactory.mapperFor(DMDIIAreaOfExpertise.class, DMDIIAreaOfExpertiseModel.class);
 		Mapper<DMDIIMemberContact, DMDIIMemberContactModel> contactMapper = mapperFactory.mapperFor(DMDIIMemberContact.class, DMDIIMemberContactModel.class);
 		Mapper<DMDIIMemberCustomer, DMDIIMemberCustomerModel> customerMapper = mapperFactory.mapperFor(DMDIIMemberCustomer.class, DMDIIMemberCustomerModel.class);
@@ -46,7 +43,6 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 
 		entity.setDmdiiType(typeMapper.mapToEntity(model.getDmdiiType()));
 		entity.setOrganization(orgMapper.mapToEntity(model.getOrganization()));
-		entity.setAwards(awardMapper.mapToEntity(model.getAwards()));
 		entity.setAreasOfExpertise(aoeMapper.mapToEntity(model.getAreasOfExpertise()));
 		entity.setDesiredAreasOfExpertise(aoeMapper.mapToEntity(model.getDesiredAreasOfExpertise()));
 		entity.setContacts(contactMapper.mapToEntity(model.getContacts()));
@@ -62,12 +58,11 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 	@Override
 	public DMDIIMemberModel mapToModel(DMDIIMember entity) {
 		if (entity == null) return null;
-		
+
 		DMDIIMemberModel model = copyProperties(entity, new DMDIIMemberModel(), new String[]{"awards", "contacts", "customers", "finances", "instituteInvolvement"});
 
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class,	OrganizationModel.class);
-		Mapper<DMDIIAward, DMDIIAwardModel> awardMapper = mapperFactory.mapperFor(DMDIIAward.class, DMDIIAwardModel.class);
 		Mapper<DMDIIAreaOfExpertise, DMDIIAreaOfExpertiseModel> aoeMapper = mapperFactory.mapperFor(DMDIIAreaOfExpertise.class, DMDIIAreaOfExpertiseModel.class);
 		Mapper<DMDIIMemberCustomer, DMDIIMemberCustomerModel> customerMapper = mapperFactory.mapperFor(DMDIIMemberCustomer.class, DMDIIMemberCustomerModel.class);
 		Mapper<DMDIIMemberContact, DMDIIMemberContactModel> contactMapper = mapperFactory.mapperFor(DMDIIMemberContact.class, DMDIIMemberContactModel.class);
@@ -78,7 +73,6 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 
 		model.setDmdiiType(typeMapper.mapToModel(entity.getDmdiiType()));
 		model.setOrganization(orgMapper.mapToModel(entity.getOrganization()));
-		model.setAwards(awardMapper.mapToModel(entity.getAwards()));
 		model.setAreasOfExpertise(aoeMapper.mapToModel(entity.getAreasOfExpertise()));
 		model.setDesiredAreasOfExpertise(aoeMapper.mapToModel(entity.getDesiredAreasOfExpertise()));
 		model.setContacts(contactMapper.mapToModel(entity.getContacts()));

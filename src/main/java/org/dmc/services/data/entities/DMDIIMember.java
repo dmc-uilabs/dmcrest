@@ -43,9 +43,6 @@ public class DMDIIMember extends BaseEntity {
 	@Column(name = "expire_date")
 	private Date expireDate;
 
-	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
-	private List<DMDIIAward> awards;
-
 	@ManyToMany
 	@JoinTable(name = "dmdii_member_area_of_expertise",
 			   joinColumns = @JoinColumn(name="organization_dmdii_member_id"),
@@ -117,15 +114,6 @@ public class DMDIIMember extends BaseEntity {
 
 	public void setExpireDate(Date expireDate) {
 		this.expireDate = expireDate;
-	}
-
-	public List<DMDIIAward> getAwards() {
-		return awards;
-	}
-
-	public void setAwards(List<DMDIIAward> awards) {
-		awards.stream().forEach((a) -> a.setDmdiiMember(this));
-		this.awards = awards;
 	}
 
 	public List<DMDIIAreaOfExpertise> getAreasOfExpertise() {
@@ -218,7 +206,6 @@ public class DMDIIMember extends BaseEntity {
 		int result = 1;
 		result = prime * result + ((areasOfExpertise == null) ? 0 : areasOfExpertise.hashCode());
 		result = prime * result + ((desiredAreasOfExpertise == null) ? 0 : desiredAreasOfExpertise.hashCode());
-		result = prime * result + ((awards == null) ? 0 : awards.hashCode());
 		result = prime * result + ((contacts == null) ? 0 : contacts.hashCode());
 		result = prime * result + ((customers == null) ? 0 : customers.hashCode());
 		result = prime * result + ((dmdiiType == null) ? 0 : dmdiiType.hashCode());
@@ -251,11 +238,6 @@ public class DMDIIMember extends BaseEntity {
 			if (other.desiredAreasOfExpertise != null)
 				return false;
 		} else if (!desiredAreasOfExpertise.equals(other.desiredAreasOfExpertise))
-			return false;
-		if (awards == null) {
-			if (other.awards != null)
-				return false;
-		} else if (!awards.equals(other.awards))
 			return false;
 		if (contacts == null) {
 			if (other.contacts != null)

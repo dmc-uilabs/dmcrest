@@ -13,8 +13,6 @@ public class DMDIIMemberModel extends BaseModel {
 
 	private Date expireDate;
 
-	private List<DMDIIAwardModel> awards;
-
 	private List<DMDIIAreaOfExpertiseModel> areasOfExpertise;
 
 	private List<DMDIIAreaOfExpertiseModel> desiredAreasOfExpertise;
@@ -61,14 +59,6 @@ public class DMDIIMemberModel extends BaseModel {
 
 	public void setExpireDate(Date expireDate) {
 		this.expireDate = expireDate;
-	}
-
-	public List<DMDIIAwardModel> getAwards() {
-		return awards;
-	}
-
-	public void setAwards(List<DMDIIAwardModel> awards) {
-		this.awards = awards;
 	}
 
 	public List<DMDIIAreaOfExpertiseModel> getAreasOfExpertise() {

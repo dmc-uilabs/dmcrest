@@ -10,16 +10,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dmdii_member_award")
-public class DMDIIAward extends BaseEntity {
+@Table(name = "organization_award")
+public class Award extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@ManyToOne
-    @JoinColumn(name="organization_dmdii_member_id")
-	private DMDIIMember dmdiiMember;
+    @JoinColumn(name="organization_id")
+	private Organization organization;
 
 	@Column(name = "name")
 	private String name;
@@ -62,12 +62,12 @@ public class DMDIIAward extends BaseEntity {
 		this.id = id;
 	}
 
-	public DMDIIMember getDmdiiMember() {
-		return dmdiiMember;
+	public Organization getOrganization() {
+		return organization;
 	}
 
-	public void setDmdiiMember(DMDIIMember dmdiiMember) {
-		this.dmdiiMember = dmdiiMember;
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class DMDIIAward extends BaseEntity {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DMDIIAward other = (DMDIIAward) obj;
+		Award other = (Award) obj;
 		if (description == null) {
 			if (other.description != null)
 				return false;

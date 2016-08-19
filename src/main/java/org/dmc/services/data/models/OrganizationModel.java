@@ -1,5 +1,7 @@
 package org.dmc.services.data.models;
 
+import java.util.List;
+
 public class OrganizationModel extends BaseModel {
 
 	private String name;
@@ -21,6 +23,8 @@ public class OrganizationModel extends BaseModel {
 	private Integer featureImage;
 
 	private AddressModel address;
+
+	private List<AwardModel> awards;
 
 	public String getName() {
 		return name;
@@ -100,6 +104,14 @@ public class OrganizationModel extends BaseModel {
 
 	public void setFeatureImage(Integer featureImage) {
 		this.featureImage = featureImage;
+	}
+
+	public List<AwardModel> getAwards() {
+		return awards;
+	}
+
+	public void setAwards(List<AwardModel> awards) {
+		this.awards = awards;
 	}
 
 }
