@@ -4,11 +4,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.ArrayList;
 import java.lang.Exception;
+import java.sql.SQLException;
 
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.profile.Profile;
-
+import org.dmc.services.users.UserDao;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,24 +85,7 @@ public class ProjectMemberController {
     public ResponseEntity<?> addProjectMember(@RequestBody ProjectMember member, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) throws Exception {
         ServiceLogger.log(LOGTAG, "In addProjectMember: as user " + userEPPN);
         try {
-            final ProjectMember createdMember = new ProjectMember();
-            
-            final PostProjectJoinRequest request = new PostProjectJoinRequest();
-            request.setProfileId(member.getId().split("-")[1]);
-            request.setProjectId(member.getProjectId());
-            /**
-             * Note: this is rather messy, but there already exists code to handle insertions in to project_join_requests
-             * so I am extracting the data and sending to that function call in ProjectDao
-             */
-            
-            final ProjectDao project = new ProjectDao();
-            project.createProjectJoinRequest(request, userEPPN);
-            createdMember.setAccept(member.getFromProfileId().equals(member.getProfileId()) ? true : false);
-            createdMember.setDate(System.currentTimeMillis());
-            createdMember.setFrom(member.getFrom());
-            createdMember.setFromProfileId(member.getFromProfileId());
-            createdMember.setProfileId(member.getProfileId());
-            createdMember.setProjectId(member.getProjectId());
+            final ProjectMember createdMember = projectMemberDao.createProjectMemberRequest(member, userEPPN);
             return new ResponseEntity<ProjectMember>(createdMember, HttpStatus.valueOf(HttpStatus.OK.value()));
         
         } catch (DMCServiceException e) {

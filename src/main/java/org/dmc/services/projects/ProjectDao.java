@@ -490,13 +490,14 @@ public class ProjectDao {
         return createProjectJoinRequest(projectId, profileId, userId);
     } 
     
-    private int selfAutoJoin(String projectId, String profileId, int requesterId) {
-        if (Integer.parseInt(profileId) == requesterId) {
-            final String autoJoinProject = "UPDATE group_join_request SET accept_date = now() WHERE user_id = ? AND requester_id = ?";
+    private int selfAutoJoin(int projectId, int profileId, int requesterId) {
+        if (profileId == requesterId) {
+            final String autoJoinProject = "UPDATE group_join_request SET accept_date = now() WHERE user_id = ? AND requester_id = ? and group_id = ?";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(autoJoinProject);
             try {
                 preparedStatement.setInt(1, requesterId);
                 preparedStatement.setInt(2, requesterId);
+                preparedStatement.setInt(3, projectId);
                 preparedStatement.executeUpdate();
 
                 return 0;
@@ -509,13 +510,20 @@ public class ProjectDao {
         return -9999;
     }
 
-    private ProjectJoinRequest createProjectJoinRequest(String projectId, String profileId, int requesterId)
+    private ProjectJoinRequest createProjectJoinRequest(String projectIdAsString, String profileIdAsString, int requesterId)
             throws SQLException, Exception {
 
+        Integer projectId = Integer.parseInt(projectIdAsString);
+        Integer profileId = Integer.parseInt(profileIdAsString);
+        ProjectMemberDao projectMemberDao = new ProjectMemberDao();
+        
+        if (!projectMemberDao.isUserProjectAdmin(projectId, requesterId)) {
+            throw new DMCServiceException(DMCError.NotProjectAdmin, requesterId + " is not allowed to invite new members to project");
+        }
         final String createProjectJoinRequestQuery = "insert into group_join_request (group_id, user_id, requester_id, request_date) values (?, ?, ?, now())";
         final PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectJoinRequestQuery);
-        preparedStatement.setInt(1, Integer.parseInt(projectId));
-        preparedStatement.setInt(2, Integer.parseInt(profileId));
+        preparedStatement.setInt(1, projectId);
+        preparedStatement.setInt(2, profileId);
         preparedStatement.setInt(3, requesterId);
         preparedStatement.executeUpdate();
 
@@ -525,11 +533,10 @@ public class ProjectDao {
             ServiceLogger.log(LOGTAG, "not a selfAutoJoin");
 
         final ArrayList<String> projects = new ArrayList<String>();
-        projects.add(projectId);
+        projects.add(projectIdAsString);
         final ArrayList<String> profiles = new ArrayList<String>();
-        profiles.add(profileId);
-        final ArrayList<ProjectJoinRequest> requests = getProjectJoinRequest(projects, profiles,
-                requesterId);
+        profiles.add(profileIdAsString);
+        final ArrayList<ProjectJoinRequest> requests = getProjectJoinRequest(projects, profiles, requesterId);
         ServiceLogger.log(LOGTAG, "getProjectJoinRequest returned " + requests.size() + " entries");
         // TODO - should only be one, but we aren't restricting by requester in
         // query, so need to do it here.
