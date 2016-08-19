@@ -25,6 +25,7 @@ import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
@@ -112,7 +113,8 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(docList.get(0));
 	}
 	
-	public DMDIIDocumentModel save(DMDIIDocumentModel doc) throws DMCServiceException {
+	public DMDIIDocumentModel save(DMDIIDocumentModel doc, BindingResult result) throws DMCServiceException {
+		
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		
