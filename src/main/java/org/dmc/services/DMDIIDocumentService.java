@@ -25,6 +25,7 @@ import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
@@ -43,8 +44,6 @@ public class DMDIIDocumentService {
 
 	@Inject
 	private MapperFactory mapperFactory;
-	
-	private AWSConnector AWS;
 	
 	private final String logTag = DMDIIDocumentService.class.getName();
 	
@@ -92,10 +91,9 @@ public class DMDIIDocumentService {
 	}
 
 	public DMDIIDocument findOneEntity(Integer id) throws DMCServiceException {
-		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(id));
+		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(id);
 		
-		docList = refreshDocuments(docList);
-		return docList.get(0);
+		return docEntity;
 	}
 	
 	public DMDIIDocumentModel findMostRecentStaticFileByFileTypeId (Integer fileTypeId) throws DMCServiceException {
@@ -115,7 +113,8 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(docList.get(0));
 	}
 	
-	public DMDIIDocumentModel save(DMDIIDocumentModel doc) throws DMCServiceException {
+	public DMDIIDocumentModel save(DMDIIDocumentModel doc, BindingResult result) throws DMCServiceException {
+		
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		
@@ -182,9 +181,12 @@ public class DMDIIDocumentService {
 		List<DMDIIDocument> freshDocs = new ArrayList<DMDIIDocument>();
 		//Refresh check
 		for (DMDIIDocument doc : docs) {
-			if(AWS.isTimeStampExpired(doc.getExpires())) {
+			if(AWSConnector.isTimeStampExpired(doc.getExpires())) {
+				//Get path from URL
+				String path = AWSConnector.createPath(doc.getDocumentUrl());
+				
 				//Refresh URL
-				String newURL = AWS.refreshURL(doc.getDocumentUrl());
+				String newURL = AWSConnector.refreshURL(path);
 				
 				//create a timestamp
 				Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime());
