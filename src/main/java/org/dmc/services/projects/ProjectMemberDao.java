@@ -152,10 +152,10 @@ public class ProjectMemberDao {
         if (null != projectId ) {
             clauses.add("gjr.group_id = " + projectId);
         }
-        if (null != userId) {
+        if (null != memberId) {
             clauses.add("u.user_id = " + memberId);
         }
-        if (null == projectId && null == userId) {
+        if (null == projectId && null == memberId) {
             clauses.add(adminRequiredClause);
         } else if (memberId != userId) {
             clauses.add(adminRequiredClause);

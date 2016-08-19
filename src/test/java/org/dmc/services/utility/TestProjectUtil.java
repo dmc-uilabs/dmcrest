@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.projects.ProjectCreateRequest;
+import org.dmc.services.projects.ProjectMember;
 import org.json.JSONObject;
 
 public class TestProjectUtil {
@@ -45,6 +46,18 @@ public class TestProjectUtil {
                 .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
                 .extract().path("id");
         return createdId;
+    }
+
+    public static ProjectMember createNewProjectMemberForRequest(Integer projectId, Integer idToAdd, Integer requesterId) {
+        final ProjectMember newRequestedMember = new ProjectMember();
+        newRequestedMember.setAccept(false);
+        newRequestedMember.setFrom(requesterId.toString());
+        newRequestedMember.setProfileId(idToAdd.toString());
+        
+        newRequestedMember.setFromProfileId(requesterId.toString());
+        newRequestedMember.setProjectId(projectId.toString());
+        newRequestedMember.setDate(System.currentTimeMillis());
+        return newRequestedMember;
     }
 
 }

@@ -40,8 +40,7 @@ public class AssignUserController {
      */
     @RequestMapping(value = "/assign_users", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAssignUsers(
-            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
-            @RequestHeader(value = "projectId", defaultValue = "-1") Integer projectId) throws Exception {
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
 
         ServiceLogger.log(LOGTAG, "In getAssignUsers: as user " + userEPPN);
 

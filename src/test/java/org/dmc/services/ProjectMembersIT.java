@@ -292,7 +292,7 @@ public class ProjectMembersIT extends BaseIT {
         Integer toBeAddedId = UserDao.getUserID(toBeAdded);
 
         this.createdId = TestProjectUtil.createProject(userEPPN);
-        final ProjectMember newRequestedMember = createNewProjectMemberForRequest(this.createdId, toBeAddedId, adminId);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, adminId);
         final String requestId = newRequestedMember.getId();
         
         if (this.createdId != null) {
@@ -334,7 +334,7 @@ public class ProjectMembersIT extends BaseIT {
         Integer toJoinId = UserDao.getUserID(toJoinUser);
 
         this.createdId = TestProjectUtil.createProject(userEPPN);
-        final ProjectMember newRequestedMember = createNewProjectMemberForRequest(this.createdId, toJoinId, adminId);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toJoinId, adminId);
         final String requestId = newRequestedMember.getId();
         
         if (this.createdId != null) {
@@ -360,7 +360,7 @@ public class ProjectMembersIT extends BaseIT {
         Integer fakeAdminId = UserDao.getUserID(fakeAdminEPPN);
        
         this.createdId = TestProjectUtil.createProject(userEPPN);
-        final ProjectMember newRequestedMember = createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeAdminId);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeAdminId);
         final String requestId = newRequestedMember.getId();
         
         if (this.createdId != null) {
@@ -389,7 +389,7 @@ public class ProjectMembersIT extends BaseIT {
         Integer fakeAdminId = UserDao.getUserID(fakeAdminEPPN);
        
         this.createdId = TestProjectUtil.createProject(userEPPN);
-        final ProjectMember newRequestedMember = createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeAdminId);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeAdminId);
         final String requestId = newRequestedMember.getId();
         
         if (this.createdId != null) {
@@ -414,7 +414,7 @@ public class ProjectMembersIT extends BaseIT {
         final int adminId = UserDao.getUserID(userEPPN);
 
         this.createdId = TestProjectUtil.createProject(userEPPN);
-        final ProjectMember newRequestedMember = createNewProjectMemberForRequest(this.createdId, adminId, adminId);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, adminId, adminId);
         final String requestId = newRequestedMember.getId();        
 
         if (this.createdId != null) {
@@ -441,7 +441,7 @@ public class ProjectMembersIT extends BaseIT {
         Integer fakeId = UserDao.getUserID(fakeUser);
        
         this.createdId = TestProjectUtil.createProject(userEPPN);
-        final ProjectMember newRequestedMember = createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeId);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeId);
         final String requestId = newRequestedMember.getId();
         
         if (this.createdId != null) {
@@ -468,7 +468,7 @@ public class ProjectMembersIT extends BaseIT {
         final int fakeAdminId = UserIT.createUserAndReturnID(unique);
        
         this.createdId = TestProjectUtil.createProject(userEPPN);
-        final ProjectMember newRequestedMember = createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeAdminId);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeAdminId);
         final String requestId = newRequestedMember.getId();        
 
         if (this.createdId != null) {
@@ -496,7 +496,7 @@ public class ProjectMembersIT extends BaseIT {
         final String fakeUserName = TestUserUtil.createNewUser();
 
         this.createdId = TestProjectUtil.createProject(userEPPN);
-        final ProjectMember newRequestedMember = createNewProjectMemberForRequest(this.createdId, toBeAddedId, toBeAddedId);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, toBeAddedId);
         final String requestId = newRequestedMember.getId();        
 
         if (this.createdId != null) {
@@ -527,7 +527,7 @@ public class ProjectMembersIT extends BaseIT {
         final String fakeUserName = TestUserUtil.createNewUser();
 
         this.createdId = TestProjectUtil.createProject(userEPPN);
-        final ProjectMember newRequestedMember = createNewProjectMemberForRequest(this.createdId, toBeAddedId, toBeAddedId);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, toBeAddedId);
         final String requestId = newRequestedMember.getId();        
 
         if (this.createdId != null) {
@@ -569,16 +569,4 @@ public class ProjectMembersIT extends BaseIT {
             assertTrue("Member " + userName + " is DMDII Member", CompanyUserUtil.isDMDIIMember(userName));
         }
     }
-    private ProjectMember createNewProjectMemberForRequest(Integer projectId, Integer idToAdd, Integer requesterId) {
-        final ProjectMember newRequestedMember = new ProjectMember();
-        newRequestedMember.setAccept(false);
-        newRequestedMember.setFrom(requesterId.toString());
-        newRequestedMember.setProfileId(idToAdd.toString());
-        
-        newRequestedMember.setFromProfileId(requesterId.toString());
-        newRequestedMember.setProjectId(projectId.toString());
-        newRequestedMember.setDate(System.currentTimeMillis());
-        return newRequestedMember;
-    }
-
 }
