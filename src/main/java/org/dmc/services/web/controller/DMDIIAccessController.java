@@ -1,7 +1,9 @@
-package org.dmc.services;
+package org.dmc.services.web.controller;
 
 import javax.inject.Inject;
 
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.UserRoleService;
 import org.dmc.services.data.models.UserRoleModel;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
