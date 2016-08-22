@@ -80,7 +80,7 @@ public class Organization extends BaseEntity {
 	private String upcomingProjectInterests;
 
 	@OneToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "addressid")
+	@JoinColumn(name = "address_id")
 	private Address address;
 
 	private String email;
