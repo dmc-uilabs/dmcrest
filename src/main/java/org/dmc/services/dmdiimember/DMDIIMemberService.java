@@ -13,17 +13,16 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIMemberEvent;
 import org.dmc.services.data.entities.DMDIIMemberNews;
-import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDMDIIProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.AreaOfExpertiseModel;
 import org.dmc.services.data.models.DMDIIMemberAutocompleteModel;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
 import org.dmc.services.data.models.DMDIIMemberMapEntryModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIMemberNewsModel;
-import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.repositories.DMDIIMemberEventRepository;
 import org.dmc.services.data.repositories.DMDIIMemberNewsRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
@@ -81,7 +80,19 @@ public class DMDIIMemberService {
 		}
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
+
+		// Need to ensure that only existing areas of expertise are being saved for DMDII members
+		List<AreaOfExpertiseModel> tags = memberModel.getOrganization().getAreasOfExpertise();
+		for (int i = 0; i < tags.size(); i++) {
+			if(tags.get(i).getId() == null) tags.remove(i);
+		}
+		memberModel.getOrganization().setAreasOfExpertise(tags);
+
+		tags = memberModel.getOrganization().getDesiredAreasOfExpertise();
+		for (int i = 0; i < tags.size(); i++) {
+			if(tags.get(i).getId() == null) tags.remove(i);
+		}
+		memberModel.getOrganization().setDesiredAreasOfExpertise(tags);
 
 		memberModel.setOrganization(organizationService.save(memberModel.getOrganization()));
 
