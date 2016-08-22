@@ -133,7 +133,7 @@ public class AWSConnector {
         generatePresignedUrlRequest.setExpiration(expiration);
 
         final URL url = s3client.generatePresignedUrl(generatePresignedUrlRequest);
-        final String preSignedURL = url.getProtocol() + "://" + url.getHost() + url.getPath() + "?" + url.getQuery();
+        final String preSignedURL = url.toString();
         return preSignedURL;
     }
 
@@ -146,7 +146,7 @@ public class AWSConnector {
     private static java.util.Date getExpirationTime() {
         final java.util.Date expiration = new java.util.Date();
         long milliSeconds = expiration.getTime();
-        milliSeconds += 1000 * 60 * 60; // Add 1 hour.
+        milliSeconds += 1000 * 60 * 60 * 24 * 30; // Add 1 month.
         expiration.setTime(milliSeconds);
         return expiration;
     }
