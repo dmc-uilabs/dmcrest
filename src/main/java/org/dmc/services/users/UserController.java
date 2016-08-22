@@ -8,6 +8,7 @@ import org.dmc.services.UserService;
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
+import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
@@ -131,7 +132,7 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)
-	public VerifyUserResponse getUserToken(@RequestParam("userId") Integer id, @RequestParam("token") String token) {
+	public VerifyUserResponse getUserToken(@RequestParam("userId") Integer id, @RequestParam("token") String token) throws ArgumentNotFoundException {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (!id.equals(loggedIn.getId())) {
 			throw new AccessDeniedException("403 Permission Denied");
