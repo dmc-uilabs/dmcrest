@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.dmc.services.data.entities.AreaOfExpertise;
 
-public interface DMDIIAreaOfExpertiseRepository extends BaseRepository<AreaOfExpertise, Integer> {
+public interface AreaOfExpertiseRepository extends BaseRepository<AreaOfExpertise, Integer> {
+
+	List<AreaOfExpertise> findByIsDmdiiTrue();
 
 	List<AreaOfExpertise> findAll();
 

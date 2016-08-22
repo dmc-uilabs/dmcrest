@@ -8,6 +8,7 @@ public class AreaOfExpertiseModel extends BaseModel {
 
 	private String link;
 
+	private Boolean isDmdii;
 
 	public String getName() {
 		return name;
@@ -31,6 +32,14 @@ public class AreaOfExpertiseModel extends BaseModel {
 
 	public void setLink(String link) {
 		this.link = link;
+	}
+
+	public Boolean getIsDmdii() {
+		return isDmdii;
+	}
+
+	public void setIsDmdii(Boolean isDmdii) {
+		this.isDmdii = isDmdii;
 	}
 
 }

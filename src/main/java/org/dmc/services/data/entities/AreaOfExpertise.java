@@ -24,6 +24,9 @@ public class AreaOfExpertise extends BaseEntity{
 	@Column(name = "link")
 	private String link;
 
+	@Column(name = "is_dmdii")
+	private Boolean isDmdii;
+
 	public String getName() {
 		return name;
 	}
@@ -56,12 +59,21 @@ public class AreaOfExpertise extends BaseEntity{
 		this.description = description;
 	}
 
+	public Boolean getIsDmdii() {
+		return isDmdii;
+	}
+
+	public void setIsDmdii(Boolean isDmdii) {
+		this.isDmdii = isDmdii;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((isDmdii == null) ? 0 : isDmdii.hashCode());
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
@@ -85,6 +97,11 @@ public class AreaOfExpertise extends BaseEntity{
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (isDmdii == null) {
+			if (other.isDmdii != null)
+				return false;
+		} else if (!isDmdii.equals(other.isDmdii))
 			return false;
 		if (link == null) {
 			if (other.link != null)
