@@ -118,7 +118,7 @@ public class Organization extends BaseEntity {
 
 	private String follow;
 
-	@Column(name = "favorates_count")
+	@Column(name = "favorites_count")
 	private Integer favoritesCount;
 
 	@Column(name = "is_owner")
