@@ -73,8 +73,8 @@ public class DMDIIMemberController {
 		// If user is not a superadmin, only certain fields may be updated
 		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
 			DMDIIMemberModel existingMember = dmdiiMemberService.findOne(member.getId());
-			existingMember.setAreasOfExpertise(member.getAreasOfExpertise());
-			existingMember.setDesiredAreasOfExpertise(member.getDesiredAreasOfExpertise());
+			existingMember.getOrganization().setAreasOfExpertise(member.getOrganization().getAreasOfExpertise());
+			existingMember.getOrganization().setDesiredAreasOfExpertise(member.getOrganization().getDesiredAreasOfExpertise());
 			existingMember.setContacts(member.getContacts());
 			member = existingMember;
 		}

@@ -26,6 +26,10 @@ public class OrganizationModel extends BaseModel {
 
 	private List<AwardModel> awards;
 
+	private List<AreaOfExpertiseModel> areasOfExpertise;
+
+	private List<AreaOfExpertiseModel> desiredAreasOfExpertise;
+
 	public String getName() {
 		return name;
 	}
@@ -112,6 +116,22 @@ public class OrganizationModel extends BaseModel {
 
 	public void setAwards(List<AwardModel> awards) {
 		this.awards = awards;
+	}
+
+	public List<AreaOfExpertiseModel> getAreasOfExpertise() {
+		return areasOfExpertise;
+	}
+
+	public void setAreasOfExpertise(List<AreaOfExpertiseModel> areasOfExpertise) {
+		this.areasOfExpertise = areasOfExpertise;
+	}
+
+	public List<AreaOfExpertiseModel> getDesiredAreasOfExpertise() {
+		return desiredAreasOfExpertise;
+	}
+
+	public void setDesiredAreasOfExpertise(List<AreaOfExpertiseModel> desiredAreasOfExpertise) {
+		this.desiredAreasOfExpertise = desiredAreasOfExpertise;
 	}
 
 }

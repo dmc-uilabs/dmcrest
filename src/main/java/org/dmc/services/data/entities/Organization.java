@@ -10,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -43,6 +45,18 @@ public class Organization extends BaseEntity {
 	private String rdFocus;
 
 	private String customers;
+
+	@ManyToMany
+	@JoinTable(name = "organization_area_of_expertise",
+			   joinColumns = @JoinColumn(name="organization_id"),
+			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
+	private List<AreaOfExpertise> areasOfExpertise;
+
+	@ManyToMany
+	@JoinTable(name = "organization_desired_area_of_expertise",
+			   joinColumns = @JoinColumn(name="organization_id"),
+			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
+	private List<AreaOfExpertise> desiredAreasOfExpertise;
 
 	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL)
 	private List<Award> awards;
@@ -193,6 +207,22 @@ public class Organization extends BaseEntity {
 
 	public void setCustomers(String customers) {
 		this.customers = customers;
+	}
+
+	public List<AreaOfExpertise> getAreasOfExpertise() {
+		return areasOfExpertise;
+	}
+
+	public void setAreasOfExpertise(List<AreaOfExpertise> areasOfExpertise) {
+		this.areasOfExpertise = areasOfExpertise;
+	}
+
+	public List<AreaOfExpertise> getDesiredAreasOfExpertise() {
+		return desiredAreasOfExpertise;
+	}
+
+	public void setDesiredAreasOfExpertise(List<AreaOfExpertise> desiredAreasOfExpertise) {
+		this.desiredAreasOfExpertise = desiredAreasOfExpertise;
 	}
 
 	public List<Award> getAwards() {

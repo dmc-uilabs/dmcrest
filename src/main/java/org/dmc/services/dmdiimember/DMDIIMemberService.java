@@ -86,7 +86,7 @@ public class DMDIIMemberService {
 		memberModel.setOrganization(organizationService.save(memberModel.getOrganization()));
 
 		DMDIIMember memberEntity = memberMapper.mapToEntity(memberModel);
-		
+
 		// Projects on DMDII member entity are not mapped to/from model
 		// So if this is an existing DMDII member being updated, we need to get any existing projects and add them to the member for data integrity
 		if (memberEntity.getId() != null) {
@@ -141,9 +141,9 @@ public class DMDIIMemberService {
 			}
 
 			if(tagType.equals("expertiseTags")) {
-				returnValue.add(QDMDIIMember.dMDIIMember.areasOfExpertise.any().id.eq(tagIdInt));
+				returnValue.add(QDMDIIMember.dMDIIMember.organization().areasOfExpertise.any().id.eq(tagIdInt));
 			} else if (tagType.equals("desiredExpertiseTags")) {
-				returnValue.add(QDMDIIMember.dMDIIMember.desiredAreasOfExpertise.any().id.eq(tagIdInt));
+				returnValue.add(QDMDIIMember.dMDIIMember.organization().desiredAreasOfExpertise.any().id.eq(tagIdInt));
 			}
 		}
 		return returnValue;

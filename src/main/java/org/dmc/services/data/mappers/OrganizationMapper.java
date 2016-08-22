@@ -1,9 +1,11 @@
 package org.dmc.services.data.mappers;
 
 import org.dmc.services.data.entities.Address;
+import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.entities.Award;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.models.AddressModel;
+import org.dmc.services.data.models.AreaOfExpertiseModel;
 import org.dmc.services.data.models.AwardModel;
 import org.dmc.services.data.models.OrganizationModel;
 import org.springframework.stereotype.Component;
@@ -19,9 +21,12 @@ public class OrganizationMapper extends AbstractMapper<Organization, Organizatio
 
 		Mapper<Address, AddressModel> addressMapper = mapperFactory.mapperFor(Address.class, AddressModel.class);
 		Mapper<Award, AwardModel> awardMapper = mapperFactory.mapperFor(Award.class, AwardModel.class);
+		Mapper<AreaOfExpertise, AreaOfExpertiseModel> aoeMapper = mapperFactory.mapperFor(AreaOfExpertise.class, AreaOfExpertiseModel.class);
 
 		entity.setAddress(addressMapper.mapToEntity(model.getAddress()));
 		entity.setAwards(awardMapper.mapToEntity(model.getAwards()));
+		entity.setAreasOfExpertise(aoeMapper.mapToEntity(model.getAreasOfExpertise()));
+		entity.setDesiredAreasOfExpertise(aoeMapper.mapToEntity(model.getDesiredAreasOfExpertise()));
 
 		return entity;
 	}
@@ -34,9 +39,12 @@ public class OrganizationMapper extends AbstractMapper<Organization, Organizatio
 
 		Mapper<Address, AddressModel> addressMapper = mapperFactory.mapperFor(Address.class, AddressModel.class);
 		Mapper<Award, AwardModel> awardMapper = mapperFactory.mapperFor(Award.class, AwardModel.class);
+		Mapper<AreaOfExpertise, AreaOfExpertiseModel> aoeMapper = mapperFactory.mapperFor(AreaOfExpertise.class, AreaOfExpertiseModel.class);
 
 		model.setAddress(addressMapper.mapToModel(entity.getAddress()));
 		model.setAwards(awardMapper.mapToModel(entity.getAwards()));
+		model.setAreasOfExpertise(aoeMapper.mapToModel(entity.getAreasOfExpertise()));
+		model.setDesiredAreasOfExpertise(aoeMapper.mapToModel(entity.getDesiredAreasOfExpertise()));
 
 		return model;
 	}

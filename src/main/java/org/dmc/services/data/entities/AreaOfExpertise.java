@@ -5,43 +5,24 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dmdii_member_customer")
-public class DMDIIMemberCustomer extends BaseEntity {
+@Table(name = "area_of_expertise")
+public class AreaOfExpertise extends BaseEntity{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@ManyToOne
-    @JoinColumn(name="organization_dmdii_member_id")
-	private DMDIIMember dmdiiMember;
-
 	@Column(name = "name")
 	private String name;
 
+	@Column(name = "description")
+	private String description;
+
 	@Column(name = "link")
 	private String link;
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public DMDIIMember getDmdiiMember() {
-		return dmdiiMember;
-	}
-
-	public void setDmdiiMember(DMDIIMember dmdiiMember) {
-		this.dmdiiMember = dmdiiMember;
-	}
 
 	public String getName() {
 		return name;
@@ -59,10 +40,27 @@ public class DMDIIMemberCustomer extends BaseEntity {
 		this.link = link;
 	}
 
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -77,7 +75,12 @@ public class DMDIIMemberCustomer extends BaseEntity {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DMDIIMemberCustomer other = (DMDIIMemberCustomer) obj;
+		AreaOfExpertise other = (AreaOfExpertise) obj;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -95,4 +98,5 @@ public class DMDIIMemberCustomer extends BaseEntity {
 			return false;
 		return true;
 	}
+
 }

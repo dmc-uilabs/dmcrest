@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.dmc.services.data.entities.DMDIIAreaOfExpertise;
+import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
-import org.dmc.services.data.models.DMDIIAreaOfExpertiseModel;
+import org.dmc.services.data.models.AreaOfExpertiseModel;
 import org.dmc.services.data.repositories.DMDIIAreaOfExpertiseRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +20,8 @@ public class DMDIITagService {
 	@Inject
 	private MapperFactory mapperFactory;
 
-	public List<DMDIIAreaOfExpertiseModel> findAll() {
-		Mapper<DMDIIAreaOfExpertise, DMDIIAreaOfExpertiseModel> mapper = mapperFactory.mapperFor(DMDIIAreaOfExpertise.class, DMDIIAreaOfExpertiseModel.class);
+	public List<AreaOfExpertiseModel> findAll() {
+		Mapper<AreaOfExpertise, AreaOfExpertiseModel> mapper = mapperFactory.mapperFor(AreaOfExpertise.class, AreaOfExpertiseModel.class);
 		return mapper.mapToModel(dmdiiAreaOfExpertiseRepository.findAll());
 	}
 }

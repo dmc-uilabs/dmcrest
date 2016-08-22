@@ -1,6 +1,6 @@
 package org.dmc.services.data.models;
 
-public class DMDIIAreaOfExpertiseModel extends BaseModel {
+public class AreaOfExpertiseModel extends BaseModel {
 
 	private String name;
 

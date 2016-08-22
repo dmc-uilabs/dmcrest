@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.dmc.services.data.models.DMDIIAreaOfExpertiseModel;
+import org.dmc.services.data.models.AreaOfExpertiseModel;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +19,7 @@ public class DMDIITagController {
 	DMDIITagService dmdiiTagService;
 
 	@RequestMapping(value = "/dmdiiTag", method = RequestMethod.GET)
-	public List<DMDIIAreaOfExpertiseModel> getTags() {
+	public List<AreaOfExpertiseModel> getTags() {
 		return dmdiiTagService.findAll();
 	}
 
