@@ -122,8 +122,8 @@ public class DMDIIDocumentService {
 		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwnerId()));
 		docEntity.setOwner(userEntity);
 		
-		//current time plus one hour
-		Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime() + (1000 * 60 * 60));
+		//current time plus one month
+		Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime() + (1000 * 60 * 60 * 24 * 30));
 		
 		docEntity.setExpires(expires);
 		docEntity.setIsDeleted(false);
@@ -191,8 +191,8 @@ public class DMDIIDocumentService {
 				//create a timestamp
 				Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime());
 				
-				//add an hour
-				expires.setTime(expires.getTime() + (1000*60*60));
+				//add a month
+				expires.setTime(expires.getTime() + (1000*60*60*24*30));
 				
 				//update the entity
 				doc.setDocumentUrl(newURL);
