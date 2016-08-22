@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -113,7 +114,7 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(docList.get(0));
 	}
 	
-	public DMDIIDocumentModel save(DMDIIDocumentModel doc, BindingResult result) throws DMCServiceException {
+	public DMDIIDocumentModel save (DMDIIDocumentModel doc, BindingResult result) throws DMCServiceException {
 		
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -123,7 +124,9 @@ public class DMDIIDocumentService {
 		docEntity.setOwner(userEntity);
 		
 		//current time plus one month
-		Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime() + (1000 * 60 * 60 * 24 * 30));
+		Long duration = 1000L * 60L * 60L * 24L * 30L;
+		
+		Timestamp expires = new Timestamp(System.currentTimeMillis() + duration);
 		
 		docEntity.setExpires(expires);
 		docEntity.setIsDeleted(false);
