@@ -256,4 +256,8 @@ public class UserModel extends BaseModel {
 	public void setAccount(int account) {
 		this.account = account;
 	}
+
+	public void setIsDMDIIMember(boolean isDMDIIMember) {
+		this.isDMDIIMember = isDMDIIMember;
+	}
 }
