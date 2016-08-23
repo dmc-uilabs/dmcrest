@@ -8,7 +8,7 @@ public class AreaOfExpertiseModel extends BaseModel {
 
 	private String link;
 
-	private Boolean isDmdii;
+	private Boolean isDmdii = false;
 
 	public String getName() {
 		return name;

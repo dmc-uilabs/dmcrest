@@ -52,13 +52,13 @@ public class Organization extends BaseEntity {
 	@Column(name = "customers")
 	private String customers;
 
-	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@ManyToMany
 	@JoinTable(name = "organization_area_of_expertise",
 			   joinColumns = @JoinColumn(name="organization_id"),
 			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
 	private List<AreaOfExpertise> areasOfExpertise;
 
-	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@ManyToMany
 	@JoinTable(name = "organization_desired_area_of_expertise",
 			   joinColumns = @JoinColumn(name="organization_id"),
 			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))

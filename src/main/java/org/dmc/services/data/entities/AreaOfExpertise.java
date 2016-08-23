@@ -25,7 +25,7 @@ public class AreaOfExpertise extends BaseEntity{
 	private String link;
 
 	@Column(name = "is_dmdii")
-	private Boolean isDmdii;
+	private Boolean isDmdii = false;
 
 	public String getName() {
 		return name;

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QOrganization;
@@ -38,6 +39,25 @@ public class OrganizationService {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
 		Organization organizationEntity = mapper.mapToEntity(organizationModel);
+
+		List<AreaOfExpertise> aTags = organizationEntity.getAreasOfExpertise();
+		List<AreaOfExpertise> dTags = organizationEntity.getDesiredAreasOfExpertise();
+
+		for(int i = 0; i < aTags.size(); i++) {
+			if(aTags.get(i).getId() == null) {
+				aTags.set(i, areaOfExpertiseRepository.save(aTags.get(i)));
+			}
+		}
+
+		for(int i = 0; i < dTags.size(); i++) {
+			if(dTags.get(i).getId() == null) {
+				dTags.set(i, areaOfExpertiseRepository.save(dTags.get(i)));
+			}
+		}
+
+		organizationEntity.setAreasOfExpertise(aTags);
+		organizationEntity.setDesiredAreasOfExpertise(dTags);
+
 
 		if(organizationEntity.getId() == null) {
 			organizationEntity = organizationDao.save(organizationEntity);
