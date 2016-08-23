@@ -3,6 +3,7 @@ package org.dmc.services.organization;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
@@ -10,6 +11,7 @@ import org.dmc.services.data.entities.QOrganization;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationModel;
+import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.OrganizationDao;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -25,9 +27,13 @@ public class OrganizationService {
 	private OrganizationDao organizationDao;
 
 	@Inject
+	private AreaOfExpertiseRepository areaOfExpertiseRepository;
+
+	@Inject
 	private MapperFactory mapperFactory;
 
 
+	@Transactional
 	public OrganizationModel save(OrganizationModel organizationModel) {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 

@@ -28,14 +28,19 @@ public class Organization extends BaseEntity {
 	@Column(name = "accountid")
 	private Integer accountId;
 
+	@Column(name = "name")
 	private String name;
 
+	@Column(name = "location")
 	private String location;
 
+	@Column(name = "description")
 	private String description;
 
+	@Column(name = "division")
 	private String division;
 
+	@Column(name = "industry")
 	private String industry;
 
 	@Column(name = "naics_code")
@@ -44,15 +49,16 @@ public class Organization extends BaseEntity {
 	@Column(name = "rd_focus")
 	private String rdFocus;
 
+	@Column(name = "customers")
 	private String customers;
 
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable(name = "organization_area_of_expertise",
 			   joinColumns = @JoinColumn(name="organization_id"),
 			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
 	private List<AreaOfExpertise> areasOfExpertise;
 
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable(name = "organization_desired_area_of_expertise",
 			   joinColumns = @JoinColumn(name="organization_id"),
 			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
@@ -83,10 +89,13 @@ public class Organization extends BaseEntity {
 	@JoinColumn(name = "address_id")
 	private Address address;
 
+	@Column(name = "email")
 	private String email;
 
+	@Column(name = "phone")
 	private String phone;
 
+	@Column(name = "website")
 	private String website;
 
 	@Column(name = "social_media_linkedin")
@@ -116,6 +125,7 @@ public class Organization extends BaseEntity {
 	@Column(name = "logo_image")
 	private String logoImage;
 
+	@Column(name = "follow")
 	private String follow;
 
 	@Column(name = "favorites_count")
@@ -124,6 +134,7 @@ public class Organization extends BaseEntity {
 	@Column(name = "is_owner")
 	private String isOwner;
 
+	@Column(name = "owner")
 	private String owner;
 
 	@OneToOne(mappedBy = "organization", fetch = FetchType.LAZY)

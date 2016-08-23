@@ -79,23 +79,25 @@ public class DMDIIMemberService {
 			throw new DuplicateDMDIIMemberException("This organization is already a DMDII member");
 		}
 
-		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 
-		// Need to ensure that only existing areas of expertise are being saved for DMDII members
-		List<AreaOfExpertiseModel> tags = memberModel.getOrganization().getAreasOfExpertise();
-		for (int i = 0; i < tags.size(); i++) {
-			if(tags.get(i).getId() == null) tags.remove(i);
+		// Remove non-DMDII tags from getting saved through DMDIIMember
+		List<AreaOfExpertiseModel> aTags = memberModel.getOrganization().getAreasOfExpertise();
+		List<AreaOfExpertiseModel> dTags = memberModel.getOrganization().getDesiredAreasOfExpertise();
+		for (int i = 0; i < aTags.size(); i++) {
+			if(aTags.get(i).getId() == null || !aTags.get(i).getIsDmdii()) aTags.remove(i);
 		}
-		memberModel.getOrganization().setAreasOfExpertise(tags);
-
-		tags = memberModel.getOrganization().getDesiredAreasOfExpertise();
-		for (int i = 0; i < tags.size(); i++) {
-			if(tags.get(i).getId() == null) tags.remove(i);
+		for (int i = 0; i < dTags.size(); i++) {
+			if(dTags.get(i).getId() == null || !dTags.get(i).getIsDmdii()) dTags.remove(i);
 		}
-		memberModel.getOrganization().setDesiredAreasOfExpertise(tags);
 
+		memberModel.getOrganization().setAreasOfExpertise(aTags);
+		memberModel.getOrganization().setDesiredAreasOfExpertise(dTags);
+
+
+		// Save organization separately
 		memberModel.setOrganization(organizationService.save(memberModel.getOrganization()));
 
+		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		DMDIIMember memberEntity = memberMapper.mapToEntity(memberModel);
 
 		// Projects on DMDII member entity are not mapped to/from model
