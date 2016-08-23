@@ -68,24 +68,23 @@ public class UserController {
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.GET)
-    public User getUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
-                        @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
+	public UserModel getUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                         @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                         @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
 
-        User user = userDAO.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+		//        User user = userDAO.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
 
 		UserModel model = userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+		//
+		//        UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userEPPN);
+		//        user.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
+		//        user.setRoles(userPrincipal.getAllRoles());
 
-        UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userEPPN);
-        user.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
-        user.setRoles(userPrincipal.getAllRoles());
-
-        return user;
-    }
+		return model;
+	}
 
     @RequestMapping(value = "/user", produces = { "application/json" }, method = RequestMethod.PATCH)
     public ResponseEntity<User> patchUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,

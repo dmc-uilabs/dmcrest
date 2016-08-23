@@ -15,6 +15,8 @@ import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
+import org.dmc.services.security.UserPrincipalService;
 import org.dmc.services.users.VerifyUserResponse;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +27,10 @@ import java.util.List;
 @Service
 public class UserService {
 
-	public static final String DEFAULT_PASSWORD = "password";
+	private static final String DEFAULT_PASSWORD = "password";
 
 	@Inject
-	private UserRepository userRepository;
-
-	@Inject
-	private UserTokenRepository userTokenRepository;
+	private MapperFactory mapperFactory;
 
 	@Inject
 	private OnboardingStatusRepository onboardingStatusRepository;
@@ -43,7 +42,13 @@ public class UserService {
 	private UserRoleAssignmentService userRoleAssignmentService;
 
 	@Inject
-	private MapperFactory mapperFactory;
+	private UserPrincipalService userPrincipalService;
+
+	@Inject
+	private UserRepository userRepository;
+
+	@Inject
+	private UserTokenRepository userTokenRepository;
 
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -202,23 +207,30 @@ public class UserService {
 	public UserModel readOrCreateUser(String userEPPN, String userFirstName, String userSurname, String userFullname,
 			String userEmail) {
 		User user = userRepository.findByUsername(userEPPN);
+
 		if (user == null) {
-			user = createUser(userEPPN, userFirstName, userSurname, userFullname, userEmail);
-			OnboardingStatus onboardingStatus = createOnboardingStatus(user.getId());
+			user = createUserAndOnboardingStatus(userEPPN, userFirstName, userSurname, userFullname, userEmail);
 		}
 		final Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+
 		final UserModel userModel = mapper.mapToModel(user);
+		updateRolesAndDmdiiMembership(userModel);
+
 		return userModel;
 	}
 
-	private OnboardingStatus createOnboardingStatus(Integer id) {
-		OnboardingStatus status = new OnboardingStatus();
-		status.setId(id);
-		status.setAccount(false);
-		status.setCompany(false);
-		status.setProfile(false);
-		status.setStorefront(false);
-		return onboardingStatusRepository.save(status);
+	private void updateRolesAndDmdiiMembership(UserModel userModel) {
+		UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userModel.getUsername());
+		userModel.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
+		userModel.setRoles(userPrincipal.getAllRoles());
+		return;
+	}
+
+	private User createUserAndOnboardingStatus(String userEPPN, String firstName, String lastName, String fullName,
+			String email) {
+		final User user = createUser(userEPPN, firstName, lastName, fullName, email);
+		createOnboardingStatus(user.getId());
+		return user;
 	}
 
 	private User createUser(String userEPPN, String firstName, String lastName, String fullName, String email) {
@@ -231,5 +243,15 @@ public class UserService {
 		user.setEmail(email);
 		user.setAddDate(0);
 		return userRepository.save(user);
+	}
+
+	private OnboardingStatus createOnboardingStatus(Integer userId) {
+		OnboardingStatus status = new OnboardingStatus();
+		status.setId(userId);
+		status.setAccount(false);
+		status.setCompany(false);
+		status.setProfile(false);
+		status.setStorefront(false);
+		return onboardingStatusRepository.save(status);
 	}
 }
