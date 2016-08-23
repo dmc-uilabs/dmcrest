@@ -26,48 +26,59 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 
 	@Override
 	public User mapToEntity(UserModel model) {
-		if (model == null) return null;
+		User entity = null;
 
-		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+		if (model != null) {
+			Mapper<UserContactInfo, UserContactInfoModel> mapper;
+			mapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
 
-		User entity = copyProperties(model, new User());
-		entity.setUserContactInfo(contactInfoMapper.mapToEntity(model.getUserContactInfo()));
+			entity = copyProperties(model, new User());
+			entity.setUserContactInfo(mapper.mapToEntity(model.getUserContactInfo()));
 
-		OrganizationUser orgUserEntity = organizationUserRepository.findByUserIdAndOrganizationId(entity.getId(), model.getOrganization());
-		if(orgUserEntity == null) {
-			orgUserEntity = new OrganizationUser();
-			orgUserEntity.setOrganization(organizationRepository.findOne(model.getOrganization()));
+			if (model.getOrganization() != null) {
+				OrganizationUser orgUserEntity = organizationUserRepository
+						.findByUserIdAndOrganizationId(entity.getId(), model.getOrganization());
+
+				if (orgUserEntity == null) {
+					orgUserEntity = new OrganizationUser();
+					orgUserEntity.setOrganization(organizationRepository.findOne(model.getOrganization()));
+				}
+
+				entity.setOrganizationUser(orgUserEntity);
+				entity.getOrganizationUser().setUser(entity);
+			}
 		}
-
-		entity.setOrganizationUser(orgUserEntity);
-		entity.getOrganizationUser().setUser(entity);
-
 		return entity;
 	}
 
 	@Override
 	public UserModel mapToModel(User entity) {
-		if (entity == null) return null;
+		UserModel model = null;
 
-		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+		if (entity != null) {
+			Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper;
+			contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
 
-		UserModel model = copyProperties(entity, new UserModel());
-		model.setDMDIIMember(entity.getRoles().stream().anyMatch(this::orgIsDMDIIMember));
-		model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
-		model.setTermsConditions(entity.getTermsAndCondition()!=null);
+			model = copyProperties(entity, new UserModel());
+			model.setDMDIIMember(entity.getRoles().stream().anyMatch(this::orgIsDMDIIMember));
+			model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
+			model.setTermsConditions(entity.getTermsAndCondition() != null);
 
-		Map<Integer, String> roles = new HashMap<Integer, String>();
-		for (UserRoleAssignment assignment : entity.getRoles()) {
-			if (assignment.getRole().getRole().equals(SecurityRoles.SUPERADMIN)) {
-				roles.put(0, SecurityRoles.SUPERADMIN);
-				model.setDMDIIMember(true);
-			} else {
-				roles.put(assignment.getOrganization().getId(), assignment.getRole().getRole());
+			Map<Integer, String> roles = new HashMap<>();
+
+			for (UserRoleAssignment assignment : entity.getRoles()) {
+				if (assignment.getRole().getRole().equals(SecurityRoles.SUPERADMIN)) {
+					roles.put(0, SecurityRoles.SUPERADMIN);
+					model.setDMDIIMember(true);
+				} else {
+					roles.put(assignment.getOrganization().getId(), assignment.getRole().getRole());
+				}
 			}
+			model.setRoles(roles);
+			model.setOrganization((entity.getOrganizationUser() == null) ?
+					null :
+					entity.getOrganizationUser().getOrganization().getId());
 		}
-		model.setRoles(roles);
-		model.setOrganization( (entity.getOrganizationUser() == null ) ? null : entity.getOrganizationUser().getOrganization().getId());
-
 		return model;
 	}
 
@@ -77,7 +88,6 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		if (roleAssignment.getOrganization() != null) {
 			isMember = roleAssignment.getOrganization().getDmdiiMember() != null;
 		}
-
 		return isMember;
 	}
 
@@ -90,5 +100,4 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 	public Class<UserModel> supportsModel() {
 		return UserModel.class;
 	}
-
 }
