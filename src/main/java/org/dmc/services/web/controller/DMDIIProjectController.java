@@ -1,4 +1,4 @@
-package org.dmc.services;
+package org.dmc.services.web.controller;
 
 import java.util.Date;
 import java.util.List;
@@ -6,6 +6,11 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.DMDIIProjectEventsService;
+import org.dmc.services.DMDIIProjectNewsService;
+import org.dmc.services.DMDIIProjectService;
+import org.dmc.services.DMDIIProjectUpdateService;
+import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIProjectEventModel;

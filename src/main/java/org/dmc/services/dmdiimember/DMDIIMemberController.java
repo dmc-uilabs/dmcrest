@@ -16,8 +16,10 @@ import org.dmc.services.data.models.DMDIIMemberNewsModel;
 import org.dmc.services.data.models.PagedResponse;
 import org.dmc.services.dmdiimember.DMDIIMemberService.DuplicateDMDIIMemberException;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,8 +59,27 @@ public class DMDIIMemberController {
 	}
 
 	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
-	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
 	public DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) throws DuplicateDMDIIMemberException {
+		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, member.getOrganization().getId())) {
+			throw new AccessDeniedException("403 Access denied");
+		}
+		
+		// Only a superadmin may create a new dmdiiMember
+		if (member.getId() == null && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
+			throw new AccessDeniedException("403 Access denied");
+		}
+		
+		// If user is not a superadmin, only certain fields may be updated
+		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
+			DMDIIMemberModel existingMember = dmdiiMemberService.findOne(member.getId());
+			existingMember.setAreasOfExpertise(member.getAreasOfExpertise());
+			existingMember.setDesiredAreasOfExpertise(member.getDesiredAreasOfExpertise());
+			existingMember.setContacts(member.getContacts());
+			existingMember.setAwards(member.getAwards());
+			member = existingMember;
+		}
+		
 		return dmdiiMemberService.save(member);
 	}
 

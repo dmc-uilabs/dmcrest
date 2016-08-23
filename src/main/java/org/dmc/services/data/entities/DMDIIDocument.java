@@ -33,9 +33,6 @@ public class DMDIIDocument extends BaseEntity {
 	@Column(name = "url")
 	private String documentUrl;
 	
-	@Column(name = "path")
-	private String path;
-	
 	@ManyToOne
 	@JoinColumn(name = "dmdii_project_id")
 	private DMDIIProject dmdiiProject;
@@ -92,14 +89,6 @@ public class DMDIIDocument extends BaseEntity {
 
 	public void setDocumentUrl(String documentUrl) {
 		this.documentUrl = documentUrl;
-	}
-	
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
 	}
 
 	public DMDIIProject getDmdiiProject() {
@@ -187,7 +176,6 @@ public class DMDIIDocument extends BaseEntity {
 		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
 		result = prime * result + ((modified == null) ? 0 : modified.hashCode());
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
-		result = prime * result + ((path == null) ? 0 : path.hashCode());
 		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
 		return result;
 	}
@@ -242,11 +230,6 @@ public class DMDIIDocument extends BaseEntity {
 			if (other.owner != null)
 				return false;
 		} else if (!owner.equals(other.owner))
-			return false;
-		if (path == null) {
-			if (other.path != null)
-				return false;
-		} else if (!path.equals(other.path))
 			return false;
 		if (tags == null) {
 			if (other.tags != null)

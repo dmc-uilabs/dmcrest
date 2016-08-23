@@ -1,7 +1,9 @@
-package org.dmc.services;
+package org.dmc.services.web.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.dmc.services.RoleDao;
+import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.models.Role;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;

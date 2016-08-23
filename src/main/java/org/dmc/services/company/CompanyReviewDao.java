@@ -7,11 +7,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.DMCError;
 import org.dmc.services.DBConnector;
-import org.dmc.services.ServiceLogger;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
+import org.dmc.services.ServiceLogger;
 import org.dmc.services.utils.SQLUtils;
 
 
@@ -35,11 +35,6 @@ public class CompanyReviewDao {
         List<CompanyReview> reviews = new ArrayList<CompanyReview>();
 
         try {
-
-            if (!CompanyUserUtil.isDMDIIMember(userEPPN)) {
-                ServiceLogger.log(logTag, "User: " + userEPPN + " is not DMDII Member");
-                throw new DMCServiceException(DMCError.NotDMDIIMember, "User " + userEPPN + " is not a member of the DMDII");
-            }
 
             String whereClause = " WHERE r.organization_id = ?";
             int numFields = 1;
@@ -204,11 +199,6 @@ public class CompanyReviewDao {
         List<CompanyReview> reviews = new ArrayList<CompanyReview>();
 
         try {
-
-            if (!CompanyUserUtil.isDMDIIMember(userEPPN)) {
-                ServiceLogger.log(logTag, "User: " + userEPPN + " is not DMDII Member");
-                throw new DMCServiceException(DMCError.NotDMDIIMember, "User " + userEPPN + " is not a member of the DMDII");
-            }
 
             String whereClause = " WHERE ";
             int numFields = 0;
