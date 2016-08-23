@@ -84,7 +84,7 @@ public class UserRepositoryTest {
 	}
 
 	@Test
-	void findByUsername_exists() {
+	public void findByUsername_exists() {
 		final User foundUser = userRepo.findByUsername(user.getUsername());
 		assertEquals(user, foundUser);
 	}
