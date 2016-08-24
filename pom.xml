@@ -383,6 +383,8 @@
 								<exclude>**/AWSProjectUploadIT.java</exclude>
 								<exclude>**/AWSProfileUploadIT.java</exclude>
 								<exclude>**/AWSServiceUploadIT.java</exclude>
+								<!-- Base class has no tests -->
+								<exclude>**/BaseIT.java</exclude>
 							</excludes>
 						</configuration>
 					</execution>

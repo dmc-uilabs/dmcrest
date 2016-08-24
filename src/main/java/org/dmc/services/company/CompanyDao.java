@@ -623,12 +623,12 @@ public class CompanyDao {
 
 	/**
 	 * Add an administrator for a company
-	 * @param companyId
-	 * @param userId
-	 * @param userEPPN
-	 * @return
+	 * @param companyId the company id
+	 * @param userId the user id
+	 * @param userEPPN user name of the requestor
+	 * @return the id of the new organization_admin record
 	 * @throws HTTPException
-	 */
+     */
 	public Id addAdministrator (int companyId, int userId, String userEPPN) throws HTTPException {
 
 		connection = DBConnector.connection();
@@ -706,12 +706,13 @@ public class CompanyDao {
 		return new Id.IdBuilder(organizationAdminId).build();
 	}
 
+
 	/**
 	 * Add a member for a company
-	 * @param companyId
-	 * @param userId
-	 * @param userEPPN
-	 * @return
+	 * @param companyId the company id
+	 * @param userId the user id
+	 * @param userEPPN user name of the requestor
+	 * @return the id of the new organization_user record
 	 * @throws HTTPException
 	 */
 	public Id addMember (int companyId, int userId, String userEPPN) throws HTTPException {
@@ -874,7 +875,8 @@ public class CompanyDao {
 					if(termsAndConditionsTimeStamp != null) {
 						termsAndConditions = true;
 					}
-					User user = new User(userId, userName, displayName, termsAndConditions, companyId);
+
+					User user = new User (userId, userName,displayName,  termsAndConditions, companyId);
 					members.add(user);
 				}
 			}

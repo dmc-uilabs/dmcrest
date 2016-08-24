@@ -1,18 +1,18 @@
 package org.dmc.services.company;
 
-import org.dmc.services.DBConnector;
-import org.dmc.services.DMCError;
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.Id;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.utils.SQLUtils;
-
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.Id;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.utils.SQLUtils;
 
 
 /**

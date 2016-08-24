@@ -28,9 +28,6 @@ public class User extends BaseEntity {
 	@Column(name = "user_name")
 	private String username;
 
-	@Column(name = "user_pw")
-	private String password;
-
 	@Column(name = "accept_term_cond_time")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date termsAndCondition;
@@ -99,14 +96,6 @@ public class User extends BaseEntity {
 
 	public void setUsername(String username) {
 		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public Date getTermsAndCondition() {
