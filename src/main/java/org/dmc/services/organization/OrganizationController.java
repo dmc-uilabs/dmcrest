@@ -1,10 +1,12 @@
 package org.dmc.services.organization;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.dmc.services.data.models.OrganizationModel;
+import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.exceptions.MissingIdException;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,10 +25,9 @@ public class OrganizationController {
 	@Inject
 	private OrganizationService organizationService;
 
-	// TODO: page and filter results depending on requirements
-	@RequestMapping(value = "/organizations", method = RequestMethod.GET)
-	public List<OrganizationModel> getAllOrganizations() {
-		return organizationService.findAll();
+	@RequestMapping(value = "/organizations", params = {"page", "pageSize"}, method = RequestMethod.GET)
+	public List<OrganizationModel> getAllOrganizations(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
+		return organizationService.filter(params, page, pageSize);
 	}
 
 	@RequestMapping(value = "/organizations/{id}", method = RequestMethod.GET)

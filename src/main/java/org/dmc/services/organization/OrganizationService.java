@@ -1,6 +1,9 @@
 package org.dmc.services.organization;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -14,10 +17,13 @@ import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.OrganizationDao;
+import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.mysema.query.jpa.JPASubQuery;
+import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
 import com.mysema.query.types.query.ListSubQuery;
 
@@ -33,6 +39,42 @@ public class OrganizationService {
 	@Inject
 	private MapperFactory mapperFactory;
 
+	public List<OrganizationModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
+		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+		return mapper.mapToModel(organizationDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+	}
+
+	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
+		Collection<Predicate> expressions = new ArrayList<Predicate>();
+		expressions.addAll(tagFilter(filterParams.get("expertiseTags"), "expertiseTags"));
+		expressions.addAll(tagFilter(filterParams.get("desiredExpertiseTags"), "desiredExpertiseTags"));
+		return expressions;
+	}
+
+	private Collection<Predicate> tagFilter(String tagIds, String tagType) throws InvalidFilterParameterException {
+		if(tagIds == null)
+			return new ArrayList<Predicate>();
+
+		Collection<Predicate> returnValue = new ArrayList<Predicate>();
+		String[] tags = tagIds.split(",");
+		Integer tagIdInt = null;
+
+		for(String tag: tags) {
+			try{
+				tagIdInt = Integer.parseInt(tag);
+			} catch(NumberFormatException e) {
+				throw new InvalidFilterParameterException(tagType, Integer.class);
+			}
+
+			if(tagType.equals("expertiseTags")) {
+				returnValue.add(QOrganization.organization.areasOfExpertise.any().id.eq(tagIdInt));
+			} else if (tagType.equals("desiredExpertiseTags")) {
+				returnValue.add(QOrganization.organization.desiredAreasOfExpertise.any().id.eq(tagIdInt));
+			}
+		}
+		return returnValue;
+	}
 
 	@Transactional
 	public OrganizationModel save(OrganizationModel organizationModel) {
