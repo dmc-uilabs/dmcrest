@@ -126,11 +126,13 @@ public class DMDIIDocumentService {
 		//current time plus one month
 		Long duration = 1000L * 60L * 60L * 24L * 30L;
 		
-		Timestamp expires = new Timestamp(System.currentTimeMillis() + duration);
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		Timestamp expires = new Timestamp(now.getTime() + duration);
 		
 		docEntity.setExpires(expires);
 		docEntity.setIsDeleted(false);
 		docEntity.setVerified(false);
+		docEntity.setModified(now);
 		
 		docEntity = dmdiiDocumentRepository.save(docEntity);
 		
