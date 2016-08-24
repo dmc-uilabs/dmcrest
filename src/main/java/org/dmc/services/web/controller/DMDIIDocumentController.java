@@ -1,15 +1,20 @@
-package org.dmc.services;
+package org.dmc.services.web.controller;
 
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.DMDIIDocumentService;
+import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.models.DMDIIDocumentModel;
 import org.dmc.services.data.models.DMDIIDocumentTagModel;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.web.validator.AWSLinkValidator;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +30,9 @@ public class DMDIIDocumentController {
 
 	@Inject
 	DMDIIDocumentService dmdiiDocumentService;
+	
+	@Inject
+	private AWSLinkValidator awsLinkValidator;
 
 	@RequestMapping(value = "/dmdiidocuments/dmdiiProjectId", params = {"page", "pageSize"}, method = RequestMethod.GET)
 	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProjectId(@RequestParam ("dmdiiProjectId") Integer dmdiiProjectId,
@@ -56,9 +64,15 @@ public class DMDIIDocumentController {
 	
 	@RequestMapping(value = "/dmdiidocument", method = RequestMethod.POST, consumes = {"application/json"})
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
-	public DMDIIDocumentModel postDMDIIDocument (@RequestBody DMDIIDocumentModel doc) throws DMCServiceException {
+	public DMDIIDocumentModel postDMDIIDocument (@RequestBody DMDIIDocumentModel doc, BindingResult result) throws DMCServiceException {
 		ServiceLogger.log(logTag, "Post DMDIIDocument " + doc.getDocumentName());
-		return dmdiiDocumentService.save(doc);
+		
+		validateSaveDocument(doc.getDocumentUrl(), result);
+		return dmdiiDocumentService.save(doc, result);
+	}
+
+	private void validateSaveDocument(String documentUrl, BindingResult result) {
+		awsLinkValidator.validate(documentUrl, result);		
 	}
 
 	@RequestMapping(value = "/dmdiidocuments/getAllTags", method = RequestMethod.GET)

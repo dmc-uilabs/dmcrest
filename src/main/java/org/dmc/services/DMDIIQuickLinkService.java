@@ -14,6 +14,7 @@ import org.dmc.services.data.models.DMDIIQuickLinkModel;
 import org.dmc.services.data.repositories.DMDIIQuickLinkRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 @Service
 public class DMDIIQuickLinkService {
@@ -32,14 +33,14 @@ public class DMDIIQuickLinkService {
 		return mapper.mapToModel(dmdiiQuickLinkRepository.findOne(id));
 	}
 
-	public DMDIIQuickLinkModel save (DMDIIQuickLinkModel link) throws DMCServiceException {
+	public DMDIIQuickLinkModel save (DMDIIQuickLinkModel link, BindingResult result) throws DMCServiceException {
 		Mapper<DMDIIQuickLink, DMDIIQuickLinkModel> linkMapper = mapperFactory.mapperFor(DMDIIQuickLink.class, DMDIIQuickLinkModel.class);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 
 		DMDIIQuickLink linkEntity = linkMapper.mapToEntity(link);
 
 		if(link.getDoc() != null) {
-			DMDIIDocument docEntity = docMapper.mapToEntity(dmdiiDocumentService.save(link.getDoc()));
+			DMDIIDocument docEntity = docMapper.mapToEntity(dmdiiDocumentService.save(link.getDoc(), result));
 
 			linkEntity.setDoc(docEntity);
 		}
