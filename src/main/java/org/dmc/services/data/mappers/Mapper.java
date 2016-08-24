@@ -1,5 +1,6 @@
 package org.dmc.services.data.mappers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +13,7 @@ public interface Mapper<T extends BaseEntity, S extends BaseModel> {
 	T mapToEntity(S model);
 	
 	default List<T> mapToEntity(Collection<S> models) {
-		if (models == null) return null;
+		if (models == null) return new ArrayList<T>();
 		return models.stream()
 				.map((n) -> mapToEntity(n))
 				.filter((n) -> n != null)
@@ -22,7 +23,7 @@ public interface Mapper<T extends BaseEntity, S extends BaseModel> {
 	S mapToModel(T entity);
 	
 	default List<S> mapToModel(Collection<T> entities) {
-		if (entities == null) return null;
+		if (entities == null) return new ArrayList<S>();
 		return entities.stream()
 				.map((n) -> mapToModel(n))
 				.filter((n) -> n != null)

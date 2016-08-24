@@ -98,19 +98,6 @@ public class CompanyReviewIT extends BaseIT {
         nonMemberUserId = CommonUtils.createUser(nonMemberEPPN,nonMember3GivenName, nonMember3SurName, nonMember3DisplayName, nonMember3Email);
     }
 
-
-    @Test
-    public void testGetReviewsNonMember () {
-        given()
-                .header("Content-type", "application/json")
-                .header("AJP_eppn", nonMemberEPPN)
-                .parameters("reviewId", "0")
-                .expect()
-                .statusCode(HttpStatus.FORBIDDEN.value())
-                .when()
-                .get(COMPANY_REVIEW_GET_RESOURCE, companyId);
-    }
-
     @Test
     public void testGetReviewsMember () {
 //        ArrayList<Map<String,?>> jsonAsArrayList  =

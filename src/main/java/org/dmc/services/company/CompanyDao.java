@@ -1,29 +1,30 @@
 package org.dmc.services.company;
 
+import static org.dmc.services.company.CompanyUserUtil.isMemberOfCompany;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-
-import org.dmc.services.DBConnector;
-import org.dmc.services.Id;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.sharedattributes.FeatureImage;
-import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.users.User;
-import org.dmc.services.users.UserDao;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
-import static org.dmc.services.company.CompanyUserUtil.isMemberOfCompany;
+import org.dmc.services.DBConnector;
+import org.dmc.services.Id;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.security.PermissionEvaluationHelper;
+import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.users.User;
+import org.dmc.services.users.UserDao;
+import org.json.JSONException;
+import org.springframework.http.HttpStatus;
 
 public class CompanyDao {
 
@@ -68,10 +69,6 @@ public class CompanyDao {
 		
 		Company company = new Company();
 		try {
-			if (!CompanyUserUtil.isDMDIIMember(userEPPN)) {
-				ServiceLogger.log(logTag, "User: " + userEPPN + " is not DMDII Member");
-				throw new HTTPException(HttpStatus.FORBIDDEN.value());
-			}
 			
 			String query = "SELECT * FROM organization o "
 					+ "JOIN common_address a ON o.addressId = a.id "
@@ -846,9 +843,9 @@ public class CompanyDao {
 			}
 		}
 
-		// Check that the user is a member of the company
+		// Check that the user is a member of the company or a superadmin
 		try {
-			if (!isMemberOfCompany(companyId, userIdEPPN)) {
+			if (!isMemberOfCompany(companyId, userIdEPPN) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
 				ServiceLogger.log(logTag, "User " + userIdEPPN + " is not a member of comapny " + companyId);
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}

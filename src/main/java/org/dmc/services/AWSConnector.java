@@ -146,7 +146,7 @@ public class AWSConnector {
     private static java.util.Date getExpirationTime() {
         final java.util.Date expiration = new java.util.Date();
         long milliSeconds = expiration.getTime();
-        milliSeconds += 1000 * 60 * 60; // Add 1 hour.
+        milliSeconds += (1000L * 60L * 60L * 24L * 30L); // Add 1 month.
         expiration.setTime(milliSeconds);
         return expiration;
     }
@@ -161,7 +161,7 @@ public class AWSConnector {
         // a java current time (now) instance
         final Timestamp currentTimestamp = new Timestamp(now.getTime());
 
-        if (expiration.after(currentTimestamp)) {
+        if (currentTimestamp.after(expiration)) {
             return true;
         }
         // should be false, but true for now for testing

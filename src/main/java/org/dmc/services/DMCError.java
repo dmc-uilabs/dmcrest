@@ -63,6 +63,9 @@ public enum DMCError {
 	InvalidAccountId,
 	InvalidCommentId,
 	InvalidDiscussionId,
-	DiscussionFollowNotFound
+	DiscussionFollowNotFound,
+	
+	//Date parsing
+	ParseError
 
 }

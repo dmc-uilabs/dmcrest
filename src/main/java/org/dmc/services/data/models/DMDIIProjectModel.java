@@ -5,69 +5,69 @@ import java.util.Date;
 import java.util.List;
 
 public class DMDIIProjectModel extends BaseModel {
-	
-	private DMDIIMemberModel primeOrganization;
-	
-	private UserModel principalInvestigator;
-	
-	private DMDIIProjectStatusModel projectStatus;
-	
-	private Date awardedDate;
-	
-	private Date endDate;
-	
-	private String projectTitle;
-	
-	private String projectSummary;
-	
-	private UserModel principalPointOfContact;
-	
-	private DMDIIProjectFocusAreaModel projectFocusArea;
-	
-	private DMDIIProjectThrustModel projectThrust;
-	
-	private List<Integer> contributingCompanyIds;
-	
-	private Integer rootNumber;
-	
-	private Integer callNumber;
-	
-	private Integer projectNumber;
-	
-	private BigDecimal costShare;
-	
-	private BigDecimal dmdiiFunding;
-	
 
-	public DMDIIMemberModel getPrimeOrganization() {
+	private DMDIIPrimeOrganizationModel primeOrganization;
+
+	private DMDIIProjectContactModel principalInvestigator;
+
+	private DMDIIProjectStatusModel projectStatus;
+
+	private String awardedDate;
+
+	private String endDate;
+
+	private String projectTitle;
+
+	private String projectSummary;
+
+	private DMDIIProjectContactModel principalPointOfContact;
+
+	private DMDIIProjectFocusAreaModel projectFocusArea;
+
+	private DMDIIProjectThrustModel projectThrust;
+
+	private List<Integer> contributingCompanyIds;
+
+	private Integer rootNumber;
+
+	private Integer callNumber;
+
+	private Integer projectNumber;
+
+	private BigDecimal costShare;
+
+	private BigDecimal dmdiiFunding;
+
+
+	public DMDIIPrimeOrganizationModel getPrimeOrganization() {
 		return primeOrganization;
 	}
 
-	public void setPrimeOrganization(DMDIIMemberModel primeOrganization) {
+	public void setPrimeOrganization(DMDIIPrimeOrganizationModel primeOrganization) {
 		this.primeOrganization = primeOrganization;
 	}
 
-	public UserModel getPrincipalInvestigator() {
+	public DMDIIProjectContactModel getPrincipalInvestigator() {
 		return principalInvestigator;
 	}
 
-	public void setPrincipalInvestigator(UserModel principalInvestigator) {
+	public void setPrincipalInvestigator(DMDIIProjectContactModel principalInvestigator) {
 		this.principalInvestigator = principalInvestigator;
 	}
 
-	public Date getAwardedDate() {
+	public String getAwardedDate() {
 		return awardedDate;
 	}
 
-	public void setAwardedDate(Date awardedDate) {
+	public void setAwardedDate(String awardedDate) {
 		this.awardedDate = awardedDate;
 	}
 
-	public Date getEndDate() {
+	public String getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
+	public void setEndDate(String endDate) {
 		this.endDate = endDate;
 	}
 
@@ -87,11 +87,11 @@ public class DMDIIProjectModel extends BaseModel {
 		this.projectSummary = projectSummary;
 	}
 
-	public UserModel getPrincipalPointOfContact() {
+	public DMDIIProjectContactModel getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(UserModel principalPointOfContact) {
+	public void setPrincipalPointOfContact(DMDIIProjectContactModel principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 
@@ -150,7 +150,7 @@ public class DMDIIProjectModel extends BaseModel {
 	public void setProjectNumber(Integer projectNumber) {
 		this.projectNumber = projectNumber;
 	}
-	
+
 	public String getProjectIdentifier() {
 		return rootNumber + "-" + callNumber + "-" + projectNumber;
 	}

@@ -282,15 +282,43 @@ public class ServiceDao {
             }
         }
     }
-
-    public ArrayList<Service> getServices(Integer limit, String order, Integer start, String sort, String titleLike,
-            String serviceType, List<Integer> authors, List<String> ratings, String favorites, List<String> dates,
-            List<String> fromLocations, String userEPPN) throws DMCServiceException {
-        final ArrayList<Service> list = new ArrayList<Service>();
+	
+	public ArrayList<Service> getServices(Integer limit,
+            String order,
+            Integer start,
+            String sort,
+            String titleLike,
+            String serviceType,
+            List<Integer> authors,
+            List<String>ratings,
+            String favorites,
+            List<String> dates,
+            List<String> fromLocations,
+            String userEPPN) {
+		return getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN, null);
+	}
+	
+    public ArrayList<Service> getServices(Integer limit,
+            String order, 
+            Integer start, 
+            String sort, 
+            String titleLike, 
+            String serviceType, 
+            List<Integer> authors, 
+            List<String>ratings, 
+            String favorites, 
+            List<String> dates, 
+            List<String> fromLocations,
+            String userEPPN,
+            Integer filterByCompany)
+                throws DMCServiceException {
+        final ArrayList<Service> list=new ArrayList<Service>();
         ResultSet resultSet = null;
         try {
             final PreparedStatement preparedStatement = setupGetServicesQuery(limit, order, start, sort, titleLike,
-                    serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN);
+                                                                              serviceType, authors, ratings, favorites, dates,
+                                                                              fromLocations, userEPPN, filterByCompany);
+
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
@@ -313,14 +341,26 @@ public class ServiceDao {
         }
     }
 
-    private PreparedStatement setupGetServicesQuery(Integer limit, String order, Integer start, String sort,
-            String titleLike, String serviceType, List<Integer> authors, List<String> ratings, String favorites,
-            List<String> dates, List<String> fromLocations, String userEPPN) throws Exception {
+
+    private PreparedStatement setupGetServicesQuery(Integer limit, 
+            String order, 
+            Integer start, 
+            String sort, 
+            String titleLike, 
+            String serviceType, 
+            List<Integer> authors, 
+            List<String>ratings, 
+            String favorites, 
+            List<String> dates, 
+            List<String> fromLocations,
+            String userEPPN,
+            Integer filterByCompany)
+                throws Exception {
         String query = "SELECT * FROM service";
 
         final ArrayList<String> whereClauses = new ArrayList<String>();
         final ArrayList<String> orderByClauses = new ArrayList<String>();
-
+					
         if (null != fromLocations && fromLocations.size() > 0) {
             String fromClause = " from_location in (?";
             // already have first placeholder, so start count from 1 instead of
@@ -329,6 +369,12 @@ public class ServiceDao {
                 fromClause += ", ?";
             }
             fromClause += ")";
+            whereClauses.add(fromClause);
+        }
+
+
+        if(null != filterByCompany) {
+            String fromClause = " organization_id = ?";
             whereClauses.add(fromClause);
         }
 
@@ -360,6 +406,12 @@ public class ServiceDao {
             ServiceLogger.log(logTag, "  parameter " + parameterIndex + " : from " + location);
             parameterIndex++;
         }
+        
+        if(null != filterByCompany) {
+            preparedStatement.setInt(parameterIndex, filterByCompany);
+            parameterIndex++;
+        }
+                    
         if (null != start) {
         }
         return preparedStatement;

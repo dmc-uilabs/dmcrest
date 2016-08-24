@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIMemberEvent;
 import org.dmc.services.data.entities.DMDIIMemberNews;
@@ -16,6 +18,7 @@ import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDMDIIProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.DMDIIMemberAutocompleteModel;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
 import org.dmc.services.data.models.DMDIIMemberMapEntryModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
@@ -24,6 +27,7 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.repositories.DMDIIMemberEventRepository;
 import org.dmc.services.data.repositories.DMDIIMemberNewsRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.organization.OrganizationService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -70,17 +74,27 @@ public class DMDIIMemberService {
 		return dmdiiMemberDao.countByOrganizationNameLikeIgnoreCase("%"+name+"%");
 	}
 
-	public DMDIIMemberModel save(DMDIIMemberModel memberModel) {
+	@Transactional
+	public DMDIIMemberModel save(DMDIIMemberModel memberModel) throws DuplicateDMDIIMemberException {
+		if (memberModel.getId() == null && dmdiiMemberDao.existsByOrganizationId(memberModel.getOrganization().getId())) {
+			throw new DuplicateDMDIIMemberException("This organization is already a DMDII member");
+		}
+
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
+		memberModel.setOrganization(organizationService.save(memberModel.getOrganization()));
+
 		DMDIIMember memberEntity = memberMapper.mapToEntity(memberModel);
-		Organization organizationEntity = orgMapper.mapToEntity(organizationService.save(memberModel.getOrganization()));
-		memberEntity.setOrganization(organizationEntity);
+		
+		// Projects on DMDII member entity are not mapped to/from model
+		// So if this is an existing DMDII member being updated, we need to get any existing projects and add them to the member for data integrity
+		if (memberEntity.getId() != null) {
+			DMDIIMember originalEntity = dmdiiMemberDao.findOne(memberEntity.getId());
+			memberEntity.setProjects(originalEntity.getProjects());
+		}
 
-		memberEntity = dmdiiMemberDao.save(memberEntity);
-
-		return memberMapper.mapToModel(memberEntity);
+		return memberMapper.mapToModel(dmdiiMemberDao.save(memberEntity));
 	}
 
 	public List<DMDIIMemberModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
@@ -94,12 +108,17 @@ public class DMDIIMemberService {
 		return dmdiiMemberDao.count(where);
 	}
 
+	public List<DMDIIMemberAutocompleteModel> getAllMembers() {
+		Mapper<DMDIIMember, DMDIIMemberAutocompleteModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberAutocompleteModel.class);
+		return mapper.mapToModel(dmdiiMemberDao.findAll());
+	}
+
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<Predicate>();
 
 		expressions.add(categoryIdFilter(filterParams.get("categoryId")));
 		expressions.add(tierFilter(filterParams.get("tier")));
-		expressions.add(hasActiveProjectsFilter(filterParams.get("hasActiveProjects")));
+		expressions.add(hasActiveProjectsFilter(filterParams.get("activeProjects")));
 		expressions.addAll(tagFilter(filterParams.get("expertiseTags"), "expertiseTags"));
 		expressions.addAll(tagFilter(filterParams.get("desiredExpertiseTags"), "desiredExpertiseTags"));
 
@@ -168,7 +187,7 @@ public class DMDIIMemberService {
 		Date today = new Date();
 		QDMDIIProject qdmdiiProject = QDMDIIProject.dMDIIProject;
 		ListSubQuery subQuery = new JPASubQuery().from(qdmdiiProject).where(qdmdiiProject.awardedDate.before(today), qdmdiiProject.endDate.after(today)).list(qdmdiiProject.id);
-		if (Boolean.valueOf(hasActiveProjects)) {
+		if (BooleanUtils.toBoolean(hasActiveProjects)) {
 			return QDMDIIMember.dMDIIMember.projects.any().in(subQuery);
 		} else {
 			return new BooleanBuilder().and(QDMDIIMember.dMDIIMember.projects.any().in(subQuery)).not().getValue();
@@ -183,6 +202,12 @@ public class DMDIIMemberService {
 	public List<DMDIIMemberEventModel> getDmdiiMemberEvents(Integer limit) {
 		Mapper<DMDIIMemberEvent, DMDIIMemberEventModel> mapper = mapperFactory.mapperFor(DMDIIMemberEvent.class, DMDIIMemberEventModel.class);
 		return mapper.mapToModel(dmdiiMemberEventRepository.findFutureEvents(new PageRequest(0, limit)).getContent());
+	}
+
+	public class DuplicateDMDIIMemberException extends Exception {
+		public DuplicateDMDIIMemberException(String message) {
+			super(message);
+		}
 	}
 
 }

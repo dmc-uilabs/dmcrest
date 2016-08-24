@@ -145,33 +145,6 @@ public class CompanyIT extends BaseIT {
 	}
 
 	@Test
-	public void testCompanyGetNoPermission() {
-		if (this.createdId != null) {
-			given().
-				header("Content-type", "application/json").
-				header("AJP_eppn", "testUser").
-			expect().
-				statusCode(403).
-			when().
-				get(COMPANY_GET_RESOURCE, this.createdId.toString());
-		}
-	}
-
-//	@Ignore
-	@Test
-	public void testCompanyGetNotOwner() {
-		if (this.createdId != null) {
-			given().
-				header("Content-type", "application/json").
-				header("AJP_eppn", randomNonOwnerEPPN).
-			expect().
-				statusCode(403).
-			when().
-				get(COMPANY_GET_RESOURCE, this.createdId.toString());
-		}
-	}
-
-	@Test
 	public void testCompanyUpdate() {
 		String json = updateFixture();
 		given().
@@ -670,7 +643,7 @@ public class CompanyIT extends BaseIT {
 		given().
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
 		get("/companies/" + companyId + "/company_services");
 	}
