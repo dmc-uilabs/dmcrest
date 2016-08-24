@@ -15,12 +15,12 @@ public class ServiceHistory  {
   private String user = null;
   private String link = null;
   public enum SectionEnum {
-     project,  marketplace, 
+     project,  marketplace
   };
   
   private SectionEnum section = null;
   public enum PeriodEnum {
-     today,  week, 
+     today,  week, month, year
   };
   
   private PeriodEnum period = null;
