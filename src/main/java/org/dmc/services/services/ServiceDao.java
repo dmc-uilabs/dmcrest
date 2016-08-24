@@ -251,8 +251,23 @@ public class ServiceDao {
             }
         }
     }
-    
-    public ArrayList<Service> getServices(Integer limit, 
+	
+	public ArrayList<Service> getServices(Integer limit,
+            String order,
+            Integer start,
+            String sort,
+            String titleLike,
+            String serviceType,
+            List<Integer> authors,
+            List<String>ratings,
+            String favorites,
+            List<String> dates,
+            List<String> fromLocations,
+            String userEPPN) {
+		return getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN, null);
+	}
+	
+    public ArrayList<Service> getServices(Integer limit,
             String order, 
             Integer start, 
             String sort, 
@@ -263,12 +278,13 @@ public class ServiceDao {
             String favorites, 
             List<String> dates, 
             List<String> fromLocations,
-            String userEPPN) 
+            String userEPPN,
+            Integer filterByCompany)
                 throws DMCServiceException {
         ArrayList<Service> list=new ArrayList<Service>();
         
         try {
-            PreparedStatement preparedStatement = setupGetServicesQuery(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN);
+            PreparedStatement preparedStatement = setupGetServicesQuery(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN, filterByCompany);
             resultSet = preparedStatement.executeQuery();
             
             while (resultSet.next()) {
@@ -302,13 +318,14 @@ public class ServiceDao {
             String favorites, 
             List<String> dates, 
             List<String> fromLocations,
-            String userEPPN) 
+            String userEPPN,
+            Integer filterByCompany)
                 throws Exception {
         String query = "SELECT * FROM service";
 
         ArrayList<String> whereClauses = new ArrayList<String>();
         ArrayList<String> orderByClauses = new ArrayList<String>();
-        
+					
         if (null != fromLocations && fromLocations.size() > 0) {
             String fromClause = " from_location in (?";
             // already have first placeholder, so start count from 1 instead of 0
@@ -318,7 +335,12 @@ public class ServiceDao {
             fromClause += ")";
             whereClauses.add(fromClause);
         }
-        
+
+        if(null != filterByCompany) {
+            String fromClause = " organization_id = ?";
+            whereClauses.add(fromClause);
+        }
+
         if (null != dates && dates.size() > 0) {
             String datesClause = " ( ";
             for (String dateItem : dates) {
@@ -347,6 +369,12 @@ public class ServiceDao {
             ServiceLogger.log(logTag, "  parameter " + parameterIndex + " : from " + location);            
             parameterIndex++;
         }
+        
+        if(null != filterByCompany) {
+            preparedStatement.setInt(parameterIndex, filterByCompany);
+            parameterIndex++;
+        }
+                    
         if (null != start) {
         }
         return preparedStatement;

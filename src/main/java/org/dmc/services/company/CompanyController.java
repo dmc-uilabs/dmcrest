@@ -6,6 +6,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.components.Component;
 import org.dmc.services.services.Service;
+import org.dmc.services.services.ServiceDao;
 import org.dmc.services.users.User;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -383,25 +384,37 @@ public class CompanyController {
      }
 
 
-     @RequestMapping(value = "/companies/{companyID}/company_services",
-                produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
-                method = RequestMethod.GET)
-              public ResponseEntity<List<Service>> companiesCompanyIDCompanyServicesGet(
-             @PathVariable("companyID") String companyID,
-             @RequestParam(value = "limit", required = false) Integer limit,
-             @RequestParam(value = "order", required = false) String order,
-             @RequestParam(value = "start", required = false) Integer start,
-             @RequestParam(value = "sort", required = false) String sort,
-             @RequestParam(value = "titleLike", required = false) String titleLike,
-             @RequestParam(value = "serviceType", required = false) String serviceType,
-             @RequestParam(value = "authors", required = false) List<Integer> authors,
-             @RequestParam(value = "ratings", required = false) List<String> ratings,
-             @RequestParam(value = "favorites", required = false) String favorites,
-             @RequestParam(value = "dates", required = false) List<String> dates)
-             {
-                  // do some magic!
-                  return new ResponseEntity<List<Service>>(HttpStatus.NOT_IMPLEMENTED);
-              }
+    @RequestMapping(value = "/companies/{companyID}/company_services", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+    public ResponseEntity<?> companiesCompanyIDCompanyServicesGet(
+        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
+        @PathVariable("companyID") String companyID,
+        @RequestParam(value = "limit", required = false) Integer limit,
+        @RequestParam(value = "order", required = false) String order,
+        @RequestParam(value = "start", required = false) Integer start,
+        @RequestParam(value = "sort", required = false) String sort,
+        @RequestParam(value = "titleLike", required = false) String titleLike,
+        @RequestParam(value = "serviceType", required = false) String serviceType,
+        @RequestParam(value = "authors", required = false) List<Integer> authors,
+        @RequestParam(value = "ratings", required = false) List<String> ratings,
+        @RequestParam(value = "favorites", required = false) String favorites,
+        @RequestParam(value = "dates", required = false) List<String> dates) {
+        
+        ServiceDao serviceDao = new ServiceDao();
+        try {
+            ServiceLogger.log(logTag, "In marketNewServicesGet");
+            ArrayList<String> fromLocations = new ArrayList<String>();
+            fromLocations.add("marketplace");
+            fromLocations.add("project");
+            if (null == order && null == sort) {
+                order = "DESC";
+                sort = "release_date";
+            }
+            return new ResponseEntity<List<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN, Integer.parseInt(companyID)), HttpStatus.OK);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
 
 
      @RequestMapping(value = "/companies/{companyID}/company_components",
