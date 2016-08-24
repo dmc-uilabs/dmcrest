@@ -4,7 +4,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.OrganizationUser;
+import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
@@ -47,6 +49,11 @@ public class OrganizationUserService {
 
 	public Integer getNumberOfVerifiedUsers(Integer organizationId) {
 		return organizationUserRepository.findNumberOfVerifiedUsersByOrganizationId(organizationId);
+	}
+
+	public OrganizationUser createVerifiedOrganizationUser(User user, Organization organization) {
+		OrganizationUser orgUserEntity = new OrganizationUser(user, organization, true);
+		return organizationUserRepository.save(orgUserEntity);
 	}
 
 }
