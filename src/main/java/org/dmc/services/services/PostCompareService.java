@@ -1,27 +1,14 @@
-package org.dmc.services.profile;
-
+package org.dmc.services.services;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-08-24T16:43:27.555-04:00")
-public class GetCompareService  {
+public class PostCompareService  {
   
-  private String id = null;
   private String serviceId = null;
   private String profileId = null;
-
-  
-  /**
-   **/
-  @JsonProperty("id")
-  public String getId() {
-    return id;
-  }
-  public void setId(String id) {
-    this.id = id;
-  }
 
   
   /**
@@ -55,23 +42,21 @@ public class GetCompareService  {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    GetCompareService getCompareService = (GetCompareService) o;
-    return Objects.equals(id, getCompareService.id) &&
-        Objects.equals(serviceId, getCompareService.serviceId) &&
-        Objects.equals(profileId, getCompareService.profileId);
+    PostCompareService postCompareService = (PostCompareService) o;
+    return Objects.equals(serviceId, postCompareService.serviceId) &&
+        Objects.equals(profileId, postCompareService.profileId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, serviceId, profileId);
+    return Objects.hash(serviceId, profileId);
   }
 
   @Override
   public String toString()  {
     StringBuilder sb = new StringBuilder();
-    sb.append("class GetCompareService {\n");
+    sb.append("class PostCompareService {\n");
     
-    sb.append("  id: ").append(id).append("\n");
     sb.append("  serviceId: ").append(serviceId).append("\n");
     sb.append("  profileId: ").append(profileId).append("\n");
     sb.append("}\n");
