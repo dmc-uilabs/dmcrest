@@ -128,7 +128,7 @@ public class UserController {
 		}
 	}
 
-	@RequestMapping(value = "/users/{userId}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/users/{userId}", params = {"action"}, method = RequestMethod.PUT)
 	public VerifyUserResponse userAction(@PathVariable Integer userId, @RequestParam("action") String action, @RequestBody(required=false) String token) throws ArgumentNotFoundException {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
