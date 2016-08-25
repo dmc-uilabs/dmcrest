@@ -139,7 +139,7 @@ public class UserService {
 			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.ADMIN, userId, orgUserModel.getOrganizationId(), true);
 		}
 		else if (numberOfUsersVerified > 1) {
-			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId, orgUserModel.getOrganizationId());
+			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId, orgUserModel.getOrganizationId(), true);
 		}
 
 		return new VerifyUserResponse(0, "Successfully verified user.");
