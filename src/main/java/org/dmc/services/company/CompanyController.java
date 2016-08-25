@@ -8,6 +8,8 @@ import org.dmc.services.components.Component;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.users.User;
+import org.dmc.services.reviews.ReviewDao;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +37,7 @@ public class CompanyController {
     private CompanyDao companyDao = new CompanyDao();
     private CompanySkillDao skillDao = new CompanySkillDao();
     private CompanyVideoDao videoDao = new CompanyVideoDao();
-    private CompanyReviewDao reviewDao = new CompanyReviewDao();
+    private ReviewDao reviewDao = new ReviewDao();
 
     /**
      Return a list of companies
@@ -374,7 +376,7 @@ public class CompanyController {
          int statusCode = HttpStatus.OK.value();
 
          try {
-             Id id = reviewDao.createCompanyReview(companyReview, userEPPN);
+             Id id = reviewDao.createReview(companyReview, userEPPN);
              return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
          } catch (DMCServiceException e) {
              ServiceLogger.logException(logTag, e);

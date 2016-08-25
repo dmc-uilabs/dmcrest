@@ -157,7 +157,7 @@ public class CompanyReviewIT extends BaseIT {
                 .header("AJP_eppn", nonMemberEPPN)
                 .body(json.toString())
                 .expect()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.OK.value())
                 .when()
                 .post(COMPANY_REVIEW_POST_RESOURCE);
     }

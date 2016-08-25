@@ -1,4 +1,4 @@
-package org.dmc.services.review;
+package org.dmc.services.reviews;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -388,8 +388,6 @@ public class ReviewDao {
         int id = -1;
         String tablePrefix = getTablePrefix(review);
         
-        //String query = "INSERT INTO organization_review (organization_id, name, reply, reviewId, status, date, rating, likes, dislike, comment) VALUES (?,?,?,?,?,?,?,?,?,?)";
-
         // organization_id, user_id, review_timestamp, review, stars
         String sqlInsertReview = "INSERT INTO " + tablePrefix + "_review_new (" + tablePrefix + "_id, user_id, review_timestamp, review, stars) VALUES (?,?,?,?,?)";
 
