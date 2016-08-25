@@ -13,6 +13,7 @@ import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
+import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
@@ -32,6 +33,9 @@ public class UserService {
 
 	@Inject
 	private OrganizationUserService orgUserService;
+
+	@Inject
+	private OrganizationUserRepository orgUserRepo;
 
 	@Inject
 	private UserRoleAssignmentService userRoleAssignmentService;
@@ -116,6 +120,21 @@ public class UserService {
 
 		response.setResponseCode(0);
 		response.setResponseDescription("Successfully unverified user.");
+
+		return response;
+	}
+
+	@Transactional
+	public VerifyUserResponse declineUser(Integer userId, Integer organizationId) {
+		VerifyUserResponse response;
+
+		Integer rowsDeleted = orgUserRepo.deleteByUserId(userId, organizationId);
+
+		if(rowsDeleted > 0) {
+			response = new VerifyUserResponse(0, "Successfully declined user.");
+		} else {
+			response = new VerifyUserResponse(1000, "User with ID " + userId + " could not be declined from organization with ID " + organizationId + ".");
+		}
 
 		return response;
 	}
