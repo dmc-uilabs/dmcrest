@@ -69,7 +69,7 @@ public class ReviewFlagged  {
   @Override
   public String toString()  {
     StringBuilder sb = new StringBuilder();
-    sb.append("class CompanyReviewFlagged {\n");
+    sb.append("class ReviewFlagged {\n");
     
     sb.append("  id: ").append(id).append("\n");
     sb.append("  reviewId: ").append(reviewId).append("\n");

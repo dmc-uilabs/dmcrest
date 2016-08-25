@@ -8,9 +8,9 @@ import java.util.ArrayList;
 
 import org.dmc.services.company.Company;
 import org.dmc.services.company.CompanyImage;
-import org.dmc.services.company.CompanyReview;
-import org.dmc.services.company.CompanyReviewFlagged;
-import org.dmc.services.company.CompanyReviewHelpful;
+import org.dmc.services.reviews.Review;
+import org.dmc.services.reviews.ReviewFlagged;
+import org.dmc.services.reviews.ReviewHelpful;
 import org.dmc.services.company.CompanySkillImage;
 import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.sharedattributes.FeatureImage;
@@ -569,19 +569,19 @@ public class CompanyIT extends BaseIT {
 	 * test case for POST /company_reviews_helpful
 	 */
 	@Test
-	public void testCompanyPost_CompanyReviewHelpful() {
-		CompanyReviewHelpful obj = new CompanyReviewHelpful();
+	public void testCompanyPost_ReviewHelpful() {
+		ReviewHelpful obj = new ReviewHelpful();
 		ObjectMapper mapper = new ObjectMapper();
-		String postedCompanyReviewHelpfulJSONString = null;
+		String postedReviewHelpfulJSONString = null;
 		try {
-			postedCompanyReviewHelpfulJSONString = mapper.writeValueAsString(obj);
+			postedReviewHelpfulJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.body(postedCompanyReviewHelpfulJSONString).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value())
+				.body(postedReviewHelpfulJSONString).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value())
 				.when().post("/company_reviews_helpful");
 	}
 
@@ -589,19 +589,19 @@ public class CompanyIT extends BaseIT {
 	 * test case for PATCH /company_reviews_helpful/{helpfulID}
 	 */
 	@Test
-	public void testCompanyPatch_CompanyReviewHelpfulById() {
-		CompanyReviewHelpful obj = new CompanyReviewHelpful();
+	public void testCompanyPatch_ReviewHelpfulById() {
+		ReviewHelpful obj = new ReviewHelpful();
 		ObjectMapper mapper = new ObjectMapper();
-		String patchedCompanyReviewHelpfulJSONString = null;
+		String patchedReviewHelpfulJSONString = null;
 		try {
-			patchedCompanyReviewHelpfulJSONString = mapper.writeValueAsString(obj);
+			patchedReviewHelpfulJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.body(patchedCompanyReviewHelpfulJSONString).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value())
+				.body(patchedReviewHelpfulJSONString).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value())
 				.when().patch("/company_reviews_helpful/" + helpfulId);
 	}
 
@@ -618,19 +618,19 @@ public class CompanyIT extends BaseIT {
 	 * test case for POST /company_reviews_flagged
 	 */
 	@Test
-	public void testCompanyPost_CompanyReviewFlagged() {
-		CompanyReviewFlagged obj = new CompanyReviewFlagged();
+	public void testCompanyPost_ReviewFlagged() {
+		ReviewFlagged obj = new ReviewFlagged();
 		ObjectMapper mapper = new ObjectMapper();
-		String postedCompanyReviewFlaggedJSONString = null;
+		String postedReviewFlaggedJSONString = null;
 		try {
-			postedCompanyReviewFlaggedJSONString = mapper.writeValueAsString(obj);
+			postedReviewFlaggedJSONString = mapper.writeValueAsString(obj);
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.body(postedCompanyReviewFlaggedJSONString).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value())
+				.body(postedReviewFlaggedJSONString).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value())
 				.when().post("/company_reviews_flagged");
 	}
 	

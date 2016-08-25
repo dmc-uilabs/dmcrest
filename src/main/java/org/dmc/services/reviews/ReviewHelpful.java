@@ -81,7 +81,7 @@ public class ReviewHelpful  {
   @Override
   public String toString()  {
     StringBuilder sb = new StringBuilder();
-    sb.append("class CompanyReviewHelpful {\n");
+    sb.append("class ReviewHelpful {\n");
     
     sb.append("  id: ").append(id).append("\n");
     sb.append("  reviewId: ").append(reviewId).append("\n");
