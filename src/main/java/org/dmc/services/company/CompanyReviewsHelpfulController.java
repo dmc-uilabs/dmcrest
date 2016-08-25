@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+import org.dmc.services.reviews.ReviewHelpful;
+
 import static org.springframework.http.MediaType.*;
 
 @Controller
@@ -20,43 +22,24 @@ import static org.springframework.http.MediaType.*;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class CompanyReviewsHelpfulController {
   
-
-  
-  @RequestMapping(value = "", 
-    produces = { "application/json", "text/html" }, 
-    method = RequestMethod.GET)
-  public ResponseEntity<List<CompanyReviewHelpful>> companyReviewsHelpfulGet(
-		@RequestParam(value = "reviewId", required = true) String reviewId, 
-		@RequestParam(value = "accountId", required = true) String accountId)
+  @RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+  public ResponseEntity<List<ReviewHelpful>> companyReviewsHelpfulGet(@RequestParam(value = "reviewId", required = true) String reviewId,
+                                                                      @RequestParam(value = "accountId", required = true) String accountId)
       {
       // do some magic!
-      return new ResponseEntity<List<CompanyReviewHelpful>>(HttpStatus.NOT_IMPLEMENTED);
+      return new ResponseEntity<List<ReviewHelpful>>(HttpStatus.NOT_IMPLEMENTED);
   }
 
-  
-
-  @RequestMapping(value = "/{helpfulID}", 
-    produces = { "application/json", "text/html" }, 
-    method = RequestMethod.PATCH)
-  public ResponseEntity<CompanyReviewHelpful> companyReviewsHelpfulHelpfulIDPatch(
-		  @PathVariable("helpfulID") String helpfulID,
-		  @RequestBody CompanyReviewHelpful helpful){
+  @RequestMapping(value = "/{helpfulID}", produces = { "application/json", "text/html" }, method = RequestMethod.PATCH)
+  public ResponseEntity<ReviewHelpful> companyReviewsHelpfulHelpfulIDPatch(@PathVariable("helpfulID") String helpfulID,
+                                                                           @RequestBody ReviewHelpful helpful){
       // do some magic!
-      return new ResponseEntity<CompanyReviewHelpful>(HttpStatus.NOT_IMPLEMENTED);
-  }
+      return new ResponseEntity<ReviewHelpful>(HttpStatus.NOT_IMPLEMENTED);
+  }  
 
-  
-
-  @RequestMapping(value = "", 
-    produces = { "application/json", "text/html" }, 
-    method = RequestMethod.POST)
-  public ResponseEntity<CompanyReviewHelpful> companyReviewsHelpfulPost(
-		  @RequestBody CompanyReviewHelpful companyReviewHelpful){
+  @RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
+  public ResponseEntity<ReviewHelpful> companyReviewsHelpfulPost(@RequestBody ReviewHelpful companyReviewHelpful){
       // do some magic!
-      return new ResponseEntity<CompanyReviewHelpful>(HttpStatus.NOT_IMPLEMENTED);
+      return new ResponseEntity<ReviewHelpful>(HttpStatus.NOT_IMPLEMENTED);
   }
-
-  
-
-  
 }
