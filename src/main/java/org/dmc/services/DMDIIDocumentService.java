@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
@@ -43,8 +45,6 @@ public class DMDIIDocumentService {
 
 	@Inject
 	private MapperFactory mapperFactory;
-	
-	private AWSConnector AWS;
 	
 	private final String logTag = DMDIIDocumentService.class.getName();
 	
@@ -92,10 +92,9 @@ public class DMDIIDocumentService {
 	}
 
 	public DMDIIDocument findOneEntity(Integer id) throws DMCServiceException {
-		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(id));
+		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(id);
 		
-		docList = refreshDocuments(docList);
-		return docList.get(0);
+		return docEntity;
 	}
 	
 	public DMDIIDocumentModel findMostRecentStaticFileByFileTypeId (Integer fileTypeId) throws DMCServiceException {
@@ -115,7 +114,8 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(docList.get(0));
 	}
 	
-	public DMDIIDocumentModel save(DMDIIDocumentModel doc) throws DMCServiceException {
+	public DMDIIDocumentModel save (DMDIIDocumentModel doc, BindingResult result) throws DMCServiceException {
+		
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		
@@ -123,8 +123,10 @@ public class DMDIIDocumentService {
 		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwnerId()));
 		docEntity.setOwner(userEntity);
 		
-		//current time plus one hour
-		Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime() + (1000 * 60 * 60));
+		//current time plus one month
+		Long duration = 1000L * 60L * 60L * 24L * 30L;
+		
+		Timestamp expires = new Timestamp(System.currentTimeMillis() + duration);
 		
 		docEntity.setExpires(expires);
 		docEntity.setIsDeleted(false);
@@ -182,15 +184,18 @@ public class DMDIIDocumentService {
 		List<DMDIIDocument> freshDocs = new ArrayList<DMDIIDocument>();
 		//Refresh check
 		for (DMDIIDocument doc : docs) {
-			if(AWS.isTimeStampExpired(doc.getExpires())) {
+			if(AWSConnector.isTimeStampExpired(doc.getExpires())) {
+				//Get path from URL
+				String path = AWSConnector.createPath(doc.getDocumentUrl());
+				
 				//Refresh URL
-				String newURL = AWS.refreshURL(doc.getDocumentUrl());
+				String newURL = AWSConnector.refreshURL(path);
 				
 				//create a timestamp
 				Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime());
 				
-				//add an hour
-				expires.setTime(expires.getTime() + (1000*60*60));
+				//add a month
+				expires.setTime(expires.getTime() + (1000*60*60*24*30));
 				
 				//update the entity
 				doc.setDocumentUrl(newURL);

@@ -38,8 +38,8 @@ public class Models {
 		dmdiiProjectModel.setPrimeOrganization(new DMDIIPrimeOrganizationModel(dmdiiMemberModel().getId(), dmdiiMemberModel().getOrganization().getName()));
 		dmdiiProjectModel.setPrincipalInvestigator(dmdiiProjectContact1());
 		dmdiiProjectModel.setProjectStatus(projectStatus());
-		dmdiiProjectModel.setAwardedDate(format.parse("2016/07/01"));
-		dmdiiProjectModel.setEndDate(format.parse("2017/01/01"));
+		dmdiiProjectModel.setAwardedDate("2016/07/01");
+		dmdiiProjectModel.setEndDate("2017/01/01");
 		dmdiiProjectModel.setProjectTitle(PROJECT_TITLE);
 		dmdiiProjectModel.setProjectSummary(PROJECT_SUMMARY);
 		dmdiiProjectModel.setPrincipalPointOfContact(dmdiiProjectContact2());

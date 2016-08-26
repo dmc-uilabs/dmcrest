@@ -15,6 +15,9 @@ import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
+import org.dmc.services.exceptions.ArgumentNotFoundException;
+import org.dmc.services.roleassignment.UserRoleAssignmentService;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.users.VerifyUserResponse;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +34,7 @@ public class UserService {
 	private OrganizationUserService orgUserService;
 
 	@Inject
-	private UserRoleService userRoleService;
+	private UserRoleAssignmentService userRoleAssignmentService;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -80,7 +83,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public VerifyUserResponse verifyUser(Integer userId, String token) {
+	public VerifyUserResponse verifyUser(Integer userId, String token) throws ArgumentNotFoundException {
 		Mapper<UserToken, UserTokenModel> mapper = mapperFactory.mapperFor(UserToken.class, UserTokenModel.class);
 		VerifyUserResponse response = new VerifyUserResponse();
 		UserToken tokenEntity = userTokenRepository.findByUserId(userId);
@@ -109,7 +112,7 @@ public class UserService {
 		orgUserModel.setIsVerified(false);
 		orgUserService.saveOrganizationUser(orgUserModel);
 
-		userRoleService.deleteByUserId(userId);
+		userRoleAssignmentService.deleteByUserIdAndOrganizationId(userId, orgUserModel.getOrganizationId());
 
 		response.setResponseCode(0);
 		response.setResponseDescription("Successfully unverified user.");
@@ -122,7 +125,7 @@ public class UserService {
 		return new VerifyUserResponse(1000, "Too many unsuccessful attempts made to validate, please contact your administrator.");
 	}
 
-	private VerifyUserResponse correctToken(Integer userId, UserToken tokenEntity) {
+	private VerifyUserResponse correctToken(Integer userId, UserToken tokenEntity) throws ArgumentNotFoundException {
 		userTokenRepository.delete(tokenEntity.getId());
 
 		OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(userId);
@@ -133,10 +136,10 @@ public class UserService {
 		Integer numberOfUsersVerified = orgUserService.getNumberOfVerifiedUsers(orgUserModel.getOrganizationId());
 
 		if(numberOfUsersVerified == 1) {
-			userRoleService.setUserAsCompanyAdmin(userId, orgUserModel.getOrganizationId());
+			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.ADMIN, userId, orgUserModel.getOrganizationId(), true);
 		}
 		else if (numberOfUsersVerified > 1) {
-			userRoleService.setUserAsCompanyMember(userId, orgUserModel.getOrganizationId());
+			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId, orgUserModel.getOrganizationId());
 		}
 
 		return new VerifyUserResponse(0, "Successfully verified user.");

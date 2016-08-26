@@ -213,44 +213,6 @@ public class SearchIT {
         Assert.assertTrue("Company: " + company.getName() + " does not match: " + queryString, company.getName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
     }
 
-    @Test
-    public void testSearchCompaniesNonMemberDMDII () {
-
-        String queryString = "GE Global";
-
-        SearchController searchController = new SearchController();
-        List<Company> companies = null;
-        try {
-            companies = searchController.searchCompanies(queryString, USER_ACME_USER);
-        } catch (HTTPException httpEX) {
-            //Assert.fail(httpEX.getMessage());
-            Assert.assertTrue("User " + USER_ACME_USER + " is not DMIDD member, expected response", true);
-            return;
-        }
-        catch (SearchException e) {
-            Assert.fail(e.getMessage());
-        }
-
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        String jsonString = null;
-        try {
-            jsonString = objectMapper.writeValueAsString(companies);
-            ServiceLogger.log(logTag, jsonString);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        // Since non DMDII memeber expected no results returned
-        Assert.assertTrue(companies == null);
-//        Assert.assertTrue(companies.size() > 0);
-//
-//        Company company  =companies.get(0);
-//        Assert.assertTrue(company != null);
-//        Assert.assertTrue(company.getName() != null);
-//        Assert.assertTrue("Company: " + company.getName() + " does not match: " + queryString, company.getName().toString().toLowerCase().indexOf(queryString.toLowerCase()) >= 0);
-    }
 
 //    @Test
 //    public void testSearchUsers () {
