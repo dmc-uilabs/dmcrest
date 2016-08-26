@@ -150,11 +150,19 @@ public class ProfileController {
 	}
 
 	@RequestMapping(value = "/profiles/{profileID}/compare_services", produces = {
-			APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-	public ResponseEntity<List<GetCompareService>> profilesProfileIDCompareServicesGet(
-			@PathVariable("profileID") String profileID) {
-		// do some magic!
-		return new ResponseEntity<List<GetCompareService>>(HttpStatus.NOT_IMPLEMENTED);
+			"application/json", "text/html" }, method = RequestMethod.GET)
+	public ResponseEntity<?> profilesProfileIDCompareServicesGet(
+			@PathVariable("profileID") String profileID,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		int httpStatusCode = HttpStatus.OK.value();
+		List<GetCompareService> compareServices = null;
+		try {
+			compareServices = profileDao.getCompareServices(profileID, userEPPN);
+		} catch (DMCServiceException e) {
+			ServiceLogger.logException(logTag, e);
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}	
+		return new ResponseEntity<List<GetCompareService>>(compareServices, HttpStatus.valueOf(httpStatusCode));
 	}
 	
 	
