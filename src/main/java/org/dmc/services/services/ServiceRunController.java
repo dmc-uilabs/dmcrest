@@ -1,5 +1,9 @@
 package org.dmc.services.services;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import static org.springframework.http.MediaType.parseMediaType;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
@@ -7,13 +11,17 @@ import org.dmc.services.company.CompanyUserUtil;
 import org.dmc.services.projects.ProjectController;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -97,6 +105,15 @@ public class ServiceRunController {
         }
         return new ResponseEntity<ServiceRunResult>(result, HttpStatus.OK);
     }
+    
+    @RequestMapping(value = "/uploadMyTestInServiceRun", method = RequestMethod.POST)
+        public void handleFormUpload(@RequestPart MultipartFile rawData, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN ) throws IOException {
+            if (rawData.isEmpty())
+                throw new IOException();
+            final MediaType rawDataContentType = parseMediaType(rawData.getContentType());
+            rawData.transferTo(new File("C:/tmp/test"));
+        }
+
     
 /*    public static void main(String[] args)
     {
