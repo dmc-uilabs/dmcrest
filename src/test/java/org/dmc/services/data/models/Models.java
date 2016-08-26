@@ -1,7 +1,6 @@
 package org.dmc.services.data.models;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,7 @@ public class Models {
 	public static final String PROJECT_EVENT_TITLE = "Project Event Title";
 	public static final String PROJECT_EVENT_DESCRIPTION = "Project Event Description";
 
-	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+	private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
 	public static DMDIIProjectModel dmdiiProjectModel() throws Exception {
 		DMDIIProjectModel dmdiiProjectModel = new DMDIIProjectModel();
@@ -100,8 +99,8 @@ public class Models {
 		dmdiiMember.setId(1000);
 		dmdiiMember.setDmdiiType(dmdiiType());
 		dmdiiMember.setOrganization(organization());
-		dmdiiMember.setStartDate(new Date(format.parse("2015/11/25").getTime()));
-		dmdiiMember.setExpireDate(new Date(format.parse("2017/11/25").getTime()));
+		dmdiiMember.setStartDate("2015-11-25");
+		dmdiiMember.setExpireDate("2017-11-25");
 		dmdiiMember.setAreasOfExpertise(areasOfExpertise);
 		dmdiiMember.setContacts(contacts);
 		dmdiiMember.setCustomers(customers);
@@ -189,7 +188,7 @@ public class Models {
 		DMDIIInstituteInvolvementModel instituteInvolvement = new DMDIIInstituteInvolvementModel();
 		instituteInvolvement.setId(1);
 		instituteInvolvement.setStaticLineItem("some static line item");
-		instituteInvolvement.setDate(new Date(format.parse("2016/05/25").getTime()));
+		instituteInvolvement.setDate(new java.sql.Date(format.parse("2016/05/25").getTime()));
 		return instituteInvolvement;
 	}
 
@@ -301,7 +300,7 @@ public class Models {
 		event.setEventDate(DATE);
 		return event;
 	}
-	
+
 	public static DMDIIProjectContactModel dmdiiProjectContact1() {
 		DMDIIProjectContactModel contact = new DMDIIProjectContactModel();
 		contact.setId(200);
@@ -310,7 +309,7 @@ public class Models {
 		contact.setEmail(EMAIL);
 		return contact;
 	}
-	
+
 	public static DMDIIProjectContactModel dmdiiProjectContact2() {
 		DMDIIProjectContactModel contact = new DMDIIProjectContactModel();
 		contact.setId(201);
