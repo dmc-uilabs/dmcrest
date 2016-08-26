@@ -17,6 +17,7 @@ import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.verification.Verification;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
@@ -61,9 +62,9 @@ public class DocumentService {
 		return mapper.mapToModel(docs.get(0));
 	}
 	
-	public List<DocumentModel> findDocumentsByOrganizationIdAndFileTypeId(Integer organizationId, Integer fileTypeId) {
+	public List<DocumentModel> findDocumentsByOrganizationIdAndFileTypeId(Integer organizationId, Integer fileTypeId, Integer limit) {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		List<Document> docs = documentRepository.findByOrganizationIdAndFileTypeOrderByModifiedDesc(organizationId, fileTypeId);
+		List<Document> docs = documentRepository.findByOrganizationIdAndFileTypeOrderByModifiedDesc(organizationId, fileTypeId, new PageRequest(0, limit)).getContent();
 		
 		docs = refreshDocuments(docs);
 		return mapper.mapToModel(docs);
