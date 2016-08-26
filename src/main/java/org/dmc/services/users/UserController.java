@@ -129,7 +129,7 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/users/{userId}", params = {"action"}, method = RequestMethod.PUT)
-	public VerifyUserResponse userAction(@PathVariable Integer userId, @RequestParam("action") String action, @RequestBody(required=false) String token) throws ArgumentNotFoundException {
+	public VerifyUserResponse userAction(@PathVariable Integer userId, @RequestParam("action") String action, @RequestBody(required=false) UserTokenModel token) throws ArgumentNotFoundException {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
 		VerifyUserResponse response;
@@ -137,7 +137,7 @@ public class UserController {
 		if("verify".equals(action)) {
 
 			if (userId.equals(loggedIn.getId())) {
-				response = userService.verifyUser(userId, token);
+				response = userService.verifyUser(userId, token.getToken());
 			} else {
 				throw new AccessDeniedException("403 Permission Denied");
 			}
