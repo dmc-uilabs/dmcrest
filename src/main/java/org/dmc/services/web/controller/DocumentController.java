@@ -35,10 +35,11 @@ public class DocumentController {
 		return documentService.findOne(documentId);
 	}
 	
-	@RequestMapping(value="/documents/organization", params = {"organizationId", "fileTypeId"}, method = RequestMethod.GET)
-	public List<DocumentModel> getDocumentsByOrganizationIdAndFileTypeId (@RequestParam("organizationId") Integer organizationId, @RequestParam("fileTypeId") Integer fileTypeId) {
+	@RequestMapping(value="/documents/organization", params = {"organizationId", "fileTypeId", "limit"}, method = RequestMethod.GET)
+	public List<DocumentModel> getDocumentsByOrganizationIdAndFileTypeId (@RequestParam("organizationId") Integer organizationId, 
+			@RequestParam("fileTypeId") Integer fileTypeId, @RequestParam("limit") Integer limit) {
 		ServiceLogger.log(logTag, "In getDocumentsByOrganizationIdAndFileTypeId: organizationId = " + organizationId + " and fileTypeId = " + fileTypeId);
-		return documentService.findDocumentsByOrganizationIdAndFileTypeId(organizationId, fileTypeId);
+		return documentService.findDocumentsByOrganizationIdAndFileTypeId(organizationId, fileTypeId, limit);
 	}
 	
 	@RequestMapping(value="/document/organization", params = {"organizationId", "fileTypeId"}, method = RequestMethod.GET)
