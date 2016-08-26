@@ -1,6 +1,5 @@
 package org.dmc.services.data.models;
 
-import java.sql.Date;
 import java.util.List;
 
 public class DMDIIMemberModel extends BaseModel {
@@ -9,9 +8,9 @@ public class DMDIIMemberModel extends BaseModel {
 
 	private OrganizationModel organization;
 
-	private Date startDate;
+	private String startDate;
 
-	private Date expireDate;
+	private String expireDate;
 
 	private List<DMDIIMemberContactModel> contacts;
 
@@ -33,19 +32,19 @@ public class DMDIIMemberModel extends BaseModel {
 		this.organization = organization;
 	}
 
-	public Date getStartDate() {
+	public String getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(String startDate) {
 		this.startDate = startDate;
 	}
 
-	public Date getExpireDate() {
+	public String getExpireDate() {
 		return expireDate;
 	}
 
-	public void setExpireDate(Date expireDate) {
+	public void setExpireDate(String expireDate) {
 		this.expireDate = expireDate;
 	}
 
