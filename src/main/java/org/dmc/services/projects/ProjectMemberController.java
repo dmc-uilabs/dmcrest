@@ -48,8 +48,8 @@ public class ProjectMemberController {
     
     @RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getProjectMembers(
-            @RequestParam(value = "projectId", required = false) String projectIdString,
-            @RequestParam(value = "profileId", required = false) String profileIdString, 
+            @RequestParam(value = "projectId", required = false) String projectList,
+            @RequestParam(value = "profileId", required = false) String profileList,
             @RequestParam(value = "accept", required = false) Boolean accept,
             @RequestParam(value = "_limit", required = false) Integer _limit,
             @RequestParam(value = "_order", required = false) String _order,
@@ -60,10 +60,10 @@ public class ProjectMemberController {
 
         try {
             
-            if (null != projectIdString) {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectIdString, accept, userEPPN), HttpStatus.OK);
-            } else if (null != profileIdString) {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(profileIdString, accept, userEPPN), HttpStatus.OK);
+            if (null != projectList) {
+                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectList, accept, userEPPN), HttpStatus.OK);
+            } else if (null != profileList) {
+                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(profileList, accept, userEPPN), HttpStatus.OK);
             } else {
                 return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(accept, userEPPN), HttpStatus.OK);
             }

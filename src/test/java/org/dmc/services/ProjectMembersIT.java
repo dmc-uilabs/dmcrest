@@ -59,7 +59,7 @@ public class ProjectMembersIT extends BaseIT {
                 .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
 
     }
-    
+
     @Test
     public void testMembersForAdminProfile() {
         ServiceLogger.log(LOGTAG, "starting testMembersForAdminProfile");
@@ -568,5 +568,13 @@ public class ProjectMembersIT extends BaseIT {
 
             assertTrue("Member " + userName + " is DMDII Member", CompanyUserUtil.isDMDIIMember(userName));
         }
+    }
+    @Test
+    public void testGetMembersMultipleProjects() {
+        ServiceLogger.log(LOGTAG, "starting testGetMembersMultipleProjects");
+        given().header("AJP_eppn", userEPPN).param("projectId", 6).param("projectId", 3)
+                .expect().statusCode(OK.value()).when().get("/projects_members").then()
+                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+
     }
 }
