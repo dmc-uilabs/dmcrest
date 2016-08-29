@@ -59,15 +59,7 @@ public class ProjectMemberController {
         ServiceLogger.log(LOGTAG, "In getProjectMembers: as user " + userEPPN);
 
         try {
-            
-            if (null != projectList) {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectList, accept, userEPPN), HttpStatus.OK);
-            } else if (null != profileList) {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(profileList, accept, userEPPN), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(accept, userEPPN), HttpStatus.OK);
-            }
-            
+            return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(projectList, profileList, accept, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -125,7 +117,7 @@ public class ProjectMemberController {
             throws Exception {
         ServiceLogger.log(LOGTAG, "In getProjectsForMember: for member" + memberId + " as user " + userEPPN);
 
-        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(memberId, new Boolean(true),  userEPPN), HttpStatus.OK);
+        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(null, memberId, new Boolean(true), userEPPN), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/projects/{projectId}/projects_members", method = RequestMethod.GET, produces = "application/json")
@@ -133,7 +125,7 @@ public class ProjectMemberController {
             throws Exception {
         ServiceLogger.log(LOGTAG, "In getMembersForProject: for project" + projectId + " as user " + userEPPN);
 
-        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectId, new Boolean(true), userEPPN), HttpStatus.OK);
+        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(projectId, null, new Boolean(true), userEPPN), HttpStatus.OK);
     }
 
     /**

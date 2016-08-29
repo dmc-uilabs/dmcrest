@@ -57,7 +57,6 @@ public class ProjectMembersIT extends BaseIT {
         ServiceLogger.log(LOGTAG, "starting testProject6Members");
         given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6/projects_members").then()
                 .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
-
     }
 
     @Test
@@ -293,7 +292,6 @@ public class ProjectMembersIT extends BaseIT {
 
         this.createdId = TestProjectUtil.createProject(userEPPN);
         final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, adminId);
-        final String requestId = newRequestedMember.getId();
         
         if (this.createdId != null) {
             ProjectMember reply = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).body(newRequestedMember)
@@ -569,12 +567,34 @@ public class ProjectMembersIT extends BaseIT {
             assertTrue("Member " + userName + " is DMDII Member", CompanyUserUtil.isDMDIIMember(userName));
         }
     }
+
     @Test
     public void testGetMembersMultipleProjects() {
         ServiceLogger.log(LOGTAG, "starting testGetMembersMultipleProjects");
         given().header("AJP_eppn", userEPPN).param("projectId", 6).param("projectId", 3)
                 .expect().statusCode(OK.value()).when().get("/projects_members").then()
                 .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+    }
 
+    @Test
+    public void testGetMembersWithProjectAndProfile() {
+        ServiceLogger.log(LOGTAG, "starting testGetMembersWithProjectAndProfile");
+        final ValidatableResponse response = given().header("AJP_eppn", userEPPN).param("projectId", 6).param("profileId", 102)
+                .expect().statusCode(OK.value()).when().get("/projects_members").then()
+                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+        final JSONArray jsonArray = new JSONArray(response.extract().asString());
+        assertEquals("expect one project_member result for project + profile check, but found a different amount", 1, jsonArray.length());
+
+        final ValidatableResponse responseProjectOnly = given().header("AJP_eppn", userEPPN).param("projectId", 6)
+                .expect().statusCode(OK.value()).when().get("/projects_members").then()
+                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+        final JSONArray jsonArrayProjectOnly = new JSONArray(responseProjectOnly.extract().asString());
+        assertTrue("expect >1 project_member result for project only check, but found a different amount", 1 < jsonArrayProjectOnly.length());
+
+        final ValidatableResponse responseProfileOnly = given().header("AJP_eppn", userEPPN).param("profileId", 102)
+                .expect().statusCode(OK.value()).when().get("/projects_members").then()
+                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+        final JSONArray jsonArrayProfileOnly = new JSONArray(responseProfileOnly.extract().asString());
+        assertTrue("expect >1 project_member result for profile only check, but found a different amount", 1 < jsonArrayProfileOnly.length());
     }
 }
