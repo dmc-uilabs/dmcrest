@@ -61,8 +61,10 @@ public class DMDIIMemberController {
 	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
 	public DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) throws DuplicateDMDIIMemberException {
-		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, member.getOrganization().getId())) {
-			throw new AccessDeniedException("403 Access denied");
+		if(!PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
+			if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, member.getOrganization().getId())) {
+				throw new AccessDeniedException("403 Access denied");
+			}
 		}
 
 		// Only a superadmin may create a new dmdiiMember
