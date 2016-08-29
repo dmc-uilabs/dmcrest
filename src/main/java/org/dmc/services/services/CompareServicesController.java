@@ -21,12 +21,20 @@ public class CompareServicesController {
 	private CompareServicesDao compareServiceDao = new CompareServicesDao();
 
 	@RequestMapping(value = "/{id}", produces = { "application/json", "text/html" }, method = RequestMethod.DELETE)
-	public ResponseEntity<Void> compareServicesIdDelete(
-			@PathVariable("id") String id
-
-	){
-		// do some magic!
-		return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+	public ResponseEntity<?> compareServicesIdDelete(
+			@PathVariable("id") String id,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+		ServiceLogger.log(LOGTAG, "In deleteCompareService: for id" + id + "as user " + userEPPN);
+		int httpStatusCode = HttpStatus.OK.value();
+		
+		try {
+			boolean res = compareServiceDao.deleteCompareService(id, userEPPN);
+		} catch (DMCServiceException e) {
+			ServiceLogger.log(LOGTAG, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
+		
+		return new ResponseEntity<Void>(HttpStatus.valueOf(httpStatusCode));
 	}
 
 	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)

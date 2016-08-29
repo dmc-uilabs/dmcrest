@@ -98,4 +98,34 @@ public class CompareServicesDao {
 		return compareService;
 	}
 
+	public boolean deleteCompareService(String id, String userEPPN) throws DMCServiceException {
+		ServiceLogger.log(LOGTAG, "In deleteCompareService for userEPPN: " + userEPPN + " and compare_service_id " + id);
+		String query = "DELETE from service_compare WHERE service_compare_id = ? AND profile_id = ? ";
+		String errorHeader = "DELETE COMPARE_SERVICE_ID: ";
+		
+		int userId = -1; 
+		
+		try {
+			userId = UserDao.getUserID(userEPPN);
+		} catch (SQLException e1) {
+			ServiceLogger.log(LOGTAG, e1.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, errorHeader + e1.getMessage());
+		}
+		
+		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+		try {
+			preparedStatement.setInt(1, Integer.parseInt(id));
+			preparedStatement.setInt(2, userId);
+			int change = preparedStatement.executeUpdate();
+			if(change != 1){
+				throw new DMCServiceException(DMCError.OtherSQLError, errorHeader + " cannot delete compare_service_id:" + id + " for userEPPN: " + userEPPN);
+			}
+			return true;
+		} catch (SQLException e) {
+			ServiceLogger.log(LOGTAG, e.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError, errorHeader + e.getMessage());
+		}
+		
+	}
+
 }
