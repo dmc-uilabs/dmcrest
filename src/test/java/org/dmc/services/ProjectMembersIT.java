@@ -14,6 +14,7 @@ import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.ProjectMember;
+import org.dmc.services.projects.ProjectMemberDao;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.utility.TestProjectUtil;
 import org.dmc.services.utility.TestUserUtil;
@@ -577,21 +578,44 @@ public class ProjectMembersIT extends BaseIT {
     }
 
     @Test
-    public void testGetMembersWithProjectAndProfile() {
+    public void testGetMembersWithProjectAndProfile() throws SQLException {
         ServiceLogger.log(LOGTAG, "starting testGetMembersWithProjectAndProfile");
-        final ValidatableResponse response = given().header("AJP_eppn", userEPPN).param("projectId", 6).param("profileId", 102)
+
+        // create a project, add userEPPN and knownEPPN to the project
+        final Integer newProjectId = TestProjectUtil.createProject(userEPPN);
+        final Integer adminId = UserDao.getUserID(userEPPN);
+        final Integer memberId = UserDao.getUserID(knownEPPN);
+        final ProjectMember requestProjectMember = TestProjectUtil.createNewProjectMemberForRequest(newProjectId, memberId, adminId);
+
+        final ProjectMember actualRequestedMember = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(requestProjectMember)
+                .expect().statusCode(HttpStatus.OK.value())
+                .when().post(PROJECT_MEMBERS_RESOURCE).as(ProjectMember.class);
+        final String actualRequestId = actualRequestedMember.getId();
+        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN)
+                .expect().statusCode(OK.value())
+                .when().patch(MEMBER_ACCEPT_RESOURCE, actualRequestId);
+
+        // now check that the GET /project_members work correctly with different arguments.
+        final ValidatableResponse responseAdmin = given().header("AJP_eppn", userEPPN).param("projectId", newProjectId).param("profileId", adminId)
                 .expect().statusCode(OK.value()).when().get("/projects_members").then()
                 .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
-        final JSONArray jsonArray = new JSONArray(response.extract().asString());
-        assertEquals("expect one project_member result for project + profile check, but found a different amount", 1, jsonArray.length());
+        final JSONArray jsonArrayAdmin = new JSONArray(responseAdmin.extract().asString());
+        assertEquals("expect one project_member result for project + profile check for admin, but found a different amount", 1, jsonArrayAdmin.length());
 
-        final ValidatableResponse responseProjectOnly = given().header("AJP_eppn", userEPPN).param("projectId", 6)
+        final ValidatableResponse responseMember = given().header("AJP_eppn", userEPPN).param("projectId", newProjectId).param("profileId", adminId)
+                .expect().statusCode(OK.value()).when().get("/projects_members").then()
+                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+        final JSONArray jsonArrayMember = new JSONArray(responseMember.extract().asString());
+        assertEquals("expect one project_member result for project + profile check for member, but found a different amount", 1, jsonArrayMember.length());
+
+        final ValidatableResponse responseProjectOnly = given().header("AJP_eppn", userEPPN).param("projectId", newProjectId)
                 .expect().statusCode(OK.value()).when().get("/projects_members").then()
                 .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
         final JSONArray jsonArrayProjectOnly = new JSONArray(responseProjectOnly.extract().asString());
-        assertTrue("expect >1 project_member result for project only check, but found a different amount", 1 < jsonArrayProjectOnly.length());
+        assertEquals("expect 2 for project only check, but found a different amount", 2, jsonArrayProjectOnly.length());
 
-        final ValidatableResponse responseProfileOnly = given().header("AJP_eppn", userEPPN).param("profileId", 102)
+        // because there is some preloaded data for adminId (102), expect > 1 result.
+        final ValidatableResponse responseProfileOnly = given().header("AJP_eppn", userEPPN).param("profileId", adminId)
                 .expect().statusCode(OK.value()).when().get("/projects_members").then()
                 .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
         final JSONArray jsonArrayProfileOnly = new JSONArray(responseProfileOnly.extract().asString());
