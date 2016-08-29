@@ -404,7 +404,7 @@ public class ProfileDao {
 		return compareServices;
 	}
 
-	private GetCompareService setCompareService(ResultSet res) throws SQLException {
+	public GetCompareService setCompareService(ResultSet res) throws SQLException {
 		GetCompareService compareService = new GetCompareService();
 		String service_compare_id = res.getString("service_compare_id");
 		String service_id = res.getString("service_id");
