@@ -195,27 +195,23 @@ public class UserDao {
 
     public static int getUserID(String userEPPN) throws SQLException {
         String query = "select user_id from users where user_name = ?;";
-        ServiceLogger.log(logTag, "userid query: " + query);
+        ServiceLogger.log(logTag, "userid query: " + query + " for " + userEPPN);
         PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
         preparedStatement.setString(1, userEPPN);
-        ServiceLogger.log(logTag, "set user_name parameter to : " + userEPPN);
         final boolean ok = preparedStatement.execute();
-        ServiceLogger.log(logTag, "execute status = " + ok);
         if (!ok)
             return -1;
 
         ResultSet resultSet = preparedStatement.getResultSet();
-        ServiceLogger.log(logTag, "resultSet = " + resultSet);
         if (null == resultSet)
             return -1;
 
         if (resultSet.next()) {
-            ServiceLogger.log(logTag, "resultSet.next() is true ");
             ServiceLogger.log(logTag, "resultSet.getInt(user_id) = " + resultSet.getInt("user_id"));
             // id = resultSet.getString("id");
             return resultSet.getInt("user_id");
         }
-        ServiceLogger.log(logTag,  "resultSet.next() is false, so return -1 for user_id");
+        ServiceLogger.log(logTag,  "user_id not found, so return -1 for user_id");
         // else no user in DB
         return -1;
     }
