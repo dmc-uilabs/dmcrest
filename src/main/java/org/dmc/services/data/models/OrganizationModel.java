@@ -11,6 +11,12 @@ public class OrganizationModel extends BaseModel {
 
 	private String description;
 
+	private String division;
+
+	private String industry;
+
+	private String naicsCode;
+
 	private String email;
 
 	private String phone;
@@ -63,6 +69,30 @@ public class OrganizationModel extends BaseModel {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getDivision() {
+		return division;
+	}
+
+	public void setDivision(String division) {
+		this.division = division;
+	}
+
+	public String getIndustry() {
+		return industry;
+	}
+
+	public void setIndustry(String industry) {
+		this.industry = industry;
+	}
+
+	public String getNaicsCode() {
+		return naicsCode;
+	}
+
+	public void setNaicsCode(String naicsCode) {
+		this.naicsCode = naicsCode;
 	}
 
 	public AddressModel getAddress() {
