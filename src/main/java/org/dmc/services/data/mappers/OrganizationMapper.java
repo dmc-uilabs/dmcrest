@@ -19,7 +19,7 @@ public class OrganizationMapper extends AbstractMapper<Organization, Organizatio
 	public Organization mapToEntity(OrganizationModel model) {
 		if (model == null) return null;
 
-		Organization entity = copyProperties(model, new Organization(), new String[]{"awards", "contacts"});
+		Organization entity = copyProperties(model, new Organization(), new String[]{"awards", "contacts", "dmdiiMemberId"});
 
 		Mapper<Address, AddressModel> addressMapper = mapperFactory.mapperFor(Address.class, AddressModel.class);
 		Mapper<Award, AwardModel> awardMapper = mapperFactory.mapperFor(Award.class, AwardModel.class);
@@ -51,6 +51,9 @@ public class OrganizationMapper extends AbstractMapper<Organization, Organizatio
 		model.setAreasOfExpertise(aoeMapper.mapToModel(entity.getAreasOfExpertise()));
 		model.setDesiredAreasOfExpertise(aoeMapper.mapToModel(entity.getDesiredAreasOfExpertise()));
 		model.setContacts(contactMapper.mapToModel(entity.getContacts()));
+		if(entity.getDmdiiMember() != null) {
+			model.setDmdiiMemberId(entity.getDmdiiMember().getId());
+		}
 
 		return model;
 	}

@@ -116,9 +116,6 @@ public class Organization extends BaseEntity {
 	@Column(name = "category_tier")
 	private Integer categoryTier;
 
-	@Column(name = "date_joining")
-	private String dateJoining;
-
 	@Column(name = "reason_joining")
 	private String reasonJoining;
 
@@ -377,14 +374,6 @@ public class Organization extends BaseEntity {
 		this.categoryTier = categoryTier;
 	}
 
-	public String getDateJoining() {
-		return dateJoining;
-	}
-
-	public void setDateJoining(String dateJoining) {
-		this.dateJoining = dateJoining;
-	}
-
 	public String getReasonJoining() {
 		return reasonJoining;
 	}
@@ -459,7 +448,6 @@ public class Organization extends BaseEntity {
 		result = prime * result + ((categoryTier == null) ? 0 : categoryTier.hashCode());
 		result = prime * result + ((collaborationInterest == null) ? 0 : collaborationInterest.hashCode());
 		result = prime * result + ((customers == null) ? 0 : customers.hashCode());
-		result = prime * result + ((dateJoining == null) ? 0 : dateJoining.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((division == null) ? 0 : division.hashCode());
 		result = prime * result + ((dmdiiMember == null) ? 0 : dmdiiMember.hashCode());
@@ -529,11 +517,6 @@ public class Organization extends BaseEntity {
 			if (other.customers != null)
 				return false;
 		} else if (!customers.equals(other.customers))
-			return false;
-		if (dateJoining == null) {
-			if (other.dateJoining != null)
-				return false;
-		} else if (!dateJoining.equals(other.dateJoining))
 			return false;
 		if (description == null) {
 			if (other.description != null)

@@ -17,13 +17,19 @@ public class OrganizationModel extends BaseModel {
 
 	private String website;
 
-	private String dateJoining;
+	private String socialMediaLinkedin;
+
+	private String socialMediaTwitter;
+
+	private String socialMediaInthenews;
+
+	private String perferedCommMethod;
+
+	private AddressModel address;
 
 	private String reasonJoining;
 
 	private Integer featureImage;
-
-	private AddressModel address;
 
 	private List<AwardModel> awards = new ArrayList<AwardModel>();
 
@@ -32,6 +38,8 @@ public class OrganizationModel extends BaseModel {
 	private List<AreaOfExpertiseModel> areasOfExpertise = new ArrayList<AreaOfExpertiseModel>();
 
 	private List<AreaOfExpertiseModel> desiredAreasOfExpertise = new ArrayList<AreaOfExpertiseModel>();
+
+	private Integer dmdiiMemberId;
 
 	public String getName() {
 		return name;
@@ -89,12 +97,36 @@ public class OrganizationModel extends BaseModel {
 		this.website = website;
 	}
 
-	public String getDateJoining() {
-		return dateJoining;
+	public String getSocialMediaLinkedin() {
+		return socialMediaLinkedin;
 	}
 
-	public void setDateJoining(String dateJoining) {
-		this.dateJoining = dateJoining;
+	public void setSocialMediaLinkedin(String socialMediaLinkedin) {
+		this.socialMediaLinkedin = socialMediaLinkedin;
+	}
+
+	public String getSocialMediaTwitter() {
+		return socialMediaTwitter;
+	}
+
+	public void setSocialMediaTwitter(String socialMediaTwitter) {
+		this.socialMediaTwitter = socialMediaTwitter;
+	}
+
+	public String getSocialMediaInthenews() {
+		return socialMediaInthenews;
+	}
+
+	public void setSocialMediaInthenews(String socialMediaInthenews) {
+		this.socialMediaInthenews = socialMediaInthenews;
+	}
+
+	public String getPerferedCommMethod() {
+		return perferedCommMethod;
+	}
+
+	public void setPerferedCommMethod(String perferedCommMethod) {
+		this.perferedCommMethod = perferedCommMethod;
 	}
 
 	public String getReasonJoining() {
@@ -143,6 +175,14 @@ public class OrganizationModel extends BaseModel {
 
 	public void setDesiredAreasOfExpertise(List<AreaOfExpertiseModel> desiredAreasOfExpertise) {
 		this.desiredAreasOfExpertise = desiredAreasOfExpertise;
+	}
+
+	public Integer getDmdiiMemberId() {
+		return dmdiiMemberId;
+	}
+
+	public void setDmdiiMemberId(Integer dmdiiMemberId) {
+		this.dmdiiMemberId = dmdiiMemberId;
 	}
 
 }
