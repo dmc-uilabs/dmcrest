@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-
-
 @Controller
 @RequestMapping(value = "/compare_services", produces = { "application/json", "text/html" })
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-08-24T16:43:27.555-04:00")
@@ -21,26 +19,24 @@ public class CompareServicesController {
 	private CompareServicesDao compareServiceDao = new CompareServicesDao();
 
 	@RequestMapping(value = "/{id}", produces = { "application/json", "text/html" }, method = RequestMethod.DELETE)
-	public ResponseEntity<?> compareServicesIdDelete(
-			@PathVariable("id") String id,
-			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+	public ResponseEntity<?> compareServicesIdDelete(@PathVariable("id") String id,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(LOGTAG, "In deleteCompareService: for id" + id + "as user " + userEPPN);
 		int httpStatusCode = HttpStatus.OK.value();
-		
+
 		try {
-			boolean res = compareServiceDao.deleteCompareService(id, userEPPN);
+			compareServiceDao.deleteCompareService(id, userEPPN);
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(LOGTAG, e.getMessage());
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
-		
+
 		return new ResponseEntity<Void>(HttpStatus.valueOf(httpStatusCode));
 	}
 
 	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<?> compareServicesPost(
-			@RequestBody PostCompareService body,
-			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+	public ResponseEntity<?> compareServicesPost(@RequestBody PostCompareService body,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		int httpStatusCode = HttpStatus.OK.value();
 		GetCompareService compareService = new GetCompareService();
 		try {
