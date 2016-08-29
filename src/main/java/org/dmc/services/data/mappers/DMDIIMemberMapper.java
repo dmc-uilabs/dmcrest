@@ -1,5 +1,9 @@
 package org.dmc.services.data.mappers;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.dmc.services.data.entities.DMDIIAreaOfExpertise;
 import org.dmc.services.data.entities.DMDIIAward;
 import org.dmc.services.data.entities.DMDIIInstituteInvolvement;
@@ -22,16 +26,19 @@ import org.dmc.services.data.models.DMDIISkillModel;
 import org.dmc.services.data.models.DMDIITypeModel;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.dmdiitype.DMDIIType;
+import org.dmc.services.exceptions.DateFormatException;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberModel> {
 
+	DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
 	@Override
 	public DMDIIMember mapToEntity(DMDIIMemberModel model) {
 		if (model == null) return null;
-		
-		DMDIIMember entity = copyProperties(model, new DMDIIMember(), new String[]{"awards", "contacts", "customers", "finances", "instituteInvolvement"});
+
+		DMDIIMember entity = copyProperties(model, new DMDIIMember(), new String[]{"startDate", "expireDate", "awards", "contacts", "customers", "finances", "instituteInvolvement"});
 
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class,	OrganizationModel.class);
@@ -44,6 +51,13 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 		Mapper<DMDIISkill, DMDIISkillModel> skillMapper = mapperFactory.mapperFor(DMDIISkill.class,	DMDIISkillModel.class);
 		Mapper<DMDIIMemberUser, DMDIIMemberUserModel> userMapper = mapperFactory.mapperFor(DMDIIMemberUser.class, DMDIIMemberUserModel.class);
 
+		try {
+			formatter.setLenient(false);
+			entity.setStartDate(formatter.parse(model.getStartDate()));
+			entity.setExpireDate(formatter.parse(model.getExpireDate()));
+		} catch (ParseException e) {
+			throw new DateFormatException("Date is incorrectly formatted, cannot parse.");
+		}
 		entity.setDmdiiType(typeMapper.mapToEntity(model.getDmdiiType()));
 		entity.setOrganization(orgMapper.mapToEntity(model.getOrganization()));
 		entity.setAwards(awardMapper.mapToEntity(model.getAwards()));
@@ -62,8 +76,8 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 	@Override
 	public DMDIIMemberModel mapToModel(DMDIIMember entity) {
 		if (entity == null) return null;
-		
-		DMDIIMemberModel model = copyProperties(entity, new DMDIIMemberModel(), new String[]{"awards", "contacts", "customers", "finances", "instituteInvolvement"});
+
+		DMDIIMemberModel model = copyProperties(entity, new DMDIIMemberModel(), new String[]{"startDate", "expireDate", "customers", "finances", "instituteInvolvement"});
 
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class,	OrganizationModel.class);
@@ -76,6 +90,8 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 		Mapper<DMDIISkill, DMDIISkillModel> skillMapper = mapperFactory.mapperFor(DMDIISkill.class,	DMDIISkillModel.class);
 		Mapper<DMDIIMemberUser, DMDIIMemberUserModel> userMapper = mapperFactory.mapperFor(DMDIIMemberUser.class, DMDIIMemberUserModel.class);
 
+		model.setStartDate(formatter.format(entity.getStartDate()));
+		model.setExpireDate(formatter.format(entity.getExpireDate()));
 		model.setDmdiiType(typeMapper.mapToModel(entity.getDmdiiType()));
 		model.setOrganization(orgMapper.mapToModel(entity.getOrganization()));
 		model.setAwards(awardMapper.mapToModel(entity.getAwards()));
