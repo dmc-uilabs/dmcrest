@@ -67,6 +67,9 @@ public class Organization extends BaseEntity {
 	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL)
 	private List<Award> awards;
 
+	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL)
+	private List<OrganizationContact> contacts;
+
 	@Column(name = "tech_expertise")
 	private String techExpertise;
 
@@ -243,6 +246,15 @@ public class Organization extends BaseEntity {
 	public void setAwards(List<Award> awards) {
 		awards.stream().forEach((a) -> a.setOrganization(this));
 		this.awards = awards;
+	}
+
+	public List<OrganizationContact> getContacts() {
+		return contacts;
+	}
+
+	public void setContacts(List<OrganizationContact> contacts) {
+		contacts.stream().forEach((a) -> a.setOrganization(this));
+		this.contacts = contacts;
 	}
 
 	public String getTechExpertise() {

@@ -1,5 +1,6 @@
 package org.dmc.services.data.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrganizationModel extends BaseModel {
@@ -24,11 +25,13 @@ public class OrganizationModel extends BaseModel {
 
 	private AddressModel address;
 
-	private List<AwardModel> awards;
+	private List<AwardModel> awards = new ArrayList<AwardModel>();
 
-	private List<AreaOfExpertiseModel> areasOfExpertise;
+	private List<OrganizationContactModel> contacts = new ArrayList<OrganizationContactModel>();
 
-	private List<AreaOfExpertiseModel> desiredAreasOfExpertise;
+	private List<AreaOfExpertiseModel> areasOfExpertise = new ArrayList<AreaOfExpertiseModel>();
+
+	private List<AreaOfExpertiseModel> desiredAreasOfExpertise = new ArrayList<AreaOfExpertiseModel>();
 
 	public String getName() {
 		return name;
@@ -116,6 +119,14 @@ public class OrganizationModel extends BaseModel {
 
 	public void setAwards(List<AwardModel> awards) {
 		this.awards = awards;
+	}
+
+	public List<OrganizationContactModel> getContacts() {
+		return contacts;
+	}
+
+	public void setContacts(List<OrganizationContactModel> contacts) {
+		this.contacts = contacts;
 	}
 
 	public List<AreaOfExpertiseModel> getAreasOfExpertise() {
