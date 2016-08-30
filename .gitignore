@@ -1,16 +1,19 @@
+
 # ignore the generated target directory
-/target
-/bin/
-/.classpath
-/.project
-/.settings
+**.bak
+.classpath
+.project
+.settings
+bin/
+target
 
 
 # IntelliJ specific files
-.idea
-*.iml
+**.iml
+.idea/**
 
 
 # SonarQube directory and backup files
+**.sonar/
 .sonar
 sonar-project.properties.bak
