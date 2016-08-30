@@ -81,6 +81,10 @@ public class User extends BaseEntity {
 	@OneToOne(mappedBy = "user")
 	private OrganizationUser organizationUser;
 
+	@OneToOne
+	@JoinColumn(table = "onboarding_status", name = "user_id")
+	private OnboardingStatus onboardingStatus;
+
 	@Override
 	public Integer getId() {
 		return id;
@@ -224,6 +228,14 @@ public class User extends BaseEntity {
 
 	public void setOrganizationUser(OrganizationUser organizationUser) {
 		this.organizationUser = organizationUser;
+	}
+
+	public OnboardingStatus getOnboardingStatus() {
+		return onboardingStatus;
+	}
+
+	public void setOnboardingStatus(OnboardingStatus onboardingStatus) {
+		this.onboardingStatus = onboardingStatus;
 	}
 
 	@Override
