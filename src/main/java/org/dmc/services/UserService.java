@@ -170,6 +170,7 @@ public class UserService {
 		return mapper.mapToModel(userRepository.findAllWhereDmdiiMemberExpiryDateIsAfterNow());
 	}
 
+	@Transactional
 	public UserModel readOrCreateUser(String userEPPN, String userFirstName, String userSurname, String userFullname,
 			String userEmail) {
 		User user = userRepository.findByUsername(userEPPN);
@@ -192,7 +193,7 @@ public class UserService {
 		return;
 	}
 
-	private User createUserAndOnboardingStatus(String userEPPN, String firstName, String lastName, String fullName,
+	public User createUserAndOnboardingStatus(String userEPPN, String firstName, String lastName, String fullName,
 			String email) {
 		final User user = createUser(userEPPN, firstName, lastName, fullName, email);
 		createOnboardingStatus(user.getId());
