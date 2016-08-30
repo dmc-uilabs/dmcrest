@@ -1,20 +1,15 @@
 package org.dmc.services;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.*;
-import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.restassured.response.ValidatableResponse;
 import org.dmc.services.company.CompanyUserUtil;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.ProjectMember;
-import org.dmc.services.users.UserDao;
 import org.dmc.services.utility.TestProjectUtil;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONArray;
@@ -23,10 +18,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.response.ValidatableResponse;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 //
 public class ProjectMembersIT extends BaseIT {
