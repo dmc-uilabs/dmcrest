@@ -1,10 +1,5 @@
 package org.dmc.services;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserToken;
@@ -21,6 +16,10 @@ import org.dmc.services.roleassignment.UserRoleAssignmentService;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.users.VerifyUserResponse;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class UserService {
