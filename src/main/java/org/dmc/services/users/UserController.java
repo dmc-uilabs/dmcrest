@@ -1,7 +1,6 @@
 package org.dmc.services.users;
 
 import org.dmc.services.ErrorMessage;
-import org.dmc.services.Id;
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
@@ -49,8 +48,7 @@ public class UserController {
 	private UserPrincipalService userPrincipalService;
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-    public Id createUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
-                         @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
+	public Integer createUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                          @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                          @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
                          @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
@@ -62,7 +60,9 @@ public class UserController {
     	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
     	//converts the response to JSON
 
-        return userDAO.createUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+		//        return userDAO.createUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+		return userService.createUserAndOnboardingStatus(userEPPN, userFirstName, userSurname, userFull, userEmail)
+				.getId();
 
     	//Create role and update db through JDBC then return role using new role's id
     }
