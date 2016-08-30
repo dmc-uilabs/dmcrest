@@ -1,8 +1,5 @@
 package org.dmc.services.roleassignment;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.dmc.services.UserService;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.Role;
@@ -21,6 +18,9 @@ import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 
 @Service
@@ -51,15 +51,15 @@ public class UserRoleAssignmentService {
 	}
 	
 	@Transactional
-	public UserRoleAssignmentModel grantRoleToUserForOrg(String role, Integer userId, Integer organizationId, Boolean selfAdminOverride) throws ArgumentNotFoundException {
+	public UserRoleAssignmentModel grantRoleToUserForOrg(String role, Integer userId, Integer organizationId,
+			Boolean selfOverride) throws ArgumentNotFoundException {
 		// This method cannot be used to create superadmins
 		if (role.equals(SecurityRoles.SUPERADMIN)) {
 			throw new AccessDeniedException("403 access denied");
 		}
-		
-		// Logged in user must be organizational admin OR this is a user self-validating as the first user of a company
-		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId) &&
-				!(selfAdminOverride && role.equals(SecurityRoles.ADMIN))) {
+
+		// Logged in user must be organizational admin OR this is a user self-validating
+		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId) && !selfOverride) {
 			throw new AccessDeniedException("403 access denied");
 		}
 		

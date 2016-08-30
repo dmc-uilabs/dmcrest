@@ -130,26 +130,42 @@ public class UserController {
 		}
 	}
 
-	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)
-	public VerifyUserResponse getUserToken(@RequestParam("userId") Integer id, @RequestParam("token") String token) throws ArgumentNotFoundException {
+	@RequestMapping(value = "/users/{userId}", params = { "action" }, method = RequestMethod.PUT)
+	public VerifyUserResponse userAction(@PathVariable Integer userId, @RequestParam("action") String action,
+			@RequestBody(required = false) UserTokenModel token) throws ArgumentNotFoundException {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (!id.equals(loggedIn.getId())) {
-			throw new AccessDeniedException("403 Permission Denied");
-		}
-
-		return userService.verifyUser(id, token);
-	}
-
-	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
-	@RequestMapping(value = "/user/unverify", method = RequestMethod.POST)
-	public VerifyUserResponse unverifyUser(@RequestParam("userId") Integer userId) {
 		Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
-		if(PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
-			return userService.unverifyUser(userId);
+		VerifyUserResponse response;
+
+		if ("verify".equals(action)) {
+
+			if (userId.equals(loggedIn.getId())) {
+				response = userService.verifyUser(userId, token.getToken());
+			} else {
+				throw new AccessDeniedException("403 Permission Denied");
+			}
+		} else if ("unverify".equals(action)) {
+
+			if (PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
+				response = userService.unverifyUser(userId);
+			} else {
+				throw new AccessDeniedException("403 Permission Denied");
+			}
+		} else if ("decline".equals(action)) {
+
+			if (PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
+				response = userService.declineUser(userId, organizationId);
+			} else {
+				throw new AccessDeniedException("403 Permission Denied");
+			}
+
 		} else {
-			throw new AccessDeniedException("403 Permission Denied");
+			response = new VerifyUserResponse(1000, "Unknown action \"" + action + "\" requested.");
 		}
+
+		return response;
 	}
+
 
     /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)

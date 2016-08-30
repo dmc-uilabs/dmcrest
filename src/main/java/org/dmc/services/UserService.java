@@ -10,6 +10,7 @@ import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.data.repositories.OnboardingStatusRepository;
+import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
@@ -27,8 +28,6 @@ import java.util.List;
 @Service
 public class UserService {
 
-	private static final String DEFAULT_PASSWORD = "password";
-
 	@Inject
 	private MapperFactory mapperFactory;
 
@@ -37,6 +36,9 @@ public class UserService {
 
 	@Inject
 	private OrganizationUserService orgUserService;
+
+	@Inject
+	private OrganizationUserRepository orgUserRepo;
 
 	@Inject
 	private UserRoleAssignmentService userRoleAssignmentService;
@@ -132,6 +134,23 @@ public class UserService {
 		return response;
 	}
 
+	@Transactional
+	public VerifyUserResponse declineUser(Integer userId, Integer organizationId) {
+		VerifyUserResponse response;
+
+		Integer rowsDeleted = orgUserRepo.deleteByUserId(userId, organizationId);
+
+		if (rowsDeleted > 0) {
+			response = new VerifyUserResponse(0, "Successfully declined user.");
+		} else {
+			response = new VerifyUserResponse(1000,
+					"User with ID " + userId + " could not be declined from organization with ID " + organizationId
+							+ ".");
+		}
+
+		return response;
+	}
+
 	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {
 		userTokenRepository.delete(tokenEntity.getId());
 		return new VerifyUserResponse(1000,
@@ -152,7 +171,8 @@ public class UserService {
 			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.ADMIN, userId, orgUserModel.getOrganizationId(), true);
 		}
 		else if (numberOfUsersVerified > 1) {
-			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId, orgUserModel.getOrganizationId());
+			userRoleAssignmentService
+					.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId, orgUserModel.getOrganizationId(), true);
 		}
 
 		return new VerifyUserResponse(0, "Successfully verified user.");
@@ -203,7 +223,7 @@ public class UserService {
 	private User createUser(String userEPPN, String firstName, String lastName, String fullName, String email) {
 		User user = new User();
 		user.setUsername(userEPPN);
-		user.setPassword(DEFAULT_PASSWORD);
+		user.setPassword("password");
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
 		user.setRealname(fullName);
