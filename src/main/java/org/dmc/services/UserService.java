@@ -20,6 +20,7 @@ import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.security.UserPrincipalService;
 import org.dmc.services.users.VerifyUserResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -167,10 +168,10 @@ public class UserService {
 		// if this user is the only verified user of this organization, they're defaulted to company admin, else defaulted to member
 		Integer numberOfUsersVerified = orgUserService.getNumberOfVerifiedUsers(orgUserModel.getOrganizationId());
 
-		if(numberOfUsersVerified == 1) {
-			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.ADMIN, userId, orgUserModel.getOrganizationId(), true);
-		}
-		else if (numberOfUsersVerified > 1) {
+		if (numberOfUsersVerified == 1) {
+			userRoleAssignmentService
+					.grantRoleToUserForOrg(SecurityRoles.ADMIN, userId, orgUserModel.getOrganizationId(), true);
+		} else if (numberOfUsersVerified > 1) {
 			userRoleAssignmentService
 					.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId, orgUserModel.getOrganizationId(), true);
 		}
@@ -218,6 +219,16 @@ public class UserService {
 		final User user = createUser(userEPPN, firstName, lastName, fullName, email);
 		createOnboardingStatus(user.getId());
 		return user;
+	}
+
+	public String lookupUsernameByUserId(Integer userId) {
+		Assert.notNull(userId);
+		String username = null;
+		final User user = userRepository.findOne(userId);
+		if (user != null) {
+			username = user.getUsername();
+		}
+		return username;
 	}
 
 	private User createUser(String userEPPN, String firstName, String lastName, String fullName, String email) {
