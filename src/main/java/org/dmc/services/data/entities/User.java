@@ -69,7 +69,7 @@ public class User extends BaseEntity {
 	 * Time record was inserted into database stored as millis?
 	 */
 	@Column(name = "add_date")
-	private Integer addDate;
+	private Long addDate;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
@@ -198,11 +198,11 @@ public class User extends BaseEntity {
 		this.resume = resume;
 	}
 
-	public Integer getAddDate() {
+	public Long getAddDate() {
 		return addDate;
 	}
 
-	public void setAddDate(Integer addDate) {
+	public void setAddDate(long addDate) {
 		this.addDate = addDate;
 	}
 
