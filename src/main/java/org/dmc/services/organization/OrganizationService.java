@@ -23,7 +23,6 @@ import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
 import org.dmc.services.security.UserPrincipal;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -86,17 +85,13 @@ public class OrganizationService {
 		organizationEntity.setDesiredAreasOfExpertise(dTags);
 
 		// if organization is being created, save it and set the user saving as company admin
-		// else get existing organization from database and copy data in for data integrity
 		if(organizationEntity.getId() == null) {
 			organizationEntity = organizationDao.save(organizationEntity);
 			User userEntity = userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
-
 			organizationUserService.createVerifiedOrganizationUser(userEntity, organizationEntity);
 			userRoleAssignmentService.assignInitialCompanyAdmin(userEntity, organizationEntity);
 		} else {
-			Organization existingOrganization = organizationDao.findOne(organizationEntity.getId());
-			BeanUtils.copyProperties(organizationEntity, existingOrganization);
-			organizationEntity = organizationDao.save(existingOrganization);
+			organizationEntity = organizationDao.save(organizationEntity);
 		}
 
 		return mapper.mapToModel(organizationEntity);
