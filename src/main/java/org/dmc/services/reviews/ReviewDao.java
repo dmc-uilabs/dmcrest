@@ -22,21 +22,27 @@ import org.dmc.services.products.ProductReview;
 /**
  * Created by 200005921 on 6/9/2016.
  */
-public class ReviewDao {
+public class ReviewDao<T> {
 
     private final String logTag = ReviewDao.class.getName();
     private ResultSet resultSet;
     
-    public enum ReviewType {ORGANIZATION, SERVICE, PROFILE}
-
+    private ReviewType reviewType;
+    private String tablePrefix, tableNameField;
     
-    public List<CompanyReview> getReviews (int companyId, String reviewId, Integer limit, String order,
-                                           String sort, Integer rating, Boolean status, String userEPPN) throws DMCServiceException {
-        List<CompanyReview> reviews = new ArrayList<CompanyReview>();
+    public ReviewDao(ReviewType reviewType) {
+        this.reviewType = reviewType;
+        setTablePrefix();
+
+    }
+    
+    public <T extends Review> List<T> getReviews (int entityId, String reviewId, Integer limit, String order,
+                                           String sort, Integer rating, Boolean status, String userEPPN, Class<T> entityClass) throws DMCServiceException {
+        List<T> reviews = new ArrayList<T>();
 
         try {
 
-            String whereClause = " WHERE r.organization_id = ?";
+            String whereClause = " WHERE r." + tablePrefix + "_id = ?";
             int numFields = 1;
             int reviewIdIndex = -1;
             int ratingIndex = -1;
@@ -83,13 +89,13 @@ public class ReviewDao {
 //                    whereClause;
 
             String query =
-                "Select r.id, r.organization_id, u.realname as name, r.user_id as accountId, review_timestamp , r.review as comment, r.stars as rating, count(RR.*) AS count_helpfulOrNot " +
-                "FROM organization_review_new r " +
-                "LEFT JOIN organization  o ON  r.organization_id  = o.organization_id " +
-                "LEFT JOIN organization_review_rate RR on RR.review_id = r.id " +
+                "Select r.id, r." + tablePrefix + "_id, u.realname as name, r.user_id as accountId, review_timestamp , r.review as comment, r.stars as rating, count(RR.*) AS count_helpfulOrNot " +
+                "FROM " + tablePrefix + "_review_new r " +
+                "LEFT JOIN " + tablePrefix + "  o ON  r." + tablePrefix + "_id  = o." + tablePrefix + "_id " +
+                "LEFT JOIN " + tablePrefix + "_review_rate RR on RR.review_id = r.id " +
                 "LEFT JOIN users u ON u.user_id = r.user_id " +
                 whereClause +
-                " GROUP BY o.name, r.id, u.realname";
+                " GROUP BY o." + tableNameField + ", r.id, u.realname";
 
             if (orderByClause != null) {
                 query += " " + orderByClause;
@@ -99,17 +105,24 @@ public class ReviewDao {
                 query += limitClause;
             }
 
-            ServiceLogger.log(logTag, "Get company reviews sql=" + query);
+            ServiceLogger.log(logTag, "Get " + tablePrefix + " reviews sql=" + query);
 
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-            preparedStatement.setInt(1, companyId);
+            preparedStatement.setInt(1, entityId);
             if (reviewIdIndex != -1) preparedStatement.setInt(reviewIdIndex, reviewIdVal);
             if (ratingIndex != -1) preparedStatement.setInt(ratingIndex, rating);
             if (statusIndex != -1) preparedStatement.setBoolean(statusIndex, status);
 
             this.resultSet = preparedStatement.executeQuery();
             while (this.resultSet.next()) {
-                CompanyReview r = new CompanyReview();
+                T r = null;
+                try {
+                    r = entityClass.newInstance();
+                } catch(InstantiationException ie) {
+                    
+                } catch(IllegalAccessException iae) {
+                    
+                }
 
                 //                id serial primary key,
                 //                organization_id integer,
@@ -124,7 +137,7 @@ public class ReviewDao {
                 //                comment text
 
                 r.setId(Integer.toString(resultSet.getInt("id")));
-                r.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
+                r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
                 r.setName(resultSet.getString("name"));
                 r.setReviewId(reviewId);
                 java.sql.Timestamp reviewTimestamp = resultSet.getTimestamp("review_timestamp");
@@ -150,7 +163,7 @@ public class ReviewDao {
                 // account_id is associated with organization table:  accountId integer
                 r.setAccountId(Integer.toString(resultSet.getInt("accountId")));
 
-                if (reviews == null) reviews = new ArrayList<CompanyReview>();
+                if (reviews == null) reviews = new ArrayList<T>();
 
                 reviews.add(r);
             }
@@ -187,16 +200,10 @@ public class ReviewDao {
         return reviewReplyFields;
     }
 
-    public List<CompanyReview> getReviewReplies (int companyId,
-                                           String reviewId,
-                                           Integer limit,
-                                           String order,
-                                           String sort,
-                                           Integer rating,
-                                           Boolean status,
-                                           String userEPPN)
-            throws DMCServiceException {
-        List<CompanyReview> reviews = new ArrayList<CompanyReview>();
+    public <T extends Review> List<T> getReviewReplies(int entityId, String reviewId, Integer limit, String order,
+                                    String sort, Integer rating, Boolean status, String userEPPN, Class<T> entityClass) throws DMCServiceException {
+
+        List<T> reviews = new ArrayList<T>();
 
         try {
 
@@ -249,14 +256,14 @@ public class ReviewDao {
             String limitClause = SQLUtils.buildLimitClause(limit);
 
             String query =
-                "select r.id, r.review_id AS reviewId, rn.organization_id as organization_id, u.realname as name, r.user_id as accountId, r.review_reply_timestamp , r.review_reply as comment, count(RR.*) AS count_helpfulOrNot " +
-                "FROM organization_review_reply r " +
-                "LEFT JOIN organization_review_new rn ON rn.id = r.review_id " +
-                "LEFT JOIN organization  o ON  rn.organization_id  = o.organization_id " +
-                "LEFT JOIN organization_review_reply_rate RR on RR.review_reply_id = r.id " +
+                "select r.id, r.review_id AS reviewId, rn." + tablePrefix + "_id as " + tablePrefix + "_id, u.realname as name, r.user_id as accountId, r.review_reply_timestamp , r.review_reply as comment, count(RR.*) AS count_helpfulOrNot " +
+                "FROM " + tablePrefix + "_review_reply r " +
+                "LEFT JOIN " + tablePrefix + "_review_new rn ON rn.id = r.review_id " +
+                "LEFT JOIN " + tablePrefix + "  o ON  rn." + tablePrefix + "_id  = o." + tablePrefix + "_id " +
+                "LEFT JOIN " + tablePrefix + "_review_reply_rate RR on RR.review_reply_id = r.id " +
                 "LEFT JOIN users u ON u.user_id = r.user_id " +
                 whereClause +
-                " GROUP BY rn.organization_id, o.name, r.id, u.realname";
+                " GROUP BY rn." + tablePrefix + "_id, o." + tableNameField + ", r.id, u.realname";
 
             if (orderByClause != null) {
                 query += " " + orderByClause;
@@ -266,17 +273,40 @@ public class ReviewDao {
                 query += limitClause;
             }
 
-            ServiceLogger.log(logTag, "Get company reviews sql=" + query);
+            ServiceLogger.log(logTag, "Get " + tablePrefix + " reviews sql=" + query);
 
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-            preparedStatement.setInt(1, companyId);
+            preparedStatement.setInt(1, entityId);
             if (reviewIdIndex != -1) preparedStatement.setInt(reviewIdIndex, reviewIdVal);
             if (ratingIndex != -1) preparedStatement.setInt(ratingIndex, rating);
             if (statusIndex != -1) preparedStatement.setBoolean(statusIndex, status);
 
             this.resultSet = preparedStatement.executeQuery();
             while (this.resultSet.next()) {
-                CompanyReview r = new CompanyReview();
+                T r = null;
+                try {
+                    r = entityClass.newInstance();
+                } catch(InstantiationException ie) {
+                    
+                } catch(IllegalAccessException iae) {
+                    
+                }
+                
+                switch(reviewType) {
+                    case ORGANIZATION:
+                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+                        break;
+                    case SERVICE:
+//                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+                        break;
+                    case PROFILE:
+                        //                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+                        break;
+                    default:
+                        throw new DMCServiceException(DMCError.Generic, "Unknow review type");
+                }
+                
+                
 
                 //                id serial primary key,
                 //                organization_id integer,
@@ -291,7 +321,7 @@ public class ReviewDao {
                 //                comment text
 
                 r.setId(Integer.toString(resultSet.getInt("id")));
-                r.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
+                
                 r.setName(resultSet.getString("name"));
 
                 r.setReviewId(resultSet.getString("reviewId"));
@@ -317,7 +347,7 @@ public class ReviewDao {
                 // account_id is associated with organization table:  accountId integer
                 r.setAccountId(Integer.toString(resultSet.getInt("accountId")));
 
-                if (reviews == null) reviews = new ArrayList<CompanyReview>();
+                if (reviews == null) reviews = new ArrayList<T>();
 
                 reviews.add(r);
             }
@@ -331,7 +361,7 @@ public class ReviewDao {
     }
 
     public int countRepliesForReview (int reviewId) {
-        String q = "select count(*) FROM organization_review_reply WHERE review_id = " + reviewId;
+        String q = "select count(*) FROM " + tablePrefix + "_review_reply WHERE review_id = " + reviewId;
         int count = 0;
         ResultSet rs = DBConnector.executeQuery(q);
         try {
@@ -345,7 +375,7 @@ public class ReviewDao {
     }
 
     public int countHelpfulForReview (int reviewId, boolean helpfulOrNot) {
-        String q = "select count(*) FROM organization_review_rate WHERE review_id = " + reviewId + " AND helpfulOrNot IS " + Boolean.toString(helpfulOrNot);
+        String q = "select count(*) FROM " + tablePrefix + "_review_rate WHERE review_id = " + reviewId + " AND helpfulOrNot IS " + Boolean.toString(helpfulOrNot);
         int count = 0;
         ResultSet rs = DBConnector.executeQuery(q);
         try {
@@ -359,7 +389,7 @@ public class ReviewDao {
     }
 
     public int countHelpfulForReviewReply (int reviewReplyId, boolean helpfulOrNot) {
-        String q = "select count(*) FROM organization_review_reply_rate WHERE review_reply_id = " + reviewReplyId + " AND helpful_or_not IS " + Boolean.toString(helpfulOrNot);
+        String q = "select count(*) FROM " + tablePrefix + "_review_reply_rate WHERE review_reply_id = " + reviewReplyId + " AND helpful_or_not IS " + Boolean.toString(helpfulOrNot);
         int count = 0;
         ResultSet rs = DBConnector.executeQuery(q);
         try {
@@ -372,21 +402,27 @@ public class ReviewDao {
         return count;
     }
 
-    private String getTablePrefix(Review review) throws DMCServiceException {
-        if(review instanceof CompanyReview) {
-            return "organization";
-        } else if(review instanceof ProductReview) {
-            return "service";
-        } else if(review instanceof ProfileReview) {
-            return "profile";
-        } else {
-            throw new DMCServiceException(DMCError.Generic, "Unknow review type");
+    private void setTablePrefix() throws DMCServiceException {
+        switch(reviewType) {
+            case ORGANIZATION:
+                tablePrefix = "organization";
+                tableNameField = "name";
+                break;
+            case SERVICE:
+                tablePrefix = "service";
+                tableNameField = "title";
+                break;
+            case PROFILE:
+                tablePrefix = "users";
+                tableNameField = "name";
+                break;
+            default:
+                throw new DMCServiceException(DMCError.Generic, "Unknow review type");
         }
     }
     
     public Id createReview (Review review, String userEPPN) throws DMCServiceException {
         int id = -1;
-        String tablePrefix = getTablePrefix(review);
         
         // organization_id, user_id, review_timestamp, review, stars
         String sqlInsertReview = "INSERT INTO " + tablePrefix + "_review_new (" + tablePrefix + "_id, user_id, review_timestamp, review, stars) VALUES (?,?,?,?,?)";

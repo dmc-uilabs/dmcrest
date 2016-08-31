@@ -16,6 +16,10 @@ public class ProfileReview extends Review {
     return getProfileId();
   }
     
+  public void setEntityId(String entityId) {
+    setProfileId(entityId);
+  }
+    
   /**
    **/
   @JsonProperty("profileId")

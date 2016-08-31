@@ -20,6 +20,10 @@ public class ProductReview extends Review {
     return getProductId();
   }
 
+  public void setEntityId(String entityId) {
+    setProductId(entityId);
+  }
+
   /**
    **/
   @JsonProperty("productId")

@@ -14,6 +14,10 @@ public class CompanyReview extends Review {
   public String getEntityId() {
     return getCompanyId();
   }
+    
+  public void setEntityId(String entityId) {
+    setCompanyId(entityId);
+  }
 
   /**
    **/

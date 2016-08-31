@@ -25,7 +25,10 @@ public abstract class Review  {
 
   @JsonIgnore
   public abstract String getEntityId();
+  @JsonIgnore
+  public abstract void setEntityId(String entityId);
 
+    
   /**
    **/
   @JsonProperty("id")
