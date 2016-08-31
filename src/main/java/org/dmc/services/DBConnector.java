@@ -1,12 +1,15 @@
 package org.dmc.services;
 
-import java.lang.ClassNotFoundException;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement; 
-import java.sql.PreparedStatement; 
+import org.postgresql.ds.PGPoolingDataSource;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 public class DBConnector {
@@ -17,7 +20,9 @@ public class DBConnector {
 	private Statement stmt = null;
 	private Connection conn = null;
     private final String url = Config.DB_HOST + ":" + Config.DB_PORT + "/" + Config.DB_NAME;
-    
+
+	private static JdbcTemplate jdbcTemplate;
+
 	protected DBConnector() {
 		
 		// Register the postgress driver
@@ -44,8 +49,17 @@ public class DBConnector {
 			ServiceLogger.log(logTag, "SQL State exception: " + e.getSQLState());
             ServiceLogger.log(logTag, "SQL Error Code: "+ e.getErrorCode());
     	}
+
+		jdbcTemplate = createJdbcTemplate();
 	}
-	
+
+	public static JdbcTemplate jdbcTemplate() {
+		if (jdbcTemplate == null) {
+			jdbcTemplate = createJdbcTemplate();
+		}
+		return jdbcTemplate;
+	}
+
 	public static ResultSet executeQuery(String query) {
 		try {
 			if (connectorInstance == null || connectorInstance.stmt.isClosed()) {
@@ -96,5 +110,19 @@ public class DBConnector {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
 		return null;
+	}
+
+	private static DataSource createDataSource() {
+		PGPoolingDataSource ds = new PGPoolingDataSource();
+		ds.setUser(Config.DB_USER);
+		ds.setPassword(Config.DB_PASS);
+		ds.setServerName(Config.DB_IP);
+		ds.setPortNumber(Integer.parseInt(Config.DB_PORT));
+		ds.setDatabaseName(Config.DB_NAME);
+		return ds;
+	}
+
+	private static JdbcTemplate createJdbcTemplate() {
+		return new JdbcTemplate(createDataSource());
 	}
 }
