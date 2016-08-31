@@ -64,10 +64,10 @@ public class Organization extends BaseEntity {
 			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
 	private List<AreaOfExpertise> desiredAreasOfExpertise;
 
-	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL, orphanRemoval=true)
 	private List<Award> awards;
 
-	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL, orphanRemoval=true)
 	private List<OrganizationContact> contacts;
 
 	@Column(name = "tech_expertise")
