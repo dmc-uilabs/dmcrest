@@ -28,7 +28,7 @@ public class ReviewDao<T> {
     private ResultSet resultSet;
     
     private ReviewType reviewType;
-    private String tablePrefix, tableNameField;
+    private String tablePrefix, tableNameField, extraFieldName;
     
     public ReviewDao(ReviewType reviewType) {
         this.reviewType = reviewType;
@@ -84,14 +84,10 @@ public class ReviewDao<T> {
             String orderByClause = SQLUtils.buildOrderByClause(order, sort, validFieldsForSort);
             String limitClause = SQLUtils.buildLimitClause(limit);
 
-//            String query =
-//                    "select r.*, o.accountid AS accountid from organization_review r LEFT JOIN organization o ON o.organization_id = r.organization_id " +
-//                    whereClause;
-
             String query =
                 "Select r.id, r." + tablePrefix + "_id, u.realname as name, r.user_id as accountId, review_timestamp , r.review as comment, r.stars as rating, count(RR.*) AS count_helpfulOrNot " +
                 "FROM " + tablePrefix + "_review_new r " +
-                "LEFT JOIN " + tablePrefix + "  o ON  r." + tablePrefix + "_id  = o." + tablePrefix + "_id " +
+                "LEFT JOIN " + tablePrefix + "  o ON  r." + tablePrefix + "_id  = o." + extraFieldName + "_id " +
                 "LEFT JOIN " + tablePrefix + "_review_rate RR on RR.review_id = r.id " +
                 "LEFT JOIN users u ON u.user_id = r.user_id " +
                 whereClause +
@@ -138,20 +134,7 @@ public class ReviewDao<T> {
                         throw new DMCServiceException(DMCError.Generic, "Unknow review type");
                 }
 
-                //                id serial primary key,
-                //                organization_id integer,
-                //                name text,
-                //                reply boolean,
-                //                reviewId text,
-                //                status boolean,
-                //                date text,
-                //                rating integer,
-                //                likes integer,
-                //                dislike integer,
-                //                comment text
-
                 r.setId(Integer.toString(resultSet.getInt("id")));
-//                r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
                 r.setName(resultSet.getString("name"));
                 r.setReviewId(reviewId);
                 java.sql.Timestamp reviewTimestamp = resultSet.getTimestamp("review_timestamp");
@@ -273,7 +256,7 @@ public class ReviewDao<T> {
                 "select r.id, r.review_id AS reviewId, rn." + tablePrefix + "_id as " + tablePrefix + "_id, u.realname as name, r.user_id as accountId, r.review_reply_timestamp , r.review_reply as comment, count(RR.*) AS count_helpfulOrNot " +
                 "FROM " + tablePrefix + "_review_reply r " +
                 "LEFT JOIN " + tablePrefix + "_review_new rn ON rn.id = r.review_id " +
-                "LEFT JOIN " + tablePrefix + "  o ON  rn." + tablePrefix + "_id  = o." + tablePrefix + "_id " +
+                "LEFT JOIN " + tablePrefix + "  o ON  rn." + tablePrefix + "_id  = o." + extraFieldName + "_id " +
                 "LEFT JOIN " + tablePrefix + "_review_reply_rate RR on RR.review_reply_id = r.id " +
                 "LEFT JOIN users u ON u.user_id = r.user_id " +
                 whereClause +
@@ -287,7 +270,7 @@ public class ReviewDao<T> {
                 query += limitClause;
             }
 
-            ServiceLogger.log(logTag, "Get " + tablePrefix + " reviews sql=" + query);
+            ServiceLogger.log(logTag, "Get " + tablePrefix + " review replies sql=" + query);
 
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setInt(1, entityId);
@@ -320,20 +303,6 @@ public class ReviewDao<T> {
                         throw new DMCServiceException(DMCError.Generic, "Unknow review type");
                 }
                 
-                
-
-                //                id serial primary key,
-                //                organization_id integer,
-                //                name text,
-                //                reply boolean,
-                //                reviewId text,
-                //                status boolean,
-                //                date text,
-                //                rating integer,
-                //                likes integer,
-                //                dislike integer,
-                //                comment text
-
                 r.setId(Integer.toString(resultSet.getInt("id")));
                 
                 r.setName(resultSet.getString("name"));
@@ -421,14 +390,17 @@ public class ReviewDao<T> {
             case ORGANIZATION:
                 tablePrefix = "organization";
                 tableNameField = "name";
+                extraFieldName = tablePrefix;
                 break;
             case SERVICE:
                 tablePrefix = "service";
                 tableNameField = "title";
+                extraFieldName = tablePrefix;
                 break;
             case PROFILE:
                 tablePrefix = "users";
-                tableNameField = "name";
+                tableNameField = "realname";
+                extraFieldName = "user";
                 break;
             default:
                 throw new DMCServiceException(DMCError.Generic, "Unknow review type");
