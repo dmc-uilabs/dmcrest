@@ -124,6 +124,20 @@ public class ReviewDao<T> {
                     
                 }
 
+                switch(reviewType) {
+                    case ORGANIZATION:
+                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+                        break;
+                    case SERVICE:
+                        //                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+                        break;
+                    case PROFILE:
+                        //                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+                        break;
+                    default:
+                        throw new DMCServiceException(DMCError.Generic, "Unknow review type");
+                }
+
                 //                id serial primary key,
                 //                organization_id integer,
                 //                name text,
@@ -137,7 +151,7 @@ public class ReviewDao<T> {
                 //                comment text
 
                 r.setId(Integer.toString(resultSet.getInt("id")));
-                r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+//                r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
                 r.setName(resultSet.getString("name"));
                 r.setReviewId(reviewId);
                 java.sql.Timestamp reviewTimestamp = resultSet.getTimestamp("review_timestamp");
