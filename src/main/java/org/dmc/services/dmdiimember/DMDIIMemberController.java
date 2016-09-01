@@ -61,25 +61,26 @@ public class DMDIIMemberController {
 	@RequestMapping(value = "/dmdiiMember/save", method = RequestMethod.POST)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
 	public DMDIIMemberModel saveDmdiiMember(@RequestBody DMDIIMemberModel member) throws DuplicateDMDIIMemberException {
-		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, member.getOrganization().getId())) {
-			throw new AccessDeniedException("403 Access denied");
+		if(!PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
+			if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, member.getOrganization().getId())) {
+				throw new AccessDeniedException("403 Access denied");
+			}
 		}
-		
+
 		// Only a superadmin may create a new dmdiiMember
 		if (member.getId() == null && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
 			throw new AccessDeniedException("403 Access denied");
 		}
-		
+
 		// If user is not a superadmin, only certain fields may be updated
 		if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
 			DMDIIMemberModel existingMember = dmdiiMemberService.findOne(member.getId());
-			existingMember.setAreasOfExpertise(member.getAreasOfExpertise());
-			existingMember.setDesiredAreasOfExpertise(member.getDesiredAreasOfExpertise());
+			existingMember.getOrganization().setAreasOfExpertise(member.getOrganization().getAreasOfExpertise());
+			existingMember.getOrganization().setDesiredAreasOfExpertise(member.getOrganization().getDesiredAreasOfExpertise());
 			existingMember.setContacts(member.getContacts());
-			existingMember.setAwards(member.getAwards());
 			member = existingMember;
 		}
-		
+
 		return dmdiiMemberService.save(member);
 	}
 

@@ -1,13 +1,12 @@
 package org.dmc.services.data.models;
 
-public class DMDIIAreaOfExpertiseModel extends BaseModel {
+public class AwardModel extends BaseModel {
 
 	private String name;
 
 	private String description;
 
 	private String link;
-
 
 	public String getName() {
 		return name;

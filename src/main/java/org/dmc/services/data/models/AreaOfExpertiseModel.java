@@ -1,12 +1,14 @@
 package org.dmc.services.data.models;
 
-public class DMDIIAwardModel extends BaseModel {
+public class AreaOfExpertiseModel extends BaseModel {
 
 	private String name;
 
 	private String description;
 
 	private String link;
+
+	private Boolean isDmdii = false;
 
 	public String getName() {
 		return name;
@@ -30,6 +32,14 @@ public class DMDIIAwardModel extends BaseModel {
 
 	public void setLink(String link) {
 		this.link = link;
+	}
+
+	public Boolean getIsDmdii() {
+		return isDmdii;
+	}
+
+	public void setIsDmdii(Boolean isDmdii) {
+		this.isDmdii = isDmdii;
 	}
 
 }
