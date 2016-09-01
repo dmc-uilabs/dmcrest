@@ -280,6 +280,8 @@ public class CompanyController {
               public ResponseEntity<List<CompanyImage>> companiesCompanyIDCompanyImagesGet(
             @PathVariable("companyID") String companyID){
                   // do some magic!
+    	 		if(companyID == null || Integer.parseInt(companyID) == -1)
+    	 			return null;
                   return new ResponseEntity<List<CompanyImage>>(HttpStatus.NOT_IMPLEMENTED);
               }
 
