@@ -14,15 +14,19 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
+import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.search.SearchException;
+import org.dmc.services.search.SearchQueueImpl;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.User;
 import org.dmc.services.users.UserDao;
+import org.dmc.solr.SolrUtils;
 import org.json.JSONException;
 import org.springframework.http.HttpStatus;
 
@@ -290,8 +294,17 @@ public class CompanyDao {
 			statement.setInt(1, organization_user_id);
 			statement.setInt(2, id);
 			statement.executeUpdate();
-			
-			
+
+			if (Config.IS_TEST == null) {
+				//ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+				// Trigger solr indexing
+				try {
+					SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_COMPANIES);
+					ServiceLogger.log(logTag, "SolR indexing triggered for company (create): " + id);
+				} catch (SearchException e) {
+				}
+			}
+
 			connection.commit();
 		}
 		catch (SQLException e) {
@@ -437,6 +450,17 @@ public class CompanyDao {
 		        preparedStatement.executeUpdate();
 		        
 		        connection.commit();
+
+				if (Config.IS_TEST == null) {
+					//ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+					// Trigger solr indexing
+					try {
+						SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_COMPANIES);
+						ServiceLogger.log(logTag, "SolR indexing triggered for company (update): " + id);
+					} catch (SearchException e) {
+						ServiceLogger.log(logTag, e.getMessage());
+					}
+				}
 			}
 		}
 		catch (SQLException e) {
@@ -543,6 +567,17 @@ public class CompanyDao {
 		        statement.executeUpdate();
 
 		        connection.commit();
+
+				if (Config.IS_TEST == null) {
+					//ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+					// Trigger solr indexing
+					try {
+						SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_COMPANIES);
+						ServiceLogger.log(logTag, "SolR indexing triggered for company (delete): " + id);
+					} catch (SearchException e) {
+						ServiceLogger.log(logTag, e.getMessage());
+					}
+				}
 			}
 	    }
 		catch (SQLException e) {

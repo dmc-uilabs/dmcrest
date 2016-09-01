@@ -15,9 +15,12 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.search.SearchException;
+import org.dmc.services.search.SearchQueueImpl;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.UserDao;
+import org.dmc.solr.SolrUtils;
 import org.json.JSONObject;
 import org.json.JSONException;
 
@@ -249,10 +252,14 @@ public class ProjectDao {
             createProjectJoinRequest(Integer.toString(projectId), Integer.toString(userID), userID);
 
             if (Config.IS_TEST == null) {
-                ServiceLogger.log(LOGTAG, "SolR indexing turned off");
-                // String indexResponse = SolrUtils.invokeFulIndexingProjects();
-                // ServiceLogger.log(logTag, "SolR indexing triggered for
-                // project: " + projectId);
+                //ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+                // Trigger solr indexing
+                try {
+                    SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_PROJECTS);
+                    ServiceLogger.log(LOGTAG, "SolR indexing triggered for project: " + projectId);
+                } catch (SearchException e) {
+                    ServiceLogger.log(LOGTAG, e.getMessage());
+                }
             }
 
             connection.commit();
@@ -343,6 +350,18 @@ public class ProjectDao {
             ServiceLogger.log(LOGTAG, "updated project " + projectId);
 
             connection.commit();
+
+            if (Config.IS_TEST == null) {
+                //ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+                // Trigger solr indexing
+                try {
+                    SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_PROJECTS);
+                    ServiceLogger.log(LOGTAG, "SolR indexing triggered for project: " + projectId);
+                } catch (SearchException e) {
+                    ServiceLogger.log(LOGTAG, e.getMessage());
+                }
+            }
+
             return new Id.IdBuilder(projectId).build();
         } catch (SQLException e) {
             if (connection != null) {

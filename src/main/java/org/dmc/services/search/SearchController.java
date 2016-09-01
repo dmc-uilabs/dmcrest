@@ -19,10 +19,14 @@ import java.util.List;
 public class SearchController implements SearchInterface {
 
     private SearchImpl searchImpl;
+    private SearchQueueImpl searchQueueImpl;
 
 
     public SearchController () {
         searchImpl = new SearchImpl();
+        searchQueueImpl = new SearchQueueImpl();
+
+        searchQueueImpl.init();
     }
 
     @Override
@@ -67,5 +71,10 @@ public class SearchController implements SearchInterface {
     @RequestMapping(value = "/searchCompanies/{query}", method = RequestMethod.GET)
     public List<Company> searchCompanies(String query, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
         return searchImpl.searchCompanies(query, userEPPN);
+    }
+
+    @RequestMapping(value = "/triggerFullIndexing/{collectionName}", method = RequestMethod.PATCH)
+    public void triggerFullIndexing (@PathVariable("collectionName") String collectionName, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
+        SearchQueueImpl.sendFullIndexingMessage(collectionName);
     }
 }

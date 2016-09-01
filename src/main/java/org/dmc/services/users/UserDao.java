@@ -9,6 +9,10 @@ import java.sql.Connection;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.dmc.services.search.SearchException;
+import org.dmc.services.search.SearchQueueImpl;
+import org.dmc.solr.SolrUtils;
 import org.json.JSONException;
 import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
@@ -73,7 +77,8 @@ public class UserDao {
             userOnboardingDao.createUserOnboarding(id);
 
 			if (Config.IS_TEST == null){
-				String indexResponse = ""; //SolrUtils.invokeFulIndexingUsers();
+                // Trigger solr indexing
+                SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_USERS);
 				ServiceLogger.log(logTag, "SolR indexing triggered for user: " + id);
 			}
 
@@ -182,8 +187,18 @@ public class UserDao {
                 throw new SQLException("Unable to update user_id: " + userId + " onboarding status");
             }
             connection.commit();
+
+            if (Config.IS_TEST == null){
+                // Trigger solr indexing
+                SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_USERS);
+                ServiceLogger.log(logTag, "SolR indexing triggered for user: " + userId);
+            }
+
+
         } catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
+        } catch (SearchException e) {
+            ServiceLogger.log(logTag, e.getMessage());
         } finally {
             try {
                 connection.setAutoCommit(true);

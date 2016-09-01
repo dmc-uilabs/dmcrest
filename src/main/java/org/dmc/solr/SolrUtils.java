@@ -24,6 +24,7 @@ public class SolrUtils {
     //public static String BASE_URL = "http://52.24.49.48:8983/solr/";
     public static String FULL_IMPORT = "dataimport?command=full-import&clean=true";
 
+    public static final String CORE_GFORGE_COMPANIES  = "gforge_companies";
     public static final String CORE_GFORGE_COMPONENTS = "gforge_components";
     public static final String CORE_GFORGE_PROJECTS   = "gforge_projects";
     public static final String CORE_GFORGE_SERVICES   = "gforge_services";
@@ -64,7 +65,6 @@ public class SolrUtils {
     public static String invokeFulIndexingWiki () throws IOException {
         return invokeFullIndexing(baseUrl, CORE_GFORGE_WIKI);
     }
-
 
     public static String invokeFullIndexing (String baseUrl, String coreName) throws IOException {
 
