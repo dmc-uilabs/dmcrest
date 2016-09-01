@@ -16,7 +16,7 @@ public interface DMDIIQuickLinkRepository extends BaseRepository<DMDIIQuickLink,
 	@Query(value="DELETE from dmdii_quick_link WHERE id = :id", nativeQuery = true)
 	Integer deleteById(@Param("id") Integer id);
 	
-	Long countByDMDIIDocumentId(Integer dmdiiDocumentId);
+	Long countByDoc(@Param("dmdiiDocumentId") Integer dmdiiDocumentId);
 	
 	@Modifying
 	@Query(value="DELETE from dmdii_quick_link WHERE dmdii_document_id = :dmdiiDocumentId", nativeQuery = true)

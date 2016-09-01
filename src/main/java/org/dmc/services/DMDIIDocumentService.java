@@ -189,7 +189,7 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		
 		//check to see if the document is a quicklink, if so delete quicklink
-		if(dmdiiQuickLinkRepository.countByDMDIIDocumentId(dmdiiDocumentId) > 0) {
+		if(dmdiiQuickLinkRepository.countByDoc(dmdiiDocumentId) > 0) {
 			dmdiiQuickLinkRepository.deleteByDMDIIDocumentId(dmdiiDocumentId);
 		}
 		
