@@ -33,7 +33,7 @@ public class UserResponseHandler implements ResponseHandler<User> {
     @Override
     public List<User> retrieve(QueryResponse queryResponse, String userEPPN) {
 
-        List<User> l = null;
+        List<User> l = new ArrayList<User>();
 
         if (queryResponse != null) {
 

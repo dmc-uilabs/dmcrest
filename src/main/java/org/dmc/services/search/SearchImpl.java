@@ -31,7 +31,7 @@ public class SearchImpl implements SearchInterface {
     private CompanyResponseHandler companyHandler = new CompanyResponseHandler();
     private ComponentResponseHandler componentHandler = new ComponentResponseHandler();
     private ProjectResponseHandler   projectHandler = new ProjectResponseHandler();
-    //private UserResponseHandler      userHandler = new UserResponseHandler();
+    private UserResponseHandler      userHandler = new UserResponseHandler();
     private ServiceResponseHandler   serviceHandler = new ServiceResponseHandler();
     private ProfileResponseHandler profileHandler = new ProfileResponseHandler();
 
@@ -254,19 +254,19 @@ public class SearchImpl implements SearchInterface {
         return projectResults;
     }
 
-//    @Override
-//    public List<User> searchUsers(String query, String userEPPN) throws SearchException {
-//        QueryResponse responseUsers = null;
-//        List<User> userResults = null;
-//        try {
-//            responseUsers = searchSolr(query, COLLECTION_USERS);
-//            userResults = userHandler.retrieve(responseUsers, userEPPN);
-//        } catch (SearchException e) {
-//            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
-//            throw new SearchException(e.toString());
-//        }
-//        return userResults;
-//    }
+    @Override
+    public List<User> searchUsers(String query, String userEPPN) throws SearchException {
+        QueryResponse responseUsers = null;
+        List<User> userResults = null;
+        try {
+            responseUsers = searchSolr(query, COLLECTION_USERS);
+            userResults = userHandler.retrieve(responseUsers, userEPPN);
+        } catch (SearchException e) {
+            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
+            throw new SearchException(e.toString());
+        }
+        return userResults;
+    }
 
     @Override
     public List<Profile> searchMembers(String query, String userEPPN) throws SearchException {

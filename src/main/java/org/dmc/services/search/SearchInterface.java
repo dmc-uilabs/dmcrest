@@ -47,20 +47,21 @@ public interface SearchInterface {
     public List<Project> searchProjects (String query, String userEPPN) throws SearchException;
 
     /**
-     * Search users
+     * Search users (all users not required to be a DMDII member
      * @param query
      * @return
      * @throws SearchException
      */
-    //public List<User> searchUsers (String query, String userEPPN) throws SearchException;
+    public List<User> searchUsers (String query, String userEPPN) throws SearchException;
 
     /**
-     * Search users
+     * Search members searches the users collection but only returns users which are DMDII members
      * @param query
      * @return
      * @throws SearchException
      */
     public List<Profile> searchMembers (String query, String userEPPN) throws SearchException;
+
     /**
      * Search companies
      * @param query

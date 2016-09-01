@@ -25,6 +25,8 @@ public class SearchQueueListenerThread implements Runnable {
 
     volatile boolean running = false;
 
+    private int DELAY_SECONDS = 30;
+
     public SearchQueueListenerThread (String url) {
         this.url = url;
     }
@@ -85,6 +87,14 @@ public class SearchQueueListenerThread implements Runnable {
                                 int off = msg.indexOf(":");
                                 if (off >= 0 && (off+1 < msg.length())) {
                                     String collectionName = msg.substring(off+1);
+
+                                    // Delay before triggering the index to give time for the database to commit
+                                    try {
+                                        Thread.sleep (DELAY_SECONDS * 1000);
+                                    } catch (InterruptedException e) {
+                                        //e.printStackTrace();
+                                    }
+
                                     try {
                                         SolrUtils.invokeFullIndexing(SolrUtils.getBaseUrl(), collectionName);
                                     } catch (IOException e) {

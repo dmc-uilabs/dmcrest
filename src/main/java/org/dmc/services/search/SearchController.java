@@ -59,13 +59,12 @@ public class SearchController implements SearchInterface {
         return searchImpl.searchMembers(query, userEPPN);
     }
 
-    /**
     @Override
     @RequestMapping(value = "/searchUsers/{query}", method = RequestMethod.GET)
     public List<User> searchUsers(@PathVariable("query") String query, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
         return searchImpl.searchUsers(query, userEPPN);
     }
-     **/
+
 
     @Override
     @RequestMapping(value = "/searchCompanies/{query}", method = RequestMethod.GET)
