@@ -55,7 +55,7 @@ public class OrganizationUserService {
 	@Transactional
 	public OrganizationUser createVerifiedOrganizationUser(User user, Organization organization) {
 		// delete existing organization_user records
-		Integer numDeleted = organizationUserRepository.deleteByUserId(user.getId());
+		organizationUserRepository.deleteByUserId(user.getId());
 		return organizationUserRepository.save(new OrganizationUser(user, organization, true));
 	}
 

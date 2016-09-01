@@ -18,7 +18,7 @@ public class OrganizationContact extends BaseEntity {
 	private Integer id;
 
 	@ManyToOne
-    @JoinColumn(name="organization_id")
+	@JoinColumn(name="organization_id")
 	private Organization organization;
 
 	@ManyToOne

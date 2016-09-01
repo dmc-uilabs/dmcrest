@@ -18,7 +18,7 @@ public class Award extends BaseEntity {
 	private Integer id;
 
 	@ManyToOne
-    @JoinColumn(name="organization_id")
+	@JoinColumn(name="organization_id")
 	private Organization organization;
 
 	@Column(name = "name")

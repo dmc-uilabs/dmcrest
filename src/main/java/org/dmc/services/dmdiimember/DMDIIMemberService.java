@@ -3,6 +3,7 @@ package org.dmc.services.dmdiimember;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -79,15 +80,24 @@ public class DMDIIMemberService {
 			throw new DuplicateDMDIIMemberException("This organization is already a DMDII member");
 		}
 
-
 		// Remove non-DMDII tags from getting saved through DMDIIMember
 		List<AreaOfExpertiseModel> aTags = memberModel.getOrganization().getAreasOfExpertise();
 		List<AreaOfExpertiseModel> dTags = memberModel.getOrganization().getDesiredAreasOfExpertise();
-		for (int i = 0; i < aTags.size(); i++) {
-			if(aTags.get(i).getId() == null || !aTags.get(i).getIsDmdii()) aTags.remove(i);
+
+		for(Iterator<AreaOfExpertiseModel> iterator = aTags.iterator(); iterator.hasNext(); ) {
+			AreaOfExpertiseModel temp = iterator.next();
+
+			if(temp.getId() == null || !temp.getIsDmdii()) {
+				iterator.remove();
+			}
 		}
-		for (int i = 0; i < dTags.size(); i++) {
-			if(dTags.get(i).getId() == null || !dTags.get(i).getIsDmdii()) dTags.remove(i);
+
+		for(Iterator<AreaOfExpertiseModel> iterator = dTags.iterator(); iterator.hasNext(); ) {
+			AreaOfExpertiseModel temp = iterator.next();
+
+			if(temp.getId() == null || !temp.getIsDmdii()) {
+				iterator.remove();
+			}
 		}
 
 		memberModel.getOrganization().setAreasOfExpertise(aTags);
