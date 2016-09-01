@@ -21,6 +21,7 @@ import org.dmc.services.data.models.DMDIIDocumentTagModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
+import org.dmc.services.data.repositories.DMDIIQuickLinkRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +39,9 @@ public class DMDIIDocumentService {
 
 	@Inject
 	private DMDIIDocumentTagRepository dmdiiDocumentTagRepository;
+	
+	@Inject
+	private DMDIIQuickLinkRepository dmdiiQuickLinkRepository;
 	
 	@Inject
 	private UserService userService;
@@ -183,6 +187,11 @@ public class DMDIIDocumentService {
 	
 	public DMDIIDocumentModel delete (Integer dmdiiDocumentId) {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
+		
+		//check to see if the document is a quicklink, if so delete quicklink
+		if(dmdiiQuickLinkRepository.countByDMDIIDocumentId(dmdiiDocumentId) > 0) {
+			dmdiiQuickLinkRepository.deleteByDMDIIDocumentId(dmdiiDocumentId);
+		}
 		
 		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(dmdiiDocumentId);
 		
