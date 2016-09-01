@@ -29,7 +29,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getOwnerId())));
 		if(model.getOrganizationId() != null)
-			entity.setOrganization(projectMapper.mapToEntity(organizationService.findOne(model.getOrganizationId())));
+			entity.setOrganization(projectMapper.mapToEntity(organizationService.findById(model.getOrganizationId())));
 		else
 			entity.setOrganization(null);
 
