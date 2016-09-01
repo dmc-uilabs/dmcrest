@@ -22,7 +22,7 @@ import org.dmc.services.products.ProductReview;
 /**
  * Created by 200005921 on 6/9/2016.
  */
-public class ReviewDao<T> {
+public class ReviewDao<T extends Review> {
 
     private final String logTag = ReviewDao.class.getName();
     private ResultSet resultSet;
@@ -407,7 +407,7 @@ public class ReviewDao<T> {
         }
     }
     
-    public Id createReview (Review review, String userEPPN) throws DMCServiceException {
+    public Id createReview (T review, String userEPPN) throws DMCServiceException {
         int id = -1;
         
         // organization_id, user_id, review_timestamp, review, stars

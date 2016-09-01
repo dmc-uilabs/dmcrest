@@ -29,7 +29,7 @@ import static org.springframework.http.MediaType.*;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class ProductReviewsController {
 
-    private ReviewDao reviewDao = new ReviewDao(ReviewType.SERVICE);
+    private ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
     private final String logTag = ProductReviewsController.class.getName();
 
 	@RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
