@@ -150,4 +150,8 @@ public class OrganizationService {
 		}
 		return returnValue;
 	}
+	
+	public void delete(Integer organizationId) {
+		organizationDao.delete(organizationId);
+	}
 }

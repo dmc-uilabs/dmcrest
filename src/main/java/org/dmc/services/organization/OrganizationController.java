@@ -58,4 +58,10 @@ public class OrganizationController {
 	public List<OrganizationModel> getNonDmdiiMembers() {
 		return organizationService.findNonDmdiiMembers();
 	}
+	
+	@RequestMapping(value = "/organization", method = RequestMethod.DELETE, params = "organizationId")
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	public void delete(@RequestParam("organizationId") Integer organizationId) {
+		organizationService.delete(organizationId);
+	}
 }
