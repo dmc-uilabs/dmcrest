@@ -1,6 +1,7 @@
 package org.dmc.services.profile;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 import static org.dmc.services.utils.SQLUtils.DEFAULT_LIMIT_TEXT;
 import static org.dmc.services.utils.SQLUtils.SORT_DESCENDING;
 
@@ -149,23 +150,18 @@ public class ProfileController {
 		return new ResponseEntity<List<FollowingMemeber>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@RequestMapping(value = "/profiles/{profileID}/compare_services", produces = {
-			"application/json", "text/html" }, method = RequestMethod.GET)
+	@RequestMapping(value = "/profiles/{profileID}/compare_services",produces = { APPLICATION_JSON_VALUE,
+            TEXT_HTML_VALUE }, method = RequestMethod.GET)
 	public ResponseEntity<?> profilesProfileIDCompareServicesGet(
 			@PathVariable("profileID") String profileID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-		int httpStatusCode = HttpStatus.OK.value();
-		List<GetCompareService> compareServices = null;
 		try {
-			compareServices = profileDao.getCompareServices(profileID, userEPPN);
+			List<GetCompareService> compareServices = profileDao.getCompareServices(profileID, userEPPN);
+			return new ResponseEntity<List<GetCompareService>>(compareServices, HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}	
-		return new ResponseEntity<List<GetCompareService>>(compareServices, HttpStatus.valueOf(httpStatusCode));
-	}
-	
-	
-	
-	
+		
+	}	
 }

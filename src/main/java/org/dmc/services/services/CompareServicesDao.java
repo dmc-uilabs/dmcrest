@@ -31,22 +31,21 @@ public class CompareServicesDao {
 
 		String profileId = body.getProfileId();
 		int profileID = Integer.parseInt(profileId);
-
+		String errMessage = errorHeader + "current user id " + userId + " does not match id of compare user " + profileID;
 		if (profileID != userId) {
-			ServiceLogger.log(LOGTAG, "Current user id " + userId + " does not match id of compare user " + profileID);
-			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt,
-					errorHeader + "current user id " + userId + " does not match id of compare user " + profileID);
+			ServiceLogger.log(LOGTAG, errMessage);
+			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, errMessage);
 		}
 
 		try {
 			connection.setAutoCommit(false);
-			String query = "insert into service_compare (service_id, profile_id) values (?, ?)";
+			final String query = "insert into service_compare (service_id, profile_id) values (?, ?)";
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, Integer.parseInt(body.getServiceId()));
 			preparedStatement.setInt(2, profileID);
 			preparedStatement.executeUpdate();
 
-			String queryCompareService = "select currval('service_compare_service_compare_id_seq') as id";
+			final String queryCompareService = "select currval('service_compare_service_compare_id_seq') as id";
 			resultSet = DBConnector.executeQuery(queryCompareService);
 
 			int id = -1;
@@ -80,9 +79,9 @@ public class CompareServicesDao {
 		}
 	}
 
-	private GetCompareService getCompareService(int id, String userEPPN) throws DMCServiceException {
-		String query = "SELECT * FROM service_compare WHERE service_compare_id = " + id;
-		GetCompareService compareService = new GetCompareService();
+	public GetCompareService getCompareService(int id, String userEPPN) throws DMCServiceException {
+		final String query = "SELECT * FROM service_compare WHERE service_compare_id = " + id;
+		GetCompareService compareService = null;
 		resultSet = DBConnector.executeQuery(query);
 		try {
 			while (resultSet.next()) {
@@ -100,7 +99,7 @@ public class CompareServicesDao {
 	public boolean deleteCompareService(String id, String userEPPN) throws DMCServiceException {
 		ServiceLogger.log(LOGTAG,
 				"In deleteCompareService for userEPPN: " + userEPPN + " and compare_service_id " + id);
-		String query = "DELETE from service_compare WHERE service_compare_id = ? AND profile_id = ? ";
+		final String query = "DELETE from service_compare WHERE service_compare_id = ? AND profile_id = ? ";
 		String errorHeader = "DELETE COMPARE_SERVICE_ID: ";
 
 		int userId = -1;

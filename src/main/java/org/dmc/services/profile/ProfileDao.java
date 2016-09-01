@@ -375,10 +375,9 @@ public class ProfileDao {
 
 		// check if user has permission to compare services
 		if (user_id_lookedup != Integer.parseInt(profileID)) {
-			ServiceLogger.log(LOGTAG,
-					"Current user id " + user_id_lookedup + " does not match id of compare user " + profileID);
-			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, errorHeader + "current user id "
-					+ user_id_lookedup + " does not match id of compare user " + profileID);
+			String errMessage = errorHeader + "current user id " + user_id_lookedup + " does not match id of compare user " + profileID;
+			ServiceLogger.log(LOGTAG, errMessage);
+			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, errMessage);
 			// current id and user id do not match
 		}
 
@@ -427,13 +426,11 @@ public class ProfileDao {
 			throw new DMCServiceException(DMCError.UnknownUser, errorHeader + e.getMessage()); // unknown
 																								// user
 		}
-
 		// check if user has permission to update account
 		if (user_id_lookedup != Integer.parseInt(profileId)) {
-			ServiceLogger.log(LOGTAG,
-					"Current user id " + user_id_lookedup + " does not match id of compare user " + profileId);
-			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, errorHeader + "current user id "
-					+ user_id_lookedup + " does not match id of compare user " + profileId);
+			String errMessage = errorHeader + "current user id " + user_id_lookedup + " does not match id of compare user " + profileId;
+			ServiceLogger.log(LOGTAG, errMessage);
+			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, errMessage);
 			// current id and user id do not match
 		}
 		return user_id_lookedup;
