@@ -20,6 +20,10 @@ public interface OrganizationUserRepository extends BaseRepository<OrganizationU
 
 	@Modifying
 	@Query(value = "delete from organization_user where user_id = :userId and organization_id = :organizationId", nativeQuery = true)
-	Integer deleteByUserId(@Param("userId") Integer userId, @Param("organizationId") Integer organizationId);
+	Integer deleteByUserIdAndOrganizationId(@Param("userId") Integer userId, @Param("organizationId") Integer organizationId);
+
+	@Modifying
+	@Query(value = "delete from organization_user where user_id = :userId", nativeQuery = true)
+	Integer deleteByUserId(@Param("userId") Integer userId);
 
 }

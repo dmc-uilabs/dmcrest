@@ -3,6 +3,7 @@ package org.dmc.services;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.OrganizationUser;
@@ -51,9 +52,11 @@ public class OrganizationUserService {
 		return organizationUserRepository.findNumberOfVerifiedUsersByOrganizationId(organizationId);
 	}
 
+	@Transactional
 	public OrganizationUser createVerifiedOrganizationUser(User user, Organization organization) {
-		OrganizationUser orgUserEntity = new OrganizationUser(user, organization, true);
-		return organizationUserRepository.save(orgUserEntity);
+		// delete existing organization_user records
+		Integer numDeleted = organizationUserRepository.deleteByUserId(user.getId());
+		return organizationUserRepository.save(new OrganizationUser(user, organization, true));
 	}
 
 }
