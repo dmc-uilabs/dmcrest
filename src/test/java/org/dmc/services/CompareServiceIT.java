@@ -30,6 +30,9 @@ public class CompareServiceIT extends BaseIT {
 		GetCompareService compareService = given().header("Content-type", APPLICATION_JSON_VALUE)
 				.header("AJP_eppn", userEPPN).body(json).expect().statusCode(HttpStatus.OK.value()).when()
 				.post(PROFILE_POST_COMPARE_SERVICE).as(GetCompareService.class);
+		int posted_service_id = Integer.parseInt(compareService.getServiceId());
+		int posted_profile_id = Integer.parseInt(compareService.getProfileId());
+		assertTrue(posted_service_id == serviceId && posted_profile_id == profileId);
 		int id = Integer.parseInt(compareService.getId());
 		deleteCompareService(id);
 		CompareServicesDao test = new CompareServicesDao();
@@ -40,23 +43,6 @@ public class CompareServiceIT extends BaseIT {
 	public void deleteCompareService(int id) {
 		given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).expect()
 				.statusCode(HttpStatus.OK.value()).when().delete(PROFILE_DELETE_COMPARE_SERVICE, id);
-	}
-	
-	@Test
-	public void postCompareService(){
-		int serviceId = 1;
-		int profileId = 102;
-		PostCompareService json = new PostCompareService();
-		json.setServiceId(Integer.toString(serviceId));
-		json.setProfileId(Integer.toString(profileId));
-		
-		GetCompareService compareService = given().header("Content-type", APPLICATION_JSON_VALUE)
-				.header("AJP_eppn", userEPPN).body(json).expect().statusCode(HttpStatus.OK.value()).when()
-				.post(PROFILE_POST_COMPARE_SERVICE).as(GetCompareService.class);
-		int posted_service_id = Integer.parseInt(compareService.getServiceId());
-		int posted_profile_id = Integer.parseInt(compareService.getProfileId());
-		assertTrue(posted_service_id == serviceId && posted_profile_id == profileId);
-		
 	}
 
 	@Test
