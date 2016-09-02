@@ -8,8 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dmdii_area_of_expertise")
-public class DMDIIAreaOfExpertise extends BaseEntity{
+@Table(name = "area_of_expertise")
+public class AreaOfExpertise extends BaseEntity{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +23,9 @@ public class DMDIIAreaOfExpertise extends BaseEntity{
 
 	@Column(name = "link")
 	private String link;
+
+	@Column(name = "is_dmdii")
+	private Boolean isDmdii = false;
 
 	public String getName() {
 		return name;
@@ -56,12 +59,21 @@ public class DMDIIAreaOfExpertise extends BaseEntity{
 		this.description = description;
 	}
 
+	public Boolean getIsDmdii() {
+		return isDmdii;
+	}
+
+	public void setIsDmdii(Boolean isDmdii) {
+		this.isDmdii = isDmdii;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((isDmdii == null) ? 0 : isDmdii.hashCode());
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
@@ -75,7 +87,7 @@ public class DMDIIAreaOfExpertise extends BaseEntity{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DMDIIAreaOfExpertise other = (DMDIIAreaOfExpertise) obj;
+		AreaOfExpertise other = (AreaOfExpertise) obj;
 		if (description == null) {
 			if (other.description != null)
 				return false;
@@ -85,6 +97,11 @@ public class DMDIIAreaOfExpertise extends BaseEntity{
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (isDmdii == null) {
+			if (other.isDmdii != null)
+				return false;
+		} else if (!isDmdii.equals(other.isDmdii))
 			return false;
 		if (link == null) {
 			if (other.link != null)

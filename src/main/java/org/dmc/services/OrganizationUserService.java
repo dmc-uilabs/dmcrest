@@ -3,8 +3,11 @@ package org.dmc.services;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
+import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.OrganizationUser;
+import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
@@ -47,6 +50,13 @@ public class OrganizationUserService {
 
 	public Integer getNumberOfVerifiedUsers(Integer organizationId) {
 		return organizationUserRepository.findNumberOfVerifiedUsersByOrganizationId(organizationId);
+	}
+
+	@Transactional
+	public OrganizationUser createVerifiedOrganizationUser(User user, Organization organization) {
+		// delete existing organization_user records
+		organizationUserRepository.deleteByUserId(user.getId());
+		return organizationUserRepository.save(new OrganizationUser(user, organization, true));
 	}
 
 }

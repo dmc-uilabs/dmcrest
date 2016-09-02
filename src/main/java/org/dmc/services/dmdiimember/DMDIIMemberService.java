@@ -3,6 +3,7 @@ package org.dmc.services.dmdiimember;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,17 +14,16 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIMemberEvent;
 import org.dmc.services.data.entities.DMDIIMemberNews;
-import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDMDIIProject;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.AreaOfExpertiseModel;
 import org.dmc.services.data.models.DMDIIMemberAutocompleteModel;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
 import org.dmc.services.data.models.DMDIIMemberMapEntryModel;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIMemberNewsModel;
-import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.repositories.DMDIIMemberEventRepository;
 import org.dmc.services.data.repositories.DMDIIMemberNewsRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
@@ -80,13 +80,36 @@ public class DMDIIMemberService {
 			throw new DuplicateDMDIIMemberException("This organization is already a DMDII member");
 		}
 
-		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
+		// Remove non-DMDII tags from getting saved through DMDIIMember
+		List<AreaOfExpertiseModel> aTags = memberModel.getOrganization().getAreasOfExpertise();
+		List<AreaOfExpertiseModel> dTags = memberModel.getOrganization().getDesiredAreasOfExpertise();
 
+		for(Iterator<AreaOfExpertiseModel> iterator = aTags.iterator(); iterator.hasNext(); ) {
+			AreaOfExpertiseModel temp = iterator.next();
+
+			if(temp.getId() == null || !temp.getIsDmdii()) {
+				iterator.remove();
+			}
+		}
+
+		for(Iterator<AreaOfExpertiseModel> iterator = dTags.iterator(); iterator.hasNext(); ) {
+			AreaOfExpertiseModel temp = iterator.next();
+
+			if(temp.getId() == null || !temp.getIsDmdii()) {
+				iterator.remove();
+			}
+		}
+
+		memberModel.getOrganization().setAreasOfExpertise(aTags);
+		memberModel.getOrganization().setDesiredAreasOfExpertise(dTags);
+
+
+		// Save organization separately
 		memberModel.setOrganization(organizationService.save(memberModel.getOrganization()));
 
+		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		DMDIIMember memberEntity = memberMapper.mapToEntity(memberModel);
-		
+
 		// Projects on DMDII member entity are not mapped to/from model
 		// So if this is an existing DMDII member being updated, we need to get any existing projects and add them to the member for data integrity
 		if (memberEntity.getId() != null) {
@@ -141,9 +164,9 @@ public class DMDIIMemberService {
 			}
 
 			if(tagType.equals("expertiseTags")) {
-				returnValue.add(QDMDIIMember.dMDIIMember.areasOfExpertise.any().id.eq(tagIdInt));
+				returnValue.add(QDMDIIMember.dMDIIMember.organization().areasOfExpertise.any().id.eq(tagIdInt));
 			} else if (tagType.equals("desiredExpertiseTags")) {
-				returnValue.add(QDMDIIMember.dMDIIMember.desiredAreasOfExpertise.any().id.eq(tagIdInt));
+				returnValue.add(QDMDIIMember.dMDIIMember.organization().desiredAreasOfExpertise.any().id.eq(tagIdInt));
 			}
 		}
 		return returnValue;
