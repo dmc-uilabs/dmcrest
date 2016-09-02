@@ -19,8 +19,11 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Where;
+
 @Entity
 @Table(name="document")
+@Where(clause = "is_deleted='false'")
 public class Document extends BaseEntity {
 	
 	@Id
