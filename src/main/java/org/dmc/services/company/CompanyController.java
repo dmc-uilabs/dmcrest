@@ -277,11 +277,13 @@ public class CompanyController {
      @RequestMapping(value = "/companies/{companyID}/company_images",
                 produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
                 method = RequestMethod.GET)
-              public ResponseEntity<List<CompanyImage>> companiesCompanyIDCompanyImagesGet(
+              public ResponseEntity companiesCompanyIDCompanyImagesGet(
             @PathVariable("companyID") String companyID){
                   // do some magic!
-    	 		if(companyID == null || Integer.parseInt(companyID) == -1)
-    	 			return null;
+    	 		if(companyID == null || Integer.parseInt(companyID) == -1) {
+    	 			ErrorMessage error = new ErrorMessage("Company Id out of bounds");
+    	 			return new ResponseEntity<ErrorMessage>(error, HttpStatus.BAD_REQUEST);
+    	 		}
                   return new ResponseEntity<List<CompanyImage>>(HttpStatus.NOT_IMPLEMENTED);
               }
 
