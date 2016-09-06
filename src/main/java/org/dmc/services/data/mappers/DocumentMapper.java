@@ -10,7 +10,9 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.organization.OrganizationService;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 	@Inject
@@ -25,11 +27,11 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		Document entity = copyProperties(model, new Document());
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		Mapper<Organization, OrganizationModel> projectMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
+		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
 		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getOwnerId())));
 		if(model.getOrganizationId() != null)
-			entity.setOrganization(projectMapper.mapToEntity(organizationService.findById(model.getOrganizationId())));
+			entity.setOrganization(orgMapper.mapToEntity(organizationService.findById(model.getOrganizationId())));
 		else
 			entity.setOrganization(null);
 

@@ -5,8 +5,6 @@ import java.util.List;
 import org.dmc.services.data.entities.Document;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface DocumentRepository extends BaseRepository<Document, Integer> {
 
@@ -19,7 +17,4 @@ public interface DocumentRepository extends BaseRepository<Document, Integer> {
 	Page<Document> findByOrganizationIdAndFileTypeOrderByModifiedDesc(Integer organizationId, Integer fileType, Pageable page);
 	
 	Long countByOrganizationIdAndFileType(Integer organizationId, Integer fileType);
-	
-	@Query("SELECT d from Document d WHERE d.id = :documentId")
-	Document findOne (@Param("documentId") Integer documentId);
 }

@@ -8,17 +8,11 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.Document;
-import org.dmc.services.data.entities.Organization;
-import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DocumentModel;
-import org.dmc.services.data.models.OrganizationModel;
-import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DocumentRepository;
-import org.dmc.services.organization.OrganizationService;
 import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -30,12 +24,6 @@ public class DocumentService {
 
 	@Inject
 	private DocumentRepository documentRepository;
-	
-	@Inject
-	private UserService userService;
-	
-	@Inject
-	private OrganizationService organizationService;
 	
 	@Inject
 	private MapperFactory mapperFactory;
@@ -78,14 +66,8 @@ public class DocumentService {
 	
 	public DocumentModel save (DocumentModel doc, BindingResult result) throws DMCServiceException {
 		Mapper<Document, DocumentModel> docMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 		
 		Document docEntity = docMapper.mapToEntity(doc);
-		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwnerId()));
-		Organization orgEntity = orgMapper.mapToEntity(organizationService.findById(doc.getOrganizationId()));
-		docEntity.setOwner(userEntity);
-		docEntity.setOrganization(orgEntity);
 		
 		//thirty days in milliseconds
 		Long duration = 1000L * 60L * 60L * 24L * 30L;
@@ -102,7 +84,7 @@ public class DocumentService {
 		
 		ServiceLogger.log(logTag, "Attempting to verify document");
 		//Verify the document
-		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document", userEntity.getUsername(), "Companies", "Documents", "id", "url");
+		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document", docEntity.getOwner().getUsername(), "Companies", "Documents", "id", "url");
 		ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
 		
 		return docMapper.mapToModel(docEntity);

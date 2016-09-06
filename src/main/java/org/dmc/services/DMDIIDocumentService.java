@@ -26,6 +26,7 @@ import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.ExpressionUtils;
@@ -185,6 +186,7 @@ public class DMDIIDocumentService {
 		return returnValue;
 	}
 	
+	@Transactional
 	public DMDIIDocumentModel delete (Integer dmdiiDocumentId) {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		
