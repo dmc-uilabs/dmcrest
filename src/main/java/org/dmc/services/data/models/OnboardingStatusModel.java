@@ -1,20 +1,10 @@
-package org.dmc.services.data.entities;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+package org.dmc.services.data.models;
 
 /**
  * Created by kskronek on 8/16/2016.
  */
-@Entity
-@Table(name = "onboarding_status")
-public class OnboardingStatus extends BaseEntity {
 
-	@Id
-	@Column(name = "user_id")
-	private Integer id;
+public class OnboardingStatusModel extends BaseModel {
 
 	private boolean profile;
 
@@ -24,15 +14,11 @@ public class OnboardingStatus extends BaseEntity {
 
 	private boolean storefront;
 
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
 	public boolean isProfile() {
+		return profile;
+	}
+
+	public boolean getProfile() {
 		return profile;
 	}
 
@@ -44,6 +30,10 @@ public class OnboardingStatus extends BaseEntity {
 		return account;
 	}
 
+	public boolean getAccount() {
+		return account;
+	}
+
 	public void setAccount(boolean account) {
 		this.account = account;
 	}
@@ -52,11 +42,19 @@ public class OnboardingStatus extends BaseEntity {
 		return company;
 	}
 
+	public boolean getCompany() {
+		return company;
+	}
+
 	public void setCompany(boolean company) {
 		this.company = company;
 	}
 
 	public boolean isStorefront() {
+		return storefront;
+	}
+
+	public boolean getStorefront() {
 		return storefront;
 	}
 

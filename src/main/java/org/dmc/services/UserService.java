@@ -6,6 +6,7 @@ import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserToken;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.OnboardingStatusModel;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
@@ -214,10 +215,11 @@ public class UserService {
 		return;
 	}
 
-	public User createUserAndOnboardingStatus(String userEPPN, String firstName, String lastName, String fullName,
+	private User createUserAndOnboardingStatus(String userEPPN, String firstName, String lastName, String fullName,
 			String email) {
 		final User user = createUser(userEPPN, firstName, lastName, fullName, email);
-		createOnboardingStatus(user.getId());
+		final OnboardingStatus onboardingStatus = createOnboardingStatus(user.getId());
+		user.setOnboarding(onboardingStatus);
 		return user;
 	}
 
@@ -251,5 +253,25 @@ public class UserService {
 		status.setProfile(false);
 		status.setStorefront(false);
 		return onboardingStatusRepository.save(status);
+	}
+
+	public UserModel patch(String userEPPN, UserModel patchUser) {
+		Assert.notNull(userEPPN, "Missing required parameter userEPPN");
+		Assert.notNull(patchUser, "Missing required parameter patchUser");
+
+		User currentUser = userRepository.findByUsername(userEPPN);
+		Assert.notNull(currentUser, "Provided user name is invalid");
+
+		Assert.isTrue(currentUser.getId().equals(patchUser.getAccountId()),
+				"User ID from username does not match user ID " + "from request body");
+
+		final Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper = mapperFactory
+				.mapperFor(OnboardingStatus.class, OnboardingStatusModel.class);
+		final Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+
+		currentUser.setRealname(patchUser.getDisplayName());
+		currentUser.setOnboarding(onboardingMapper.mapToEntity(patchUser.getOnboarding()));
+
+		return userMapper.mapToModel(userRepository.save(currentUser));
 	}
 }

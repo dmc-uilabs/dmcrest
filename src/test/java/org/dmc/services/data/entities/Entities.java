@@ -133,8 +133,8 @@ public class Entities {
 
 	public static User user() {
 		User user = new User();
-		
-		user.setId(2000);
+
+		//		user.setId(2000);
 		user.setUsername(USER_NAME);
 		user.setFirstName(FIRST_NAME);
 		user.setLastName(LAST_NAME);
@@ -142,14 +142,14 @@ public class Entities {
 		user.setAddress(ADDRESS);
 		user.setPhone(PHONE);
 		user.setUserContactInfo(userContactInfo());
-		
+		user.setOnboarding(onboardingStatus());
 		return user;
 	}
 
 	public static UserContactInfo userContactInfo() {
 		UserContactInfo userContactInfo = new UserContactInfo();
-		
-		userContactInfo.setId(2000);
+
+		//		userContactInfo.setId(2000);
 		userContactInfo.setUserPrivateContactInfo(userPrivateContactInfo());
 		userContactInfo.setUserPublicContactInfo(userPublicContactInfo());
 		userContactInfo.setUserMemberPortalContactInfo(userMemberPortalContactInfo());
@@ -177,7 +177,7 @@ public class Entities {
 
 	public static UserMemberPortalContactInfo userMemberPortalContactInfo() {
 		UserMemberPortalContactInfo memberPortalContactInfo = new UserMemberPortalContactInfo();
-		memberPortalContactInfo.setId(1);
+		//		memberPortalContactInfo.setId(1);
 		memberPortalContactInfo.setEmail("memberportal@email.com");
 		memberPortalContactInfo.setPhone("4444444444");
 		memberPortalContactInfo.setLocation("Ann Arbor, MI");
@@ -367,5 +367,18 @@ public class Entities {
 		return contact;
 	}
 
+	public static OnboardingStatus onboardingStatus() {
+		OnboardingStatus status = new OnboardingStatus();
+		status.setAccount(false);
+		status.setCompany(false);
+		status.setProfile(false);
+		status.setStorefront(false);
+		return status;
+	}
 
+	public static OnboardingStatus onboardingStatus(Integer userId) {
+		OnboardingStatus status = onboardingStatus();
+		status.setId(userId);
+		return status;
+	}
 }

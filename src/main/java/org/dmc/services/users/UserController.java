@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
-import javax.xml.ws.http.HTTPException;
 import java.util.List;
 
 @RestController
@@ -61,7 +60,7 @@ public class UserController {
     	//converts the response to JSON
 
 		//        return userDAO.createUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
-		return userService.createUserAndOnboardingStatus(userEPPN, userFirstName, userSurname, userFull, userEmail)
+		return userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail)
 				.getId();
 
     	//Create role and update db through JDBC then return role using new role's id
@@ -86,23 +85,24 @@ public class UserController {
 		return model;
 	}
 
-    @RequestMapping(value = "/user", produces = { "application/json" }, method = RequestMethod.PATCH)
-    public ResponseEntity<User> patchUser(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
-                                          @RequestBody User patchUser)
-    {
-        ServiceLogger.log(logTag, "In patchUser: " + userEPPN);
+	@RequestMapping(value = "/user", produces = { "application/json" }, method = RequestMethod.PATCH)
+	public ResponseEntity<UserModel> patchUser(
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
+			@RequestBody UserModel patchUser) {
+		ServiceLogger.log(logTag, "In patchUser: " + userEPPN);
 
-        int httpStatusCode = HttpStatus.OK.value();
-        User patchedUser = null;
+		UserModel userModel = null;
+		int httpStatusCode = HttpStatus.OK.value();
 
-        try{
-            patchedUser = userDAO.patchUser(userEPPN, patchUser);
-        } catch(HTTPException httpException) {
-            httpStatusCode = httpException.getStatusCode();
-        }
+		try {
+			userModel = userService.patch(userEPPN, patchUser);
+		} catch (IllegalArgumentException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			httpStatusCode = HttpStatus.BAD_REQUEST.value();
+		}
 
-        return new ResponseEntity<User>(patchedUser, HttpStatus.valueOf(httpStatusCode));
-    }
+		return new ResponseEntity<UserModel>(userModel, HttpStatus.valueOf(httpStatusCode));
+	}
 
     @RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserModel getUser(@PathVariable Integer id) {

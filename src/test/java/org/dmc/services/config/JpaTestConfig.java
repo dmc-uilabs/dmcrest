@@ -19,7 +19,7 @@ import javax.sql.DataSource;
  * Created by kskronek on 8/10/2016.
  */
 @Configuration
-@EnableJpaRepositories("org.dmc.services.data.repositories")
+@EnableJpaRepositories({ "org.dmc.services.data.repositories", "org.dmc.services.dmdiimember" })
 @EnableTransactionManagement
 public class JpaTestConfig {
 

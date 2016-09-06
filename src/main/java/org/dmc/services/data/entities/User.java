@@ -74,16 +74,16 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
 
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "user_contact_info_id")
 	private UserContactInfo userContactInfo;
 
 	@OneToOne(mappedBy = "user")
 	private OrganizationUser organizationUser;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(table = "onboarding_status", name = "user_id")
-	private OnboardingStatus onboardingStatus;
+	private OnboardingStatus onboarding;
 
 	@Override
 	public Integer getId() {
@@ -230,12 +230,12 @@ public class User extends BaseEntity {
 		this.organizationUser = organizationUser;
 	}
 
-	public OnboardingStatus getOnboardingStatus() {
-		return onboardingStatus;
+	public OnboardingStatus getOnboarding() {
+		return onboarding;
 	}
 
-	public void setOnboardingStatus(OnboardingStatus onboardingStatus) {
-		this.onboardingStatus = onboardingStatus;
+	public void setOnboarding(OnboardingStatus onboarding) {
+		this.onboarding = onboarding;
 	}
 
 	@Override
@@ -322,5 +322,4 @@ public class User extends BaseEntity {
 			return false;
 		return true;
 	}
-
 }

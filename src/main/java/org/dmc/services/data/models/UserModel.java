@@ -2,7 +2,6 @@ package org.dmc.services.data.models;
 
 import org.dmc.services.users.UserMessages;
 import org.dmc.services.users.UserNotifications;
-import org.dmc.services.users.UserOnboarding;
 import org.dmc.services.users.UserRunningServices;
 
 import java.util.Map;
@@ -40,7 +39,7 @@ public class UserModel extends BaseModel {
 	private UserNotifications notifications;
 	private UserRunningServices runningServices;
 	private UserMessages messages;
-	private UserOnboarding onboarding;
+	private OnboardingStatusModel onboarding;
 	private Map<Integer, String> roles;
 	private Boolean isDMDIIMember;
 	private UserContactInfoModel userContactInfo;
@@ -193,11 +192,11 @@ public class UserModel extends BaseModel {
 		this.messages = messages;
 	}
 
-	public UserOnboarding getOnboarding() {
+	public OnboardingStatusModel getOnboarding() {
 		return onboarding;
 	}
 
-	public void setOnboarding(UserOnboarding onboarding) {
+	public void setOnboarding(OnboardingStatusModel onboarding) {
 		this.onboarding = onboarding;
 	}
 
