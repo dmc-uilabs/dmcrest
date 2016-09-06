@@ -22,10 +22,10 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.Where;
 
 @Entity
-@Table(name="dmdii_document")
+@Table(name="document")
 @Where(clause = "is_deleted='false'")
-public class DMDIIDocument extends BaseEntity {
-
+public class Document extends BaseEntity {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -37,18 +37,18 @@ public class DMDIIDocument extends BaseEntity {
 	private String documentUrl;
 	
 	@ManyToOne
-	@JoinColumn(name = "dmdii_project_id")
-	private DMDIIProject dmdiiProject;
+	@JoinColumn(name = "organization_id")
+	private Organization organization;
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
 	private User owner;
 
 	@ManyToMany
-	@JoinTable(name = "dmdii_document_tag_join",
-			   joinColumns = @JoinColumn(name="dmdii_document_id"),
-			   inverseJoinColumns = @JoinColumn(name="dmdii_document_tag_id"))
-	private List<DMDIIDocumentTag> tags;
+	@JoinTable(name = "document_tag_join",
+			   joinColumns = @JoinColumn(name="document_id"),
+			   inverseJoinColumns = @JoinColumn(name="document_tag_id"))
+	private List<DocumentTag> tags;
 
 	@Column(name = "modified")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -94,12 +94,12 @@ public class DMDIIDocument extends BaseEntity {
 		this.documentUrl = documentUrl;
 	}
 
-	public DMDIIProject getDmdiiProject() {
-		return dmdiiProject;
+	public Organization getOrganization() {
+		return organization;
 	}
 
-	public void setDmdiiProject(DMDIIProject dmdiiProject) {
-		this.dmdiiProject = dmdiiProject;
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
 	}
 
 	public User getOwner() {
@@ -110,11 +110,11 @@ public class DMDIIDocument extends BaseEntity {
 		this.owner = owner;
 	}
 
-	public List<DMDIIDocumentTag> getTags() {
+	public List<DocumentTag> getTags() {
 		return tags;
 	}
 
-	public void setTags(List<DMDIIDocumentTag> tags) {
+	public void setTags(List<DocumentTag> tags) {
 		this.tags = tags;
 	}
 
@@ -171,7 +171,7 @@ public class DMDIIDocument extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((accessLevel == null) ? 0 : accessLevel.hashCode());
-		result = prime * result + ((dmdiiProject == null) ? 0 : dmdiiProject.hashCode());
+		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
 		result = prime * result + ((documentName == null) ? 0 : documentName.hashCode());
 		result = prime * result + ((documentUrl == null) ? 0 : documentUrl.hashCode());
 		result = prime * result + ((expires == null) ? 0 : expires.hashCode());
@@ -191,13 +191,13 @@ public class DMDIIDocument extends BaseEntity {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DMDIIDocument other = (DMDIIDocument) obj;
+		Document other = (Document) obj;
 		if (accessLevel != other.accessLevel)
 			return false;
-		if (dmdiiProject == null) {
-			if (other.dmdiiProject != null)
+		if (organization == null) {
+			if (other.organization != null)
 				return false;
-		} else if (!dmdiiProject.equals(other.dmdiiProject))
+		} else if (!organization.equals(other.organization))
 			return false;
 		if (documentName == null) {
 			if (other.documentName != null)
@@ -241,5 +241,4 @@ public class DMDIIDocument extends BaseEntity {
 			return false;
 		return true;
 	}
-
 }
