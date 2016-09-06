@@ -166,13 +166,13 @@ public class UserController {
 		return response;
 	}
 
-	@RequestMapping(value = "/users/{userId}/organizations/{currentOrganizationId}", method = RequestMethod.PUT)
-	public OrganizationUserModel changeOrganization(@PathVariable Integer userId, @PathVariable Integer currentOrganizationId, @RequestBody OrganizationUserModel orgUser) {
+	@RequestMapping(value = "/users/{userId}/organizations", method = RequestMethod.PUT)
+	public OrganizationUserModel changeOrganization(@PathVariable Integer userId, @RequestBody OrganizationUserModel orgUser) {
 		if(!userId.equals(orgUser.getUserId())) {
 			throw new RuntimeException("User passed in request doesn't match user that's getting updated.");
 		}
 
-		return orgUserService.changeOrganization(orgUser, currentOrganizationId);
+		return orgUserService.changeOrganization(orgUser);
 	}
 
     /*

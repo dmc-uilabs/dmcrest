@@ -64,26 +64,24 @@ public class OrganizationUserService {
 	}
 
 	@Transactional
-	public OrganizationUserModel changeOrganization(OrganizationUserModel model, Integer currentOrganizationId) {
+	public OrganizationUserModel changeOrganization(OrganizationUserModel model) {
 		Mapper<OrganizationUser, OrganizationUserModel> mapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
 
-		OrganizationUser currentOrganizationUser = organizationUserRepository.findByUserIdAndOrganizationId(model.getUserId(), currentOrganizationId);
+		OrganizationUser currentOrganizationUser = organizationUserRepository.findByUserId(model.getUserId());
 
-		if(currentOrganizationUser == null) {
-			throw new RuntimeException("User does not belong to organization " + currentOrganizationId);
+		if(currentOrganizationUser != null) {
+			if(model.getOrganizationId().equals(currentOrganizationUser.getOrganization().getId())) {
+				throw new RuntimeException("User already belongs to organization " + model.getOrganizationId());
+			}
+
+			organizationUserRepository.delete(currentOrganizationUser.getId());
+			userRoleRepository.deleteByUserIdAndOrganizationId(model.getUserId(), model.getOrganizationId());
 		}
 
-		if(model.getOrganizationId().equals(currentOrganizationUser.getOrganization().getId())) {
-			throw new RuntimeException("User already belongs to organization " + model.getOrganizationId());
-		}
 
-		organizationUserRepository.delete(currentOrganizationUser.getId());
-		userRoleRepository.deleteByUserIdAndOrganizationId(model.getUserId(), model.getOrganizationId());
-
-		OrganizationUser changedOrganization = mapper.mapToEntity(model);
-		changedOrganization.setIsVerified(false);
-
-		return mapper.mapToModel(organizationUserRepository.save(changedOrganization));
+		OrganizationUser newOrganization = mapper.mapToEntity(model);
+		newOrganization.setIsVerified(false);
+		return mapper.mapToModel(organizationUserRepository.save(newOrganization));
 	}
 
 }
