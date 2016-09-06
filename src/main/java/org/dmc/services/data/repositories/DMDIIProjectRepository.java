@@ -39,6 +39,6 @@ public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Int
 
 	@Query(value = "SELECT * FROM dmdii_project dp JOIN dmdii_project_contributing_company cc on " +
 			"cc.dmdii_project_id=dp.id WHERE cc.contributing_company_id = :dmdiiMemberId AND "
-			+ "CURRENT_TIMESTAMP() BETWEEN dp.awarded_date AND dp.end_date", nativeQuery = true)
+			+ "current_timestamp BETWEEN dp.awarded_date AND dp.end_date", nativeQuery = true)
 	List<DMDIIProject> findActiveByContributingCompanyId(@Param("dmdiiMemberId") Integer dmdiiMemberId);
 }
