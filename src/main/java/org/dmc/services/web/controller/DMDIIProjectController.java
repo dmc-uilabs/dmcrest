@@ -79,7 +79,7 @@ public class DMDIIProjectController {
 		List<DMDIIProjectModel> totalResults = new ArrayList<DMDIIProjectModel>(results);
 		totalResults.addAll(ccResults);
 		Long count = new Long(totalResults.size());
-		return new PagedResponse(count, results);
+		return new PagedResponse(count, totalResults);
 	}
 
 	@RequestMapping(value = "dmdiiProject/{id}", method = RequestMethod.GET)
