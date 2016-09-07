@@ -19,18 +19,26 @@ public class UserRoleAssignment extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Integer id;
-	
+
 	@JoinColumn(name = "user_id")
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User user;
-	
+
 	@OneToOne
 	@JoinColumn(name = "organization_id")
 	private Organization organization;
-	
+
 	@JoinColumn(name = "role_id")
 	@ManyToOne
 	private Role role;
+
+	public UserRoleAssignment() {}
+
+	public UserRoleAssignment(User user, Organization organization, Role role) {
+		this.user = user;
+		this.organization = organization;
+		this.role = role;
+	}
 
 	public Integer getId() {
 		return id;

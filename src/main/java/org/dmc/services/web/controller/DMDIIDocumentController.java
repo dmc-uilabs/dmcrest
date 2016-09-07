@@ -8,8 +8,12 @@ import javax.inject.Inject;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DMDIIDocumentService;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.data.entities.Document;
+import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.models.DMDIIDocumentModel;
 import org.dmc.services.data.models.DMDIIDocumentTagModel;
+import org.dmc.services.data.models.DocumentModel;
+import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.web.validator.AWSLinkValidator;
@@ -98,4 +102,12 @@ public class DMDIIDocumentController {
 		ServiceLogger.log(logTag, "In getMostRecentDocumentByFileTypeIdAndDMDIIProjectId: fileType = " + fileTypeId + " dmdiiProject = " + dmdiiProjectId);
 		return dmdiiDocumentService.findMostRecentDocumentByFileTypeIdAndDMDIIProjectId(fileTypeId, dmdiiProjectId);
 	}
+	
+	@RequestMapping(value="/dmdiidocument/{dmdiiDocumentId}", method = RequestMethod.DELETE)
+	public DMDIIDocumentModel deleteDMDIIDocument (@PathVariable("dmdiiDocumentId") Integer dmdiiDocumentId) {
+		ServiceLogger.log(logTag, "In deleteDMDIIDocument id = " + dmdiiDocumentId);
+		return dmdiiDocumentService.delete(dmdiiDocumentId);
+	}
+	
+	
 }
