@@ -125,10 +125,18 @@ public class ProjectMemberDao {
 
         ArrayList<String> clauses =  new ArrayList<String>();
         if (null != projectList ) {
-            clauses.add("gjr.group_id in (" + projectList + ")");
+            if (isListValid(projectList)) {
+                clauses.add("gjr.group_id in (" + projectList + ")");
+            } else {
+                throw new DMCServiceException(DMCError.BadURL, "invalid projects: " + projectList);
+            }
         }
         if (null != memberList) {
-            clauses.add("u.user_id in (" + memberList + ")");
+            if (isListValid(memberList)) {
+                clauses.add("u.user_id in (" + memberList + ")");
+            } else {
+                throw new DMCServiceException(DMCError.BadURL, "invalid projects: " + projectList);
+            }
         }
         if (null == projectList && null == memberList) {
             clauses.add(adminRequiredClause);
@@ -148,6 +156,18 @@ public class ProjectMemberDao {
             }
         }
         return projectMembersQuery;
+    }
+
+    private boolean isListValid(String list) {
+        String[] ids = list.split(",");
+        for (String id : ids) {
+            try {
+                Integer.parseInt(id);       // checking that we don't throw NumberFormatException, if ids become GUIDs, would need a different check
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isIdInList(String id, String list) {

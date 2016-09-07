@@ -621,4 +621,12 @@ public class ProjectMembersIT extends BaseIT {
         final JSONArray jsonArrayProfileOnly = new JSONArray(responseProfileOnly.extract().asString());
         assertTrue("expect >1 project_member result for profile only check, but found a different amount", 1 < jsonArrayProfileOnly.length());
     }
+
+    @Test
+    public void testGetMembersMultipleProjectsWithInvalidContent() {
+        ServiceLogger.log(LOGTAG, "starting testGetMembersMultipleProjects");
+        given().header("AJP_eppn", userEPPN).param("projectId", 6).param("projectId", 3 + ") or profileId = 999")
+                .expect().statusCode(UNPROCESSABLE_ENTITY.value()).when().get("/projects_members");
+    }
+
 }
