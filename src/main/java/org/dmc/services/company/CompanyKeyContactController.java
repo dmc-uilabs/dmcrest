@@ -100,6 +100,8 @@ public class CompanyKeyContactController {
 			@PathVariable("companyID") String companyID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
 			throws Exception {
+		if(companyID == null || Integer.parseInt(companyID) == -1)
+			return null;
 		int cID = new Integer(companyID);
 		return new ResponseEntity(this.keyContactDao.getCompanyKeyContacts(userEPPN, cID),HttpStatus.OK);
 	}
