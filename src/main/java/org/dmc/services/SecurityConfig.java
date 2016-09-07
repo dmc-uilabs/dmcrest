@@ -3,6 +3,7 @@ package org.dmc.services;
 import javax.inject.Inject;
 
 import org.dmc.services.security.AuthenticationExceptionHandler;
+import org.dmc.services.security.DMCRequestHeaderAuthenticationFilter;
 import org.dmc.services.security.UserPrincipalService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,7 +22,7 @@ import org.springframework.security.web.authentication.preauth.RequestHeaderAuth
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-	
+
 	@Inject
 	private UserPrincipalService userPrincipalService;
 
@@ -36,8 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		RequestHeaderAuthenticationFilter authFilter = new RequestHeaderAuthenticationFilter();
-		authFilter.setPrincipalRequestHeader("AJP_eppn");
+		DMCRequestHeaderAuthenticationFilter authFilter = new DMCRequestHeaderAuthenticationFilter();
+		authFilter.setAppToken(Config.APPLICATION_TOKEN);
 		authFilter.setCheckForPrincipalChanges(true);
 		authFilter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
 		authFilter.setAuthenticationManager(authenticationManager());
