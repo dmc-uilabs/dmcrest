@@ -237,5 +237,11 @@ public class DMDIIProjectService {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByContributingCompanyId(dmdiiMemberId));
 	}
+	
+	public List<DMDIIProjectModel> findActiveDMDIIProjectsByContributingCompany(Integer dmdiiMemberId) {
+		Assert.notNull(dmdiiMemberId);
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findActiveByContributingCompanyId(dmdiiMemberId));
+	}
 
 }

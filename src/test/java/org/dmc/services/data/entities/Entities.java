@@ -6,11 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dmc.services.data.entities.*;
 import org.dmc.services.dmdiitype.DMDIIType;
 
 public class Entities {
-	
+
 	public static final String PROJECT_TITLE = "ProjectTitle";
 	public static final String PROJECT_SUMMARY = "ProjectSummary";
 	public static final String THRUST_CODE = "ThrustCode";
@@ -25,13 +24,13 @@ public class Entities {
 	public static final String LOCATION = "Location";
 
 	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-	
+
 	public static DMDIIProject dmdiiProject() throws Exception {
 		DMDIIProject dmdiiProject = new DMDIIProject();
-		
+
 		List<DMDIIMember> contributingCompanies = new ArrayList<DMDIIMember>();
 		contributingCompanies.add(dmdiiMember());
-		
+
 		dmdiiProject.setId(2000);
 		dmdiiProject.setPrimeOrganization(dmdiiMember());
 		dmdiiProject.setPrincipalInvestigator(dmdiiProjectContact1());
@@ -49,16 +48,16 @@ public class Entities {
 		dmdiiProject.setProjectNumber(01);
 		dmdiiProject.setCostShare(new BigDecimal("50000"));
 		dmdiiProject.setDmdiiFunding(new BigDecimal("5000"));
-		
+
 		return dmdiiProject;
 	}
-	
+
 	public static DMDIIProject dmdiiProject1() throws Exception {
 		DMDIIProject dmdiiProject = new DMDIIProject();
-		
+
 		List<DMDIIMember> contributingCompanies = new ArrayList<DMDIIMember>();
 		contributingCompanies.add(dmdiiMember());
-		
+
 		dmdiiProject.setId(2001);
 		dmdiiProject.setPrimeOrganization(dmdiiMember());
 		dmdiiProject.setPrincipalInvestigator(dmdiiProjectContact1());
@@ -76,16 +75,16 @@ public class Entities {
 		dmdiiProject.setProjectNumber(04);
 		dmdiiProject.setCostShare(new BigDecimal("50000"));
 		dmdiiProject.setDmdiiFunding(new BigDecimal("5000"));
-		
+
 		return dmdiiProject;
 	}
-	
+
 	public static DMDIIProject dmdiiProject2() throws Exception {
 		DMDIIProject dmdiiProject = new DMDIIProject();
-		
+
 		List<DMDIIMember> contributingCompanies = new ArrayList<DMDIIMember>();
 		contributingCompanies.add(dmdiiMember());
-		
+
 		dmdiiProject.setId(2002);
 		dmdiiProject.setPrimeOrganization(dmdiiMember1());
 		dmdiiProject.setPrincipalInvestigator(dmdiiProjectContact1());
@@ -103,40 +102,40 @@ public class Entities {
 		dmdiiProject.setProjectNumber(04);
 		dmdiiProject.setCostShare(new BigDecimal("75000"));
 		dmdiiProject.setDmdiiFunding(new BigDecimal("7500"));
-		
+
 		return dmdiiProject;
 	}
 
 	public static DMDIIProjectThrust projectThrust() {
 		DMDIIProjectThrust dmdiiProjectThrust = new DMDIIProjectThrust();
-		
+
 		dmdiiProjectThrust.setId(2000);
 		dmdiiProjectThrust.setCode(THRUST_CODE);
-		
+
 		return dmdiiProjectThrust;
 	}
 
 	public static DMDIIProjectFocusArea projectFocusArea() {
 		DMDIIProjectFocusArea dmdiiProjectFocusArea = new DMDIIProjectFocusArea();
-		
+
 		dmdiiProjectFocusArea.setId(2000);
 		dmdiiProjectFocusArea.setName(FOCUS_AREA_NAME);
-		
+
 		return dmdiiProjectFocusArea;
 	}
 
 	public static DMDIIProjectStatus projectStatus() {
 		DMDIIProjectStatus dmdiiProjectStatus = new DMDIIProjectStatus();
-		
+
 		dmdiiProjectStatus.setId(2000);
 		dmdiiProjectStatus.setName(STATUS_NAME);
-		
+
 		return dmdiiProjectStatus;
 	}
 
 	public static User user() {
 		User user = new User();
-		
+
 		user.setId(2000);
 		user.setUsername(USER_NAME);
 		user.setFirstName(FIRST_NAME);
@@ -145,18 +144,18 @@ public class Entities {
 		user.setAddress(ADDRESS);
 		user.setPhone(PHONE);
 		user.setUserContactInfo(userContactInfo());
-		
+
 		return user;
 	}
 
 	public static UserContactInfo userContactInfo() {
 		UserContactInfo userContactInfo = new UserContactInfo();
-		
+
 		userContactInfo.setId(2000);
 		userContactInfo.setUserPrivateContactInfo(userPrivateContactInfo());
 		userContactInfo.setUserPublicContactInfo(userPublicContactInfo());
 		userContactInfo.setUserMemberPortalContactInfo(userMemberPortalContactInfo());
-		
+
 		return userContactInfo;
 	}
 
@@ -190,56 +189,36 @@ public class Entities {
 	public static DMDIIMember dmdiiMember() throws Exception {
 		DMDIIMember dmdiiMember = new DMDIIMember();
 
-		List<DMDIIAreaOfExpertise> areasOfExpertise = new ArrayList<DMDIIAreaOfExpertise>();
+		List<AreaOfExpertise> areasOfExpertise = new ArrayList<AreaOfExpertise>();
 		areasOfExpertise.add(dmdiiAreaOfExpertise());
 
 		List<DMDIIMemberContact> contacts = new ArrayList<DMDIIMemberContact>();
 		contacts.add(dmdiiMemberContact());
-
-		List<DMDIIMemberCustomer> customers = new ArrayList<DMDIIMemberCustomer>();
-		customers.add(dmdiiMemberCustomer());
-
-		List<DMDIIMemberUser> users = new ArrayList<DMDIIMemberUser>();
-		users.add(dmdiiMemberUser());
 
 		dmdiiMember.setId(1000);
 		dmdiiMember.setDmdiiType(dmdiiType());
 		dmdiiMember.setOrganization(organization());
 		dmdiiMember.setStartDate(new Date(format.parse("2015/11/25").getTime()));
 		dmdiiMember.setExpireDate(new Date(format.parse("2017/11/25").getTime()));
-		dmdiiMember.setAreasOfExpertise(areasOfExpertise);
-		dmdiiMember.setDesiredAreasOfExpertise(areasOfExpertise);
 		dmdiiMember.setContacts(contacts);
-		dmdiiMember.setCustomers(customers);
-		dmdiiMember.setUsers(users);
 		return dmdiiMember;
 	}
 
 	public static DMDIIMember dmdiiMember1() throws Exception {
 		DMDIIMember dmdiiMember = new DMDIIMember();
 
-		List<DMDIIAreaOfExpertise> areasOfExpertise = new ArrayList<DMDIIAreaOfExpertise>();
+		List<AreaOfExpertise> areasOfExpertise = new ArrayList<AreaOfExpertise>();
 		areasOfExpertise.add(dmdiiAreaOfExpertise());
 
 		List<DMDIIMemberContact> contacts = new ArrayList<DMDIIMemberContact>();
 		contacts.add(dmdiiMemberContact());
-
-		List<DMDIIMemberCustomer> customers = new ArrayList<DMDIIMemberCustomer>();
-		customers.add(dmdiiMemberCustomer());
-
-		List<DMDIIMemberUser> users = new ArrayList<DMDIIMemberUser>();
-		users.add(dmdiiMemberUser());
 
 		dmdiiMember.setId(1001);
 		dmdiiMember.setDmdiiType(dmdiiType());
 		dmdiiMember.setOrganization(organization());
 		dmdiiMember.setStartDate(new Date(format.parse("2015/11/25").getTime()));
 		dmdiiMember.setExpireDate(new Date(format.parse("2017/11/25").getTime()));
-		dmdiiMember.setAreasOfExpertise(areasOfExpertise);
-		dmdiiMember.setDesiredAreasOfExpertise(areasOfExpertise);
 		dmdiiMember.setContacts(contacts);
-		dmdiiMember.setCustomers(customers);
-		dmdiiMember.setUsers(users);
 		return dmdiiMember;
 	}
 
@@ -280,8 +259,8 @@ public class Entities {
 		return address;
 	}
 
-	public static DMDIIAreaOfExpertise dmdiiAreaOfExpertise() {
-		DMDIIAreaOfExpertise dmdiiAreaOfExpertise = new DMDIIAreaOfExpertise();
+	public static AreaOfExpertise dmdiiAreaOfExpertise() {
+		AreaOfExpertise dmdiiAreaOfExpertise = new AreaOfExpertise();
 		dmdiiAreaOfExpertise.setId(1);
 		dmdiiAreaOfExpertise.setName("Additive Manufacturing");
 		return dmdiiAreaOfExpertise;
@@ -304,14 +283,6 @@ public class Entities {
 		return dmdiiContactType;
 	}
 
-	public static DMDIIMemberCustomer dmdiiMemberCustomer() {
-		DMDIIMemberCustomer dmdiiMemberCustomer = new DMDIIMemberCustomer();
-		dmdiiMemberCustomer.setId(1);
-		dmdiiMemberCustomer.setName("Google");
-		dmdiiMemberCustomer.setLink("www.google.com");
-		return dmdiiMemberCustomer;
-	}
-
 	public static DMDIIMemberFinance dmdiiMemberFinance() throws Exception {
 		DMDIIMemberFinance dmdiiMemberFinance = new DMDIIMemberFinance();
 		dmdiiMemberFinance.setId(1);
@@ -321,37 +292,13 @@ public class Entities {
 		return dmdiiMemberFinance;
 	}
 
-	public static DMDIIInstituteInvolvement dmdiiInstituteInvolvement() throws Exception {
-		DMDIIInstituteInvolvement instituteInvolvement = new DMDIIInstituteInvolvement();
-		instituteInvolvement.setId(1);
-		instituteInvolvement.setStaticLineItem("some static line item");
-		instituteInvolvement.setDate(new Date(format.parse("2016/05/25").getTime()));
-		return instituteInvolvement;
-	}
-
-	public static DMDIISkill dmdiiSkill() {
-		DMDIISkill skill = new DMDIISkill();
-		skill.setId(1);
-		skill.setTagLink("tag1");
-		skill.setTagName("taglink1");
-		return skill;
-	}
-
-	public static DMDIIMemberUser dmdiiMemberUser() {
-		DMDIIMemberUser dmdiiMemberUser = new DMDIIMemberUser();
-		dmdiiMemberUser.setId(1);
-		dmdiiMemberUser.setUser(user());
-		dmdiiMemberUser.setRole(dmdiiRole());
-		return dmdiiMemberUser;
-	}
-
 	public static DMDIIRole dmdiiRole() {
 		DMDIIRole dmdiiRole = new DMDIIRole();
 		dmdiiRole.setId(1);
 		dmdiiRole.setRole("Role");
 		return dmdiiRole;
 	}
-	
+
 	public static DMDIIProjectContact dmdiiProjectContact1() {
 		DMDIIProjectContact contact = new DMDIIProjectContact();
 		contact.setId(200);
@@ -360,7 +307,7 @@ public class Entities {
 		contact.setEmail(EMAIL);
 		return contact;
 	}
-	
+
 	public static DMDIIProjectContact dmdiiProjectContact2() {
 		DMDIIProjectContact contact = new DMDIIProjectContact();
 		contact.setId(201);
