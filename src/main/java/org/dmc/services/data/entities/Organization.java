@@ -1,5 +1,7 @@
 package org.dmc.services.data.entities;
 
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +10,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -23,14 +28,19 @@ public class Organization extends BaseEntity {
 	@Column(name = "accountid")
 	private Integer accountId;
 
+	@Column(name = "name")
 	private String name;
 
+	@Column(name = "location")
 	private String location;
 
+	@Column(name = "description")
 	private String description;
 
+	@Column(name = "division")
 	private String division;
 
+	@Column(name = "industry")
 	private String industry;
 
 	@Column(name = "naics_code")
@@ -39,9 +49,26 @@ public class Organization extends BaseEntity {
 	@Column(name = "rd_focus")
 	private String rdFocus;
 
+	@Column(name = "customers")
 	private String customers;
 
-	private String awards;
+	@ManyToMany
+	@JoinTable(name = "organization_area_of_expertise",
+			   joinColumns = @JoinColumn(name="organization_id"),
+			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
+	private List<AreaOfExpertise> areasOfExpertise;
+
+	@ManyToMany
+	@JoinTable(name = "organization_desired_area_of_expertise",
+			   joinColumns = @JoinColumn(name="organization_id"),
+			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
+	private List<AreaOfExpertise> desiredAreasOfExpertise;
+
+	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL, orphanRemoval=true)
+	private List<Award> awards;
+
+	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL, orphanRemoval=true)
+	private List<OrganizationContact> contacts;
 
 	@Column(name = "tech_expertise")
 	private String techExpertise;
@@ -62,13 +89,16 @@ public class Organization extends BaseEntity {
 	private String upcomingProjectInterests;
 
 	@OneToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name = "addressid")
+	@JoinColumn(name = "address_id")
 	private Address address;
 
+	@Column(name = "email")
 	private String email;
 
+	@Column(name = "phone")
 	private String phone;
 
+	@Column(name = "website")
 	private String website;
 
 	@Column(name = "social_media_linkedin")
@@ -86,9 +116,6 @@ public class Organization extends BaseEntity {
 	@Column(name = "category_tier")
 	private Integer categoryTier;
 
-	@Column(name = "date_joining")
-	private String dateJoining;
-
 	@Column(name = "reason_joining")
 	private String reasonJoining;
 
@@ -98,16 +125,18 @@ public class Organization extends BaseEntity {
 	@Column(name = "logo_image")
 	private String logoImage;
 
+	@Column(name = "follow")
 	private String follow;
 
-	@Column(name = "favorates_count")
+	@Column(name = "favorites_count")
 	private Integer favoritesCount;
 
 	@Column(name = "is_owner")
 	private String isOwner;
 
+	@Column(name = "owner")
 	private String owner;
-	
+
 	@OneToOne(mappedBy = "organization", fetch = FetchType.LAZY)
 	private DMDIIMember dmdiiMember;
 
@@ -191,12 +220,38 @@ public class Organization extends BaseEntity {
 		this.customers = customers;
 	}
 
-	public String getAwards() {
+	public List<AreaOfExpertise> getAreasOfExpertise() {
+		return areasOfExpertise;
+	}
+
+	public void setAreasOfExpertise(List<AreaOfExpertise> areasOfExpertise) {
+		this.areasOfExpertise = areasOfExpertise;
+	}
+
+	public List<AreaOfExpertise> getDesiredAreasOfExpertise() {
+		return desiredAreasOfExpertise;
+	}
+
+	public void setDesiredAreasOfExpertise(List<AreaOfExpertise> desiredAreasOfExpertise) {
+		this.desiredAreasOfExpertise = desiredAreasOfExpertise;
+	}
+
+	public List<Award> getAwards() {
 		return awards;
 	}
 
-	public void setAwards(String awards) {
+	public void setAwards(List<Award> awards) {
+		awards.stream().forEach((a) -> a.setOrganization(this));
 		this.awards = awards;
+	}
+
+	public List<OrganizationContact> getContacts() {
+		return contacts;
+	}
+
+	public void setContacts(List<OrganizationContact> contacts) {
+		contacts.stream().forEach((a) -> a.setOrganization(this));
+		this.contacts = contacts;
 	}
 
 	public String getTechExpertise() {
@@ -319,14 +374,6 @@ public class Organization extends BaseEntity {
 		this.categoryTier = categoryTier;
 	}
 
-	public String getDateJoining() {
-		return dateJoining;
-	}
-
-	public void setDateJoining(String dateJoining) {
-		this.dateJoining = dateJoining;
-	}
-
 	public String getReasonJoining() {
 		return reasonJoining;
 	}
@@ -401,7 +448,6 @@ public class Organization extends BaseEntity {
 		result = prime * result + ((categoryTier == null) ? 0 : categoryTier.hashCode());
 		result = prime * result + ((collaborationInterest == null) ? 0 : collaborationInterest.hashCode());
 		result = prime * result + ((customers == null) ? 0 : customers.hashCode());
-		result = prime * result + ((dateJoining == null) ? 0 : dateJoining.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((division == null) ? 0 : division.hashCode());
 		result = prime * result + ((dmdiiMember == null) ? 0 : dmdiiMember.hashCode());
@@ -471,11 +517,6 @@ public class Organization extends BaseEntity {
 			if (other.customers != null)
 				return false;
 		} else if (!customers.equals(other.customers))
-			return false;
-		if (dateJoining == null) {
-			if (other.dateJoining != null)
-				return false;
-		} else if (!dateJoining.equals(other.dateJoining))
 			return false;
 		if (description == null) {
 			if (other.description != null)
@@ -619,5 +660,5 @@ public class Organization extends BaseEntity {
 			return false;
 		return true;
 	}
-	
+
 }

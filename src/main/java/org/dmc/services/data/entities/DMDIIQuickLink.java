@@ -1,5 +1,6 @@
 package org.dmc.services.data.entities;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import javax.persistence.*;
@@ -23,7 +24,7 @@ public class DMDIIQuickLink extends BaseEntity {
 	private DMDIIDocument doc;
 	
 	@Column(name="created")
-	private Date created;
+	private Timestamp created;
 	
 	@Column(name="display_name")
 	private String displayName;
@@ -60,11 +61,11 @@ public class DMDIIQuickLink extends BaseEntity {
 		this.doc = doc;
 	}
 
-	public Date getCreated() {
+	public Timestamp getCreated() {
 		return created;
 	}
 
-	public void setCreated(Date created) {
+	public void setCreated(Timestamp created) {
 		this.created = created;
 	}
 

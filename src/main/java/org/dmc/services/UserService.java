@@ -13,6 +13,7 @@ import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
+import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
@@ -32,6 +33,9 @@ public class UserService {
 
 	@Inject
 	private OrganizationUserService orgUserService;
+
+	@Inject
+	private OrganizationUserRepository orgUserRepo;
 
 	@Inject
 	private UserRoleAssignmentService userRoleAssignmentService;
@@ -120,6 +124,21 @@ public class UserService {
 		return response;
 	}
 
+	@Transactional
+	public VerifyUserResponse declineUser(Integer userId, Integer organizationId) {
+		VerifyUserResponse response;
+
+		Integer rowsDeleted = orgUserRepo.deleteByUserIdAndOrganizationId(userId, organizationId);
+
+		if(rowsDeleted > 0) {
+			response = new VerifyUserResponse(0, "Successfully declined user.");
+		} else {
+			response = new VerifyUserResponse(1000, "User with ID " + userId + " could not be declined from organization with ID " + organizationId + ".");
+		}
+
+		return response;
+	}
+
 	private VerifyUserResponse tooManyAttempts(UserToken tokenEntity) {
 		userTokenRepository.delete(tokenEntity.getId());
 		return new VerifyUserResponse(1000, "Too many unsuccessful attempts made to validate, please contact your administrator.");
@@ -139,7 +158,7 @@ public class UserService {
 			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.ADMIN, userId, orgUserModel.getOrganizationId(), true);
 		}
 		else if (numberOfUsersVerified > 1) {
-			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId, orgUserModel.getOrganizationId());
+			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId, orgUserModel.getOrganizationId(), true);
 		}
 
 		return new VerifyUserResponse(0, "Successfully verified user.");

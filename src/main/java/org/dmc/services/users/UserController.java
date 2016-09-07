@@ -10,6 +10,7 @@ import org.dmc.services.Id;
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
+import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
@@ -128,25 +129,50 @@ public class UserController {
 		}
 	}
 
-	@RequestMapping(value = "/user/verify", method = RequestMethod.POST)
-	public VerifyUserResponse getUserToken(@RequestParam("userId") Integer id, @RequestParam("token") String token) throws ArgumentNotFoundException {
+	@RequestMapping(value = "/users/{userId}", params = {"action"}, method = RequestMethod.PUT)
+	public VerifyUserResponse userAction(@PathVariable Integer userId, @RequestParam("action") String action, @RequestBody(required=false) UserTokenModel token) throws ArgumentNotFoundException {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (!id.equals(loggedIn.getId())) {
-			throw new AccessDeniedException("403 Permission Denied");
+		Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
+		VerifyUserResponse response;
+
+		if("verify".equals(action)) {
+
+			if (userId.equals(loggedIn.getId())) {
+				response = userService.verifyUser(userId, token.getToken());
+			} else {
+				throw new AccessDeniedException("403 Permission Denied");
+			}
+
+		} else if("unverify".equals(action)) {
+
+			if(PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
+				response = userService.unverifyUser(userId);
+			} else {
+				throw new AccessDeniedException("403 Permission Denied");
+			}
+
+		} else if("decline".equals(action)) {
+
+			if(PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
+				response = userService.declineUser(userId, organizationId);
+			} else {
+				throw new AccessDeniedException("403 Permission Denied");
+			}
+
+		} else {
+			response = new VerifyUserResponse(1000, "Unknown action \"" + action + "\" requested.");
 		}
 
-		return userService.verifyUser(id, token);
+		return response;
 	}
 
-	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)
-	@RequestMapping(value = "/user/unverify", method = RequestMethod.POST)
-	public VerifyUserResponse unverifyUser(@RequestParam("userId") Integer userId) {
-		Integer organizationId = orgUserService.getOrganizationUserByUserId(userId).getOrganizationId();
-		if(PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
-			return userService.unverifyUser(userId);
-		} else {
-			throw new AccessDeniedException("403 Permission Denied");
+	@RequestMapping(value = "/users/{userId}/organizations", method = RequestMethod.PUT)
+	public OrganizationUserModel changeOrganization(@PathVariable Integer userId, @RequestBody OrganizationUserModel orgUser) {
+		if(!userId.equals(orgUser.getUserId())) {
+			throw new RuntimeException("User passed in request doesn't match user that's getting updated.");
 		}
+
+		return orgUserService.changeOrganization(orgUser);
 	}
 
     /*
