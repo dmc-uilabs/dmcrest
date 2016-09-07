@@ -128,7 +128,7 @@ public class UserService {
 	public VerifyUserResponse declineUser(Integer userId, Integer organizationId) {
 		VerifyUserResponse response;
 
-		Integer rowsDeleted = orgUserRepo.deleteByUserId(userId, organizationId);
+		Integer rowsDeleted = orgUserRepo.deleteByUserIdAndOrganizationId(userId, organizationId);
 
 		if(rowsDeleted > 0) {
 			response = new VerifyUserResponse(0, "Successfully declined user.");

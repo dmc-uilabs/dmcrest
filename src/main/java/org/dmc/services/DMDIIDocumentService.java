@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +21,12 @@ import org.dmc.services.data.models.DMDIIDocumentTagModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
+import org.dmc.services.data.repositories.DMDIIQuickLinkRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.ExpressionUtils;
@@ -39,6 +40,9 @@ public class DMDIIDocumentService {
 
 	@Inject
 	private DMDIIDocumentTagRepository dmdiiDocumentTagRepository;
+	
+	@Inject
+	private DMDIIQuickLinkRepository dmdiiQuickLinkRepository;
 	
 	@Inject
 	private UserService userService;
@@ -180,6 +184,24 @@ public class DMDIIDocumentService {
 			returnValue.add(QDMDIIDocument.dMDIIDocument.tags.any().id.eq(tagIdInt));
 		}
 		return returnValue;
+	}
+	
+	@Transactional
+	public DMDIIDocumentModel delete (Integer dmdiiDocumentId) {
+		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
+		
+		//check to see if the document is a quicklink, if so delete quicklink
+		if(dmdiiQuickLinkRepository.countByDoc(dmdiiDocumentId) > 0) {
+			dmdiiQuickLinkRepository.deleteByDMDIIDocumentId(dmdiiDocumentId);
+		}
+		
+		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(dmdiiDocumentId);
+		
+		docEntity.setIsDeleted(true);
+		
+		docEntity = dmdiiDocumentRepository.save(docEntity);
+		
+		return mapper.mapToModel(docEntity);
 	}
 	
 	private List<DMDIIDocument> refreshDocuments (List<DMDIIDocument> docs) throws DMCServiceException {

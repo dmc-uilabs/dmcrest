@@ -8,18 +8,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dmdii_skill")
-public class DMDIISkill extends BaseEntity {
+@Table(name = "organization_contact_type")
+public class OrganizationContactType extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Column(name = "tag_name")
-	private String tagName;
-
-	@Column(name = "tag_link")
-	private String tagLink;
+	@Column(name = "contact_type")
+	private String contactType;
 
 	public Integer getId() {
 		return id;
@@ -29,29 +26,20 @@ public class DMDIISkill extends BaseEntity {
 		this.id = id;
 	}
 
-	public String getTagName() {
-		return tagName;
+	public String getContactType() {
+		return contactType;
 	}
 
-	public void setTagName(String tagName) {
-		this.tagName = tagName;
-	}
-
-	public String getTagLink() {
-		return tagLink;
-	}
-
-	public void setTagLink(String tagLink) {
-		this.tagLink = tagLink;
+	public void setContactType(String contactType) {
+		this.contactType = contactType;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((contactType == null) ? 0 : contactType.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((tagLink == null) ? 0 : tagLink.hashCode());
-		result = prime * result + ((tagName == null) ? 0 : tagName.hashCode());
 		return result;
 	}
 
@@ -63,22 +51,18 @@ public class DMDIISkill extends BaseEntity {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DMDIISkill other = (DMDIISkill) obj;
+		OrganizationContactType other = (OrganizationContactType) obj;
+		if (contactType == null) {
+			if (other.contactType != null)
+				return false;
+		} else if (!contactType.equals(other.contactType))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (tagLink == null) {
-			if (other.tagLink != null)
-				return false;
-		} else if (!tagLink.equals(other.tagLink))
-			return false;
-		if (tagName == null) {
-			if (other.tagName != null)
-				return false;
-		} else if (!tagName.equals(other.tagName))
-			return false;
 		return true;
 	}
+
 }
