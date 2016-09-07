@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import com.jayway.restassured.specification.RequestSpecification;
 
@@ -363,6 +364,7 @@ public class ProfileIT extends BaseIT {
     /**
      * test case for GET /profiles/{profileID}/profile_reviews
      */
+    @Ignore
     @Test
     public void testProfileGet_ProfileReview() {
         given().header("AJP_eppn", userEPPN).param("reviewId", "1").expect()

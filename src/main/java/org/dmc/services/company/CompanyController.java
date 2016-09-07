@@ -8,6 +8,9 @@ import org.dmc.services.components.Component;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.users.User;
+import org.dmc.services.reviews.ReviewDao;
+import org.dmc.services.reviews.ReviewType;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +38,7 @@ public class CompanyController {
     private CompanyDao companyDao = new CompanyDao();
     private CompanySkillDao skillDao = new CompanySkillDao();
     private CompanyVideoDao videoDao = new CompanyVideoDao();
-    private CompanyReviewDao reviewDao = new CompanyReviewDao();
+    private ReviewDao<CompanyReview> reviewDao = new ReviewDao(ReviewType.ORGANIZATION);
 
     /**
      Return a list of companies
@@ -354,10 +357,10 @@ public class CompanyController {
                 int companyIdInt = Integer.parseInt(companyID);
 
                 if (reviewIdInt == 0) {
-                    reviews = reviewDao.getReviews(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN);
+                    reviews = reviewDao.getReviews(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN, CompanyReview.class);
 
                 } else if (reviewIdInt > 0) {
-                    reviews = reviewDao.getReviewReplies(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN);
+                    reviews = reviewDao.getReviewReplies(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN, CompanyReview.class);
                 }
 
                 return new ResponseEntity<List<CompanyReview>>(reviews, HttpStatus.valueOf(statusCode));
@@ -370,15 +373,14 @@ public class CompanyController {
             }
       }
 
-     @RequestMapping(value = "/company_reviews", produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE }, method = RequestMethod.POST)
-      public ResponseEntity companyReviewsPost(
-             @RequestBody CompanyReview companyReview,
-             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+     @RequestMapping(value = "/company_reviews", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
+      public ResponseEntity companyReviewsPost(@RequestBody CompanyReview companyReview,
+                                               @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
          int statusCode = HttpStatus.OK.value();
 
          try {
-             Id id = reviewDao.createCompanyReview(companyReview, userEPPN);
+             Id id = reviewDao.createReview(companyReview, userEPPN);
              return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
          } catch (DMCServiceException e) {
              ServiceLogger.logException(logTag, e);
