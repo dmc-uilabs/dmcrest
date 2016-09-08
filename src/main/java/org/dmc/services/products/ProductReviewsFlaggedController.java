@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+import org.dmc.services.reviews.ReviewFlagged;
+
 import static org.springframework.http.MediaType.*;
 
 @Controller
@@ -18,32 +20,16 @@ import static org.springframework.http.MediaType.*;
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class ProductReviewsFlaggedController {
   
-
-  @RequestMapping(value = "", 
-    produces = { "application/json", "text/html" }, 
-    method = RequestMethod.GET)
-  public ResponseEntity<List<ProductReviewFlagged>> productReviewsFlaggedGet(
-	@RequestParam(value = "reviewId", required = true) String reviewId,
-@RequestParam(value = "accountId", required = true) String accountId){
+  @RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
+  public ResponseEntity<List<ReviewFlagged>> productReviewsFlaggedGet(@RequestParam(value = "reviewId", required = true) String reviewId,
+                                                                      @RequestParam(value = "accountId", required = true) String accountId){
       // do some magic!
-      return new ResponseEntity<List<ProductReviewFlagged>>(HttpStatus.NOT_IMPLEMENTED);
+      return new ResponseEntity<List<ReviewFlagged>>(HttpStatus.NOT_IMPLEMENTED);
   }
 
-  
-
-
-
-  @RequestMapping(value = "", 
-    produces = { "application/json", "text/html" }, 
-    method = RequestMethod.POST)
-  public ResponseEntity<ProductReviewFlagged> productReviewsFlaggedPost(
-@RequestBody ProductReviewFlagged serviceReviewHelpful){
+  @RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
+  public ResponseEntity<ReviewFlagged> productReviewsFlaggedPost(@RequestBody ReviewFlagged serviceReviewHelpful){
       // do some magic!
-      return new ResponseEntity<ProductReviewFlagged>(HttpStatus.NOT_IMPLEMENTED);
+      return new ResponseEntity<ReviewFlagged>(HttpStatus.NOT_IMPLEMENTED);
   }
-
- 
-
-
-  
 }

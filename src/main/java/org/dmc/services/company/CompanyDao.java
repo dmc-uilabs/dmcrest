@@ -30,15 +30,15 @@ public class CompanyDao {
 
 	private static final String logTag = CompanyDao.class.getName();
 	private ResultSet resultSet;
-	
+
 	// Only declare here and instantiate in method where it is used
 	// Instantiating here may cause NullPointer Exceptions
 	private Connection connection;
-	
+
     public ArrayList<Company> getCompanies(String userEPPN) throws HTTPException {
         ArrayList<Company> companies = null;
         ServiceLogger.log(logTag, "User: " + userEPPN + " asking for all companies");
-		
+
         try {
             // get all organizations;
             // does the organization need to be active member?  assume no.
@@ -63,20 +63,20 @@ public class CompanyDao {
         return companies;
 	}
 
-    
-	public Company getCompany(int id, String userEPPN) throws HTTPException { 
+
+	public Company getCompany(int id, String userEPPN) throws HTTPException {
 		ServiceLogger.log(logTag, "User: " + userEPPN + " asking company " + id);
-		
+
 		Company company = new Company();
 		try {
-			
+
 			String query = "SELECT * FROM organization o "
-					+ "JOIN common_address a ON o.addressId = a.id "
+					+ "JOIN common_address a ON o.address_id = a.id "
 // 					+ "JOIN common_image i ON o.feature_image = i.id "
 					+ "WHERE o.organization_id = "  + id;
 			//ServiceLogger.log(logTag, "getCompany query: " + query);
 			resultSet = DBConnector.executeQuery(query);
-					
+
 			if (resultSet.next()) {
 				id = resultSet.getInt("organization_id");
 				int accountId = resultSet.getInt("accountId");
@@ -113,15 +113,15 @@ public class CompanyDao {
 				String featureImageLarge = "/uploads/company/picture/1/20160315182723000000.jpg"; //resultSet.getString("large_image");
 				String logoImage = resultSet.getString("logo_image");
 				boolean follow = Boolean.valueOf(resultSet.getString("follow"));
-				int favoratesCount = resultSet.getInt("favorates_count");
+				int favoritesCount = resultSet.getInt("favorites_count");
 				boolean isOwner = Boolean.valueOf(resultSet.getString("is_owner"));
 				String owner = resultSet.getString("owner");
-				
+
 //				if (!owner.equals(userEPPN)) {
 //					ServiceLogger.log(logTag, "User is not owner of requested Company/Organization");
 //					throw new HTTPException(HttpStatus.FORBIDDEN.value());
 //				}
-				
+
 				company.setId(Integer.toString(id));
 				company.setAccountId(Integer.toString(accountId));
 				company.setName(name);
@@ -155,18 +155,18 @@ public class CompanyDao {
 				company.setFeatureImage(new FeatureImage(featureImageThumb, featureImageLarge));
 				company.setLogoImage(logoImage);
 				company.setFollow(follow);
-				company.setFavoritesCount(favoratesCount);
+				company.setFavoritesCount(favoritesCount);
 				company.setIsOwner(isOwner);
 				company.setOwner(owner);
 			}
-			
+
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, "Error message " + e.getMessage());
 			throw new HTTPException(HttpStatus.FORBIDDEN.value());
 		}
 		return company;
 	}
-	
+
 	public Id createCompany(Company company, String userEPPN) {
 		ServiceLogger.log(logTag, "In createCompany, User: " + userEPPN + " creating company " + company);
 
@@ -176,14 +176,14 @@ public class CompanyDao {
 		String query;
 		long UnixTimeStamp = Calendar.getInstance().getTime().getTime();
 		Timestamp timestamp = new java.sql.Timestamp(UnixTimeStamp);
-		Timestamp expires = new java.sql.Timestamp(UnixTimeStamp + (1000*60*60*24*365*10)); 
+		Timestamp expires = new java.sql.Timestamp(UnixTimeStamp + (1000*60*60*24*365*10));
 		int id = -99999, commonAddressId = -9999, commonImageId = -9999;
 		// Default to Industry Tier 1 member for now
 		int organizationMemberId = 1;
 
 		try {
 			connection.setAutoCommit(false);
-			
+
 			// insert into relational common_address
 			query = "INSERT INTO common_address"
 					+ "(street_address1, street_address2, city, state, zip) "
@@ -216,10 +216,10 @@ public class CompanyDao {
 					+ "(accountid, name, location, description, division, "
 					+ "industry, naics_code, rd_focus, customers, awards , "
 					+ "tech_expertise, tools_software_equip_mach, post_collaboration, collaboration_interest, past_projects, "
-					+ "upcoming_project_interests, addressid, email, phone, "
+					+ "upcoming_project_interests, address_id, email, phone, "
 					+ "website, social_media_linkedin, social_media_twitter, "
 					+ "perfered_comm_method, category_tier, date_joining, reason_joining, "
-					+ "feature_image, logo_image, follow, favorates_count, is_owner, owner)"
+					+ "feature_image, logo_image, follow, favorites_count, is_owner, owner)"
 					+ "values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -258,22 +258,22 @@ public class CompanyDao {
 			statement.executeUpdate();
 			id = util.getGeneratedKey(statement, "organization_id");
 			ServiceLogger.log(logTag, "ORGANIZATION/COMPANY ID: " + id);
-			
+
 			// insert into organization_dmdii_member
 			query = "INSERT INTO organization_dmdii_member (organization_id, dmdii_type_id, modification_date, start_date, expire_date)"
 					+ "VALUES (?, ?, ?, ?, ?)";
-			
+
 			statement = DBConnector.prepareStatement(query);
 			statement.setInt(1, id);
-			statement.setInt(2, organizationMemberId);  
-			statement.setTimestamp(3, timestamp); 
+			statement.setInt(2, organizationMemberId);
+			statement.setTimestamp(3, timestamp);
 			statement.setTimestamp(4, timestamp);
 			statement.setTimestamp(5, expires);
 			statement.executeUpdate();
-			
+
 
 			int userIdEPPN = UserDao.getUserID(userEPPN);
-			
+
 			// insert into organization_admin
 			query = "INSERT INTO organization_user (user_id, organization_id)"
 			+ "VALUES (?, ?)";
@@ -282,7 +282,7 @@ public class CompanyDao {
 			statement.setInt(2, id);
 			statement.executeUpdate();
 			int organization_user_id = util.getGeneratedKey(statement, "id");
-			
+
 			// insert into organization_admin
 			query = "INSERT INTO organization_admin (organization_user_id, organization_id)"
 				+ "VALUES (?, ?)";
@@ -290,8 +290,8 @@ public class CompanyDao {
 			statement.setInt(1, organization_user_id);
 			statement.setInt(2, id);
 			statement.executeUpdate();
-			
-			
+
+
 			connection.commit();
 		}
 		catch (SQLException e) {
@@ -322,18 +322,18 @@ public class CompanyDao {
 		return new Id.IdBuilder(id)
 		.build();
 	}
-	
+
 	public Id updateCompany(int id, Company company, String userEPPN) throws HTTPException {
-		 
+
 		connection = DBConnector.connection();
 		int companyId = id, commonAddressId, commonImageId;
 
 		try {
-			
+
 			// Ensure user is owner of company before patching
 			resultSet = DBConnector.executeQuery("SELECT owner FROM organization "
 					+ "WHERE organization_id = "  + id);
-			
+
 			if (resultSet.next()) {
 				String owner = resultSet.getString("owner");
 				if (!CompanyUserUtil.isAdmin(userEPPN, companyId)){
@@ -342,20 +342,20 @@ public class CompanyDao {
 					throw new HTTPException(HttpStatus.FORBIDDEN.value());
 				}
 			}
-			
+
 			connection.setAutoCommit(false);
-						
+
 	        // retrieve relational common_address and common_image
 			resultSet = DBConnector.executeQuery("SELECT a.id common_address_id, i.id common_image_id "
 					+ "FROM organization o "
-					+ "JOIN common_address a ON o.addressId = a.id "
+					+ "JOIN common_address a ON o.address_id = a.id "
 					+ "JOIN common_image i ON o.feature_image = i.id "
 					+ "WHERE o.organization_id = "  + companyId);
-	        
+
 			if (resultSet.next()) {
 				commonAddressId = resultSet.getInt("common_address_id");
 				commonImageId = resultSet.getInt("common_image_id");
-				
+
 				// update common_address
 		        String query = "UPDATE common_address SET "
 	        		+ "street_address1 = ?, "
@@ -364,7 +364,7 @@ public class CompanyDao {
 	        		+ "state = ?, "
 	        		+ "zip = ? "
 	        		+ "WHERE id = ?";
-		        
+
 		        PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 				preparedStatement.setString(1, company.getAddress());
 				preparedStatement.setString(2, "");
@@ -373,34 +373,34 @@ public class CompanyDao {
 				preparedStatement.setString(5, company.getZipCode());
 		        preparedStatement.setInt(6, companyId);
 		        preparedStatement.executeUpdate();
-				
+
 		        // update common_image
 		        query = "UPDATE common_image SET "
 		        		+ "caption = ?, "
 		        		+ "thumbnail = ?, "
 		        		+ "large_image = ? "
 		        		+ "WHERE id = ? ";
-		         
+
 		        preparedStatement = DBConnector.prepareStatement(query);
 				preparedStatement.setString(1, "");
 				preparedStatement.setString(2, company.getFeatureImage().getThumbnail());
 				preparedStatement.setString(3, company.getFeatureImage().getLarge());
 		        preparedStatement.setInt(4, companyId);
 		        preparedStatement.executeUpdate();
-		        
+
 		        // update the company
 				query = "UPDATE organization SET "
 				+ "accountid = ?, name = ?, location = ?, description = ?, division = ?, "
 				+ "industry = ?, naics_code = ?, rd_focus = ?, customers = ?, awards = ?, "
 			    + "tech_expertise = ?, tools_software_equip_mach = ?, post_collaboration = ?, "
 			    + "collaboration_interest = ?, past_projects = ?, upcoming_project_interests = ?, "
-				+ "addressid = ?, email = ?, phone = ?, "
+				+ "address_id = ?, email = ?, phone = ?, "
 	            + "website = ?, social_media_linkedin = ?, social_media_twitter = ?, "
 				+ "perfered_comm_method = ?, category_tier = ?, date_joining = ?, reason_joining = ?, "
-				+ "feature_image = ?, logo_image = ?, follow = ?, favorates_count = ?, is_owner = ?, owner = ? "
+				+ "feature_image = ?, logo_image = ?, follow = ?, favorites_count = ?, is_owner = ?, owner = ? "
 				+ "WHERE organization_id = ?";
-				
-				preparedStatement = DBConnector.prepareStatement(query);			      
+
+				preparedStatement = DBConnector.prepareStatement(query);
 				preparedStatement.setInt(1, Integer.parseInt(company.getAccountId()));
 				preparedStatement.setString(2, company.getName());
 				preparedStatement.setString(3, company.getLocation());
@@ -435,7 +435,7 @@ public class CompanyDao {
 				preparedStatement.setString(32, company.getOwner());
 		        preparedStatement.setInt(33, companyId);
 		        preparedStatement.executeUpdate();
-		        
+
 		        connection.commit();
 			}
 		}
@@ -467,18 +467,18 @@ public class CompanyDao {
 		return new Id.IdBuilder(companyId)
 		.build();
 	}
-		
-	
+
+
 	public Id deleteCompany(int id, String userEPPN) {
-		
+
 		CompanyVideoDao videoDao = new CompanyVideoDao();
 		connection = DBConnector.connection();
 		PreparedStatement statement;
 		String query;
 	    int companyId = id, commonAddressId, commonImageId;
-	    
+
 	    try {
-	    	
+
 			// Check that the user deleting the company video is an administrator or the owner of the company
 			/**
 			 ** Checks disabled until members for companies are tracked
@@ -487,26 +487,26 @@ public class CompanyDao {
 				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
 			}
 			*/
-	    	
+
 	    	connection.setAutoCommit(false);
-	    	
+
 	        // retrieve relational common_address and common_image
 			resultSet = DBConnector.executeQuery("SELECT a.id common_address_id, i.id common_image_id "
 					+ "FROM organization o "
-					+ "JOIN common_address a ON o.addressId = a.id "
+					+ "JOIN common_address a ON o.address_id = a.id "
 					+ "JOIN common_image i ON o.feature_image = i.id "
 					+ "WHERE o.organization_id = "  + id);
-			
+
 			if (resultSet.next()) {
 				commonAddressId = resultSet.getInt("common_address_id");
 				commonImageId = resultSet.getInt("common_image_id");
-				
+
 		        // delete organization_dmdii_member
 		        query = "DELETE FROM organization_dmdii_member WHERE organization_id = ?";
 		        statement = DBConnector.prepareStatement(query);
-		        statement.setInt(1, id);   
+		        statement.setInt(1, id);
 		        statement.executeUpdate();
-		        
+
 				// delete organization_video
 				videoDao.deleteCompanyVideo(companyId, -1, userEPPN);
 
@@ -527,19 +527,19 @@ public class CompanyDao {
 				// delete organization
 		        query = "DELETE FROM organization WHERE organization_id = ?";
 		        statement = DBConnector.prepareStatement(query);
-		        statement.setInt(1, companyId);   
+		        statement.setInt(1, companyId);
 		        statement.executeUpdate();
 
 				// delete common_address
 		        query = "DELETE FROM common_address WHERE id = ?";
 		        statement = DBConnector.prepareStatement(query);
-		        statement.setInt(1, commonAddressId);   
+		        statement.setInt(1, commonAddressId);
 		        statement.executeUpdate();
-		        
+
 				// delete common_image
 		        query = "DELETE FROM common_image WHERE id = ?";
 		        statement = DBConnector.prepareStatement(query);
-		        statement.setInt(1, commonImageId);   
+		        statement.setInt(1, commonImageId);
 		        statement.executeUpdate();
 
 		        connection.commit();
@@ -570,11 +570,11 @@ public class CompanyDao {
 				}
 			}
 		}
-		
+
 		return new Id.IdBuilder(id)
 		.build();
 	}
-	
+
     /**
 	 * Retrieve the organization_id from the organization_user table for the specifyed company and user
 	 * @param userId the user id
@@ -587,18 +587,18 @@ public class CompanyDao {
             PreparedStatement statement = DBConnector.prepareStatement(query);
             statement.setInt(1, userId);
             ResultSet rs = statement.executeQuery();
-		
+
 			if (rs.next()) {
 				id = rs.getInt(1);
 			}
-            
+
 		} catch (SQLException sqlEx) {
 			ServiceLogger.log(logTag, sqlEx.toString());
 		}
-        
+
 		return id;
 	}
-    
+
 	/**
 	 * Retrieve the primary key of the organization_user table for the specifyed company and user
 	 * @param companyId the company id

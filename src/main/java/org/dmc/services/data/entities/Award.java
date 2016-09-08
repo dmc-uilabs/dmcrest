@@ -10,22 +10,49 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dmdii_member_customer")
-public class DMDIIMemberCustomer extends BaseEntity {
+@Table(name = "organization_award")
+public class Award extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@ManyToOne
-    @JoinColumn(name="organization_dmdii_member_id")
-	private DMDIIMember dmdiiMember;
+	@JoinColumn(name="organization_id")
+	private Organization organization;
 
 	@Column(name = "name")
 	private String name;
 
+	@Column(name = "description")
+	private String description;
+
 	@Column(name = "link")
 	private String link;
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getLink() {
+		return this.link;
+	}
+
+	public void setLink(String link) {
+		this.link = link;
+	}
 
 	public Integer getId() {
 		return id;
@@ -35,34 +62,19 @@ public class DMDIIMemberCustomer extends BaseEntity {
 		this.id = id;
 	}
 
-	public DMDIIMember getDmdiiMember() {
-		return dmdiiMember;
+	public Organization getOrganization() {
+		return organization;
 	}
 
-	public void setDmdiiMember(DMDIIMember dmdiiMember) {
-		this.dmdiiMember = dmdiiMember;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getLink() {
-		return link;
-	}
-
-	public void setLink(String link) {
-		this.link = link;
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -77,7 +89,12 @@ public class DMDIIMemberCustomer extends BaseEntity {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DMDIIMemberCustomer other = (DMDIIMemberCustomer) obj;
+		Award other = (Award) obj;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -95,4 +112,5 @@ public class DMDIIMemberCustomer extends BaseEntity {
 			return false;
 		return true;
 	}
+
 }
