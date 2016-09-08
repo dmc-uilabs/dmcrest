@@ -25,6 +25,10 @@ public class DMDIIMemberUser extends BaseEntity {
 	@JoinColumn(name = "dmdii_role_id")
 	private DMDIIRole role;
 
+	@ManyToOne
+	@JoinColumn(name = "organization_dmdii_member_id")
+	private DMDIIMember dmdiiMember;
+
 	public Integer getId() {
 		return id;
 	}
@@ -49,40 +53,38 @@ public class DMDIIMemberUser extends BaseEntity {
 		this.role = role;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((role == null) ? 0 : role.hashCode());
-		result = prime * result + ((user == null) ? 0 : user.hashCode());
-		return result;
+	public DMDIIMember getDmdiiMember() {
+		return dmdiiMember;
+	}
+
+	public void setDmdiiMember(DMDIIMember dmdiiMember) {
+		this.dmdiiMember = dmdiiMember;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(Object o) {
+		if (this == o)
 			return true;
-		if (obj == null)
+		if (!(o instanceof DMDIIMemberUser))
 			return false;
-		if (getClass() != obj.getClass())
+
+		DMDIIMemberUser that = (DMDIIMemberUser) o;
+
+		if (!id.equals(that.id))
 			return false;
-		DMDIIMemberUser other = (DMDIIMemberUser) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
+		if (!user.equals(that.user))
 			return false;
-		if (role == null) {
-			if (other.role != null)
-				return false;
-		} else if (!role.equals(other.role))
+		if (role != null ? !role.equals(that.role) : that.role != null)
 			return false;
-		if (user == null) {
-			if (other.user != null)
-				return false;
-		} else if (!user.equals(other.user))
-			return false;
-		return true;
+		return dmdiiMember.equals(that.dmdiiMember);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = id.hashCode();
+		result = 31 * result + user.hashCode();
+		result = 31 * result + (role != null ? role.hashCode() : 0);
+		result = 31 * result + dmdiiMember.hashCode();
+		return result;
 	}
 }
