@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.websocket.server.PathParam;
 
 import org.dmc.services.DMDIIProjectEventsService;
 import org.dmc.services.DMDIIProjectNewsService;
@@ -120,6 +121,12 @@ public class DMDIIProjectController {
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectModel saveDMDIIProject (@RequestBody DMDIIProjectModel project) {
 		return dmdiiProjectService.save(project);
+	}
+	
+	@RequestMapping(value = "/dmdiiProjects/{id}", method = RequestMethod.DELETE)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	public void delete(@PathParam("dmdiiProjectId") Integer dmdiiProjectId) {
+		dmdiiProjectService.delete(dmdiiProjectId);
 	}
 
 	@RequestMapping(value = "/dmdiiProject/news", params = "limit", method = RequestMethod.GET)
