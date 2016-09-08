@@ -8,6 +8,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.dmc.services.DMDIIDocumentService;
+import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.entities.Organization;
@@ -16,6 +18,7 @@ import org.dmc.services.data.entities.QOrganization;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.OrganizationDao;
@@ -52,6 +55,12 @@ public class OrganizationService {
 
 	@Inject
 	private UserRoleAssignmentService userRoleAssignmentService;
+	
+	@Inject
+	private DMDIIProjectService dmdiiProjectService;
+	
+	@Inject
+	private DMDIIDocumentService dmdiiDocumentService;
 
 	public List<OrganizationModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
@@ -149,5 +158,12 @@ public class OrganizationService {
 			}
 		}
 		return returnValue;
+	}
+	
+	@Transactional
+	public void delete(Integer organizationId) {
+		List<DMDIIProjectModel> projectModels = dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(organizationId, 0, Integer.MAX_VALUE);
+		projectModels.stream().map(n -> n.getId()).forEach(dmdiiDocumentService::deleteDMDIIDocumentsByDMDIIProjectId);
+		organizationDao.delete(organizationId);
 	}
 }
