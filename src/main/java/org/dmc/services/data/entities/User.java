@@ -81,7 +81,7 @@ public class User extends BaseEntity {
 	@OneToOne(mappedBy = "user")
 	private OrganizationUser organizationUser;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.MERGE, orphanRemoval = true)
 	@JoinColumn(table = "onboarding_status", name = "user_id")
 	private OnboardingStatus onboarding;
 
