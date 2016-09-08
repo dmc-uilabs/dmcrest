@@ -8,18 +8,18 @@ import java.util.Map;
 
 public class UserModel extends BaseModel {
 
-//	private String username;
-//	private boolean
-//	private String firstName;
-//	private String lastName;
-//	private String email;
-//	private String address;
-//	private String phone;
-//	private Map<Integer, String> roles;
-//	private UserContactInfoModel userContactInfo;
-//	private boolean isDMDIIMember;
-//	private Integer organization;
-//	private String aboutMe;
+	//	private String username;
+	//	private boolean
+	//	private String firstName;
+	//	private String lastName;
+	//	private String email;
+	//	private String address;
+	//	private String phone;
+	//	private Map<Integer, String> roles;
+	//	private UserContactInfoModel userContactInfo;
+	//	private boolean isDMDIIMember;
+	//	private Integer organization;
+	//	private String aboutMe;
 
 	private String displayName;
 	private int accountId;
@@ -112,7 +112,7 @@ public class UserModel extends BaseModel {
 		this.title = title;
 	}
 
-	public boolean isTermsConditions() {
+	public boolean getTermsConditions() {
 		return termsConditions;
 	}
 
@@ -208,11 +208,11 @@ public class UserModel extends BaseModel {
 		this.roles = roles;
 	}
 
-	public Boolean getDMDIIMember() {
+	public Boolean getIsDMDIIMember() {
 		return isDMDIIMember;
 	}
 
-	public void setDMDIIMember(Boolean DMDIIMember) {
+	public void setIsDMDIIMember(Boolean DMDIIMember) {
 		isDMDIIMember = DMDIIMember;
 	}
 
