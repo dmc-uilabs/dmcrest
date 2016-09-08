@@ -1,11 +1,7 @@
 package org.dmc.services.data.repositories;
 
-import org.dmc.services.data.entities.DMDIIAreaOfExpertise;
+import org.dmc.services.data.entities.AreaOfExpertise;
 
-import java.util.List;
-
-public interface DMDIIAreaOfExpertiseRepository extends BaseRepository<DMDIIAreaOfExpertise, Integer> {
-
-	List<DMDIIAreaOfExpertise> findAll();
+public interface DMDIIAreaOfExpertiseRepository extends BaseRepository<AreaOfExpertise, Integer> {
 
 }

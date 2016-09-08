@@ -12,6 +12,9 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.member.FollowingMemeber;
+import org.dmc.services.reviews.ReviewDao;
+import org.dmc.services.reviews.ReviewType;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +32,8 @@ public class ProfileController {
     private final String logTag = ProfileController.class.getName();
 
     private ProfileDao profileDao = new ProfileDao();
+    private ReviewDao reviewDao = new ReviewDao(ReviewType.PROFILE);
+
 
     @RequestMapping(value = "/profiles/{id}", method = RequestMethod.GET)
     public ResponseEntity<Profile> getProfile(@PathVariable("id") int id) {
@@ -126,18 +131,62 @@ public class ProfileController {
 
     @RequestMapping(value = "/profiles/{profileID}/profile_reviews", produces = {
             APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-    public ResponseEntity<List<ProfileReview>> profilesProfileIDProfileReviewsGet(
+    public ResponseEntity<?> profilesProfileIDProfileReviewsGet(
             @PathVariable("profileID") String profileID,
             @RequestParam(value = "reviewId", required = true) String reviewId,
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "sort", required = false) String sort,
             @RequestParam(value = "rating", required = false) Integer rating,
-            @RequestParam(value = "status", required = false) Boolean status) {
-        // do some magic!
-        return new ResponseEntity<List<ProfileReview>>(HttpStatus.NOT_IMPLEMENTED);
+            @RequestParam(value = "status", required = false) Boolean status,
+            @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+        List<ProfileReview> reviews = null;
+        int statusCode = HttpStatus.OK.value();
+        
+        int reviewIdInt = 0;
+        try {
+            reviewIdInt = Integer.parseInt(reviewId);
+        } catch (NumberFormatException nfe) {
+            
+        }
+        
+        try {
+            int profileIdInt = Integer.parseInt(profileID);
+            
+            if (reviewIdInt == 0) {
+                reviews = reviewDao.getReviews(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
+                
+            } else if (reviewIdInt > 0) {
+                reviews = reviewDao.getReviewReplies(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
+            }
+            
+            return new ResponseEntity<List<ProfileReview>>(reviews, HttpStatus.valueOf(statusCode));
+        } catch (NumberFormatException nfe) {
+            ServiceLogger.log(logTag, "Invalid companyId: " + profileID + ": " + nfe.getMessage());
+            return new ResponseEntity<String>("Invalid companyId: " + profileID, HttpStatus.BAD_REQUEST);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
     }
 
+    @RequestMapping(value = "/profile_reviews", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
+    public ResponseEntity profileReviewsPost(@RequestBody ProfileReview profileReview,
+                                             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+        
+        int statusCode = HttpStatus.OK.value();
+        
+        try {
+            Id id = reviewDao.createReview(profileReview, userEPPN);
+            return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+        
+    }
+
+    
     @RequestMapping(value = "/profiles/{profileId}/following_members", produces = {
             APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public ResponseEntity<List<FollowingMemeber>> profilesProfileIdFollowingMembersGet(

@@ -1,29 +1,45 @@
 package org.dmc.services;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.products.ProductReview;
 import org.dmc.services.utility.TestUserUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.Calendar;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class ProductIT extends BaseIT {
 	
-	private String serviceId = "1";
+	private String productId = "1";
+    private int accountId = 1;
 	private String reviewId = "1";
 	private String helpfulId = "1";
 	private Integer favoriteProductId = 1;
 	private String knownEPPN;
 	
+    public static final int DEFAULT_RATING = 3;
+    public static final int DEFAULT_LIKES = 0;
+    public static final int DEFAULT_DISLIKES = 0;
+    public static final String DEFAULT_COMMENT = "This is my awesome comment";
+    public static final String DEFAULT_REPLY_COMMENT = "This is my awesome comment";
+
 	@Before
 	public void before() {
 		if (knownEPPN == null) {
 			knownEPPN = TestUserUtil.createNewUser();
+            try {
+                accountId = UserDao.getUserID(knownEPPN);
+            } catch(SQLException e) {
+                
+            }
 		}
 	}
 
@@ -39,7 +55,7 @@ public class ProductIT extends BaseIT {
 		expect().
 		statusCode(HttpStatus.OK.value()). // need figure out where the malformed syntax
 		when().
-		get("/product/" + serviceId + "/product_reviews");
+		get("/product/" + productId + "/product_reviews");
 	}
 
 	
@@ -64,7 +80,8 @@ public class ProductIT extends BaseIT {
 	 */
 	@Test
 	public void testProductPost_ProductReview() {
-		ProductReview obj = new ProductReview();
+        ProductReview obj = createProductReviewFixture(Integer.parseInt(productId), "product review name",
+                                                       accountId, "product comment", Integer.parseInt(reviewId));
 		ObjectMapper mapper = new ObjectMapper();
 		String postedProductReviewJSONString = null;
 		try {
@@ -124,4 +141,36 @@ public class ProductIT extends BaseIT {
 		delete("/favorite_products/" + favoriteProductId);
 	}
 	
+    public static ProductReview createProductReviewFixture(int productId, String name, int accountId, String comment, int reviewId)
+    {
+        //String reviewId = Integer.toString(reviewIdCount++);
+        boolean status = true;
+        BigDecimal date = BigDecimal.valueOf(Calendar.getInstance().getTime().getTime());
+        int rating = DEFAULT_RATING;
+        int likes = DEFAULT_LIKES;
+        int dislikes = DEFAULT_DISLIKES;
+        boolean reply = false;
+        
+        return createProductReviewFixture(productId, name, reply, Integer.toString(reviewId), status, date, rating, likes, dislikes, comment, accountId);
+    }
+    
+    private static ProductReview createProductReviewFixture(int productId, String name, boolean reply,
+                                                     String reviewId, boolean status, BigDecimal date,
+                                                     int rating, int likes, int dislikes, String comment,
+                                                     int accountId) {
+        ProductReview r = new ProductReview();
+        //r.setId(Integer.toString(resultSet.getInt("kd")));
+        r.setProductId(Integer.toString(productId));
+        r.setName(name);
+        r.setReply(reply);
+        r.setReviewId(reviewId);
+        r.setStatus(status);
+        r.setDate(date);
+        r.setRating(rating);
+        r.setLike(likes);
+        r.setDislike(dislikes);
+        r.setComment(comment);
+        r.setAccountId(Integer.toString(accountId));
+        return r;
+    }
 }

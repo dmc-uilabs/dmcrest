@@ -75,8 +75,7 @@ public class AssignUserController {
         ServiceLogger.log(LOGTAG, "In getAssignUsers: as user " + userEPPN);
 
         try {
-            final ArrayList<ProjectMember> members = projectMemberDao.getMembersForProject(projectId.toString(), null,
-                    userEPPN);
+            final ArrayList<ProjectMember> members = projectMemberDao.getProjectMembers(projectId.toString(), null, null, userEPPN);
             final ArrayList<AssignUser> assignUser = new ArrayList<AssignUser>();
             final ProfileDao profileDao = new ProfileDao();
 

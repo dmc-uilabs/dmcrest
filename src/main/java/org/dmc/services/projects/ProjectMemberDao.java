@@ -88,12 +88,12 @@ public class ProjectMemberDao {
     // join users u on gjr.user_id = u.user_id
     // where gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join
     // pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-    public ArrayList<ProjectMember> getProjectMembers(Boolean accept, String userEPPN) throws DMCServiceException {
+    public ArrayList<ProjectMember> getProjectMembers(String projectList, String memberList, Boolean accept, String userEPPN) throws DMCServiceException {
 
         try {
 
             final int userId = UserDao.getUserID(userEPPN);
-            final String projectMembersQuery = createGetProjectMembersQuery(accept, null, null, userId);
+            final String projectMembersQuery = createGetProjectMembersQuery(accept, projectList, userId, memberList);
             final ArrayList<ProjectMember> list = getProjectsMembersFromQuery(projectMembersQuery);
             return list;
         } catch (SQLException se) {
@@ -113,32 +113,7 @@ public class ProjectMemberDao {
         return null;
     }
 
-    // sample query for member 111 by fforgeadmin user (102), If by and member
-    // are same, then do not use the AND clause.
-    // select gjr.group_id, gjr.user_id, gjr.request_id, gjr.request_date,
-    // gjr.accept_date, gjr.reject_date, u.firstname, u.lastname
-    // from group_join_request gjr
-    // join users u on gjr.user_id = u.user_id
-    // where u.user_id = 111
-    // AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join
-    // pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-    public ArrayList<ProjectMember> getProjectsForMember(String memberIdString, Boolean accept, String userEPPN)
-            throws DMCServiceException {
-
-        try {
-            int userId = UserDao.getUserID(userEPPN);
-            int memberId = Integer.parseInt(memberIdString);
-
-            String projectMembersQuery = createGetProjectMembersQuery(accept, null, userId, memberId);
-
-            final ArrayList<ProjectMember> list = getProjectsMembersFromQuery(projectMembersQuery);
-            return list;
-        } catch (SQLException se) {
-            throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
-        }
-    }
-
-    private String createGetProjectMembersQuery(Boolean accept, Integer projectId, Integer userId, Integer memberId) {
+    private String createGetProjectMembersQuery(Boolean accept, String projectList, Integer userId, String memberList) {
         // requesting user must be administrator of the project to get the
         // list of members, unless user is requesting own membership.
 
@@ -150,15 +125,23 @@ public class ProjectMemberDao {
                 + userId + " and adr.role_name = 'Admin')";
 
         ArrayList<String> clauses =  new ArrayList<String>();
-        if (null != projectId ) {
-            clauses.add("gjr.group_id = " + projectId);
+        if (null != projectList ) {
+            if (isListValid(projectList)) {
+                clauses.add("gjr.group_id in (" + projectList + ")");
+            } else {
+                throw new DMCServiceException(DMCError.BadURL, "invalid projects: " + projectList);
+            }
         }
-        if (null != memberId) {
-            clauses.add("u.user_id = " + memberId);
+        if (null != memberList) {
+            if (isListValid(memberList)) {
+                clauses.add("u.user_id in (" + memberList + ")");
+            } else {
+                throw new DMCServiceException(DMCError.BadURL, "invalid projects: " + projectList);
+            }
         }
-        if (null == projectId && null == memberId) {
+        if (null == projectList && null == memberList) {
             clauses.add(adminRequiredClause);
-        } else if (memberId != userId) {
+        } else if (!isIdInList(Integer.toString(userId), memberList)) {
             clauses.add(adminRequiredClause);
         }
 
@@ -176,26 +159,26 @@ public class ProjectMemberDao {
         return projectMembersQuery;
     }
 
-    // sample query for fforgeadmin user (102)
-    // select gjr.group_id, gjr.user_id, gjr.request_id, gjr.request_date,
-    // gjr.accept_date, gjr.reject_date, u.firstname, u.lastname
-    // from group_join_request gjr
-    // join users u on gjr.user_id = u.user_id
-    // where gjr.group_id = 6
-    // AND gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join
-    // pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 102)
-    public ArrayList<ProjectMember> getMembersForProject(String projectIdString, Boolean accept, String userEPPN)
-            throws DMCServiceException {
-        try {
-            int userId = UserDao.getUserID(userEPPN);
-            int projectId = Integer.parseInt(projectIdString);
-
-            final String projectMembersQuery = createGetProjectMembersQuery(accept, projectId, userId, null);
-            final ArrayList<ProjectMember> list = getProjectsMembersFromQuery(projectMembersQuery);
-            return list;
-        } catch (SQLException e) {
-            throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+    private boolean isListValid(String list) {
+        String[] ids = list.split(",");
+        for (String id : ids) {
+            try {
+                Integer.parseInt(id);       // checking that we don't throw NumberFormatException, if ids become GUIDs, would need a different check
+            } catch (Exception e) {
+                return false;
+            }
         }
+        return true;
+    }
+
+    private boolean isIdInList(String id, String list) {
+        if (null != list) {
+            final String[] items = list.split(",");
+            for (String item : items) {
+                if (item.equals(id)) return true;
+            }
+        }
+        return false;
     }
 
     private ArrayList<ProjectMember> getProjectsMembersFromQuery(String query) {
@@ -505,7 +488,7 @@ public class ProjectMemberDao {
 
     // this is a helper method and should be called from another method that wraps it in a transaction
     private ProjectMember findMemberRequest(int memberId, int projectId, int fromUserId) throws SQLException {
-        String projectMembersQuery = createGetProjectMembersQuery(null, projectId, fromUserId, memberId);
+        String projectMembersQuery = createGetProjectMembersQuery(null, Integer.toString(projectId), fromUserId, Integer.toString(memberId));
 
         final ArrayList<ProjectMember> projectMemberList = getProjectsMembersFromQuery(projectMembersQuery);
         for (ProjectMember member : projectMemberList) {

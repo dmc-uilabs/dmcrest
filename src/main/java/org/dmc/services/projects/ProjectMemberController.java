@@ -45,8 +45,8 @@ public class ProjectMemberController {
     
     @RequestMapping(value = "/projects_members", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getProjectMembers(
-            @RequestParam(value = "projectId", required = false) String projectIdString,
-            @RequestParam(value = "profileId", required = false) String profileIdString, 
+            @RequestParam(value = "projectId", required = false) String projectList,
+            @RequestParam(value = "profileId", required = false) String profileList,
             @RequestParam(value = "accept", required = false) Boolean accept,
             @RequestParam(value = "_limit", required = false) Integer _limit,
             @RequestParam(value = "_order", required = false) String _order,
@@ -56,15 +56,7 @@ public class ProjectMemberController {
         ServiceLogger.log(LOGTAG, "In getProjectMembers: as user " + userEPPN);
 
         try {
-            
-            if (null != projectIdString) {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectIdString, accept, userEPPN), HttpStatus.OK);
-            } else if (null != profileIdString) {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(profileIdString, accept, userEPPN), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(accept, userEPPN), HttpStatus.OK);
-            }
-            
+            return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(projectList, profileList, accept, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -122,7 +114,7 @@ public class ProjectMemberController {
             throws Exception {
         ServiceLogger.log(LOGTAG, "In getProjectsForMember: for member" + memberId + " as user " + userEPPN);
 
-        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectsForMember(memberId, new Boolean(true),  userEPPN), HttpStatus.OK);
+        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(null, memberId, new Boolean(true), userEPPN), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/projects/{projectId}/projects_members", method = RequestMethod.GET, produces = "application/json")
@@ -130,7 +122,7 @@ public class ProjectMemberController {
             throws Exception {
         ServiceLogger.log(LOGTAG, "In getMembersForProject: for project" + projectId + " as user " + userEPPN);
 
-        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getMembersForProject(projectId, new Boolean(true), userEPPN), HttpStatus.OK);
+        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(projectId, null, new Boolean(true), userEPPN), HttpStatus.OK);
     }
 
 	/**

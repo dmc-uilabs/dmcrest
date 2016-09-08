@@ -86,27 +86,18 @@ public class Models {
 	public static DMDIIMemberModel dmdiiMemberModel() throws Exception {
 		DMDIIMemberModel dmdiiMember = new DMDIIMemberModel();
 
-		List<DMDIIAreaOfExpertiseModel> areasOfExpertise = new ArrayList<DMDIIAreaOfExpertiseModel>();
+		List<AreaOfExpertiseModel> areasOfExpertise = new ArrayList<AreaOfExpertiseModel>();
 		areasOfExpertise.add(dmdiiAreaOfExpertise());
 
 		List<DMDIIMemberContactModel> contacts = new ArrayList<DMDIIMemberContactModel>();
 		contacts.add(dmdiiMemberContact());
-
-		List<DMDIIMemberCustomerModel> customers = new ArrayList<DMDIIMemberCustomerModel>();
-		customers.add(dmdiiMemberCustomer());
-
-		List<DMDIIMemberUserModel> users = new ArrayList<DMDIIMemberUserModel>();
-		users.add(dmdiiMemberUser());
 
 		dmdiiMember.setId(1000);
 		dmdiiMember.setDmdiiType(dmdiiType());
 		dmdiiMember.setOrganization(organization());
 		dmdiiMember.setStartDate("2015-11-25");
 		dmdiiMember.setExpireDate("2017-11-25");
-		dmdiiMember.setAreasOfExpertise(areasOfExpertise);
 		dmdiiMember.setContacts(contacts);
-		dmdiiMember.setCustomers(customers);
-		dmdiiMember.setUsers(users);
 		return dmdiiMember;
 	}
 
@@ -145,8 +136,8 @@ public class Models {
 		return address;
 	}
 
-	public static DMDIIAreaOfExpertiseModel dmdiiAreaOfExpertise() {
-		DMDIIAreaOfExpertiseModel dmdiiAreaOfExpertise = new DMDIIAreaOfExpertiseModel();
+	public static AreaOfExpertiseModel dmdiiAreaOfExpertise() {
+		AreaOfExpertiseModel dmdiiAreaOfExpertise = new AreaOfExpertiseModel();
 		dmdiiAreaOfExpertise.setId(1);
 		dmdiiAreaOfExpertise.setName("Additive Manufacturing");
 		return dmdiiAreaOfExpertise;
@@ -169,14 +160,6 @@ public class Models {
 		return dmdiiContactType;
 	}
 
-	public static DMDIIMemberCustomerModel dmdiiMemberCustomer() {
-		DMDIIMemberCustomerModel dmdiiMemberCustomer = new DMDIIMemberCustomerModel();
-		dmdiiMemberCustomer.setId(1);
-		dmdiiMemberCustomer.setName("Google");
-		dmdiiMemberCustomer.setLink("www.google.com");
-		return dmdiiMemberCustomer;
-	}
-
 	public static DMDIIMemberFinanceModel dmdiiMemberFinance() throws Exception {
 		DMDIIMemberFinanceModel dmdiiMemberFinance = new DMDIIMemberFinanceModel();
 		dmdiiMemberFinance.setId(1);
@@ -184,30 +167,6 @@ public class Models {
 		dmdiiMemberFinance.setAssetUrl("some_url");
 		// TODO add user here:
 		return dmdiiMemberFinance;
-	}
-
-	public static DMDIIInstituteInvolvementModel dmdiiInstituteInvolvement() throws Exception {
-		DMDIIInstituteInvolvementModel instituteInvolvement = new DMDIIInstituteInvolvementModel();
-		instituteInvolvement.setId(1);
-		instituteInvolvement.setStaticLineItem("some static line item");
-		instituteInvolvement.setDate(new java.sql.Date(format.parse("2016/05/25").getTime()));
-		return instituteInvolvement;
-	}
-
-	public static DMDIISkillModel dmdiiSkill() {
-		DMDIISkillModel skill = new DMDIISkillModel();
-		skill.setId(1);
-		skill.setTagLink("tag1");
-		skill.setTagName("taglink1");
-		return skill;
-	}
-
-	public static DMDIIMemberUserModel dmdiiMemberUser() {
-		DMDIIMemberUserModel dmdiiMemberUser = new DMDIIMemberUserModel();
-		dmdiiMemberUser.setId(1);
-		dmdiiMemberUser.setUser(user());
-		dmdiiMemberUser.setRole(dmdiiRole());
-		return dmdiiMemberUser;
 	}
 
 	public static DMDIIRoleModel dmdiiRole() {

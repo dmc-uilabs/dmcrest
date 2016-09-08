@@ -5,6 +5,7 @@ import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
@@ -166,6 +167,14 @@ public class UserController {
 		return response;
 	}
 
+	@RequestMapping(value = "/users/{userId}/organizations", method = RequestMethod.PUT)
+	public OrganizationUserModel changeOrganization(@PathVariable Integer userId, @RequestBody OrganizationUserModel orgUser) {
+		if(!userId.equals(orgUser.getUserId())) {
+			throw new RuntimeException("User passed in request doesn't match user that's getting updated.");
+		}
+
+		return orgUserService.changeOrganization(orgUser);
+	}
 
     /*
     @RequestMapping(value = "/role/update", method = RequestMethod.POST)

@@ -67,7 +67,9 @@ public class CompanySkillController {
 			@PathVariable("companyID") int companyID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
 			throws Exception {
-
+		if(companyID < 1)
+			return null;
+				
 		return new ResponseEntity<ArrayList<CompanySkill>>(this.skillDao.getCompanySkills(userEPPN, companyID), HttpStatus.OK);
 	}
 }
