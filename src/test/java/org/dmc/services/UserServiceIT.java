@@ -49,8 +49,11 @@ public class UserServiceIT {
 
 	@Before
 	public void before() {
-		onboardingStatus = Entities.onboardingStatus();
 		user = Entities.user();
+		user = userRepo.saveAndFlush(user);
+
+		onboardingStatus = Entities.onboardingStatus(user.getId());
+		user.setOnboarding(onboardingStatus);
 		user = userRepo.saveAndFlush(user);
 
 		final Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
