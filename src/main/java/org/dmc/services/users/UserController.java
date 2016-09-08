@@ -55,16 +55,8 @@ public class UserController {
     {
     	ServiceLogger.log(logTag, "In createUser: " + userEPPN);
 
-    	//RoleDao.createRole creates a new Role in the database using the provided POST params
-    	//it instantiates a new role with these params like i.e new Role(param.name, param.title.....)
-    	//this controller in turn returns this new Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
-
-		//        return userDAO.createUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
 		return userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail)
 				.getId();
-
-    	//Create role and update db through JDBC then return role using new role's id
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.GET)
@@ -74,16 +66,7 @@ public class UserController {
                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
-
-		//        User user = userDAO.getUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
-
-		UserModel model = userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
-		//
-		//        UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userEPPN);
-		//        user.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
-		//        user.setRoles(userPrincipal.getAllRoles());
-
-		return model;
+		return userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
 	}
 
 	@RequestMapping(value = "/user", produces = { "application/json" }, method = RequestMethod.PATCH)
@@ -101,7 +84,6 @@ public class UserController {
 			ServiceLogger.log(logTag, e.getMessage());
 			httpStatusCode = HttpStatus.BAD_REQUEST.value();
 		}
-
 		return new ResponseEntity<UserModel>(userModel, HttpStatus.valueOf(httpStatusCode));
 	}
 
@@ -172,29 +154,11 @@ public class UserController {
 		if(!userId.equals(orgUser.getUserId())) {
 			throw new RuntimeException("User passed in request doesn't match user that's getting updated.");
 		}
-
 		return orgUserService.changeOrganization(orgUser);
 	}
 
-    /*
-    @RequestMapping(value = "/role/update", method = RequestMethod.POST)
-    @ResponseBody
-    public String updateRole(@RequestParam(value="id", defaultValue="-1") int id) {
-    	System.out.println("In createRole role: " + id);
-
-
-    	//RoleDao.createRole updates the Role in the database identified by id using the provided POST params
-    	//it creates an instance of this role i.e new Role(param.id, param.name, param.title.....)
-    	//this controller in turn returns this updated Role instance to the reques using spring's Jackson which
-    	//converts the response to JSON
-
-    	return RoleDao.updateRole(params);
-    }
-    */
-
     @ExceptionHandler(Exception.class)
     public ErrorMessage handleException(Exception ex) {
-        // prepare responseEntity
         ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
     	ServiceLogger.log(logTag, ex.getMessage() + " Error message " + result);
     	return result;
