@@ -28,6 +28,8 @@ public class BaseIT {
     private int serverPort;
 
     protected String userEPPN;
+    protected static final String APP_TOKEN_HEADER = "APP_TOKEN";
+    protected static final String APP_TOKEN = "testtoken";
 
     @Before
     public void setup() {
