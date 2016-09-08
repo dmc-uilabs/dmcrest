@@ -121,6 +121,12 @@ public class DMDIIProjectController {
 	public DMDIIProjectModel saveDMDIIProject (@RequestBody DMDIIProjectModel project) {
 		return dmdiiProjectService.save(project);
 	}
+	
+	@RequestMapping(value = "/dmdiiProject", params = "dmdiiProjectId", method = RequestMethod.DELETE)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	public void delete(@RequestParam("dmdiiProjectId") Integer dmdiiProjectId) {
+		dmdiiProjectService.delete(dmdiiProjectId);
+	}
 
 	@RequestMapping(value = "/dmdiiProject/news", params = "limit", method = RequestMethod.GET)
 	public List<DMDIIProjectNewsModel> getDmdiiProjectNews(@RequestParam("limit") Integer limit) {
