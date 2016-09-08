@@ -33,8 +33,7 @@ public class AccountsIT extends BaseIT {
 	public void testAccountGet_UnknownUser() {
 		String unknownUserID = Integer.toString(Integer.MAX_VALUE);
 
-		given().header("AJP_eppn", knownUserEPPN)
-				.header(APP_TOKEN_HEADER, APP_TOKEN).expect().statusCode(401).when().get("/accounts/" + unknownUserID);
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(401).when().get("/accounts/" + unknownUserID);
 
 		// not json is returned on 401. If it is, then the check below should be
 		// perfromed.
@@ -45,8 +44,7 @@ public class AccountsIT extends BaseIT {
 
 	@Test
 	public void testAccountGet_KnownUser() {
-		given().header("AJP_eppn", knownUserEPPN)
-				.header(APP_TOKEN_HEADER, APP_TOKEN).expect().statusCode(200).when().get("/accounts/" + knownUserID).then()
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(200).when().get("/accounts/" + knownUserID).then()
 				.body(matchesJsonSchemaInClasspath("Schemas/userAccountSchema.json"));
 
 		// check results
@@ -61,8 +59,7 @@ public class AccountsIT extends BaseIT {
 	public void testAccountGet_MismatchedUserEPPNAndUserId() {
 		String unknownUserID = Integer.toString(Integer.MAX_VALUE);
 
-		given().header("AJP_eppn", knownUserEPPN)
-				.header(APP_TOKEN_HEADER, APP_TOKEN).expect().statusCode(401).when().get("/accounts/" + unknownUserID);
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(401).when().get("/accounts/" + unknownUserID);
 
 		// not json is returned on 401. If it is, then the check below should be
 		// perfromed.
@@ -87,10 +84,9 @@ public class AccountsIT extends BaseIT {
 		userAccountJson.put("displayName", "NEWDisplayName" + unique);
 
 		given().header("Content-type", "application/json").header("AJP_eppn", "userEPPN" + unique)
-				.header(APP_TOKEN_HEADER, APP_TOKEN)
 				.body(userAccountJson.toString()).expect().statusCode(401). // Unauthorized
-				// access
-						when().patch("/accounts/1" + userAccountJson.getString("id"));
+																			// access
+				when().patch("/accounts/1" + userAccountJson.getString("id"));
 
 		// check results
 	}
@@ -110,7 +106,6 @@ public class AccountsIT extends BaseIT {
 		// userAccountJson: " + userAccountJson.toString());
 
 		UserAccount patchedUserAccount = given().header("Content-type", "application/json")
-				.header(APP_TOKEN_HEADER, APP_TOKEN)
 				.header("AJP_eppn", "userEPPN" + unique).body(userAccountJson.toString()).expect().statusCode(200)
 				.when().patch("/accounts/" + userAccountJson.getString("id")).as(UserAccount.class);
 
@@ -135,12 +130,11 @@ public class AccountsIT extends BaseIT {
 	}
 
 	private User getUser(String uniqueString) {
-		given().header("Content-type", "text/plain").header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("AJP_eppn", "userEPPN" + uniqueString)
+		given().header("Content-type", "text/plain").header("AJP_eppn", "userEPPN" + uniqueString)
 				.header("AJP_givenName", "userGivenName" + uniqueString).header("AJP_sn", "userSurname" + uniqueString)
 				.header("AJP_displayName", "userDisplayName" + uniqueString)
 				.header("AJP_mail", "userEmail" + uniqueString).expect().statusCode(200).when().post("/users/create");
-
+				
 		User user = given().header("Content-type", "text/plain").header("AJP_eppn", "userEPPN" + uniqueString)
 				.header("AJP_givenName", "userGivenName" + uniqueString).header("AJP_sn", "userSurname" + uniqueString)
 				.header("AJP_displayName", "userDisplayName" + uniqueString)
@@ -152,8 +146,7 @@ public class AccountsIT extends BaseIT {
 
 	private JSONObject getUserAccountJson(String uniqueString, int userAccountId) {
 
-		String userAccountJsonString = given().header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("AJP_eppn", "userEPPN" + uniqueString).expect().statusCode(200)
+		String userAccountJsonString = given().header("AJP_eppn", "userEPPN" + uniqueString).expect().statusCode(200)
 				.when().get("/accounts/" + userAccountId).body().asString();
 
 		JSONObject userAccountJson = new JSONObject(userAccountJsonString);
@@ -162,8 +155,7 @@ public class AccountsIT extends BaseIT {
 	}
 
 	private UserAccount getUserAccount(String uniqueString, int userAccountId) {
-		UserAccount userAccount = given().header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("AJP_eppn", "userEPPN" + uniqueString).expect().statusCode(200).when()
+		UserAccount userAccount = given().header("AJP_eppn", "userEPPN" + uniqueString).expect().statusCode(200).when()
 				.get("/accounts/" + userAccountId).as(UserAccount.class);
 
 		return userAccount;
@@ -176,8 +168,7 @@ public class AccountsIT extends BaseIT {
 	public void testAccountGet_AccountServers() {
 		String accountID = "102"; // This is the accountID of alias=baseDOME in the servers table (first two entries)
 
-		List<UserAccountServer> receivedAccountServers = Arrays.asList(given().header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("Content-type", "application/json").header("AJP_eppn", userEPPN)
+		List<UserAccountServer> receivedAccountServers = Arrays.asList(given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
 				.expect().statusCode(HttpStatus.OK.value()).when().get("/accounts/" + accountID + "/account_servers").as(UserAccountServer[].class));
 
 		assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
@@ -192,14 +183,13 @@ public class AccountsIT extends BaseIT {
 				(receivedAccountServers.get(0).getStatus().equals("offline")));
 
 	}
-
+	
 	@Test
 	public void testAccountGet_AccountServersWithParameters() {
 		String accountID = "102"; // This is the accountID of alias=baseDOME in the servers table (first two entries)
 
 		List<UserAccountServer> receivedAccountServers = Arrays.asList(
-				given().header("Content-type", "application/json").header(APP_TOKEN_HEADER, APP_TOKEN)
-						.header("AJP_eppn", userEPPN).param("_limit", 1).param("_order", "DESC").expect()
+				given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).param("_limit", 1).param("_order", "DESC").expect()
 						.statusCode(HttpStatus.OK.value()).when().get("/accounts/" + accountID + "/account_servers").as(UserAccountServer[].class));
 
 		assertTrue("testAccountGet_AccountServers: Account server user_id values are not equal",
@@ -215,8 +205,7 @@ public class AccountsIT extends BaseIT {
 
 	@Test
 	public void testAccount_account_Notification_Settings() {
-		given().header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/accounts/" + knownUserID + "/account-notification-settings");
 	}
 
@@ -227,13 +216,12 @@ public class AccountsIT extends BaseIT {
 
 	@Test
 	public void testAccountNotificationSettingGet_NotificationSettingID() {
-		given().header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/account-notification-settings/" + notificationSettingID);
 
 	}
-
-
+	
+	
 	/**
 	 * Tests for
 	 * <code> PATCH /accounts/{accountID}/account-notification-settings/NotificationSettingID </code>
@@ -250,13 +238,12 @@ public class AccountsIT extends BaseIT {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 		given().
-				header("Content-type", "application/json").
-				header(APP_TOKEN_HEADER, APP_TOKEN).
-				header("AJP_eppn", knownUserEPPN).
-				body(postedNotificationSetting).
-				expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+		header("Content-type", "application/json").
+		header("AJP_eppn", knownUserEPPN).
+		body(postedNotificationSetting).
+		expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.patch("/account-notification-settings/" + notificationSettingID);
 
 	}
@@ -267,20 +254,18 @@ public class AccountsIT extends BaseIT {
 
 	@Test
 	public void testAccount_accountNotificationCategories() {
-		given().header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/account-notification-categories");
 	}
 
-
+	
 	/**
 	 * Tests for <code> get /accounts/{accountID}/favorite_products </code>
 	 **/
 
 	@Test
 	public void testAccount_FavoriteProducts() {
-		given().header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/accounts/" + knownUserID + "/favorite_products");
 	}
 
@@ -290,8 +275,7 @@ public class AccountsIT extends BaseIT {
 
 	@Test
 	public void testAccount_FollowingCompanies() {
-		given().header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/accounts/" + knownUserID + "/following_companies");
 	}
 
@@ -302,8 +286,7 @@ public class AccountsIT extends BaseIT {
 
 	@Test
 	public void testAccount_FollowingMembers() {
-		given().header(APP_TOKEN_HEADER, APP_TOKEN)
-				.header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/accounts/" + knownUserID + "/following_members");
 	}
 
