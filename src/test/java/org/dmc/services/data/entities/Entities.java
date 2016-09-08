@@ -1,35 +1,47 @@
 package org.dmc.services.data.entities;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.dmc.services.dmdiitype.DMDIIType;
+
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Random;
 
 public class Entities {
-	
-	public static final String PROJECT_TITLE = "ProjectTitle";
-	public static final String PROJECT_SUMMARY = "ProjectSummary";
-	public static final String THRUST_CODE = "ThrustCode";
-	public static final String FOCUS_AREA_NAME = "FocusAreaName";
-	public static final String STATUS_NAME = "StatusName";
-	public static final String USER_NAME = "UserName";
-	public static final String FIRST_NAME = "FirstName";
-	public static final String LAST_NAME = "LastName";
-	public static final String EMAIL = "email@email.com";
-	public static final String ADDRESS = "Address";
-	public static final String PHONE = "Phone";
-	public static final String LOCATION = "Location";
 
+	private static final Calendar today = GregorianCalendar.getInstance();
+	private static final Random RANDOM = new Random();
 	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+
+	private static final String ADDRESS = "Address";
+	private static final String EMAIL = "email@email.com";
+	private static final String FIRST_NAME = "FirstName";
+	private static final String FOCUS_AREA_NAME = "FocusAreaName";
+	private static final String INDUSTRY = "Industry";
+	private static final String LAST_NAME = "LastName";
+	private static final String LOCATION = "Location";
+	private static final String PHONE = "Phone";
+	private static final String PROJECT_SUMMARY = "ProjectSummary";
+	private static final String PROJECT_TITLE = "ProjectTitle";
+	private static final String STATUS_NAME = "StatusName";
+	private static final String THRUST_CODE = "ThrustCode";
+	private static final String USER_NAME = "UserName";
 	
 	public static DMDIIProject dmdiiProject() throws Exception {
 		DMDIIProject dmdiiProject = new DMDIIProject();
 		
 		List<DMDIIMember> contributingCompanies = new ArrayList<DMDIIMember>();
 		contributingCompanies.add(dmdiiMember());
-		
-		dmdiiProject.setId(2000);
+
+		//		dmdiiProject.setId(2000);
 		dmdiiProject.setPrimeOrganization(dmdiiMember());
 		dmdiiProject.setPrincipalInvestigator(dmdiiProjectContact1());
 		dmdiiProject.setProjectStatus(projectStatus());
@@ -55,8 +67,8 @@ public class Entities {
 		
 		List<DMDIIMember> contributingCompanies = new ArrayList<DMDIIMember>();
 		contributingCompanies.add(dmdiiMember());
-		
-		dmdiiProject.setId(2001);
+
+		//		dmdiiProject.setId(2001);
 		dmdiiProject.setPrimeOrganization(dmdiiMember());
 		dmdiiProject.setPrincipalInvestigator(dmdiiProjectContact1());
 		dmdiiProject.setProjectStatus(projectStatus());
@@ -82,8 +94,8 @@ public class Entities {
 		
 		List<DMDIIMember> contributingCompanies = new ArrayList<DMDIIMember>();
 		contributingCompanies.add(dmdiiMember());
-		
-		dmdiiProject.setId(2002);
+
+		//		dmdiiProject.setId(2002);
 		dmdiiProject.setPrimeOrganization(dmdiiMember1());
 		dmdiiProject.setPrincipalInvestigator(dmdiiProjectContact1());
 		dmdiiProject.setProjectStatus(projectStatus());
@@ -106,8 +118,8 @@ public class Entities {
 
 	public static DMDIIProjectThrust projectThrust() {
 		DMDIIProjectThrust dmdiiProjectThrust = new DMDIIProjectThrust();
-		
-		dmdiiProjectThrust.setId(2000);
+
+		//		dmdiiProjectThrust.setId(2000);
 		dmdiiProjectThrust.setCode(THRUST_CODE);
 		
 		return dmdiiProjectThrust;
@@ -115,8 +127,8 @@ public class Entities {
 
 	public static DMDIIProjectFocusArea projectFocusArea() {
 		DMDIIProjectFocusArea dmdiiProjectFocusArea = new DMDIIProjectFocusArea();
-		
-		dmdiiProjectFocusArea.setId(2000);
+
+		//		dmdiiProjectFocusArea.setId(2000);
 		dmdiiProjectFocusArea.setName(FOCUS_AREA_NAME);
 		
 		return dmdiiProjectFocusArea;
@@ -124,8 +136,8 @@ public class Entities {
 
 	public static DMDIIProjectStatus projectStatus() {
 		DMDIIProjectStatus dmdiiProjectStatus = new DMDIIProjectStatus();
-		
-		dmdiiProjectStatus.setId(2000);
+
+		//		dmdiiProjectStatus.setId(2000);
 		dmdiiProjectStatus.setName(STATUS_NAME);
 		
 		return dmdiiProjectStatus;
@@ -134,16 +146,66 @@ public class Entities {
 	public static User user() {
 		User user = new User();
 
-		//		user.setId(2000);
-		user.setUsername(USER_NAME);
-		user.setFirstName(FIRST_NAME);
-		user.setLastName(LAST_NAME);
-		user.setEmail(EMAIL);
-		user.setAddress(ADDRESS);
-		user.setPhone(PHONE);
-		user.setUserContactInfo(userContactInfo());
-		user.setOnboarding(onboardingStatus());
+		user.setUsername(RandomStringUtils.randomAlphabetic(10));
+		user.setTermsAndCondition(termsAndConditions());
+		user.setPassword(RandomStringUtils.randomAlphabetic(10));
+		user.setRealname(RandomStringUtils.randomAlphabetic(10));
+		user.setTitle(RandomStringUtils.randomAlphabetic(10));
+		user.setFirstName(RandomStringUtils.randomAlphabetic(10));
+		user.setLastName(RandomStringUtils.randomAlphabetic(10));
+		user.setEmail(RandomStringUtils.randomAlphabetic(10));
+		user.setAddress(RandomStringUtils.randomAlphabetic(10));
+		user.setPhone(RandomStringUtils.randomAlphabetic(10));
+		user.setImage(RandomStringUtils.randomAlphabetic(10));
+		user.setAboutMe(RandomStringUtils.randomAlphabetic(10));
+		user.setResume(RandomStringUtils.randomAlphabetic(10));
+		user.setAddDate(RANDOM.nextLong());
+		//		user.setUserContactInfo(userContactInfo());
+
+		//		final OrganizationUser organizationUser = organizationUser(organization(), user);
+		//		user.setOrganizationUser(organizationUser);
+		//		user.setRoles(userRoleAssignments(organizationUser));
+
 		return user;
+	}
+
+	public static User user(UserContactInfo userContactInfo) {
+		User user = user();
+		user.setUserContactInfo(userContactInfo);
+		return user;
+	}
+
+	public static OrganizationUser organizationUser(Organization organization, User user) {
+		OrganizationUser ou = new OrganizationUser();
+		ou.setUser(user);
+		ou.setOrganization(organization);
+		ou.setIsVerified(true);
+		return ou;
+	}
+
+	private static List<UserRoleAssignment> userRoleAssignments(OrganizationUser organizationUser) {
+		List<UserRoleAssignment> roles = new ArrayList<>();
+		roles.add(userRoleAssignment(organizationUser));
+		return roles;
+	}
+
+	private static UserRoleAssignment userRoleAssignment(OrganizationUser organizationUser) {
+		UserRoleAssignment assignment = new UserRoleAssignment();
+		assignment.setUser(organizationUser.getUser());
+		assignment.setOrganization(organizationUser.getOrganization());
+		assignment.setRole(role());
+		return assignment;
+	}
+
+	private static Role role() {
+		Role role = new Role();
+		role.setRole(RandomStringUtils.randomAlphabetic(5));
+		return role;
+	}
+
+	private static java.util.Date termsAndConditions() {
+		LocalDate localDate = LocalDate.now().minusDays(RANDOM.nextInt(100));
+		return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 
 	public static UserContactInfo userContactInfo() {
@@ -159,7 +221,7 @@ public class Entities {
 
 	public static UserPublicContactInfo userPublicContactInfo() {
 		UserPublicContactInfo publicContactInfo = new UserPublicContactInfo();
-		publicContactInfo.setId(1);
+		//		publicContactInfo.setId(1);
 		publicContactInfo.setEmail("public@email.com");
 		publicContactInfo.setPhone("4444444444");
 		publicContactInfo.setLocation("Ann Arbor, MI");
@@ -168,7 +230,7 @@ public class Entities {
 
 	public static UserPrivateContactInfo userPrivateContactInfo() {
 		UserPrivateContactInfo privateContactInfo = new UserPrivateContactInfo();
-		privateContactInfo.setId(1);
+		//		privateContactInfo.setId(1);
 		privateContactInfo.setEmail("private@email.com");
 		privateContactInfo.setPhone("4444444444");
 		privateContactInfo.setLocation("Ann Arbor, MI");
@@ -184,14 +246,14 @@ public class Entities {
 		return memberPortalContactInfo;
 	}
 
-	public static DMDIIMember dmdiiMember() throws Exception {
+	public static DMDIIMember dmdiiMember() throws ParseException {
 		DMDIIMember dmdiiMember = new DMDIIMember();
 
-		List<DMDIIAreaOfExpertise> areasOfExpertise = new ArrayList<DMDIIAreaOfExpertise>();
-		areasOfExpertise.add(dmdiiAreaOfExpertise());
+		//		List<DMDIIAreaOfExpertise> areasOfExpertise = new ArrayList<DMDIIAreaOfExpertise>();
+		//		areasOfExpertise.add(dmdiiAreaOfExpertise());
 
-		List<DMDIIMemberContact> contacts = new ArrayList<DMDIIMemberContact>();
-		contacts.add(dmdiiMemberContact());
+		//		List<DMDIIMemberContact> contacts = new ArrayList<DMDIIMemberContact>();
+		//		contacts.add(dmdiiMemberContact());
 
 		List<DMDIIMemberCustomer> customers = new ArrayList<DMDIIMemberCustomer>();
 		customers.add(dmdiiMemberCustomer());
@@ -199,14 +261,14 @@ public class Entities {
 		List<DMDIIMemberUser> users = new ArrayList<DMDIIMemberUser>();
 		users.add(dmdiiMemberUser());
 
-		dmdiiMember.setId(1000);
+		//		dmdiiMember.setId(1000);
 		dmdiiMember.setDmdiiType(dmdiiType());
 		dmdiiMember.setOrganization(organization());
 		dmdiiMember.setStartDate(new Date(format.parse("2015/11/25").getTime()));
 		dmdiiMember.setExpireDate(new Date(format.parse("2017/11/25").getTime()));
-		dmdiiMember.setAreasOfExpertise(areasOfExpertise);
-		dmdiiMember.setDesiredAreasOfExpertise(areasOfExpertise);
-		dmdiiMember.setContacts(contacts);
+		//		dmdiiMember.setAreasOfExpertise(areasOfExpertise);
+		//		dmdiiMember.setDesiredAreasOfExpertise(areasOfExpertise);
+		//		dmdiiMember.setContacts(contacts);
 		dmdiiMember.setCustomers(customers);
 		dmdiiMember.setUsers(users);
 		return dmdiiMember;
@@ -219,15 +281,15 @@ public class Entities {
 		areasOfExpertise.add(dmdiiAreaOfExpertise());
 
 		List<DMDIIMemberContact> contacts = new ArrayList<DMDIIMemberContact>();
-		contacts.add(dmdiiMemberContact());
+		//		contacts.add(dmdiiMemberContact());
 
 		List<DMDIIMemberCustomer> customers = new ArrayList<DMDIIMemberCustomer>();
 		customers.add(dmdiiMemberCustomer());
 
-		List<DMDIIMemberUser> users = new ArrayList<DMDIIMemberUser>();
-		users.add(dmdiiMemberUser());
+		//		List<DMDIIMemberUser> users = new ArrayList<DMDIIMemberUser>();
+		//		users.add(dmdiiMemberUser());
 
-		dmdiiMember.setId(1001);
+		//		dmdiiMember.setId(1001);
 		dmdiiMember.setDmdiiType(dmdiiType());
 		dmdiiMember.setOrganization(organization());
 		dmdiiMember.setStartDate(new Date(format.parse("2015/11/25").getTime()));
@@ -236,39 +298,85 @@ public class Entities {
 		dmdiiMember.setDesiredAreasOfExpertise(areasOfExpertise);
 		dmdiiMember.setContacts(contacts);
 		dmdiiMember.setCustomers(customers);
+		//		dmdiiMember.setUsers(users);
+		return dmdiiMember;
+	}
+
+	public static DMDIIMember dmdiiMember(Organization org, DMDIIType dmdiiType, DMDIIMemberUser dmdiiMemberUser)
+			throws ParseException {
+		List<DMDIIMemberUser> users = new ArrayList<DMDIIMemberUser>();
+		users.add(dmdiiMemberUser);
+
+		final DMDIIMember dmdiiMember = dmdiiMember();
+		dmdiiMember.setOrganization(org);
+		dmdiiMember.setDmdiiType(dmdiiType);
 		dmdiiMember.setUsers(users);
+		dmdiiMember.setStartDate(getDateOneMonthAgo());
+		dmdiiMember.setExpireDate(getDateOneMonthInFuture());
 		return dmdiiMember;
 	}
 
 	public static DMDIIType dmdiiType() {
 		DMDIIType dmdiiType = new DMDIIType();
-		dmdiiType.setId(1);
+		//		dmdiiType.setId(1);
 		dmdiiType.setTier(1);
 		dmdiiType.setDmdiiTypeCategory(dmdiiTypeCategory());
 		return dmdiiType;
 	}
 
+	public static DMDIIType dmdiiType(DMDIITypeCategory dmdiiTypeCategory) {
+		DMDIIType dmdiiType = dmdiiType();
+		dmdiiType.setDmdiiTypeCategory(dmdiiTypeCategory);
+		return dmdiiType;
+	}
+
 	public static DMDIITypeCategory dmdiiTypeCategory() {
 		DMDIITypeCategory dmdiiTypeCategory = new DMDIITypeCategory();
-		dmdiiTypeCategory.setId(1);
+		//		dmdiiTypeCategory.setId(1);
 		dmdiiTypeCategory.setCategory("Industry");
 		return dmdiiTypeCategory;
 	}
 
 	public static Organization organization() {
-		Organization organization = new Organization();
-		organization.setId(1000);
-		organization.setAccountId(1000);
-		organization.setName("Test Company");
-		organization.setLocation("Chicago, IL");
-		organization.setDivision("Test Division");
-		organization.setAddress(address());
-		return organization;
+		Organization o = new Organization();
+		o.setAccountId(RANDOM.nextInt());
+		o.setName(RandomStringUtils.randomAlphabetic(10));
+		o.setLocation(RandomStringUtils.randomAlphabetic(10));
+		o.setDescription(RandomStringUtils.randomAlphabetic(10));
+		o.setDivision(RandomStringUtils.randomAlphabetic(10));
+		o.setIndustry(RandomStringUtils.randomAlphabetic(10));
+		o.setNaicsCode(RandomStringUtils.randomAlphabetic(10));
+		o.setRdFocus(RandomStringUtils.randomAlphabetic(10));
+		o.setCustomers(RandomStringUtils.randomAlphabetic(10));
+		o.setAwards(RandomStringUtils.randomAlphabetic(10));
+		o.setTechExpertise(RandomStringUtils.randomAlphabetic(10));
+		o.setToolsSoftwareEquipMach(RandomStringUtils.randomAlphabetic(10));
+		o.setPostCollaboration(RandomStringUtils.randomAlphabetic(10));
+		o.setCollaborationInterest(RandomStringUtils.randomAlphabetic(10));
+		o.setPastProjects(RandomStringUtils.randomAlphabetic(10));
+		o.setUpcomingProjectInterests(RandomStringUtils.randomAlphabetic(10));
+		o.setEmail(RandomStringUtils.randomAlphabetic(10));
+		o.setPhone(RandomStringUtils.randomAlphabetic(10));
+		o.setWebsite(RandomStringUtils.randomAlphabetic(10));
+		o.setSocialMediaLinkedin(RandomStringUtils.randomAlphabetic(10));
+		o.setSocialMediaTwitter(RandomStringUtils.randomAlphabetic(10));
+		o.setSocialMediaInthenews(RandomStringUtils.randomAlphabetic(10));
+		o.setPerferedCommMethod(RandomStringUtils.randomAlphabetic(10));
+		o.setCategoryTier(RANDOM.nextInt());
+		o.setDateJoining(RandomStringUtils.randomAlphabetic(10));
+		o.setReasonJoining(RandomStringUtils.randomAlphabetic(10));
+		o.setFeatureImage(RANDOM.nextInt());
+		o.setLogoImage(RandomStringUtils.randomAlphabetic(10));
+		o.setFollow(RandomStringUtils.randomAlphabetic(10));
+		o.setFavoritesCount(RANDOM.nextInt());
+		o.setIsOwner(RandomStringUtils.randomAlphabetic(10));
+		o.setOwner(RandomStringUtils.randomAlphabetic(10));
+		return o;
 	}
 
 	public static Address address() {
 		Address address = new Address();
-		address.setId(1000);
+		//		address.setId(1000);
 		address.setStreetAddress1("123 Street st.");
 		address.setStreetAddress2("Apt. 2");
 		address.setCity("Chicago");
@@ -279,14 +387,14 @@ public class Entities {
 
 	public static DMDIIAreaOfExpertise dmdiiAreaOfExpertise() {
 		DMDIIAreaOfExpertise dmdiiAreaOfExpertise = new DMDIIAreaOfExpertise();
-		dmdiiAreaOfExpertise.setId(1);
+		//		dmdiiAreaOfExpertise.setId(1);
 		dmdiiAreaOfExpertise.setName("Additive Manufacturing");
 		return dmdiiAreaOfExpertise;
 	}
 
-	public static DMDIIMemberContact dmdiiMemberContact() throws Exception {
+	public static DMDIIMemberContact dmdiiMemberContact() {
 		DMDIIMemberContact dmdiiMemberContact = new DMDIIMemberContact();
-		dmdiiMemberContact.setId(1);
+		//		dmdiiMemberContact.setId(1);
 		dmdiiMemberContact.setContactType(dmdiiContactType());
 		dmdiiMemberContact.setFirstName("Thor");
 		dmdiiMemberContact.setLastName("Odinson");
@@ -296,31 +404,31 @@ public class Entities {
 
 	public static DMDIIContactType dmdiiContactType() {
 		DMDIIContactType dmdiiContactType = new DMDIIContactType();
-		dmdiiContactType.setId(1);
+		//		dmdiiContactType.setId(1);
 		dmdiiContactType.setType("primary point of contact");
 		return dmdiiContactType;
 	}
 
 	public static DMDIIMemberCustomer dmdiiMemberCustomer() {
 		DMDIIMemberCustomer dmdiiMemberCustomer = new DMDIIMemberCustomer();
-		dmdiiMemberCustomer.setId(1);
+		//		dmdiiMemberCustomer.setId(1);
 		dmdiiMemberCustomer.setName("Google");
 		dmdiiMemberCustomer.setLink("www.google.com");
 		return dmdiiMemberCustomer;
 	}
 
-	public static DMDIIMemberFinance dmdiiMemberFinance() throws Exception {
+	public static DMDIIMemberFinance dmdiiMemberFinance() {
 		DMDIIMemberFinance dmdiiMemberFinance = new DMDIIMemberFinance();
-		dmdiiMemberFinance.setId(1);
+		//		dmdiiMemberFinance.setId(1);
 		dmdiiMemberFinance.setName("finance");
 		dmdiiMemberFinance.setAssetUrl("some_url");
 		// TODO add user here:
 		return dmdiiMemberFinance;
 	}
 
-	public static DMDIIInstituteInvolvement dmdiiInstituteInvolvement() throws Exception {
+	public static DMDIIInstituteInvolvement dmdiiInstituteInvolvement() throws ParseException {
 		DMDIIInstituteInvolvement instituteInvolvement = new DMDIIInstituteInvolvement();
-		instituteInvolvement.setId(1);
+		//		instituteInvolvement.setId(1);
 		instituteInvolvement.setStaticLineItem("some static line item");
 		instituteInvolvement.setDate(new Date(format.parse("2016/05/25").getTime()));
 		return instituteInvolvement;
@@ -328,7 +436,7 @@ public class Entities {
 
 	public static DMDIISkill dmdiiSkill() {
 		DMDIISkill skill = new DMDIISkill();
-		skill.setId(1);
+		//		skill.setId(1);
 		skill.setTagLink("tag1");
 		skill.setTagName("taglink1");
 		return skill;
@@ -336,22 +444,30 @@ public class Entities {
 
 	public static DMDIIMemberUser dmdiiMemberUser() {
 		DMDIIMemberUser dmdiiMemberUser = new DMDIIMemberUser();
-		dmdiiMemberUser.setId(1);
+		//		dmdiiMemberUser.setId(1);
 		dmdiiMemberUser.setUser(user());
 		dmdiiMemberUser.setRole(dmdiiRole());
 		return dmdiiMemberUser;
 	}
 
+	public static DMDIIMemberUser dmdiiMemberUser(DMDIIMember dmdiiMember, User user, DMDIIRole dmdiiRole) {
+		DMDIIMemberUser dmdiiMemberUser = new DMDIIMemberUser();
+		dmdiiMemberUser.setDmdiiMember(dmdiiMember);
+		dmdiiMemberUser.setUser(user);
+		dmdiiMemberUser.setRole(dmdiiRole);
+		return dmdiiMemberUser;
+	}
+
 	public static DMDIIRole dmdiiRole() {
 		DMDIIRole dmdiiRole = new DMDIIRole();
-		dmdiiRole.setId(1);
-		dmdiiRole.setRole("Role");
+		//		dmdiiRole.setId(1);
+		dmdiiRole.setRole(RandomStringUtils.randomAlphabetic(6));
 		return dmdiiRole;
 	}
 	
 	public static DMDIIProjectContact dmdiiProjectContact1() {
 		DMDIIProjectContact contact = new DMDIIProjectContact();
-		contact.setId(200);
+		//		contact.setId(200);
 		contact.setFirstName(FIRST_NAME);
 		contact.setLastName(LAST_NAME);
 		contact.setEmail(EMAIL);
@@ -360,7 +476,7 @@ public class Entities {
 	
 	public static DMDIIProjectContact dmdiiProjectContact2() {
 		DMDIIProjectContact contact = new DMDIIProjectContact();
-		contact.setId(201);
+		//		contact.setId(201);
 		contact.setFirstName(FIRST_NAME + "2");
 		contact.setLastName(LAST_NAME + "2");
 		contact.setEmail(EMAIL + "2");
@@ -381,4 +497,19 @@ public class Entities {
 		status.setId(userId);
 		return status;
 	}
+
+	private static java.util.Date getDateOneMonthAgo() {
+		return getSomeOtherDate(Calendar.MONTH, -1);
+	}
+
+	private static java.util.Date getDateOneMonthInFuture() {
+		return getSomeOtherDate(Calendar.MONTH, 1);
+	}
+
+	private static java.util.Date getSomeOtherDate(int field, int amount) {
+		Calendar calendar = GregorianCalendar.getInstance();
+		calendar.add(field, amount);
+		return calendar.getTime();
+	}
+
 }
