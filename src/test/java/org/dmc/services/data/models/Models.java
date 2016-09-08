@@ -1,5 +1,7 @@
 package org.dmc.services.data.models;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -218,12 +220,19 @@ public class Models {
 	public static UserModel user() {
 		UserModel user = new UserModel();
 		user.setId(1000);
-		user.setUsername("eppn");
-		user.setFirstName("fname");
-		user.setLastName("lname");
-		user.setEmail("test@email.com");
-		user.setAddress("123 Street St.");
-		user.setPhone("1562236654");
+		user.setDisplayName(RandomStringUtils.randomAlphanumeric(10));
+		user.setUsername(RandomStringUtils.randomAlphanumeric(10));
+		user.setRealname(RandomStringUtils.randomAlphanumeric(10));
+		user.setTitle(RandomStringUtils.randomAlphanumeric(10));
+		user.setTermsConditions(true);
+		user.setFirstName(RandomStringUtils.randomAlphanumeric(10));
+		user.setLastName(RandomStringUtils.randomAlphanumeric(10));
+		user.setEmail(RandomStringUtils.randomAlphanumeric(10));
+		user.setAddress(RandomStringUtils.randomAlphanumeric(10));
+		user.setPhone(RandomStringUtils.randomAlphanumeric(10));
+		user.setImage(RandomStringUtils.randomAlphanumeric(10));
+		user.setAboutMe(RandomStringUtils.randomAlphanumeric(10));
+		user.setResume(RandomStringUtils.randomAlphanumeric(10));
 		user.setUserContactInfo(userContactInfo());
 		return user;
 	}
