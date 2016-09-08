@@ -33,6 +33,7 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			mapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
 
 			entity = copyProperties(model, new User());
+			entity.setRealname(model.getDisplayName());
 			entity.setUserContactInfo(mapper.mapToEntity(model.getUserContactInfo()));
 
 			if (model.getOrganization() != null) {
@@ -60,26 +61,37 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
 
 			model = copyProperties(entity, new UserModel());
-			model.setDMDIIMember(entity.getRoles().stream().anyMatch(this::orgIsDMDIIMember));
+			model.setDisplayName(entity.getRealname());
+
+			if (entity.getRoles() != null && !entity.getRoles().isEmpty()) {
+				model.setIsDMDIIMember(entity.getRoles().stream().anyMatch(this::orgIsDMDIIMember));
+				mapEntityRoles(entity, model);
+			} else {
+				model.setIsDMDIIMember(false);
+			}
+
 			model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
 			model.setTermsConditions(entity.getTermsAndCondition() != null);
 
-			Map<Integer, String> roles = new HashMap<>();
-
-			for (UserRoleAssignment assignment : entity.getRoles()) {
-				if (assignment.getRole().getRole().equals(SecurityRoles.SUPERADMIN)) {
-					roles.put(0, SecurityRoles.SUPERADMIN);
-					model.setDMDIIMember(true);
-				} else {
-					roles.put(assignment.getOrganization().getId(), assignment.getRole().getRole());
-				}
-			}
-			model.setRoles(roles);
 			model.setOrganization((entity.getOrganizationUser() == null) ?
 					null :
 					entity.getOrganizationUser().getOrganization().getId());
 		}
 		return model;
+	}
+
+	private void mapEntityRoles(User entity, UserModel model) {
+		Map<Integer, String> roles = new HashMap<>();
+
+		for (UserRoleAssignment assignment : entity.getRoles()) {
+			if (assignment.getRole().getRole().equals(SecurityRoles.SUPERADMIN)) {
+				roles.put(0, SecurityRoles.SUPERADMIN);
+				model.setIsDMDIIMember(true);
+			} else {
+				roles.put(assignment.getOrganization().getId(), assignment.getRole().getRole());
+			}
+		}
+		model.setRoles(roles);
 	}
 
 	private boolean orgIsDMDIIMember(UserRoleAssignment roleAssignment) {
