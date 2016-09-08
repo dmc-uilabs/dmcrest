@@ -1,5 +1,7 @@
 package org.dmc.services.data.entities;
 
+import org.dmc.services.dmdiitype.DMDIIType;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;

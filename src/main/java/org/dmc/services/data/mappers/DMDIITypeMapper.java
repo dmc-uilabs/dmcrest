@@ -1,9 +1,9 @@
 package org.dmc.services.data.mappers;
 
-import org.dmc.services.data.entities.DMDIIType;
 import org.dmc.services.data.entities.DMDIITypeCategory;
 import org.dmc.services.data.models.DMDIITypeCategoryModel;
 import org.dmc.services.data.models.DMDIITypeModel;
+import org.dmc.services.dmdiitype.DMDIIType;
 import org.springframework.stereotype.Component;
 
 @Component
