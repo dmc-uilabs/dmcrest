@@ -1,6 +1,7 @@
 package org.dmc.services;
 
 import org.postgresql.ds.PGPoolingDataSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
@@ -13,6 +14,20 @@ import javax.sql.DataSource;
 @SpringBootApplication(exclude = { SolrAutoConfiguration.class })
 public class Application extends SpringBootServletInitializer {
 
+	@Value("#{environment.DBport}")
+	private Integer dbPort;// = System.getenv("DBport");//"5432";//System.getenv("DBport");
+
+	@Value("#{environment.DBip}")
+	private String dbServerName; //54.237.192.205
+
+	private String dbName = "gforge";
+
+	@Value("#{environment.DBuser}")
+	private String dbUser;//"gforge";//System.getenv("DBuser");
+
+	@Value("#{environment.DBpass}")
+	private String dbPass;//"gforge";//System.getenv("DBpass");
+
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(Application.class);
@@ -22,14 +37,14 @@ public class Application extends SpringBootServletInitializer {
 		SpringApplication.run(Application.class, args);
 	}
 
-	@Bean
+	@Bean(destroyMethod = "close")
 	public DataSource getDataSource() {
 		PGPoolingDataSource ds = new PGPoolingDataSource();
-		ds.setUser(Config.DB_USER);
-		ds.setPassword(Config.DB_PASS);
-		ds.setServerName(Config.DB_IP);
-		ds.setPortNumber(Integer.parseInt(Config.DB_PORT));
-		ds.setDatabaseName(Config.DB_NAME);
+		ds.setUser(dbUser);
+		ds.setPassword(dbPass);
+		ds.setServerName(dbServerName);
+		ds.setPortNumber(dbPort);
+		ds.setDatabaseName(dbName);
 		return ds;
 	}
 }
