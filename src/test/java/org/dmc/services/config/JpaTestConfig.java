@@ -19,11 +19,10 @@ import javax.sql.DataSource;
  * Created by kskronek on 8/10/2016.
  */
 @Configuration
-@EnableJpaRepositories({ "org.dmc.services.data.repositories", "org.dmc.services.dmdiimember" })
+@EnableJpaRepositories({ "org.dmc.services.data.repositories", "org.dmc.services.dmdiimember",
+		"org.dmc.services.dmdiitype" })
 @EnableTransactionManagement
 public class JpaTestConfig {
-
-	private String ENTITY_PACKAGES = "org.dmc.services.data.entities";
 
 	private EmbeddedDatabase embeddedDatabase;
 
@@ -49,7 +48,7 @@ public class JpaTestConfig {
 		LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
 		entityManagerFactory.setDataSource(this.dataSource());
 		entityManagerFactory.setJpaVendorAdapter(jpaVendorAdapter);
-		entityManagerFactory.setPackagesToScan(ENTITY_PACKAGES);
+		entityManagerFactory.setPackagesToScan("org.dmc.services.data.entities", "org.dmc.services.dmdiitype");
 		return entityManagerFactory;
 	}
 
