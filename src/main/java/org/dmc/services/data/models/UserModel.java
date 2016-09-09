@@ -1,10 +1,10 @@
 package org.dmc.services.data.models;
 
+import java.util.Map;
+
 import org.dmc.services.users.UserMessages;
 import org.dmc.services.users.UserNotifications;
 import org.dmc.services.users.UserRunningServices;
-
-import java.util.Map;
 
 public class UserModel extends BaseModel {
 
@@ -212,8 +212,8 @@ public class UserModel extends BaseModel {
 		return isDMDIIMember;
 	}
 
-	public void setIsDMDIIMember(Boolean DMDIIMember) {
-		isDMDIIMember = DMDIIMember;
+	public void setIsDMDIIMember(Boolean isDMDIIMember) {
+		this.isDMDIIMember = isDMDIIMember;
 	}
 
 	public UserContactInfoModel getUserContactInfo() {
@@ -254,9 +254,5 @@ public class UserModel extends BaseModel {
 
 	public void setAccount(int account) {
 		this.account = account;
-	}
-
-	public void setIsDMDIIMember(boolean isDMDIIMember) {
-		this.isDMDIIMember = isDMDIIMember;
 	}
 }
