@@ -97,8 +97,8 @@ public class SearchQueueImpl {
     }
 
     public void stopListenerThread () {
-        if (executorService != null) {
-
+        if (searchQueueListenerThread != null) {
+            searchQueueListenerThread.stopThread();
         }
     }
 

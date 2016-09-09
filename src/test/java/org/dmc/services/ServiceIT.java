@@ -34,6 +34,7 @@ import org.dmc.services.services.UsageStats;
 import org.dmc.services.users.UserDao;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.services.*;
+import org.dmc.services.utility.CommonUtils;
 import org.dmc.services.utility.TestUserUtil;
 
 import org.junit.Before;
@@ -137,36 +138,17 @@ public class ServiceIT extends BaseIT {
         // what other things can be changed?
         // service type
         // Publish a service - not sure if it calls patch or something else.
-        Service service = createNewServiceObjectToPost();    
-        ValidatableResponse response =
-            given().
-                header("Content-type", APPLICATION_JSON_VALUE).
-                header("AJP_eppn", userEPPN).
-                body(service).
-            expect().
-                statusCode(OK.value()).
-            when().
-                post(SERVICE_LIST_RESOURCE).
-            then().
-                body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));;
-
-        String jsonResponse = response.extract().asString();
-        ServiceLogger.log(logTag, "response = " + jsonResponse);
-
-        ObjectMapper mapper = new ObjectMapper();
-        Service patchService = null;
-        try {
-            patchService = mapper.readValue(jsonResponse, Service.class);
-        } catch (Exception e) {
-            fail("unable to map response to Service object: " + e.getMessage());
-        }
+        Service service = CommonUtils.createNewServiceObjectToPost("junit service test", "junit service test", userEPPN,
+                                                                   "service type", "service specifications", "1");
+        
+        Service patchService = CommonUtils.createService(userEPPN, service);
 
         // make sure we send the patchService as the body
         // 1 - that is the object that we are changing the description on
         // 2 - that is the object that has the serviceId set
         patchService.setDescription(patchService.getDescription() + " - now patching");
         ServiceLogger.log(logTag, "testServicePatch_ServiceId: patch url = " + SERVICE_RESOURCE + " + id = " + patchService.getId());
-        response =
+        ValidatableResponse response =
                 given().
                     header("Content-type", APPLICATION_JSON_VALUE).
                     header("AJP_eppn", userEPPN).
@@ -186,20 +168,11 @@ public class ServiceIT extends BaseIT {
     @Test
     public void testServicePost(){
         ServiceLogger.log(logTag, "starting testServicePost");
-        Service service = createNewServiceObjectToPost();
 
-        Service serviceResponse =
-                given().
-                header("Content-type", "application/json").
-                header("AJP_eppn", userEPPN).
-                body(service).
-                expect().
-                statusCode(OK.value()).
-                when().
-                post(SERVICE_LIST_RESOURCE).
-                then().
-                body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json")).
-                extract().as(Service.class);
+        Service service = CommonUtils.createNewServiceObjectToPost("junit service test", "junit service test", userEPPN,
+                                                                   "service type", "service specifications", "1");
+        
+        Service serviceResponse = CommonUtils.createService(userEPPN, service);
 
         assertTrue("Title is not equal in sent and response",
                 service.getTitle().equals(serviceResponse.getTitle()));
@@ -293,32 +266,14 @@ public class ServiceIT extends BaseIT {
         // what other things can be changed?
         // service type
         // Publish a service - not sure if it calls patch or something else.
-        final Service service = createNewServiceObjectToPost();
+        final Service service = CommonUtils.createNewServiceObjectToPost("junit service test", "junit service test",
+                                                                         userEPPN, "service type",
+                                                                         "service specifications", "1");
+    
         service.setProjectId(Integer.toString(projectId.getId()));
-        ServiceLogger.log(logTag, "local variable service constructed to send as body to post: " + service.getDescription());
-        final ValidatableResponse response =
-                given().
-                header("Content-type", APPLICATION_JSON_VALUE).
-                header("AJP_eppn", userEPPN).
-                body(service).
-                expect().
-                statusCode(OK.value()).
-                when().
-                post(SERVICE_LIST_RESOURCE).
-                then().
-                body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json"));
-
-        final String jsonResponse = response.extract().asString();
-        ServiceLogger.log(logTag, "response = " + jsonResponse);
-
-        final ObjectMapper mapper = new ObjectMapper();
-        Service patchService = null;
-        try {
-            patchService = mapper.readValue(jsonResponse, Service.class);
-        } catch (Exception e) {
-            fail("unable to map response to Service object: " + e.getMessage());
-        }
-
+        
+        Service patchService = CommonUtils.createService(userEPPN, service);
+        
         return patchService;
     }
     private void updateService(Service patchService) {
@@ -1140,17 +1095,6 @@ public class ServiceIT extends BaseIT {
             patch(INPUT_POS_BY_ID_RESOURCE, interfaceId);    
     }    
 
-    // create a service object to use as body in post
-    private Service createNewServiceObjectToPost()
-    {
-        final Service service = new Service();
-        service.setTitle("junit service test");
-        service.setDescription("junit service test");
-        service.setOwner(userEPPN);
-        service.setServiceType("service type");
-        service.setSpecifications("service specifications");
-        return service;
-    }
 
     // create a specification JSON String 
     private String getSpecJSONString() {

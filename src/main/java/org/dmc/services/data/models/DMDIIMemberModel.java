@@ -12,23 +12,9 @@ public class DMDIIMemberModel extends BaseModel {
 
 	private String expireDate;
 
-	private List<DMDIIAwardModel> awards;
-
-	private List<DMDIIAreaOfExpertiseModel> areasOfExpertise;
-
-	private List<DMDIIAreaOfExpertiseModel> desiredAreasOfExpertise;
-
 	private List<DMDIIMemberContactModel> contacts;
 
-	private List<DMDIIMemberCustomerModel> customers;
-
 	private List<DMDIIMemberFinanceModel> finances;
-
-	private List<DMDIIInstituteInvolvementModel> instituteInvolvement;
-
-	private List<DMDIISkillModel> skills;
-
-	private List<DMDIIMemberUserModel> users;
 
 	public DMDIITypeModel getDmdiiType() {
 		return dmdiiType;
@@ -62,30 +48,6 @@ public class DMDIIMemberModel extends BaseModel {
 		this.expireDate = expireDate;
 	}
 
-	public List<DMDIIAwardModel> getAwards() {
-		return awards;
-	}
-
-	public void setAwards(List<DMDIIAwardModel> awards) {
-		this.awards = awards;
-	}
-
-	public List<DMDIIAreaOfExpertiseModel> getAreasOfExpertise() {
-		return areasOfExpertise;
-	}
-
-	public void setAreasOfExpertise(List<DMDIIAreaOfExpertiseModel> areasOfExpertise) {
-		this.areasOfExpertise = areasOfExpertise;
-	}
-
-	public List<DMDIIAreaOfExpertiseModel> getDesiredAreasOfExpertise() {
-		return desiredAreasOfExpertise;
-	}
-
-	public void setDesiredAreasOfExpertise(List<DMDIIAreaOfExpertiseModel> desiredAreasOfExpertise) {
-		this.desiredAreasOfExpertise = desiredAreasOfExpertise;
-	}
-
 	public List<DMDIIMemberContactModel> getContacts() {
 		return contacts;
 	}
@@ -94,43 +56,11 @@ public class DMDIIMemberModel extends BaseModel {
 		this.contacts = contacts;
 	}
 
-	public List<DMDIIMemberCustomerModel> getCustomers() {
-		return customers;
-	}
-
-	public void setCustomers(List<DMDIIMemberCustomerModel> customers) {
-		this.customers = customers;
-	}
-
 	public List<DMDIIMemberFinanceModel> getFinances() {
 		return finances;
 	}
 
 	public void setFinances(List<DMDIIMemberFinanceModel> finances) {
 		this.finances = finances;
-	}
-
-	public List<DMDIIInstituteInvolvementModel> getInstituteInvolvement() {
-		return instituteInvolvement;
-	}
-
-	public void setInstituteInvolvement(List<DMDIIInstituteInvolvementModel> instituteInvolvement) {
-		this.instituteInvolvement = instituteInvolvement;
-	}
-
-	public List<DMDIISkillModel> getSkills() {
-		return skills;
-	}
-
-	public void setSkills(List<DMDIISkillModel> skills) {
-		this.skills = skills;
-	}
-
-	public List<DMDIIMemberUserModel> getUsers() {
-		return users;
-	}
-
-	public void setUsers(List<DMDIIMemberUserModel> users) {
-		this.users = users;
 	}
 }

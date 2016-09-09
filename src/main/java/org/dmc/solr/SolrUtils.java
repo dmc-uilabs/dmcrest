@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import org.dmc.services.Config;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.search.SearchException;
+import org.dmc.services.search.SearchQueueImpl;
 
 /**
  * Created by 200005921 on 1/13/2016.
@@ -153,5 +156,32 @@ public class SolrUtils {
         }
         return solrQuery;
 
+    }
+
+    /**
+     *
+     * Trigger full indexing of solr by inserting a message into the SEARCH_QUEUE
+     * Call this function in DAOs whenever data is updated
+     *
+     * @param solrCoreName Specifies the name of the core to re-index
+     *                     SolrUtils.CORE_GFORGE_COMPANIES
+     *                     SolrUtils.CORE_GFORGE_COMPONENTS
+     *                     SolrUtils.CORE_GFORGE_PROJECTS
+     *                     SolrUtils.CORE_GFORGE_SERVICES
+     *                     SolrUtils.CORE_GFORGE_USERS
+     *                     SolrUtils.CORE_GFORGE_WIKI
+     *
+     */
+    public static void triggerFullIndexing (String solrCoreName) throws SearchException {
+        if (Config.IS_TEST == null) {
+            //ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+            // Trigger solr indexing
+            try {
+                SearchQueueImpl.sendFullIndexingMessage(solrCoreName);
+                ServiceLogger.log(logTag, "SolR indexing triggered for SOLR core: " + solrCoreName);
+            } catch (SearchException e) {
+                throw e;
+            }
+        }
     }
 }

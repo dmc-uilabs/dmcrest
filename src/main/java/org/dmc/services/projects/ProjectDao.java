@@ -251,18 +251,13 @@ public class ProjectDao {
             // create user as a member of the project
             createProjectJoinRequest(Integer.toString(projectId), Integer.toString(userID), userID);
 
-            if (Config.IS_TEST == null) {
-                //ServiceLogger.log(LOGTAG, "SolR indexing turned off");
-                // Trigger solr indexing
-                try {
-                    SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_PROJECTS);
-                    ServiceLogger.log(LOGTAG, "SolR indexing triggered for project: " + projectId);
-                } catch (SearchException e) {
-                    ServiceLogger.log(LOGTAG, e.getMessage());
-                }
-            }
-
             connection.commit();
+
+            try {
+                SolrUtils.triggerFullIndexing(SolrUtils.CORE_GFORGE_PROJECTS);
+            } catch (SearchException e) {
+                ServiceLogger.log(LOGTAG, e.getMessage());
+            }
 
             return new Id.IdBuilder(projectId).build();
         } catch (SQLException ex) {
@@ -351,15 +346,10 @@ public class ProjectDao {
 
             connection.commit();
 
-            if (Config.IS_TEST == null) {
-                //ServiceLogger.log(LOGTAG, "SolR indexing turned off");
-                // Trigger solr indexing
-                try {
-                    SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_PROJECTS);
-                    ServiceLogger.log(LOGTAG, "SolR indexing triggered for project: " + projectId);
-                } catch (SearchException e) {
-                    ServiceLogger.log(LOGTAG, e.getMessage());
-                }
+            try {
+                SolrUtils.triggerFullIndexing(SolrUtils.CORE_GFORGE_PROJECTS);
+            } catch (SearchException e) {
+                ServiceLogger.log(LOGTAG, e.getMessage());
             }
 
             return new Id.IdBuilder(projectId).build();

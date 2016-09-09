@@ -32,11 +32,10 @@ public class SearchQueueListenerThread implements Runnable {
     }
 
     public void  init () throws SearchException {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
 
-        MessageConsumer consumer = null;
 
         try {
+            final ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
             connection = connectionFactory.createConnection();
             connection.setExceptionListener(new ExceptionListener() {
                 @Override
@@ -47,7 +46,7 @@ public class SearchQueueListenerThread implements Runnable {
 
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             queue = session.createQueue(SearchQueueImpl.SEARCH_QUEUE_NAME);
-            consumer = session.createConsumer(queue);
+            final MessageConsumer consumer = session.createConsumer(queue);
             MessageListener listener = getListener();
             consumer.setMessageListener(listener);
             connection.start();

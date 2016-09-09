@@ -57,5 +57,12 @@ public class DMDIIQuickLinkController {
 	public List<DMDIIQuickLinkModel> getDMDIIQuickLinks (@RequestParam("limit") Integer limit) throws DMCServiceException {
 		return dmdiiQuickLinkService.getDMDIIQuickLinks(limit);
 	}
+	
+	@RequestMapping(value = "/dmdiiquicklink/{id}", method = RequestMethod.DELETE)
+	public Boolean deleteDMDIIQuickLink (@PathVariable("id") Integer id) throws DMCServiceException {
+		ServiceLogger.log(logTag, "In getDMDIIQuickLinkById: " + id);
+		
+		return dmdiiQuickLinkService.delete(id);
+	}
 
 }
