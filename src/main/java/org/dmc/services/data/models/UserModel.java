@@ -22,9 +22,9 @@ public class UserModel extends BaseModel {
 	//	private String aboutMe;
 
 	private String displayName;
-	private int accountId;
-	private int profileId;
-	private int companyId;
+	private Integer accountId;
+	private Integer profileId;
+	private Integer companyId;
 	private int role;
 	private String username;
 	private String realname;
@@ -43,7 +43,6 @@ public class UserModel extends BaseModel {
 	private Map<Integer, String> roles;
 	private Boolean isDMDIIMember;
 	private UserContactInfoModel userContactInfo;
-	private Integer organization;
 	private String aboutMe;
 	private String resume;
 	private int account;
@@ -56,27 +55,27 @@ public class UserModel extends BaseModel {
 		this.displayName = displayName;
 	}
 
-	public int getAccountId() {
+	public Integer getAccountId() {
 		return accountId;
 	}
 
-	public void setAccountId(int accountId) {
+	public void setAccountId(Integer accountId) {
 		this.accountId = accountId;
 	}
 
-	public int getProfileId() {
+	public Integer getProfileId() {
 		return profileId;
 	}
 
-	public void setProfileId(int profileId) {
+	public void setProfileId(Integer profileId) {
 		this.profileId = profileId;
 	}
 
-	public int getCompanyId() {
+	public Integer getCompanyId() {
 		return companyId;
 	}
 
-	public void setCompanyId(int companyId) {
+	public void setCompanyId(Integer companyId) {
 		this.companyId = companyId;
 	}
 
@@ -224,14 +223,6 @@ public class UserModel extends BaseModel {
 		this.userContactInfo = userContactInfo;
 	}
 
-	public Integer getOrganization() {
-		return organization;
-	}
-
-	public void setOrganization(Integer organization) {
-		this.organization = organization;
-	}
-
 	public String getAboutMe() {
 		return aboutMe;
 	}
@@ -248,11 +239,11 @@ public class UserModel extends BaseModel {
 		this.resume = resume;
 	}
 
-	public int getAccount() {
+	public Integer getAccount() {
 		return account;
 	}
 
-	public void setAccount(int account) {
+	public void setAccount(Integer account) {
 		this.account = account;
 	}
 }

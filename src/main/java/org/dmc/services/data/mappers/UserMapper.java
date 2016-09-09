@@ -1,5 +1,10 @@
 package org.dmc.services.data.mappers;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
@@ -10,10 +15,6 @@ import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class UserMapper extends AbstractMapper<User, UserModel> {
@@ -36,13 +37,13 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			entity.setRealname(model.getDisplayName());
 			entity.setUserContactInfo(mapper.mapToEntity(model.getUserContactInfo()));
 
-			if (model.getOrganization() != null) {
+			if (model.getCompanyId() != null) {
 				OrganizationUser orgUserEntity = organizationUserRepository
-						.findByUserIdAndOrganizationId(entity.getId(), model.getOrganization());
+						.findByUserIdAndOrganizationId(entity.getId(), model.getCompanyId());
 
 				if (orgUserEntity == null) {
 					orgUserEntity = new OrganizationUser();
-					orgUserEntity.setOrganization(organizationRepository.findOne(model.getOrganization()));
+					orgUserEntity.setOrganization(organizationRepository.findOne(model.getCompanyId()));
 				}
 
 				entity.setOrganizationUser(orgUserEntity);
@@ -62,6 +63,8 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 
 			model = copyProperties(entity, new UserModel());
 			model.setDisplayName(entity.getRealname());
+			model.setAccountId(entity.getId());
+			model.setProfileId(entity.getId());
 
 			if (entity.getRoles() != null && !entity.getRoles().isEmpty()) {
 				model.setIsDMDIIMember(entity.getRoles().stream().anyMatch(this::orgIsDMDIIMember));
@@ -73,7 +76,7 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
 			model.setTermsConditions(entity.getTermsAndCondition() != null);
 
-			model.setOrganization((entity.getOrganizationUser() == null) ?
+			model.setCompanyId((entity.getOrganizationUser() == null) ?
 					null :
 					entity.getOrganizationUser().getOrganization().getId());
 		}

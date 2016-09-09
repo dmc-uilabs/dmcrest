@@ -1,7 +1,14 @@
 package org.dmc.services;
 
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dmc.services.data.entities.OnboardingStatus;
+import org.dmc.services.data.entities.Organization;
+import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserToken;
 import org.dmc.services.data.mappers.Mapper;
@@ -11,6 +18,7 @@ import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.data.repositories.OnboardingStatusRepository;
+import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
@@ -22,10 +30,6 @@ import org.dmc.services.security.UserPrincipalService;
 import org.dmc.services.users.VerifyUserResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.util.List;
 
 @Service
 public class UserService {
@@ -41,6 +45,9 @@ public class UserService {
 
 	@Inject
 	private OrganizationUserRepository orgUserRepo;
+
+	@Inject
+	private OrganizationRepository organizationRepository;
 
 	@Inject
 	private UserRoleAssignmentService userRoleAssignmentService;
@@ -195,15 +202,19 @@ public class UserService {
 	@Transactional
 	public UserModel readOrCreateUser(String userEPPN, String userFirstName, String userSurname, String userFullname,
 			String userEmail) {
+		final Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		User user = userRepository.findByUsername(userEPPN);
+		UserModel userModel;
 
 		if (user == null) {
 			user = createUserAndOnboardingStatus(userEPPN, userFirstName, userSurname, userFullname, userEmail);
+			userModel = mapper.mapToModel(user);
+		} else {
+			userModel = mapper.mapToModel(user);
+			updateRolesAndDmdiiMembership(userModel);
 		}
-		final Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
-		final UserModel userModel = mapper.mapToModel(user);
-		updateRolesAndDmdiiMembership(userModel);
+
 
 		return userModel;
 	}
@@ -211,7 +222,7 @@ public class UserService {
 	private void updateRolesAndDmdiiMembership(UserModel userModel) {
 		UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userModel.getUsername());
 		userModel.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
-		userModel.setRoles(userPrincipal.getAllRoles());
+//		userModel.setRoles(userPrincipal.getAllRoles());
 		return;
 	}
 
@@ -255,6 +266,7 @@ public class UserService {
 		return onboardingStatusRepository.save(status);
 	}
 
+	@Transactional
 	public UserModel patch(String userEPPN, UserModel patchUser) {
 		Assert.notNull(userEPPN, "Missing required parameter userEPPN");
 		Assert.notNull(patchUser, "Missing required parameter patchUser");
@@ -262,7 +274,7 @@ public class UserService {
 		User currentUser = userRepository.findByUsername(userEPPN);
 		Assert.notNull(currentUser, "Provided user name is invalid");
 
-		Assert.isTrue(currentUser.getId().equals(patchUser.getAccountId()),
+		Assert.isTrue(currentUser.getId().equals(patchUser.getId()),
 				"User ID from username does not match user ID " + "from request body");
 
 		final Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper = mapperFactory
@@ -272,6 +284,34 @@ public class UserService {
 		currentUser.setRealname(patchUser.getDisplayName());
 		currentUser.setOnboarding(onboardingMapper.mapToEntity(patchUser.getOnboarding()));
 
+		// If a user is updating their primary user info, un-verify them from their current organization if they have one
+		if( !currentUser.getFirstName().equals(patchUser.getFirstName()) ||
+				!currentUser.getLastName().equals(patchUser.getLastName()) ||
+				!currentUser.getEmail().equals(patchUser.getEmail())) {
+			OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(currentUser.getId());
+
+			if(orgUserModel != null) {
+				orgUserModel.setIsVerified(false);
+				orgUserService.saveOrganizationUser(orgUserModel);
+
+				userRoleAssignmentService.deleteByUserIdAndOrganizationId(currentUser.getId(), orgUserModel.getOrganizationId());
+			}
+
+			currentUser.setFirstName(patchUser.getFirstName());
+			currentUser.setLastName(patchUser.getLastName());
+			currentUser.setEmail(patchUser.getEmail());
+		}
+
+		if( !patchUser.getCompanyId().equals(currentUser.getOrganizationUser().getOrganization().getId()) ) {
+			currentUser.setOrganizationUser(updateOrganizationUser(currentUser, patchUser.getCompanyId()));
+		}
+
 		return userMapper.mapToModel(userRepository.save(currentUser));
+	}
+
+	private OrganizationUser updateOrganizationUser(User user, Integer newOrganizationId) {
+		orgUserRepo.deleteByUserId(user.getId());
+		Organization newOrganization = organizationRepository.findOne(newOrganizationId);
+		return orgUserRepo.save(new OrganizationUser(user, newOrganization, false));
 	}
 }
