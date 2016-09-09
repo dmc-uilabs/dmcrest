@@ -11,7 +11,7 @@ public class ProductReview extends Review {
   
   private String productId = null;
   public enum ProductTypeEnum {
-     services,  components, 
+     service,  component, 
   };
   
   private ProductTypeEnum productType = null;

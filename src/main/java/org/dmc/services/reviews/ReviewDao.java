@@ -85,7 +85,7 @@ public class ReviewDao<T extends Review> {
             String limitClause = SQLUtils.buildLimitClause(limit);
 
             String query =
-                "Select r.id, r." + tablePrefix + "_id, u.realname as name, r.user_id as accountId, review_timestamp , r.review as comment, r.stars as rating, count(RR.*) AS count_helpfulOrNot " +
+                "Select r.id, r." + tablePrefix + "_id, u.realname as name, r.user_id as accountId, review_timestamp , r.review as comment, r.rating as rating, count(RR.*) AS count_helpfulOrNot " +
                 "FROM " + tablePrefix + "_review_new r " +
                 "LEFT JOIN " + tablePrefix + "  o ON  r." + tablePrefix + "_id  = o." + extraFieldName + "_id " +
                 "LEFT JOIN " + tablePrefix + "_review_rate RR on RR.review_id = r.id " +
@@ -411,7 +411,7 @@ public class ReviewDao<T extends Review> {
         int id = -1;
         
         // organization_id, user_id, review_timestamp, review, stars
-        String sqlInsertReview = "INSERT INTO " + tablePrefix + "_review_new (" + tablePrefix + "_id, user_id, review_timestamp, review, stars) VALUES (?,?,?,?,?)";
+        String sqlInsertReview = "INSERT INTO " + tablePrefix + "_review_new (" + tablePrefix + "_id, user_id, review_timestamp, review, rating) VALUES (?,?,?,?,?)";
 
         // user_id integer, review_reply_timestamp timestamp, review_id integer, review_reply text
         String sqlInsertReply = "INSERT INTO " + tablePrefix + "_review_reply (user_id, review_reply_timestamp, review_id, review_reply) VALUES (?,?,?,?)";
