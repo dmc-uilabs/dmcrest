@@ -1,0 +1,9 @@
+
+
+Add to project: POST - https://https://dev-web.opendmc.org/rest/projects_members with ProjectMember body
+Accept invitation: PATCH - https://dev-web.opendmc.org/rest/projects_members/9-118-118
+Decline invitation: DELETE - https://dev-web.opendmc.org/rest/projects_members/9-118-118
+
+SELECT gjr.group_id, gjr.user_id, gjr.requester_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.realname, ur.realname requester_name FROM group_join_request gjr JOIN users u ON gjr.user_id = u.user_id JOIN users ur ON gjr.requester_id = ur.user_id 
+
+gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = 2885 and adr.role_name = 'Admin')
