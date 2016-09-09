@@ -25,23 +25,23 @@ public class DMCRequestHeaderAuthenticationFilterTest {
 	protected HttpServletRequest httpServletRequest;
 
 	private String appToken;
-	private String principle;
+	private String principal;
 
 	@Before
 	public void before(){
 		appToken = RandomStringUtils.randomAlphanumeric(25);
-		principle = RandomStringUtils.randomAlphanumeric(25);
+		principal = RandomStringUtils.randomAlphanumeric(25);
 
 		requestHeaderAuthenticationFilter.setAppToken(appToken);
 
-		when(httpServletRequest.getHeader("AJP_eppn")).thenReturn(principle);
+		when(httpServletRequest.getHeader("AJP_eppn")).thenReturn(principal);
 		when(httpServletRequest.getHeader("APP_TOKEN")).thenReturn(appToken);
 	}
 
 	@Test
 	public void getPreAuthenticatedPrincipal() {
 		String actual = (String) requestHeaderAuthenticationFilter.getPreAuthenticatedPrincipal(httpServletRequest);
-		assertEquals(principle, actual);
+		assertEquals(principal, actual);
 	}
 
 	@Test(expected = PreAuthenticatedCredentialsNotFoundException.class)
