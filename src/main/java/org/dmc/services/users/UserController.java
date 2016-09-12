@@ -24,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -53,7 +52,7 @@ public class UserController {
 	public Id createUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                          @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                          @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
-                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
+                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail) throws ArgumentNotFoundException
     {
     	ServiceLogger.log(logTag, "In createUser: " + userEPPN);
 
@@ -65,7 +64,7 @@ public class UserController {
 	public UserModel getUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                         @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                         @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
-                        @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
+                        @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail) throws ArgumentNotFoundException
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
 		return userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
@@ -159,10 +158,4 @@ public class UserController {
 		return orgUserService.changeOrganization(orgUser);
 	}
 
-    @ExceptionHandler(Exception.class)
-    public ErrorMessage handleException(Exception ex) {
-        ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
-    	ServiceLogger.log(logTag, ex.getMessage() + " Error message " + result);
-    	return result;
-    }
 }
