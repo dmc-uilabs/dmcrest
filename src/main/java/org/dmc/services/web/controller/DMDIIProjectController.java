@@ -1,5 +1,6 @@
 package org.dmc.services.web.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -74,8 +75,11 @@ public class DMDIIProjectController {
 		ServiceLogger.log(logTag, "In getActiveDMDIIProjectsByDMDIIMemberId as member " + dmdiiMemberId);
 		
 		List<DMDIIProjectModel> results = dmdiiProjectService.findDMDIIProjectsByPrimeOrganizationIdAndIsActive(dmdiiMemberId, page, pageSize);
-		Long count = dmdiiProjectService.countDMDIIProjectsByPrimeOrganizationIdAndIsActive(dmdiiMemberId);
-		return new PagedResponse(count, results);
+		List<DMDIIProjectModel> ccResults = dmdiiProjectService.findActiveDMDIIProjectsByContributingCompany(dmdiiMemberId);
+		List<DMDIIProjectModel> totalResults = new ArrayList<DMDIIProjectModel>(results);
+		totalResults.addAll(ccResults);
+		Long count = new Long(totalResults.size());
+		return new PagedResponse(count, totalResults);
 	}
 
 	@RequestMapping(value = "dmdiiProject/{id}", method = RequestMethod.GET)

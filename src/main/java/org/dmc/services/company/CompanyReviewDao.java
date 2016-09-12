@@ -372,83 +372,84 @@ public class CompanyReviewDao {
         return count;
     }
 
-    public Id createCompanyReview (CompanyReview companyReview, String userEPPN) throws DMCServiceException {
-
-        int id = -1;
-        //String query = "INSERT INTO organization_review (organization_id, name, reply, reviewId, status, date, rating, likes, dislike, comment) VALUES (?,?,?,?,?,?,?,?,?,?)";
-
-        // organization_id, user_id, review_timestamp, review, stars
-        String sqlInsertReview = "INSERT INTO organization_review_new (organization_id, user_id, review_timestamp, review, stars) VALUES (?,?,?,?,?)";
-
-        // user_id integer, review_reply_timestamp timestamp, review_id integer, review_reply text
-        String sqlInsertReply = "INSERT INTO organization_review_reply (user_id, review_reply_timestamp, review_id, review_reply) VALUES (?,?,?,?)";
-
-        try {
-
-            if (!CompanyUserUtil.isDMDIIMember(userEPPN)) {
-                ServiceLogger.log(logTag, "User: " + userEPPN + " is not DMDII Member");
-                throw new DMCServiceException(DMCError.NotDMDIIMember, "User " + userEPPN + " is not a member of the DMDII");
-            }
-
-//            PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-//            preparedStatement.setInt(1, Integer.parseInt(companyReview.getCompanyId()));
-//            preparedStatement.setString(2, companyReview.getName());
-//            preparedStatement.setBoolean(3, companyReview.getReply());
-//            preparedStatement.setString(4, companyReview.getReviewId());
-//            preparedStatement.setBoolean(5, companyReview.getStatus());
-//            preparedStatement.setString(6,companyReview.getDate().toString());
-//            preparedStatement.setInt(7, companyReview.getRating());
-//            preparedStatement.setInt(8, companyReview.getLike());
-//            preparedStatement.setInt(9, companyReview.getDislike());
-//            preparedStatement.setString(10, companyReview.getComment());
-
-            int reviewIdInt = 0;
-            if (companyReview.getReviewId() != null) {
-                try {
-                    reviewIdInt = Integer.parseInt(companyReview.getReviewId());
-                } catch (NumberFormatException nfe) {
-
-                }
-            }
-
-            String tableInserted = "organization_review_new";
-            PreparedStatement preparedStatement = null;
-            if (reviewIdInt > 0) {
-                // Insert into organization_review_reply
-                preparedStatement = DBConnector.prepareStatement(sqlInsertReply);
-                preparedStatement.setInt(1, Integer.parseInt(companyReview.getAccountId()));
-                preparedStatement.setTimestamp(2, new java.sql.Timestamp(companyReview.getDate().longValue()));
-                preparedStatement.setInt(3, reviewIdInt);
-                preparedStatement.setString(4, companyReview.getComment());
-
-                tableInserted = "organization_review_reply";
-
-            } else {
-                // Insert into organization_review_new
-                preparedStatement = DBConnector.prepareStatement(sqlInsertReview);
-                preparedStatement.setInt(1, Integer.parseInt(companyReview.getCompanyId()));
-                preparedStatement.setInt(2, Integer.parseInt(companyReview.getAccountId()));
-                preparedStatement.setTimestamp(3, new java.sql.Timestamp(companyReview.getDate().longValue()));
-                preparedStatement.setString(4, companyReview.getComment());
-                preparedStatement.setInt(5, companyReview.getRating().intValue());
-
-                tableInserted = "organization_review_new";
-            }
-
-
-            int rCreate = preparedStatement.executeUpdate();
-
-            String queryId = "select max(id) max_id from " + tableInserted;
-            PreparedStatement preparedStatement1 = DBConnector.prepareStatement(queryId);
-            ResultSet r=preparedStatement1.executeQuery();
-            r.next();
-            id=r.getInt("max_id");
-
-        } catch (SQLException sqlEx) {
-            throw new DMCServiceException(DMCError.OtherSQLError, sqlEx.toString());
-        }
-
-        return new Id.IdBuilder(id).build();
-    }
+    // replaced with more generic code
+//    public Id createCompanyReview (CompanyReview companyReview, String userEPPN) throws DMCServiceException {
+//
+//        int id = -1;
+//        //String query = "INSERT INTO organization_review (organization_id, name, reply, reviewId, status, date, rating, likes, dislike, comment) VALUES (?,?,?,?,?,?,?,?,?,?)";
+//
+//        // organization_id, user_id, review_timestamp, review, stars
+//        String sqlInsertReview = "INSERT INTO organization_review_new (organization_id, user_id, review_timestamp, review, stars) VALUES (?,?,?,?,?)";
+//
+//        // user_id integer, review_reply_timestamp timestamp, review_id integer, review_reply text
+//        String sqlInsertReply = "INSERT INTO organization_review_reply (user_id, review_reply_timestamp, review_id, review_reply) VALUES (?,?,?,?)";
+//
+//        try {
+//
+//            if (!CompanyUserUtil.isDMDIIMember(userEPPN)) {
+//                ServiceLogger.log(logTag, "User: " + userEPPN + " is not DMDII Member");
+//                throw new DMCServiceException(DMCError.NotDMDIIMember, "User " + userEPPN + " is not a member of the DMDII");
+//            }
+//
+////            PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+////            preparedStatement.setInt(1, Integer.parseInt(companyReview.getCompanyId()));
+////            preparedStatement.setString(2, companyReview.getName());
+////            preparedStatement.setBoolean(3, companyReview.getReply());
+////            preparedStatement.setString(4, companyReview.getReviewId());
+////            preparedStatement.setBoolean(5, companyReview.getStatus());
+////            preparedStatement.setString(6,companyReview.getDate().toString());
+////            preparedStatement.setInt(7, companyReview.getRating());
+////            preparedStatement.setInt(8, companyReview.getLike());
+////            preparedStatement.setInt(9, companyReview.getDislike());
+////            preparedStatement.setString(10, companyReview.getComment());
+//
+//            int reviewIdInt = 0;
+//            if (companyReview.getReviewId() != null) {
+//                try {
+//                    reviewIdInt = Integer.parseInt(companyReview.getReviewId());
+//                } catch (NumberFormatException nfe) {
+//
+//                }
+//            }
+//
+//            String tableInserted = "organization_review_new";
+//            PreparedStatement preparedStatement = null;
+//            if (reviewIdInt > 0) {
+//                // Insert into organization_review_reply
+//                preparedStatement = DBConnector.prepareStatement(sqlInsertReply);
+//                preparedStatement.setInt(1, Integer.parseInt(companyReview.getAccountId()));
+//                preparedStatement.setTimestamp(2, new java.sql.Timestamp(companyReview.getDate().longValue()));
+//                preparedStatement.setInt(3, reviewIdInt);
+//                preparedStatement.setString(4, companyReview.getComment());
+//
+//                tableInserted = "organization_review_reply";
+//
+//            } else {
+//                // Insert into organization_review_new
+//                preparedStatement = DBConnector.prepareStatement(sqlInsertReview);
+//                preparedStatement.setInt(1, Integer.parseInt(companyReview.getCompanyId()));
+//                preparedStatement.setInt(2, Integer.parseInt(companyReview.getAccountId()));
+//                preparedStatement.setTimestamp(3, new java.sql.Timestamp(companyReview.getDate().longValue()));
+//                preparedStatement.setString(4, companyReview.getComment());
+//                preparedStatement.setInt(5, companyReview.getRating().intValue());
+//
+//                tableInserted = "organization_review_new";
+//            }
+//
+//
+//            int rCreate = preparedStatement.executeUpdate();
+//
+//            String queryId = "select max(id) max_id from " + tableInserted;
+//            PreparedStatement preparedStatement1 = DBConnector.prepareStatement(queryId);
+//            ResultSet r=preparedStatement1.executeQuery();
+//            r.next();
+//            id=r.getInt("max_id");
+//
+//        } catch (SQLException sqlEx) {
+//            throw new DMCServiceException(DMCError.OtherSQLError, sqlEx.toString());
+//        }
+//
+//        return new Id.IdBuilder(id).build();
+//    }
 
 }

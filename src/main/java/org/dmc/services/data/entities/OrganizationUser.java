@@ -30,6 +30,14 @@ public class OrganizationUser extends BaseEntity{
 	@Column(name = "is_verified")
 	private Boolean isVerified;
 
+	public OrganizationUser() {}
+
+	public OrganizationUser(User user, Organization organization, Boolean isVerified) {
+		this.user = user;
+		this.organization = organization;
+		this.isVerified = isVerified;
+	}
+
 	public Integer getId() {
 		return id;
 	}

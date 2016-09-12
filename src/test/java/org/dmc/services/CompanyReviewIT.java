@@ -157,7 +157,7 @@ public class CompanyReviewIT extends BaseIT {
                 .header("AJP_eppn", nonMemberEPPN)
                 .body(json.toString())
                 .expect()
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .statusCode(HttpStatus.OK.value())
                 .when()
                 .post(COMPANY_REVIEW_POST_RESOURCE);
     }
@@ -235,19 +235,6 @@ public class CompanyReviewIT extends BaseIT {
 
     public static String createCompanyReviewFixture(int companyId, String name, int accountId, String comment, int reviewId)
     {
-//            accountId:1
-//            comment:"Cool stuff!"
-//            companyId:"1"
-//            date:"1468095204202"
-//            dislike:0
-//            id:12
-//            like:0
-//            name:"Thomas Smith"
-//            rating:3
-//            reply:false
-//            reviewId:0
-//            status:true
-
         //String reviewId = Integer.toString(reviewIdCount++);
         boolean status = true;
         BigDecimal date = BigDecimal.valueOf(Calendar.getInstance().getTime().getTime());
