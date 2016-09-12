@@ -371,6 +371,20 @@ public class ReviewDao<T extends Review> {
         return count;
     }
 
+    public void createHelpfulReview (String reviewId, String accountId, String userEPPN) {
+        String q = "select * FROM " + tablePrefix + "_review_rate WHERE review_id = " + reviewId + " AND helpfulOrNot IS " + Boolean.toString(helpfulOrNot);
+        int count = 0;
+        ResultSet rs = DBConnector.executeQuery(q);
+        try {
+            while (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException sqlEX) {
+            // ignore
+        }
+        return count;
+    }
+    
     public int countHelpfulForReviewReply (int reviewReplyId, boolean helpfulOrNot) {
         String q = "select count(*) FROM " + tablePrefix + "_review_reply_rate WHERE review_reply_id = " + reviewReplyId + " AND helpful_or_not IS " + Boolean.toString(helpfulOrNot);
         int count = 0;
@@ -409,6 +423,8 @@ public class ReviewDao<T extends Review> {
     
     public Id createReview (T review, String userEPPN) throws DMCServiceException {
         int id = -1;
+        
+        //ToDo: compare review.getAccountId() with userEPPN id
         
         // organization_id, user_id, review_timestamp, review, stars
         String sqlInsertReview = "INSERT INTO " + tablePrefix + "_review_new (" + tablePrefix + "_id, user_id, review_timestamp, review, rating) VALUES (?,?,?,?,?)";

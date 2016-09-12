@@ -23,14 +23,16 @@ public class ProductReviewsHelpfulController {
   
   @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
   public ResponseEntity<List<ReviewHelpful>> productReviewsHelpfulGet(@RequestParam(value = "reviewId", required = true) String reviewId,
-                                                                      @RequestParam(value = "accountId", required = true) String accountId){
+                                                                      @RequestParam(value = "accountId", required = true) String accountId,
+                                                                      @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
       // do some magic!
       return new ResponseEntity<List<ReviewHelpful>>(HttpStatus.NOT_IMPLEMENTED);
   }
 
 
   @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE },method = RequestMethod.POST)
-  public ResponseEntity<ReviewHelpful> productReviewsHelpfulPost(@RequestBody ReviewHelpful serviceReviewHelpful){
+  public ResponseEntity<ReviewHelpful> productReviewsHelpfulPost(@RequestBody ReviewHelpful serviceReviewHelpful,
+                                                                 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
       // do some magic!
       return new ResponseEntity<ReviewHelpful>(HttpStatus.NOT_IMPLEMENTED);
   }
@@ -39,9 +41,9 @@ public class ProductReviewsHelpfulController {
 
 
   @RequestMapping(value = "/{helpfulID}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
-  public ResponseEntity<ReviewHelpful> productReviewsHelpfulHelpfulIDPatch(
-                                                                           @PathVariable("helpfulID") String helpfulID,
-                                                                           @RequestBody ReviewHelpful helpful){
+  public ResponseEntity<ReviewHelpful> productReviewsHelpfulHelpfulIDPatch(@PathVariable("helpfulID") String helpfulID,
+                                                                           @RequestBody ReviewHelpful helpful,
+                                                                           @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
       // do some magic!
       return new ResponseEntity<ReviewHelpful>(HttpStatus.NOT_IMPLEMENTED);
   }
