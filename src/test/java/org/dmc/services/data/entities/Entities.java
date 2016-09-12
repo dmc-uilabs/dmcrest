@@ -4,7 +4,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.dmc.services.dmdiitype.DMDIIType;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
