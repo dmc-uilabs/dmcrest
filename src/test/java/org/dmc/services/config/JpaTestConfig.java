@@ -1,5 +1,7 @@
 package org.dmc.services.config;
 
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -12,8 +14,6 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import javax.sql.DataSource;
 
 /**
  * Created by kskronek on 8/10/2016.
@@ -31,7 +31,7 @@ public class JpaTestConfig {
 		return this.embeddedDatabase;
 	}
 
-	@Bean(destroyMethod = "shutdown")
+	@Bean(name = "testDataSource", destroyMethod = "shutdown")
 	public DataSource dataSource() {
 		EmbeddedDatabaseBuilder embeddedDatabaseBuilder = new EmbeddedDatabaseBuilder();
 		this.embeddedDatabase = embeddedDatabaseBuilder.setType(EmbeddedDatabaseType.HSQL).build();
