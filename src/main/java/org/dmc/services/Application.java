@@ -1,5 +1,7 @@
 package org.dmc.services;
 
+import javax.sql.DataSource;
+
 import org.postgresql.ds.PGPoolingDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -8,8 +10,6 @@ import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-
-import javax.sql.DataSource;
 
 @SpringBootApplication(exclude = { SolrAutoConfiguration.class })
 public class Application extends SpringBootServletInitializer {
