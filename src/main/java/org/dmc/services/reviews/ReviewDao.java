@@ -372,6 +372,7 @@ public class ReviewDao<T extends Review> {
     }
 
     public void createHelpfulReview (String reviewId, String accountId, String userEPPN) {
+        boolean helpfulOrNot = false;
         String q = "select * FROM " + tablePrefix + "_review_rate WHERE review_id = " + reviewId + " AND helpfulOrNot IS " + Boolean.toString(helpfulOrNot);
         int count = 0;
         ResultSet rs = DBConnector.executeQuery(q);
@@ -382,7 +383,7 @@ public class ReviewDao<T extends Review> {
         } catch (SQLException sqlEX) {
             // ignore
         }
-        return count;
+//        return count;
     }
     
     public int countHelpfulForReviewReply (int reviewReplyId, boolean helpfulOrNot) {
