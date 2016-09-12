@@ -1,6 +1,9 @@
 package org.dmc.services.users;
 
-import org.dmc.services.ErrorMessage;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
@@ -19,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -27,9 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.inject.Inject;
-import java.util.List;
 
 @RestController
 public class UserController {
@@ -51,7 +50,7 @@ public class UserController {
 	public Integer createUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                          @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                          @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
-                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
+                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail) throws ArgumentNotFoundException
     {
     	ServiceLogger.log(logTag, "In createUser: " + userEPPN);
 
@@ -63,7 +62,7 @@ public class UserController {
 	public UserModel getUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                         @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                         @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
-                        @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
+                        @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail) throws ArgumentNotFoundException
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
 		return userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
@@ -157,10 +156,4 @@ public class UserController {
 		return orgUserService.changeOrganization(orgUser);
 	}
 
-    @ExceptionHandler(Exception.class)
-    public ErrorMessage handleException(Exception ex) {
-        ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
-    	ServiceLogger.log(logTag, ex.getMessage() + " Error message " + result);
-    	return result;
-    }
 }
