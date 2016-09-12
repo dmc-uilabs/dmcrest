@@ -27,6 +27,7 @@ import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.ExpressionUtils;
@@ -61,15 +62,6 @@ public class DMDIIDocumentService {
 		results = refreshDocuments(results);
 		return mapper.mapToModel(results);
 	}
-
-	public List<DMDIIDocumentModel> findPage(Integer pageNumber, Integer pageSize) throws DMCServiceException {
-		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		List<DMDIIDocument> documents = dmdiiDocumentRepository.findAll(new PageRequest(pageNumber, pageSize)).getContent();
-		
-		documents = refreshDocuments(documents);
-		
-		return mapper.mapToModel(documents);
-	}
 	
 	public List<DMDIIDocumentModel> getUndeletedDMDIIDocuments(Integer pageNumber, Integer pageSize) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
@@ -80,6 +72,7 @@ public class DMDIIDocumentService {
 	}
 	
 	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProject (Integer dmdiiProjectId, Integer pageNumber, Integer pageSize) throws DMCServiceException {
+		Assert.notNull(dmdiiProjectId);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectId(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
 		
@@ -88,6 +81,7 @@ public class DMDIIDocumentService {
 	}
 
 	public DMDIIDocumentModel findOne(Integer dmdiiDocumentId) throws DMCServiceException {
+		Assert.notNull(dmdiiDocumentId);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(dmdiiDocumentId));
 		
@@ -96,12 +90,14 @@ public class DMDIIDocumentService {
 	}
 
 	public DMDIIDocument findOneEntity(Integer id) throws DMCServiceException {
+		Assert.notNull(id);
 		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(id);
 		
 		return docEntity;
 	}
 	
 	public DMDIIDocumentModel findMostRecentStaticFileByFileTypeId (Integer fileTypeId) throws DMCServiceException {
+		Assert.notNull(fileTypeId);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeOrderByModifiedDesc(fileTypeId));
 		
@@ -204,7 +200,7 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(docEntity);
 	}
 	
-	private List<DMDIIDocument> refreshDocuments (List<DMDIIDocument> docs) throws DMCServiceException {
+	protected List<DMDIIDocument> refreshDocuments (List<DMDIIDocument> docs) throws DMCServiceException {
 		List<DMDIIDocument> freshDocs = new ArrayList<DMDIIDocument>();
 		//Refresh check
 		for (DMDIIDocument doc : docs) {
