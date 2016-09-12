@@ -4,7 +4,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.dmc.services.dmdiitype.DMDIIType;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -34,6 +35,9 @@ public class Entities {
 	private static final String STATUS_NAME = "StatusName";
 	private static final String THRUST_CODE = "ThrustCode";
 	private static final String USER_NAME = "UserName";
+	public static final String DOCUMENT_NAME = "DocumentName";
+	public static final String DOCUMENT_URL = "https://test-final-verify.s3.amazonaws.com/ProjectOfDMDII/103552215657713056245%40google.com/Documents/1473359761-343968-sanitized-football.jpg?AWSAccessKeyId=AKIAJDE3BJULBHCYEX4Q&Expires=1475951762&Signature=p3U7tV%2Bk9rAx6jdNe5XGOzJz7ME%3D";
+	public static final String TAG_NAME = "TagName";
 
 	public static DMDIIProject dmdiiProject() throws Exception {
 		DMDIIProject dmdiiProject = new DMDIIProject();
@@ -455,5 +459,34 @@ public class Entities {
 		Calendar calendar = GregorianCalendar.getInstance();
 		calendar.add(field, amount);
 		return calendar.getTime();
+	}
+	
+	public static DMDIIDocumentTag dmdiiDocumentTag() {
+		DMDIIDocumentTag dmdiiDocumentTag = new DMDIIDocumentTag();
+		dmdiiDocumentTag.setId(1000);
+		dmdiiDocumentTag.setTagName(TAG_NAME);
+		return dmdiiDocumentTag;
+	}
+
+	public static DMDIIDocument dmdiiDocument() throws Exception {
+		DMDIIDocument dmdiiDocument = new DMDIIDocument();
+		
+		List<DMDIIDocumentTag> tagList = new ArrayList<DMDIIDocumentTag>();
+		tagList.add(dmdiiDocumentTag());
+		
+		dmdiiDocument.setId(1000);
+		dmdiiDocument.setDocumentName(DOCUMENT_NAME);
+		dmdiiDocument.setDocumentUrl(DOCUMENT_URL);
+		dmdiiDocument.setDmdiiProject(dmdiiProject());
+		dmdiiDocument.setOwner(user());
+		dmdiiDocument.setTags(tagList);
+		dmdiiDocument.setModified(new Date());
+		dmdiiDocument.setExpires(new Timestamp(System.currentTimeMillis()));
+		dmdiiDocument.setIsDeleted(false);
+		dmdiiDocument.setAccessLevel(DMDIIProjectItemAccessLevel.PROJECT_PARTICIPANT_VIPS);
+		dmdiiDocument.setFileType(2);
+		dmdiiDocument.setVerified(true);
+		
+		return dmdiiDocument;
 	}
 }
