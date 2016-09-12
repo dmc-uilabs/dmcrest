@@ -302,7 +302,9 @@ public class UserService {
 			currentUser.setEmail(patchUser.getEmail());
 		}
 
-		if( !patchUser.getCompanyId().equals(currentUser.getOrganizationUser().getOrganization().getId()) ) {
+		// if user doesn't currently have an organization or is changing their organization, update the organization user record
+		if((currentUser.getOrganizationUser() == null && patchUser.getCompanyId() != null) ||
+			(currentUser.getOrganizationUser() != null && !patchUser.getCompanyId().equals(currentUser.getOrganizationUser().getOrganization().getId()))) {
 			currentUser.setOrganizationUser(updateOrganizationUser(currentUser, patchUser.getCompanyId()));
 		}
 
