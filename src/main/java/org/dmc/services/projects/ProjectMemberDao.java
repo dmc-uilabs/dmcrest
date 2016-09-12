@@ -139,7 +139,9 @@ public class ProjectMemberDao {
                 throw new DMCServiceException(DMCError.BadURL, "invalid projects: " + projectList);
             }
         }
-        if (null == projectList && null == memberList) {
+        if (null == projectList && null == memberList && false == accept) {
+            clauses.add("gjr.user_id = " + userId);
+        } else if (null == projectList && null == memberList) {
             clauses.add(adminRequiredClause);
         } else if (!isIdInList(Integer.toString(userId), memberList)) {
             clauses.add(adminRequiredClause);
