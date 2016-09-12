@@ -102,6 +102,42 @@ public class ProjectMembersIT extends BaseIT {
     }
 
     @Test
+    public void testRetrieveProjectInvitations() throws Exception {
+        ServiceLogger.log(LOGTAG, "starting testRetrieveProjectInvitations");
+        // create a project, add userEPPN and knownEPPN to the project
+        String unique = "invite"  + TestUserUtil.generateTime();
+        String admin = "userEPPN" + unique;
+        final int adminId = UserIT.createUserAndReturnID(unique);
+        final Integer newProjectId = TestProjectUtil.createProject(admin);
+        final Integer memberId = UserDao.getUserID(knownEPPN);
+        final ProjectMember requestProjectMember = TestProjectUtil.createNewProjectMemberForRequest(newProjectId, memberId, adminId);
+
+        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", admin).body(requestProjectMember)
+                .expect().statusCode(HttpStatus.OK.value())
+                .when().post(PROJECT_MEMBERS_RESOURCE).as(ProjectMember.class);
+
+        // invitee should get their invitation back
+        final ValidatableResponse response = given().header("AJP_eppn", knownEPPN).param("accept", "false")
+            .expect().statusCode(OK.value()).when()
+            .get(PROJECT_MEMBERS_RESOURCE).then()
+            .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+
+        // based on data loaded in gforge.psql
+        final JSONArray jsonArray = new JSONArray(response.extract().asString());
+        assertTrue("Expecting exactly one results for new user", 1 == jsonArray.length());
+
+        // admin should get nothing since accept = false
+        final ValidatableResponse responseByAdmin = given().header("AJP_eppn", admin).param("accept", "false")
+                .expect().statusCode(OK.value()).when()
+                .get(PROJECT_MEMBERS_RESOURCE).then()
+                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+
+            // based on data loaded in gforge.psql
+            final JSONArray jsonArrayByAdmin = new JSONArray(responseByAdmin.extract().asString());
+            assertTrue("Expecting exactly one results for new user", 0 == jsonArrayByAdmin.length());
+    }
+
+    @Test
     public void testProjectJoinRequests() {
         ServiceLogger.log(LOGTAG, "starting testProjectJoinRequests");
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
