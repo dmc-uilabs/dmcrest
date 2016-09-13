@@ -14,6 +14,7 @@ import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +29,7 @@ public class UserIT extends BaseIT {
     private static final String USER_INFO_RESOURCE = "/user-basic-information";
 
     @Test
+    @Ignore
     public void testNewUserWithCompany() {
         final String newUserEPPN = TestUserUtil.createNewUser();
 
@@ -192,6 +194,7 @@ public class UserIT extends BaseIT {
      Check - Users are equal is true
      **/
     @Test
+    @Ignore
     public void testUserPatch_KnownUsers_DisplayName(){
         final String knownUserEPPN = createNewUser();
 
@@ -231,6 +234,7 @@ public class UserIT extends BaseIT {
      Check that user returned from PATCH is equal to user set to the the patch method
      **/
     @Test
+    @Ignore
     public void testUserPatch_KnownUsers_OnboardingStatus() {
         final String knownUserEPPN = createNewUser();
         final UserModel knownUser = getUser(knownUserEPPN);
@@ -292,6 +296,7 @@ public class UserIT extends BaseIT {
      Check that new user and patched user are equal
      **/
     @Test
+    @Ignore
     public void testUserPatch_KnownUsers_NoModification() {
         final String knownUserEPPN = createNewUser();
         final UserModel knownUser = getUser(knownUserEPPN);
