@@ -5,10 +5,12 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.OnboardingStatus;
 import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
+import org.dmc.services.data.models.OnboardingStatusModel;
 import org.dmc.services.data.models.UserContactInfoModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.OrganizationRepository;
@@ -32,6 +34,8 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		if (model != null) {
 			Mapper<UserContactInfo, UserContactInfoModel> mapper;
 			mapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+			Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper;
+			onboardingMapper = mapperFactory.mapperFor(OnboardingStatus.class, OnboardingStatusModel.class);
 
 			entity = copyProperties(model, new User());
 			entity.setRealname(model.getDisplayName());
@@ -49,6 +53,8 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 				entity.setOrganizationUser(orgUserEntity);
 				entity.getOrganizationUser().setUser(entity);
 			}
+
+			entity.setOnboarding(onboardingMapper.mapToEntity(model.getOnboarding()));
 		}
 		return entity;
 	}
@@ -60,6 +66,9 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		if (entity != null) {
 			Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper;
 			contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+
+			Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper;
+			onboardingMapper = mapperFactory.mapperFor(OnboardingStatus.class, OnboardingStatusModel.class);
 
 			model = copyProperties(entity, new UserModel());
 			model.setDisplayName(entity.getRealname());
@@ -79,6 +88,8 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			model.setCompanyId((entity.getOrganizationUser() == null) ?
 					null :
 					entity.getOrganizationUser().getOrganization().getId());
+
+			model.setOnboarding(onboardingMapper.mapToModel(entity.getOnboarding()));
 		}
 		return model;
 	}
