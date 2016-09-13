@@ -3,7 +3,10 @@ package org.dmc.services.utility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dmc.services.company.Company;
+import org.dmc.services.services.Service;
 import org.dmc.services.sharedattributes.FeatureImage;
+
+import static org.springframework.http.HttpStatus.*;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
@@ -16,6 +19,8 @@ public class CommonUtils {
 
     private static final String COMPANY_CREATE_RESOURCE = "/companies/create";
     private static final String COMPANY_ADD_MEMBER_RESOURCE = "/companies/{id}/member/{userId}";
+
+    private static final String SERVICE_LIST_RESOURCE = "/services";
 
     public static int  createCompany (String ownerEPPN ) {
         String json = createCompanyFixture(ownerEPPN);
@@ -128,4 +133,34 @@ public class CommonUtils {
         return true;
     }
 
+    public static Service createService(String userEPPN, Service service) {
+        Service serviceResponse =
+        given().
+        header("Content-type", "application/json").
+        header("AJP_eppn", userEPPN).
+        body(service).
+        expect().
+        statusCode(OK.value()).
+        when().
+        post(SERVICE_LIST_RESOURCE).
+        then().
+        body(matchesJsonSchemaInClasspath("Schemas/serviceSchema.json")).
+        extract().as(Service.class);
+        
+        return serviceResponse;
+    }
+    
+    // create a service object to use as body in post
+    public static Service createNewServiceObjectToPost(String title, String description, String owner,
+                                                       String type, String specifications, String projectId)
+    {
+        final Service service = new Service();
+        service.setTitle(title);
+        service.setDescription(description);
+        service.setOwner(owner);
+        service.setServiceType(type);
+        service.setSpecifications(specifications);
+        service.setProjectId(projectId);
+        return service;
+    }
 }

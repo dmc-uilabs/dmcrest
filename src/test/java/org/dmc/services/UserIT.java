@@ -140,7 +140,7 @@ public class UserIT extends BaseIT {
                 header("AJP_eppn", "userEPPN" + unique).
                 header("AJP_givenName", "userGivenName" + unique).
                 header("AJP_sn", "userSurname" + unique).
-                header("AJP_displayName", "userDisplayName" + unique).
+                header("AJP_displayName", "display" + unique).
                 header("AJP_mail", "userEmail" + unique).
                 expect().
                 statusCode(OK.value()).

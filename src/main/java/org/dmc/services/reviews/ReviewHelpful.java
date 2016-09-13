@@ -1,11 +1,11 @@
-package org.dmc.services.products;
+package org.dmc.services.reviews;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
-public class ProductReviewHelpful  {
+public class ReviewHelpful  {
   
   private String id = null;
   private String reviewId = null;
@@ -66,11 +66,11 @@ public class ProductReviewHelpful  {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ProductReviewHelpful productReviewHelpful = (ProductReviewHelpful) o;
-    return Objects.equals(id, productReviewHelpful.id) &&
-        Objects.equals(reviewId, productReviewHelpful.reviewId) &&
-        Objects.equals(accountId, productReviewHelpful.accountId) &&
-        Objects.equals(helpfull, productReviewHelpful.helpfull);
+    ReviewHelpful reviewHelpful = (ReviewHelpful) o;
+    return Objects.equals(id, reviewHelpful.id) &&
+        Objects.equals(reviewId, reviewHelpful.reviewId) &&
+        Objects.equals(accountId, reviewHelpful.accountId) &&
+        Objects.equals(helpfull, reviewHelpful.helpfull);
   }
 
   @Override
@@ -81,7 +81,7 @@ public class ProductReviewHelpful  {
   @Override
   public String toString()  {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ProductReviewHelpful {\n");
+    sb.append("class ReviewHelpful {\n");
     
     sb.append("  id: ").append(id).append("\n");
     sb.append("  reviewId: ").append(reviewId).append("\n");
