@@ -1,21 +1,22 @@
 package org.dmc.services.accounts;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.dmc.services.BaseIT;
-import org.dmc.services.users.User;
+import org.dmc.services.data.models.UserModel;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AccountsIT extends BaseIT {
 	private final String logTag = AccountsIT.class.getName();
@@ -74,7 +75,7 @@ public class AccountsIT extends BaseIT {
 	@Test
 	public void testAccountUpdate_MismatchedUserId() {
 		String unique = TestUserUtil.generateTime();
-		User user = getUser(unique);
+		UserModel user = getUser(unique);
 		JSONObject userAccountJson = getUserAccountJson(unique, user.getAccountId());
 
 		// perfrom update
@@ -93,7 +94,7 @@ public class AccountsIT extends BaseIT {
 	@Test
 	public void testAccountUpdateOfNewlyCreatedUser() {
 		String unique = TestUserUtil.generateTime();
-		User user = getUser(unique);
+		UserModel user = getUser(unique);
 		JSONObject userAccountJson = getUserAccountJson(unique, user.getAccountId());
 
 		// perfrom update
@@ -128,17 +129,17 @@ public class AccountsIT extends BaseIT {
 
 	}
 
-	private User getUser(String uniqueString) {
+	private UserModel getUser(String uniqueString) {
 		given().header("Content-type", "text/plain").header("AJP_eppn", "userEPPN" + uniqueString)
 				.header("AJP_givenName", "userGivenName" + uniqueString).header("AJP_sn", "userSurname" + uniqueString)
 				.header("AJP_displayName", "userDisplayName" + uniqueString)
 				.header("AJP_mail", "userEmail" + uniqueString).expect().statusCode(200).when().post("/users/create");
-				
-		User user = given().header("Content-type", "text/plain").header("AJP_eppn", "userEPPN" + uniqueString)
+
+		UserModel user = given().header("Content-type", "text/plain").header("AJP_eppn", "userEPPN" + uniqueString)
 				.header("AJP_givenName", "userGivenName" + uniqueString).header("AJP_sn", "userSurname" + uniqueString)
 				.header("AJP_displayName", "userDisplayName" + uniqueString)
 				.header("AJP_mail", "userEmail" + uniqueString).expect().statusCode(200).when().get("/user")
-				.as(User.class);
+				.as(UserModel.class);
 
 		return user;
 	}
@@ -182,7 +183,7 @@ public class AccountsIT extends BaseIT {
 				(receivedAccountServers.get(0).getStatus().equals("offline")));
 
 	}
-	
+
 	@Test
 	public void testAccountGet_AccountServersWithParameters() {
 		String accountID = "102"; // This is the accountID of alias=baseDOME in the servers table (first two entries)
@@ -219,8 +220,8 @@ public class AccountsIT extends BaseIT {
 				.get("/account-notification-settings/" + notificationSettingID);
 
 	}
-	
-	
+
+
 	/**
 	 * Tests for
 	 * <code> PATCH /accounts/{accountID}/account-notification-settings/NotificationSettingID </code>
@@ -237,7 +238,7 @@ public class AccountsIT extends BaseIT {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		given().
 		header("Content-type", "application/json").
 		header("AJP_eppn", knownUserEPPN).
@@ -257,7 +258,7 @@ public class AccountsIT extends BaseIT {
 				.get("/account-notification-categories");
 	}
 
-	
+
 	/**
 	 * Tests for <code> get /accounts/{accountID}/favorite_products </code>
 	 **/
