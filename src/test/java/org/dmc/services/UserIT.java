@@ -12,11 +12,17 @@ import java.sql.SQLException;
 
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.models.UserModel;
+import org.dmc.services.users.User;
+import org.dmc.services.users.UserMessages;
+import org.dmc.services.users.UserNotifications;
+import org.dmc.services.users.UserOnboarding;
+import org.dmc.services.users.UserRunningServices;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 //@Ignore
@@ -34,7 +40,7 @@ public class UserIT extends BaseIT {
         final String newUserEPPN = TestUserUtil.createNewUser();
 
         // create user; will not have company
-        final UserModel newUser =
+        final User newUser =
             given().
                 header("Content-type", APPLICATION_JSON_VALUE).
                 header("AJP_eppn", newUserEPPN).
@@ -45,7 +51,7 @@ public class UserIT extends BaseIT {
             expect().
                 statusCode(OK.value()).
             when().
-                get(USER_RESOURCE).as(UserModel.class);
+                get(USER_RESOURCE).as(User.class);
 
         // check; does not have have company
         assertTrue("New user is assigned company " + newUser.getCompanyId() + " when the comapnay should be -1", newUser.getCompanyId() == -1);
@@ -66,7 +72,7 @@ public class UserIT extends BaseIT {
         .when()
         .post(USER_INFO_RESOURCE);//.as(Integer.class);
 
-        final UserModel newUserGet =
+        final User newUserGet =
             given().
                 header("Content-type", APPLICATION_JSON_VALUE).
                 header("AJP_eppn", newUserEPPN).
@@ -77,7 +83,7 @@ public class UserIT extends BaseIT {
             expect().
                 statusCode(OK.value()).
             when().
-                get(USER_RESOURCE).as(UserModel.class);
+                get(USER_RESOURCE).as(User.class);
 
         // check user; should know have company
 
@@ -198,21 +204,22 @@ public class UserIT extends BaseIT {
     public void testUserPatch_KnownUsers_DisplayName(){
         final String knownUserEPPN = createNewUser();
 
-        final UserModel knownUser = getUser(knownUserEPPN);
+        final User knownUser = getUserOld(knownUserEPPN);
+        final JSONObject knownUserJSON = getUserJson(knownUserEPPN);
 
         // update user's display name
         final String unique = TestUserUtil.generateTime();
-        knownUser.setDisplayName("NEWDisplayName" + unique);
+        knownUserJSON.put("displayName", "NEWDisplayName" + unique);
 
-        final UserModel patchedKnownUser =
+        final User patchedKnownUser =
             given().
                 header("Content-type", APPLICATION_JSON_VALUE).
                 header("AJP_eppn", knownUserEPPN).
-                body(knownUser).
+                body(knownUserJSON.toString()).
             expect().
                 statusCode(OK.value()).
             when().
-            patch(USER_RESOURCE).as(UserModel.class);
+            patch(USER_RESOURCE).as(User.class);
 
         ServiceLogger.log(LOGTAG, "Body of patchedKnownUser is " + patchedKnownUser + ".");
 
@@ -237,52 +244,50 @@ public class UserIT extends BaseIT {
     @Ignore
     public void testUserPatch_KnownUsers_OnboardingStatus() {
         final String knownUserEPPN = createNewUser();
-        final UserModel knownUser = getUser(knownUserEPPN);
+        final JSONObject knownUserJSON = getUserJson(knownUserEPPN);
+        final ObjectMapper mapper = new ObjectMapper();
 
-        // what is this doing
-//        final ObjectMapper mapper = new ObjectMapper();
-//
-//        User knownUser = null;
-//        try {
-//            knownUser = mapper.readValue(knownUserJSON.toString(), User.class);
-//        } catch (java.io.IOException e) {
-//            assertTrue("Cannot map User from knownUserJSON: "+ knownUserJSON.toString(),false);
-//        }
-//
-//        final UserOnboarding defaultUserOnboarding = new UserOnboarding();
-//        assertTrue("New user's onboarding status is not equal to default onboarding status",
-//                   knownUser.getOnboarding().equals(defaultUserOnboarding));
+        User knownUser = null;
+        try {
+            knownUser = mapper.readValue(knownUserJSON.toString(), User.class);
+        } catch (java.io.IOException e) {
+            assertTrue("Cannot map User from knownUserJSON: "+ knownUserJSON.toString(),false);
+        }
+
+        final UserOnboarding defaultUserOnboarding = new UserOnboarding();
+        assertTrue("New user's onboarding status is not equal to default onboarding status",
+                   knownUser.getOnboarding().equals(defaultUserOnboarding));
 
         final boolean profile = knownUser.getOnboarding().getProfile();
         final boolean account = knownUser.getOnboarding().getAccount();
         final boolean company = knownUser.getOnboarding().getCompany();
         final boolean storefront = knownUser.getOnboarding().getStorefront();
 
-//        assertTrue("Default OnboardingStatus is set to false",
-//                   !profile && !account &&
-//                   !company && !storefront);
+        assertTrue("Default OnboardingStatus is set to false",
+                   !profile && !account &&
+                   !company && !storefront);
 
         knownUser.getOnboarding().setProfile(!profile);
         knownUser.getOnboarding().setAccount(!account);
         knownUser.getOnboarding().setCompany(!company);
         knownUser.getOnboarding().setStorefront(!storefront);
 
-//        String patchedKnownUserJSONinString = null;
-//        try {
-//            patchedKnownUserJSONinString = mapper.writeValueAsString(knownUser);
-//        } catch (JsonProcessingException e) {
-//
-//        }
+        String patchedKnownUserJSONinString = null;
+        try {
+            patchedKnownUserJSONinString = mapper.writeValueAsString(knownUser);
+        } catch (JsonProcessingException e) {
 
-        final UserModel patchedKnownUser =
+        }
+
+        final User patchedKnownUser =
             given().
                 header("Content-type", APPLICATION_JSON_VALUE).
                 header("AJP_eppn", knownUserEPPN).
-                body(knownUser).
+                body(patchedKnownUserJSONinString).
             expect().
                 statusCode(OK.value()).
             when().
-                patch(USER_RESOURCE).as(UserModel.class);
+                patch(USER_RESOURCE).as(User.class);
 
         // check results of PATCH
         assertTrue("knownUser and patchedKnownUser are not equal", patchedKnownUser.equals(knownUser));
@@ -299,60 +304,59 @@ public class UserIT extends BaseIT {
     @Ignore
     public void testUserPatch_KnownUsers_NoModification() {
         final String knownUserEPPN = createNewUser();
-        final UserModel knownUser = getUser(knownUserEPPN);
+        final JSONObject knownUserJSON = getUserJson(knownUserEPPN);
         final ObjectMapper mapper = new ObjectMapper();
 
-        //What does any of this do?
-//        User knownUser = null;
-//        try{
-//            knownUser = mapper.readValue(knownUserJSON.toString(), User.class);
-//        } catch (java.io.IOException e) {
-//            assertTrue("Cannot map User from knownUserJSON: "+ knownUserJSON.toString(),false);
-//        }
-//
-//        // check User POJOs
-//        assertTrue("User account id is > 0", knownUser.getAccountId() > 0);
-//        assertTrue("User profile id is > 0", knownUser.getProfileId() > 0);
-//        assertTrue("User company id is set unexpectedly", knownUser.getCompanyId() == -1);
-//        assertTrue("User role is set unexpectedaly", knownUser.getRole() == -1);
-//        assertFalse("User termsConditions have not been expected (false)", knownUser.getTermsConditions());
-//
-//        // check User subattribute classes
-//        final UserOnboarding defaultUserOnboarding = new UserOnboarding();
-//        assertTrue("New user's onboarding status is not equal to default onboarding status",
-//                   knownUser.getOnboarding().equals(defaultUserOnboarding));
-//
-//        final UserNotifications defaultUserNotifications = new UserNotifications();
-//        assertTrue("New user's notifications status is not equal to default notifications status",
-//                   knownUser.getNotifications().equals(defaultUserNotifications));
-//
-//        final UserRunningServices defaultUserRunningServices = new UserRunningServices();
-//        assertTrue("New user's Running Services status is not equal to default Running Services status",
-//                   knownUser.getRunningServices().equals(defaultUserRunningServices));
-//
-//        final UserMessages defaultUserMessages = new UserMessages();
-//        assertTrue("New user's Messages status is not equal to default Running Messages status",
-//                   knownUser.getMessages().equals(defaultUserMessages));
-//
-//        String patchedKnownUserJSONinString = null;
-//        try {
-//            patchedKnownUserJSONinString = mapper.writeValueAsString(knownUser);
-//        } catch (JsonProcessingException e) {
-//
-//        }
+        User knownUser = null;
+        try{
+            knownUser = mapper.readValue(knownUserJSON.toString(), User.class);
+        } catch (java.io.IOException e) {
+            assertTrue("Cannot map User from knownUserJSON: "+ knownUserJSON.toString(),false);
+        }
 
-        UserModel patchedKnownUser =
+        // check User POJOs
+        assertTrue("User account id is > 0", knownUser.getAccountId() > 0);
+        assertTrue("User profile id is > 0", knownUser.getProfileId() > 0);
+        assertTrue("User company id is set unexpectedly", knownUser.getCompanyId() == -1);
+        assertTrue("User role is set unexpectedaly", knownUser.getRole() == -1);
+        assertFalse("User termsConditions have not been expected (false)", knownUser.getTermsConditions());
+
+        // check User subattribute classes
+        final UserOnboarding defaultUserOnboarding = new UserOnboarding();
+        assertTrue("New user's onboarding status is not equal to default onboarding status",
+                   knownUser.getOnboarding().equals(defaultUserOnboarding));
+
+        final UserNotifications defaultUserNotifications = new UserNotifications();
+        assertTrue("New user's notifications status is not equal to default notifications status",
+                   knownUser.getNotifications().equals(defaultUserNotifications));
+
+        final UserRunningServices defaultUserRunningServices = new UserRunningServices();
+        assertTrue("New user's Running Services status is not equal to default Running Services status",
+                   knownUser.getRunningServices().equals(defaultUserRunningServices));
+
+        final UserMessages defaultUserMessages = new UserMessages();
+        assertTrue("New user's Messages status is not equal to default Running Messages status",
+                   knownUser.getMessages().equals(defaultUserMessages));
+
+        String patchedKnownUserJSONinString = null;
+        try {
+            patchedKnownUserJSONinString = mapper.writeValueAsString(knownUser);
+        } catch (JsonProcessingException e) {
+
+        }
+
+        User patchedKnownUser =
             given().
                 header("Content-type", APPLICATION_JSON_VALUE).
                 header("AJP_eppn", knownUserEPPN).
-                body(knownUser).
+                body(patchedKnownUserJSONinString).
                 expect().
                 statusCode(OK.value()).
                 when().
-                patch(USER_RESOURCE).as(UserModel.class);
+                patch(USER_RESOURCE).as(User.class);
 
         // check results of PATCH
-        assertTrue("knownUser and patchedKnownUser are equal", patchedKnownUser.equals(knownUser));
+        assertTrue("knownUser and patchedKnownUser are not equal", patchedKnownUser.equals(knownUser));
     }
 
     private String createNewUser() {
@@ -403,4 +407,17 @@ public class UserIT extends BaseIT {
 
         return user;
     }
+
+    private User getUserOld(String userEPPN) {
+        final User user =
+            given().
+                header("AJP_eppn", userEPPN).
+            expect().
+                statusCode(OK.value()).
+            when().
+                get(USER_RESOURCE).as(User.class);
+
+        return user;
+    }
+
 }
