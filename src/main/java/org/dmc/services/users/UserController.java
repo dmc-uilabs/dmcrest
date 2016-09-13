@@ -1,6 +1,11 @@
 package org.dmc.services.users;
 
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.dmc.services.ErrorMessage;
+import org.dmc.services.Id;
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
@@ -28,9 +33,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
-import java.util.List;
-
 @RestController
 public class UserController {
 
@@ -48,15 +50,15 @@ public class UserController {
 	private UserPrincipalService userPrincipalService;
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
-	public Integer createUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
+	public Id createUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                          @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                          @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
                          @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
     	ServiceLogger.log(logTag, "In createUser: " + userEPPN);
 
-		return userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail)
-				.getId();
+		return new Id(userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail)
+				.getId());
     }
 
     @RequestMapping(value = "/user", method = RequestMethod.GET)
