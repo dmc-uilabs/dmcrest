@@ -1,8 +1,5 @@
 package org.dmc.services;
 
-import javax.inject.Inject;
-
-import org.dmc.services.security.AuthenticationExceptionHandler;
 import org.dmc.services.security.DMCRequestHeaderAuthenticationFilter;
 import org.dmc.services.security.UserPrincipalService;
 import org.springframework.context.annotation.Configuration;
@@ -14,9 +11,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter;
+
+import javax.inject.Inject;
 
 @Configuration
 @EnableWebSecurity
@@ -28,30 +28,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) {
-		UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken> wrapper = new UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken>(userPrincipalService);
-		
+		UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken> wrapper
+				= new UserDetailsByNameServiceWrapper<>(userPrincipalService);
 		PreAuthenticatedAuthenticationProvider preAuthenticatedProvider = new PreAuthenticatedAuthenticationProvider();
 		preAuthenticatedProvider.setPreAuthenticatedUserDetailsService(wrapper);
 		auth.authenticationProvider(preAuthenticatedProvider);
 	}
-	
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		DMCRequestHeaderAuthenticationFilter authFilter = new DMCRequestHeaderAuthenticationFilter();
-		authFilter.setAppToken(Config.APPLICATION_TOKEN);
-		authFilter.setCheckForPrincipalChanges(true);
-		authFilter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
-		authFilter.setAuthenticationManager(authenticationManager());
-		
 		http
-			.csrf().disable()
-			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-			.addFilter(authFilter)
-			.authorizeRequests().anyRequest().permitAll()
-			.and().exceptionHandling().authenticationEntryPoint(new AuthenticationExceptionHandler())
-			.and().httpBasic().disable();
+				.csrf().disable()
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+				.addFilterAfter(dmcRequestHeaderAuthenticationFilter(), ExceptionTranslationFilter.class)
+				.authorizeRequests().anyRequest().permitAll()
+				.and().exceptionHandling().authenticationEntryPoint(new Http403ForbiddenEntryPoint())
+				.and().httpBasic().disable();
 	}
-	
+
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		web.ignoring().antMatchers("/users/create",
@@ -63,5 +57,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/configuration/ui",
 				"/swagger-resources",
 				"/v2/api-docs");
+	}
+
+	private DMCRequestHeaderAuthenticationFilter dmcRequestHeaderAuthenticationFilter() throws Exception {
+		DMCRequestHeaderAuthenticationFilter authFilter = new DMCRequestHeaderAuthenticationFilter();
+		authFilter.setAppToken(Config.APPLICATION_TOKEN);
+		authFilter.setCheckForPrincipalChanges(true);
+		authFilter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
+		authFilter.setAuthenticationManager(authenticationManager());
+		return authFilter;
 	}
 }
