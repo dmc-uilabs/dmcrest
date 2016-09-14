@@ -4,6 +4,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.ErrorMessage;
 
+import org.dmc.services.data.dao.user.UserBasicInformationDao;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class UserBasicInformationController {
 
 	private final String logTag = UserBasicInformationController.class.getName();
-	private UserBasicInformationDao  info = new UserBasicInformationDao(); 
+	private UserBasicInformationDao info = new UserBasicInformationDao();
     
 	@RequestMapping(value = "/user-basic-information", method = RequestMethod.POST, headers = {"Content-type=application/json"})
 	public Id createUserBasicInformation(@RequestBody String payload,

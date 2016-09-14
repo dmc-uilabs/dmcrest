@@ -28,7 +28,7 @@ import org.hibernate.annotations.Where;
 public class DMDIIMember extends BaseEntity {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@ManyToOne
@@ -203,5 +203,4 @@ public class DMDIIMember extends BaseEntity {
 			return false;
 		return true;
 	}
-
 }

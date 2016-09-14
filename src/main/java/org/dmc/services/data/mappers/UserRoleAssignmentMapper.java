@@ -1,13 +1,13 @@
 package org.dmc.services.data.mappers;
 
-import javax.inject.Inject;
-
 import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.models.UserRoleAssignmentModel;
-import org.dmc.services.data.repositories.OrganizationDao;
+import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.RoleRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
 
 @Component
 public class UserRoleAssignmentMapper extends AbstractMapper<UserRoleAssignment, UserRoleAssignmentModel> {
@@ -19,14 +19,14 @@ public class UserRoleAssignmentMapper extends AbstractMapper<UserRoleAssignment,
 	private RoleRepository roleRepository;
 	
 	@Inject
-	private OrganizationDao organizationDao;
+	private OrganizationRepository organizationRepository;
 
 	@Override
 	public UserRoleAssignment mapToEntity(UserRoleAssignmentModel model) {
 		if (model == null) return null;
 		
 		UserRoleAssignment entity = copyProperties(model, new UserRoleAssignment());
-		entity.setOrganization(organizationDao.findOne(model.getOrganizationId()));
+		entity.setOrganization(organizationRepository.findOne(model.getOrganizationId()));
 		entity.setUser(userRepository.findOne(model.getUserId()));
 		entity.setRole(roleRepository.findByRole(model.getRole()));
 		return entity;
