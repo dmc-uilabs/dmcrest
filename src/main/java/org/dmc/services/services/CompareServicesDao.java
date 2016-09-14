@@ -9,7 +9,7 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.users.UserDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.profile.ProfileDao;
 
 public class CompareServicesDao {

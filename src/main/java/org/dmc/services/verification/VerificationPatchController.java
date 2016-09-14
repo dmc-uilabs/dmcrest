@@ -1,9 +1,7 @@
 package org.dmc.services.verification;
 
-import org.dmc.services.verification.VerificationPatchDao;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.verification.VerificationPatch;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,14 +9,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
 
 @RestController
 public class VerificationPatchController {
 	
 	private final String logTag = VerificationPatch.class.getName();
-    private VerificationPatchDao verificationPatchDao = new VerificationPatchDao(); 
-    private Verification verificationTest = new Verification(); 
+	private VerificationPatchDao verificationPatchDao;
+	private Verification verificationTest;
 
+	@PostConstruct
+	private void init() {
+		verificationPatchDao = new VerificationPatchDao();
+		verificationTest = new Verification();
+	}
 	
 	@RequestMapping(value = "/verify", method = RequestMethod.POST, consumes = "application/json", produces = { "application/json" })
     public ResponseEntity verify(@RequestBody VerificationPatch payload) {

@@ -1,26 +1,26 @@
 package org.dmc.services.services;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.SqlTypeConverterUtility;
-import org.dmc.services.sharedattributes.FeatureImage;
-import org.dmc.services.users.UserDao;
 import org.dmc.services.company.CompanyDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.services.ServiceHistory.PeriodEnum;
 import org.dmc.services.services.ServiceHistory.SectionEnum;
+import org.dmc.services.sharedattributes.FeatureImage;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ServiceDao {
 

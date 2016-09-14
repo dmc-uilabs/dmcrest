@@ -1,4 +1,4 @@
-package org.dmc.services.users;
+package org.dmc.services.data.dao.user;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,6 +8,8 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.ServiceLogger;
 
 import javax.xml.ws.http.HTTPException;
+
+import org.dmc.services.users.UserOnboarding;
 import org.springframework.http.HttpStatus;
 
 

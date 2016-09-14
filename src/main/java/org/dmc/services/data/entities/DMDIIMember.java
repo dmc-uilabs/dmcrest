@@ -1,8 +1,6 @@
 package org.dmc.services.data.entities;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import org.dmc.services.dmdiitype.DMDIIType;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,15 +14,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import org.dmc.services.dmdiitype.DMDIIType;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "organization_dmdii_member")
 public class DMDIIMember extends BaseEntity {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@ManyToOne
@@ -41,10 +40,10 @@ public class DMDIIMember extends BaseEntity {
 	@Column(name = "expire_date")
 	private Date expireDate;
 
-	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "dmdiiMember", cascade = CascadeType.ALL)
 	private List<DMDIIMemberContact> contacts;
 
-	@OneToMany(mappedBy="dmdiiMember", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "dmdiiMember", cascade = CascadeType.ALL)
 	private List<DMDIIMemberFinance> finances;
 
 	@OneToMany(fetch = FetchType.LAZY)
@@ -177,5 +176,4 @@ public class DMDIIMember extends BaseEntity {
 			return false;
 		return true;
 	}
-
 }

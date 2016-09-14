@@ -1,22 +1,12 @@
 package org.dmc.services;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.HttpStatus.*;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Random;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.restassured.response.ValidatableResponse;
+import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.services.DomeModelParam;
 import org.dmc.services.services.GetDomeInterface;
 import org.dmc.services.services.GetServiceRun;
@@ -25,30 +15,39 @@ import org.dmc.services.services.PostUpdateDomeInterface;
 import org.dmc.services.services.RunStats;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceAuthor;
+import org.dmc.services.services.ServiceHistory;
 import org.dmc.services.services.ServiceInputPosition;
 import org.dmc.services.services.ServiceSpecialSpecifications;
 import org.dmc.services.services.ServiceSpecifications;
 import org.dmc.services.services.ServiceTag;
 import org.dmc.services.services.UsageStats;
-
-import org.dmc.services.users.UserDao;
-import org.dmc.services.projects.ProjectCreateRequest;
-import org.dmc.services.services.*;
 import org.dmc.services.utility.CommonUtils;
 import org.dmc.services.utility.TestUserUtil;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.response.ValidatableResponse;
-
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Random;
+
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class ServiceIT extends BaseIT {
 

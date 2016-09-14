@@ -3,6 +3,7 @@ package org.dmc.services.users;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.dmc.services.data.dao.user.UserOnboardingDao;
 
 public class UserOnboarding {
     private boolean profile;
@@ -14,7 +15,7 @@ public class UserOnboarding {
         this(false, false, false, false);
     }
                    
-    UserOnboarding(boolean profile, boolean account, boolean company, boolean storefront) {
+    public UserOnboarding(boolean profile, boolean account, boolean company, boolean storefront) {
         this.profile = profile;
         this.account = account;
         this.company = company;

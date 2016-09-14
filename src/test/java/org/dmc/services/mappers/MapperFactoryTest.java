@@ -1,15 +1,10 @@
 package org.dmc.services.mappers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
-
 import org.dmc.services.TestConfig;
 import org.dmc.services.data.entities.BaseEntity;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
-import org.dmc.services.data.mappers.MapperFactory.MapperRegistrationException;
+import org.dmc.services.data.mappers.MapperFactory.MapperRegistrationError;
 import org.dmc.services.data.models.BaseModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +17,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
@@ -91,8 +91,8 @@ public class MapperFactoryTest {
 		assertNotEquals(mockMapper1, returnedMapper);
 		assertNotEquals(mockMapper2, returnedMapper);
 	}
-	
-	@Test(expected = MapperRegistrationException.class)
+
+	@Test(expected = MapperRegistrationError.class)
 	public void testRegisterMapper_duplicateRegistration() {
 		Mapper<TestBaseEntity1, TestBaseModel1> duplicateMockMapper = Mockito.mock(Mapper.class);
 		when(duplicateMockMapper.supportsEntity()).thenReturn(TestBaseEntity1.class);

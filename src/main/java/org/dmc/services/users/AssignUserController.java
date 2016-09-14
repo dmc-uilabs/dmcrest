@@ -29,15 +29,12 @@ public class AssignUserController {
     private final static String LOGTAG = AssignUserController.class.getName();
     private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
 
-    /**
-     * GET assign_users
-     * 
-     * @param userEPPN
-     * @param project
-     *            number
-     * @return
-     * @throws Exception
-     */
+	/**
+	 * GET assign_users
+	 * @param userEPPN
+	 * @return
+	 * @throws Exception
+	 */
     @RequestMapping(value = "/assign_users", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAssignUsers(
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
@@ -63,15 +60,13 @@ public class AssignUserController {
         }
     }
 
-    /**
-     * GET assign_users
-     * 
-     * @param userEPPN
-     * @param project
-     *            number
-     * @return
-     * @throws Exception
-     */
+	/**
+	 * GET assign_users
+	 * @param userEPPN
+	 * @param projectId
+	 * @return
+	 * @throws Exception
+	 */
     @RequestMapping(value = "/assign_users/{projectId}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAssignUsersForProject(
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,

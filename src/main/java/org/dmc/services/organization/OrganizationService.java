@@ -1,13 +1,9 @@
 package org.dmc.services.organization;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
+import com.mysema.query.jpa.JPASubQuery;
+import com.mysema.query.types.ExpressionUtils;
+import com.mysema.query.types.Predicate;
+import com.mysema.query.types.query.ListSubQuery;
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.entities.Organization;
@@ -18,7 +14,7 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
-import org.dmc.services.data.repositories.OrganizationDao;
+import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
@@ -27,16 +23,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.mysema.query.jpa.JPASubQuery;
-import com.mysema.query.types.ExpressionUtils;
-import com.mysema.query.types.Predicate;
-import com.mysema.query.types.query.ListSubQuery;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrganizationService {
 
 	@Inject
-	private OrganizationDao organizationDao;
+	private OrganizationRepository organizationRepository;
 
 	@Inject
 	private AreaOfExpertiseRepository areaOfExpertiseRepository;
@@ -56,7 +54,7 @@ public class OrganizationService {
 	public List<OrganizationModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
-		return mapper.mapToModel(organizationDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		return mapper.mapToModel(organizationRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
 	}
 
 	@Transactional
@@ -86,12 +84,12 @@ public class OrganizationService {
 
 		// if organization is being created, save it and set the user saving as company admin
 		if(organizationEntity.getId() == null) {
-			organizationEntity = organizationDao.save(organizationEntity);
+			organizationEntity = organizationRepository.save(organizationEntity);
 			User userEntity = userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
 			organizationUserService.createVerifiedOrganizationUser(userEntity, organizationEntity);
 			userRoleAssignmentService.assignInitialCompanyAdmin(userEntity, organizationEntity);
 		} else {
-			organizationEntity = organizationDao.save(organizationEntity);
+			organizationEntity = organizationRepository.save(organizationEntity);
 		}
 
 		return mapper.mapToModel(organizationEntity);
@@ -99,17 +97,17 @@ public class OrganizationService {
 	}
 
 	public Organization save(Organization organization) {
-		return organizationDao.save(organization);
+		return organizationRepository.save(organization);
 	}
 
 	public OrganizationModel findById(Integer id) {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-		return mapper.mapToModel(organizationDao.findOne(id));
+		return mapper.mapToModel(organizationRepository.findOne(id));
 	}
 
 	public List<OrganizationModel> findAll() {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-		return mapper.mapToModel(organizationDao.findAll());
+		return mapper.mapToModel(organizationRepository.findAll());
 	}
 
 	public List<OrganizationModel> findNonDmdiiMembers() {
@@ -117,7 +115,7 @@ public class OrganizationService {
 		Predicate predicate = QOrganization.organization.id.notIn(subQuery);
 
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-		return mapper.mapToModel(organizationDao.findAll(predicate));
+		return mapper.mapToModel(organizationRepository.findAll(predicate));
 	}
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {

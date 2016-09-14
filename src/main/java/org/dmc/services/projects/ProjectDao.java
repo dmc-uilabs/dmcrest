@@ -1,7 +1,6 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,7 +16,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.users.UserDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.json.JSONObject;
 import org.json.JSONException;
 

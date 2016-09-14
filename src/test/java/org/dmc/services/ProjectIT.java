@@ -1,47 +1,32 @@
 package org.dmc.services;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.*;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dmc.services.discussions.Discussion;
+import org.dmc.services.projects.Project;
+import org.dmc.services.projects.ProjectCreateRequest;
+import org.dmc.services.projects.ProjectTag;
+import org.dmc.services.utility.TestProjectUtil;
+import org.dmc.services.utility.TestUserUtil;
+import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
-import org.dmc.services.company.CompanyUserUtil;
-import org.dmc.services.discussions.Discussion;
-import org.dmc.services.profile.Profile;
-import org.dmc.services.projects.PostProjectJoinRequest;
-import org.dmc.services.projects.Project;
-import org.dmc.services.projects.ProjectCreateRequest;
-import org.dmc.services.projects.ProjectJoinRequest;
-import org.dmc.services.projects.ProjectMember;
-import org.dmc.services.projects.ProjectTag;
-import org.dmc.services.users.UserDao;
-import org.dmc.services.utility.TestProjectUtil;
-import org.dmc.services.utility.TestUserUtil;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.Ignore;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.http.HttpStatus;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.response.ValidatableResponse;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 //
 public class ProjectIT extends BaseIT {
