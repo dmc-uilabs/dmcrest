@@ -29,21 +29,28 @@ public class ProductReviewsHelpfulController {
     private static final String logTag = ProductReviewsHelpfulController.class.getName();
     
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-    public ResponseEntity<List<ReviewHelpful>> productReviewsHelpfulGet(@RequestParam(value = "reviewId", required = true) String reviewId,
-                                                                        @RequestParam(value = "accountId", required = true) String accountId,
-                                                                        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-        // do some magic!
-        return new ResponseEntity<List<ReviewHelpful>>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<?> productReviewsHelpfulGet(@RequestParam(value = "reviewId", required = true) String reviewId,
+                                                      @RequestParam(value = "accountId", required = true) String accountId,
+                                                      @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
+        
+        try {
+            final List<ReviewHelpful> retrunedReviewHelpful = reviewDao.getHelpfulReview(reviewId, accountId, userEPPN);
+            return new ResponseEntity<List<ReviewHelpful>>(retrunedReviewHelpful, HttpStatus.OK);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
     }
     
     
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE },method = RequestMethod.POST)
     public ResponseEntity<?> productReviewsHelpfulPost(@RequestBody ReviewHelpful serviceReviewHelpful,
                                                        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
-        ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
+        final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
         
         try {
-            ReviewHelpful retrunedReviewHelpful = reviewDao.createHelpfulReview(serviceReviewHelpful, userEPPN);
+            final ReviewHelpful retrunedReviewHelpful = reviewDao.createHelpfulReview(serviceReviewHelpful, userEPPN);
             return new ResponseEntity<ReviewHelpful>(retrunedReviewHelpful, HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
@@ -52,20 +59,18 @@ public class ProductReviewsHelpfulController {
     }
     
     
-    
-    
     @RequestMapping(value = "/{helpfulID}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
-    public ResponseEntity<ReviewHelpful> productReviewsHelpfulHelpfulIDPatch(@PathVariable("helpfulID") String helpfulID,
+    public ResponseEntity<?> productReviewsHelpfulHelpfulIDPatch(@PathVariable("helpfulID") String helpfulID,
                                                                              @RequestBody ReviewHelpful helpful,
                                                                              @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
-        // do some magic!
-        return new ResponseEntity<ReviewHelpful>(HttpStatus.NOT_IMPLEMENTED);
+        final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
+        
+        try {
+            final ReviewHelpful retrunedReviewHelpful = reviewDao.patchHelpfulReview(helpfulID, helpful, userEPPN);
+            return new ResponseEntity<ReviewHelpful>(retrunedReviewHelpful, HttpStatus.OK);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
     }
-    
-    
-    
-    
-    
-    
-    
 }
