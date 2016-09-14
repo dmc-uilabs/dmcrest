@@ -7,8 +7,9 @@ package org.dmc.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dmc.services.company.Company;
-import org.dmc.services.services.Service;
 import org.dmc.services.products.ProductReview;
+import org.dmc.services.reviews.ReviewHelpful;
+import org.dmc.services.services.Service;
 import org.dmc.services.utility.CommonUtils;
 import org.dmc.services.utility.TestUserUtil;
 import org.junit.Before;
@@ -30,6 +31,7 @@ public class ProductReviewIT extends BaseIT {
 
     private static final String PRODUCT_REVIEW_GET_RESOURCE = "/product/{productID}/product_reviews";
     private static final String PRODUCT_REVIEW_POST_RESOURCE = "/product_reviews";
+    private static final String PRODUCT_REVIEW_HELPFULL_POST_RESOURCE = "/product_reviews_helpful";
 
     private int ownerUserId = -1;
     private String ownerEPPN;
@@ -84,7 +86,17 @@ public class ProductReviewIT extends BaseIT {
         memberUserId = CommonUtils.createUser(memberEPPN,member3GivenName, member3SurName, member3DisplayName, member3Email);
         CommonUtils.addMemberToCompany(memberUserId, companyId, ownerEPPN);
 
-
+        // Create a user that is not a member of the company
+        String unique4 = TestUserUtil.generateTime();
+        nonMemberEPPN = "userEPPN" + unique4;
+        String nonMember3GivenName = "userGivenName" + unique4;
+        String nonMember3SurName= "userSurName" + unique4;
+        String nonMember3DisplayName = "userDisplayName" + unique4;
+        String nonMember3Email = "userEmail" + unique4;
+        nonMemberDisplayName = nonMember3DisplayName;
+        
+        nonMemberUserId = CommonUtils.createUser(nonMemberEPPN,nonMember3GivenName, nonMember3SurName, nonMember3DisplayName, nonMember3Email);
+        
         Service service = CommonUtils.createNewServiceObjectToPost("junit service test", "junit service test",
                                                                    ownerEPPN, "service type",
                                                                    "service specifications", "1");
@@ -94,33 +106,10 @@ public class ProductReviewIT extends BaseIT {
         //        int companyId, String name, int accountId, String comment, String userEPPN;
         int parentReviewId = 0;
         reviewId = addReview(serviceResponse.getId(), memberDisplayName, memberUserId, DEFAULT_COMMENT, memberEPPN, parentReviewId);
-
-        
-        // Create a user that is not a member of the company
-        String unique4 = TestUserUtil.generateTime();
-        nonMemberEPPN = "userEPPN" + unique4;
-        String nonMember3GivenName = "userGivenName" + unique4;
-        String nonMember3SurName= "userSurName" + unique4;
-        String nonMember3DisplayName = "userDisplayName" + unique4;
-        String nonMember3Email = "userEmail" + unique4;
-        nonMemberDisplayName = nonMember3DisplayName;
-
-        nonMemberUserId = CommonUtils.createUser(nonMemberEPPN,nonMember3GivenName, nonMember3SurName, nonMember3DisplayName, nonMember3Email);
     }
 
     @Test
     public void testGetReviewsMember () {
-//        ArrayList<Map<String,?>> jsonAsArrayList  =
-//                given()
-//                        .header("Content-type", "application/json")
-//                        .header("AJP_eppn", memberEPPN)
-//                        .parameters("reviewId", "0")
-//                        .expect()
-//                        .statusCode(200)
-//                        .when()
-//                        .get(COMPANY_REVIEW_GET_RESOURCE, companyId)
-//                        .as(ArrayList.class);
-
         ProductReview[] productReviews  =
                 given()
                         .header("Content-type", "application/json")
@@ -151,9 +140,6 @@ public class ProductReviewIT extends BaseIT {
 
         assertTrue(review.getStatus() != null && review.getStatus().booleanValue() == true);
         assertTrue(review.getComment() != null && review.getComment().equals(DEFAULT_COMMENT));
-
-
-
     }
 
     @Test
@@ -188,8 +174,8 @@ public class ProductReviewIT extends BaseIT {
                         .get(PRODUCT_REVIEW_GET_RESOURCE, serviceId)
                         .as(ProductReview[].class);
 
-        assertTrue("Company review list cannot be null", productReviews != null);
-        assertTrue("Expected 2 company reviews, got" + productReviews.length, productReviews.length == 2);
+        assertTrue("Review list cannot be null", productReviews != null);
+        assertTrue("Expected 2 reviews, got" + productReviews.length, productReviews.length == 2);
 
         // Add a review reply
         int replyReviewId = addReview(serviceId, memberDisplayName, memberUserId, DEFAULT_REPLY_COMMENT + " 1", memberEPPN, reviewId);
@@ -208,8 +194,8 @@ public class ProductReviewIT extends BaseIT {
                         .get(PRODUCT_REVIEW_GET_RESOURCE, serviceId)
                         .as(ProductReview[].class);
 
-        assertTrue("Company review list cannot be null", productReviewReplies != null);
-        assertTrue("Expected 2 company review, got" + productReviewReplies.length, productReviewReplies.length == 2);
+        assertTrue("Review reply list cannot be null", productReviewReplies != null);
+        assertTrue("Expected 2 review replies, got" + productReviewReplies.length, productReviewReplies.length == 2);
 
         for (int i=0; i < productReviewReplies.length; i++) {
             ProductReview review = productReviewReplies[i];
@@ -243,21 +229,7 @@ public class ProductReviewIT extends BaseIT {
 
     }
 
-    public static String createProductReviewFixture(int serviceId, String name, int accountId, String comment, int reviewId)
-    {
-//            accountId:1
-//            comment:"Cool stuff!"
-//            serviceId:"1"
-//            date:"1468095204202"
-//            dislike:0
-//            id:12
-//            like:0
-//            name:"Thomas Smith"
-//            rating:3
-//            reply:false
-//            reviewId:0
-//            status:true
-
+    public static String createProductReviewFixture(int serviceId, String name, int accountId, String comment, int reviewId) {
         //String reviewId = Integer.toString(reviewIdCount++);
         boolean status = true;
         BigDecimal date = BigDecimal.valueOf(Calendar.getInstance().getTime().getTime());
@@ -326,11 +298,13 @@ public class ProductReviewIT extends BaseIT {
                         .path("id");
         
         ServiceLogger.log(logTag, "Added product review for service " + serviceId + ", returned review id " + id);
+        addReviewHelpful(id, memberUserId, memberEPPN, true);
+        addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false);
+        
         return id;
     }
 
     public int addReviewReply (int serviceId, String name, int accountId, String comment, int reviewId, String userEPPN, int parentReviewId) {
-
         String json = createProductReviewFixture(serviceId, name, accountId, comment, parentReviewId);
 
         int id =
@@ -346,7 +320,30 @@ public class ProductReviewIT extends BaseIT {
                         .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
                         .extract()
                         .path("id");
+        addReviewHelpful(id, memberUserId, memberEPPN, true);
+        addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false);
+
         return id;
+    }
+    
+    private ReviewHelpful addReviewHelpful(int reviewId, int userId, String userEPPN, boolean helpful) {
+        ReviewHelpful reviewHelpful = new ReviewHelpful();
+        reviewHelpful.setReviewId(Integer.toString(reviewId)); // id of review
+        reviewHelpful.setAccountId(Integer.toString(userId)); // id of user
+        reviewHelpful.setHelpfull(helpful);
+        
+        ReviewHelpful returnedReviewHelpful =
+            given().
+                header("Content-type", "application/json").
+                header("AJP_eppn", userEPPN).body(reviewHelpful).
+            expect().
+                statusCode(200).
+            when().
+                post(PRODUCT_REVIEW_HELPFULL_POST_RESOURCE).
+            then().
+                extract().as(ReviewHelpful.class);
+        
+        return returnedReviewHelpful;
     }
 
 }

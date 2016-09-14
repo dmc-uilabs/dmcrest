@@ -357,7 +357,7 @@ public class ReviewDao<T extends Review> {
         ResultSet rs = DBConnector.executeQuery(q);
         try {
             while (rs.next()) {
-                count = rs.getInt(1);
+                count = rs.getInt("count");
             }
         } catch (SQLException sqlEX) {
             // ignore
@@ -371,7 +371,7 @@ public class ReviewDao<T extends Review> {
         ResultSet rs = DBConnector.executeQuery(q);
         try {
             while (rs.next()) {
-                count = rs.getInt(1);
+                count = rs.getInt("count");
             }
         } catch (SQLException sqlEX) {
             // ignore
@@ -505,7 +505,7 @@ public class ReviewDao<T extends Review> {
         ResultSet rs = DBConnector.executeQuery(q);
         try {
             while (rs.next()) {
-                count = rs.getInt(1);
+                count = rs.getInt("count");
             }
         } catch (SQLException sqlEX) {
             // ignore
