@@ -51,8 +51,8 @@ public class ProductReviewIT extends BaseIT {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static final int DEFAULT_RATING = 3;
-    public static final int DEFAULT_LIKES = 0;
-    public static final int DEFAULT_DISLIKES = 0;
+    public static final int DEFAULT_LIKES = 1;
+    public static final int DEFAULT_DISLIKES = 1;
     public static final String DEFAULT_COMMENT = "This is my awesome product comment";
     public static final String DEFAULT_REPLY_COMMENT = DEFAULT_COMMENT + " reply";
 
@@ -176,7 +176,7 @@ public class ProductReviewIT extends BaseIT {
 
         assertTrue("Review list cannot be null", productReviews != null);
         assertTrue("Expected 2 reviews, got" + productReviews.length, productReviews.length == 2);
-
+        
         // Add a review reply
         int replyReviewId = addReview(serviceId, memberDisplayName, memberUserId, DEFAULT_REPLY_COMMENT + " 1", memberEPPN, reviewId);
 
@@ -199,7 +199,7 @@ public class ProductReviewIT extends BaseIT {
 
         for (int i=0; i < productReviewReplies.length; i++) {
             ProductReview review = productReviewReplies[i];
-
+            
             int expectedReplyId = 0;
             String expectedComment = null;
             assertTrue(review.getId() != null);
@@ -220,9 +220,10 @@ public class ProductReviewIT extends BaseIT {
             // Note: that only the top-level reviews have a stars rating; replies do not have stars.
             assertTrue(review.getRating() != null && review.getRating().intValue() == 0);
 
-            // Note: Until the endpoints for helpful reviews are implemented, likes/dislikes = 0
-            assertTrue(review.getLike() != null && review.getLike().intValue() == DEFAULT_LIKES);
-            assertTrue(review.getDislike() != null && review.getDislike().intValue() == DEFAULT_DISLIKES);
+            // Note: Until the endpoints for helpful reply reviews are implemented, likes/dislikes = 0
+            assertTrue(review.getLike() != null && review.getLike().intValue() == 0);
+            assertTrue(review.getDislike() != null && review.getDislike().intValue() == 0);
+            
             assertTrue(review.getStatus() != null && review.getStatus().booleanValue() == true);
             assertTrue(review.getComment() != null && review.getComment().equals(expectedComment));
         }
@@ -320,8 +321,8 @@ public class ProductReviewIT extends BaseIT {
                         .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
                         .extract()
                         .path("id");
-        addReviewHelpful(id, memberUserId, memberEPPN, true);
-        addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false);
+//        addReviewHelpful(id, memberUserId, memberEPPN, true);
+//        addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false);
 
         return id;
     }

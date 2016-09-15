@@ -159,12 +159,12 @@ public class ReviewDao<T extends Review> {
                 //r.setStatus(resultSet.getBoolean("status"));
                 r.setStatus(true);
 
-                int count_likes = countHelpfulForReview(Integer.parseInt(reviewId), true);
+                int count_likes = countHelpfulForReview(Integer.parseInt(r.getId()), true);
                 r.setLike(count_likes);
 
-                int count_dislikes = countHelpfulForReview(Integer.parseInt(reviewId), false);
+                int count_dislikes = countHelpfulForReview(Integer.parseInt(r.getId()), false);
                 r.setDislike(count_dislikes);
-
+                
                 // account_id is associated with organization table:  accountId integer
                 r.setAccountId(Integer.toString(resultSet.getInt("accountId")));
 
@@ -329,10 +329,10 @@ public class ReviewDao<T extends Review> {
                 //r.setStatus(resultSet.getBoolean("status"));
                 r.setStatus(true);
 
-                int count_likes = countHelpfulForReviewReply(Integer.parseInt(reviewId), true);
+                int count_likes = countHelpfulForReviewReply(Integer.parseInt(r.getId()), true);
                 r.setLike(count_likes);
 
-                int count_dislikes = countHelpfulForReviewReply(Integer.parseInt(reviewId), false);
+                int count_dislikes = countHelpfulForReviewReply(Integer.parseInt(r.getId()), false);
                 r.setDislike(count_dislikes);
 
                 // account_id is associated with organization table:  accountId integer
@@ -365,19 +365,6 @@ public class ReviewDao<T extends Review> {
         return count;
     }
 
-    public int countHelpfulForReview (int reviewId, boolean helpfulOrNot) {
-        String q = "select count(*) FROM " + tablePrefix + "_review_rate WHERE review_id = " + reviewId + " AND helpfulOrNot IS " + Boolean.toString(helpfulOrNot);
-        int count = 0;
-        ResultSet rs = DBConnector.executeQuery(q);
-        try {
-            while (rs.next()) {
-                count = rs.getInt("count");
-            }
-        } catch (SQLException sqlEX) {
-            // ignore
-        }
-        return count;
-    }
 
     public ReviewHelpful createHelpfulReview(ReviewHelpful serviceReviewHelpful, String userEPPN) throws DMCServiceException {
         int user_id = -9999;
@@ -499,6 +486,22 @@ public class ReviewDao<T extends Review> {
         return reviewHelpful;
     }
     
+    public int countHelpfulForReview (int reviewId, boolean helpfulOrNot) {
+        String q = "select count(*) FROM " + tablePrefix + "_review_rate WHERE review_id = " + reviewId + " AND helpfulOrNot IS " + Boolean.toString(helpfulOrNot);
+        int count = 0;
+        ResultSet rs = DBConnector.executeQuery(q);
+        try {
+            while (rs.next()) {
+                count = rs.getInt("count");
+            }
+        } catch (SQLException sqlEX) {
+            // ignore
+        }
+        ServiceLogger.log(logTag, "reviewId:" + reviewId + " has " + count + " " + helpfulOrNot + " reviews");
+
+        return count;
+    }
+
     public int countHelpfulForReviewReply (int reviewReplyId, boolean helpfulOrNot) {
         String q = "select count(*) FROM " + tablePrefix + "_review_reply_rate WHERE review_reply_id = " + reviewReplyId + " AND helpful_or_not IS " + Boolean.toString(helpfulOrNot);
         int count = 0;
