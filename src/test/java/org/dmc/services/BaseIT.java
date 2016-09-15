@@ -1,7 +1,6 @@
 package org.dmc.services;
 
 import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.builder.RequestSpecBuilder;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,8 +42,6 @@ public class BaseIT {
 			RestAssured.basePath = "";
 
 		}
-
-		RestAssured.requestSpecification = new RequestSpecBuilder().addHeader(APP_TOKEN_HEADER, APP_TOKEN).build();
 	}
 
 }
