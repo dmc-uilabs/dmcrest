@@ -94,7 +94,7 @@ public class DMDIIProject extends BaseEntity {
 	private BigDecimal dmdiiFunding;
 	
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 
 	public DMDIIProject () {
 

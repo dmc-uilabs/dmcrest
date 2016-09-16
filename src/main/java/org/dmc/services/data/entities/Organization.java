@@ -147,7 +147,7 @@ public class Organization extends BaseEntity {
 	private DMDIIMember dmdiiMember;
 	
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 	
 	@OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
 	private Set<UserRoleAssignment> userRoleAssignments;

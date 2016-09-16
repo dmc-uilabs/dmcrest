@@ -56,7 +56,7 @@ public class DMDIIMember extends BaseEntity {
 	private Set<DMDIIProject> projects;
 
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 
 	public DMDIIType getDmdiiType() {
 		return this.dmdiiType;
