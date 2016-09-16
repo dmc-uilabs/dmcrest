@@ -1,6 +1,8 @@
 package org.dmc.services.data.entities;
 
-import org.dmc.services.dmdiitype.DMDIIType;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,12 +16,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+
+import org.dmc.services.dmdiitype.DMDIIType;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "organization_dmdii_member")
+@Where(clause = "is_deleted='FALSE'")
+@SQLDelete(sql="UPDATE organization_dmdii_member SET is_deleted = 'TRUE' WHERE id = ?")
 public class DMDIIMember extends BaseEntity {
 
 	@Id
@@ -40,15 +45,18 @@ public class DMDIIMember extends BaseEntity {
 	@Column(name = "expire_date")
 	private Date expireDate;
 
-	@OneToMany(mappedBy = "dmdiiMember", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy="dmdiiMember", cascade={CascadeType.MERGE, CascadeType.PERSIST})
 	private List<DMDIIMemberContact> contacts;
 
-	@OneToMany(mappedBy = "dmdiiMember", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy="dmdiiMember", cascade={CascadeType.MERGE, CascadeType.PERSIST})
 	private List<DMDIIMemberFinance> finances;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "organization_dmdii_member_id")
+	@OneToMany(mappedBy="primeOrganization", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	@Where(clause = "is_deleted = 'FALSE'")
 	private Set<DMDIIProject> projects;
+
+	@Column(name = "is_deleted")
+	private Boolean isDeleted = false;
 
 	public DMDIIType getDmdiiType() {
 		return this.dmdiiType;
@@ -116,6 +124,14 @@ public class DMDIIMember extends BaseEntity {
 		this.projects = projects;
 	}
 
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -125,6 +141,7 @@ public class DMDIIMember extends BaseEntity {
 		result = prime * result + ((expireDate == null) ? 0 : expireDate.hashCode());
 		result = prime * result + ((finances == null) ? 0 : finances.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
 		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
 		result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
 		return result;
@@ -164,10 +181,20 @@ public class DMDIIMember extends BaseEntity {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
+		if (isDeleted == null) {
+			if (other.isDeleted != null)
+				return false;
+		} else if (!isDeleted.equals(other.isDeleted))
+			return false;
 		if (organization == null) {
 			if (other.organization != null)
 				return false;
 		} else if (!organization.equals(other.organization))
+			return false;
+		if (projects == null) {
+			if (other.projects != null)
+				return false;
+		} else if (!projects.equals(other.projects))
 			return false;
 		if (startDate == null) {
 			if (other.startDate != null)

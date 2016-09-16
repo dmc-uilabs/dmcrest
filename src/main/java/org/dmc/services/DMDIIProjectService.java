@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIProject;
@@ -52,6 +53,9 @@ public class DMDIIProjectService {
 
 	@Inject
 	private MapperFactory mapperFactory;
+	
+	@Inject
+	private DMDIIDocumentService dmdiiDocumentService;
 
 	public List<DMDIIProjectModel> filter(Map<String, String> filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
@@ -242,6 +246,12 @@ public class DMDIIProjectService {
 		Assert.notNull(dmdiiMemberId);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findActiveByContributingCompanyId(dmdiiMemberId));
+	}
+	
+	@Transactional
+	public void delete(Integer dmdiiProjectId) {
+		dmdiiDocumentService.deleteDMDIIDocumentsByDMDIIProjectId(dmdiiProjectId);
+		dmdiiProjectRepository.delete(dmdiiProjectId);
 	}
 
 }

@@ -36,9 +36,9 @@ public class UserModel extends BaseModel {
 	private String address;
 	private String phone;
 	private String image;
-	private UserNotifications notifications;
-	private UserRunningServices runningServices;
-	private UserMessages messages;
+	private UserNotifications notifications = new UserNotifications();
+	private UserRunningServices runningServices = new UserRunningServices();
+	private UserMessages messages = new UserMessages();
 	private OnboardingStatusModel onboarding;
 	private Map<Integer, String> roles;
 	private Boolean isDMDIIMember;
