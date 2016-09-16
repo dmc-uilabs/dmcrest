@@ -61,7 +61,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private DMCRequestHeaderAuthenticationFilter dmcRequestHeaderAuthenticationFilter() throws Exception {
 		DMCRequestHeaderAuthenticationFilter authFilter = new DMCRequestHeaderAuthenticationFilter();
-		authFilter.setAppToken(Config.APPLICATION_TOKEN);
 		authFilter.setCheckForPrincipalChanges(true);
 		authFilter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
 		authFilter.setAuthenticationManager(authenticationManager());

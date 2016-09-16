@@ -8,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,18 +23,12 @@ public class DMCRequestHeaderAuthenticationFilterTest {
 	@Mock
 	protected HttpServletRequest httpServletRequest;
 
-	private String appToken;
 	private String principal;
 
 	@Before
-	public void before(){
-		appToken = RandomStringUtils.randomAlphanumeric(25);
+	public void before() {
 		principal = RandomStringUtils.randomAlphanumeric(25);
-
-		requestHeaderAuthenticationFilter.setAppToken(appToken);
-
 		when(httpServletRequest.getHeader("AJP_eppn")).thenReturn(principal);
-		when(httpServletRequest.getHeader("APP_TOKEN")).thenReturn(appToken);
 	}
 
 	@Test
@@ -45,28 +38,9 @@ public class DMCRequestHeaderAuthenticationFilterTest {
 	}
 
 	@Test(expected = PreAuthenticatedCredentialsNotFoundException.class)
-	public void getPreAuthenticatedPrincipal_NullPrincipal(){
+	public void getPreAuthenticatedPrincipal_NullPrincipal() {
 		when(httpServletRequest.getHeader("AJP_eppn")).thenReturn(null);
 		requestHeaderAuthenticationFilter.getPreAuthenticatedPrincipal(httpServletRequest);
-	}
-
-	@Test(expected = PreAuthenticatedCredentialsNotFoundException.class)
-	public void getPreAuthenticatedPrincipal_NullToken(){
-		requestHeaderAuthenticationFilter.setAppToken(null);
-		requestHeaderAuthenticationFilter.getPreAuthenticatedPrincipal(httpServletRequest);
-	}
-
-	@Test(expected = PreAuthenticatedCredentialsNotFoundException.class)
-	public void getPreAuthenticatedPrincipal_InvalidToken(){
-		when(httpServletRequest.getHeader("APP_TOKEN")).thenReturn(appToken.substring(1));
-		requestHeaderAuthenticationFilter.getPreAuthenticatedPrincipal(httpServletRequest);
-	}
-
-	@Test
-	public void setAppToken() {
-		requestHeaderAuthenticationFilter.setAppToken(appToken);
-		String actual = (String) ReflectionTestUtils.getField(requestHeaderAuthenticationFilter, "appToken");
-		assertEquals(appToken, actual);
 	}
 
 }
