@@ -87,7 +87,7 @@ public class User extends BaseEntity {
 	@JoinColumn(table = "onboarding_status", name = "user_id")
 	private OnboardingStatus onboarding;
 	
-	@OneToMany(mappedBy = "createdFor", cascade = {CascadeType.DETACH, CascadeType.REMOVE})
+	@OneToMany(mappedBy = "createdFor", cascade = {CascadeType.DETACH, CascadeType.REMOVE}, fetch = FetchType.EAGER)
 	@OrderBy("created DESC")
 	private List<Notification> notifications;
 
