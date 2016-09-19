@@ -32,7 +32,6 @@ public class NotificationService {
 	@Inject
 	private NotificationRepository notificationRepository;
 	
-<<<<<<< HEAD
 	@Inject
 	private UserService userService;
 	
@@ -43,8 +42,6 @@ public class NotificationService {
 	private MapperFactory mapperFactory;
 	
 	@Transactional
-=======
->>>>>>> Add base for new notification system
 	public void markAllNotificationsReadForUser(Integer userId) {
 		notificationRepository.markAllNotificationsReadForUser(userId);
 	}
