@@ -55,17 +55,10 @@ public class Notification extends BaseEntity {
 	
 	private String message;
 	
-<<<<<<< HEAD
 	private boolean unread = true;
 	
 	@Column(name = "is_deleted")
-	private boolean isDeleted = false;
-=======
-	private boolean unread;
-	
-	@Column(name = "is_deleted")
 	private boolean isDeleted;
->>>>>>> Add base for new notification system
 	
 	@PrePersist
 	protected void onCreate() {
