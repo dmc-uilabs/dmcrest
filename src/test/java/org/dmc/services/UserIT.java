@@ -14,7 +14,6 @@ import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.users.User;
 import org.dmc.services.users.UserMessages;
-import org.dmc.services.users.UserNotifications;
 import org.dmc.services.users.UserOnboarding;
 import org.dmc.services.users.UserRunningServices;
 import org.dmc.services.utility.TestUserUtil;
@@ -325,10 +324,6 @@ public class UserIT extends BaseIT {
         final UserOnboarding defaultUserOnboarding = new UserOnboarding();
         assertTrue("New user's onboarding status is not equal to default onboarding status",
                    knownUser.getOnboarding().equals(defaultUserOnboarding));
-
-        final UserNotifications defaultUserNotifications = new UserNotifications();
-        assertTrue("New user's notifications status is not equal to default notifications status",
-                   knownUser.getNotifications().equals(defaultUserNotifications));
 
         final UserRunningServices defaultUserRunningServices = new UserRunningServices();
         assertTrue("New user's Running Services status is not equal to default Running Services status",
