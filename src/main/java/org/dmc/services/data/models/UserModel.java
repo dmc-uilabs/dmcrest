@@ -3,7 +3,6 @@ package org.dmc.services.data.models;
 import java.util.Map;
 
 import org.dmc.services.users.UserMessages;
-import org.dmc.services.users.UserNotifications;
 import org.dmc.services.users.UserRunningServices;
 
 public class UserModel extends BaseModel {
@@ -36,7 +35,6 @@ public class UserModel extends BaseModel {
 	private String address;
 	private String phone;
 	private String image;
-	private UserNotifications notifications = new UserNotifications();
 	private UserRunningServices runningServices = new UserRunningServices();
 	private UserMessages messages = new UserMessages();
 	private OnboardingStatusModel onboarding;
@@ -165,14 +163,6 @@ public class UserModel extends BaseModel {
 
 	public void setImage(String image) {
 		this.image = image;
-	}
-
-	public UserNotifications getNotifications() {
-		return notifications;
-	}
-
-	public void setNotifications(UserNotifications notifications) {
-		this.notifications = notifications;
 	}
 
 	public UserRunningServices getRunningServices() {
