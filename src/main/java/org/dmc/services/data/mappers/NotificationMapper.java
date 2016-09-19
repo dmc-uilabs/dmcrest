@@ -3,8 +3,8 @@ package org.dmc.services.data.mappers;
 import org.dmc.services.data.entities.Notification;
 import org.dmc.services.data.entities.Notification.NotificationType;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.models.MiniUserModel;
 import org.dmc.services.data.models.NotificationModel;
-import org.dmc.services.data.models.UserModel;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +16,7 @@ public class NotificationMapper extends AbstractMapper<Notification, Notificatio
 		
 		Notification entity = copyProperties(model, new Notification());
 		
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<User, MiniUserModel> userMapper = mapperFactory.mapperFor(User.class, MiniUserModel.class);
 		
 		entity.setCreatedBy(userMapper.mapToEntity(model.getCreatedBy()));
 		entity.setCreatedFor(userMapper.mapToEntity(model.getCreatedFor()));
@@ -31,7 +31,7 @@ public class NotificationMapper extends AbstractMapper<Notification, Notificatio
 		
 		NotificationModel model = copyProperties(entity, new NotificationModel());
 		
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<User, MiniUserModel> userMapper = mapperFactory.mapperFor(User.class, MiniUserModel.class);
 
 		model.setCreatedBy(userMapper.mapToModel(entity.getCreatedBy()));
 		model.setCreatedFor(userMapper.mapToModel(entity.getCreatedFor()));

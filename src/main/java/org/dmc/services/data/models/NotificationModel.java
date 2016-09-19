@@ -5,8 +5,8 @@ import java.util.Date;
 public class NotificationModel extends BaseModel {
 
 	private String type;
-	private UserModel createdBy;
-	private UserModel createdFor;
+	private MiniUserModel createdBy;
+	private MiniUserModel createdFor;
 	private Date created;
 	private String message;
 	private boolean unread;
@@ -17,16 +17,16 @@ public class NotificationModel extends BaseModel {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public UserModel getCreatedBy() {
+	public MiniUserModel getCreatedBy() {
 		return createdBy;
 	}
-	public void setCreatedBy(UserModel createdBy) {
+	public void setCreatedBy(MiniUserModel createdBy) {
 		this.createdBy = createdBy;
 	}
-	public UserModel getCreatedFor() {
+	public MiniUserModel getCreatedFor() {
 		return createdFor;
 	}
-	public void setCreatedFor(UserModel createdFor) {
+	public void setCreatedFor(MiniUserModel createdFor) {
 		this.createdFor = createdFor;
 	}
 	public Date getCreated() {

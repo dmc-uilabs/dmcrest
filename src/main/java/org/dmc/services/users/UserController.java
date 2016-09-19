@@ -3,7 +3,6 @@ package org.dmc.services.users;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.websocket.server.PathParam;
 
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
@@ -165,9 +164,9 @@ public class UserController {
 	}
 	
 	@RequestMapping(value = "/users/{userId}/notifications", params = "action=markAllRead", method = RequestMethod.PUT)
-	public void markNotificationsAsRead(@PathParam("userId") Integer userId) {
+	public void markNotificationsAsRead(@PathVariable("userId") Integer userId) {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		if (userId != loggedIn.getId()) {
+		if (!userId.equals(loggedIn.getId())) {
 			throw new AccessDeniedException("403 Permission Denied");
 		}
 		
