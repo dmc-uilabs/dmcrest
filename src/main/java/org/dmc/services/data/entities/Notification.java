@@ -50,10 +50,10 @@ public class Notification extends BaseEntity {
 	
 	private String message;
 	
-	private boolean unread;
+	private boolean unread = true;
 	
 	@Column(name = "is_deleted")
-	private boolean isDeleted;
+	private boolean isDeleted = false;
 	
 	@PrePersist
 	protected void onCreate() {
