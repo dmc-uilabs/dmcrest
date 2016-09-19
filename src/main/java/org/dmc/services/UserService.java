@@ -208,7 +208,7 @@ public class UserService {
 
 	@Transactional
 	public UserModel readOrCreateUser(String userEPPN, String userFirstName, String userSurname, String userFullname,
-			String userEmail) throws ArgumentNotFoundException {
+			String userEmail) {
 		final Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		User user = userRepository.findByUsername(userEPPN);
 		UserModel userModel;
@@ -231,7 +231,7 @@ public class UserService {
 	}
 
 	private User createUserAndOnboardingStatus(String userEPPN, String firstName, String lastName, String fullName,
-			String email) throws ArgumentNotFoundException {
+			String email) {
 		final User user = createUser(userEPPN, firstName, lastName, fullName, email);
 		final OnboardingStatus onboardingStatus = createOnboardingStatus(user.getId());
 		user.setOnboarding(onboardingStatus);
@@ -248,7 +248,7 @@ public class UserService {
 		return username;
 	}
 
-	private User createUser(String userEPPN, String firstName, String lastName, String fullName, String email) throws ArgumentNotFoundException {
+	private User createUser(String userEPPN, String firstName, String lastName, String fullName, String email)  {
 		User user = new User();
 		user.setUsername(userEPPN);
 		user.setPassword("password");

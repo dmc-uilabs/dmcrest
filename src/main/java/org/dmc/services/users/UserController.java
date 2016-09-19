@@ -52,7 +52,7 @@ public class UserController {
 	public Id createUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                          @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                          @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
-                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail) throws ArgumentNotFoundException
+                         @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
     	ServiceLogger.log(logTag, "In createUser: " + userEPPN);
 
@@ -64,7 +64,7 @@ public class UserController {
 	public UserModel getUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
                         @RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
                         @RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
-                        @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail) throws ArgumentNotFoundException
+                        @RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
 		return userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
