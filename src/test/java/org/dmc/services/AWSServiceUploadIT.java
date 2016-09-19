@@ -8,6 +8,7 @@ import org.dmc.services.services.ServiceDocument;
 import org.dmc.services.DMCServiceException;
 
 import org.dmc.services.verification.VerificationPatch;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
@@ -33,6 +34,8 @@ import static org.junit.Assert.assertTrue;
     DELETE /service_documents/{docId}
  * @author jjlustig
  */
+
+@Ignore
 public class AWSServiceUploadIT extends BaseIT {
 
 	private final String logTag = AWSServiceUploadIT.class.getName();

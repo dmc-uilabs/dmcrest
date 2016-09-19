@@ -27,13 +27,8 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		Document entity = copyProperties(model, new Document());
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
 		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getOwnerId())));
-		if(model.getOrganizationId() != null)
-			entity.setOrganization(orgMapper.mapToEntity(organizationService.findById(model.getOrganizationId())));
-		else
-			entity.setOrganization(null);
 
 		return entity;
 	}
@@ -45,10 +40,6 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		DocumentModel model = copyProperties(entity, new DocumentModel());
 		
 		model.setOwnerId(entity.getOwner().getId());
-		if(entity.getOrganization() != null)
-			model.setOrganizationId(entity.getOrganization().getId());
-		else
-			model.setOrganizationId(null);
 
 		return model;
 	}
