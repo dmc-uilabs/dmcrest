@@ -1,6 +1,7 @@
 package org.dmc.services.data.entities;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,7 +17,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 @Entity
+@Where(clause = "is_deleted='FALSE'")
+@SQLDelete(sql="UPDATE organization SET is_deleted = 'TRUE' WHERE organization_id = ?")
 @Table(name = "organization")
 public class Organization extends BaseEntity {
 
@@ -64,10 +70,10 @@ public class Organization extends BaseEntity {
 			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
 	private List<AreaOfExpertise> desiredAreasOfExpertise;
 
-	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL, orphanRemoval=true)
+	@OneToMany(mappedBy="organization", cascade={CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval=true)
 	private List<Award> awards;
 
-	@OneToMany(mappedBy="organization", cascade=CascadeType.ALL, orphanRemoval=true)
+	@OneToMany(mappedBy="organization", cascade={CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval=true)
 	private List<OrganizationContact> contacts;
 
 	@Column(name = "tech_expertise")
@@ -88,7 +94,7 @@ public class Organization extends BaseEntity {
 	@Column(name = "upcoming_project_interests")
 	private String upcomingProjectInterests;
 
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne(cascade={CascadeType.MERGE, CascadeType.PERSIST})
 	@JoinColumn(name = "address_id")
 	private Address address;
 
@@ -137,8 +143,17 @@ public class Organization extends BaseEntity {
 	@Column(name = "owner")
 	private String owner;
 
-	@OneToOne(mappedBy = "organization", fetch = FetchType.LAZY)
+	@OneToOne(mappedBy = "organization", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private DMDIIMember dmdiiMember;
+	
+	@Column(name = "is_deleted")
+	private Boolean isDeleted = false;
+	
+	@OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	private Set<UserRoleAssignment> userRoleAssignments;
+	
+	@OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	private Set<OrganizationUser> organizationUsers;
 
 	public Integer getId() {
 		return id;
@@ -438,30 +453,58 @@ public class Organization extends BaseEntity {
 		this.dmdiiMember = dmdiiMember;
 	}
 
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public Set<UserRoleAssignment> getUserRoleAssignments() {
+		return userRoleAssignments;
+	}
+
+	public void setUserRoleAssignments(Set<UserRoleAssignment> userRoleAssignments) {
+		this.userRoleAssignments = userRoleAssignments;
+	}
+
+	public Set<OrganizationUser> getOrganizationUsers() {
+		return organizationUsers;
+	}
+
+	public void setOrganizationUsers(Set<OrganizationUser> organizationUsers) {
+		this.organizationUsers = organizationUsers;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((accountId == null) ? 0 : accountId.hashCode());
 		result = prime * result + ((address == null) ? 0 : address.hashCode());
+		result = prime * result + ((areasOfExpertise == null) ? 0 : areasOfExpertise.hashCode());
 		result = prime * result + ((awards == null) ? 0 : awards.hashCode());
 		result = prime * result + ((categoryTier == null) ? 0 : categoryTier.hashCode());
 		result = prime * result + ((collaborationInterest == null) ? 0 : collaborationInterest.hashCode());
+		result = prime * result + ((contacts == null) ? 0 : contacts.hashCode());
 		result = prime * result + ((customers == null) ? 0 : customers.hashCode());
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((desiredAreasOfExpertise == null) ? 0 : desiredAreasOfExpertise.hashCode());
 		result = prime * result + ((division == null) ? 0 : division.hashCode());
-		result = prime * result + ((dmdiiMember == null) ? 0 : dmdiiMember.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((favoritesCount == null) ? 0 : favoritesCount.hashCode());
 		result = prime * result + ((featureImage == null) ? 0 : featureImage.hashCode());
 		result = prime * result + ((follow == null) ? 0 : follow.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((industry == null) ? 0 : industry.hashCode());
+		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
 		result = prime * result + ((isOwner == null) ? 0 : isOwner.hashCode());
 		result = prime * result + ((location == null) ? 0 : location.hashCode());
 		result = prime * result + ((logoImage == null) ? 0 : logoImage.hashCode());
 		result = prime * result + ((naicsCode == null) ? 0 : naicsCode.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((organizationUsers == null) ? 0 : organizationUsers.hashCode());
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
 		result = prime * result + ((pastProjects == null) ? 0 : pastProjects.hashCode());
 		result = prime * result + ((perferedCommMethod == null) ? 0 : perferedCommMethod.hashCode());
@@ -498,6 +541,11 @@ public class Organization extends BaseEntity {
 				return false;
 		} else if (!address.equals(other.address))
 			return false;
+		if (areasOfExpertise == null) {
+			if (other.areasOfExpertise != null)
+				return false;
+		} else if (!areasOfExpertise.equals(other.areasOfExpertise))
+			return false;
 		if (awards == null) {
 			if (other.awards != null)
 				return false;
@@ -513,6 +561,11 @@ public class Organization extends BaseEntity {
 				return false;
 		} else if (!collaborationInterest.equals(other.collaborationInterest))
 			return false;
+		if (contacts == null) {
+			if (other.contacts != null)
+				return false;
+		} else if (!contacts.equals(other.contacts))
+			return false;
 		if (customers == null) {
 			if (other.customers != null)
 				return false;
@@ -522,6 +575,11 @@ public class Organization extends BaseEntity {
 			if (other.description != null)
 				return false;
 		} else if (!description.equals(other.description))
+			return false;
+		if (desiredAreasOfExpertise == null) {
+			if (other.desiredAreasOfExpertise != null)
+				return false;
+		} else if (!desiredAreasOfExpertise.equals(other.desiredAreasOfExpertise))
 			return false;
 		if (division == null) {
 			if (other.division != null)
@@ -563,6 +621,11 @@ public class Organization extends BaseEntity {
 				return false;
 		} else if (!industry.equals(other.industry))
 			return false;
+		if (isDeleted == null) {
+			if (other.isDeleted != null)
+				return false;
+		} else if (!isDeleted.equals(other.isDeleted))
+			return false;
 		if (isOwner == null) {
 			if (other.isOwner != null)
 				return false;
@@ -587,6 +650,11 @@ public class Organization extends BaseEntity {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
+			return false;
+		if (organizationUsers == null) {
+			if (other.organizationUsers != null)
+				return false;
+		} else if (!organizationUsers.equals(other.organizationUsers))
 			return false;
 		if (owner == null) {
 			if (other.owner != null)
@@ -652,6 +720,11 @@ public class Organization extends BaseEntity {
 			if (other.upcomingProjectInterests != null)
 				return false;
 		} else if (!upcomingProjectInterests.equals(other.upcomingProjectInterests))
+			return false;
+		if (userRoleAssignments == null) {
+			if (other.userRoleAssignments != null)
+				return false;
+		} else if (!userRoleAssignments.equals(other.userRoleAssignments))
 			return false;
 		if (website == null) {
 			if (other.website != null)

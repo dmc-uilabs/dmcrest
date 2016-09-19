@@ -1,12 +1,8 @@
 package org.dmc.services.data.repositories;
 
-import java.util.List;
-
-import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.ResourceMachine;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 //Repositories are essentially DAOs. They are the class that queries that DB. Simple queries extend from
 //the base repo. You can find there documentation online here http://docs.spring.io/spring-data/jpa/docs/current/api/org/springframework/data/jpa/repository/JpaRepository.html

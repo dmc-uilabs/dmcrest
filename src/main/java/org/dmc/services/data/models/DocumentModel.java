@@ -13,7 +13,7 @@ public class DocumentModel extends BaseModel {
 
 	private Integer ownerId;
 
-	private List<DocumentModel> tags;
+	private List<DocumentTagModel> tags;
 
 	private Date modified;
 
@@ -59,11 +59,11 @@ public class DocumentModel extends BaseModel {
 		this.ownerId = ownerId;
 	}
 
-	public List<DocumentModel> getTags() {
+	public List<DocumentTagModel> getTags() {
 		return tags;
 	}
 
-	public void setTags(List<DocumentModel> tags) {
+	public void setTags(List<DocumentTagModel> tags) {
 		this.tags = tags;
 	}
 
