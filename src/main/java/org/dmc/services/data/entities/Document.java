@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,10 +33,6 @@ public class Document extends BaseEntity {
 
 	@Column(name = "url")
 	private String documentUrl;
-	
-	@ManyToOne
-	@JoinColumn(name = "organization_id")
-	private Organization organization;
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
@@ -59,10 +53,6 @@ public class Document extends BaseEntity {
 	
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
-	
-	@Column(name = "access_level")
-	@Enumerated(EnumType.STRING)
-	private DMDIIProjectItemAccessLevel accessLevel;
 	
 	@Column(name = "file_type_id")
 	private Integer fileType;
@@ -92,14 +82,6 @@ public class Document extends BaseEntity {
 
 	public void setDocumentUrl(String documentUrl) {
 		this.documentUrl = documentUrl;
-	}
-
-	public Organization getOrganization() {
-		return organization;
-	}
-
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
 	}
 
 	public User getOwner() {
@@ -142,14 +124,6 @@ public class Document extends BaseEntity {
 		this.isDeleted = isDeleted;
 	}
 
-	public DMDIIProjectItemAccessLevel getAccessLevel() {
-		return accessLevel;
-	}
-
-	public void setAccessLevel(DMDIIProjectItemAccessLevel accessLevel) {
-		this.accessLevel = accessLevel;
-	}
-
 	public Integer getFileType() {
 		return fileType;
 	}
@@ -170,8 +144,6 @@ public class Document extends BaseEntity {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((accessLevel == null) ? 0 : accessLevel.hashCode());
-		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
 		result = prime * result + ((documentName == null) ? 0 : documentName.hashCode());
 		result = prime * result + ((documentUrl == null) ? 0 : documentUrl.hashCode());
 		result = prime * result + ((expires == null) ? 0 : expires.hashCode());
@@ -192,13 +164,6 @@ public class Document extends BaseEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		Document other = (Document) obj;
-		if (accessLevel != other.accessLevel)
-			return false;
-		if (organization == null) {
-			if (other.organization != null)
-				return false;
-		} else if (!organization.equals(other.organization))
-			return false;
 		if (documentName == null) {
 			if (other.documentName != null)
 				return false;
