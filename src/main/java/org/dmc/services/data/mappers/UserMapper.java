@@ -5,11 +5,13 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.Notification;
 import org.dmc.services.data.entities.OnboardingStatus;
 import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
+import org.dmc.services.data.models.NotificationModel;
 import org.dmc.services.data.models.OnboardingStatusModel;
 import org.dmc.services.data.models.UserContactInfoModel;
 import org.dmc.services.data.models.UserModel;
@@ -69,6 +71,9 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 
 			Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper;
 			onboardingMapper = mapperFactory.mapperFor(OnboardingStatus.class, OnboardingStatusModel.class);
+			
+			Mapper<Notification, NotificationModel> notificationMapper;
+			notificationMapper = mapperFactory.mapperFor(Notification.class, NotificationModel.class);
 
 			model = copyProperties(entity, new UserModel());
 			model.setDisplayName(entity.getRealname());
@@ -90,6 +95,9 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 					entity.getOrganizationUser().getOrganization().getId());
 
 			model.setOnboarding(onboardingMapper.mapToModel(entity.getOnboarding()));
+			
+			model.setNotifications(notificationMapper.mapToModel(entity.getNotifications()));
+			model.setHasUnreadNotifications(entity.getNotifications().stream().anyMatch((n) -> n.isUnread()));
 		}
 		return model;
 	}
