@@ -17,7 +17,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class ProductIT extends BaseIT {
-	
+	private static final String LOGTAG = ProductIT.class.getName(); 
 	private String productId = "1";
     private int accountId = 1;
 	private String reviewId = "1";
@@ -80,8 +80,9 @@ public class ProductIT extends BaseIT {
 	 */
 	@Test
 	public void testProductPost_ProductReview() {
+	    ServiceLogger.log(LOGTAG, "starting testProductPost_ProductReview");
         ProductReview obj = createProductReviewFixture(Integer.parseInt(productId), "product review name",
-                                                       accountId, "product comment", Integer.parseInt(reviewId));
+                                                       accountId, "product comment", Integer.parseInt("-1"));
 		ObjectMapper mapper = new ObjectMapper();
 		String postedProductReviewJSONString = null;
 		try {
