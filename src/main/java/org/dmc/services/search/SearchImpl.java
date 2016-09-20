@@ -8,6 +8,7 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.Company;
 import org.dmc.services.components.Component;
+import org.dmc.services.data.models.UserModel;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.Project;
 import org.dmc.services.search.handlers.*;
@@ -170,16 +171,6 @@ public class SearchImpl implements SearchInterface {
             throw new SearchException(e.toString());
         }
 
-//        QueryResponse responseUsers = null;
-//        try {
-//            responseUsers = searchSolr(query, COLLECTION_USERS);
-//            List<User> userResults = userHandler.retrieve(responseUsers, userEPPN);
-//            searchResult.setUsers(userResults);
-//        } catch (SearchException e) {
-//            ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
-//            throw new SearchException(e.toString());
-//        }
-
         QueryResponse responseUsers = null;
         try {
             responseUsers = searchSolr(query, COLLECTION_USERS);
@@ -189,6 +180,7 @@ public class SearchImpl implements SearchInterface {
             ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_USERS + ": " + e.toString());
             throw new SearchException(e.toString());
         }
+
         QueryResponse responseServices = null;
         try {
             responseServices = searchSolr(query, COLLECTION_SERVICES);
@@ -255,9 +247,9 @@ public class SearchImpl implements SearchInterface {
     }
 
     @Override
-    public List<User> searchUsers(String query, String userEPPN) throws SearchException {
+    public List<UserModel> searchUsers(String query, String userEPPN) throws SearchException {
         QueryResponse responseUsers = null;
-        List<User> userResults = null;
+        List<UserModel> userResults = null;
         try {
             responseUsers = searchSolr(query, COLLECTION_USERS);
             userResults = userHandler.retrieve(responseUsers, userEPPN);
