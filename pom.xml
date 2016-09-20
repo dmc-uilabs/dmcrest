@@ -374,6 +374,7 @@
 							<excludes>
 								<!-- search tests -->
 								<exclude>**/SearchIT.java</exclude>
+								<exclude>**/SearchIndexingIT.java</exclude>
 								<!-- DOME server tests -->
 								<exclude>**/ServiceRunIT.java</exclude>
 								<exclude>**/DomeIT.java</exclude>
