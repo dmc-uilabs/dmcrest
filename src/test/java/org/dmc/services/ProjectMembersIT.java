@@ -1,21 +1,15 @@
 package org.dmc.services;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.*;
-import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.restassured.response.ValidatableResponse;
 import org.dmc.services.company.CompanyUserUtil;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.PostProjectJoinRequest;
 import org.dmc.services.projects.ProjectJoinRequest;
 import org.dmc.services.projects.ProjectMember;
-import org.dmc.services.projects.ProjectMemberDao;
-import org.dmc.services.users.UserDao;
 import org.dmc.services.utility.TestProjectUtil;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONArray;
@@ -24,10 +18,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.restassured.response.ValidatableResponse;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 //
 public class ProjectMembersIT extends BaseIT {
@@ -99,6 +104,42 @@ public class ProjectMembersIT extends BaseIT {
         // based on data loaded in gforge.psql
         final JSONArray jsonArray = new JSONArray(response.extract().asString());
         assertTrue("Expecting no results for new user because we haven't created a project yet, but found some", 0 == jsonArray.length());
+    }
+
+    @Test
+    public void testRetrieveProjectInvitations() throws Exception {
+        ServiceLogger.log(LOGTAG, "starting testRetrieveProjectInvitations");
+        // create a project, add userEPPN and knownEPPN to the project
+        String unique = "invite"  + TestUserUtil.generateTime();
+        String admin = "userEPPN" + unique;
+        final int adminId = UserIT.createUserAndReturnID(unique);
+        final Integer newProjectId = TestProjectUtil.createProject(admin);
+        final Integer memberId = UserDao.getUserID(knownEPPN);
+        final ProjectMember requestProjectMember = TestProjectUtil.createNewProjectMemberForRequest(newProjectId, memberId, adminId);
+
+        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", admin).body(requestProjectMember)
+                .expect().statusCode(HttpStatus.OK.value())
+                .when().post(PROJECT_MEMBERS_RESOURCE).as(ProjectMember.class);
+
+        // invitee should get their invitation back
+        final ValidatableResponse response = given().header("AJP_eppn", knownEPPN).param("accept", "false")
+            .expect().statusCode(OK.value()).when()
+            .get(PROJECT_MEMBERS_RESOURCE).then()
+            .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+
+        // based on data loaded in gforge.psql
+        final JSONArray jsonArray = new JSONArray(response.extract().asString());
+        assertTrue("Expecting exactly one results for new user", 1 == jsonArray.length());
+
+        // admin should get nothing since accept = false
+        final ValidatableResponse responseByAdmin = given().header("AJP_eppn", admin).param("accept", "false")
+                .expect().statusCode(OK.value()).when()
+                .get(PROJECT_MEMBERS_RESOURCE).then()
+                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+
+            // based on data loaded in gforge.psql
+            final JSONArray jsonArrayByAdmin = new JSONArray(responseByAdmin.extract().asString());
+            assertTrue("Expecting exactly one results for new user", 0 == jsonArrayByAdmin.length());
     }
 
     @Test

@@ -1,24 +1,21 @@
 package org.dmc.services.projects;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.ArrayList;
-import java.lang.Exception;
-import java.sql.SQLException;
-
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.profile.Profile;
-import org.dmc.services.users.UserDao;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 public class ProjectMemberController {
@@ -128,12 +125,12 @@ public class ProjectMemberController {
         return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(projectId, null, new Boolean(true), userEPPN), HttpStatus.OK);
     }
 
-    /**
-     * Accept Accept
-     * @param projectId
-     * @param memberId
-     * @param userEPPN
-     */
+	/**
+	 *
+	 * @param requestId
+	 * @param userEPPN
+	 * @return
+	 */
     @RequestMapping(value = "/new_members/{requestId}", method = RequestMethod.PATCH, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> acceptMemberInProject(@PathVariable("requestId") String requestId,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -148,12 +145,12 @@ public class ProjectMemberController {
         }
     }
 
-    /**
-     * Reject Member
-     * @param projectId
-     * @param memberId
-     * @param userEPPN
-     */
+	/**
+	 *
+	 * @param requestId
+	 * @param userEPPN
+	 * @return
+	 */
     @RequestMapping(value = "/projects_members/{requestId}", method = RequestMethod.DELETE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> rejectMemberInProject(@PathVariable("requestId") String requestId, 
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)  {

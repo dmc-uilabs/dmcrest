@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.websocket.server.PathParam;
 
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
@@ -57,5 +58,11 @@ public class OrganizationController {
 	@RequestMapping(value = "/organization/nonMember", method = RequestMethod.GET)
 	public List<OrganizationModel> getNonDmdiiMembers() {
 		return organizationService.findNonDmdiiMembers();
+	}
+	
+	@RequestMapping(value = "/organizations/{id}", method = RequestMethod.DELETE)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	public void delete(@PathParam("organizationId") Integer organizationId) {
+		organizationService.delete(organizationId);
 	}
 }

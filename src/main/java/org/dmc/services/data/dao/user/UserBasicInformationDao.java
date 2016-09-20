@@ -1,4 +1,4 @@
-package org.dmc.services.users;
+package org.dmc.services.data.dao.user;
 
 import java.sql.SQLException;
 import java.sql.PreparedStatement;

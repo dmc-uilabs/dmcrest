@@ -1,5 +1,6 @@
 package org.dmc.services.data.entities;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -13,6 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "users")
@@ -25,6 +28,19 @@ public class User extends BaseEntity {
 
 	@Column(name = "user_name")
 	private String username;
+
+	@Column(name = "accept_term_cond_time")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date termsAndCondition;
+
+	@Column(name = "user_pw")
+	private String password;
+
+	@Column(name = "realname")
+	private String realname;
+
+	@Column(name = "title")
+	private String title;
 
 	@Column(name = "firstname")
 	private String firstName;
@@ -41,18 +57,43 @@ public class User extends BaseEntity {
 	@Column(name = "phone")
 	private String phone;
 
+	@Column(name = "image")
+	private String image;
+
 	@Column(name = "about_me")
 	private String aboutMe;
+
+	@Column(name = "people_resume")
+	private String resume = "";
+
+	/**
+	 * Time record was inserted into database stored as millis?
+	 */
+	@Column(name = "add_date")
+	private Long addDate;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
 
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "user_contact_info_id")
 	private UserContactInfo userContactInfo;
 
 	@OneToOne(mappedBy = "user")
 	private OrganizationUser organizationUser;
+
+	@OneToOne(cascade = CascadeType.MERGE, orphanRemoval = true)
+	@JoinColumn(table = "onboarding_status", name = "user_id")
+	private OnboardingStatus onboarding;
+
+	@Override
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	public String getUsername() {
 		return username;
@@ -60,6 +101,38 @@ public class User extends BaseEntity {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public Date getTermsAndCondition() {
+		return termsAndCondition;
+	}
+
+	public void setTermsAndCondition(Date termsAndCondition) {
+		this.termsAndCondition = termsAndCondition;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getRealname() {
+		return realname;
+	}
+
+	public void setRealname(String realname) {
+		this.realname = realname;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getFirstName() {
@@ -102,6 +175,14 @@ public class User extends BaseEntity {
 		this.phone = phone;
 	}
 
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
 	public String getAboutMe() {
 		return aboutMe;
 	}
@@ -110,12 +191,20 @@ public class User extends BaseEntity {
 		this.aboutMe = aboutMe;
 	}
 
-	public Integer getId() {
-		return id;
+	public String getResume() {
+		return resume;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public void setResume(String resume) {
+		this.resume = resume;
+	}
+
+	public Long getAddDate() {
+		return addDate;
+	}
+
+	public void setAddDate(long addDate) {
+		this.addDate = addDate;
 	}
 
 	public List<UserRoleAssignment> getRoles() {
@@ -140,6 +229,14 @@ public class User extends BaseEntity {
 
 	public void setOrganizationUser(OrganizationUser organizationUser) {
 		this.organizationUser = organizationUser;
+	}
+
+	public OnboardingStatus getOnboarding() {
+		return onboarding;
+	}
+
+	public void setOnboarding(OnboardingStatus onboarding) {
+		this.onboarding = onboarding;
 	}
 
 	@Override
@@ -226,5 +323,4 @@ public class User extends BaseEntity {
 			return false;
 		return true;
 	}
-
 }

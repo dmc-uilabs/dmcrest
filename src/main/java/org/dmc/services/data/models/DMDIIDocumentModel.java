@@ -13,7 +13,7 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	private Integer ownerId;
 
-	private List<DMDIIDocumentModel> tags;
+	private List<DMDIIDocumentTagModel> tags;
 
 	private Date modified;
 
@@ -59,11 +59,11 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.ownerId = ownerId;
 	}
 
-	public List<DMDIIDocumentModel> getTags() {
+	public List<DMDIIDocumentTagModel> getTags() {
 		return tags;
 	}
 
-	public void setTags(List<DMDIIDocumentModel> tags) {
+	public void setTags(List<DMDIIDocumentTagModel> tags) {
 		this.tags = tags;
 	}
 

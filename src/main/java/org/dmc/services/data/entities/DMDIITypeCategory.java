@@ -28,4 +28,24 @@ public class DMDIITypeCategory extends BaseEntity {
 		this.category = category;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof DMDIITypeCategory))
+			return false;
+
+		DMDIITypeCategory that = (DMDIITypeCategory) o;
+
+		if (!id.equals(that.id))
+			return false;
+		return category.equals(that.category);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = id.hashCode();
+		result = 31 * result + category.hashCode();
+		return result;
+	}
 }

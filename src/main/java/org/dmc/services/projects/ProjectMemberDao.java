@@ -1,18 +1,19 @@
 package org.dmc.services.projects;
 
-import java.util.ArrayList;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
-import org.dmc.services.users.UserDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.profile.Profile;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 
 public class ProjectMemberDao {
 
@@ -138,7 +139,9 @@ public class ProjectMemberDao {
                 throw new DMCServiceException(DMCError.BadURL, "invalid projects: " + projectList);
             }
         }
-        if (null == projectList && null == memberList) {
+        if (null == projectList && null == memberList && false == accept) {
+            clauses.add("gjr.user_id = " + userId);
+        } else if (null == projectList && null == memberList) {
             clauses.add(adminRequiredClause);
         } else if (!isIdInList(Integer.toString(userId), memberList)) {
             clauses.add(adminRequiredClause);

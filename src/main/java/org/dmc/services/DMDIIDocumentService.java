@@ -204,6 +204,13 @@ public class DMDIIDocumentService {
 		return mapper.mapToModel(docEntity);
 	}
 	
+	@Transactional
+	public void deleteDMDIIDocumentsByDMDIIProjectId(Integer dmdiiProjectId) {
+		List<DMDIIDocument> docs = dmdiiDocumentRepository.findByDmdiiProjectIdAndIsDeletedFalse(new PageRequest(0, Integer.MAX_VALUE), dmdiiProjectId).getContent();
+		docs.stream().forEach(n -> n.setIsDeleted(true));
+		dmdiiDocumentRepository.save(docs);
+	}
+	
 	private List<DMDIIDocument> refreshDocuments (List<DMDIIDocument> docs) throws DMCServiceException {
 		List<DMDIIDocument> freshDocs = new ArrayList<DMDIIDocument>();
 		//Refresh check

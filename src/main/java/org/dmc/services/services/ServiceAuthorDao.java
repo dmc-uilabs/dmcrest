@@ -5,32 +5,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 
-import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
-import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.company.CompanyDao;
-import org.dmc.services.profile.Profile;
-import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.users.UserDao;
-import org.dmc.services.users.UserOnboardingDao;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONArray;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.apache.commons.lang3.StringUtils;
+import org.dmc.services.data.dao.user.UserDao;
 
 import java.util.ArrayList;
-
-import javax.xml.ws.http.HTTPException;
 
 public class ServiceAuthorDao {
 
