@@ -1,12 +1,12 @@
 package org.dmc.services.data.mappers;
 
-import javax.inject.Inject;
-
 import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.models.OrganizationUserModel;
-import org.dmc.services.data.repositories.OrganizationDao;
+import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
 
 @Component
 public class OrganizationUserMapper extends AbstractMapper<OrganizationUser, OrganizationUserModel> {
@@ -15,7 +15,7 @@ public class OrganizationUserMapper extends AbstractMapper<OrganizationUser, Org
 	private UserRepository userRepository;
 
 	@Inject
-	private OrganizationDao organizationDao;
+	private OrganizationRepository organizationRepository;
 
 	@Override
 	public OrganizationUser mapToEntity(OrganizationUserModel model) {
@@ -24,7 +24,7 @@ public class OrganizationUserMapper extends AbstractMapper<OrganizationUser, Org
 		OrganizationUser entity = copyProperties(model, new OrganizationUser());
 
 		entity.setUser(userRepository.findOne(model.getUserId()));
-		entity.setOrganization(organizationDao.findOne(model.getOrganizationId()));
+		entity.setOrganization(organizationRepository.findOne(model.getOrganizationId()));
 
 		return entity;
 	}

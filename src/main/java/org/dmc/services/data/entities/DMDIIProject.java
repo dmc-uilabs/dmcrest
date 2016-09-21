@@ -19,9 +19,14 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 
 @Entity
 @Table(name="dmdii_project")
+@Where(clause = "is_deleted = 'FALSE'")
+@SQLDelete(sql="UPDATE dmdii_project SET is_deleted = 'TRUE' WHERE id = ?")
 public class DMDIIProject extends BaseEntity {
 
 	@Id
@@ -32,7 +37,7 @@ public class DMDIIProject extends BaseEntity {
 	@JoinColumn(name = "organization_dmdii_member_id", nullable = false)
 	private DMDIIMember primeOrganization;
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 	@JoinColumn(name = "principal_investigator_id")
 	private DMDIIProjectContact principalInvestigator;
 
@@ -54,7 +59,7 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "project_summary")
 	private String projectSummary;
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 	@JoinColumn(name = "principal_point_of_contact_id")
 	private DMDIIProjectContact principalPointOfContact;
 
@@ -70,6 +75,7 @@ public class DMDIIProject extends BaseEntity {
 	@JoinTable(name = "dmdii_project_contributing_company",
 				joinColumns = @JoinColumn(name = "dmdii_project_id"),
 				inverseJoinColumns = @JoinColumn(name = "contributing_company_id"))
+	@Where(clause = "is_deleted = 'FALSE'")
 	private List<DMDIIMember> contributingCompanies;
 
 	@Column(name = "project_root_number")
@@ -86,6 +92,9 @@ public class DMDIIProject extends BaseEntity {
 	
 	@Column(name = "dmdii_funding")
 	private BigDecimal dmdiiFunding;
+	
+	@Column(name = "is_deleted")
+	private Boolean isDeleted = false;
 
 	public DMDIIProject () {
 
@@ -227,6 +236,14 @@ public class DMDIIProject extends BaseEntity {
 		this.dmdiiFunding = dmdiiFunding;
 	}
 
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -234,8 +251,11 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((awardedDate == null) ? 0 : awardedDate.hashCode());
 		result = prime * result + ((callNumber == null) ? 0 : callNumber.hashCode());
 		result = prime * result + ((contributingCompanies == null) ? 0 : contributingCompanies.hashCode());
+		result = prime * result + ((costShare == null) ? 0 : costShare.hashCode());
+		result = prime * result + ((dmdiiFunding == null) ? 0 : dmdiiFunding.hashCode());
 		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
 		result = prime * result + ((primeOrganization == null) ? 0 : primeOrganization.hashCode());
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
 		result = prime * result + ((principalPointOfContact == null) ? 0 : principalPointOfContact.hashCode());
@@ -273,6 +293,16 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!contributingCompanies.equals(other.contributingCompanies))
 			return false;
+		if (costShare == null) {
+			if (other.costShare != null)
+				return false;
+		} else if (!costShare.equals(other.costShare))
+			return false;
+		if (dmdiiFunding == null) {
+			if (other.dmdiiFunding != null)
+				return false;
+		} else if (!dmdiiFunding.equals(other.dmdiiFunding))
+			return false;
 		if (endDate == null) {
 			if (other.endDate != null)
 				return false;
@@ -282,6 +312,11 @@ public class DMDIIProject extends BaseEntity {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
+			return false;
+		if (isDeleted == null) {
+			if (other.isDeleted != null)
+				return false;
+		} else if (!isDeleted.equals(other.isDeleted))
 			return false;
 		if (primeOrganization == null) {
 			if (other.primeOrganization != null)

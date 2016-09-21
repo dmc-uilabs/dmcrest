@@ -1,22 +1,7 @@
 package org.dmc.services.profile;
 
-import org.dmc.services.DBConnector;
-import org.dmc.services.DMCError;
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.AWSConnector;
-import org.dmc.services.Config;
-import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.Id;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.accounts.UserAccountServer;
-import org.dmc.services.users.UserDao;
-import org.dmc.services.users.UserOnboardingDao;
-import org.dmc.services.verification.Verification;
-import org.dmc.services.company.CompanyDao;
-import org.dmc.services.services.GetCompareService;
-import org.json.JSONException;
-import java.sql.PreparedStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -24,9 +9,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
+import org.dmc.services.AWSConnector;
+import org.dmc.services.Config;
+import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.Id;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.company.CompanyDao;
+import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.dao.user.UserOnboardingDao;
+import org.dmc.services.services.GetCompareService;
+import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.verification.Verification;
+import org.json.JSONException;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 
 public class ProfileDao {
@@ -255,9 +253,9 @@ public class ProfileDao {
 			 * DBConnector.prepareStatement(AWSquery); AWSstatement.setInt(1,
 			 * id); AWSstatement.setString(2, userEPPN); final ResultSet url =
 			 * AWSstatement.executeQuery();
-			 * 
+			 *
 			 * String URL = null; if(url.next()){ URL = url.getString(1); }
-			 * 
+			 *
 			 * //Call function to delete try{ AWS.remove(URL, userEPPN); } catch
 			 * (DMCServiceException e) { return null; }
 			 */

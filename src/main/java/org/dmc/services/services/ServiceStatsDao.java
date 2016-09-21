@@ -5,24 +5,8 @@ package org.dmc.services.services;
  */
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.sql.ResultSet;
-
-import org.json.JSONException;
-
-import javax.xml.ws.http.HTTPException;
-
-import org.dmc.services.DBConnector;
-import org.dmc.services.DMCError;
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.Id;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.sharedattributes.FeatureImage;
-import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.users.UserDao;
 
 public class ServiceStatsDao {
 

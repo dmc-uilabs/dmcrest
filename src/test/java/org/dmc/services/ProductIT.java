@@ -1,25 +1,23 @@
 package org.dmc.services;
 
-import static com.jayway.restassured.RestAssured.given;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.products.ProductReview;
-import org.dmc.services.users.UserDao;
 import org.dmc.services.utility.TestUserUtil;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.math.BigDecimal;
-import java.util.Calendar;
 import java.sql.SQLException;
+import java.util.Calendar;
+
+import static com.jayway.restassured.RestAssured.given;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class ProductIT extends BaseIT {
-	
+	private static final String LOGTAG = ProductIT.class.getName(); 
 	private String productId = "1";
     private int accountId = 1;
 	private String reviewId = "1";
@@ -82,8 +80,9 @@ public class ProductIT extends BaseIT {
 	 */
 	@Test
 	public void testProductPost_ProductReview() {
+	    ServiceLogger.log(LOGTAG, "starting testProductPost_ProductReview");
         ProductReview obj = createProductReviewFixture(Integer.parseInt(productId), "product review name",
-                                                       accountId, "product comment", Integer.parseInt(reviewId));
+                                                       accountId, "product comment", Integer.parseInt("-1"));
 		ObjectMapper mapper = new ObjectMapper();
 		String postedProductReviewJSONString = null;
 		try {

@@ -1,20 +1,14 @@
 package org.dmc.services.resources;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.ResourceAssessment;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.ResourceAssessmentModel;
 import org.dmc.services.data.repositories.ResourceAssessmentRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.List;
 
 
 @Service
