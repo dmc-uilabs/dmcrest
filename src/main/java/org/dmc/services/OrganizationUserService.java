@@ -13,6 +13,7 @@ import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.UserRoleAssignmentRepository;
+import org.dmc.services.notification.NotificationService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +24,9 @@ public class OrganizationUserService {
 
 	@Inject
 	private UserRoleAssignmentRepository userRoleRepository;
+	
+	@Inject
+	private NotificationService notificationService;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -81,6 +85,7 @@ public class OrganizationUserService {
 
 		OrganizationUser newOrganization = mapper.mapToEntity(model);
 		newOrganization.setIsVerified(false);
+		notificationService.notifyOrgAdminsOfNewUser(newOrganization.getOrganization().getId(), newOrganization.getUser());
 		return mapper.mapToModel(organizationUserRepository.save(newOrganization));
 	}
 
