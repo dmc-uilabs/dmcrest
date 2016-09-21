@@ -13,6 +13,7 @@ import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.PagedResponse;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.web.validator.AWSLinkValidator;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
