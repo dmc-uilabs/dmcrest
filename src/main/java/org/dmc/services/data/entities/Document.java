@@ -37,8 +37,7 @@ public class Document extends BaseEntity {
 	@Column(name = "parent_type")
 	private DocumentParentType parentType;
 	
-	@ManyToOne
-	@JoinColumn(name = "parent_id")
+	@Column(name = "parent_id")
 	private Integer parentId;
 
 	@ManyToOne
@@ -93,6 +92,22 @@ public class Document extends BaseEntity {
 
 	public void setDocumentUrl(String documentUrl) {
 		this.documentUrl = documentUrl;
+	}
+
+	public DocumentParentType getParentType() {
+		return parentType;
+	}
+
+	public void setParentType(DocumentParentType parentType) {
+		this.parentType = parentType;
+	}
+
+	public Integer getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Integer parentId) {
+		this.parentId = parentId;
 	}
 
 	public User getOwner() {
