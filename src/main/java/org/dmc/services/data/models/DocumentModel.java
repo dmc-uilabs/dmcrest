@@ -23,7 +23,7 @@ public class DocumentModel extends BaseModel {
 
 	private Boolean isDeleted;
 	
-	private Integer fileType;
+	private Integer docClass;
 	
 	private Boolean verified;
 
@@ -99,12 +99,12 @@ public class DocumentModel extends BaseModel {
 		this.isDeleted = isDeleted;
 	}
 
-	public Integer getFileType() {
-		return fileType;
+	public Integer getDocClass() {
+		return docClass;
 	}
 
-	public void setFileType(Integer fileType) {
-		this.fileType = fileType;
+	public void setDocClass(Integer docClass) {
+		this.docClass = docClass;
 	}
 
 	public Boolean getVerified() {

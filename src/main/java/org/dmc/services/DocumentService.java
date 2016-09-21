@@ -62,55 +62,36 @@ public class DocumentService {
 		return mapper.mapToModel(docList.get(0));
 	}
 	
-	public List<DocumentModel> findDocumentsByParentTypeAndParentIdAndFileTypeId (String parentType, Integer parentId, Integer fileTypeId, Integer limit) {
+	public List<DocumentModel> findDocuments (String parentType, Integer parentId, Integer docClassId, Integer limit) {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		
 		List<Document> retList = new ArrayList<Document>();
 		
 		DocumentParentType eType = DocumentParentType.valueOf(parentType);
 		
-		switch (eType) {
-			case DMDII:
-				
-				break;
-			case ORGANIZATION:
-				//retList = documentRepository.findByOrganizationIdAndFileTypeOrderByModifiedDesc(parentId, fileTypeId, new PageRequest(0,limit)).getContent();
-				break;
-			case PROJECT:
-				break;
-			case SERVICE:
-				break;
-			case USER:
-				break;
-			default:
-				break;
-				
+		if(docClassId == null) {
+			retList = documentRepository.findByParentTypeAndParentId(eType, parentId, new PageRequest(0, limit));
 		}
-
+		else {
+			retList = documentRepository.findByParentTypeAndParentIdAndDocClass(eType, parentId, docClassId, new PageRequest(0, limit));
+		}
+		
 		retList = refreshDocuments(retList);
 		return mapper.mapToModel(retList);
 		
 	}
 	
-	public List<DocumentModel> getDocumentsByParentTypeAndParentId (DocumentParentType parentType, Integer parentId) {
-		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		List<Document> docs = documentRepository.findByParentTypeAndParentId(parentType, parentId);
-		
-		docs = refreshDocuments(docs);
-		return mapper.mapToModel(docs);
-	}
-	
-//	public DocumentModel findMostRecentDocumentByFileTypeIdAndOrganizationId (Integer fileTypeId, Integer organizationId) {
+//	public DocumentModel findMostRecentDocumentByDocClassIdAndOrganizationId (Integer docClassId, Integer organizationId) {
 //		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-//		List<Document> docs = Collections.singletonList(documentRepository.findTopByOrganizationIdAndFileTypeOrderByModifiedDesc(organizationId, fileTypeId));
+//		List<Document> docs = Collections.singletonList(documentRepository.findTopByOrganizationIdAndDocClassOrderByModifiedDesc(organizationId, docClassId));
 //		
 //		docs = refreshDocuments(docs);
 //		return mapper.mapToModel(docs.get(0));
 //	}
 	
-//	public List<DocumentModel> findDocumentsByOrganizationIdAndFileTypeId(Integer organizationId, Integer fileTypeId, Integer limit) {
+//	public List<DocumentModel> findDocumentsByOrganizationIdAndDocClassId(Integer organizationId, Integer docClassId, Integer limit) {
 //		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-//		List<Document> docs = documentRepository.findByOrganizationIdAndFileTypeOrderByModifiedDesc(organizationId, fileTypeId, new PageRequest(0, limit)).getContent();
+//		List<Document> docs = documentRepository.findByOrganizationIdAndDocClassOrderByModifiedDesc(organizationId, docClassId, new PageRequest(0, limit)).getContent();
 //		
 //		docs = refreshDocuments(docs);
 //		return mapper.mapToModel(docs);
@@ -154,9 +135,9 @@ public class DocumentService {
 		return mapper.mapToModel(docEntity);
 	}
 	
-//	public Long countDocumentsByOrganizationIdAndFileType(Integer organizationId, Integer fileType) {
+//	public Long countDocumentsByOrganizationIdAndDocClass(Integer organizationId, Integer docClass) {
 //		Assert.notNull(organizationId);
-//		return documentRepository.countByOrganizationIdAndFileType(organizationId, fileType);
+//		return documentRepository.countByOrganizationIdAndDocClass(organizationId, docClass);
 //	}
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
