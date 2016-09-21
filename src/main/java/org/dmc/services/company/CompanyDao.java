@@ -1,14 +1,17 @@
 package org.dmc.services.company;
 
+import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.search.SearchException;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.users.User;
+import org.dmc.solr.SolrUtils;
 import org.json.JSONException;
 import org.springframework.http.HttpStatus;
 
@@ -290,8 +293,13 @@ public class CompanyDao {
 			statement.setInt(2, id);
 			statement.executeUpdate();
 
-
 			connection.commit();
+
+			try {
+				SolrUtils.triggerFullIndexing(SolrUtils.CORE_GFORGE_COMPANIES);
+			} catch (SearchException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+			}
 		}
 		catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
@@ -436,6 +444,16 @@ public class CompanyDao {
 		        preparedStatement.executeUpdate();
 
 		        connection.commit();
+
+				if (Config.IS_TEST == null) {
+					//ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+					// Trigger solr indexing
+					try {
+						SolrUtils.triggerFullIndexing(SolrUtils.CORE_GFORGE_COMPANIES);
+					} catch (SearchException e) {
+						ServiceLogger.log(logTag, e.getMessage());
+					}
+				}
 			}
 		}
 		catch (SQLException e) {
@@ -542,6 +560,12 @@ public class CompanyDao {
 		        statement.executeUpdate();
 
 		        connection.commit();
+
+				try {
+					SolrUtils.triggerFullIndexing(SolrUtils.CORE_GFORGE_COMPANIES);
+				} catch (SearchException e) {
+					ServiceLogger.log(logTag, e.getMessage());
+				}
 			}
 	    }
 		catch (SQLException e) {

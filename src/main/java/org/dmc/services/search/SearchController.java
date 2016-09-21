@@ -3,6 +3,7 @@ package org.dmc.services.search;
 
 import org.dmc.services.company.Company;
 import org.dmc.services.components.Component;
+import org.dmc.services.data.models.UserModel;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.Project;
 import org.dmc.services.services.Service;
@@ -19,10 +20,14 @@ import java.util.List;
 public class SearchController implements SearchInterface {
 
     private SearchImpl searchImpl;
+    private SearchQueueImpl searchQueueImpl;
 
 
     public SearchController () {
         searchImpl = new SearchImpl();
+        searchQueueImpl = new SearchQueueImpl();
+
+        searchQueueImpl.init();
     }
 
     @Override
@@ -55,17 +60,21 @@ public class SearchController implements SearchInterface {
         return searchImpl.searchMembers(query, userEPPN);
     }
 
-    /**
     @Override
     @RequestMapping(value = "/searchUsers/{query}", method = RequestMethod.GET)
-    public List<User> searchUsers(@PathVariable("query") String query, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
+    public List<UserModel> searchUsers(@PathVariable("query") String query, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
         return searchImpl.searchUsers(query, userEPPN);
     }
-     **/
+
 
     @Override
     @RequestMapping(value = "/searchCompanies/{query}", method = RequestMethod.GET)
     public List<Company> searchCompanies(String query, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
         return searchImpl.searchCompanies(query, userEPPN);
+    }
+
+    @RequestMapping(value = "/triggerFullIndexing/{collectionName}", method = RequestMethod.PATCH)
+    public void triggerFullIndexing (@PathVariable("collectionName") String collectionName, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
+        SearchQueueImpl.sendFullIndexingMessage(collectionName);
     }
 }

@@ -6,15 +6,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.dmc.services.DBConnector;
-import org.dmc.services.DMCError;
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.Id;
+
+import org.dmc.services.*;
+import org.dmc.services.search.SearchException;
+import org.dmc.services.search.SearchQueueImpl;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.utils.SQLUtils;
+import org.dmc.solr.SolrUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 
 public class ProjectsTagsDao {
+
+    private static final String LOGTAG = ProjectsTagsDao.class.getName();
 
     public ProjectsTagsDao() {
     }
@@ -39,6 +42,17 @@ public class ProjectsTagsDao {
             statement.executeUpdate();
             final int tagId = util.getGeneratedKey(statement, "tag_id");
             tag.setId(String.valueOf(tagId));
+
+            if (Config.IS_TEST == null) {
+                //ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+                // Trigger solr indexing
+                try {
+                    SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_PROJECTS);
+                    ServiceLogger.log(LOGTAG, "SolR indexing triggered for project: " + tag.getProjectId());
+                } catch (SearchException e) {
+                    ServiceLogger.log(LOGTAG, e.getMessage());
+                }
+            }
 
             return tag;
 
@@ -114,6 +128,17 @@ public class ProjectsTagsDao {
             final int affectedRows = statement.executeUpdate();
             if (1 != affectedRows) {
                 throw new DMCServiceException(DMCError.NoExistingRequest, "tag " + tagId + " not found to delete");
+            }
+
+            if (Config.IS_TEST == null) {
+                //ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+                // Trigger solr indexing
+                try {
+                    SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_PROJECTS);
+                    ServiceLogger.log(LOGTAG, "SolR indexing triggered for projects tag deleted tagId: " + tagId);
+                } catch (SearchException e) {
+                    ServiceLogger.log(LOGTAG, e.getMessage());
+                }
             }
 
         } catch (SQLException e) {

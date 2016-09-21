@@ -2,6 +2,7 @@ package org.dmc.services.search;
 
 import org.dmc.services.company.Company;
 import org.dmc.services.components.Component;
+import org.dmc.services.data.models.UserModel;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.projects.Project;
 import org.dmc.services.services.Service;
@@ -47,20 +48,21 @@ public interface SearchInterface {
     public List<Project> searchProjects (String query, String userEPPN) throws SearchException;
 
     /**
-     * Search users
+     * Search users (all users not required to be a DMDII member
      * @param query
      * @return
      * @throws SearchException
      */
-    //public List<User> searchUsers (String query, String userEPPN) throws SearchException;
+    public List<UserModel> searchUsers (String query, String userEPPN) throws SearchException;
 
     /**
-     * Search users
+     * Search members searches the users collection but only returns users which are DMDII members
      * @param query
      * @return
      * @throws SearchException
      */
     public List<Profile> searchMembers (String query, String userEPPN) throws SearchException;
+
     /**
      * Search companies
      * @param query

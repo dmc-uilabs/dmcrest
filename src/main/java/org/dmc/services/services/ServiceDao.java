@@ -1,14 +1,13 @@
 package org.dmc.services.services;
 
-import org.dmc.services.DBConnector;
-import org.dmc.services.DMCError;
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.SqlTypeConverterUtility;
+import org.dmc.services.*;
 import org.dmc.services.company.CompanyDao;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.search.SearchException;
+import org.dmc.services.search.SearchQueueImpl;
 import org.dmc.services.services.ServiceHistory.PeriodEnum;
 import org.dmc.services.services.ServiceHistory.SectionEnum;
+import org.dmc.solr.SolrUtils;
 import org.dmc.services.sharedattributes.FeatureImage;
 
 import java.sql.Connection;
@@ -86,6 +85,17 @@ public class ServiceDao {
 
             Service service = getService(id, userEPPN);
             connection.commit();
+
+            if (Config.IS_TEST == null) {
+                //ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+                // Trigger solr indexing
+                try {
+                    SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_SERVICES);
+                    ServiceLogger.log(logTag, "SolR indexing triggered for service (create): " + id);
+                } catch (SearchException e) {
+                }
+            }
+
             return service;
         } catch (SQLException e) {
             ServiceLogger.log(logTag, e.getMessage());
@@ -177,6 +187,16 @@ public class ServiceDao {
                 throw new DMCServiceException(DMCError.UnableToLogServiceHistory, "Could not log service history!");
 
             connection.commit();
+
+            if (Config.IS_TEST == null) {
+                //ServiceLogger.log(LOGTAG, "SolR indexing turned off");
+                // Trigger solr indexing
+                try {
+                    SearchQueueImpl.sendFullIndexingMessage(SolrUtils.CORE_GFORGE_SERVICES);
+                    ServiceLogger.log(logTag, "SolR indexing triggered for service (update): " + serviceId);
+                } catch (SearchException e) {
+                }
+            }
             return service;
         } catch (Exception e) {
             ServiceLogger.log(logTag, e.getMessage());
