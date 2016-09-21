@@ -11,13 +11,15 @@ import org.springframework.data.repository.query.Param;
 
 public interface DocumentRepository extends BaseRepository<Document, Integer> {
 
-	List<Document> findByParentTypeAndParentId(DocumentParentType parentType, Integer organizationId);
+	List<Document> findByParentTypeAndParentId(DocumentParentType parentType, Integer parentId, Pageable page);
 	
-	Document findTopByFileTypeOrderByModifiedDesc(Integer fileType);
+	List<Document> findByParentTypeAndParentIdAndDocClass(DocumentParentType parentType, Integer parentId, Integer docClass, Pageable page);
 	
-	//Document findTopByOrganizationIdAndFileTypeOrderByModifiedDesc(Integer organizationId, Integer fileType);
+	Document findTopByDocClassOrderByModifiedDesc(Integer docClass);
 	
-	//Page<Document> findByOrganizationIdAndFileTypeOrderByModifiedDesc(Integer organizationId, Integer fileType, Pageable page);
+	//Document findTopByOrganizationIdAndDocClassOrderByModifiedDesc(Integer organizationId, Integer docClass);
 	
-	//Long countByOrganizationIdAndFileType(Integer organizationId, Integer fileType);
+	//Page<Document> findByOrganizationIdAndDocClassOrderByModifiedDesc(Integer organizationId, Integer docClass, Pageable page);
+	
+	//Long countByOrganizationIdAndDocClass(Integer organizationId, Integer docClass);
 }

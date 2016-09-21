@@ -9,7 +9,9 @@ import org.dmc.services.DocumentService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.models.DocumentModel;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.web.validator.AWSLinkValidator;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,27 +31,21 @@ public class DocumentController {
 	@Inject
 	private AWSLinkValidator awsLinkValidator;
 	
-	@RequestMapping(value="/document/{id}", method = RequestMethod.GET)
+	@RequestMapping(value="/documents/{id}", method = RequestMethod.GET)
 	public DocumentModel getDocument(@PathVariable("id") Integer id) {
 		ServiceLogger.log(logTag, "In getDocumentByDocumentId: " + id);
 		
 		return documentService.findOne(id);
 	}
 	
-	@RequestMapping(value="/document", params = {"parent_type", "parent_id", "file_type_id", "limit"}, method = RequestMethod.GET)
-	public List<DocumentModel> getDocumentsByParentTypeAndParentIdAndFileTypeId (@RequestParam("parent_type") String parentType, 
-			@RequestParam("parent_id") Integer parentId, @RequestParam("file_type_id") Integer fileTypeId, @RequestParam("limit") Integer limit) {
-		ServiceLogger.log(logTag, "In getDocumentsByParentTypeAndParentIdAndFileTypeId: parent_type = " + parentType + " parent_id = " + parentId + " and fileTypeId = " + fileTypeId);
-		return documentService.findDocumentsByParentTypeAndParentIdAndFileTypeId(parentType, parentId, fileTypeId, limit);
+	@RequestMapping(value="/documents", params = {"parent_type", "parent_id", "doc_class_id", "limit"}, method = RequestMethod.GET)
+	public List<DocumentModel> getDocuments (@RequestParam("parent_type") String parentType, 
+			@RequestParam("parent_id") Integer parentId, @RequestParam("doc_class_id") Integer docClassId, @RequestParam("limit") Integer limit) {
+		ServiceLogger.log(logTag, "In getDocuments: parent_type = " + parentType + " parent_id = " + parentId + " and docClassId = " + docClassId);
+		return documentService.findDocuments(parentType, parentId, docClassId, limit);
 	}
 	
-//	@RequestMapping(value="/document/organization", params = {"organizationId", "fileTypeId"}, method = RequestMethod.GET)
-//	public DocumentModel getMostRecentDocumentByFileTypeIdAndOrganizationId (@RequestParam("fileTypeId") Integer fileTypeId, @RequestParam("organizationId") Integer organizationId) {
-//		ServiceLogger.log(logTag, "in getMostRecentDocumentByFileTypeIdAndOrganizationId: fileTypeId = " + fileTypeId + " and organizationId = " + organizationId);
-//		return documentService.findMostRecentDocumentByFileTypeIdAndOrganizationId(fileTypeId, organizationId);
-//	}
-	
-	@RequestMapping(value="/document", method = RequestMethod.POST)
+	@RequestMapping(value="/documents", method = RequestMethod.POST)
 	public DocumentModel postDocument (@RequestBody DocumentModel doc, BindingResult result) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In postDocument " + doc.getDocumentName());
 		validateSaveDocument(doc.getDocumentUrl(), result);
@@ -60,14 +56,14 @@ public class DocumentController {
 		awsLinkValidator.validate(documentUrl, result);		
 	}
 	
-	@RequestMapping(value="/document/{documentId}", method = RequestMethod.DELETE)
+	@RequestMapping(value="/documents/{documentId}", method = RequestMethod.DELETE)
 	public DocumentModel deleteDocument (@PathVariable("documentId") Integer documentId) {
 		ServiceLogger.log(logTag, "In deleteDocument id = " + documentId);
 		return documentService.delete(documentId);
 	}
 	
-//	@RequestMapping(value="/document/organization/count", params = {"organizationId", "fileTypeId"}, method = RequestMethod.GET)
-//	public Long countDocumentsByOrganizationIdAndFileTypeId (@RequestParam("organizationId") Integer organizationId, @RequestParam("fileTypeId") Integer fileTypeId) {
-//		return documentService.countDocumentsByOrganizationIdAndFileType(organizationId, fileTypeId);
+//	@RequestMapping(value="/document/organization/count", params = {"organizationId", "docClassId"}, method = RequestMethod.GET)
+//	public Long countDocumentsByOrganizationIdAndDocClassId (@RequestParam("organizationId") Integer organizationId, @RequestParam("docClassId") Integer docClassId) {
+//		return documentService.countDocumentsByOrganizationIdAndDocClass(organizationId, docClassId);
 //	}
 }

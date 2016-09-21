@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,6 +37,7 @@ public class Document extends BaseEntity {
 	private String documentUrl;
 	
 	@Column(name = "parent_type")
+	@Enumerated(EnumType.STRING)
 	private DocumentParentType parentType;
 	
 	@Column(name = "parent_id")
@@ -64,8 +67,8 @@ public class Document extends BaseEntity {
 	//TODO: create enum for site-wide accessLevel
 	private String accessLevel;
 	
-	@Column(name = "file_type_id")
-	private Integer fileType;
+	@Column(name = "doc_class_id")
+	private Integer docClass;
 	
 	@Column(name = "verified")
 	private Boolean verified = false;
@@ -158,12 +161,12 @@ public class Document extends BaseEntity {
 		this.accessLevel = accessLevel;
 	}
 
-	public Integer getFileType() {
-		return fileType;
+	public Integer getDocClass() {
+		return docClass;
 	}
 
-	public void setFileType(Integer fileType) {
-		this.fileType = fileType;
+	public void setDocClass(Integer docClass) {
+		this.docClass = docClass;
 	}
 
 	public Boolean getVerified() {
@@ -179,6 +182,7 @@ public class Document extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((accessLevel == null) ? 0 : accessLevel.hashCode());
+		result = prime * result + ((docClass == null) ? 0 : docClass.hashCode());
 		result = prime * result + ((documentName == null) ? 0 : documentName.hashCode());
 		result = prime * result + ((documentUrl == null) ? 0 : documentUrl.hashCode());
 		result = prime * result + ((expires == null) ? 0 : expires.hashCode());
@@ -186,7 +190,10 @@ public class Document extends BaseEntity {
 		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
 		result = prime * result + ((modified == null) ? 0 : modified.hashCode());
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+		result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
+		result = prime * result + ((parentType == null) ? 0 : parentType.hashCode());
 		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
+		result = prime * result + ((verified == null) ? 0 : verified.hashCode());
 		return result;
 	}
 
@@ -199,7 +206,15 @@ public class Document extends BaseEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		Document other = (Document) obj;
-		if (accessLevel != other.accessLevel)
+		if (accessLevel == null) {
+			if (other.accessLevel != null)
+				return false;
+		} else if (!accessLevel.equals(other.accessLevel))
+			return false;
+		if (docClass == null) {
+			if (other.docClass != null)
+				return false;
+		} else if (!docClass.equals(other.docClass))
 			return false;
 		if (documentName == null) {
 			if (other.documentName != null)
@@ -236,11 +251,25 @@ public class Document extends BaseEntity {
 				return false;
 		} else if (!owner.equals(other.owner))
 			return false;
+		if (parentId == null) {
+			if (other.parentId != null)
+				return false;
+		} else if (!parentId.equals(other.parentId))
+			return false;
+		if (parentType != other.parentType)
+			return false;
 		if (tags == null) {
 			if (other.tags != null)
 				return false;
 		} else if (!tags.equals(other.tags))
 			return false;
+		if (verified == null) {
+			if (other.verified != null)
+				return false;
+		} else if (!verified.equals(other.verified))
+			return false;
 		return true;
 	}
+
+	
 }
