@@ -33,6 +33,13 @@ public class Document extends BaseEntity {
 
 	@Column(name = "url")
 	private String documentUrl;
+	
+	@Column(name = "parent_type")
+	private DocumentParentType parentType;
+	
+	@ManyToOne
+	@JoinColumn(name = "parent_id")
+	private Integer parentId;
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
@@ -53,6 +60,10 @@ public class Document extends BaseEntity {
 	
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
+	
+	@Column(name = "access_level")
+	//TODO: create enum for site-wide accessLevel
+	private String accessLevel;
 	
 	@Column(name = "file_type_id")
 	private Integer fileType;
@@ -124,6 +135,14 @@ public class Document extends BaseEntity {
 		this.isDeleted = isDeleted;
 	}
 
+	public String getAccessLevel() {
+		return accessLevel;
+	}
+
+	public void setAccessLevel(String accessLevel) {
+		this.accessLevel = accessLevel;
+	}
+
 	public Integer getFileType() {
 		return fileType;
 	}
@@ -144,6 +163,7 @@ public class Document extends BaseEntity {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((accessLevel == null) ? 0 : accessLevel.hashCode());
 		result = prime * result + ((documentName == null) ? 0 : documentName.hashCode());
 		result = prime * result + ((documentUrl == null) ? 0 : documentUrl.hashCode());
 		result = prime * result + ((expires == null) ? 0 : expires.hashCode());
@@ -164,6 +184,8 @@ public class Document extends BaseEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		Document other = (Document) obj;
+		if (accessLevel != other.accessLevel)
+			return false;
 		if (documentName == null) {
 			if (other.documentName != null)
 				return false;
