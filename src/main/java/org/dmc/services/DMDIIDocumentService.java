@@ -61,15 +61,6 @@ public class DMDIIDocumentService {
 		results = refreshDocuments(results);
 		return mapper.mapToModel(results);
 	}
-
-	public List<DMDIIDocumentModel> findPage(Integer pageNumber, Integer pageSize) throws DMCServiceException {
-		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		List<DMDIIDocument> documents = dmdiiDocumentRepository.findAll(new PageRequest(pageNumber, pageSize)).getContent();
-		
-		documents = refreshDocuments(documents);
-		
-		return mapper.mapToModel(documents);
-	}
 	
 	public List<DMDIIDocumentModel> getUndeletedDMDIIDocuments(Integer pageNumber, Integer pageSize) throws DMCServiceException {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
@@ -93,12 +84,6 @@ public class DMDIIDocumentService {
 		
 		docList = refreshDocuments(docList);
 		return mapper.mapToModel(docList.get(0));
-	}
-
-	public DMDIIDocument findOneEntity(Integer id) throws DMCServiceException {
-		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(id);
-		
-		return docEntity;
 	}
 	
 	public DMDIIDocumentModel findMostRecentStaticFileByFileTypeId (Integer fileTypeId) throws DMCServiceException {

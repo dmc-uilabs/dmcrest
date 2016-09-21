@@ -21,12 +21,8 @@ public class ServiceDocument extends BaseEntity{
 	@JoinColumn(name = "document_id")
 	private Document document;
 	
-	@ManyToOne
-	@JoinColumn(name = "service_id")
+	@Column(name = "service_id")
 	private Integer serviceId;
-	
-	@Column(name = "access_level")
-	private String accessLevel;
 
 	public Integer getId() {
 		return id;
@@ -52,19 +48,10 @@ public class ServiceDocument extends BaseEntity{
 		this.serviceId = serviceId;
 	}
 
-	public String getAccessLevel() {
-		return accessLevel;
-	}
-
-	public void setAccessLevel(String accessLevel) {
-		this.accessLevel = accessLevel;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((accessLevel == null) ? 0 : accessLevel.hashCode());
 		result = prime * result + ((document == null) ? 0 : document.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((serviceId == null) ? 0 : serviceId.hashCode());
@@ -80,11 +67,6 @@ public class ServiceDocument extends BaseEntity{
 		if (getClass() != obj.getClass())
 			return false;
 		ServiceDocument other = (ServiceDocument) obj;
-		if (accessLevel == null) {
-			if (other.accessLevel != null)
-				return false;
-		} else if (!accessLevel.equals(other.accessLevel))
-			return false;
 		if (document == null) {
 			if (other.document != null)
 				return false;

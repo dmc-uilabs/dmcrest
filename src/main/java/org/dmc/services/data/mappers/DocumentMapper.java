@@ -14,9 +14,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
-
-	@Inject
-	private OrganizationService organizationService;
 	
 	@Inject
 	private UserService userService;
