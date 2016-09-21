@@ -92,9 +92,9 @@ public class DocumentService {
 		
 	}
 	
-	public List<DocumentModel> getDocumentsByOrganization (Integer organizationId) {
+	public List<DocumentModel> getDocumentsByParentTypeAndParentId (DocumentParentType parentType, Integer parentId) {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		List<Document> docs = documentRepository.findByOrganizationId(organizationId);
+		List<Document> docs = documentRepository.findByParentTypeAndParentId(parentType, parentId);
 		
 		docs = refreshDocuments(docs);
 		return mapper.mapToModel(docs);
