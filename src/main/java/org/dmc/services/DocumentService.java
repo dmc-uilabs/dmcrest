@@ -48,8 +48,8 @@ public class DocumentService {
 	private final String logTag = DocumentService.class.getName();
 	
 	private Verification verify = new Verification();
-
-	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException, DMCServiceException {
+	
+	public DocumentModel findOne(Integer documentId) throws DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		List<Document> results;

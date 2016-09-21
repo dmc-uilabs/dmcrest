@@ -152,8 +152,8 @@ public class Document extends BaseEntity {
 		this.isDeleted = isDeleted;
 	}
 
-	public String getAccessLevel() {
-		return accessLevel;
+	public Integer getFileType() {
+		return fileType;
 	}
 
 	public void setAccessLevel(String accessLevel) {
