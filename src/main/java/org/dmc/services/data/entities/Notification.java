@@ -26,13 +26,8 @@ import org.hibernate.annotations.Where;
 public class Notification extends BaseEntity {
 	
 	public enum NotificationType {
-<<<<<<< HEAD
 		NEW_USER_JOINED_ORGANIZATION,
 		USER_REQUESTS_VERIFICATION
-=======
-		NEW_MEMBER_JOINED_ORGANIZATION,
-		MEMBER_REQUESTS_VERIFICATION
->>>>>>> Add base for new notification system
 	}
 
 	@Id
@@ -58,7 +53,7 @@ public class Notification extends BaseEntity {
 	private boolean unread = true;
 	
 	@Column(name = "is_deleted")
-	private boolean isDeleted;
+	private boolean isDeleted = false;
 	
 	@PrePersist
 	protected void onCreate() {

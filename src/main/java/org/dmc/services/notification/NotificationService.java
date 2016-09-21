@@ -1,6 +1,5 @@
 package org.dmc.services.notification;
 
-<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +18,6 @@ import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.NotificationRepository;
 import org.dmc.services.exceptions.InvalidOrganizationUserException;
 import org.dmc.services.security.SecurityRoles;
-=======
-import javax.inject.Inject;
-
-import org.dmc.services.data.repositories.NotificationRepository;
->>>>>>> Add base for new notification system
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,7 +40,6 @@ public class NotificationService {
 		notificationRepository.markAllNotificationsReadForUser(userId);
 	}
 	
-<<<<<<< HEAD
 	public void notifyOrgAdminsOfNewUser(Integer organizationId, User user) {
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		
@@ -96,6 +89,4 @@ public class NotificationService {
 		
 		notificationRepository.save(notifications);
 	}
-=======
->>>>>>> Add base for new notification system
 }
