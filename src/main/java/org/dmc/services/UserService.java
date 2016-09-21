@@ -23,6 +23,7 @@ import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
+import org.dmc.services.notification.NotificationService;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
@@ -60,6 +61,9 @@ public class UserService {
 
 	@Inject
 	private UserTokenRepository userTokenRepository;
+	
+	@Inject
+	private NotificationService notificationService;
 
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -74,6 +78,11 @@ public class UserService {
 	public List<UserModel> findByOrganizationId(Integer organizationId) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
+	}
+	
+	public List<UserModel> findByOrganizationIdAndRole(Integer organizaitonId, String role) {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		return mapper.mapToModel(userRepository.findByOrganizationIdAndRole(organizaitonId, role));
 	}
 
 	@Transactional
@@ -314,6 +323,7 @@ public class UserService {
 	private OrganizationUser updateOrganizationUser(User user, Integer newOrganizationId) {
 		orgUserRepo.deleteByUserId(user.getId());
 		Organization newOrganization = organizationRepository.findOne(newOrganizationId);
+		notificationService.notifyOrgAdminsOfNewUser(newOrganizationId, user);
 		return orgUserRepo.save(new OrganizationUser(user, newOrganization, false));
 	}
 }

@@ -26,8 +26,8 @@ import org.hibernate.annotations.Where;
 public class Notification extends BaseEntity {
 	
 	public enum NotificationType {
-		NEW_MEMBER_JOINED_ORGANIZATION,
-		MEMBER_REQUESTS_VERIFICATION
+		NEW_USER_JOINED_ORGANIZATION,
+		USER_REQUESTS_VERIFICATION
 	}
 
 	@Id
