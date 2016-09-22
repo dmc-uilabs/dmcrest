@@ -23,8 +23,10 @@ import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.ExpressionUtils;
@@ -46,59 +48,47 @@ public class DocumentService {
 	
 	private Verification verify = new Verification();
 
-	public List<DocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException, DMCServiceException {
+	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
-		List<Document> results = documentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
+		List<Document> results = new ArrayList<Document>();
+		
+		if(recent != null) {
+			results = documentRepository.findAll(where, new PageRequest(0, recent, new Sort(new Order (Direction.DESC, "modified")))).getContent();
+		}
+		else {
+			results = documentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
+		}
+		
+		if(results.get(0) == null) return null;
+		
 		results = refreshDocuments(results);
 		return mapper.mapToModel(results);
+	}
+	
+	public Long count(Map filterParams) throws InvalidFilterParameterException {
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+		return documentRepository.count(where);
 	}
 	
 	public DocumentModel findOne(Integer documentId) throws DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		List<Document> docList = Collections.singletonList(documentRepository.findOne(documentId));
 		
+		if(docList.get(0) == null) return null;
+		
 		docList = refreshDocuments(docList);
 		return mapper.mapToModel(docList.get(0));
 	}
 	
-	public List<DocumentModel> findDocuments (String parentType, Integer parentId, Integer docClassId, Integer limit) {
-		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		
-		List<Document> retList = new ArrayList<Document>();
-		
-		DocumentParentType eType = DocumentParentType.valueOf(parentType);
-		
-		if(docClassId == null) {
-			retList = documentRepository.findByParentTypeAndParentId(eType, parentId, new PageRequest(0, limit));
-		}
-		else {
-			retList = documentRepository.findByParentTypeAndParentIdAndDocClass(eType, parentId, docClassId, new PageRequest(0, limit));
-		}
-		
-		retList = refreshDocuments(retList);
-		return mapper.mapToModel(retList);
-		
-	}
-	
-//	public DocumentModel findMostRecentDocumentByDocClassIdAndOrganizationId (Integer docClassId, Integer organizationId) {
-//		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-//		List<Document> docs = Collections.singletonList(documentRepository.findTopByOrganizationIdAndDocClassOrderByModifiedDesc(organizationId, docClassId));
-//		
-//		docs = refreshDocuments(docs);
-//		return mapper.mapToModel(docs.get(0));
-//	}
-	
-//	public List<DocumentModel> findDocumentsByOrganizationIdAndDocClassId(Integer organizationId, Integer docClassId, Integer limit) {
-//		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-//		List<Document> docs = documentRepository.findByOrganizationIdAndDocClassOrderByModifiedDesc(organizationId, docClassId, new PageRequest(0, limit)).getContent();
-//		
-//		docs = refreshDocuments(docs);
-//		return mapper.mapToModel(docs);
-//	}
-	
 	public DocumentModel save (DocumentModel doc, BindingResult result) throws DMCServiceException {
 		Mapper<Document, DocumentModel> docMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		String folder = "APPLICATION";
+		
+		if(doc.getParentType() != null) {
+			folder = doc.getParentType();
+		}
+
 		
 		Document docEntity = docMapper.mapToEntity(doc);
 		
@@ -117,7 +107,7 @@ public class DocumentService {
 		
 		ServiceLogger.log(logTag, "Attempting to verify document");
 		//Verify the document
-		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document", docEntity.getOwner().getUsername(), "Companies", "Documents", "id", "url");
+		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document", docEntity.getOwner().getUsername(), folder, "Documents", "id", "url");
 		ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
 		
 		return docMapper.mapToModel(docEntity);
@@ -135,15 +125,27 @@ public class DocumentService {
 		return mapper.mapToModel(docEntity);
 	}
 	
-//	public Long countDocumentsByOrganizationIdAndDocClass(Integer organizationId, Integer docClass) {
-//		Assert.notNull(organizationId);
-//		return documentRepository.countByOrganizationIdAndDocClass(organizationId, docClass);
-//	}
+	public DocumentModel update (DocumentModel doc) {
+		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		
+		Document docEntity = mapper.mapToEntity(doc);
+		Document oldEntity = documentRepository.findOne(doc.getId());
+		
+		docEntity.setExpires(oldEntity.getExpires());
+		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
+		
+		docEntity = documentRepository.save(docEntity);
+		
+		return mapper.mapToModel(docEntity);
+	}
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<Predicate>();
 
 		expressions.addAll(tagFilter(filterParams.get("tags")));
+		expressions.add(parentTypeFilter(filterParams.get("parentType")));
+		expressions.add(parentIdFilter(filterParams.get("parentId")));
+		expressions.add(docClassIdFilter(filterParams.get("docClassId")));
 
 		return expressions;
 	}
@@ -159,7 +161,7 @@ public class DocumentService {
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
-		if(tagIds.equals(null))
+		if(tagIds ==null)
 			return new ArrayList<Predicate>();
 
 		Collection<Predicate> returnValue = new ArrayList<Predicate>();
@@ -176,6 +178,45 @@ public class DocumentService {
 			returnValue.add(QDocument.document.tags.any().id.eq(tagIdInt));
 		}
 		return returnValue;
+	}
+	
+	private Predicate parentTypeFilter(String parentType) throws InvalidFilterParameterException {
+		if(parentType == null) return null;
+		
+		try {
+			DocumentParentType eType = DocumentParentType.valueOf(parentType);
+		} catch (Exception e) {
+			throw new InvalidFilterParameterException("parentType", DocumentParentType.class);
+		}
+		
+		return QDocument.document.parentType.eq(DocumentParentType.valueOf(parentType));
+	}
+	
+	private Predicate parentIdFilter(String parentId) throws InvalidFilterParameterException {
+		if(parentId == null) return null;
+		Integer parentIdInt = null;
+		
+		try {
+			parentIdInt = Integer.parseInt(parentId);
+		} catch(NumberFormatException e) {
+			throw new InvalidFilterParameterException("parentId", Integer.class);
+		}
+		
+		return QDocument.document.parentId.eq(parentIdInt);
+	}
+	
+	private Predicate docClassIdFilter(String docClassId) throws InvalidFilterParameterException {
+		if(docClassId == null) return null;
+		
+		Integer docClassIdInt = null;
+		
+		try {
+			docClassIdInt = Integer.parseInt(docClassId);
+		} catch (NumberFormatException e) {
+			throw new InvalidFilterParameterException("docClassId", Integer.class);
+		}
+		
+		return QDocument.document.docClass.eq(docClassIdInt);
 	}
 	
 	private List<Document> refreshDocuments (List<Document> docs) throws DMCServiceException {
