@@ -14,6 +14,7 @@ import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
+import org.dmc.services.notification.NotificationService;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
@@ -48,6 +49,9 @@ public class UserController {
 
 	@Inject
 	private UserPrincipalService userPrincipalService;
+	
+	@Inject
+	private NotificationService notificationService;
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
 	public Id createUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
@@ -157,6 +161,16 @@ public class UserController {
 			throw new RuntimeException("User passed in request doesn't match user that's getting updated.");
 		}
 		return orgUserService.changeOrganization(orgUser);
+	}
+	
+	@RequestMapping(value = "/users/{userId}/notifications", params = "action=markAllRead", method = RequestMethod.PUT)
+	public void markNotificationsAsRead(@PathVariable("userId") Integer userId) {
+		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (!userId.equals(loggedIn.getId())) {
+			throw new AccessDeniedException("403 Permission Denied");
+		}
+		
+		notificationService.markAllNotificationsReadForUser(userId);
 	}
 
     @ExceptionHandler(Exception.class)
