@@ -3,14 +3,11 @@ package org.dmc.services.data.mappers;
 import javax.inject.Inject;
 
 import org.dmc.services.UserService;
-import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.User;
-import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.UserModel;
-import org.dmc.services.organization.OrganizationService;
 import org.springframework.stereotype.Component;
 
 @Component
