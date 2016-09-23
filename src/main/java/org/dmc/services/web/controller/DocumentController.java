@@ -40,7 +40,10 @@ public class DocumentController {
 	}
 	
 	@RequestMapping(value="/documents", params = {"recent", "page", "pageSize"}, method = RequestMethod.GET)
-	public PagedResponse getDocuments (@RequestParam("recent") Integer recent, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
+	public PagedResponse getDocuments (@RequestParam("recent") Integer recent, 
+										@RequestParam("page") Integer page, 
+										@RequestParam("pageSize") Integer pageSize, 
+										@RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
 		ServiceLogger.log(logTag, "In getDocuments filter: ");
 		List<? extends BaseModel> results = documentService.filter(params, recent, page, pageSize);
 		Long count = documentService.count(params);

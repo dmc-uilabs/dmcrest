@@ -27,12 +27,8 @@ public class ServiceController {
     private final static String LOGTAG = ServiceController.class.getName();
 
     private ServiceDao serviceDao = new ServiceDao();
-    //TODO: service_images no longer exist.
-    //private ServiceImagesDao serviceImagesDao = new ServiceImagesDao();
     private ServiceTagsDao serviceTagsDao = new ServiceTagsDao();
     private ServiceSpecificationDao specificationDao = new ServiceSpecificationDao();
-    //TODO: service_documents no longer exist.
-    //private ServiceDocumentDao serviceDocumentDao = new ServiceDocumentDao();
 
     @RequestMapping(value = "/services/{id}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getService(@PathVariable("id") int id,
@@ -124,26 +120,6 @@ public class ServiceController {
         return new ResponseEntity<ArrayList<ServiceAuthor>>(authors, HttpStatus.valueOf(httpStatusCode));
     }
 
-    //TODO: service_documents as referenced here no longer exist.  Needs refactoring.
-//    @RequestMapping(value = "/services/{serviceID}/service_documents", produces = { APPLICATION_JSON_VALUE,
-//            TEXT_HTML_VALUE }, method = RequestMethod.GET)
-//    public ResponseEntity<?> servicesServiceIDServiceDocumentsGet(@PathVariable("serviceID") int serviceID,
-//            @RequestParam(value = "serviceDocumentId", required = false) String serviceDocumentId,
-//            @RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit,
-//            @RequestParam(value = "order", required = false, defaultValue = "DESC") String order,
-//            @RequestParam(value = "sort", required = false, defaultValue = "expiration_date") String sort) {
-//
-//        ServiceLogger.log(LOGTAG, "get Service Document, serviceID: " + serviceID);
-//        try {
-//            final int statusCode = HttpStatus.OK.value();
-//            final ArrayList<ServiceDocument> docs = serviceDocumentDao.getServiceDocs(serviceID, sort, order, limit);
-//            return new ResponseEntity<ArrayList<ServiceDocument>>(docs, HttpStatus.valueOf(statusCode));
-//        } catch (DMCServiceException e) {
-//            ServiceLogger.log(LOGTAG, e.getMessage());
-//            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-//        }
-//    }
-
     @RequestMapping(value = "/services/{serviceID}/services_history", produces = { APPLICATION_JSON_VALUE,
             TEXT_HTML_VALUE }, method = RequestMethod.GET)
     public ResponseEntity<?> servicesServiceIDServiceHistoryGet(@PathVariable("serviceID") String serviceID,
@@ -160,22 +136,6 @@ public class ServiceController {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
-
-    //TODO: service_images no longer exist. Need to test before final deletion.
-//    @RequestMapping(value = "/services/{serviceID}/service_images", produces = { APPLICATION_JSON_VALUE,
-//            TEXT_HTML_VALUE }, method = RequestMethod.GET)
-//    public ResponseEntity<?> getServiceImages(@PathVariable("serviceID") int serviceID,
-//            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-//        ServiceLogger.log(LOGTAG, "In GET ServiceImage by User " + userEPPN);
-//        final int statusCode = HttpStatus.OK.value();
-//        try {
-//            final ArrayList<ServiceImages> imageList = serviceImagesDao.getServiceImages(serviceID);
-//            return new ResponseEntity<ArrayList<ServiceImages>>(imageList, HttpStatus.valueOf(statusCode));
-//        } catch (DMCServiceException e) {
-//            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-//        }
-//
-//    }
 
     @RequestMapping(value = "/services/{serviceID}/service_tags", produces = { APPLICATION_JSON_VALUE,
             TEXT_HTML_VALUE }, method = RequestMethod.GET)

@@ -51,7 +51,7 @@ public class DocumentService {
 	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
-		List<Document> results = new ArrayList<Document>();
+		List<Document> results;
 		
 		if(recent != null) {
 			results = documentRepository.findAll(where, new PageRequest(0, recent, new Sort(new Order (Direction.DESC, "modified")))).getContent();
@@ -161,12 +161,13 @@ public class DocumentService {
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
-		if(tagIds ==null)
+		if(tagIds ==null) {
 			return new ArrayList<Predicate>();
+		}
 
 		Collection<Predicate> returnValue = new ArrayList<Predicate>();
 		String[] tags = tagIds.split(",");
-		Integer tagIdInt = null;
+		Integer tagIdInt;
 
 		for(String tag: tags) {
 			try{
@@ -183,18 +184,20 @@ public class DocumentService {
 	private Predicate parentTypeFilter(String parentType) throws InvalidFilterParameterException {
 		if(parentType == null) return null;
 		
+		DocumentParentType eType;
+		
 		try {
-			DocumentParentType eType = DocumentParentType.valueOf(parentType);
+			eType = DocumentParentType.valueOf(parentType);
 		} catch (Exception e) {
 			throw new InvalidFilterParameterException("parentType", DocumentParentType.class);
 		}
 		
-		return QDocument.document.parentType.eq(DocumentParentType.valueOf(parentType));
+		return QDocument.document.parentType.eq(eType);
 	}
 	
 	private Predicate parentIdFilter(String parentId) throws InvalidFilterParameterException {
 		if(parentId == null) return null;
-		Integer parentIdInt = null;
+		Integer parentIdInt;
 		
 		try {
 			parentIdInt = Integer.parseInt(parentId);
@@ -208,7 +211,7 @@ public class DocumentService {
 	private Predicate docClassIdFilter(String docClassId) throws InvalidFilterParameterException {
 		if(docClassId == null) return null;
 		
-		Integer docClassIdInt = null;
+		Integer docClassIdInt;
 		
 		try {
 			docClassIdInt = Integer.parseInt(docClassId);
