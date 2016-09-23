@@ -95,8 +95,9 @@ public class UserController {
 	}
 
     @RequestMapping(value = "/user/save", method = RequestMethod.POST)
-	public UserModel saveUser(@RequestBody UserModel user) {
-		return userService.save(user);
+	public UserModel saveUser(@RequestBody UserModel user,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		return userService.save(user, userEPPN);
 	}
 
 	@RequestMapping(value = "/user/organization/{organizationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
