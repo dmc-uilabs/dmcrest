@@ -97,7 +97,11 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			model.setOnboarding(onboardingMapper.mapToModel(entity.getOnboarding()));
 			
 			model.setNotifications(notificationMapper.mapToModel(entity.getNotifications()));
-			model.setHasUnreadNotifications(entity.getNotifications().stream().anyMatch((n) -> n.isUnread()));
+			if (model.getNotifications() == null) {
+				model.setHasUnreadNotifications(false);
+			} else {
+				model.setHasUnreadNotifications(entity.getNotifications().stream().anyMatch((n) -> n.isUnread()));
+			}
 		}
 		return model;
 	}
