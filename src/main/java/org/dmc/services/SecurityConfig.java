@@ -11,12 +11,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -42,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				.addFilterAfter(dmcRequestHeaderAuthenticationFilter(), ExceptionTranslationFilter.class)
 				.authorizeRequests().anyRequest().permitAll()
-				.and().exceptionHandling().authenticationEntryPoint(new Http403ForbiddenEntryPoint())
+				.and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
 				.and().httpBasic().disable();
 	}
 
@@ -65,5 +66,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		authFilter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
 		authFilter.setAuthenticationManager(authenticationManager());
 		return authFilter;
+	}
+
+	private AuthenticationEntryPoint authenticationEntryPoint(){
+		return (request, response, authException) -> {
+			HttpServletResponse httpResponse = response;
+			httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized Request!");
+		};
 	}
 }
