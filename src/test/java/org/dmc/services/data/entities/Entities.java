@@ -383,14 +383,6 @@ public class Entities {
 		return dmdiiMemberFinance;
 	}
 
-	public static DMDIIInstituteInvolvement dmdiiInstituteInvolvement() throws ParseException {
-		DMDIIInstituteInvolvement instituteInvolvement = new DMDIIInstituteInvolvement();
-		//		instituteInvolvement.setId(1);
-		instituteInvolvement.setStaticLineItem("some static line item");
-		instituteInvolvement.setDate(new Date(format.parse("2016/05/25").getTime()));
-		return instituteInvolvement;
-	}
-
 	public static DMDIIMemberUser dmdiiMemberUser() {
 		DMDIIMemberUser dmdiiMemberUser = new DMDIIMemberUser();
 		//		dmdiiMemberUser.setId(1);
@@ -447,15 +439,15 @@ public class Entities {
 		return status;
 	}
 
-	private static java.util.Date getDateOneMonthAgo() {
+	private static Date getDateOneMonthAgo() {
 		return getSomeOtherDate(Calendar.MONTH, -1);
 	}
 
-	private static java.util.Date getDateOneMonthInFuture() {
+	private static Date getDateOneMonthInFuture() {
 		return getSomeOtherDate(Calendar.MONTH, 1);
 	}
 
-	private static java.util.Date getSomeOtherDate(int field, int amount) {
+	private static Date getSomeOtherDate(int field, int amount) {
 		Calendar calendar = GregorianCalendar.getInstance();
 		calendar.add(field, amount);
 		return calendar.getTime();
@@ -471,7 +463,7 @@ public class Entities {
 	public static DMDIIDocument dmdiiDocument() throws Exception {
 		DMDIIDocument dmdiiDocument = new DMDIIDocument();
 		
-		List<DMDIIDocumentTag> tagList = new ArrayList<DMDIIDocumentTag>();
+		List<DMDIIDocumentTag> tagList = new ArrayList<>();
 		tagList.add(dmdiiDocumentTag());
 		
 		dmdiiDocument.setId(1000);
@@ -488,5 +480,25 @@ public class Entities {
 		dmdiiDocument.setVerified(true);
 		
 		return dmdiiDocument;
+	}
+	
+	public static DocumentTag documentTag() {
+		DocumentTag documentTag = new DocumentTag();
+		documentTag.setId(1000);
+		documentTag.setTagName(TAG_NAME);
+		return documentTag;
+	}
+	
+	public static Document document() throws Exception {
+		Document document = new Document();
+		
+		List<DocumentTag> tagList = new ArrayList<>();
+		tagList.add(documentTag());
+		
+		document.setId(1000);
+		document.setDocumentName(DOCUMENT_NAME);
+		document.setDocumentUrl(DOCUMENT_URL);
+		
+		return null;
 	}
 }
