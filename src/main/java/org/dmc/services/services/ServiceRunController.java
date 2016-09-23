@@ -1,9 +1,6 @@
 package org.dmc.services.services;
 
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
-import static org.springframework.http.MediaType.parseMediaType;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-
+import org.apache.commons.io.IOUtils;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
@@ -11,50 +8,166 @@ import org.dmc.services.company.CompanyUserUtil;
 import org.dmc.services.projects.ProjectController;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import springfox.documentation.spring.web.json.Json;
+
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+
 @RestController
 public class ServiceRunController {
 
-    private final String logTag = ServiceRunController.class.getName();
+	private final String logTag = ServiceRunController.class.getName();
 
-    //@RequestMapping(value = "/model_run", method = RequestMethod.POST)
-    //public ResponseEntity<Integer> serviceRun (@RequestBody int serviceId, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-/*  public ResponseEntity<Id> serviceRun (@RequestBody String inputJson, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-    	int serviceId=-9;
+	@RequestMapping(value = "/model_run_file1", method = RequestMethod.POST)
+	public ResponseEntity<?> handleFormUploadTest(@RequestParam("file") MultipartFile uploadfile,@RequestParam("service")String serviceID,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws IOException {
+		ServiceLogger.log(logTag, "Test121 : The file name is : ");
+		
+		
+		 try {
+		      // Get the filename and build the local file path
+		      String filename = uploadfile.getOriginalFilename();
+		      String directory = "/tmp/";
+		      String filepath = Paths.get(directory, filename).toString();
+		      
+		      // Save the file locally
+		      BufferedOutputStream stream =
+		          new BufferedOutputStream(new FileOutputStream(new File(filepath)));
+		      stream.write(uploadfile.getBytes());
+		      stream.close();
+		    }
+		    catch (Exception e) {
+		      System.out.println(e.getMessage());
+		      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		    }		    
+		    return new ResponseEntity<String>(serviceID, HttpStatus.OK);	
+	}
+
+	@RequestMapping(value = "/model_run_file", method = RequestMethod.POST)
+	public ResponseEntity<?> serviceRunWithFile(@RequestParam("file") MultipartFile uploadfile, @RequestParam("service")String serviceInput,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws IOException {
+		ServiceLogger.log(logTag, "serviceInput :" + serviceInput.toString());
+		ServiceLogger.log(logTag, "fileName :" + uploadfile.getName());
+		ServiceLogger.log(logTag, "content type :" + uploadfile.getContentType());
+		
     	int runId;
-    	try {
-    		JSONObject in = new JSONObject(inputJson);
-    		String intStr = in.getJSONObject("interFace").getString("interfaceId");
-    		serviceId = ServiceRunServiceInterfaceDAO.getServiceId(intStr);        
+    	
+    	JSONObject inputs = new JSONObject(serviceInput);
+    	String sId = inputs.getString("serviceId");
+    	JSONObject inpars = inputs.getJSONObject("inParams");			
+    	
+    	RunDomeModelResponse response = new RunDomeModelResponse();
+    	try {      
     		int userId = CompanyUserUtil.getUserId(userEPPN);
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
-    		runId = serviceRunInstance.runModel(serviceId, userId);
-    		
+    		HashMap paras = new HashMap<String, DomeModelParam>();
+    		//Map ins = serviceInput.getInParams();
+    		Iterator it = inpars.keys();
+    		while (it.hasNext()) {
+    			String variableName = (String)it.next();
+    			JSONObject variableValue = (JSONObject) inpars.getJSONObject(variableName);
+    			DomeModelParam parValue = new DomeModelParam();
+    			
+    			try {
+    				parValue.setType(variableValue.getString("type"));
+    				}
+    				catch (Exception e)
+    				{
+    					parValue.setType(null);
+    				}
+    				try {
+    					parValue.setName(variableValue.getString("name"));
+    					}
+    					catch (Exception e)
+    					{
+    						parValue.setName(null);
+    					}
+    				try {
+    					parValue.setUnit(variableValue.getString("unit"));
+    					}
+    					catch (Exception e)
+    					{
+    						parValue.setUnit(null);
+    					}
+    				try {
+    					parValue.setCategory(variableValue.getString("category"));
+    					}
+    					catch (Exception e)
+    					{
+    						parValue.setCategory(null);
+    					}
+    				try {
+    					if (variableValue.getString("type").equals("File"))
+    						parValue.setValue(variableName);
+    					else parValue.setValue(variableValue.getString("value"));
+    					}
+    					catch (Exception e)
+    					{
+    						parValue.setValue(null);
+    					}
+    				try {
+    					parValue.setParameterid(variableValue.getString("parameterid"));
+    					}
+    					catch (Exception e)
+    					{
+    						parValue.setParameterid(null);
+    					}
+    				try {
+    					parValue.setInstancename(variableValue.getString("instancename"));
+    					}
+    					catch (Exception e)
+    					{
+    						parValue.setInstancename(null);
+    					}
+    				try {
+    					parValue.setInstancename(variableValue.getString("defaultValue"));	
+    					}
+    					catch (Exception e)
+    					{
+    						parValue.setInstancename(null);	
+    					}					
+    			// Need a type change here.
+    				paras.put(variableName, parValue);
+    		}
+    		int serviceId = new Integer(sId);
+    		runId = serviceRunInstance.runModel(serviceId,paras,uploadfile, userId);
+    		ServiceLogger.log(logTag, "Successfully called runModel, serviceIdStr: " + sId + " called by user " + userEPPN);
+    		response.setRunId(runId);
         }
         catch (Exception e)
         {
-        	ServiceLogger.log(logTag, "Exception in serviceRun, serviceId: " + serviceId + " called by user " + userEPPN);
+        	ServiceLogger.log(logTag, "Exception in serviceRun, serviceIdStr: " + sId + " called by user " + userEPPN);
+        	ServiceLogger.log(logTag, "Exception: " + e.toString());
         	return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<Id>(new Id.IdBuilder(runId).build(), HttpStatus.OK);
-    }*/
-    @RequestMapping(value = "/model_run", method = RequestMethod.POST)
+        return new ResponseEntity<RunDomeModelResponse>(response, HttpStatus.OK);
+	}
+
+
+	@RequestMapping(value = "/model_run", method = RequestMethod.POST)
     public ResponseEntity<RunDomeModelResponse> serviceRun (@RequestBody RunDomeModelInput serviceInput, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
     	
     	int runId;
@@ -78,7 +191,7 @@ public class ServiceRunController {
     		}*/
     		int serviceId = new Integer(sId);
     		runId = serviceRunInstance.runModel(serviceId,paras,userId);
-    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " called by user " + userEPPN);
+    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " called by user " + userEPPN + " with params: " + paras.toString());
     		response.setRunId(runId);
         }
         catch (Exception e)
@@ -105,15 +218,6 @@ public class ServiceRunController {
         }
         return new ResponseEntity<ServiceRunResult>(result, HttpStatus.OK);
     }
-    
-    @RequestMapping(value = "/uploadMyTestInServiceRun", method = RequestMethod.POST)
-        public void handleFormUpload(@RequestPart MultipartFile rawData, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN ) throws IOException {
-            if (rawData.isEmpty())
-                throw new IOException();
-            final MediaType rawDataContentType = parseMediaType(rawData.getContentType());
-            rawData.transferTo(new File("C:/tmp/test"));
-        }
-
     
 /*    public static void main(String[] args)
     {
