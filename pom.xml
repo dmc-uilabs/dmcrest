@@ -151,6 +151,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 		<dependency>
@@ -313,6 +319,13 @@
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.9.1</version>
 		</dependency>
+
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.3.4</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 
 
@@ -361,6 +374,7 @@
 							<excludes>
 								<!-- search tests -->
 								<exclude>**/SearchIT.java</exclude>
+								<exclude>**/SearchIndexingIT.java</exclude>
 								<!-- DOME server tests -->
 								<exclude>**/ServiceRunIT.java</exclude>
 								<exclude>**/DomeIT.java</exclude>

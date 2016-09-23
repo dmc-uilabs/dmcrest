@@ -12,17 +12,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.sql.SQLException;
-import org.json.JSONObject;
 
 import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 
 import org.dmc.services.BaseIT;
 import org.dmc.services.utility.TestUserUtil;
-import org.dmc.services.accounts.UserAccount;
-import org.dmc.services.accounts.UserAccountServer;
-import org.dmc.services.users.User;
-import org.dmc.services.users.UserDao;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.ServiceLogger;
 
 @SuppressWarnings("unused")

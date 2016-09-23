@@ -5,13 +5,15 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.OnboardingStatus;
 import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
+import org.dmc.services.data.models.OnboardingStatusModel;
 import org.dmc.services.data.models.UserContactInfoModel;
 import org.dmc.services.data.models.UserModel;
-import org.dmc.services.data.repositories.OrganizationDao;
+import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Component;
@@ -20,57 +22,90 @@ import org.springframework.stereotype.Component;
 public class UserMapper extends AbstractMapper<User, UserModel> {
 
 	@Inject
-	private OrganizationDao organizationDao;
+	private OrganizationRepository organizationRepository;
 
 	@Inject
 	private OrganizationUserRepository organizationUserRepository;
 
 	@Override
 	public User mapToEntity(UserModel model) {
-		if (model == null) return null;
+		User entity = null;
 
-		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+		if (model != null) {
+			Mapper<UserContactInfo, UserContactInfoModel> mapper;
+			mapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+			Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper;
+			onboardingMapper = mapperFactory.mapperFor(OnboardingStatus.class, OnboardingStatusModel.class);
 
-		User entity = copyProperties(model, new User());
-		entity.setUserContactInfo(contactInfoMapper.mapToEntity(model.getUserContactInfo()));
+			entity = copyProperties(model, new User());
+			entity.setRealname(model.getDisplayName());
+			entity.setUserContactInfo(mapper.mapToEntity(model.getUserContactInfo()));
 
-		if (model.getOrganization() != null) {
-			OrganizationUser orgUserEntity = organizationUserRepository.findByUserIdAndOrganizationId(entity.getId(), model.getOrganization());
-			if(orgUserEntity == null) {
-				orgUserEntity = new OrganizationUser();
-				orgUserEntity.setOrganization(organizationDao.findOne(model.getOrganization()));
+			if (model.getCompanyId() != null) {
+				OrganizationUser orgUserEntity = organizationUserRepository
+						.findByUserIdAndOrganizationId(entity.getId(), model.getCompanyId());
+
+				if (orgUserEntity == null) {
+					orgUserEntity = new OrganizationUser();
+					orgUserEntity.setOrganization(organizationRepository.findOne(model.getCompanyId()));
+				}
+
+				entity.setOrganizationUser(orgUserEntity);
+				entity.getOrganizationUser().setUser(entity);
 			}
 
-			entity.setOrganizationUser(orgUserEntity);
-			entity.getOrganizationUser().setUser(entity);
+			entity.setOnboarding(onboardingMapper.mapToEntity(model.getOnboarding()));
 		}
-
 		return entity;
 	}
 
 	@Override
 	public UserModel mapToModel(User entity) {
-		if (entity == null) return null;
+		UserModel model = null;
 
-		Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+		if (entity != null) {
+			Mapper<UserContactInfo, UserContactInfoModel> contactInfoMapper;
+			contactInfoMapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
 
-		UserModel model = copyProperties(entity, new UserModel());
-		model.setDMDIIMember(entity.getRoles().stream().anyMatch(this::orgIsDMDIIMember));
-		model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
+			Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper;
+			onboardingMapper = mapperFactory.mapperFor(OnboardingStatus.class, OnboardingStatusModel.class);
 
-		Map<Integer, String> roles = new HashMap<Integer, String>();
+			model = copyProperties(entity, new UserModel());
+			model.setDisplayName(entity.getRealname());
+			model.setAccountId(entity.getId());
+			model.setProfileId(entity.getId());
+
+			if (entity.getRoles() != null && !entity.getRoles().isEmpty()) {
+				model.setIsDMDIIMember(entity.getRoles().stream().anyMatch(this::orgIsDMDIIMember));
+				mapEntityRoles(entity, model);
+			} else {
+				model.setIsDMDIIMember(false);
+			}
+
+			model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
+			model.setTermsConditions(entity.getTermsAndCondition() != null);
+
+			model.setCompanyId((entity.getOrganizationUser() == null) ?
+					null :
+					entity.getOrganizationUser().getOrganization().getId());
+
+			model.setOnboarding(onboardingMapper.mapToModel(entity.getOnboarding()));
+		}
+		return model;
+	}
+
+	private void mapEntityRoles(User entity, UserModel model) {
+		Map<Integer, String> roles = new HashMap<>();
+
 		for (UserRoleAssignment assignment : entity.getRoles()) {
 			if (assignment.getRole().getRole().equals(SecurityRoles.SUPERADMIN)) {
 				roles.put(0, SecurityRoles.SUPERADMIN);
-				model.setDMDIIMember(true);
+				model.setIsDMDIIMember(true);
 			} else {
 				roles.put(assignment.getOrganization().getId(), assignment.getRole().getRole());
 			}
 		}
 		model.setRoles(roles);
-		model.setOrganization( (entity.getOrganizationUser() == null ) ? null : entity.getOrganizationUser().getOrganization().getId());
-
-		return model;
 	}
 
 	private boolean orgIsDMDIIMember(UserRoleAssignment roleAssignment) {
@@ -79,7 +114,6 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		if (roleAssignment.getOrganization() != null) {
 			isMember = roleAssignment.getOrganization().getDmdiiMember() != null;
 		}
-
 		return isMember;
 	}
 
@@ -92,5 +126,4 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 	public Class<UserModel> supportsModel() {
 		return UserModel.class;
 	}
-
 }

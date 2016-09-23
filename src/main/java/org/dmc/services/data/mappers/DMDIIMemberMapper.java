@@ -1,9 +1,5 @@
 package org.dmc.services.data.mappers;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIMemberContact;
 import org.dmc.services.data.entities.DMDIIMemberFinance;
@@ -17,6 +13,10 @@ import org.dmc.services.dmdiitype.DMDIIType;
 import org.dmc.services.exceptions.DateFormatException;
 import org.springframework.stereotype.Component;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 @Component
 public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberModel> {
 
@@ -26,7 +26,9 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 	public DMDIIMember mapToEntity(DMDIIMemberModel model) {
 		if (model == null) return null;
 
-		DMDIIMember entity = copyProperties(model, new DMDIIMember(), new String[]{"startDate", "expireDate", "awards", "contacts", "customers", "finances", "instituteInvolvement"});
+		DMDIIMember entity = copyProperties(model, new DMDIIMember(),
+				new String[] { "startDate", "expireDate", "awards", "contacts", "customers", "finances",
+						"instituteInvolvement" });
 
 		Mapper<DMDIIType, DMDIITypeModel> typeMapper = mapperFactory.mapperFor(DMDIIType.class, DMDIITypeModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class,	OrganizationModel.class);
@@ -51,7 +53,6 @@ public class DMDIIMemberMapper extends AbstractMapper<DMDIIMember, DMDIIMemberMo
 	@Override
 	public DMDIIMemberModel mapToModel(DMDIIMember entity) {
 		if (entity == null) return null;
-
 
 		DMDIIMemberModel model = copyProperties(entity, new DMDIIMemberModel(), new String[]{"startDate", "expireDate", "customers", "finances", "instituteInvolvement"});
 

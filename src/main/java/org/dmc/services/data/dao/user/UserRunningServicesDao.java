@@ -1,10 +1,10 @@
-package org.dmc.services.users;
+package org.dmc.services.data.dao.user;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import org.dmc.services.ServiceLogger;
-
+import org.dmc.services.users.UserRunningServices;
 
 public class UserRunningServicesDao {
     
