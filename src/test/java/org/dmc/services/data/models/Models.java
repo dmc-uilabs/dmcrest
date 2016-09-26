@@ -31,6 +31,7 @@ public class Models {
 	public static final String DOCUMENT_URL = "https://test-final-verify.s3.amazonaws.com/ProjectOfDMDII/103552215657713056245%40google.com/Documents/1473359761-343968-sanitized-football.jpg?AWSAccessKeyId=AKIAJDE3BJULBHCYEX4Q&Expires=1475951762&Signature=p3U7tV%2Bk9rAx6jdNe5XGOzJz7ME%3D";
 	public static final String TAG_NAME = "TagName";
 	public static final String ACCESS_LEVEL = "AccessLevel";
+	public static final String PARENT_TYPE = "ParentType";
 
 	private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -302,7 +303,7 @@ public class Models {
 	public static DMDIIDocumentModel dmdiiDocumentModel() {
 		DMDIIDocumentModel dmdiiDocumentModel = new DMDIIDocumentModel();
 		
-		List<DMDIIDocumentTagModel> tags = new ArrayList<DMDIIDocumentTagModel>();
+		List<DMDIIDocumentTagModel> tags = new ArrayList<>();
 		tags.add(dmdiiDocumentTagModel());
 		
 		dmdiiDocumentModel.setId(1000);
@@ -318,5 +319,34 @@ public class Models {
 		dmdiiDocumentModel.setVerified(true);
 		
 		return dmdiiDocumentModel;
+	}
+	
+	public static DocumentTagModel documentTagModel() {
+		DocumentTagModel documentTagModel = new DocumentTagModel();
+		documentTagModel.setId(1000);
+		documentTagModel.setTagName(TAG_NAME);
+		return documentTagModel;
+	}
+	
+	public static DocumentModel documentModel() {
+		DocumentModel documentModel = new DocumentModel();
+		
+		List<DocumentTagModel> tags = new ArrayList<>();
+		tags.add(documentTagModel());
+		
+		documentModel.setId(1000);
+		documentModel.setDocumentName(DOCUMENT_NAME);
+		documentModel.setDocumentUrl(DOCUMENT_URL);
+		documentModel.setParentType(PARENT_TYPE);
+		documentModel.setParentId(1000);
+		documentModel.setOwnerId(1000);
+		documentModel.setTags(tags);
+		documentModel.setModified(new Date());
+		documentModel.setExpires(new Date());
+		documentModel.setIsDeleted(false);
+		documentModel.setDocClass(1000);
+		documentModel.setVerified(true);
+		
+		return documentModel;
 	}
 }
