@@ -207,7 +207,7 @@ public class DMDIIDocumentService {
 		dmdiiDocumentRepository.save(docs);
 	}
 	
-	private List<DMDIIDocument> refreshDocuments (List<DMDIIDocument> docs) throws DMCServiceException {
+	protected List<DMDIIDocument> refreshDocuments (List<DMDIIDocument> docs) throws DMCServiceException {
 		List<DMDIIDocument> freshDocs = new ArrayList<DMDIIDocument>();
 		//Refresh check
 		for (DMDIIDocument doc : docs) {
