@@ -514,7 +514,16 @@ public class Entities {
 		document.setId(1000);
 		document.setDocumentName(DOCUMENT_NAME);
 		document.setDocumentUrl(DOCUMENT_URL);
+		document.setParentType(DocumentParentType.ORGANIZATION);
+		document.setParentId(1000);
+		document.setOwner(user());
+		document.setTags(tagList);
+		document.setModified(new Timestamp(System.currentTimeMillis()));
+		document.setExpires(new Timestamp(getDateOneMonthInFuture().getTime()));
+		document.setIsDeleted(false);
+		document.setDocClass(1000);
+		document.setVerified(true);
 		
-		return null;
+		return document;
 	}
 }
