@@ -8,8 +8,10 @@ public class DocumentModel extends BaseModel {
 	private String documentName;
 
 	private String documentUrl;
-
-	private Integer organizationId;
+	
+	private String parentType;
+	
+	private Integer parentId;
 
 	private Integer ownerId;
 
@@ -21,11 +23,9 @@ public class DocumentModel extends BaseModel {
 
 	private Boolean isDeleted;
 	
-	private Integer fileType;
+	private Integer docClass;
 	
 	private Boolean verified;
-	
-	private String accessLevel;
 
 	public String getDocumentName() {
 		return documentName;
@@ -35,20 +35,28 @@ public class DocumentModel extends BaseModel {
 		this.documentName = documentName;
 	}
 
+	public String getParentType() {
+		return parentType;
+	}
+
+	public void setParentType(String parentType) {
+		this.parentType = parentType;
+	}
+
+	public Integer getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Integer parentId) {
+		this.parentId = parentId;
+	}
+
 	public String getDocumentUrl() {
 		return documentUrl;
 	}
 
 	public void setDocumentUrl(String documentUrl) {
 		this.documentUrl = documentUrl;
-	}
-
-	public Integer getOrganizationId() {
-		return organizationId;
-	}
-
-	public void setOrganizationId(Integer organizationId) {
-		this.organizationId = organizationId;
 	}
 
 	public Integer getOwnerId() {
@@ -91,12 +99,12 @@ public class DocumentModel extends BaseModel {
 		this.isDeleted = isDeleted;
 	}
 
-	public Integer getFileType() {
-		return fileType;
+	public Integer getDocClass() {
+		return docClass;
 	}
 
-	public void setFileType(Integer fileType) {
-		this.fileType = fileType;
+	public void setDocClass(Integer docClass) {
+		this.docClass = docClass;
 	}
 
 	public Boolean getVerified() {
@@ -105,14 +113,6 @@ public class DocumentModel extends BaseModel {
 
 	public void setVerified(Boolean verified) {
 		this.verified = verified;
-	}
-
-	public String getAccessLevel() {
-		return accessLevel;
-	}
-
-	public void setAccessLevel(String accessLevel) {
-		this.accessLevel = accessLevel;
 	}
 
 }
