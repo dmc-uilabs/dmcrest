@@ -12,7 +12,7 @@ import javax.xml.ws.http.HTTPException;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.member.FollowingMemeber;
+import org.dmc.services.member.FollowingMember;
 import org.dmc.services.services.GetCompareService;
 import org.dmc.services.reviews.ReviewDao;
 import org.dmc.services.reviews.ReviewType;
@@ -191,12 +191,12 @@ public class ProfileController {
     
     @RequestMapping(value = "/profiles/{profileId}/following_members", produces = {
             APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-    public ResponseEntity<List<FollowingMemeber>> profilesProfileIdFollowingMembersGet(
+    public ResponseEntity<List<FollowingMember>> profilesProfileIdFollowingMembersGet(
             @PathVariable("profileId") String profileId, @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "sort", required = false) String sort) {
         // do some magic!
-        return new ResponseEntity<List<FollowingMemeber>>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<List<FollowingMember>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     

@@ -137,4 +137,37 @@ public class SQLUtils {
         return dateClause;
     }
 
+    public static boolean isListValidIntegers(String list) {
+        String[] ids = list.split(",");
+        for (String id : ids) {
+            try {
+                Integer.parseInt(id);       // checking that we don't throw NumberFormatException, if ids become GUIDs, would need a different check
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isIdInList(String id, String list) {
+        if (null != list) {
+            final String[] items = list.split(",");
+            for (String item : items) {
+                if (item.equals(id)) return true;
+            }
+        }
+        return false;
+    }
+
+    public static String formatClauses(List<String> clauses, boolean startWithWhere) {
+        String queryClause = "";
+        final String firstClause = startWithWhere ? "WHERE " : "AND ";
+        if (clauses.size() > 0) {
+            queryClause += firstClause + clauses.get(0);
+            for (int i = 1; i < clauses.size(); ++i) {
+                queryClause += " AND " + clauses.get(i);
+            }
+        }
+        return queryClause;
+    }
 }
