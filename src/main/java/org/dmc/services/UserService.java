@@ -73,9 +73,11 @@ public class UserService {
 		return mapper.mapToModel(userRepository.findOne(id));
 	}
 
-	public UserModel save(UserModel userModel) {
+	public UserModel save(UserModel userModel, String userEPPN) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		return mapper.mapToModel(userRepository.save(mapper.mapToEntity(userModel)));
+		User user = mapper.mapToEntity(userModel);
+		user.setUsername(userEPPN);
+		return mapper.mapToModel(userRepository.save(user));
 	}
 
 	public List<UserModel> findByOrganizationId(Integer organizationId) {
@@ -218,14 +220,14 @@ public class UserService {
 			userModel = mapper.mapToModel(user);
 		} else {
 			userModel = mapper.mapToModel(user);
-			updateRolesAndDmdiiMembership(userModel);
+			updateRolesAndDmdiiMembership(userModel, userEPPN);
 		}
 
 		return userModel;
 	}
 
-	private void updateRolesAndDmdiiMembership(UserModel userModel) {
-		UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userModel.getUsername());
+	private void updateRolesAndDmdiiMembership(UserModel userModel, String userEPPN) {
+		UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userEPPN);
 		userModel.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
 		return;
 	}

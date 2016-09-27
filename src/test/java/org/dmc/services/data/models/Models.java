@@ -1,11 +1,11 @@
 package org.dmc.services.data.models;
 
-import org.apache.commons.lang3.RandomStringUtils;
-
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class Models {
 
@@ -180,7 +180,6 @@ public class Models {
 		UserModel user = new UserModel();
 		user.setId(1000);
 		user.setDisplayName(RandomStringUtils.randomAlphanumeric(10));
-		user.setUsername(RandomStringUtils.randomAlphanumeric(10));
 		user.setRealname(RandomStringUtils.randomAlphanumeric(10));
 		user.setTitle(RandomStringUtils.randomAlphanumeric(10));
 		user.setTermsConditions(true);

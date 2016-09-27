@@ -26,7 +26,6 @@ public class UserModel extends BaseModel {
 	private Integer profileId;
 	private Integer companyId;
 	private int role;
-	private String username;
 	private String realname;
 	private String title;
 	private boolean termsConditions;
@@ -85,14 +84,6 @@ public class UserModel extends BaseModel {
 
 	public void setRole(int role) {
 		this.role = role;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
 	}
 
 	public String getRealname() {
