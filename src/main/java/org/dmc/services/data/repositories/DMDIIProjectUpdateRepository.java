@@ -6,6 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface DMDIIProjectUpdateRepository extends BaseRepository<DMDIIProjectUpdate, Integer>{
 
-	Page<DMDIIProjectUpdate> findByProjectIdOrderByDateDesc(Pageable pageable, Integer projectId);
+	Page<DMDIIProjectUpdate> findByProjectIdOrderByDateDescIdDesc(Pageable pageable, Integer projectId);
 
 }

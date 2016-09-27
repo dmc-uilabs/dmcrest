@@ -24,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -159,10 +158,4 @@ public class UserController {
 		return orgUserService.changeOrganization(orgUser);
 	}
 
-    @ExceptionHandler(Exception.class)
-    public ErrorMessage handleException(Exception ex) {
-        ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
-    	ServiceLogger.log(logTag, ex.getMessage() + " Error message " + result);
-    	return result;
-    }
 }
