@@ -67,8 +67,9 @@ public class Document extends BaseEntity {
 	//TODO: create enum for site-wide accessLevel
 	private String accessLevel;
 	
-	@Column(name = "doc_class_id")
-	private Integer docClass;
+	@Column(name = "doc_class")
+	@Enumerated(EnumType.STRING)
+	private DocumentClass docClass;
 	
 	@Column(name = "verified")
 	private Boolean verified = false;
@@ -161,11 +162,11 @@ public class Document extends BaseEntity {
 		this.accessLevel = accessLevel;
 	}
 
-	public Integer getDocClass() {
+	public DocumentClass getDocClass() {
 		return docClass;
 	}
 
-	public void setDocClass(Integer docClass) {
+	public void setDocClass(DocumentClass docClass) {
 		this.docClass = docClass;
 	}
 

@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.dmc.services.data.entities.Document;
+import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.entities.QDocument;
@@ -86,7 +87,7 @@ public class DocumentService {
 		String folder = "APPLICATION";
 		
 		if(doc.getParentType() != null) {
-			folder = doc.getParentType();
+			folder = doc.getParentType().toString();
 		}
 
 		
@@ -145,7 +146,7 @@ public class DocumentService {
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
-		expressions.add(docClassIdFilter(filterParams.get("docClassId")));
+		expressions.add(docClassFilter(filterParams.get("docClass")));
 
 		return expressions;
 	}
@@ -208,18 +209,18 @@ public class DocumentService {
 		return QDocument.document.parentId.eq(parentIdInt);
 	}
 	
-	private Predicate docClassIdFilter(String docClassId) throws InvalidFilterParameterException {
-		if(docClassId == null) return null;
+	private Predicate docClassFilter(String docClass) throws InvalidFilterParameterException {
+		if(docClass == null) return null;
 		
-		Integer docClassIdInt;
+		DocumentClass eType;
 		
 		try {
-			docClassIdInt = Integer.parseInt(docClassId);
-		} catch (NumberFormatException e) {
-			throw new InvalidFilterParameterException("docClassId", Integer.class);
+			eType = DocumentClass.valueOf(docClass);
+		} catch (Exception e) {
+			throw new InvalidFilterParameterException("docClass", DocumentClass.class);
 		}
 		
-		return QDocument.document.docClass.eq(docClassIdInt);
+		return QDocument.document.docClass.eq(eType);
 	}
 	
 	private List<Document> refreshDocuments (List<Document> docs) throws DMCServiceException {
