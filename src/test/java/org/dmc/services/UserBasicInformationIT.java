@@ -127,7 +127,7 @@ public class UserBasicInformationIT extends BaseIT {
 			.header("Content-type", "application/json")
 			.body(json.toString())
 			.expect()
-			.statusCode(403)
+			.statusCode(401)
 			.when()
 			.post(UPDATE_RESOURCE)
 			.then()
