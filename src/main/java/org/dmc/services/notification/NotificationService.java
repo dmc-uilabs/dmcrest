@@ -40,6 +40,12 @@ public class NotificationService {
 		notificationRepository.markAllNotificationsReadForUser(userId);
 	}
 	
+	public void notifyOrgAdminsOfNewUser(Integer organizationId, String username) {
+		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		User user = userMapper.mapToEntity(userService.findByUsername(username));
+		notifyOrgAdminsOfNewUser(organizationId, user);
+	}
+	
 	public void notifyOrgAdminsOfNewUser(Integer organizationId, User user) {
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		

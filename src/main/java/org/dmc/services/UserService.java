@@ -69,6 +69,11 @@ public class UserService {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findOne(id));
 	}
+	
+	public UserModel findByUsername(String username) {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		return mapper.mapToModel(userRepository.findByUsername(username));
+	}
 
 	public UserModel save(UserModel userModel) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
