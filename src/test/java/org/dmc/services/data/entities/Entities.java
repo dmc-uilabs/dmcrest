@@ -36,6 +36,7 @@ public class Entities {
 
 	private static final Calendar today = GregorianCalendar.getInstance();
 	private static final Random RANDOM = new Random();
+
 	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
 
 	private static final String ADDRESS = "Address";
