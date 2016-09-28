@@ -3,9 +3,12 @@ package org.dmc.services.data.models;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.dmc.services.data.entities.DocumentClass;
+import org.dmc.services.data.entities.DocumentParentType;
 
 public class Models {
 
@@ -26,6 +29,11 @@ public class Models {
 	public static final String PROJECT_NEWS_CONTENT = "Project News Content";
 	public static final String PROJECT_EVENT_TITLE = "Project Event Title";
 	public static final String PROJECT_EVENT_DESCRIPTION = "Project Event Description";
+	public static final String DOCUMENT_NAME = "DocumentName";
+	public static final String DOCUMENT_URL = "https://test-final-verify.s3.amazonaws.com/ProjectOfDMDII/103552215657713056245%40google.com/Documents/1473359761-343968-sanitized-football.jpg?AWSAccessKeyId=AKIAJDE3BJULBHCYEX4Q&Expires=1475951762&Signature=p3U7tV%2Bk9rAx6jdNe5XGOzJz7ME%3D";
+	public static final String TAG_NAME = "TagName";
+	public static final String ACCESS_LEVEL = "AccessLevel";
+	public static final String PARENT_TYPE = "ParentType";
 
 	private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -284,5 +292,62 @@ public class Models {
 		contact.setLastName(LAST_NAME + "2");
 		contact.setEmail(EMAIL + "2");
 		return contact;
+	}
+	
+	public static DMDIIDocumentTagModel dmdiiDocumentTagModel() {
+		DMDIIDocumentTagModel dmdiiDocumentTagModel = new DMDIIDocumentTagModel();
+		dmdiiDocumentTagModel.setId(1000);
+		dmdiiDocumentTagModel.setTagName(TAG_NAME);
+		return dmdiiDocumentTagModel;
+	}
+	
+	public static DMDIIDocumentModel dmdiiDocumentModel() {
+		DMDIIDocumentModel dmdiiDocumentModel = new DMDIIDocumentModel();
+		
+		List<DMDIIDocumentTagModel> tags = new ArrayList<>();
+		tags.add(dmdiiDocumentTagModel());
+		
+		dmdiiDocumentModel.setId(1000);
+		dmdiiDocumentModel.setDocumentName(DOCUMENT_NAME);
+		dmdiiDocumentModel.setDocumentUrl(DOCUMENT_URL);
+		dmdiiDocumentModel.setDmdiiProjectId(1000);
+		dmdiiDocumentModel.setOwnerId(1000);
+		dmdiiDocumentModel.setTags(tags);
+		dmdiiDocumentModel.setModified(new Date());
+		dmdiiDocumentModel.setExpires(new Date());
+		dmdiiDocumentModel.setAccessLevel(ACCESS_LEVEL);
+		dmdiiDocumentModel.setFileType(2);
+		dmdiiDocumentModel.setVerified(true);
+		
+		return dmdiiDocumentModel;
+	}
+	
+	public static DocumentTagModel documentTagModel() {
+		DocumentTagModel documentTagModel = new DocumentTagModel();
+		documentTagModel.setId(1000);
+		documentTagModel.setTagName(TAG_NAME);
+		return documentTagModel;
+	}
+	
+	public static DocumentModel documentModel() {
+		DocumentModel documentModel = new DocumentModel();
+		
+		List<DocumentTagModel> tags = new ArrayList<>();
+		tags.add(documentTagModel());
+		
+		documentModel.setId(1000);
+		documentModel.setDocumentName(DOCUMENT_NAME);
+		documentModel.setDocumentUrl(DOCUMENT_URL);
+		documentModel.setParentType(DocumentParentType.ORGANIZATION);
+		documentModel.setParentId(1000);
+		documentModel.setOwnerId(1000);
+		documentModel.setTags(tags);
+		documentModel.setModified(new Date());
+		documentModel.setExpires(new Date());
+		documentModel.setIsDeleted(false);
+		documentModel.setDocClass(DocumentClass.LOGO);
+		documentModel.setVerified(true);
+		
+		return documentModel;
 	}
 }

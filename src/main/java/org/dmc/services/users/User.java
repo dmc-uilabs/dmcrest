@@ -1,12 +1,13 @@
 package org.dmc.services.users;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
+import java.util.Objects;
+
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
 import org.dmc.services.data.dao.user.UserOnboardingDao;
 
-import java.util.Map;
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by 200005921 on 2/8/2016.
@@ -22,7 +23,6 @@ public class User {
     private int companyId;
     private int role;
     private boolean termsConditions;
-    private UserNotifications notifications;
     private UserRunningServices runningServices;
     private UserMessages messages;
     private UserOnboarding onboarding;
@@ -55,7 +55,6 @@ public class User {
         this.companyId = companyId;
         this.role = -1;
         this.termsConditions = termsConditions;
-        this.notifications = new UserNotifications();
         this.runningServices = new UserRunningServices();
         this.messages = new UserMessages();
         this.onboarding = UserOnboardingDao.getUserOnboarding(id);
@@ -149,17 +148,6 @@ public class User {
     
     /**
      **/
-    @JsonProperty("notifications")
-    public UserNotifications getNotifications() {
-        return notifications;
-    }
-    public void setNotifications(UserNotifications notifications) {
-        this.notifications = notifications;
-    }
-    
-    
-    /**
-     **/
     @JsonProperty("runningServices")
     public UserRunningServices getRunningServices() {
         return runningServices;
@@ -205,7 +193,6 @@ public class User {
         Objects.equals(companyId, userDetails.companyId) &&
         Objects.equals(role, userDetails.role) &&
         Objects.equals(termsConditions, userDetails.termsConditions) &&
-        Objects.equals(notifications, userDetails.notifications) &&
         Objects.equals(runningServices, userDetails.runningServices) &&
         Objects.equals(messages, userDetails.messages) &&
         Objects.equals(onboarding, userDetails.onboarding);
@@ -213,7 +200,7 @@ public class User {
     
     @Override
     public int hashCode() {
-        return Objects.hash(displayName, accountId, profileId, companyId, role, termsConditions, notifications, runningServices, messages, onboarding);
+        return Objects.hash(displayName, accountId, profileId, companyId, role, termsConditions, runningServices, messages, onboarding);
     }
     
     @Override
@@ -227,7 +214,6 @@ public class User {
         sb.append("  companyId: ").append(companyId).append("\n");
         sb.append("  role: ").append(role).append("\n");
         sb.append("  termsConditions: ").append(termsConditions).append("\n");
-        sb.append("  notifications: ").append(notifications).append("\n");
         sb.append("  runningServices: ").append(runningServices).append("\n");
         sb.append("  messages: ").append(messages).append("\n");
         sb.append("  onboarding: ").append(onboarding).append("\n");

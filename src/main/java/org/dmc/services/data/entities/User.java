@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -85,6 +86,10 @@ public class User extends BaseEntity {
 	@OneToOne(cascade = CascadeType.MERGE, orphanRemoval = true)
 	@JoinColumn(table = "onboarding_status", name = "user_id")
 	private OnboardingStatus onboarding;
+	
+	@OneToMany(mappedBy = "createdFor", cascade = {CascadeType.DETACH, CascadeType.REMOVE})
+	@OrderBy("created DESC")
+	private List<Notification> notifications;
 
 	@Override
 	public Integer getId() {
@@ -239,6 +244,14 @@ public class User extends BaseEntity {
 		this.onboarding = onboarding;
 	}
 
+	public List<Notification> getNotifications() {
+		return notifications;
+	}
+
+	public void setNotifications(List<Notification> notifications) {
+		this.notifications = notifications;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -323,4 +336,5 @@ public class User extends BaseEntity {
 			return false;
 		return true;
 	}
+
 }
