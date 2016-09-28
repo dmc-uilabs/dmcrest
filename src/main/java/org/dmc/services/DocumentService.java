@@ -28,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.ExpressionUtils;
@@ -48,7 +49,7 @@ public class DocumentService {
 	private final String logTag = DocumentService.class.getName();
 	
 	private Verification verify = new Verification();
-
+	
 	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
@@ -73,6 +74,7 @@ public class DocumentService {
 	}
 	
 	public DocumentModel findOne(Integer documentId) throws DMCServiceException {
+		Assert.notNull(documentId);
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		List<Document> docList = Collections.singletonList(documentRepository.findOne(documentId));
 		
@@ -82,7 +84,8 @@ public class DocumentService {
 		return mapper.mapToModel(docList.get(0));
 	}
 	
-	public DocumentModel save (DocumentModel doc, BindingResult result) throws DMCServiceException {
+	public DocumentModel save (DocumentModel doc, BindingResult result) throws DMCServiceException, IllegalArgumentException {
+		Assert.notNull(doc);
 		Mapper<Document, DocumentModel> docMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		String folder = "APPLICATION";
 		
@@ -114,7 +117,8 @@ public class DocumentService {
 		return docMapper.mapToModel(docEntity);
 	}
 	
-	public DocumentModel delete (Integer documentId) {
+	public DocumentModel delete (Integer documentId) throws IllegalArgumentException {
+		Assert.notNull(documentId);
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		
 		Document docEntity = documentRepository.findOne(documentId);
@@ -126,7 +130,8 @@ public class DocumentService {
 		return mapper.mapToModel(docEntity);
 	}
 	
-	public DocumentModel update (DocumentModel doc) {
+	public DocumentModel update (DocumentModel doc) throws IllegalArgumentException {
+		Assert.notNull(doc);
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		
 		Document docEntity = mapper.mapToEntity(doc);

@@ -1,7 +1,6 @@
 package org.dmc.services.data.entities;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -16,8 +15,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Where;
 
@@ -54,8 +51,7 @@ public class Document extends BaseEntity {
 	private List<DocumentTag> tags;
 
 	@Column(name = "modified")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date modified;
+	private Timestamp modified;
 
 	@Column(name = "expires")
 	private Timestamp expires;
@@ -130,11 +126,11 @@ public class Document extends BaseEntity {
 		this.tags = tags;
 	}
 
-	public Date getModified() {
+	public Timestamp getModified() {
 		return modified;
 	}
 
-	public void setModified(Date modified) {
+	public void setModified(Timestamp modified) {
 		this.modified = modified;
 	}
 	

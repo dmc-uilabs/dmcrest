@@ -5,6 +5,7 @@ import org.dmc.services.data.entities.Notification.NotificationType;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.MiniUserModel;
 import org.dmc.services.data.models.NotificationModel;
+import org.dmc.services.data.models.UserModel;
 import org.springframework.stereotype.Component;
 
 @Component
