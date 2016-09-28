@@ -53,7 +53,6 @@ public class Document extends BaseEntity {
 	private List<DocumentTag> tags;
 
 	@Column(name = "modified")
-	@Temporal(TemporalType.TIMESTAMP)
 	private Timestamp modified;
 
 	@Column(name = "expires")
