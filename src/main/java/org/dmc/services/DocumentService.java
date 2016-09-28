@@ -61,7 +61,7 @@ public class DocumentService {
 			results = documentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
 		}
 		
-		if(results.get(0) == null) return null;
+		if(results.size() == 0) return null;
 		
 		results = refreshDocuments(results);
 		return mapper.mapToModel(results);
@@ -76,7 +76,7 @@ public class DocumentService {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		List<Document> docList = Collections.singletonList(documentRepository.findOne(documentId));
 		
-		if(docList.get(0) == null) return null;
+		if(docList.size() == 0) return null;
 		
 		docList = refreshDocuments(docList);
 		return mapper.mapToModel(docList.get(0));
