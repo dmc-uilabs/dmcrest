@@ -25,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -99,8 +98,9 @@ public class UserController {
 	}
 
     @RequestMapping(value = "/user/save", method = RequestMethod.POST)
-	public UserModel saveUser(@RequestBody UserModel user) {
-		return userService.save(user);
+	public UserModel saveUser(@RequestBody UserModel user,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		return userService.save(user, userEPPN);
 	}
 
 	@RequestMapping(value = "/user/organization/{organizationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -173,10 +173,4 @@ public class UserController {
 		notificationService.markAllNotificationsReadForUser(userId);
 	}
 
-    @ExceptionHandler(Exception.class)
-    public ErrorMessage handleException(Exception ex) {
-        ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
-    	ServiceLogger.log(logTag, ex.getMessage() + " Error message " + result);
-    	return result;
-    }
 }

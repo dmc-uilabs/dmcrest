@@ -1,5 +1,8 @@
 package org.dmc.services.roleassignment;
 
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.dmc.services.UserService;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.Role;
@@ -18,9 +21,6 @@ import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 
 @Service
@@ -90,6 +90,12 @@ public class UserRoleAssignmentService {
 
 	public UserRoleAssignment assignInitialCompanyAdmin(User user, Organization organization) {
 		Role role = roleRepository.findByRole(SecurityRoles.ADMIN);
+		UserRoleAssignment userRoleAssignmentEntity = new UserRoleAssignment(user, organization, role);
+		return userRoleAssignmentRepository.save(userRoleAssignmentEntity);
+	}
+
+	public UserRoleAssignment setUserAsMemberForAuthorizedIdps(User user, Organization organization) {
+		Role role = roleRepository.findByRole(SecurityRoles.MEMBER);
 		UserRoleAssignment userRoleAssignmentEntity = new UserRoleAssignment(user, organization, role);
 		return userRoleAssignmentRepository.save(userRoleAssignmentEntity);
 	}

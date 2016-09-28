@@ -27,6 +27,9 @@ import org.dmc.services.dmdiimember.DMDIIMemberDao;
 import org.dmc.services.dmdiimember.DMDIIMemberService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -53,14 +56,21 @@ public class DMDIIProjectService {
 
 	@Inject
 	private MapperFactory mapperFactory;
-	
+
 	@Inject
 	private DMDIIDocumentService dmdiiDocumentService;
 
 	public List<DMDIIProjectModel> filter(Map<String, String> filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
-		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
+				new Sort(
+						new Order(Direction.ASC, "rootNumber"),
+						new Order(Direction.ASC, "callNumber")
+				)
+		);
+
+		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, pageRequest).getContent());
 	}
 
 	public Long count(Map<String, String> filterParams) throws InvalidFilterParameterException {
@@ -241,13 +251,13 @@ public class DMDIIProjectService {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByContributingCompanyId(dmdiiMemberId));
 	}
-	
+
 	public List<DMDIIProjectModel> findActiveDMDIIProjectsByContributingCompany(Integer dmdiiMemberId) {
 		Assert.notNull(dmdiiMemberId);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findActiveByContributingCompanyId(dmdiiMemberId));
 	}
-	
+
 	@Transactional
 	public void delete(Integer dmdiiProjectId) {
 		dmdiiDocumentService.deleteDMDIIDocumentsByDMDIIProjectId(dmdiiProjectId);
