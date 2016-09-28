@@ -8,6 +8,7 @@ import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserBasicInformationDao;
 import org.dmc.services.notification.NotificationService;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,9 +33,15 @@ public class UserBasicInformationController {
     					 @RequestHeader(value="AJP_eppn", required=true) String userEPPN)
     {
 		ServiceLogger.log(logTag, "User Basic Information: " + userEPPN);
-		Integer orgId = new JSONObject(payload.trim()).getInt("company");
-		notificationService.notifyOrgAdminsOfNewUser(orgId, userEPPN);
-    	return info.createUserBasicInformation(userEPPN, payload);
+	    try{
+		    Integer orgId = new JSONObject(payload.trim()).getInt("company");
+		    notificationService.notifyOrgAdminsOfNewUser(orgId, userEPPN);
+	    } catch (JSONException ex){
+		    ServiceLogger.log(UserBasicInformationController.class.getName(), "Null company id in create user basic info!");
+	    } finally {
+		    return info.createUserBasicInformation(userEPPN, payload);
+	    }
+
     }
     
     // Exception handler - all exceptions not caught elsewhere will bubble to the controller

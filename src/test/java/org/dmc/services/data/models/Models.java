@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.dmc.services.data.entities.DocumentClass;
+import org.dmc.services.data.entities.DocumentParentType;
 
 public class Models {
 
@@ -336,14 +338,14 @@ public class Models {
 		documentModel.setId(1000);
 		documentModel.setDocumentName(DOCUMENT_NAME);
 		documentModel.setDocumentUrl(DOCUMENT_URL);
-		documentModel.setParentType(PARENT_TYPE);
+		documentModel.setParentType(DocumentParentType.ORGANIZATION);
 		documentModel.setParentId(1000);
 		documentModel.setOwnerId(1000);
 		documentModel.setTags(tags);
 		documentModel.setModified(new Date());
 		documentModel.setExpires(new Date());
 		documentModel.setIsDeleted(false);
-		documentModel.setDocClass(1000);
+		documentModel.setDocClass(DocumentClass.LOGO);
 		documentModel.setVerified(true);
 		
 		return documentModel;
