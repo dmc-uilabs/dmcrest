@@ -506,7 +506,7 @@ public class Entities {
 		document.setModified(new Timestamp(System.currentTimeMillis()));
 		document.setExpires(new Timestamp(getDateOneMonthInFuture().getTime()));
 		document.setIsDeleted(false);
-		document.setDocClass(1000);
+		document.setDocClass(DocumentClass.LOGO);
 		document.setVerified(true);
 		
 		return document;
