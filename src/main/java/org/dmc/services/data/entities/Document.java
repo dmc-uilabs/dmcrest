@@ -3,24 +3,15 @@ package org.dmc.services.data.entities;
 import java.sql.Timestamp;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import org.dmc.services.data.entities.listeners.DocumentListener;
 import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name="document")
 @Where(clause = "is_deleted='false'")
+@EntityListeners(DocumentListener.class)
 public class Document extends BaseEntity {
 	
 	@Id
