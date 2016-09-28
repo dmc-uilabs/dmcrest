@@ -3,13 +3,16 @@ package org.dmc.services.data.models;
 import java.util.Date;
 import java.util.List;
 
+import org.dmc.services.data.entities.DocumentClass;
+import org.dmc.services.data.entities.DocumentParentType;
+
 public class DocumentModel extends BaseModel {
 
 	private String documentName;
 
 	private String documentUrl;
 	
-	private String parentType;
+	private DocumentParentType parentType;
 	
 	private Integer parentId;
 
@@ -23,7 +26,7 @@ public class DocumentModel extends BaseModel {
 
 	private Boolean isDeleted;
 	
-	private Integer docClass;
+	private DocumentClass docClass;
 	
 	private Boolean verified;
 
@@ -35,11 +38,11 @@ public class DocumentModel extends BaseModel {
 		this.documentName = documentName;
 	}
 
-	public String getParentType() {
+	public DocumentParentType getParentType() {
 		return parentType;
 	}
 
-	public void setParentType(String parentType) {
+	public void setParentType(DocumentParentType parentType) {
 		this.parentType = parentType;
 	}
 
@@ -99,11 +102,11 @@ public class DocumentModel extends BaseModel {
 		this.isDeleted = isDeleted;
 	}
 
-	public Integer getDocClass() {
+	public DocumentClass getDocClass() {
 		return docClass;
 	}
 
-	public void setDocClass(Integer docClass) {
+	public void setDocClass(DocumentClass docClass) {
 		this.docClass = docClass;
 	}
 

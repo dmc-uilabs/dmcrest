@@ -22,11 +22,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		Document entity = copyProperties(model, new Document());
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		
-		if(model.getParentType() != null) {
-			DocumentParentType eType = DocumentParentType.valueOf(model.getParentType());
-			entity.setParentType(eType);
-		}
+
 		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getOwnerId())));
 
 		return entity;
@@ -39,10 +35,6 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		DocumentModel model = copyProperties(entity, new DocumentModel());
 		
 		model.setOwnerId(entity.getOwner().getId());
-		
-		if(entity.getParentType() != null) {
-			model.setParentType(entity.getParentType().toString());
-		}
 		
 		return model;
 	}
