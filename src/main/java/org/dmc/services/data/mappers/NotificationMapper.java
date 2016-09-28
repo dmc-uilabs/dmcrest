@@ -32,7 +32,7 @@ public class NotificationMapper extends AbstractMapper<Notification, Notificatio
 		
 		NotificationModel model = copyProperties(entity, new NotificationModel());
 		
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<User, MiniUserModel> userMapper = mapperFactory.mapperFor(User.class, MiniUserModel.class);
 
 		model.setCreatedBy(userMapper.mapToModel(entity.getCreatedBy()));
 		model.setCreatedFor(userMapper.mapToModel(entity.getCreatedFor()));

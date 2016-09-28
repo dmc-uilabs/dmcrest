@@ -17,23 +17,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Entities {
-
-	public static final String PROJECT_TITLE = "ProjectTitle";
-	public static final String PROJECT_SUMMARY = "ProjectSummary";
-	public static final String THRUST_CODE = "ThrustCode";
-	public static final String FOCUS_AREA_NAME = "FocusAreaName";
-	public static final String STATUS_NAME = "StatusName";
-	public static final String USER_NAME = "UserName";
-	public static final String FIRST_NAME = "FirstName";
-	public static final String LAST_NAME = "LastName";
-	public static final String EMAIL = "email@email.com";
-	public static final String ADDRESS = "Address";
-	public static final String PHONE = "Phone";
-	public static final String LOCATION = "Location";
-	public static final String DOCUMENT_NAME = "DocumentName";
-	public static final String DOCUMENT_URL = "https://test-final-verify.s3.amazonaws.com/ProjectOfDMDII/103552215657713056245%40google.com/Documents/1473359761-343968-sanitized-football.jpg?AWSAccessKeyId=AKIAJDE3BJULBHCYEX4Q&Expires=1475951762&Signature=p3U7tV%2Bk9rAx6jdNe5XGOzJz7ME%3D";
-	public static final String TAG_NAME = "TagName";
-
+	
 	private static final Calendar today = GregorianCalendar.getInstance();
 	private static final Random RANDOM = new Random();
 
