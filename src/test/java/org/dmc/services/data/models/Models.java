@@ -344,9 +344,7 @@ public class Models {
 		documentModel.setTags(tags);
 		documentModel.setModified(new Date());
 		documentModel.setExpires(new Date());
-		documentModel.setIsDeleted(false);
 		documentModel.setDocClass(DocumentClass.LOGO);
-		documentModel.setVerified(true);
 		
 		return documentModel;
 	}

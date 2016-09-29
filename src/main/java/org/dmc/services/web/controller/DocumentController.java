@@ -13,12 +13,14 @@ import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.PagedResponse;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -53,10 +55,11 @@ public class DocumentController {
 		return documentService.save(doc);
 	}
 	
+	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value="/documents/{documentId}", method = RequestMethod.DELETE)
-	public DocumentModel deleteDocument (@PathVariable("documentId") Integer documentId) {
+	public void deleteDocument (@PathVariable("documentId") Integer documentId) {
 		ServiceLogger.log(logTag, "In deleteDocument id = " + documentId);
-		return documentService.delete(documentId);
+		documentService.delete(documentId);
 	}
 	
 	@RequestMapping(value="/documents/{documentId}", method = RequestMethod.PATCH)

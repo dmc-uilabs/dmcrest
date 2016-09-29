@@ -61,7 +61,6 @@ public class DocumentServiceTest {
 	private Document deletedDocument;
 	private Document differentDocument;
 	private DocumentModel documentModel;
-	private DocumentModel deletedDocumentModel;
 	private DocumentModel differentDocumentModel;
 	private Page<Document> documentsPage;
 	private List<DocumentModel> documentModels;
@@ -82,9 +81,7 @@ public class DocumentServiceTest {
 		this.differentDocument = Entities.document();
 		this.differentDocument.setDocumentName(docName);
 		this.documentModel = Models.documentModel();
-		this.deletedDocumentModel = Models.documentModel();
 		this.differentDocumentModel = Models.documentModel();
-		this.deletedDocumentModel.setIsDeleted(true);
 		this.differentDocumentModel.setDocumentName(docName);
 		this.documents = Arrays.asList(document);
 		this.documentModels = Arrays.asList(documentModel);
@@ -224,7 +221,7 @@ public class DocumentServiceTest {
 		when(this.mapperFactory.mapperFor(Document.class, DocumentModel.class))
 		.thenReturn(documentMapper);
 		when(this.documentMapper.mapToModel(any(Document.class)))
-		.thenReturn(deletedDocumentModel);
+		.thenReturn(this.documentModel);
 		when(this.documentMapper.mapToEntity(any(DocumentModel.class)))
 		.thenReturn(this.document);
 		when(this.documentRepository.findOne(any(Integer.class)))
@@ -236,8 +233,7 @@ public class DocumentServiceTest {
 		
 		DocumentModel expected = this.documentModel;
 		DocumentModel actual = this.documentService.delete(1000);
-		assertFalse(actual.equals(expected));
-		assertTrue(actual.getIsDeleted());
+		assertTrue(actual.equals(expected));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
