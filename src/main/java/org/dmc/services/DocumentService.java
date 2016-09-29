@@ -84,7 +84,7 @@ public class DocumentService {
 		return mapper.mapToModel(docList.get(0));
 	}
 	
-	public DocumentModel save (DocumentModel doc, BindingResult result) throws DMCServiceException, IllegalArgumentException {
+	public DocumentModel save (DocumentModel doc) throws DMCServiceException, IllegalArgumentException {
 		Assert.notNull(doc);
 		Mapper<Document, DocumentModel> docMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		String folder = "APPLICATION";

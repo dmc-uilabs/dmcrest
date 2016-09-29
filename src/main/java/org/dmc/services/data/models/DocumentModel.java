@@ -3,19 +3,24 @@ package org.dmc.services.data.models;
 import java.util.Date;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.web.validator.AWSLink;
 
 public class DocumentModel extends BaseModel {
 
 	private String documentName;
 
+	@AWSLink
 	private String documentUrl;
 	
 	private DocumentParentType parentType;
 	
 	private Integer parentId;
 
+	@NotNull
 	private Integer ownerId;
 
 	private List<DocumentTagModel> tags;

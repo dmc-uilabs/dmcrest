@@ -31,13 +31,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.Predicate;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -209,18 +207,16 @@ public class DocumentServiceTest {
 		.thenReturn(this.document);
 		when(this.verify.verify(any(Integer.class), any(String.class), any(String.class), any(String.class), any(String.class), any(String.class), any(String.class), any(String.class)))
 		.thenReturn(verifyString);
-		BindingResult result = mock(BindingResult.class);
 		
 		DocumentModel expected = this.documentModel;
-		DocumentModel actual = this.documentService.save(this.documentModel, result);
+		DocumentModel actual = this.documentService.save(this.documentModel);
 		assertTrue(actual.equals(expected));
 		Mockito.verify(documentRepository).save(any(Document.class));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void saveNull() {
-		BindingResult result = mock(BindingResult.class);
-		this.documentService.save(null, result);
+		this.documentService.save(null);
 	}
 	
 	@Test

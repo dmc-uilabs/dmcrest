@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
@@ -12,9 +13,7 @@ import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.PagedResponse;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
-import org.dmc.services.web.validator.AWSLinkValidator;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,9 +28,6 @@ public class DocumentController {
 
 	@Inject
 	private DocumentService documentService;
-	
-	@Inject
-	private AWSLinkValidator awsLinkValidator;
 	
 	@RequestMapping(value="/documents/{id}", method = RequestMethod.GET)
 	public DocumentModel getDocument(@PathVariable("id") Integer id) {
@@ -52,14 +48,9 @@ public class DocumentController {
 	}
 	
 	@RequestMapping(value="/documents", method = RequestMethod.POST)
-	public DocumentModel postDocument (@RequestBody DocumentModel doc, BindingResult result) throws DMCServiceException {
+	public DocumentModel postDocument (@RequestBody @Valid DocumentModel doc) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In postDocument " + doc.getDocumentName());
-		validateSaveDocument(doc.getDocumentUrl(), result);
-		return documentService.save(doc, result);
-	}
-
-	private void validateSaveDocument(String documentUrl, BindingResult result) {
-		awsLinkValidator.validate(documentUrl, result);		
+		return documentService.save(doc);
 	}
 	
 	@RequestMapping(value="/documents/{documentId}", method = RequestMethod.DELETE)
