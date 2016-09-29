@@ -1,6 +1,5 @@
 package org.dmc.services;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.sql.Connection;
@@ -8,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import static com.jayway.restassured.RestAssured.*;
@@ -19,9 +20,8 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.utility.TestUserUtil;
 import org.dmc.services.verification.VerificationPatch;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-//@Ignore
+@Ignore
 public class AWSProfileUploadIT extends BaseIT {
 
     // Documents
@@ -35,16 +35,12 @@ public class AWSProfileUploadIT extends BaseIT {
     
     @Test
     public void PatchProfiles () throws DMCServiceException{
-    	
-    	int ProjectID = 2;
-
 
         //Hardcoded URL
         String url = "https://s3-us-west-2.amazonaws.com/test-temp-verify/test.jpeg";
         
         
         //Manual Insert
-		PreparedStatement statement;
 		Util util = Util.getInstance();
 		int userId;
 		Calendar calendar = Calendar.getInstance();

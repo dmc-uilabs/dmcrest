@@ -8,11 +8,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import static com.jayway.restassured.RestAssured.*;
 
-import com.amazonaws.util.JavaVersionParser.KnownJavaVersions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dmc.services.projects.ProjectDocument;
@@ -21,9 +22,8 @@ import static org.junit.Assert.*;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.verification.VerificationPatch;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-//@Ignore
+@Ignore
 public class AWSProjectUploadIT extends BaseIT {
 
     // Documents
@@ -33,7 +33,6 @@ public class AWSProjectUploadIT extends BaseIT {
 
     private static final String PATCH= "/verify";
 
-    private static final String adminUser = "fforgeadmin";
     private final String logTag = AWSProjectUploadIT.class.getName();
     
     public static final String userEPPN = "fforgeadmin";
