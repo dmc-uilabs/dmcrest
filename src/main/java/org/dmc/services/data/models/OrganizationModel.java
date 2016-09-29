@@ -37,6 +37,8 @@ public class OrganizationModel extends BaseModel {
 
 	private Integer featureImage;
 
+	private String logoImage;
+
 	private List<AwardModel> awards = new ArrayList<AwardModel>();
 
 	private List<OrganizationContactModel> contacts = new ArrayList<OrganizationContactModel>();
@@ -173,6 +175,14 @@ public class OrganizationModel extends BaseModel {
 
 	public void setFeatureImage(Integer featureImage) {
 		this.featureImage = featureImage;
+	}
+
+	public String getLogoImage() {
+		return logoImage;
+	}
+
+	public void setLogoImage(String logoImage) {
+		this.logoImage = logoImage;
 	}
 
 	public List<AwardModel> getAwards() {
