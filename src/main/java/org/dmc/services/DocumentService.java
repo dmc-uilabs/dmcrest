@@ -45,6 +45,9 @@ public class DocumentService {
 	
 	@Inject
 	private MapperFactory mapperFactory;
+
+	@Inject
+	private ParentDocumentService parentDocumentService;
 	
 	private final String logTag = DocumentService.class.getName();
 	
@@ -108,6 +111,7 @@ public class DocumentService {
 		docEntity.setModified(now);
 		
 		docEntity = documentRepository.save(docEntity);
+		this.parentDocumentService.updateParents(docEntity);
 		
 		ServiceLogger.log(logTag, "Attempting to verify document");
 		//Verify the document
@@ -126,6 +130,7 @@ public class DocumentService {
 		docEntity.setIsDeleted(true);
 		
 		docEntity = documentRepository.save(docEntity);
+		this.parentDocumentService.updateParents(docEntity);
 		
 		return mapper.mapToModel(docEntity);
 	}
@@ -141,6 +146,7 @@ public class DocumentService {
 		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
 		
 		docEntity = documentRepository.save(docEntity);
+		this.parentDocumentService.updateParents(docEntity);
 		
 		return mapper.mapToModel(docEntity);
 	}

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.dmc.services.AWSConnector;
 import org.dmc.services.DocumentService;
+import org.dmc.services.ParentDocumentService;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.Entities;
 import org.dmc.services.data.mappers.DocumentMapper;
@@ -46,6 +47,9 @@ public class DocumentServiceTest {
 
 	@InjectMocks
 	private final DocumentService documentService = new DocumentService();
+
+	@Mock
+	private ParentDocumentService parentDocumentService;
 	
 	@Mock
 	private DocumentRepository documentRepository;

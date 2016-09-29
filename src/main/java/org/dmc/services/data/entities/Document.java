@@ -5,13 +5,12 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import org.dmc.services.data.entities.listeners.DocumentListener;
+import org.dmc.services.ParentDocumentService;
 import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name="document")
 @Where(clause = "is_deleted='false'")
-@EntityListeners(DocumentListener.class)
 public class Document extends BaseEntity {
 	
 	@Id
