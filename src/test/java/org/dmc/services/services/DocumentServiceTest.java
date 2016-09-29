@@ -31,13 +31,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.Predicate;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -63,7 +61,6 @@ public class DocumentServiceTest {
 	private Document deletedDocument;
 	private Document differentDocument;
 	private DocumentModel documentModel;
-	private DocumentModel deletedDocumentModel;
 	private DocumentModel differentDocumentModel;
 	private Page<Document> documentsPage;
 	private List<DocumentModel> documentModels;
@@ -84,9 +81,7 @@ public class DocumentServiceTest {
 		this.differentDocument = Entities.document();
 		this.differentDocument.setDocumentName(docName);
 		this.documentModel = Models.documentModel();
-		this.deletedDocumentModel = Models.documentModel();
 		this.differentDocumentModel = Models.documentModel();
-		this.deletedDocumentModel.setIsDeleted(true);
 		this.differentDocumentModel.setDocumentName(docName);
 		this.documents = Arrays.asList(document);
 		this.documentModels = Arrays.asList(documentModel);
@@ -209,18 +204,16 @@ public class DocumentServiceTest {
 		.thenReturn(this.document);
 		when(this.verify.verify(any(Integer.class), any(String.class), any(String.class), any(String.class), any(String.class), any(String.class), any(String.class), any(String.class)))
 		.thenReturn(verifyString);
-		BindingResult result = mock(BindingResult.class);
 		
 		DocumentModel expected = this.documentModel;
-		DocumentModel actual = this.documentService.save(this.documentModel, result);
+		DocumentModel actual = this.documentService.save(this.documentModel);
 		assertTrue(actual.equals(expected));
 		Mockito.verify(documentRepository).save(any(Document.class));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void saveNull() {
-		BindingResult result = mock(BindingResult.class);
-		this.documentService.save(null, result);
+		this.documentService.save(null);
 	}
 	
 	@Test
@@ -228,7 +221,7 @@ public class DocumentServiceTest {
 		when(this.mapperFactory.mapperFor(Document.class, DocumentModel.class))
 		.thenReturn(documentMapper);
 		when(this.documentMapper.mapToModel(any(Document.class)))
-		.thenReturn(deletedDocumentModel);
+		.thenReturn(this.documentModel);
 		when(this.documentMapper.mapToEntity(any(DocumentModel.class)))
 		.thenReturn(this.document);
 		when(this.documentRepository.findOne(any(Integer.class)))
@@ -240,8 +233,7 @@ public class DocumentServiceTest {
 		
 		DocumentModel expected = this.documentModel;
 		DocumentModel actual = this.documentService.delete(1000);
-		assertFalse(actual.equals(expected));
-		assertTrue(actual.getIsDeleted());
+		assertTrue(actual.equals(expected));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)

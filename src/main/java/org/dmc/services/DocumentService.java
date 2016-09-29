@@ -29,7 +29,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.validation.BindingResult;
 
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
@@ -84,7 +83,7 @@ public class DocumentService {
 		return mapper.mapToModel(docList.get(0));
 	}
 	
-	public DocumentModel save (DocumentModel doc, BindingResult result) throws DMCServiceException, IllegalArgumentException {
+	public DocumentModel save (DocumentModel doc) throws DMCServiceException, IllegalArgumentException {
 		Assert.notNull(doc);
 		Mapper<Document, DocumentModel> docMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		String folder = "APPLICATION";
@@ -122,6 +121,7 @@ public class DocumentService {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		
 		Document docEntity = documentRepository.findOne(documentId);
+		Assert.notNull(docEntity);
 		
 		docEntity.setIsDeleted(true);
 		
@@ -136,6 +136,7 @@ public class DocumentService {
 		
 		Document docEntity = mapper.mapToEntity(doc);
 		Document oldEntity = documentRepository.findOne(doc.getId());
+		Assert.notNull(oldEntity);
 		
 		docEntity.setExpires(oldEntity.getExpires());
 		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
