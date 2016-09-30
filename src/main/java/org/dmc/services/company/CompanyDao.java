@@ -44,18 +44,20 @@ public class CompanyDao {
         try {
             // get all organizations;
             // does the organization need to be active member?  assume no.
-            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name FROM organization");
+            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name, logo_image FROM organization");
             companies = new ArrayList<Company>();
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("organization_id");
                 int accountId = resultSet.getInt("accountid");
                 String name = resultSet.getString("name");
+	            String logoUrl = resultSet.getString("logo_image");
 
                 Company company = new Company();
 				company.setId(Integer.toString(id));
 				company.setAccountId(Integer.toString(accountId));
 				company.setName(name);
+	            company.setLogoImage(logoUrl);
                 companies.add(company);
             }
         } catch (SQLException e) {
