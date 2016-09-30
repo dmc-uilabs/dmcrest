@@ -36,7 +36,7 @@ public class FollowingMemberDao {
     
             if (null != profileList) {
                 if (SQLUtils.isListValidIntegers(profileList)) {
-                    clauses.add("followed in " + profileList);
+                    clauses.add("followed in (" + profileList + ")");
                 }
             }
     
