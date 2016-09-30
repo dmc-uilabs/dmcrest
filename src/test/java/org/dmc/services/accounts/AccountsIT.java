@@ -33,7 +33,7 @@ public class AccountsIT extends BaseIT {
 	public void testAccountGet_UnknownUser() {
 		String unknownUserID = Integer.toString(Integer.MAX_VALUE);
 
-		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(401).when().get("/accounts/" + unknownUserID);
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(403).when().get("/accounts/" + unknownUserID);
 
 		// not json is returned on 401. If it is, then the check below should be
 		// perfromed.
@@ -59,7 +59,7 @@ public class AccountsIT extends BaseIT {
 	public void testAccountGet_MismatchedUserEPPNAndUserId() {
 		String unknownUserID = Integer.toString(Integer.MAX_VALUE);
 
-		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(401).when().get("/accounts/" + unknownUserID);
+		given().header("AJP_eppn", knownUserEPPN).expect().statusCode(403).when().get("/accounts/" + unknownUserID);
 
 		// not json is returned on 401. If it is, then the check below should be
 		// perfromed.
