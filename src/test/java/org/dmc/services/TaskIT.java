@@ -52,7 +52,7 @@ public class TaskIT extends BaseIT {
         // let's query the newly created task and make sure we get it
         Task retrievedTask =
             given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(newGetRequest).then()
-                .log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
+                .body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
         assertEquals(id.toString(), retrievedTask.getId());
     }
 
@@ -70,7 +70,7 @@ public class TaskIT extends BaseIT {
         // let's query the newly created task and make sure we get it
         Task retrievedTask =
             given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(newGetRequest).then()
-                .log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
+                .body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
         // because that should get set when created
         assertNotNull(retrievedTask.getId());
         assertNull(retrievedTask.getAssignee());
@@ -91,7 +91,7 @@ public class TaskIT extends BaseIT {
         // let's query the newly created task and make sure we get it
         Task retrievedTask =
             given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when().get(newGetRequest).then()
-                .log().all().body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
+                .body(matchesJsonSchemaInClasspath(TASK_SCHEMA)).extract().as(Task.class);
         assertEquals(id.toString(), retrievedTask.getId());
         assertNull(retrievedTask.getAssignee());
         assertNull(retrievedTask.getAssigneeId());
