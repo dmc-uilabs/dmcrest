@@ -1,12 +1,12 @@
 package org.dmc.services.search.handlers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.dmc.services.data.models.UserModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by 200005921 on 2/2/2016.
@@ -39,13 +39,11 @@ public class UserResponseHandler implements ResponseHandler<UserModel> {
 				String idStr = (String) doc.getFieldValue(FIELD_ID);
 				int id = Integer.parseInt(idStr);
 				String realname = (String) doc.getFieldValue(FIELD_REALNAME);
-				String username = (String) doc.getFieldValue(FIELD_USER_NAME);
 				String companyIdStr = (String) doc.getFieldValue(FIELD_COMPANY_ID);
 				int companyId = (companyIdStr != null) ? Integer.parseInt(companyIdStr) : -1;
 
 				UserModel u = new UserModel();
 				u.setId(id);
-				u.setUsername(username);
 				u.setRealname(realname);
 				u.setTermsConditions(false);
 				u.setCompanyId(companyId);

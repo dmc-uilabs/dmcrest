@@ -78,7 +78,6 @@ public class ProjectMemberDao {
             throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
         }
 
-        ServiceLogger.log(logTag, members.toString());
         return members;
     }
 
@@ -102,6 +101,22 @@ public class ProjectMemberDao {
         }
     }
 
+    public ArrayList<ProjectMember> getProjectMembersByInvitation(String projectMemberRequestId, String userEPPN) throws DMCServiceException {
+
+        try {
+
+            final int userId = UserDao.getUserID(userEPPN);
+            ProjectMember memberRequest = new ProjectMember();
+            memberRequest.setId(projectMemberRequestId);
+
+            final String projectMembersQuery = createGetProjectMembersQuery(null, memberRequest.getProjectId(), userId, memberRequest.getProfileId());
+            final ArrayList<ProjectMember> list = getProjectsMembersFromQuery(projectMembersQuery);
+            return list;
+        } catch (SQLException se) {
+            throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+        }
+    }
+
     private String createAcceptClause(Boolean accept) {
         
         if (accept != null) {
@@ -114,7 +129,7 @@ public class ProjectMemberDao {
         return null;
     }
 
-    private String createGetProjectMembersQuery(Boolean accept, String projectList, Integer userId, String memberList) {
+    private String createGetProjectMembersQuery(Boolean accept, String projectList, Integer userId, String userMemberIdList) {
         // requesting user must be administrator of the project to get the
         // list of members, unless user is requesting own membership.
 
@@ -133,18 +148,14 @@ public class ProjectMemberDao {
                 throw new DMCServiceException(DMCError.BadURL, "invalid projects: " + projectList);
             }
         }
-        if (null != memberList) {
-            if (SQLUtils.isListValidIntegers(memberList)) {
-                clauses.add("u.user_id in (" + memberList + ")");
-            } else {
-                throw new DMCServiceException(DMCError.BadURL, "invalid projects: " + projectList);
-            }
+        if (null != userMemberIdList) {
+            clauses.add(createInvitationClause(userMemberIdList));
         }
-        if (null == projectList && null == memberList && false == accept) {
+        if (null == projectList && null == userMemberIdList && false == accept) {
             clauses.add("gjr.user_id = " + userId);
-        } else if (null == projectList && null == memberList) {
+        } else if (null == projectList && null == userMemberIdList) {
             clauses.add(adminRequiredClause);
-        } else if (!SQLUtils.isIdInList(Integer.toString(userId), memberList)) {
+        } else if (!isIdInInvitationList(Integer.toString(userId), userMemberIdList)) {
             clauses.add(adminRequiredClause);
         }
 
@@ -514,4 +525,29 @@ public class ProjectMemberDao {
             throw new DMCServiceException(DMCError.BadURL, "no project request for " + memberId + " in project " + projectId);
         }
     }
+
+    private static boolean isIdInInvitationList(String id, String list) {
+        if (null != list) {
+            final String[] items = list.split(",");
+            for (String item : items) {
+                if (item.equals(id)) return true;
+            }
+        }
+        return false;
+    }
+
+    private String createInvitationClause(String userMemberIdList) {
+        if (null == userMemberIdList || userMemberIdList.length() == 0) return "";
+        String[] ids = userMemberIdList.split(",");
+        for (String id : ids) {
+            try {
+                Integer.parseInt(id);       // checking that we don't throw NumberFormatException, if ids become GUIDs, would need a different check
+            } catch (Exception e) {
+                throw new DMCServiceException(DMCError.BadURL, "invalid invitation member id: " + id);
+            }
+        }
+
+        return "gjr.user_id in (" + userMemberIdList + ") ";
+    }
+
 }

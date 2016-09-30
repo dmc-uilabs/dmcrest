@@ -68,21 +68,13 @@ public class UserDao {
 
 	public static int getUserID(String userEPPN) throws SQLException {
 		String query = "select user_id from users where user_name = ?;";
-		ServiceLogger.log(logTag, String.format("userid query: %s", query));
-
 		final Integer userId = DBConnector.jdbcTemplate().queryForObject(query, Integer.class, userEPPN);
-		ServiceLogger.log(logTag, String.format("Found userID: %s", userId));
-
 		return userId;
 	}
 
 	public static String getUserName(int userID) throws SQLException {
 		String query = "select user_name from users where user_id = ?";
-		ServiceLogger.log(logTag, String.format("user_name query: %s", query));
-
 		final String userName = DBConnector.jdbcTemplate().queryForObject(query, String.class, userID);
-		ServiceLogger.log(logTag, String.format("Found user_name: %s", userName));
-
 		return userName;
 	}
 }

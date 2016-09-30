@@ -1,37 +1,24 @@
 package org.dmc.services.notification;
 
-import org.dmc.services.ServiceLogger;
+import javax.inject.Inject;
+
+import org.dmc.services.exceptions.InvalidOrganizationUserException;
+import org.dmc.services.security.UserPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
 
 @RestController
 public class NotificationController {
+
+	@Inject
+	private NotificationService notificationService;
 	
-	private final String logTag = "NOTIFICATION_CONTROLLER";
-	private NotificationDao notification = new NotificationDao();
-	
-	@RequestMapping(value = "/notifications", method = RequestMethod.GET)
-	public ArrayList<Notification> getNotifications(@PathVariable("period") String period,
-                                                    @PathVariable("type") String type,
-                                                    @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
-		ServiceLogger.log(logTag, "getNotifications: " + userEPPN);
-		return notification.getNotificationsList(period, type, userEPPN);
+	@RequestMapping(value = "/notifications", params = "action=requestVerification", method = RequestMethod.POST)
+	public void sendRequestVerificationNotifications() throws InvalidOrganizationUserException {
+		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		notificationService.sendRequestForVerification(user.getId());
 	}
-	
-//    @RequestMapping(value = "notifications-statistic", method = RequestMethod.GET)
-//    @ResponseBody
-//    public Id getNotificationsStatistics(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
-//    	ServiceLogger.log(logTag, "Payload: " + payload);
-//    	
-//    	return notification.getStatistics(userEPPN);
-//    }
-	
-	
-	
 	
 }

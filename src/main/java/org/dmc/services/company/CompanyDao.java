@@ -170,7 +170,7 @@ public class CompanyDao {
 	}
 
 	public Id createCompany(Company company, String userEPPN) {
-		ServiceLogger.log(logTag, "In createCompany, User: " + userEPPN + " creating company " + company);
+		ServiceLogger.log(logTag, "In createCompany, User: " + userEPPN + " creating company " + company.getName());
 
 		connection = DBConnector.connection();
 		Util util = Util.getInstance();
