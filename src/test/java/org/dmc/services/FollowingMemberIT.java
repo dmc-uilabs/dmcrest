@@ -64,6 +64,43 @@ public class FollowingMemberIT extends BaseIT {
     }
 
     @Test
+    public void testPostAndGetFollowingById() throws Exception {
+        ServiceLogger.log(LOGTAG, "starting testPostAndGetFollowingById");
+
+        final String followerUserName = TestUserUtil.createNewUser();
+        final int followerId = UserDao.getUserID(followerUserName);
+        final String followerIdText = Integer.toString(followerId);
+        final String followedUserName = TestUserUtil.createNewUser();
+        final int followedId = UserDao.getUserID(followedUserName);
+        final String followedIdText = Integer.toString(followedId);
+
+        FollowingMember followRequest = new FollowingMember();
+        followRequest.setFollower(followerIdText);
+        followRequest.setFollowed(followedIdText);
+
+        final ValidatableResponse postResponse = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", followerUserName).body(followRequest)
+                .expect().statusCode(OK.value()).when()
+                .post(FOLLOWING_MEMBERS).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/followingMemberSchema.json"));
+
+        final FollowingMember followingMemberResponse = postResponse.extract().as(FollowingMember.class);
+
+        final FollowingMember expected = new FollowingMember();
+        expected.setFollower(followerIdText);
+        expected.setFollowed(followedIdText);
+        assertEquals("POST response does not match expected following member object", expected, followingMemberResponse);
+
+        final ValidatableResponse getResponse = given().header("AJP_eppn", followerUserName)
+            .expect().statusCode(OK.value()).when()
+            .get(FOLLOWING_MEMBERS_BY_ID, followingMemberResponse.getId()).then()
+            .body(matchesJsonSchemaInClasspath("Schemas/followingMemberSchema.json"));
+        final FollowingMember followingMemberGetResponse = getResponse.extract().as(FollowingMember.class);
+
+        assertEquals("expected post and get objects to matech", followingMemberResponse, followingMemberGetResponse);
+
+    }
+
+    @Test
     public void testDeleteFollowingMember() throws Exception {
         ServiceLogger.log(LOGTAG, "starting testDeleteFollowingMember");
 

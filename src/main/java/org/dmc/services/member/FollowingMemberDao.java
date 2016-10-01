@@ -66,11 +66,34 @@ public class FollowingMemberDao {
     }
 
     public FollowingMember followingMemberGetById(String id, String userEPPN) {
-        ArrayList<FollowingMember> list = followingMembersGet(null, id, null, null, null, null, null, userEPPN);
-        if (null == list || list.size() != 1) {
-            throw new DMCServiceException(DMCError.BadURL, "no following member entry entry found for " + id);
+        try {
+            final int requesterId = UserDao.getUserID(userEPPN);
+            final FollowingMember expectedMember = new FollowingMember();
+            expectedMember.setId(id);
+            final String requesterIdText = Integer.toString(requesterId);
+            if (!requesterIdText.equals(expectedMember.getFollower())) {
+                ServiceLogger.log(LOGTAG, "invalid request for user " + userEPPN + " " + requesterIdText + " != " + expectedMember.getFollower());
+                throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, "invalid request for user " + userEPPN);
+            }
+            final String query = "select follower, followed from user_following where follower = ? and followed = ?";
+
+            final PreparedStatement resultStatement = DBConnector.prepareStatement(query);
+            resultStatement.setInt(1, Integer.parseInt(expectedMember.getFollower()));
+            resultStatement.setInt(2, Integer.parseInt(expectedMember.getFollowed()));
+            final ResultSet resultSet = resultStatement.executeQuery();
+            if (resultSet.next()) {
+                final FollowingMember followResult = readFollowResultSet(resultSet);
+                return followResult;
+            }
+            return null;
+
+        } catch (DMCServiceException dmce) {
+            throw dmce;
+        } catch (Exception e) {
+            String msg = "bad data or other unexpected error: " + e.getMessage();
+            ServiceLogger.log(LOGTAG, msg);
+            throw new DMCServiceException(DMCError.BadURL, msg);
         }
-        return list.get(0);
     }
 
     public FollowingMember followingMembersPost(FollowingMember followRequest, String userEPPN) {
