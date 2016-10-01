@@ -65,7 +65,15 @@ public class FollowingMemberDao {
         }
     }
 
-    public FollowingMember followingMembersPost(PostFollowingMember followRequest, String userEPPN) {
+    public FollowingMember followingMemberGetById(String id, String userEPPN) {
+        ArrayList<FollowingMember> list = followingMembersGet(null, id, null, null, null, null, null, userEPPN);
+        if (null == list || list.size() != 1) {
+            throw new DMCServiceException(DMCError.BadURL, "no following member entry entry found for " + id);
+        }
+        return list.get(0);
+    }
+
+    public FollowingMember followingMembersPost(FollowingMember followRequest, String userEPPN) {
         final Connection connection = DBConnector.connection();
         try {
             connection.setAutoCommit(false);
@@ -82,12 +90,12 @@ public class FollowingMemberDao {
 
             final int requesterId = UserDao.getUserID(userEPPN);
             final String requesterIdText = Integer.toString(requesterId);
-            if (!requesterIdText.equals(followRequest.getAccountId())) {
-                ServiceLogger.log(LOGTAG, "invalid request for user " + userEPPN + " " + requesterIdText + " != " + followRequest.getAccountId());
+            if (!requesterIdText.equals(followRequest.getFollower())) {
+                ServiceLogger.log(LOGTAG, "invalid request for user " + userEPPN + " " + requesterIdText + " != " + followRequest.getFollower());
                 throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, "invalid request for user " + userEPPN);
             }
 
-            final int followedId = Integer.parseInt(followRequest.getProfileId());
+            final int followedId = Integer.parseInt(followRequest.getFollowed());
             final String query = "insert into user_following (follower, followed) values (?, ?) ";
 
             ServiceLogger.log(LOGTAG, "follow query: " + query);
@@ -146,10 +154,78 @@ public class FollowingMemberDao {
         }
     }
 
+    public void followingMembersDelete(String id, String userEPPN) {
+        final Connection connection = DBConnector.connection();
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException ex) {
+            ServiceLogger.log(LOGTAG, "unexpected database access error" + ex.getMessage());
+            throw new DMCServiceException(DMCError.OtherSQLError, "unexpected database access error" + ex.getMessage());
+        }
+
+        try {
+            if (null == id) {
+                ServiceLogger.log(LOGTAG, "no id to delete");
+                throw new DMCServiceException(DMCError.BadURL, "no follow id to delete sent");
+            }
+
+            final int requesterId = UserDao.getUserID(userEPPN);
+            final String requesterIdText = Integer.toString(requesterId);
+
+            FollowingMember followRequestToDelete = new FollowingMember();
+            followRequestToDelete.setId(id);
+            if (!requesterIdText.equals(followRequestToDelete.getFollower())) {
+                ServiceLogger.log(LOGTAG, "invalid request for user " + userEPPN + " " + requesterIdText + " != " + followRequestToDelete.getFollower());
+                throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, "invalid request for user " + userEPPN);
+            }
+
+            final int followedId = Integer.parseInt(followRequestToDelete.getFollowed());
+            final String query = "delete from user_following where follower = ? and followed = ?";
+
+            ServiceLogger.log(LOGTAG, "follow query: " + query);
+            ServiceLogger.log(LOGTAG, "requester/follower id: " + requesterId);
+            ServiceLogger.log(LOGTAG, "followed id: " + followedId);
+            PreparedStatement statement = DBConnector.prepareStatement(query);
+            statement.setInt(1, requesterId);
+            statement.setInt(2, followedId);
+            try {
+                statement.executeUpdate();
+            } catch (SQLException sqle) {
+                ServiceLogger.log(LOGTAG, "Unable to unfollow " + sqle.getMessage());
+                throw new DMCServiceException(DMCError.OtherSQLError, "Unable to follow " + sqle.getMessage());
+            }
+
+        } catch (DMCServiceException dmce) {
+            try {
+                connection.rollback();
+                throw dmce;
+            } catch (SQLException re) {
+                throw new DMCServiceException(dmce.getError(), dmce.getMessage() + " AND unable to rollback " + re.getMessage());
+            }
+        }   catch (Exception e) {
+            String msg = "bad data or other unexpected error: " + e.getMessage();
+            ServiceLogger.log(LOGTAG, msg);
+            try {
+                connection.rollback();
+                throw new DMCServiceException(DMCError.BadURL, msg);
+            } catch (SQLException re) {
+                throw new DMCServiceException(DMCError.BadURL, msg + " AND unable to rollback " + re.getMessage());
+            }
+        } finally {
+            if (null != connection) {
+                try {
+                    connection.setAutoCommit(true);
+                } catch (SQLException ex) {
+                    // don't really need to do anything
+                }
+            }
+        }
+    }
+
     private FollowingMember readFollowResultSet(ResultSet resultSet) throws Exception {
         final FollowingMember item = new FollowingMember();
-        item.setAccountId(Integer.toString(resultSet.getInt("follower")));
-        item.setProfileId(Integer.toString(resultSet.getInt("followed")));
+        item.setFollower(Integer.toString(resultSet.getInt("follower")));
+        item.setFollowed(Integer.toString(resultSet.getInt("followed")));
         return item;
     }
 }

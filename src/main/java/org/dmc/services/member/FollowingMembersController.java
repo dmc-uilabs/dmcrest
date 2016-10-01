@@ -37,21 +37,24 @@ public class FollowingMembersController {
 
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE }, method = RequestMethod.POST)
     public ResponseEntity<FollowingMember> followingMembersPost(
-            @RequestBody PostFollowingMember body,
+            @RequestBody FollowingMember body,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         return new ResponseEntity<FollowingMember>(dao.followingMembersPost(body, userEPPN), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}", produces = { "application/json", "text/html" }, method = RequestMethod.DELETE)
-    public ResponseEntity<Void> followingMembersIdDelete(@PathVariable("id") String id) {
-        // do some magic!
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+    @RequestMapping(value = "/{id}", produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE }, method = RequestMethod.DELETE)
+    public ResponseEntity<?> followingMembersIdDelete(
+            @PathVariable("id") String id,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        dao.followingMembersDelete(id, userEPPN);
+        return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(value = "/{id}", produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE }, method = RequestMethod.GET)
-    public ResponseEntity<FollowingMember> followingMembersIdGet(@PathVariable("id") String id) {
-        // do some magic!
-        return new ResponseEntity<FollowingMember>(HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<FollowingMember> followingMembersIdGet(
+            @PathVariable("id") String id,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        return new ResponseEntity<FollowingMember>(dao.followingMemberGetById(id, userEPPN), HttpStatus.OK);
     }
 
 }
