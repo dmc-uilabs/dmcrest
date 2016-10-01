@@ -58,7 +58,7 @@ public class FollowingMemberIT extends BaseIT {
             .get(FOLLOWING_MEMBERS).then()
             .body(matchesJsonSchemaInClasspath("Schemas/followingMemberListSchema.json"));
 
-        final ArrayList<FollowingMember> list = readFollowingMemberResponse(getResponse);
+        final ArrayList<FollowingMember> list = TestUserUtil.readFollowingMemberResponse(getResponse);
         assertTrue("couldn't find newly added follow entry in GET response list", list.contains(expected));
 
     }
@@ -131,7 +131,7 @@ public class FollowingMemberIT extends BaseIT {
                 .get(FOLLOWING_MEMBERS).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/followingMemberListSchema.json"));
 
-        final ArrayList<FollowingMember> list = readFollowingMemberResponse(getResponse);
+        final ArrayList<FollowingMember> list = TestUserUtil.readFollowingMemberResponse(getResponse);
 
         assertFalse("entry should have been deleted", list.contains(followingMemberResponse));
     }
@@ -174,7 +174,7 @@ public class FollowingMemberIT extends BaseIT {
             .get(FOLLOWING_MEMBERS).then()
             .body(matchesJsonSchemaInClasspath("Schemas/followingMemberListSchema.json"));
 
-        final ArrayList<FollowingMember> list1 = readFollowingMemberResponse(get1Response);
+        final ArrayList<FollowingMember> list1 = TestUserUtil.readFollowingMemberResponse(get1Response);
 
         final FollowingMember expected1 = new FollowingMember();
         expected1.setFollower(follower1IdText);
@@ -191,7 +191,7 @@ public class FollowingMemberIT extends BaseIT {
                 .get(FOLLOWING_MEMBERS).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/followingMemberListSchema.json"));
 
-        final ArrayList<FollowingMember> list2 = readFollowingMemberResponse(get2Response);
+        final ArrayList<FollowingMember> list2 = TestUserUtil.readFollowingMemberResponse(get2Response);
         assertEquals("both users should find same results", list1, list2);
     }
 
@@ -233,7 +233,7 @@ public class FollowingMemberIT extends BaseIT {
             .get(FOLLOWING_MEMBERS).then()
             .body(matchesJsonSchemaInClasspath("Schemas/followingMemberListSchema.json"));
 
-        final ArrayList<FollowingMember> list1 = readFollowingMemberResponse(get1Response);
+        final ArrayList<FollowingMember> list1 = TestUserUtil.readFollowingMemberResponse(get1Response);
         assertEquals("should only find one following entry when querying by follower", 1, list1.size());
 
         final FollowingMember notexpected1 = new FollowingMember();
@@ -286,7 +286,7 @@ public class FollowingMemberIT extends BaseIT {
             .get(FOLLOWING_MEMBERS).then()
             .body(matchesJsonSchemaInClasspath("Schemas/followingMemberListSchema.json"));
 
-        final ArrayList<FollowingMember> list1 = readFollowingMemberResponse(get1Response);
+        final ArrayList<FollowingMember> list1 = TestUserUtil.readFollowingMemberResponse(get1Response);
         assertEquals("should find two following entry when querying by followed", 2, list1.size());
 
         final FollowingMember expected1 = new FollowingMember();
@@ -339,7 +339,7 @@ public class FollowingMemberIT extends BaseIT {
             .get(FOLLOWING_MEMBERS).then()
             .body(matchesJsonSchemaInClasspath("Schemas/followingMemberListSchema.json"));
 
-        final ArrayList<FollowingMember> list1 = readFollowingMemberResponse(get1Response);
+        final ArrayList<FollowingMember> list1 = TestUserUtil.readFollowingMemberResponse(get1Response);
         assertEquals("should find only one following entry when querying by followed and follower", 1, list1.size());
 
         final FollowingMember expected2 = new FollowingMember();
@@ -387,7 +387,7 @@ public class FollowingMemberIT extends BaseIT {
             .get(FOLLOWING_MEMBERS).then()
             .body(matchesJsonSchemaInClasspath("Schemas/followingMemberListSchema.json"));
 
-        final ArrayList<FollowingMember> list1 = readFollowingMemberResponse(get1Response);
+        final ArrayList<FollowingMember> list1 = TestUserUtil.readFollowingMemberResponse(get1Response);
         assertEquals("should find only two following entry when querying by both followeds and follower", 2, list1.size());
 
         final FollowingMember expected1 = new FollowingMember();
@@ -402,16 +402,4 @@ public class FollowingMemberIT extends BaseIT {
 
     }
 
-    private ArrayList<FollowingMember> readFollowingMemberResponse(ValidatableResponse response) {
-        final ArrayList<FollowingMember> list = new ArrayList<FollowingMember>();
-        final JSONArray jsonArray = new JSONArray(response.extract().asString());
-        for (int i = 0; i < jsonArray.length(); i++) {
-            final JSONObject json = jsonArray.getJSONObject(i);
-            final FollowingMember item = new FollowingMember();
-            item.setFollower(json.getString("accountId"));
-            item.setFollowed(json.getString("profileId"));
-            list.add(item);
-        }
-        return list;
-    }
 }

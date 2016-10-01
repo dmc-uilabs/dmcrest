@@ -9,10 +9,12 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
+import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.member.FollowingMember;
+import org.dmc.services.member.FollowingMemberDao;
 import org.dmc.services.services.GetCompareService;
 import org.dmc.services.reviews.ReviewDao;
 import org.dmc.services.reviews.ReviewType;
@@ -38,7 +40,7 @@ public class ProfileController {
 
 
     @RequestMapping(value = "/profiles/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Profile> getProfile(@PathVariable("id") int id) {
+    public ResponseEntity<?> getProfile(@PathVariable("id") int id) {
         ServiceLogger.log(logTag, "getProfile, id: " + id);
 
         int httpStatusCode = HttpStatus.OK.value();
@@ -55,7 +57,7 @@ public class ProfileController {
 
     @RequestMapping(value = "/profiles", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity createProfile(@RequestBody Profile profile,
+    public ResponseEntity<?> createProfile(@RequestBody Profile profile,
             @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
         ServiceLogger.log(logTag, "createProfile, profile: " + profile.toString());
 
@@ -72,7 +74,7 @@ public class ProfileController {
     }
 
     @RequestMapping(value = "/profiles/{id}", method = RequestMethod.PATCH, produces = { APPLICATION_JSON_VALUE })
-    public ResponseEntity updateProfile(@PathVariable("id") int id, @RequestBody Profile profile,
+    public ResponseEntity<?> updateProfile(@PathVariable("id") int id, @RequestBody Profile profile,
             @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
         ServiceLogger.log(logTag, "updateProfile, profile: " + profile.toString());
 
@@ -123,7 +125,7 @@ public class ProfileController {
 
     @RequestMapping(value = "/profiles/{profileID}/profile_history", produces = {
             APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-    public ResponseEntity<List<ProfileHistory>> profilesProfileIDProfileHistoryGet(
+    public ResponseEntity<?> profilesProfileIDProfileHistoryGet(
             @PathVariable("profileID") String profileID,
             @RequestParam(value = "section", required = false) String section,
             @RequestParam(value = "limit", required = false) Integer limit) {
@@ -149,9 +151,9 @@ public class ProfileController {
         try {
             reviewIdInt = Integer.parseInt(reviewId);
         } catch (NumberFormatException nfe) {
-            
+            return new ResponseEntity<String>("invalid review id: " + reviewId, HttpStatus.BAD_REQUEST);
         }
-        
+
         try {
             int profileIdInt = Integer.parseInt(profileID);
             
@@ -161,7 +163,7 @@ public class ProfileController {
             } else if (reviewIdInt > 0) {
                 reviews = reviewDao.getReviewReplies(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
             }
-            
+
             return new ResponseEntity<List<ProfileReview>>(reviews, HttpStatus.valueOf(statusCode));
         } catch (NumberFormatException nfe) {
             ServiceLogger.log(logTag, "Invalid companyId: " + profileID + ": " + nfe.getMessage());
@@ -173,8 +175,9 @@ public class ProfileController {
     }
 
     @RequestMapping(value = "/profile_reviews", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
-    public ResponseEntity profileReviewsPost(@RequestBody ProfileReview profileReview,
-                                             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+    public ResponseEntity<?> profileReviewsPost(
+            @RequestBody ProfileReview profileReview,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
         
         int statusCode = HttpStatus.OK.value();
         
@@ -185,26 +188,26 @@ public class ProfileController {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
-        
+
     }
 
-    
-    @RequestMapping(value = "/profiles/{profileId}/following_members", produces = {
-            APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-    public ResponseEntity<List<FollowingMember>> profilesProfileIdFollowingMembersGet(
-            @PathVariable("profileId") String profileId, @RequestParam(value = "limit", required = false) Integer limit,
+    @RequestMapping(value = "/profiles/{profileId}/following_members", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+    public ResponseEntity<?> profilesProfileIdFollowingMembersGet(
+            @PathVariable("profileId") String profileId, 
+            @RequestParam(value = "limit", required = false) Integer limit,
+            @RequestParam(value = "start", required = false) Integer start,
             @RequestParam(value = "order", required = false) String order,
-            @RequestParam(value = "sort", required = false) String sort) {
-        // do some magic!
-        return new ResponseEntity<List<FollowingMember>>(HttpStatus.NOT_IMPLEMENTED);
+            @RequestParam(value = "sort", required = false) String sort,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        final FollowingMemberDao dao = new FollowingMemberDao();
+        return new ResponseEntity<List<FollowingMember>>(dao.followingMembersGet(profileId, null, null, limit, start, order, sort, userEPPN), HttpStatus.OK);
     }
 
-    
     @RequestMapping(value = "/profiles/{profileID}/compare_services",produces = { APPLICATION_JSON_VALUE,
         TEXT_HTML_VALUE }, method = RequestMethod.GET)
     public ResponseEntity<?> profilesProfileIDCompareServicesGet(
-                                                                 @PathVariable("profileID") String profileID,
-                                                                 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+            @PathVariable("profileID") String profileID,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         try {
             List<GetCompareService> compareServices = profileDao.getCompareServices(profileID, userEPPN);
             return new ResponseEntity<List<GetCompareService>>(compareServices, HttpStatus.OK);
@@ -212,6 +215,5 @@ public class ProfileController {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }	
-        
     }	
 }
