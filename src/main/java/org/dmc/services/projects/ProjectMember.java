@@ -1,9 +1,11 @@
 package org.dmc.services.projects;
 
 import java.util.Date;
+import java.util.Objects;
 
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.member.FollowingMember;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,7 +23,7 @@ public class ProjectMember {
 
     @JsonProperty("id")
     public String getId() {
-        id = getProjectId() + "-" + getProfileId() + "-" + getFromProfileId();
+        fixId();
         return id;
     }
 
@@ -45,6 +47,7 @@ public class ProjectMember {
     @JsonProperty("profileId")
     public void setProfileId(String value) {
         profileId = Integer.parseInt(value);
+        fixId();
     }
 
     @JsonProperty("projectId")
@@ -55,6 +58,7 @@ public class ProjectMember {
     @JsonProperty("projectId")
     public void setProjectId(String value) {
         projectId = Integer.parseInt(value);
+        fixId();
     }
 
     @JsonProperty("accept")
@@ -75,6 +79,7 @@ public class ProjectMember {
     @JsonProperty("fromProfileId")
     public void setFromProfileId(String value) {
         fromProfileId = Integer.parseInt(value);
+        fixId();
     }
 
     @JsonProperty("from")
@@ -95,6 +100,50 @@ public class ProjectMember {
     @JsonProperty("date")
     public void setDate(long value) {
         date = new Date(value);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      ProjectMember projectMember = (ProjectMember) o;
+      return Objects.equals(id, projectMember.id) &&
+          Objects.equals(profileId, projectMember.profileId) &&
+          Objects.equals(projectId, projectMember.projectId) &&
+          Objects.equals(accept, projectMember.accept) &&
+          Objects.equals(fromProfileId, projectMember.fromProfileId) &&
+          Objects.equals(from, projectMember.from) &&
+          Objects.equals(date, projectMember.date);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(id, profileId, projectId, accept, fromProfileId, from, date);
+    }
+
+    @Override
+    public String toString()  {
+      StringBuilder sb = new StringBuilder();
+      sb.append("class ProjectMember {\n");
+      
+      sb.append("  id: ").append(id).append("\n");
+      sb.append("  profileId: ").append(profileId).append("\n");
+      sb.append("  projectId: ").append(projectId).append("\n");
+      sb.append("  accept: ").append(accept).append("\n");
+      sb.append("  fromProfileId: ").append(fromProfileId).append("\n");
+      sb.append("  from: ").append(from).append("\n");
+      sb.append("  date: ").append(date).append("\n");
+      sb.append("}\n");
+      return sb.toString();
+    }
+    
+    private void fixId()
+    {
+        id = getProjectId() + "-" + getProfileId() + "-" + getFromProfileId();
     }
 
 }

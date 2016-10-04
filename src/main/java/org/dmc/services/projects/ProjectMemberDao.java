@@ -7,6 +7,7 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.profile.Profile;
+import org.dmc.services.utils.SQLUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -141,7 +142,7 @@ public class ProjectMemberDao {
 
         ArrayList<String> clauses =  new ArrayList<String>();
         if (null != projectList ) {
-            if (isListValid(projectList)) {
+            if (SQLUtils.isListValidIntegers(projectList)) {
                 clauses.add("gjr.group_id in (" + projectList + ")");
             } else {
                 throw new DMCServiceException(DMCError.BadURL, "invalid projects: " + projectList);
@@ -170,28 +171,6 @@ public class ProjectMemberDao {
             }
         }
         return projectMembersQuery;
-    }
-
-    private boolean isListValid(String list) {
-        String[] ids = list.split(",");
-        for (String id : ids) {
-            try {
-                Integer.parseInt(id);       // checking that we don't throw NumberFormatException, if ids become GUIDs, would need a different check
-            } catch (Exception e) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isIdInList(String id, String list) {
-        if (null != list) {
-            final String[] items = list.split(",");
-            for (String item : items) {
-                if (item.equals(id)) return true;
-            }
-        }
-        return false;
     }
 
     private ArrayList<ProjectMember> getProjectsMembersFromQuery(String query) {
