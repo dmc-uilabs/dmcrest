@@ -235,7 +235,7 @@ public class DocumentService {
 	 * This is scheduled to run every day at 1:01 AM.
 	 * The pattern is a list of six single space-separated fields: representing second, minute, hour, day, month, weekday.
 	 */
-	@Scheduled(cron = "0 16 1 * * ?")
+	@Scheduled(cron = "0 1 1 * * ?")
 	@Transactional(rollbackFor = DMCServiceException.class)
 	protected void removeUnverifiedDocuments() {
 		LocalDateTime lastWeek = LocalDate.now().atStartOfDay().minusWeeks(1);
