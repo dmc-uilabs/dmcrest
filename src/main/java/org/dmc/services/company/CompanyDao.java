@@ -945,7 +945,7 @@ public class CompanyDao {
 			try {
 				preparedStatement.executeUpdate();
 			} catch (SQLException e) {
-				if(e.getMessage().contains("duplicate key")){
+				if(!e.getMessage().contains("duplicate key")){
 					ServiceLogger.log(logTag, "Unable to create follow company");
 					connection.rollback();
 					throw new DMCServiceException(DMCError.OtherSQLError, "Unable to follow company" + e.getMessage());
@@ -953,9 +953,12 @@ public class CompanyDao {
 				
 			}
 
-			final String queryCompareService = "select currval('user_company_follow_id_seq') as id";
+			final String queryCompareService = "select * from user_company_follow WHERE account_id = ? AND company_id = ?";
+			PreparedStatement preparedStatement2 = DBConnector.prepareStatement(queryCompareService);
+			preparedStatement.setInt(1, accountId);
+			preparedStatement.setInt(2, companyId);
 			resultSet = DBConnector.executeQuery(queryCompareService);
-
+			
 			int id = -1;
 			if (resultSet.next()) {
 				id = resultSet.getInt(1);

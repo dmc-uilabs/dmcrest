@@ -13,6 +13,7 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.utils.SQLUtils;
 import org.dmc.services.company.CompanyDao;
 
 import javax.xml.ws.http.HTTPException;
@@ -226,7 +227,9 @@ class AccountsDao {
 			columnsInUserCompanyFollowTable.add("company_id");
 			
 			String query = "SELECT * from user_company_follow WHERE account_id = " + Integer.parseInt(accountID);
-			if (sort == null) {
+			query += SQLUtils.buildOrderByClause(order,  sort, columnsInUserCompanyFollowTable);
+			query += SQLUtils.buildLimitClause(limit);
+			/*if (sort == null) {
 				query += " ORDER BY id";
 			} else if (!columnsInUserCompanyFollowTable.contains(sort)) {
 				query += " ORDER BY id";
@@ -248,7 +251,7 @@ class AccountsDao {
 				query += " LIMIT 0";
 			} else {
 				query += " LIMIT " + limit;
-			}
+			}*/
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
