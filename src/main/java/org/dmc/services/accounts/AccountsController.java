@@ -102,15 +102,23 @@ public class AccountsController {
         return new ResponseEntity<List<InlineResponse200>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @RequestMapping(value = "/{accountID}/following_companies", produces = {
-            "application/json" }, method = RequestMethod.GET)
-    public ResponseEntity<List<FollowingCompany>> accountsAccountIDFollowingCompaniesGet(
-            @PathVariable("accountID") String accountID, @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "order", required = false) String order,
-            @RequestParam(value = "sort", required = false) String sort) {
-        // do some magic!
-        return new ResponseEntity<List<FollowingCompany>>(HttpStatus.NOT_IMPLEMENTED);
-    }
+    @RequestMapping(value = "/{accountID}/following_companies", produces = {"application/json"}, method = RequestMethod.GET)
+	public ResponseEntity<?> accountsAccountIDFollowingCompaniesGet(
+			@PathVariable("accountID") String accountID, 
+			@RequestParam(value = "limit", required = false) Integer limit,
+			@RequestParam(value = "order", required = false) String order,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "getAccountsFollowingCompanyByAccountsId, userEPPN: " + userEPPN);
+		List<FollowingCompany> followingCompanies = null;
+		try {
+			followingCompanies = accounts.getFollowingCompaniesByAccountId(accountID, limit, order, sort, userEPPN);
+			return new ResponseEntity<List<FollowingCompany>>(followingCompanies, HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
+	}
 
     @RequestMapping(value = "/{accountID}/follow_discussions", produces = {
             APPLICATION_JSON_VALUE }, method = RequestMethod.GET)

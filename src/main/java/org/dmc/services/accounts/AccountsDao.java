@@ -200,5 +200,88 @@ class AccountsDao {
 
 		return userAccountServers;
 	}
+	
+	
+	public List<FollowingCompany> getFollowingCompaniesByAccountId(String accountID, Integer limit, String order,
+			String sort, String userEPPN) throws DMCServiceException {
+		ServiceLogger.log(logTag, "Start running getFollowingCompaniesByAccountId: ");
+		Connection connection = DBConnector.connection();
+		FollowingCompany followingCompany = null;
+		List<FollowingCompany> followingCompanies = new ArrayList<FollowingCompany>();
+		int userId = -1;
+		try {
+			userId = UserDao.getUserID(userEPPN);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, e.getMessage());
+		}	
+		if(userId != Integer.parseInt(accountID)){
+			ServiceLogger.log(logTag, "Current user is not authorized user!");
+			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, "Current user is not authorized user!");
+			
+		}
+		try {
+			connection.setAutoCommit(false);
+			final ArrayList<String> columnsInUserCompanyFollowTable = new ArrayList<String>();
+			columnsInUserCompanyFollowTable.add("id");
+			columnsInUserCompanyFollowTable.add("account_id");
+			columnsInUserCompanyFollowTable.add("company_id");
+			
+			String query = "SELECT * from user_company_follow WHERE account_id = " + Integer.parseInt(accountID);
+			if (sort == null) {
+				query += " ORDER BY id";
+			} else if (!columnsInUserCompanyFollowTable.contains(sort)) {
+				query += " ORDER BY id";
+			} else {
+				query += " ORDER BY " + sort;
+			}
+
+			if (order == null) {
+				query += " ASC";
+			} else if (!order.equals("ASC") && !order.equals("DESC")) {
+				query += " ASC";
+			} else {
+				query += " " + order;
+			}
+
+			if (limit == null) {
+				query += " LIMIT ALL";
+			} else if (limit < 0) {
+				query += " LIMIT 0";
+			} else {
+				query += " LIMIT " + limit;
+			}
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+			while (resultSet.next()) {
+				followingCompany = new FollowingCompany();
+				followingCompany.setId(resultSet.getString("id"));
+				followingCompany.setCompanyId(resultSet.getString("company_id"));
+				followingCompany.setAccountId(resultSet.getString("account_id"));
+				followingCompanies.add(followingCompany);
+			}
+			return followingCompanies;
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				ServiceLogger.log(logTag, e1.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, "Unable to roll back " + e1.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError,
+					"Unable to get following companies " + e.getMessage());
+		} finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
     
 }
