@@ -8,5 +8,6 @@ public enum DocumentClass {
 	LOGO,
 	IMAGE,
 	VIDEO,
-	PROFILE;
+	PROFILE,
+	SUPPORT;
 }
