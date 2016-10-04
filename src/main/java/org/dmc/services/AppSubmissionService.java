@@ -37,6 +37,7 @@ public class AppSubmissionService {
 		Mapper<AppSubmission, AppSubmissionModel> appSubmissionMapper = mapperFactory.mapperFor(AppSubmission.class, AppSubmissionModel.class);
 		
 		AppSubmission entity = appSubmissionMapper.mapToEntity(appSubmissionModel);
+		// TODO: Replace this placeholder value
 		entity.setAssignedTo("Alex M");
 		AppSubmission saved = appSubmissionRepository.save(entity);
 		return appSubmissionMapper.mapToModel(saved);
