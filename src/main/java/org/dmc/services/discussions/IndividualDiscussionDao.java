@@ -7,12 +7,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.sharedattributes.Util;
 
 public class IndividualDiscussionDao {
@@ -634,6 +637,75 @@ public class IndividualDiscussionDao {
 		}
 
 		return individualDiscussions;
+	}
+	
+	
+	
+	public List<IndividualDiscussion> getFollowingDiscussionFromProjectId(Integer projectID, Integer limit,
+			String order, String sort, String userEPPN) throws DMCServiceException {
+		ServiceLogger.log(LOGTAG, "starting running getFollowingDiscussionFromProjectId");
+		List<IndividualDiscussion> results = new ArrayList<IndividualDiscussion>();
+		ServiceLogger.log(LOGTAG, "Finish initalize");
+		List<IndividualDiscussion> discussionsforPojectId = getIndividualDiscussionsFromProjectId(projectID, limit, order, sort);
+		if(discussionsforPojectId == null || discussionsforPojectId.size() == 0){
+			return results;
+		}
+		ServiceLogger.log(LOGTAG, "starting create DBConnection getFollowingDiscussionFromProjectId");
+		
+		Connection connection = DBConnector.connection();
+		
+
+		int userId = -1;
+		try {
+			userId = UserDao.getUserID(userEPPN);
+		} catch (SQLException e) {
+			ServiceLogger.log(LOGTAG, e.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, e.getMessage());
+		}
+		
+		try {
+			connection.setAutoCommit(false);
+			final String query = "SELECT * FROM individual_discussions_following WHERE account_id = ?";
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, userId);
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+			Set<Integer> set = new HashSet<Integer>();
+			while (resultSet.next()) {
+				set.add(resultSet.getInt("individual_discussion_id"));
+			}
+			resultSet.close();
+			if(set == null || set.isEmpty()){
+				return results;
+			}
+			for (IndividualDiscussion individualDiscussion : discussionsforPojectId) {
+				String id = individualDiscussion.getId();
+				int discussion_id = Integer.parseInt(id);
+				if (set.contains(discussion_id)) {
+					results.add(individualDiscussion);
+				}
+			}
+			return results;
+
+		} catch (SQLException e) {
+			ServiceLogger.log(LOGTAG, e.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				ServiceLogger.log(LOGTAG, e1.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, "unable to rollback: " + e1.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		} finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
 	}
 
 }

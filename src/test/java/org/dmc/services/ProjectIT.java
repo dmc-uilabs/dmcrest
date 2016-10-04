@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dmc.services.discussions.Discussion;
+import org.dmc.services.discussions.IndividualDiscussion;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.ProjectTag;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -350,8 +352,9 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProject_FollowingDiscussion() {
         ServiceLogger.log(logTag, "starting testProject_FollowingDiscussion");
-        given().header("AJP_eppn", userEPPN).expect().statusCode(NOT_IMPLEMENTED.value()).when()
-                .get("/projects/" + projectId + "/following_discussions");
+        List<IndividualDiscussion>  results = given().header("Content-type", "application/json").header("AJP_eppn", "testUser").expect().statusCode(OK.value()).when()
+                .get("/projects/2/following_discussions").as(List.class);
+     
     }
 
     /**
