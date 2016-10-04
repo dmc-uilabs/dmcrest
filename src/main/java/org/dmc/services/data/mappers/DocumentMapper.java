@@ -4,7 +4,6 @@ import javax.inject.Inject;
 
 import org.dmc.services.UserService;
 import org.dmc.services.data.entities.Document;
-import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.UserModel;
