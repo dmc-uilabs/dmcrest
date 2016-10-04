@@ -205,7 +205,6 @@ class AccountsDao {
 	public List<FollowingCompany> getFollowingCompaniesByAccountId(String accountID, Integer limit, String order,
 			String sort, String userEPPN) throws DMCServiceException {
 		ServiceLogger.log(logTag, "Start running getFollowingCompaniesByAccountId: ");
-		Connection connection = DBConnector.connection();
 		FollowingCompany followingCompany = null;
 		List<FollowingCompany> followingCompanies = new ArrayList<FollowingCompany>();
 		int userId = -1;
@@ -221,7 +220,6 @@ class AccountsDao {
 			
 		}
 		try {
-			connection.setAutoCommit(false);
 			final ArrayList<String> columnsInUserCompanyFollowTable = new ArrayList<String>();
 			columnsInUserCompanyFollowTable.add("id");
 			columnsInUserCompanyFollowTable.add("account_id");
@@ -264,23 +262,9 @@ class AccountsDao {
 			return followingCompanies;
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
-			try {
-				connection.rollback();
-			} catch (SQLException e1) {
-				ServiceLogger.log(logTag, e1.getMessage());
-				throw new DMCServiceException(DMCError.OtherSQLError, "Unable to roll back " + e1.getMessage());
-			}
 			throw new DMCServiceException(DMCError.OtherSQLError,
 					"Unable to get following companies " + e.getMessage());
-		} finally {
-			if (connection != null) {
-				try {
-					connection.setAutoCommit(true);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		} 
 
 	}
     
