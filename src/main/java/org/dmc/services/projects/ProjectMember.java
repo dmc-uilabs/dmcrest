@@ -2,6 +2,9 @@ package org.dmc.services.projects;
 
 import java.util.Date;
 
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ProjectMember {
@@ -24,7 +27,14 @@ public class ProjectMember {
 
     @JsonProperty("id")
     public void setId(String value) {
-        id = getProjectId() + "-" + getProfileId() + "-" + getFromProfileId();
+        final String[] parts = value.split("-");
+        if (parts.length != 3) {
+            throw new DMCServiceException(DMCError.IncorrectType, "Project member request id is invalid");
+        }
+        projectId = Integer.parseInt(parts[0]);
+        profileId = Integer.parseInt(parts[1]);
+        fromProfileId = Integer.parseInt(parts[2]);
+        id = value;
     }
 
     @JsonProperty("profileId")
