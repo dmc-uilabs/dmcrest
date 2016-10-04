@@ -468,24 +468,35 @@ public class CompanyController {
               }
 
 
-     @RequestMapping(value = "/company/follow",
-                produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
-                method = RequestMethod.POST)
-              public ResponseEntity<InlineResponse201> companyFollowPost(
-                @RequestParam(value = "accountId", required = true) Integer accountId,
-                @RequestParam(value = "companyId", required = true) Integer companyId){
-                  // do some magic!
-                  return new ResponseEntity<InlineResponse201>(HttpStatus.NOT_IMPLEMENTED);
-              }
+     @RequestMapping(value = "/company/follow", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
+ 	public ResponseEntity<?> companyFollowPost(
+ 			@RequestParam(value = "accountId", required = true) Integer accountId,
+ 			@RequestParam(value = "companyId", required = true) Integer companyId,
+ 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+ 		ServiceLogger.log(logTag, "postCompanyFollow, userEPPN: " + userEPPN);
+ 		InlineResponse201 response = null;
+ 		try {
+ 			response = companyDao.postCompanyFollow(accountId, companyId, userEPPN);
+ 			return new ResponseEntity<InlineResponse201>(response, HttpStatus.OK);
+ 		} catch (DMCServiceException e) {
+ 			ServiceLogger.log(logTag, e.getMessage());
+ 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+ 		}
+ 		
+ 	}
 
-
-     @RequestMapping(value = "/company/unfollow/{followed_companiId}",
-                produces = {APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
-                method = RequestMethod.DELETE)
-              public ResponseEntity<Void> companyUnfollowFollowedCompaniIdDelete(
-            @PathVariable("followedCompaniId") Integer followedCompaniId){
-                  // do some magic!
-                  return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
-              }
+ 	@RequestMapping(value = "/company/unfollow/{followed_companyId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.DELETE)
+ 	public ResponseEntity<?> companyUnfollowFollowedCompanyIdDelete(
+ 			@PathVariable("followed_companyId") Integer followedCompanyId,
+ 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+ 		ServiceLogger.log(logTag, "companyUnfollowFollowedCompanyIdDelete, userEPPN " + userEPPN);
+ 		try {
+ 			companyDao.unfollowCompanyByCompanyId(followedCompanyId, userEPPN);
+ 			return new ResponseEntity<Boolean>(true, HttpStatus.OK);
+ 		} catch (DMCServiceException e) {
+ 			ServiceLogger.log(logTag, e.getMessage());
+ 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+ 		}
+ 	}
 
 }
