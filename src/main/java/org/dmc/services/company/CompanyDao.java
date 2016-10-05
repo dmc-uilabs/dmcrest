@@ -953,15 +953,16 @@ public class CompanyDao {
 				
 			}
 
-			final String queryCompareService = "select * from user_company_follow WHERE account_id = ? AND company_id = ?";
+			final String queryCompareService = "SELECT * from user_company_follow WHERE account_id = ? AND company_id = ?";
 			PreparedStatement preparedStatement2 = DBConnector.prepareStatement(queryCompareService);
-			preparedStatement.setInt(1, accountId);
-			preparedStatement.setInt(2, companyId);
-			resultSet = DBConnector.executeQuery(queryCompareService);
+			preparedStatement2.setInt(1, accountId);
+			preparedStatement2.setInt(2, companyId);
+			resultSet = preparedStatement2.executeQuery();
+			//resultSet = DBConnector.executeQuery(queryCompareService);
 			
 			int id = -1;
 			if (resultSet.next()) {
-				id = resultSet.getInt(1);
+				id = resultSet.getInt("id");
 			}
 			resultSet.close();
 			response201.setId(id);
@@ -1030,5 +1031,4 @@ public class CompanyDao {
 			}
 		}
 	}
-
 }

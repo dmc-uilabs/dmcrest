@@ -38,9 +38,8 @@ public class AccountsIT extends BaseIT {
     private static final String ACCOUNT_NOTIFICATION_SETTINGS = "/account-notification-settings/{settingsId}";
     private static final String ACCOUNT_NOTIFICATION_CATEGORIES = "/account-notification-categories";
     private static final String ACCOUNT_FAVORITE_PRODUCTS = "/accounts/{id}/favorite_products";
-    private static final String ACCOUNT_FOLLOWING_COMPANIES = "/accounts/{id}/following_companies";
     private static final String ACCOUNTS_FOLLOWING_MEMBERS = "/accounts/{id}/following_members";
-	//private static final String ACCOUNT_FOLLOWING_COMPANIES = "/accounts/{accountID}/following_companies";
+	private static final String ACCOUNT_FOLLOWING_COMPANIES = "/accounts/{accountID}/following_companies";
 	private static final String COMPANY_FOLLOW = "/company/follow";
 	private static final String COMPANY_UNFOLLOW_COMPANY_ID = "/company/unfollow/{followed_companyId}";
     

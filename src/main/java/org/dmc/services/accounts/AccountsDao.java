@@ -229,29 +229,6 @@ class AccountsDao {
 			String query = "SELECT * from user_company_follow WHERE account_id = " + Integer.parseInt(accountID);
 			query += SQLUtils.buildOrderByClause(order,  sort, columnsInUserCompanyFollowTable);
 			query += SQLUtils.buildLimitClause(limit);
-			/*if (sort == null) {
-				query += " ORDER BY id";
-			} else if (!columnsInUserCompanyFollowTable.contains(sort)) {
-				query += " ORDER BY id";
-			} else {
-				query += " ORDER BY " + sort;
-			}
-
-			if (order == null) {
-				query += " ASC";
-			} else if (!order.equals("ASC") && !order.equals("DESC")) {
-				query += " ASC";
-			} else {
-				query += " " + order;
-			}
-
-			if (limit == null) {
-				query += " LIMIT ALL";
-			} else if (limit < 0) {
-				query += " LIMIT 0";
-			} else {
-				query += " LIMIT " + limit;
-			}*/
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.execute();
 			ResultSet resultSet = preparedStatement.getResultSet();
@@ -270,5 +247,4 @@ class AccountsDao {
 		} 
 
 	}
-    
 }

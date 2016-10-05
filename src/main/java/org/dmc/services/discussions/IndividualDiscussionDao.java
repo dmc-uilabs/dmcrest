@@ -705,7 +705,5 @@ public class IndividualDiscussionDao {
 				}
 			}
 		}
-		
 	}
-
 }
