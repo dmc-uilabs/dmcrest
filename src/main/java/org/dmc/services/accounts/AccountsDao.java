@@ -36,7 +36,7 @@ class AccountsDao {
         }
         
         if(user_id_lookedup != user_id) {
-            throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // user id for userEPPN does not match user_id_string, return default UserAccount
+            throw new HTTPException(HttpStatus.FORBIDDEN.value()); // user id for userEPPN does not match user_id_string, return default UserAccount
         }
         
         UserAccount userAccount = new UserAccount();

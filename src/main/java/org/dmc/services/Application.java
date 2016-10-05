@@ -10,8 +10,10 @@ import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(exclude = { SolrAutoConfiguration.class })
+@EnableScheduling
 public class Application extends SpringBootServletInitializer {
 
 	@Value("#{environment.DBport}")
