@@ -532,7 +532,15 @@ public class ProjectDao {
         preparedStatement.setInt(1, projectId);
         preparedStatement.setInt(2, profileId);
         preparedStatement.setInt(3, requesterId);
-        preparedStatement.executeUpdate();
+        try {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            // if it is a duplicate we'll continue without error, 
+            // other errors will fail
+            if (!e.getMessage().contains("duplicate key")) {
+                throw e;
+            }
+        }
 
         if (this.selfAutoJoin(projectId, profileId, requesterId))
             ServiceLogger.log(LOGTAG, "selfAutoJoin done");

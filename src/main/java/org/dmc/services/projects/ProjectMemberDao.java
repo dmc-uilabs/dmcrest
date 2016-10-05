@@ -265,20 +265,6 @@ public class ProjectMemberDao {
         }
     }
 
-    public ProjectMember updateProjectMember(String memberId, ProjectMember member, String userEPPN)
-            throws DMCServiceException {
-        try {
-            final int userId = UserDao.getUserID(userEPPN);
-
-            // TODO Update member in DB where Id = memberID
-            // Implementation pending, returning a new ProjectMember for now
-            return new ProjectMember();
-
-        } catch (SQLException e) {
-            throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
-        }
-    }
-
     public boolean isUserProjectAdmin(int projectId, int userId) throws DMCServiceException {
         boolean isAdmin = false;
         try {
