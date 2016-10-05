@@ -34,4 +34,8 @@ public class AppSubmissionController {
 		return appSubmissionService.getApplicationTags();
 	}
 	
+	@RequestMapping(value = "/appSubmission/appName", method = RequestMethod.GET)
+	public Set<String> getApplicationSubmissionNames() {
+		return appSubmissionService.getAppNames();
+	}
 }
