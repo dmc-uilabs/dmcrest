@@ -47,8 +47,6 @@ public class ProjectMembersIT extends BaseIT {
     private final static String LOGTAG = ProjectMembersIT.class.getName();
     private Integer createdId = null;
     
-    private String projectId = "1";
-
     private String knownEPPN;
     
     @Before
@@ -62,7 +60,7 @@ public class ProjectMembersIT extends BaseIT {
     public void testProject6Members() {
         ServiceLogger.log(LOGTAG, "starting testProject6Members");
         given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6/projects_members").then()
-                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+                .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
     }
 
     @Test
@@ -71,7 +69,7 @@ public class ProjectMembersIT extends BaseIT {
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).param("profileId", "102")
             .expect().statusCode(OK.value()).when()
             .get(PROJECT_MEMBERS_RESOURCE).then()
-            .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+            .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
 
         // based on data loaded in gforge.psql
         final JSONArray jsonArray = new JSONArray(response.extract().asString());
@@ -84,7 +82,7 @@ public class ProjectMembersIT extends BaseIT {
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).param("profileId", "111")
             .expect().statusCode(OK.value()).when()
             .get(PROJECT_MEMBERS_RESOURCE).then()
-            .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+            .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
 
         // based on data loaded in gforge.psql
         final JSONArray jsonArray = new JSONArray(response.extract().asString());
@@ -99,7 +97,7 @@ public class ProjectMembersIT extends BaseIT {
         final ValidatableResponse response = given().header("AJP_eppn", knownEPPN).param("profileId", newUserIdAsString)
             .expect().statusCode(OK.value()).when()
             .get(PROJECT_MEMBERS_RESOURCE).then()
-            .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+            .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
 
         // based on data loaded in gforge.psql
         final JSONArray jsonArray = new JSONArray(response.extract().asString());
@@ -125,7 +123,7 @@ public class ProjectMembersIT extends BaseIT {
         final ValidatableResponse response = given().header("AJP_eppn", knownEPPN).param("accept", "false")
             .expect().statusCode(OK.value()).when()
             .get(PROJECT_MEMBERS_RESOURCE).then()
-            .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+            .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
 
         // based on data loaded in gforge.psql
         final JSONArray jsonArray = new JSONArray(response.extract().asString());
@@ -135,7 +133,7 @@ public class ProjectMembersIT extends BaseIT {
         final ValidatableResponse responseByAdmin = given().header("AJP_eppn", admin).param("accept", "false")
                 .expect().statusCode(OK.value()).when()
                 .get(PROJECT_MEMBERS_RESOURCE).then()
-                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+                .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
 
             // based on data loaded in gforge.psql
             final JSONArray jsonArrayByAdmin = new JSONArray(responseByAdmin.extract().asString());
@@ -149,7 +147,6 @@ public class ProjectMembersIT extends BaseIT {
                 .get("/projects_join_requests").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 
-        ServiceLogger.log(LOGTAG, "testProjectJoinRequests " + response.extract().asString());
         // based on data loaded in gforge.psql
         // this is true only for a clean db
         // String expectedResponseAsString =
@@ -351,7 +348,7 @@ public class ProjectMembersIT extends BaseIT {
 
             final ValidatableResponse response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser)
                 .expect().statusCode(HttpStatus.OK.value())
-                .when().get(MEMBER_RESOURCE_BY_ID, toBeAddedId.toString())
+                .when().get(MEMBER_RESOURCE_BY_ID, actualRequestId)
                 .then();
             final JSONArray jsonArray = new JSONArray(response.extract().asString());
             
@@ -615,7 +612,7 @@ public class ProjectMembersIT extends BaseIT {
         ServiceLogger.log(LOGTAG, "starting testGetMembersMultipleProjects");
         given().header("AJP_eppn", userEPPN).param("projectId", 6).param("projectId", 3)
                 .expect().statusCode(OK.value()).when().get("/projects_members").then()
-                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+                .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
     }
 
     @Test
@@ -638,27 +635,27 @@ public class ProjectMembersIT extends BaseIT {
 
         // now check that the GET /project_members work correctly with different arguments.
         final ValidatableResponse responseAdmin = given().header("AJP_eppn", userEPPN).param("projectId", newProjectId).param("profileId", adminId)
-                .expect().statusCode(OK.value()).when().get("/projects_members").then()
-                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+                .expect().statusCode(OK.value()).when().get(PROJECT_MEMBERS_RESOURCE).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
         final JSONArray jsonArrayAdmin = new JSONArray(responseAdmin.extract().asString());
         assertEquals("expect one project_member result for project + profile check for admin, but found a different amount", 1, jsonArrayAdmin.length());
 
         final ValidatableResponse responseMember = given().header("AJP_eppn", userEPPN).param("projectId", newProjectId).param("profileId", adminId)
-                .expect().statusCode(OK.value()).when().get("/projects_members").then()
-                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+                .expect().statusCode(OK.value()).when().get(PROJECT_MEMBERS_RESOURCE).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
         final JSONArray jsonArrayMember = new JSONArray(responseMember.extract().asString());
         assertEquals("expect one project_member result for project + profile check for member, but found a different amount", 1, jsonArrayMember.length());
 
         final ValidatableResponse responseProjectOnly = given().header("AJP_eppn", userEPPN).param("projectId", newProjectId)
-                .expect().statusCode(OK.value()).when().get("/projects_members").then()
-                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+                .expect().statusCode(OK.value()).when().get(PROJECT_MEMBERS_RESOURCE).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
         final JSONArray jsonArrayProjectOnly = new JSONArray(responseProjectOnly.extract().asString());
         assertEquals("expect 2 for project only check, but found a different amount", 2, jsonArrayProjectOnly.length());
 
         // because there is some preloaded data for adminId (102), expect > 1 result.
         final ValidatableResponse responseProfileOnly = given().header("AJP_eppn", userEPPN).param("profileId", adminId)
-                .expect().statusCode(OK.value()).when().get("/projects_members").then()
-                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+                .expect().statusCode(OK.value()).when().get(PROJECT_MEMBERS_RESOURCE).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
         final JSONArray jsonArrayProfileOnly = new JSONArray(responseProfileOnly.extract().asString());
         assertTrue("expect >1 project_member result for profile only check, but found a different amount", 1 < jsonArrayProfileOnly.length());
     }
@@ -667,7 +664,7 @@ public class ProjectMembersIT extends BaseIT {
     public void testGetMembersMultipleProjectsWithInvalidContent() {
         ServiceLogger.log(LOGTAG, "starting testGetMembersMultipleProjects");
         given().header("AJP_eppn", userEPPN).param("projectId", 6).param("projectId", 3 + ") or profileId = 999")
-                .expect().statusCode(UNPROCESSABLE_ENTITY.value()).when().get("/projects_members");
+                .expect().statusCode(UNPROCESSABLE_ENTITY.value()).when().get(PROJECT_MEMBERS_RESOURCE);
     }
 
 }

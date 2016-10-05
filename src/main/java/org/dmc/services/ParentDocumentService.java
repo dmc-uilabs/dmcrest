@@ -47,7 +47,10 @@ public class ParentDocumentService {
 		if (!document.getIsDeleted()) {
 			organization.setLogoImage(document.getDocumentUrl());
 		} else {
-			organization.setLogoImage(null);
+			String logoUrl = organization.getLogoImage();
+			if (logoUrl != null && logoUrl.equals(document.getDocumentUrl())) {
+				organization.setLogoImage(null);
+			}
 		}
 
 		this.organizationRepository.save(organization);
@@ -59,7 +62,10 @@ public class ParentDocumentService {
 		if (!document.getIsDeleted()) {
 			user.setImage(document.getDocumentUrl());
 		} else {
-			user.setImage(null);
+			String image = user.getImage();
+			if (image != null && image.equals(document.getDocumentUrl())) {
+				user.setImage(null);
+			}
 		}
 		this.userRepository.save(user);
 	}

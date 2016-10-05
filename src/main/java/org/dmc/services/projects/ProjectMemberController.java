@@ -114,10 +114,10 @@ public class ProjectMemberController {
             throws Exception {
         ServiceLogger.log(LOGTAG, "In getProjectsForMember: for member" + memberId + " as user " + userEPPN);
 
-        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembers(null, memberId, new Boolean(true), userEPPN), HttpStatus.OK);
+        return new ResponseEntity<ArrayList<ProjectMember>>(projectMemberDao.getProjectMembersByInvitation(memberId, userEPPN), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/projects/{projectId}/projects_members", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/projects/{projectId}/projects_members", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getMembersForProject(@PathVariable("projectId") String projectId, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
             throws Exception {
         ServiceLogger.log(LOGTAG, "In getMembersForProject: for project" + projectId + " as user " + userEPPN);
