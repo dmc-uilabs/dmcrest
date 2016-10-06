@@ -429,7 +429,7 @@ public class CompanyIT extends BaseIT {
 
 		// testUser not a member of company, so expect to get 401 response
 		// (UNAUTHORIZED)
-		given().param("companyID", this.createdId.toString()).header("AJP_eppn", nonMemberEPPN).expect().statusCode(401)
+		given().param("companyID", this.createdId.toString()).header("AJP_eppn", nonMemberEPPN).expect().statusCode(403)
 				.when().get(COMPANY_GET_MEMBERS, this.createdId.toString());
 	}
 
