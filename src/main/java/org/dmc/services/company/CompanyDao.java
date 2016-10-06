@@ -872,7 +872,7 @@ public class CompanyDao {
 		try {
 			if (!isMemberOfCompany(companyId, userIdEPPN) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
 				ServiceLogger.log(logTag, "User " + userIdEPPN + " is not a member of comapny " + companyId);
-				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+				throw new HTTPException(HttpStatus.FORBIDDEN.value());
 			}
 		} catch (SQLException e) {
 			if (userIdEPPN == -1) {
