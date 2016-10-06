@@ -352,8 +352,9 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProject_FollowingDiscussion() {
         ServiceLogger.log(logTag, "starting testProject_FollowingDiscussion");
-        List<IndividualDiscussion>  results = given().header("Content-type", "application/json").header("AJP_eppn", "testUser").expect().statusCode(OK.value()).when()
+        List<IndividualDiscussion>  results = given().header("Content-type", "application/json").header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
                 .get("/projects/2/following_discussions").as(List.class);
+        assertTrue(results.size() == 0);
      
     }
 
