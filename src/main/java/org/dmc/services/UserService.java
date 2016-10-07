@@ -16,7 +16,6 @@ import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.entities.UserToken;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
-import org.dmc.services.data.models.OnboardingStatusModel;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
@@ -65,7 +64,7 @@ public class UserService {
 
 	@Inject
 	private UserTokenRepository userTokenRepository;
-	
+
 	@Inject
 	private NotificationService notificationService;
 
@@ -76,7 +75,7 @@ public class UserService {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findOne(id));
 	}
-	
+
 	public UserModel findByUsername(String username) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findByUsername(username));
@@ -93,7 +92,7 @@ public class UserService {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
 	}
-	
+
 	public List<UserModel> findByOrganizationIdAndRole(Integer organizaitonId, String role) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findByOrganizationIdAndRole(organizaitonId, role));
@@ -272,7 +271,7 @@ public class UserService {
 		user.setLastName(lastName);
 		user.setRealname(fullName);
 		user.setEmail(email);
-		user.setAddDate(0);
+		user.setAddDate(0L);
 		user = userRepository.save(user);
 
 		String idpDomain = userEPPN.substring(userEPPN.indexOf('@') + 1);
@@ -309,12 +308,15 @@ public class UserService {
 		Assert.isTrue(currentUser.getId().equals(patchUser.getId()),
 				"User ID from username does not match user ID " + "from request body");
 
-		final Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper = mapperFactory
-				.mapperFor(OnboardingStatus.class, OnboardingStatusModel.class);
 		final Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
+		User patchUserEntity = userMapper.mapToEntity(patchUser);
+
 		currentUser.setRealname(patchUser.getDisplayName());
-		currentUser.setOnboarding(onboardingMapper.mapToEntity(patchUser.getOnboarding()));
+		currentUser.setTitle(patchUser.getTitle());
+		currentUser.setAddress(patchUser.getAddress());
+		currentUser.setOnboarding(patchUserEntity.getOnboarding());
+		currentUser.setSkills(patchUserEntity.getSkills());
 
 		// If a user is updating their primary user info, un-verify them from their current organization if they have one
 		if( !currentUser.getFirstName().equals(patchUser.getFirstName()) ||
@@ -325,7 +327,6 @@ public class UserService {
 			if(orgUserModel != null) {
 				orgUserModel.setIsVerified(false);
 				orgUserService.saveOrganizationUser(orgUserModel);
-
 				userRoleAssignmentService.deleteByUserIdAndOrganizationId(currentUser.getId(), orgUserModel.getOrganizationId());
 			}
 
