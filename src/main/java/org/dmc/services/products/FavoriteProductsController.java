@@ -69,9 +69,9 @@ public class FavoriteProductsController {
         FavoriteProductsDao favoriteProductsDao = new FavoriteProductsDao();
         
         try {
-            if(accountIds.size() != 0) {
+            if(accountIds != null) {
                 return new ResponseEntity<List<FavoriteProduct>>(favoriteProductsDao.getFavoriteProductForAccounts(accountIds, userEPPN), HttpStatus.OK);
-            } else if(serviceIds.size() != 0) {
+            } else if(serviceIds != null) {
                 return new ResponseEntity<List<FavoriteProduct>>(favoriteProductsDao.getFavoriteProductForServices(serviceIds, userEPPN), HttpStatus.OK);
             } else {
                 throw new DMCServiceException(DMCError.IncorrectType, "unknown Request parameter");

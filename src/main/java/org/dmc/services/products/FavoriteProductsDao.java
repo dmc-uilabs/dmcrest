@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.ArrayList;
 
 import org.dmc.services.DBConnector;
@@ -58,12 +59,11 @@ public class FavoriteProductsDao {
     public void deleteFavoriteProduct(Integer favoriteProductId, String userEPPN) throws DMCServiceException {
         ServiceLogger.log(logTag, "In deleteFavoriteProduct " + favoriteProductId + " for userEPPN: " + userEPPN);
         Util util = Util.getInstance();
-        
         int userId = getUserId(userEPPN);
         
-        String deleteUserAccountServerQuery = "DELETE FROM favorite_products WHERE account_id = ? AND id = ?";
+        String sqlDeleteFavoriteProduct = "DELETE FROM favorite_products WHERE account_id = ? AND id = ?";
         
-        PreparedStatement preparedStatement = DBConnector.prepareStatement(deleteUserAccountServerQuery);
+        PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlDeleteFavoriteProduct);
         try {
             preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, favoriteProductId);
@@ -80,13 +80,64 @@ public class FavoriteProductsDao {
     }
     
     public List<FavoriteProduct> getFavoriteProductForAccounts(List<Integer> accountIds, String userEPPN) throws DMCServiceException {
-        return new ArrayList<FavoriteProduct>();
+        return getFavoriteProductForAccounts(accountIds, null, null, null, userEPPN);
     }
-
+    
+    public List<FavoriteProduct> getFavoriteProductForAccounts(List<Integer> accountIds, Integer limit, String order, String sort, String userEPPN) throws DMCServiceException {
+        return getFavoriteProduct(accountIds, limit, order, sort, userEPPN, "account_id");
+    }
+    
     public List<FavoriteProduct> getFavoriteProductForServices(List<Integer> serviceIds, String userEPPN) throws DMCServiceException {
-        return new ArrayList<FavoriteProduct>();
+        return getFavoriteProductForServices(serviceIds, null, null, null, userEPPN);
+    }
+    
+    public List<FavoriteProduct> getFavoriteProductForServices(List<Integer> serviceIds, Integer limit, String order, String sort, String userEPPN) throws DMCServiceException {
+        return getFavoriteProduct(serviceIds, limit, order, sort, userEPPN, "service_id");
     }
 
+    
+    private List<FavoriteProduct> getFavoriteProduct(List<Integer> ids, Integer limit, String order, String sort, String userEPPN, String column) {
+        ListIterator<Integer> iterator = ids.listIterator();
+        ArrayList<FavoriteProduct> favoriteProducts = new ArrayList<FavoriteProduct>();
+
+        
+        //int userId = getUserId(userEPPN);
+        // need to check is user_id can see accountId's favorite products
+        
+        while(iterator.hasNext()) {
+            Integer id = iterator.next();
+            
+            String sqlSelectFavoriteProduct = "SELECT * FROM favorite_products WHERE " + column + " = ?";
+            
+            // ADD limit clause
+            // ADD order clause
+            // ADD sort clause
+
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlSelectFavoriteProduct);
+            
+                try {
+                    preparedStatement.setInt(1, id);
+                    final ResultSet resultSet = preparedStatement.executeQuery();
+                
+                    while(resultSet.next()) {
+                        FavoriteProduct favoriteProduct = new FavoriteProduct();
+                        favoriteProduct.setId(Integer.toString(resultSet.getInt("id")));
+                        favoriteProduct.setAccountId(Integer.toString(resultSet.getInt("account_id")));
+                        favoriteProduct.setServiceId(Integer.toString(resultSet.getInt("service_id")));
+                        favoriteProducts.add(favoriteProduct);
+                    }
+                
+                } catch (SQLException e) {
+                    ServiceLogger.log(logTag, e.getMessage());
+                    throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+                }
+        }
+        
+    
+        return favoriteProducts;
+    }
+    
+    
     int getUserId(String userEPPN){
         try {
             return UserDao.getUserID(userEPPN);

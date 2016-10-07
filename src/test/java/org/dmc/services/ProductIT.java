@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.List;
 
+import static org.junit.Assert.assertTrue;
 import static com.jayway.restassured.RestAssured.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -149,6 +151,31 @@ public class ProductIT extends BaseIT {
         when().
         post("/favorite_products").as(FavoriteProduct.class);
         
+        
+        FavoriteProduct[] favoriteProductByAccount =
+        given().
+        header("Content-type", APPLICATION_JSON_VALUE).
+        header("AJP_eppn", knownEPPN).
+        queryParam("accountId", accountId).
+        expect().
+        statusCode(HttpStatus.OK.value()). // need figure out where the malformed syntax
+        when().
+        get("/favorite_products").as(FavoriteProduct[].class);
+        
+        assertTrue("User's created favorite product is not retrieved", favoriteProductByAccount[0].equals(favoriteProduct));
+        
+        
+        FavoriteProduct[] favoriteProductByService =
+        given().
+        header("Content-type", APPLICATION_JSON_VALUE).
+        header("AJP_eppn", knownEPPN).
+        queryParam("serviceId", productId).
+        expect().
+        statusCode(HttpStatus.OK.value()). // need figure out where the malformed syntax
+        when().
+        get("/favorite_products").as(FavoriteProduct[].class);
+        
+        assertTrue("No favorite products returned when seaching for service " + productId, favoriteProductByAccount.length > 0);
         
 		given().
         header("Content-type", "application/json").
