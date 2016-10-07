@@ -45,7 +45,11 @@ public class FavoriteProductsDao {
             ServiceLogger.log(logTag, "Created Favorite Product: " + id);
             
         } catch (SQLException sqlEx) {
-            throw new DMCServiceException(DMCError.OtherSQLError, sqlEx.toString());
+            // if it is a duplicate we'll continue without error,
+            // other errors will fail
+            if (!sqlEx.getMessage().contains("duplicate key")) {
+                throw new DMCServiceException(DMCError.OtherSQLError, sqlEx.toString());
+            }
         }
         
         FavoriteProduct favoriteProduct = new FavoriteProduct();
@@ -91,7 +95,7 @@ public class FavoriteProductsDao {
         return getFavoriteProductForServices(serviceIds, null, null, null, userEPPN);
     }
     
-    public List<FavoriteProduct> getFavoriteProductForServices(List<Integer> serviceIds, Integer limit, String order, String sort, String userEPPN) throws DMCServiceException {
+    private List<FavoriteProduct> getFavoriteProductForServices(List<Integer> serviceIds, Integer limit, String order, String sort, String userEPPN) throws DMCServiceException {
         return getFavoriteProduct(serviceIds, limit, order, sort, userEPPN, "service_id");
     }
 

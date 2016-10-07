@@ -20,6 +20,7 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.member.FollowingMember;
+import org.dmc.services.products.FavoriteProduct;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -287,8 +288,29 @@ public class AccountsIT extends BaseIT {
 
     @Test
     public void testAccount_FavoriteProducts() {
-        given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-                .get(ACCOUNT_FAVORITE_PRODUCTS, knownUserID);
+        String unique = TestUserUtil.generateTime();
+        UserModel user = getUser(unique);
+        JSONObject userAccountJson = getUserAccountJson(unique, user.getAccountId());
+        
+        FavoriteProduct favoriteProduct =
+        given().
+        header("Content-type", APPLICATION_JSON_VALUE).
+        header("AJP_eppn", "userEPPN" + unique).
+        queryParam("accountId", user.getAccountId()).
+        queryParam("serviceId", 1).
+        expect().
+        statusCode(HttpStatus.CREATED.value()). // need figure out where the malformed syntax
+        when().
+        post("/favorite_products").as(FavoriteProduct.class);
+        
+        FavoriteProduct[] favoriteProductByAccount =
+        given().header("AJP_eppn", "userEPPN" + unique).
+        expect().statusCode(HttpStatus.OK.value()).
+        when().get(ACCOUNT_FAVORITE_PRODUCTS, user.getAccountId()).as(FavoriteProduct[].class);
+
+        int lastFavProds = favoriteProductByAccount.length-1;
+        
+        assertTrue("User's created favorite product is not retrieved", favoriteProductByAccount[lastFavProds].equals(favoriteProduct));
     }
 
     /**
