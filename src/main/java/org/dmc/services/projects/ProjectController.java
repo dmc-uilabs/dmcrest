@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import static org.springframework.http.MediaType.*;
 
 @RestController
 public class ProjectController {
@@ -272,7 +273,7 @@ public class ProjectController {
 	 * @param userEPPN
 	 * @return
 	 */
-	@RequestMapping(value = "/projects/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
+	@RequestMapping(value = "/projects/{id}", method = RequestMethod.PATCH, produces = { APPLICATION_JSON_VALUE })
 	public ResponseEntity updateProject(@PathVariable("id") int id, @RequestBody Project project, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		ServiceLogger.log(logTag, "updateProject, for id = " + id + " (body) project: " + project.toString());
 

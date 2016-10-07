@@ -13,7 +13,7 @@ import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.reviews.ReviewHelpful;
 import org.dmc.services.company.CompanySkillImage;
 import org.dmc.services.company.CompanyVideo;
-import org.dmc.services.company.InlineResponse201;
+import org.dmc.services.company.FollowedCompany;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.users.User;
 import org.dmc.services.utility.TestUserUtil;
@@ -702,14 +702,14 @@ public class CompanyIT extends BaseIT {
 	public void testCompanyPost_Follow() {
 		int accountId = 102;
 		int companyId = 2;
-		InlineResponse201 res = given().
+		FollowedCompany res = given().
 		param("accountId", accountId).
 		param("companyId", companyId).
 		header("AJP_eppn", userEPPN).
 		expect().
 		statusCode(HttpStatus.OK.value()).
 		when().
-		post(COMPANY_FOLLOW).as(InlineResponse201.class);
+		post(COMPANY_FOLLOW).as(FollowedCompany.class);
 		assertTrue(res.getCompanyId() == companyId);
 		assertTrue(res.getAccountId() ==  accountId);
 		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().delete(COMPANY_UNFOLLOW_COMPANY_ID, companyId);

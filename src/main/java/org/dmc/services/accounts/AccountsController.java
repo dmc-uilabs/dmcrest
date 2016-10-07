@@ -102,7 +102,7 @@ public class AccountsController {
         return new ResponseEntity<List<InlineResponse200>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @RequestMapping(value = "/{accountID}/following_companies", produces = {"application/json"}, method = RequestMethod.GET)
+    @RequestMapping(value = "/{accountID}/following_companies", produces = {APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
 	public ResponseEntity<?> accountsAccountIDFollowingCompaniesGet(
 			@PathVariable("accountID") String accountID, 
 			@RequestParam(value = "limit", required = false) Integer limit,

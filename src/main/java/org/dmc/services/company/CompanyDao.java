@@ -919,10 +919,10 @@ public class CompanyDao {
 	}
 	
 	
-	public InlineResponse201 postCompanyFollow(Integer accountId, Integer companyId, String userEPPN) throws DMCServiceException {
+	public FollowedCompany postCompanyFollow(Integer accountId, Integer companyId, String userEPPN) throws DMCServiceException {
 		ServiceLogger.log(logTag, "Starting running postCompanyFollow: ");
 		String errorHeader = "CHECK AUTHORIZED USER ID : ";
-		InlineResponse201 response201 = new InlineResponse201();
+		FollowedCompany response201 = new FollowedCompany();
 		Connection connection = DBConnector.connection();
 		int userId = -1;
 		try {

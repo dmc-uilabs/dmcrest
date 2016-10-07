@@ -474,10 +474,10 @@ public class CompanyController {
  			@RequestParam(value = "companyId", required = true) Integer companyId,
  			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
  		ServiceLogger.log(logTag, "postCompanyFollow, userEPPN: " + userEPPN);
- 		InlineResponse201 response = null;
+ 		FollowedCompany response = null;
  		try {
  			response = companyDao.postCompanyFollow(accountId, companyId, userEPPN);
- 			return new ResponseEntity<InlineResponse201>(response, HttpStatus.OK);
+ 			return new ResponseEntity<FollowedCompany>(response, HttpStatus.OK);
  		} catch (DMCServiceException e) {
  			ServiceLogger.log(logTag, e.getMessage());
  			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
