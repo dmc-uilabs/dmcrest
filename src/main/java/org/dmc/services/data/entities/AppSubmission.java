@@ -481,4 +481,41 @@ public class AppSubmission extends BaseEntity {
 	public void setStatus(ApplicationStatus status) {
 		this.status = status;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((appName == null) ? 0 : appName.hashCode());
+		result = prime * result + ((application == null) ? 0 : application.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AppSubmission other = (AppSubmission) obj;
+		if (appName == null) {
+			if (other.appName != null)
+				return false;
+		} else if (!appName.equals(other.appName))
+			return false;
+		if (application == null) {
+			if (other.application != null)
+				return false;
+		} else if (!application.equals(other.application))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 }
