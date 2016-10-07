@@ -18,13 +18,13 @@ import org.dmc.services.ServiceLogger;
 import static org.springframework.http.MediaType.*;
 
 @Controller
-@RequestMapping(value = "/favorite_products", produces = {APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/favorite_products", produces = { APPLICATION_JSON_VALUE })
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class FavoriteProductsController {
     private static final String LOGTAG = FavoriteProductsController.class.getName();
     
-    @RequestMapping(value = "/{favorite_productId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.DELETE)
-    public ResponseEntity<?> favoriteProductsFavoriteProductIdDelete(@PathVariable("favoriteProductId") Integer favoriteProductId,
+    @RequestMapping(value = "/{favorite_productId}", consumes = { APPLICATION_JSON_VALUE }, produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.DELETE)
+    public ResponseEntity<?> favoriteProductsFavoriteProductIdDelete(@PathVariable("favorite_productId") Integer favoriteProductId,
                                                                      @RequestHeader(value="AJP_eppn", required=true) String userEPPN){
         ServiceLogger.log(LOGTAG, "In favoriteProductsFavoriteProductIdDelete: for favoriteProductId " + favoriteProductId + " as user " + userEPPN);
         FavoriteProductsDao favoriteProductsDao = new FavoriteProductsDao();
@@ -39,24 +39,22 @@ public class FavoriteProductsController {
     }
     
     
-    
-    
-    @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE },method = RequestMethod.POST)
-    public ResponseEntity<?> favoriteProductsPost(@RequestParam(value = "accountId", required = true) Integer accountId,
-                                                  @RequestParam(value = "serviceId", required = true) Integer serviceId,
+    @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
+    public ResponseEntity<?> favoriteProductsPost(@RequestParam(value="accountId", required = false) Integer accountId,
+                                                  @RequestParam(value="serviceId", required = false) Integer serviceId,
                                                   @RequestHeader(value="AJP_eppn", required=true) String userEPPN){
         ServiceLogger.log(LOGTAG, "In favoriteProductsPost: for accountID " + accountId +
                           " and serviceID " + serviceId + " as user " + userEPPN);
         FavoriteProductsDao favoriteProductsDao = new FavoriteProductsDao();
         
         try {
-            favoriteProductsDao.createFavoriteProduct(accountId, serviceId, userEPPN);
+            return new ResponseEntity<FavoriteProduct>(favoriteProductsDao.createFavoriteProduct(accountId, serviceId, userEPPN), HttpStatus.CREATED);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
-        return new ResponseEntity<Void>(HttpStatus.OK);
     }
+    
     
     /*
      Needs to support:
