@@ -3,22 +3,10 @@ package org.dmc.services.products;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
-public class FavoriteProduct {
+public class FavoriteProductPost {
     
-    private String id = null;
     private String accountId = null;
     private String serviceId = null;
-    
-    /**
-     **/
-    @JsonProperty("id")
-    public String getId() {
-        return id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
     
     /**
      **/
@@ -51,22 +39,21 @@ public class FavoriteProduct {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        FavoriteProduct favoriteProduct = (FavoriteProduct) o;
-        return Objects.equals(id, favoriteProduct.id) && Objects.equals(serviceId, favoriteProduct.serviceId)
-        && Objects.equals(accountId, favoriteProduct.accountId);
+        FavoriteProductPost favoriteProductPost = (FavoriteProductPost) o;
+        return Objects.equals(serviceId, favoriteProductPost.serviceId)
+        && Objects.equals(accountId, favoriteProductPost.accountId);
     }
     
     @Override
     public int hashCode() {
-        return Objects.hash(id, serviceId, accountId);
+        return Objects.hash(serviceId, accountId);
     }
     
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("class FavoriteProduct {\n");
+        sb.append("class FavoriteProductPost {\n");
         
-        sb.append("  id: ").append(id).append("\n");
         sb.append("  serviceId: ").append(serviceId).append("\n");
         sb.append("  accountId: ").append(accountId).append("\n");
         sb.append("}\n");

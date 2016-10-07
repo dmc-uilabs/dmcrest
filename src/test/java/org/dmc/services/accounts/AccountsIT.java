@@ -21,6 +21,7 @@ import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.member.FollowingMember;
 import org.dmc.services.products.FavoriteProduct;
+import org.dmc.services.products.FavoriteProductPost;
 import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -292,12 +293,17 @@ public class AccountsIT extends BaseIT {
         UserModel user = getUser(unique);
         JSONObject userAccountJson = getUserAccountJson(unique, user.getAccountId());
         
+        FavoriteProductPost favoriteProductPost = new FavoriteProductPost();
+        favoriteProductPost.setAccountId(Integer.toString(user.getAccountId()));
+        favoriteProductPost.setServiceId(Integer.toString(1));
+        
         FavoriteProduct favoriteProduct =
         given().
         header("Content-type", APPLICATION_JSON_VALUE).
         header("AJP_eppn", "userEPPN" + unique).
-        queryParam("accountId", user.getAccountId()).
-        queryParam("serviceId", 1).
+        body(favoriteProductPost).
+//        queryParam("accountId", user.getAccountId()).
+//        queryParam("serviceId", 1).
         expect().
         statusCode(HttpStatus.CREATED.value()). // need figure out where the malformed syntax
         when().

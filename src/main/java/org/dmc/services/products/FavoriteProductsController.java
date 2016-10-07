@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -40,14 +41,16 @@ public class FavoriteProductsController {
     
     
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
-    public ResponseEntity<?> favoriteProductsPost(@RequestParam(value="accountId", required = false) Integer accountId,
-                                                  @RequestParam(value="serviceId", required = false) Integer serviceId,
+    public ResponseEntity<?> favoriteProductsPost(@RequestBody FavoriteProductPost favoriteProductPost,
                                                   @RequestHeader(value="AJP_eppn", required=true) String userEPPN){
-        ServiceLogger.log(LOGTAG, "In favoriteProductsPost: for accountID " + accountId +
-                          " and serviceID " + serviceId + " as user " + userEPPN);
         FavoriteProductsDao favoriteProductsDao = new FavoriteProductsDao();
         
         try {
+            Integer accountId = Integer.parseInt(favoriteProductPost.getAccountId());
+            Integer serviceId = Integer.parseInt(favoriteProductPost.getServiceId());
+            ServiceLogger.log(LOGTAG, "In favoriteProductsPost: for accountID " + accountId +
+                              " and serviceID " + serviceId + " as user " + userEPPN);
+            
             return new ResponseEntity<FavoriteProduct>(favoriteProductsDao.createFavoriteProduct(accountId, serviceId, userEPPN), HttpStatus.CREATED);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
