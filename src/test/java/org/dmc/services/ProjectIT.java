@@ -45,6 +45,7 @@ public class ProjectIT extends BaseIT {
     private static final String PROJECT_GET_TAGS_FOR_PROJECT = "/projects/{projectId}/projects_tags";
     private static final String PROJECT_TAGS = "/projects_tags";
     private static final String PROJECT_DELETE_TAG = "/projects_tags/{tagId}";
+    private static final String PROJECT_FOLLOWING_DISCUSSION = "/projects/{projectId}/following_discussions";
 
     private static final String adminUser = "fforgeadmin";
     private final String logTag = ProjectIT.class.getName();
@@ -352,14 +353,46 @@ public class ProjectIT extends BaseIT {
     /**
      * test case for GET /projects/{projectID}/following_discussions
      */    
-  
+    
+    private String createFollowDiscussionForProject(){
+    	FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedFollowDiscussionsJSONString = null;
+
+		String accountId = "550";
+		String individualDiscussionId = "3";
+		String userEPPN = "joeengineer";
+
+		followToPost.setIndividualDiscussionId(individualDiscussionId);
+		followToPost.setAccountId(accountId);
+
+		try {
+			postedFollowDiscussionsJSONString = mapper.writeValueAsString(followToPost);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString)
+				.expect().statusCode(HttpStatus.CREATED.value()).when().post("/follow_discussions").as(FollowingIndividualDiscussion.class);
+		return postedFollow.getId();
+    }
     
 	@Test
 	public void testProject_FollowingDiscussion() {
 		ServiceLogger.log(logTag, "starting testProject_FollowingDiscussion");
+		String followId = createFollowDiscussionForProject();
+
+		List<IndividualDiscussion> results1 = Arrays.asList(given().header("Content-type", "application/json")
+				.header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
+				.get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
+
+		assertTrue(results1.size() == 1);
+		
+		given().header("AJP_eppn", "joeengineer").expect().statusCode(HttpStatus.OK.value()).when().delete("/follow_discussions/" + Integer.parseInt(followId));
+
 		List<IndividualDiscussion> results = Arrays.asList(given().header("Content-type", "application/json")
 				.header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
-				.get("/projects/2/following_discussions").as(IndividualDiscussion[].class));
+				.get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
 		assertTrue(results.size() == 0);
 
 	}
