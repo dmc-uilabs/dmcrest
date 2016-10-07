@@ -13,6 +13,7 @@ import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.reviews.ReviewHelpful;
 import org.dmc.services.company.CompanySkillImage;
 import org.dmc.services.company.CompanyVideo;
+import org.dmc.services.company.FollowedCompany;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.users.User;
 import org.dmc.services.utility.TestUserUtil;
@@ -51,6 +52,8 @@ public class CompanyIT extends BaseIT {
 	private static final String COMPANY_VIDEO_CREATE_RESOURCE = "/company_videos";
 	private static final String COMPANY_VIDEO_UPDATE_RESOURCE = "/company_videos/{id}";
 	private static final String COMPANY_VIDEO_DELETE_RESOURCE = "/company_videos/{id}";
+	private static final String COMPANY_FOLLOW = "/company/follow";
+	private static final String COMPANY_UNFOLLOW_COMPANY_ID = "/company/unfollow/{followed_companyId}";
 
 	private ArrayList<CompanyVideo> videos = null;
 	private Integer createdId = null;
@@ -697,15 +700,19 @@ public class CompanyIT extends BaseIT {
 	 */
 	@Test
 	public void testCompanyPost_Follow() {
-
-		given().
+		int accountId = 102;
+		int companyId = 2;
+		FollowedCompany res = given().
 		param("accountId", accountId).
 		param("companyId", companyId).
 		header("AJP_eppn", userEPPN).
 		expect().
-		statusCode(HttpStatus.NOT_IMPLEMENTED.value()).
+		statusCode(HttpStatus.OK.value()).
 		when().
-		post("/company/follow");
+		post(COMPANY_FOLLOW).as(FollowedCompany.class);
+		assertTrue(res.getCompanyId() == companyId);
+		assertTrue(res.getAccountId() ==  accountId);
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().delete(COMPANY_UNFOLLOW_COMPANY_ID, companyId);
 	}
 	
 	
@@ -714,12 +721,23 @@ public class CompanyIT extends BaseIT {
 	 */
 	@Test
 	public void testCompanyDelete_UnFollowCompanyId() {
-		given().
-		header("AJP_eppn", userEPPN).
-		expect().
-		statusCode(400).
-		when().
-		delete("/company/unfollow/" + followed_companyId);
+		int accountId = 102;
+		int companyId = 2;
+		given().param("accountId", accountId).param("companyId", companyId).header("AJP_eppn", userEPPN).expect()
+				.statusCode(HttpStatus.OK.value()).when().post(COMPANY_FOLLOW);
+
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
+				.delete(COMPANY_UNFOLLOW_COMPANY_ID, companyId);
+	}
+
+	/**
+	 * test case for DELETE /company/unfollow/{followed_companiId}
+	 */
+	@Test
+	public void testCompanyDelete_UnFollowNonExistingCompanyId() {
+		int companyId = Integer.MAX_VALUE;
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).when()
+				.delete(COMPANY_UNFOLLOW_COMPANY_ID, companyId);
 	}
 	
 	

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dmc.services.discussions.Discussion;
+import org.dmc.services.discussions.FollowingIndividualDiscussion;
+import org.dmc.services.discussions.IndividualDiscussion;
 import org.dmc.services.projects.Project;
 import org.dmc.services.projects.ProjectCreateRequest;
 import org.dmc.services.projects.ProjectTag;
@@ -13,11 +15,15 @@ import org.dmc.services.utility.TestUserUtil;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -39,6 +45,7 @@ public class ProjectIT extends BaseIT {
     private static final String PROJECT_GET_TAGS_FOR_PROJECT = "/projects/{projectId}/projects_tags";
     private static final String PROJECT_TAGS = "/projects_tags";
     private static final String PROJECT_DELETE_TAG = "/projects_tags/{tagId}";
+    private static final String PROJECT_FOLLOWING_DISCUSSION = "/projects/{projectId}/following_discussions";
 
     private static final String adminUser = "fforgeadmin";
     private final String logTag = ProjectIT.class.getName();
@@ -345,14 +352,50 @@ public class ProjectIT extends BaseIT {
 
     /**
      * test case for GET /projects/{projectID}/following_discussions
-     */
+     */    
     
-    @Test
-    public void testProject_FollowingDiscussion() {
-        ServiceLogger.log(logTag, "starting testProject_FollowingDiscussion");
-        given().header("AJP_eppn", userEPPN).expect().statusCode(NOT_IMPLEMENTED.value()).when()
-                .get("/projects/" + projectId + "/following_discussions");
+    private String createFollowDiscussionForProject(){
+    	FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
+		ObjectMapper mapper = new ObjectMapper();
+		String postedFollowDiscussionsJSONString = null;
+
+		String accountId = "550";
+		String individualDiscussionId = "3";
+		String userEPPN = "joeengineer";
+
+		followToPost.setIndividualDiscussionId(individualDiscussionId);
+		followToPost.setAccountId(accountId);
+
+		try {
+			postedFollowDiscussionsJSONString = mapper.writeValueAsString(followToPost);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString)
+				.expect().statusCode(HttpStatus.CREATED.value()).when().post("/follow_discussions").as(FollowingIndividualDiscussion.class);
+		return postedFollow.getId();
     }
+    
+	@Test
+	public void testProject_FollowingDiscussion() {
+		ServiceLogger.log(logTag, "starting testProject_FollowingDiscussion");
+		String followId = createFollowDiscussionForProject();
+
+		List<IndividualDiscussion> results1 = Arrays.asList(given().header("Content-type", "application/json")
+				.header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
+				.get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
+
+		assertTrue(results1.size() == 1);
+		
+		given().header("AJP_eppn", "joeengineer").expect().statusCode(HttpStatus.OK.value()).when().delete("/follow_discussions/" + Integer.parseInt(followId));
+
+		List<IndividualDiscussion> results = Arrays.asList(given().header("Content-type", "application/json")
+				.header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
+				.get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
+		assertTrue(results.size() == 0);
+
+	}
 
     /**
      * PATCH /projects/{projectId}

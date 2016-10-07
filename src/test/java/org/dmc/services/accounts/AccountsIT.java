@@ -40,8 +40,10 @@ public class AccountsIT extends BaseIT {
     private static final String ACCOUNT_NOTIFICATION_SETTINGS = "/account-notification-settings/{settingsId}";
     private static final String ACCOUNT_NOTIFICATION_CATEGORIES = "/account-notification-categories";
     private static final String ACCOUNT_FAVORITE_PRODUCTS = "/accounts/{id}/favorite_products";
-    private static final String ACCOUNT_FOLLOWING_COMPANIES = "/accounts/{id}/following_companies";
     private static final String ACCOUNTS_FOLLOWING_MEMBERS = "/accounts/{id}/following_members";
+	private static final String ACCOUNT_FOLLOWING_COMPANIES = "/accounts/{accountID}/following_companies";
+	private static final String COMPANY_FOLLOW = "/company/follow";
+	private static final String COMPANY_UNFOLLOW_COMPANY_ID = "/company/unfollow/{followed_companyId}";
     
     private static final String USER = "/user";
     private static final String USERS_CREATE = "/users/create";
@@ -324,10 +326,19 @@ public class AccountsIT extends BaseIT {
      **/
 
     @Test
-    public void testAccount_FollowingCompanies() {
-        given().header("AJP_eppn", knownUserEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-                .get(ACCOUNT_FOLLOWING_COMPANIES, knownUserID);
-    }
+	public void testAccount_FollowingCompanies() {
+		int accountId = 102;
+		int companyId = 2;
+		int companyId2 = 1;
+		given().param("accountId", accountId).param("companyId", companyId).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().post(COMPANY_FOLLOW);
+		given().param("accountId", accountId).param("companyId", companyId2).header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().post(COMPANY_FOLLOW);
+
+		List<FollowingCompany> res = given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when()
+				.get(ACCOUNT_FOLLOWING_COMPANIES, accountId).as(List.class);
+		assertTrue(res.size() == 2);
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().delete(COMPANY_UNFOLLOW_COMPANY_ID, companyId);
+		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.OK.value()).when().delete(COMPANY_UNFOLLOW_COMPANY_ID, companyId2);
+	}
 
     /**
      * Tests for <code> get /accounts/{accountID}/following_members </code>
