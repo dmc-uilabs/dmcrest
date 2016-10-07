@@ -14,7 +14,10 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.services.Service;
+import org.dmc.services.services.ServiceDao;
 import org.dmc.services.sharedattributes.Util;
+import org.dmc.services.utils.SQLUtils;
 
 
 public class FavoriteProductsDao {
@@ -88,7 +91,7 @@ public class FavoriteProductsDao {
     }
     
     public List<FavoriteProduct> getFavoriteProductForAccounts(List<Integer> accountIds, Integer limit, String order, String sort, String userEPPN) throws DMCServiceException {
-        return getFavoriteProduct(accountIds, limit, order, sort, userEPPN, "account_id");
+        return getFavoriteProductByIds(accountIds, limit, order, sort, userEPPN, "account_id");
     }
     
     public List<FavoriteProduct> getFavoriteProductForServices(List<Integer> serviceIds, String userEPPN) throws DMCServiceException {
@@ -96,11 +99,11 @@ public class FavoriteProductsDao {
     }
     
     private List<FavoriteProduct> getFavoriteProductForServices(List<Integer> serviceIds, Integer limit, String order, String sort, String userEPPN) throws DMCServiceException {
-        return getFavoriteProduct(serviceIds, limit, order, sort, userEPPN, "service_id");
+        return getFavoriteProductByIds(serviceIds, limit, order, sort, userEPPN, "service_id");
     }
 
     
-    private List<FavoriteProduct> getFavoriteProduct(List<Integer> ids, Integer limit, String order, String sort, String userEPPN, String column) {
+    private List<FavoriteProduct> getFavoriteProductByIds(List<Integer> ids, Integer limit, String order, String sort, String userEPPN, String column) {
         ListIterator<Integer> iterator = ids.listIterator();
         ArrayList<FavoriteProduct> favoriteProducts = new ArrayList<FavoriteProduct>();
 
@@ -119,28 +122,51 @@ public class FavoriteProductsDao {
 
             PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlSelectFavoriteProduct);
             
-                try {
-                    preparedStatement.setInt(1, id);
-                    final ResultSet resultSet = preparedStatement.executeQuery();
-                
-                    while(resultSet.next()) {
-                        FavoriteProduct favoriteProduct = new FavoriteProduct();
-                        favoriteProduct.setId(Integer.toString(resultSet.getInt("id")));
-                        favoriteProduct.setAccountId(Integer.toString(resultSet.getInt("account_id")));
-                        favoriteProduct.setServiceId(Integer.toString(resultSet.getInt("service_id")));
-                        favoriteProducts.add(favoriteProduct);
-                    }
-                
-                } catch (SQLException e) {
-                    ServiceLogger.log(logTag, e.getMessage());
-                    throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+            try {
+                preparedStatement.setInt(1, id);
+                final ResultSet resultSet = preparedStatement.executeQuery();
+            
+                while(resultSet.next()) {
+                    FavoriteProduct favoriteProduct = new FavoriteProduct();
+                    favoriteProduct.setId(Integer.toString(resultSet.getInt("id")));
+                    favoriteProduct.setAccountId(Integer.toString(resultSet.getInt("account_id")));
+                    favoriteProduct.setServiceId(Integer.toString(resultSet.getInt("service_id")));
+                    favoriteProducts.add(favoriteProduct);
                 }
+            } catch (SQLException e) {
+                ServiceLogger.log(logTag, e.getMessage());
+                throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+            }
         }
-        
-    
         return favoriteProducts;
     }
     
+    public List<Service> getMostPopularProducts(Integer limit, String order, Integer start, String sort, String userEPPN) {
+        List<Service> services = new ArrayList<Service>();
+        ServiceDao serviceDao = new ServiceDao();
+        
+        ArrayList<String> validFieldsForSort = new ArrayList<String>();
+        validFieldsForSort.add("count");
+        final String orderClause = SQLUtils.buildOrderByClause(order, sort, validFieldsForSort);
+        
+        String sqlSelectFavoriteProduct = "select service_id, count(service_id) from favorite_products GROUP BY service_id "+orderClause+" LIMIT ? OFFSET ?";
+        PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlSelectFavoriteProduct);
+        try {
+            preparedStatement.setInt(1, limit);
+            preparedStatement.setInt(2, start);
+            
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            
+            while(resultSet.next()) {
+                services.add(serviceDao.getService(resultSet.getInt("service_id"), userEPPN));
+            }
+        } catch (SQLException e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+        }
+
+        return services;
+    }
     
     int getUserId(String userEPPN){
         try {

@@ -4,9 +4,11 @@ package org.dmc.services.market;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.components.Component;
+import org.dmc.services.products.FavoriteProductsDao;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceController;
 import org.dmc.services.services.ServiceDao;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -77,14 +79,22 @@ public class MarketController {
     @RequestMapping(value = "/popular_services", 
             produces = { "application/json", "text/html" }, 
             method = RequestMethod.GET)
-    public ResponseEntity<List<Service>> marketPopularServicesGet(
+    public ResponseEntity<?> marketPopularServicesGet(
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "start", required = false) Integer start, 
             @RequestParam(value = "sort", required = false) String sort,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-        // do some magic!
-        return new ResponseEntity<List<Service>>(HttpStatus.NOT_IMPLEMENTED);
+        
+        ServiceLogger.log(logTag, "In marketPopularServicesGet: as user " + userEPPN);
+        FavoriteProductsDao favoriteProductsDao = new FavoriteProductsDao();
+        
+        try {
+            return new ResponseEntity<List<Service>>(favoriteProductsDao.getMostPopularProducts(limit, order, start, sort, userEPPN), HttpStatus.OK);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
     }
 
     @RequestMapping(value = "/services", 
