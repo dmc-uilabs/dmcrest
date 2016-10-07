@@ -138,7 +138,7 @@ public class ProductIT extends BaseIT {
         ServiceLogger.log(LOGTAG, "In favoriteProductsFavoriteProductIdDelete: for favoriteProductId " + favoriteProductId + " as user " + knownEPPN);
         
         
-        //FavoriteProduct favoriteProduct =
+        FavoriteProduct favoriteProduct =
         given().
         header("Content-type", APPLICATION_JSON_VALUE).
         header("AJP_eppn", knownEPPN).
@@ -147,7 +147,7 @@ public class ProductIT extends BaseIT {
         expect().
         statusCode(HttpStatus.CREATED.value()). // need figure out where the malformed syntax
         when().
-        post("/favorite_products");//.as(FavoriteProduct.class);
+        post("/favorite_products").as(FavoriteProduct.class);
         
         
 		given().
@@ -156,7 +156,7 @@ public class ProductIT extends BaseIT {
 		expect().
 		statusCode(HttpStatus.OK.value()). // need figure out where the malformed syntax
 		when().
-		delete("/favorite_products/" + favoriteProductId);
+		delete("/favorite_products/" + favoriteProduct.getId());
 
         ServiceLogger.log(LOGTAG, "In favoriteProductsFavoriteProductIdDelete: for favoriteProductId " + favoriteProductId + " as user " + knownEPPN);
 
