@@ -80,10 +80,10 @@ public class MarketController {
             produces = { "application/json", "text/html" }, 
             method = RequestMethod.GET)
     public ResponseEntity<?> marketPopularServicesGet(
-            @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "order", required = false) String order,
-            @RequestParam(value = "start", required = false) Integer start, 
-            @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "_limit", required = false) Integer limit,
+            @RequestParam(value = "_order", required = false) String order,
+            @RequestParam(value = "_start", required = false) Integer start,
+            @RequestParam(value = "_sort", required = false) String sort,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         
         ServiceLogger.log(logTag, "In marketPopularServicesGet: as user " + userEPPN);
