@@ -100,9 +100,10 @@ public class AccountsController {
             "application/json" }, method = RequestMethod.GET)
     public ResponseEntity<?> accountsAccountIDFavoriteProductsGet(
             @PathVariable("accountID") String accountID,
-            @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "order", required = false) String order,
-            @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "_limit", required = false, defaultValue = "25") Integer limit,
+            @RequestParam(value = "_order", required = false, defaultValue = "DESC") String order,
+            @RequestParam(value = "_start", required = false, defaultValue = "0") Integer start,
+            @RequestParam(value = "_sort", required = false, defaultValue = "id") String sort,
             @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 
         ServiceLogger.log(logTag, "In accountsAccountIDFavoriteProductsGet:  as user " + userEPPN);
@@ -111,7 +112,7 @@ public class AccountsController {
         accountIds.add(Integer.parseInt(accountID));
         
         try {
-            return new ResponseEntity<List<FavoriteProduct>>(favoriteProductsDao.getFavoriteProductForAccounts(accountIds, limit, order, sort, userEPPN), HttpStatus.OK);
+            return new ResponseEntity<List<FavoriteProduct>>(favoriteProductsDao.getFavoriteProductForAccounts(accountIds, limit, order, start, sort, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
