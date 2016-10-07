@@ -100,9 +100,10 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
 			model.setTermsConditions(entity.getTermsAndCondition() != null);
 
-			model.setCompanyId((entity.getOrganizationUser() == null) ?
-					null :
-					entity.getOrganizationUser().getOrganization().getId());
+			if(entity.getOrganizationUser() != null) {
+				model.setCompanyId(entity.getOrganizationUser().getOrganization().getId());
+				model.setCompanyName(entity.getOrganizationUser().getOrganization().getName());
+			}
 
 			model.setOnboarding(onboardingMapper.mapToModel(entity.getOnboarding()));
 			model.setSkills(skillMapper.mapToModel(entity.getSkills()));
