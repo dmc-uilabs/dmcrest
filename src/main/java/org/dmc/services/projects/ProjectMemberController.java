@@ -90,16 +90,18 @@ public class ProjectMemberController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/projects_members/{memberId}", method = RequestMethod.PATCH, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/projects_members/{memberId}", method = RequestMethod.PATCH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateProjectMember(@PathVariable("memberId") String memberId, @RequestBody ProjectMember member, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) throws Exception {
-        ServiceLogger.log(LOGTAG, "In addProjectMember: as user " + userEPPN);
+        ServiceLogger.log(LOGTAG, "In updateProjectMember: for request " + memberId + " as user " + userEPPN);
+
         try {
-            final ProjectMember createdMember = projectMemberDao.updateProjectMember(memberId, member, userEPPN);
-            return new ResponseEntity<ProjectMember>(createdMember, HttpStatus.valueOf(HttpStatus.OK.value()));
+            // TODO: confirm that id in ProjectMember object matches the {memberId}, otherwise return BadRequest
+            return new ResponseEntity<ProjectMember>(projectMemberDao.acceptMemberInProject(memberId, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-        } 
+        }
+
     }
     
     /** 

@@ -46,9 +46,9 @@ public class ProjectMembersIT extends BaseIT {
     private static final String adminUser = "fforgeadmin";
     private final static String LOGTAG = ProjectMembersIT.class.getName();
     private Integer createdId = null;
-    
+
     private String knownEPPN;
-    
+
     @Before
     public void before() {
         if (knownEPPN == null) {
@@ -183,7 +183,7 @@ public class ProjectMembersIT extends BaseIT {
         expected.setProfileId("111");
         assertTrue(list.contains(expected));
     }
-    
+
     @Test
     public void testProjectJoinRequestsWithParamList() {
         ServiceLogger.log(LOGTAG, "starting testProjectJoinRequestsWithParamList");
@@ -199,7 +199,7 @@ public class ProjectMembersIT extends BaseIT {
         final JSONArray jsonArray = new JSONArray(response.extract().asString());
         assertTrue(0 == jsonArray.length());
     }
-    
+
     @Test
     public void testProjectJoinRequestsProject6() {
         ServiceLogger.log(LOGTAG, "starting testProjectJoinRequestsProject6");
@@ -245,7 +245,7 @@ public class ProjectMembersIT extends BaseIT {
         expected.setProfileId("111");
         assertFalse(list.contains(expected));
     }
-    
+
     @Test
     public void testProjectJoinRequestsProfile111() {
         ServiceLogger.log(LOGTAG, "starting testProjectJoinRequestsProfile111");
@@ -289,7 +289,7 @@ public class ProjectMembersIT extends BaseIT {
         expected.setProfileId("111");
         assertTrue(list.contains(expected));
     }
-    
+
     @Test
     public void testCreateAndDeleteProjectJoinRequests() {
         ServiceLogger.log(LOGTAG, "starting testCreateAndDeleteProjectJoinRequests");
@@ -317,8 +317,12 @@ public class ProjectMembersIT extends BaseIT {
                 .delete("/projects_join_requests/" + id);
 
     }
+
     /**
      * POST /projects_members
+     * keeping one test with /new_members, but seems like front-end may have deprecated
+     * and is just using PATCH/projects_members/{request_id}
+     * since they both have same dao implementation, not duplicating all the other tests
      * PATCH /new_members/{request_id}
      */
     @Test
@@ -331,12 +335,12 @@ public class ProjectMembersIT extends BaseIT {
 
         this.createdId = TestProjectUtil.createProject(userEPPN);
         final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, adminId);
-        
+
         if (this.createdId != null) {
             ProjectMember reply = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).body(newRequestedMember)
                     .expect().statusCode(HttpStatus.OK.value())
                     .when().post(PROJECT_MEMBERS_RESOURCE).as(ProjectMember.class);
-            
+
             assertTrue("admin id not equal", adminId.intValue() == Integer.parseInt(reply.getFromProfileId()));
             assertTrue("invitee not equal", reply.getProfileId().equals(toBeAddedId.toString()));
             assertTrue("not correct project", this.createdId.toString().equals(reply.getProjectId()));
@@ -351,9 +355,92 @@ public class ProjectMembersIT extends BaseIT {
                 .when().get(MEMBER_RESOURCE_BY_ID, actualRequestId)
                 .then();
             final JSONArray jsonArray = new JSONArray(response.extract().asString());
-            
+
             assertEquals("expect one project_member result, but found a different amount", 1, jsonArray.length());
             final JSONObject json = jsonArray.getJSONObject(0);
+            assertTrue("project invitation should have been accepted, but was not",json.getBoolean("accept"));
+        }
+    }
+
+    /**
+     * POST /projects_members
+     * PATCH /projects_members/{request_id}
+     */
+    @Test
+    public void testProjectMemberAcceptWithPatchAfterProjectCreate() throws SQLException {
+        ServiceLogger.log(LOGTAG, "starting testProjectMemberAcceptAfterProjectCreate");
+
+        Integer adminId = UserDao.getUserID(userEPPN);
+        String toBeAdded = TestUserUtil.createNewUser();
+        Integer toBeAddedId = UserDao.getUserID(toBeAdded);
+
+        this.createdId = TestProjectUtil.createProject(userEPPN);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, adminId);
+
+        if (this.createdId != null) {
+            ProjectMember reply = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).body(newRequestedMember)
+                    .expect().statusCode(HttpStatus.OK.value())
+                    .when().post(PROJECT_MEMBERS_RESOURCE).as(ProjectMember.class);
+
+            assertTrue("admin id not equal", adminId.intValue() == Integer.parseInt(reply.getFromProfileId()));
+            assertTrue("invitee not equal", reply.getProfileId().equals(toBeAddedId.toString()));
+            assertTrue("not correct project", this.createdId.toString().equals(reply.getProjectId()));
+            assertFalse("invitation should not have been accepted yet, but was", reply.getAccept());
+            final String actualRequestId = reply.getId();
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", toBeAdded).body(reply)
+                    .expect().statusCode(OK.value())
+                    .when().patch(MEMBER_RESOURCE_BY_ID, actualRequestId);
+
+            final ValidatableResponse response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser)
+                .expect().statusCode(HttpStatus.OK.value())
+                .when().get(MEMBER_RESOURCE_BY_ID, actualRequestId)
+                .then();
+            final JSONArray jsonArray = new JSONArray(response.extract().asString());
+
+            assertEquals("expect one project_member result, but found a different amount", 1, jsonArray.length());
+            final JSONObject json = jsonArray.getJSONObject(0);
+            assertTrue("project invitation should have been accepted, but was not",json.getBoolean("accept"));
+        }
+    }
+
+    /**
+     * POST /projects_members
+     * PATCH /projects_members/{request_id}
+     */
+    @Test
+    public void testProjectMemberAddMemberTwice() throws SQLException {
+        ServiceLogger.log(LOGTAG, "starting testProjectMemberAddMemberTwice");
+
+        Integer adminId = UserDao.getUserID(userEPPN);
+
+        this.createdId = TestProjectUtil.createProject(userEPPN);
+        final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, adminId, adminId);
+
+        if (this.createdId != null) {
+            ProjectMember reply = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).body(newRequestedMember)
+                    .expect().statusCode(HttpStatus.OK.value())
+                    .when().post(PROJECT_MEMBERS_RESOURCE).as(ProjectMember.class);
+
+            assertTrue("admin id not equal", adminId.intValue() == Integer.parseInt(reply.getFromProfileId()));
+            assertTrue("invitee not equal", reply.getProfileId().equals(adminId.toString()));
+            assertTrue("not correct project", this.createdId.toString().equals(reply.getProjectId()));
+            assertTrue("invitation should have been accepted because inviting the owner", reply.getAccept());
+            final String actualRequestId = reply.getId();
+            final ValidatableResponse patchResponse = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(reply)
+                    .expect().statusCode(OK.value())
+                    .when().patch(MEMBER_RESOURCE_BY_ID, actualRequestId).then();
+
+            final JSONObject patchJsonResponse = new JSONObject(patchResponse.extract().asString());
+            assertTrue("project invitation should have been accepted, but was not",patchJsonResponse.getBoolean("accept"));
+
+            final ValidatableResponse getResponse = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser)
+                .expect().statusCode(HttpStatus.OK.value())
+                .when().get(MEMBER_RESOURCE_BY_ID, actualRequestId)
+                .then();
+            final JSONArray getJsonArray = new JSONArray(getResponse.extract().asString());
+
+            assertEquals("expect one project_member result, but found a different amount", 1, getJsonArray.length());
+            final JSONObject json = getJsonArray.getJSONObject(0);
             assertTrue("project invitation should have been accepted, but was not",json.getBoolean("accept"));
         }
     }
@@ -373,10 +460,10 @@ public class ProjectMembersIT extends BaseIT {
         this.createdId = TestProjectUtil.createProject(userEPPN);
         final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toJoinId, adminId);
         final String requestId = newRequestedMember.getId();
-        
+
         if (this.createdId != null) {
-            final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", toJoinUser).expect()
-                    .statusCode(NOT_FOUND.value()).when().patch(MEMBER_ACCEPT_RESOURCE, requestId).asString();
+            final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", toJoinUser).body(newRequestedMember)
+                    .expect().statusCode(NOT_FOUND.value()).when().patch(MEMBER_RESOURCE_BY_ID, requestId).asString();
 
             assertTrue("No Existing Request", response.contains("no existing request to join the project"));
         }
@@ -395,19 +482,19 @@ public class ProjectMembersIT extends BaseIT {
         Integer toBeAddedId = UserDao.getUserID(knownEPPN);
         String fakeAdminEPPN = TestUserUtil.createNewUser();
         Integer fakeAdminId = UserDao.getUserID(fakeAdminEPPN);
-       
+
         this.createdId = TestProjectUtil.createProject(userEPPN);
         final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeAdminId);
         final String requestId = newRequestedMember.getId();
-        
+
         if (this.createdId != null) {
             final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", fakeAdminEPPN).body(newRequestedMember)
                 .expect().statusCode(HttpStatus.FORBIDDEN.value())
                 .when().post(PROJECT_MEMBERS_RESOURCE).asString();
             assertTrue("Expected forbidden message", response.contains("is not allowed to invite new members"));
             // above fails, so accept request should not match
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect()
-                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_ACCEPT_RESOURCE, requestId);
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).body(newRequestedMember).expect()
+                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_RESOURCE_BY_ID, requestId);
         }
     }
 
@@ -424,11 +511,11 @@ public class ProjectMembersIT extends BaseIT {
         Integer toBeAddedId = UserDao.getUserID(knownEPPN);
         String fakeAdminEPPN = TestUserUtil.createNewUser();
         Integer fakeAdminId = UserDao.getUserID(fakeAdminEPPN);
-       
+
         this.createdId = TestProjectUtil.createProject(userEPPN);
         final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeAdminId);
         final String requestId = newRequestedMember.getId();
-        
+
         if (this.createdId != null) {
             final String response = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", fakeAdminEPPN).body(newRequestedMember)
                 .expect().statusCode(HttpStatus.FORBIDDEN.value())
@@ -473,23 +560,23 @@ public class ProjectMembersIT extends BaseIT {
         ServiceLogger.log(LOGTAG, "starting testProjectMemberAcceptProjectAddMemberCallerOverwritesRequesterInJsonBody");
 
         Integer toBeAddedId = UserDao.getUserID(knownEPPN);
-        
+
         String fakeUser = TestUserUtil.createNewUser();
         Integer fakeId = UserDao.getUserID(fakeUser);
-       
+
         this.createdId = TestProjectUtil.createProject(userEPPN);
         final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeId);
         final String requestId = newRequestedMember.getId();
-        
+
         if (this.createdId != null) {
             final ProjectMember actualRequestedMember = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).body(newRequestedMember)
                     .expect().statusCode(HttpStatus.OK.value())
                     .when().post(PROJECT_MEMBERS_RESOURCE).as(ProjectMember.class);
             final String actualRequestId = actualRequestedMember.getId();
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect()
-                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_ACCEPT_RESOURCE, requestId);
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).expect()
-                    .statusCode(OK.value()).when().patch(MEMBER_ACCEPT_RESOURCE, actualRequestId);
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).body(actualRequestedMember).expect()
+                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_RESOURCE_BY_ID, requestId);
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).body(actualRequestedMember).expect()
+                    .statusCode(OK.value()).when().patch(MEMBER_RESOURCE_BY_ID, actualRequestId);
         }
     }
 
@@ -503,7 +590,7 @@ public class ProjectMembersIT extends BaseIT {
         String unique = TestUserUtil.generateTime();
         final int toBeAddedId = UserDao.getUserID(knownEPPN);
         final int fakeAdminId = UserIT.createUserAndReturnID(unique);
-       
+
         this.createdId = TestProjectUtil.createProject(userEPPN);
         final ProjectMember newRequestedMember = TestProjectUtil.createNewProjectMemberForRequest(this.createdId, toBeAddedId, fakeAdminId);
         final String requestId = newRequestedMember.getId();        
@@ -542,14 +629,14 @@ public class ProjectMembersIT extends BaseIT {
                     .when().post(PROJECT_MEMBERS_RESOURCE).as(ProjectMember.class);
             final String actualRequestId = actualRequestedMember.getId();
             // Bad admin should get forbidden
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", fakeUserName).expect()
-                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_ACCEPT_RESOURCE, requestId);
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", fakeUserName).expect()
-            .statusCode(FORBIDDEN.value()).when().patch(MEMBER_ACCEPT_RESOURCE, actualRequestId);
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", fakeUserName).body(actualRequestedMember).expect()
+                    .statusCode(FORBIDDEN.value()).when().patch(MEMBER_RESOURCE_BY_ID, requestId);
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", fakeUserName).body(actualRequestedMember).expect()
+            .statusCode(FORBIDDEN.value()).when().patch(MEMBER_RESOURCE_BY_ID, actualRequestId);
             // Good admin should get forbidden because only user should be able to accept request
-            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser)
+            given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", adminUser).body(actualRequestedMember)
                     .expect().statusCode(FORBIDDEN.value())
-                    .when().patch(MEMBER_ACCEPT_RESOURCE, actualRequestId);
+                    .when().patch(MEMBER_RESOURCE_BY_ID, actualRequestId);
         }
     }
 
@@ -629,9 +716,9 @@ public class ProjectMembersIT extends BaseIT {
                 .expect().statusCode(HttpStatus.OK.value())
                 .when().post(PROJECT_MEMBERS_RESOURCE).as(ProjectMember.class);
         final String actualRequestId = actualRequestedMember.getId();
-        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN)
+        given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).body(actualRequestedMember)
                 .expect().statusCode(OK.value())
-                .when().patch(MEMBER_ACCEPT_RESOURCE, actualRequestId);
+                .when().patch(MEMBER_RESOURCE_BY_ID, actualRequestId);
 
         // now check that the GET /project_members work correctly with different arguments.
         final ValidatableResponse responseAdmin = given().header("AJP_eppn", userEPPN).param("projectId", newProjectId).param("profileId", adminId)
