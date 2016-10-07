@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.products.ProductReview;
+import org.dmc.services.products.FavoriteProduct;
 import org.dmc.services.utility.TestUserUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.List;
 
+import static org.junit.Assert.assertTrue;
 import static com.jayway.restassured.RestAssured.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -134,13 +137,57 @@ public class ProductIT extends BaseIT {
 	 */
 	@Test
 	public void testProductDelete_FavoriteProductbyId() {
+        ServiceLogger.log(LOGTAG, "In favoriteProductsFavoriteProductIdDelete: for favoriteProductId " + favoriteProductId + " as user " + knownEPPN);
+        
+        
+        FavoriteProduct favoriteProduct =
+        given().
+        header("Content-type", APPLICATION_JSON_VALUE).
+        header("AJP_eppn", knownEPPN).
+        queryParam("accountId", accountId).
+        queryParam("serviceId", productId).
+        expect().
+        statusCode(HttpStatus.CREATED.value()). // need figure out where the malformed syntax
+        when().
+        post("/favorite_products").as(FavoriteProduct.class);
+        
+        
+        FavoriteProduct[] favoriteProductByAccount =
+        given().
+        header("Content-type", APPLICATION_JSON_VALUE).
+        header("AJP_eppn", knownEPPN).
+        queryParam("accountId", accountId).
+        expect().
+        statusCode(HttpStatus.OK.value()). // need figure out where the malformed syntax
+        when().
+        get("/favorite_products").as(FavoriteProduct[].class);
+        
+        assertTrue("User's created favorite product is not retrieved", favoriteProductByAccount[0].equals(favoriteProduct));
+        
+        
+        FavoriteProduct[] favoriteProductByService =
+        given().
+        header("Content-type", APPLICATION_JSON_VALUE).
+        header("AJP_eppn", knownEPPN).
+        queryParam("serviceId", productId).
+        expect().
+        statusCode(HttpStatus.OK.value()). // need figure out where the malformed syntax
+        when().
+        get("/favorite_products").as(FavoriteProduct[].class);
+        
+        assertTrue("No favorite products returned when seaching for service " + productId, favoriteProductByAccount.length > 0);
+        
 		given().
+        header("Content-type", "application/json").
 		header("AJP_eppn", knownEPPN).
 		expect().
-		statusCode(400). // need figure out where the malformed syntax
+		statusCode(HttpStatus.OK.value()). // need figure out where the malformed syntax
 		when().
-		delete("/favorite_products/" + favoriteProductId);
-	}
+		delete("/favorite_products/" + favoriteProduct.getId());
+
+        ServiceLogger.log(LOGTAG, "In favoriteProductsFavoriteProductIdDelete: for favoriteProductId " + favoriteProductId + " as user " + knownEPPN);
+
+    }
 	
     public static ProductReview createProductReviewFixture(int productId, String name, int accountId, String comment, int reviewId)
     {
