@@ -9,5 +9,6 @@ public enum DocumentClass {
 	IMAGE,
 	VIDEO,
 	PROFILE,
+	SUPPORT,
 	QUICK_LINK;
 }
