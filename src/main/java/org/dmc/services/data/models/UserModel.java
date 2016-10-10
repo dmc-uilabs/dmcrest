@@ -1,9 +1,9 @@
 package org.dmc.services.data.models;
 
+import java.util.List;
 import java.util.Map;
 
 import org.dmc.services.users.UserMessages;
-import org.dmc.services.users.UserNotifications;
 import org.dmc.services.users.UserRunningServices;
 
 public class UserModel extends BaseModel {
@@ -26,7 +26,6 @@ public class UserModel extends BaseModel {
 	private Integer profileId;
 	private Integer companyId;
 	private int role;
-	private String username;
 	private String realname;
 	private String title;
 	private boolean termsConditions;
@@ -36,7 +35,6 @@ public class UserModel extends BaseModel {
 	private String address;
 	private String phone;
 	private String image;
-	private UserNotifications notifications = new UserNotifications();
 	private UserRunningServices runningServices = new UserRunningServices();
 	private UserMessages messages = new UserMessages();
 	private OnboardingStatusModel onboarding;
@@ -46,6 +44,8 @@ public class UserModel extends BaseModel {
 	private String aboutMe;
 	private String resume;
 	private int account;
+	private List<NotificationModel> notifications;
+	private boolean hasUnreadNotifications;
 
 	public String getDisplayName() {
 		return displayName;
@@ -85,14 +85,6 @@ public class UserModel extends BaseModel {
 
 	public void setRole(int role) {
 		this.role = role;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
 	}
 
 	public String getRealname() {
@@ -167,14 +159,6 @@ public class UserModel extends BaseModel {
 		this.image = image;
 	}
 
-	public UserNotifications getNotifications() {
-		return notifications;
-	}
-
-	public void setNotifications(UserNotifications notifications) {
-		this.notifications = notifications;
-	}
-
 	public UserRunningServices getRunningServices() {
 		return runningServices;
 	}
@@ -245,5 +229,21 @@ public class UserModel extends BaseModel {
 
 	public void setAccount(Integer account) {
 		this.account = account;
+	}
+
+	public List<NotificationModel> getNotifications() {
+		return notifications;
+	}
+
+	public void setNotifications(List<NotificationModel> notifications) {
+		this.notifications = notifications;
+	}
+
+	public boolean isHasUnreadNotifications() {
+		return hasUnreadNotifications;
+	}
+
+	public void setHasUnreadNotifications(boolean hasUnreadNotifications) {
+		this.hasUnreadNotifications = hasUnreadNotifications;
 	}
 }

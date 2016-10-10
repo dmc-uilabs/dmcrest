@@ -14,7 +14,6 @@ import org.dmc.services.data.entities.DMDIIProjectContact;
 import org.dmc.services.data.entities.DMDIIProjectFocusArea;
 import org.dmc.services.data.entities.DMDIIProjectStatus;
 import org.dmc.services.data.entities.DMDIIProjectThrust;
-import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIPrimeOrganizationModel;
 import org.dmc.services.data.models.DMDIIProjectContactModel;
@@ -22,7 +21,6 @@ import org.dmc.services.data.models.DMDIIProjectFocusAreaModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.DMDIIProjectStatusModel;
 import org.dmc.services.data.models.DMDIIProjectThrustModel;
-import org.dmc.services.data.models.UserModel;
 import org.dmc.services.dmdiimember.DMDIIMemberService;
 import org.springframework.stereotype.Component;
 
@@ -94,8 +92,13 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		model.setProjectFocusArea(focusMapper.mapToModel(entity.getProjectFocusArea()));
 		model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));
 		model.setContributingCompanies(contributingCompanyIds);
-		model.setAwardedDate(format.format(entity.getAwardedDate()));
-		model.setEndDate(format.format(entity.getEndDate()));
+
+		if(entity.getAwardedDate() != null){
+			model.setAwardedDate(format.format(entity.getAwardedDate()));
+		}
+		if(entity.getEndDate() != null){
+			model.setEndDate(format.format(entity.getEndDate()));
+		}
 
 		return model;
 	}

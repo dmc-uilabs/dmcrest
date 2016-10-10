@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -8,8 +9,10 @@ import javax.transaction.Transactional;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dmc.services.data.entities.OnboardingStatus;
 import org.dmc.services.data.entities.Organization;
+import org.dmc.services.data.entities.OrganizationAuthorizedIdp;
 import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.entities.UserToken;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
@@ -18,11 +21,13 @@ import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.data.repositories.OnboardingStatusRepository;
+import org.dmc.services.data.repositories.OrganizationAuthorizedIdpRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
+import org.dmc.services.notification.NotificationService;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
@@ -60,20 +65,38 @@ public class UserService {
 
 	@Inject
 	private UserTokenRepository userTokenRepository;
+	
+	@Inject
+	private NotificationService notificationService;
+
+	@Inject
+	private OrganizationAuthorizedIdpRepository idpRepository;
 
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findOne(id));
 	}
-
-	public UserModel save(UserModel userModel) {
+	
+	public UserModel findByUsername(String username) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		return mapper.mapToModel(userRepository.save(mapper.mapToEntity(userModel)));
+		return mapper.mapToModel(userRepository.findByUsername(username));
+	}
+
+	public UserModel save(UserModel userModel, String userEPPN) {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		User user = mapper.mapToEntity(userModel);
+		user.setUsername(userEPPN);
+		return mapper.mapToModel(userRepository.save(user));
 	}
 
 	public List<UserModel> findByOrganizationId(Integer organizationId) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
+	}
+	
+	public List<UserModel> findByOrganizationIdAndRole(Integer organizaitonId, String role) {
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		return mapper.mapToModel(userRepository.findByOrganizationIdAndRole(organizaitonId, role));
 	}
 
 	@Transactional
@@ -211,18 +234,15 @@ public class UserService {
 			userModel = mapper.mapToModel(user);
 		} else {
 			userModel = mapper.mapToModel(user);
-			updateRolesAndDmdiiMembership(userModel);
+			updateRolesAndDmdiiMembership(userModel, userEPPN);
 		}
-
-
 
 		return userModel;
 	}
 
-	private void updateRolesAndDmdiiMembership(UserModel userModel) {
-		UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userModel.getUsername());
+	private void updateRolesAndDmdiiMembership(UserModel userModel, String userEPPN) {
+		UserPrincipal userPrincipal = (UserPrincipal) userPrincipalService.loadUserByUsername(userEPPN);
 		userModel.setIsDMDIIMember(userPrincipal.hasAuthority(SecurityRoles.DMDII_MEMBER));
-//		userModel.setRoles(userPrincipal.getAllRoles());
 		return;
 	}
 
@@ -244,7 +264,7 @@ public class UserService {
 		return username;
 	}
 
-	private User createUser(String userEPPN, String firstName, String lastName, String fullName, String email) {
+	private User createUser(String userEPPN, String firstName, String lastName, String fullName, String email)  {
 		User user = new User();
 		user.setUsername(userEPPN);
 		user.setPassword("password");
@@ -253,7 +273,19 @@ public class UserService {
 		user.setRealname(fullName);
 		user.setEmail(email);
 		user.setAddDate(0);
-		return userRepository.save(user);
+		user = userRepository.save(user);
+
+		String idpDomain = userEPPN.substring(userEPPN.indexOf('@') + 1);
+		OrganizationAuthorizedIdp idp = idpRepository.findByIdpDomain(idpDomain);
+
+		if(idp != null) {
+			OrganizationUser orgUser = orgUserRepo.save(new OrganizationUser(user, idp.getOrganization(), true));
+			user.setOrganizationUser(orgUser);
+			UserRoleAssignment role = userRoleAssignmentService.setUserAsMemberForAuthorizedIdps(user, user.getOrganizationUser().getOrganization());
+			user.setRoles(Arrays.asList(role));
+		}
+
+		return user;
 	}
 
 	private OnboardingStatus createOnboardingStatus(Integer userId) {
@@ -314,6 +346,7 @@ public class UserService {
 	private OrganizationUser updateOrganizationUser(User user, Integer newOrganizationId) {
 		orgUserRepo.deleteByUserId(user.getId());
 		Organization newOrganization = organizationRepository.findOne(newOrganizationId);
+		notificationService.notifyOrgAdminsOfNewUser(newOrganizationId, user);
 		return orgUserRepo.save(new OrganizationUser(user, newOrganization, false));
 	}
 }

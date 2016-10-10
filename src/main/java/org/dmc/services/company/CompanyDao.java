@@ -2,6 +2,8 @@ package org.dmc.services.company;
 
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
@@ -44,18 +46,20 @@ public class CompanyDao {
         try {
             // get all organizations;
             // does the organization need to be active member?  assume no.
-            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name FROM organization");
+            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name, logo_image FROM organization");
             companies = new ArrayList<Company>();
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("organization_id");
                 int accountId = resultSet.getInt("accountid");
                 String name = resultSet.getString("name");
+	            String logoUrl = resultSet.getString("logo_image");
 
                 Company company = new Company();
 				company.setId(Integer.toString(id));
 				company.setAccountId(Integer.toString(accountId));
 				company.setName(name);
+	            company.setLogoImage(logoUrl);
                 companies.add(company);
             }
         } catch (SQLException e) {
@@ -170,7 +174,7 @@ public class CompanyDao {
 	}
 
 	public Id createCompany(Company company, String userEPPN) {
-		ServiceLogger.log(logTag, "In createCompany, User: " + userEPPN + " creating company " + company);
+		ServiceLogger.log(logTag, "In createCompany, User: " + userEPPN + " creating company " + company.getName());
 
 		connection = DBConnector.connection();
 		Util util = Util.getInstance();
@@ -870,7 +874,7 @@ public class CompanyDao {
 		try {
 			if (!isMemberOfCompany(companyId, userIdEPPN) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, 0)) {
 				ServiceLogger.log(logTag, "User " + userIdEPPN + " is not a member of comapny " + companyId);
-				throw new HTTPException(HttpStatus.UNAUTHORIZED.value());
+				throw new HTTPException(HttpStatus.FORBIDDEN.value());
 			}
 		} catch (SQLException e) {
 			if (userIdEPPN == -1) {
@@ -913,5 +917,118 @@ public class CompanyDao {
 
 		return members;
 	}
+	
+	
+	public FollowedCompany postCompanyFollow(Integer accountId, Integer companyId, String userEPPN) throws DMCServiceException {
+		ServiceLogger.log(logTag, "Starting running postCompanyFollow: ");
+		String errorHeader = "CHECK AUTHORIZED USER ID : ";
+		FollowedCompany response201 = new FollowedCompany();
+		Connection connection = DBConnector.connection();
+		int userId = -1;
+		try {
+			userId = UserDao.getUserID(userEPPN);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, e.getMessage());
+		}
+		String errMessage = errorHeader + "current user id " + userId + " does not match id of request user " + accountId;
+		if(userId != accountId){
+			throw new DMCServiceException(DMCError.InvalidAccountId, errMessage);
+		}
+		
+		try {
+			connection.setAutoCommit(false);
+			final String query = "INSERT into user_company_follow (account_id, company_id) values (?, ?)";
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, accountId);
+			preparedStatement.setInt(2, companyId);
+			try {
+				preparedStatement.executeUpdate();
+			} catch (SQLException e) {
+				if(!e.getMessage().contains("duplicate key")){
+					ServiceLogger.log(logTag, "Unable to create follow company");
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "Unable to follow company" + e.getMessage());
+				}
+				
+			}
 
+			final String queryCompareService = "SELECT * from user_company_follow WHERE account_id = ? AND company_id = ?";
+			PreparedStatement preparedStatement2 = DBConnector.prepareStatement(queryCompareService);
+			preparedStatement2.setInt(1, accountId);
+			preparedStatement2.setInt(2, companyId);
+			resultSet = preparedStatement2.executeQuery();
+			//resultSet = DBConnector.executeQuery(queryCompareService);
+			
+			int id = -1;
+			if (resultSet.next()) {
+				id = resultSet.getInt("id");
+			}
+			resultSet.close();
+			response201.setId(id);
+			response201.setAccountId(accountId);
+			response201.setCompanyId(companyId);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				ServiceLogger.log(logTag, e1.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, "unable to rollback: " + e1.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+		} finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return response201;
+	}
+
+
+	public boolean unfollowCompanyByCompanyId(Integer followedCompanyId, String userEPPN) throws DMCServiceException{
+		ServiceLogger.log(logTag, "Start running unfollowCompanyByCompanyId: ");
+		Connection connection = DBConnector.connection();
+		int userId = -1;
+		try {
+			userId = UserDao.getUserID(userEPPN);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, e.getMessage());
+		}	
+		try {
+			connection.setAutoCommit(false);
+			final String query = "DELETE from user_company_follow WHERE account_id = ? AND company_id = ?";
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, userId);
+			preparedStatement.setInt(2, followedCompanyId);
+			int rowAffectedNum = preparedStatement.executeUpdate();
+			if(rowAffectedNum != 1){
+				ServiceLogger.log(logTag, "Unable to unfollow the company");
+				throw new DMCServiceException(DMCError.OtherSQLError, "Unable to unfollow the company");
+			}
+			return true;
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				ServiceLogger.log(logTag, e1.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, "Unable to roll back " + e1.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, "Unable to unfollow the company " + e.getMessage());
+		} finally {
+			if(connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }

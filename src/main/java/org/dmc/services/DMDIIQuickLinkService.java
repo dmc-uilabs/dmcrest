@@ -24,6 +24,9 @@ public class DMDIIQuickLinkService {
 
 	@Inject
 	private DMDIIQuickLinkRepository dmdiiQuickLinkRepository;
+	
+	@Inject
+	private DMDIIDocumentRepository dmdiiDocumentRespository;
 
 	@Inject
 	private DMDIIDocumentService dmdiiDocumentService;
@@ -61,29 +64,24 @@ public class DMDIIQuickLinkService {
 		Mapper<DMDIIQuickLink, DMDIIQuickLinkModel> linkMapper = mapperFactory.mapperFor(DMDIIQuickLink.class, DMDIIQuickLinkModel.class);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 
-		List<DMDIIQuickLink> freshLinks = new ArrayList<DMDIIQuickLink>();
-
-		List<DMDIIQuickLink> links = dmdiiQuickLinkRepository.findAllByOrderByCreatedDesc(new PageRequest(0, limit)).getContent();
-
-		for (DMDIIQuickLink link : links) {
+		List<DMDIIQuickLinkModel> freshLinks = linkMapper.mapToModel(dmdiiQuickLinkRepository.findAllByOrderByCreatedDesc(new PageRequest(0, limit)).getContent());
+		
+		for(DMDIIQuickLinkModel link : freshLinks) {
 			if(link.getDoc() != null) {
-				DMDIIDocument docEntity = dmdiiDocumentService.findOneEntity(link.getDoc().getId());
-				link.setDoc(docEntity);
+				DMDIIDocumentModel docModel = dmdiiDocumentService.findOne(link.getDoc().getId());
+				link.setDoc(docModel);
 			}
-
-			freshLinks.add(link);
 		}
-		return linkMapper.mapToModel(freshLinks);
+		return freshLinks;
 	}
 
 	@Transactional
 	public Boolean delete(Integer id) {
-		Mapper<DMDIIQuickLink, DMDIIQuickLinkModel> mapper = mapperFactory.mapperFor(DMDIIQuickLink.class, DMDIIQuickLinkModel.class);
-
+		
 		DMDIIQuickLink linkEntity = dmdiiQuickLinkRepository.findOne(id);
 		
 		if(linkEntity.getDoc() != null) {
-			DMDIIDocument docEntity = dmdiiDocumentService.findOneEntity(linkEntity.getDoc().getId());
+			DMDIIDocument docEntity = dmdiiDocumentRespository.findOne(linkEntity.getDoc().getId());
 			docEntity.setIsDeleted(true);
 			dmdiiDocumentRepository.save(docEntity);
 		}

@@ -4,7 +4,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.dmc.services.dmdiitype.DMDIIType;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.util.Date;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -16,9 +17,10 @@ import java.util.List;
 import java.util.Random;
 
 public class Entities {
-
+	
 	private static final Calendar today = GregorianCalendar.getInstance();
 	private static final Random RANDOM = new Random();
+
 	private static SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
 
 	private static final String ADDRESS = "Address";
@@ -34,6 +36,9 @@ public class Entities {
 	private static final String STATUS_NAME = "StatusName";
 	private static final String THRUST_CODE = "ThrustCode";
 	private static final String USER_NAME = "UserName";
+	public static final String DOCUMENT_NAME = "DocumentName";
+	public static final String DOCUMENT_URL = "https://test-final-verify.s3.amazonaws.com/ProjectOfDMDII/103552215657713056245%40google.com/Documents/1473359761-343968-sanitized-football.jpg?AWSAccessKeyId=AKIAJDE3BJULBHCYEX4Q&Expires=1475951762&Signature=p3U7tV%2Bk9rAx6jdNe5XGOzJz7ME%3D";
+	public static final String TAG_NAME = "TagName";
 
 	public static DMDIIProject dmdiiProject() throws Exception {
 		DMDIIProject dmdiiProject = new DMDIIProject();
@@ -379,14 +384,6 @@ public class Entities {
 		return dmdiiMemberFinance;
 	}
 
-	public static DMDIIInstituteInvolvement dmdiiInstituteInvolvement() throws ParseException {
-		DMDIIInstituteInvolvement instituteInvolvement = new DMDIIInstituteInvolvement();
-		//		instituteInvolvement.setId(1);
-		instituteInvolvement.setStaticLineItem("some static line item");
-		instituteInvolvement.setDate(new Date(format.parse("2016/05/25").getTime()));
-		return instituteInvolvement;
-	}
-
 	public static DMDIIMemberUser dmdiiMemberUser() {
 		DMDIIMemberUser dmdiiMemberUser = new DMDIIMemberUser();
 		//		dmdiiMemberUser.setId(1);
@@ -443,17 +440,75 @@ public class Entities {
 		return status;
 	}
 
-	private static java.util.Date getDateOneMonthAgo() {
+	private static Date getDateOneMonthAgo() {
 		return getSomeOtherDate(Calendar.MONTH, -1);
 	}
 
-	private static java.util.Date getDateOneMonthInFuture() {
+	private static Date getDateOneMonthInFuture() {
 		return getSomeOtherDate(Calendar.MONTH, 1);
 	}
 
-	private static java.util.Date getSomeOtherDate(int field, int amount) {
+	private static Date getSomeOtherDate(int field, int amount) {
 		Calendar calendar = GregorianCalendar.getInstance();
 		calendar.add(field, amount);
 		return calendar.getTime();
+	}
+	
+	public static DMDIIDocumentTag dmdiiDocumentTag() {
+		DMDIIDocumentTag dmdiiDocumentTag = new DMDIIDocumentTag();
+		dmdiiDocumentTag.setId(1000);
+		dmdiiDocumentTag.setTagName(TAG_NAME);
+		return dmdiiDocumentTag;
+	}
+
+	public static DMDIIDocument dmdiiDocument() throws Exception {
+		DMDIIDocument dmdiiDocument = new DMDIIDocument();
+		
+		List<DMDIIDocumentTag> tagList = new ArrayList<>();
+		tagList.add(dmdiiDocumentTag());
+		
+		dmdiiDocument.setId(1000);
+		dmdiiDocument.setDocumentName(DOCUMENT_NAME);
+		dmdiiDocument.setDocumentUrl(DOCUMENT_URL);
+		dmdiiDocument.setDmdiiProject(dmdiiProject());
+		dmdiiDocument.setOwner(user());
+		dmdiiDocument.setTags(tagList);
+		dmdiiDocument.setModified(new Date());
+		dmdiiDocument.setExpires(new Timestamp(System.currentTimeMillis()));
+		dmdiiDocument.setIsDeleted(false);
+		dmdiiDocument.setAccessLevel(DMDIIProjectItemAccessLevel.PROJECT_PARTICIPANT_VIPS);
+		dmdiiDocument.setFileType(2);
+		dmdiiDocument.setVerified(true);
+		
+		return dmdiiDocument;
+	}
+	
+	public static DocumentTag documentTag() {
+		DocumentTag documentTag = new DocumentTag();
+		documentTag.setId(1000);
+		documentTag.setTagName(TAG_NAME);
+		return documentTag;
+	}
+	
+	public static Document document() throws Exception {
+		Document document = new Document();
+		
+		List<DocumentTag> tagList = new ArrayList<>();
+		tagList.add(documentTag());
+		
+		document.setId(1000);
+		document.setDocumentName(DOCUMENT_NAME);
+		document.setDocumentUrl(DOCUMENT_URL);
+		document.setParentType(DocumentParentType.ORGANIZATION);
+		document.setParentId(1000);
+		document.setOwner(user());
+		document.setTags(tagList);
+		document.setModified(new Timestamp(System.currentTimeMillis()));
+		document.setExpires(new Timestamp(getDateOneMonthInFuture().getTime()));
+		document.setIsDeleted(false);
+		document.setDocClass(DocumentClass.LOGO);
+		document.setVerified(true);
+		
+		return document;
 	}
 }

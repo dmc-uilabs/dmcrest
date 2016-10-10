@@ -3,14 +3,24 @@ package org.dmc.services.data.models;
 import java.util.Date;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
+import org.dmc.services.data.entities.DocumentClass;
+import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.web.validator.AWSLink;
+
 public class DocumentModel extends BaseModel {
 
 	private String documentName;
 
+	@AWSLink
 	private String documentUrl;
+	
+	private DocumentParentType parentType;
+	
+	private Integer parentId;
 
-	private Integer organizationId;
-
+	@NotNull
 	private Integer ownerId;
 
 	private List<DocumentTagModel> tags;
@@ -18,14 +28,8 @@ public class DocumentModel extends BaseModel {
 	private Date modified;
 
 	private Date expires;
-
-	private Boolean isDeleted;
 	
-	private Integer fileType;
-	
-	private Boolean verified;
-	
-	private String accessLevel;
+	private DocumentClass docClass;
 
 	public String getDocumentName() {
 		return documentName;
@@ -35,20 +39,28 @@ public class DocumentModel extends BaseModel {
 		this.documentName = documentName;
 	}
 
+	public DocumentParentType getParentType() {
+		return parentType;
+	}
+
+	public void setParentType(DocumentParentType parentType) {
+		this.parentType = parentType;
+	}
+
+	public Integer getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Integer parentId) {
+		this.parentId = parentId;
+	}
+
 	public String getDocumentUrl() {
 		return documentUrl;
 	}
 
 	public void setDocumentUrl(String documentUrl) {
 		this.documentUrl = documentUrl;
-	}
-
-	public Integer getOrganizationId() {
-		return organizationId;
-	}
-
-	public void setOrganizationId(Integer organizationId) {
-		this.organizationId = organizationId;
 	}
 
 	public Integer getOwnerId() {
@@ -83,36 +95,12 @@ public class DocumentModel extends BaseModel {
 		this.expires = expires;
 	}
 
-	public Boolean getIsDeleted() {
-		return isDeleted;
+	public DocumentClass getDocClass() {
+		return docClass;
 	}
 
-	public void setIsDeleted(Boolean isDeleted) {
-		this.isDeleted = isDeleted;
-	}
-
-	public Integer getFileType() {
-		return fileType;
-	}
-
-	public void setFileType(Integer fileType) {
-		this.fileType = fileType;
-	}
-
-	public Boolean getVerified() {
-		return verified;
-	}
-
-	public void setVerified(Boolean verified) {
-		this.verified = verified;
-	}
-
-	public String getAccessLevel() {
-		return accessLevel;
-	}
-
-	public void setAccessLevel(String accessLevel) {
-		this.accessLevel = accessLevel;
+	public void setDocClass(DocumentClass docClass) {
+		this.docClass = docClass;
 	}
 
 }

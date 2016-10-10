@@ -1,24 +1,11 @@
 package org.dmc.services.data.entities;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
+import org.dmc.services.ParentDocumentService;
 import org.hibernate.annotations.Where;
 
 @Entity
@@ -36,9 +23,12 @@ public class Document extends BaseEntity {
 	@Column(name = "url")
 	private String documentUrl;
 	
-	@ManyToOne
-	@JoinColumn(name = "organization_id")
-	private Organization organization;
+	@Column(name = "parent_type")
+	@Enumerated(EnumType.STRING)
+	private DocumentParentType parentType;
+	
+	@Column(name = "parent_id")
+	private Integer parentId;
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
@@ -51,8 +41,7 @@ public class Document extends BaseEntity {
 	private List<DocumentTag> tags;
 
 	@Column(name = "modified")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date modified;
+	private Timestamp modified;
 
 	@Column(name = "expires")
 	private Timestamp expires;
@@ -61,11 +50,12 @@ public class Document extends BaseEntity {
 	private Boolean isDeleted = false;
 	
 	@Column(name = "access_level")
-	@Enumerated(EnumType.STRING)
-	private DMDIIProjectItemAccessLevel accessLevel;
+	//TODO: create enum for site-wide accessLevel
+	private String accessLevel;
 	
-	@Column(name = "file_type_id")
-	private Integer fileType;
+	@Column(name = "doc_class")
+	@Enumerated(EnumType.STRING)
+	private DocumentClass docClass;
 	
 	@Column(name = "verified")
 	private Boolean verified = false;
@@ -94,12 +84,20 @@ public class Document extends BaseEntity {
 		this.documentUrl = documentUrl;
 	}
 
-	public Organization getOrganization() {
-		return organization;
+	public DocumentParentType getParentType() {
+		return parentType;
 	}
 
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
+	public void setParentType(DocumentParentType parentType) {
+		this.parentType = parentType;
+	}
+
+	public Integer getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(Integer parentId) {
+		this.parentId = parentId;
 	}
 
 	public User getOwner() {
@@ -118,11 +116,11 @@ public class Document extends BaseEntity {
 		this.tags = tags;
 	}
 
-	public Date getModified() {
+	public Timestamp getModified() {
 		return modified;
 	}
 
-	public void setModified(Date modified) {
+	public void setModified(Timestamp modified) {
 		this.modified = modified;
 	}
 	
@@ -142,20 +140,20 @@ public class Document extends BaseEntity {
 		this.isDeleted = isDeleted;
 	}
 
-	public DMDIIProjectItemAccessLevel getAccessLevel() {
+	public String getAccessLevel() {
 		return accessLevel;
 	}
 
-	public void setAccessLevel(DMDIIProjectItemAccessLevel accessLevel) {
+	public void setAccessLevel(String accessLevel) {
 		this.accessLevel = accessLevel;
 	}
 
-	public Integer getFileType() {
-		return fileType;
+	public DocumentClass getDocClass() {
+		return docClass;
 	}
 
-	public void setFileType(Integer fileType) {
-		this.fileType = fileType;
+	public void setDocClass(DocumentClass docClass) {
+		this.docClass = docClass;
 	}
 
 	public Boolean getVerified() {
@@ -171,7 +169,7 @@ public class Document extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((accessLevel == null) ? 0 : accessLevel.hashCode());
-		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
+		result = prime * result + ((docClass == null) ? 0 : docClass.hashCode());
 		result = prime * result + ((documentName == null) ? 0 : documentName.hashCode());
 		result = prime * result + ((documentUrl == null) ? 0 : documentUrl.hashCode());
 		result = prime * result + ((expires == null) ? 0 : expires.hashCode());
@@ -179,7 +177,10 @@ public class Document extends BaseEntity {
 		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
 		result = prime * result + ((modified == null) ? 0 : modified.hashCode());
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+		result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
+		result = prime * result + ((parentType == null) ? 0 : parentType.hashCode());
 		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
+		result = prime * result + ((verified == null) ? 0 : verified.hashCode());
 		return result;
 	}
 
@@ -192,12 +193,15 @@ public class Document extends BaseEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		Document other = (Document) obj;
-		if (accessLevel != other.accessLevel)
-			return false;
-		if (organization == null) {
-			if (other.organization != null)
+		if (accessLevel == null) {
+			if (other.accessLevel != null)
 				return false;
-		} else if (!organization.equals(other.organization))
+		} else if (!accessLevel.equals(other.accessLevel))
+			return false;
+		if (docClass == null) {
+			if (other.docClass != null)
+				return false;
+		} else if (!docClass.equals(other.docClass))
 			return false;
 		if (documentName == null) {
 			if (other.documentName != null)
@@ -234,11 +238,25 @@ public class Document extends BaseEntity {
 				return false;
 		} else if (!owner.equals(other.owner))
 			return false;
+		if (parentId == null) {
+			if (other.parentId != null)
+				return false;
+		} else if (!parentId.equals(other.parentId))
+			return false;
+		if (parentType != other.parentType)
+			return false;
 		if (tags == null) {
 			if (other.tags != null)
 				return false;
 		} else if (!tags.equals(other.tags))
 			return false;
+		if (verified == null) {
+			if (other.verified != null)
+				return false;
+		} else if (!verified.equals(other.verified))
+			return false;
 		return true;
 	}
+
+	
 }

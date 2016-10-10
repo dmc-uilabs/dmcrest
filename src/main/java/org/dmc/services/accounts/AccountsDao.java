@@ -13,6 +13,7 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.utils.SQLUtils;
 import org.dmc.services.company.CompanyDao;
 
 import javax.xml.ws.http.HTTPException;
@@ -36,7 +37,7 @@ class AccountsDao {
         }
         
         if(user_id_lookedup != user_id) {
-            throw new HTTPException(HttpStatus.UNAUTHORIZED.value()); // user id for userEPPN does not match user_id_string, return default UserAccount
+            throw new HTTPException(HttpStatus.FORBIDDEN.value()); // user id for userEPPN does not match user_id_string, return default UserAccount
         }
         
         UserAccount userAccount = new UserAccount();
@@ -200,5 +201,50 @@ class AccountsDao {
 
 		return userAccountServers;
 	}
-    
+	
+	
+	public List<FollowingCompany> getFollowingCompaniesByAccountId(String accountID, Integer limit, String order,
+			String sort, String userEPPN) throws DMCServiceException {
+		ServiceLogger.log(logTag, "Start running getFollowingCompaniesByAccountId: ");
+		FollowingCompany followingCompany = null;
+		List<FollowingCompany> followingCompanies = new ArrayList<FollowingCompany>();
+		int userId = -1;
+		try {
+			userId = UserDao.getUserID(userEPPN);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.UnknownUser, e.getMessage());
+		}	
+		if(userId != Integer.parseInt(accountID)){
+			ServiceLogger.log(logTag, "Current user is not authorized user!");
+			throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, "Current user is not authorized user!");
+			
+		}
+		try {
+			final ArrayList<String> columnsInUserCompanyFollowTable = new ArrayList<String>();
+			columnsInUserCompanyFollowTable.add("id");
+			columnsInUserCompanyFollowTable.add("account_id");
+			columnsInUserCompanyFollowTable.add("company_id");
+			
+			String query = "SELECT * from user_company_follow WHERE account_id = " + Integer.parseInt(accountID);
+			query += SQLUtils.buildOrderByClause(order,  sort, columnsInUserCompanyFollowTable);
+			query += SQLUtils.buildLimitClause(limit);
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.execute();
+			ResultSet resultSet = preparedStatement.getResultSet();
+			while (resultSet.next()) {
+				followingCompany = new FollowingCompany();
+				followingCompany.setId(resultSet.getString("id"));
+				followingCompany.setCompanyId(resultSet.getString("company_id"));
+				followingCompany.setAccountId(resultSet.getString("account_id"));
+				followingCompanies.add(followingCompany);
+			}
+			return followingCompanies;
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			throw new DMCServiceException(DMCError.OtherSQLError,
+					"Unable to get following companies " + e.getMessage());
+		} 
+
+	}
 }

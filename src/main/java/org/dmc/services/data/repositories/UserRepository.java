@@ -24,4 +24,7 @@ public interface UserRepository extends BaseRepository<User, Integer> {
 	List<User> findAllWhereDmdiiMemberExpiryDateIsAfterNow();
 
 	User findByUsername(String username);
+	
+	@Query("SELECT ura.user FROM UserRoleAssignment ura WHERE ura.organization.id = :organizationId AND ura.role.role = :role")
+	List<User> findByOrganizationIdAndRole(@Param("organizationId") Integer organizationId, @Param("role") String role);
 }

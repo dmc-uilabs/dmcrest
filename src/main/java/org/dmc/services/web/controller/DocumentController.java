@@ -1,20 +1,26 @@
 package org.dmc.services.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DocumentModel;
-import org.dmc.services.web.validator.AWSLinkValidator;
-import org.springframework.validation.BindingResult;
+import org.dmc.services.data.models.PagedResponse;
+import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,48 +31,40 @@ public class DocumentController {
 	@Inject
 	private DocumentService documentService;
 	
-	@Inject
-	private AWSLinkValidator awsLinkValidator;
-	
-	@RequestMapping(value="/document/{documentId}", method = RequestMethod.GET)
-	public DocumentModel getDocumentByDocumentId(@PathVariable("documentId") Integer documentId) {
-		ServiceLogger.log(logTag, "In getDocumentByDocumentId: " + documentId);
+	@RequestMapping(value="/documents/{id}", method = RequestMethod.GET)
+	public DocumentModel getDocument(@PathVariable("id") Integer id) {
+		ServiceLogger.log(logTag, "In getDocumentByDocumentId: " + id);
 		
-		return documentService.findOne(documentId);
+		return documentService.findOne(id);
 	}
 	
-	@RequestMapping(value="/documents/organization", params = {"organizationId", "fileTypeId", "limit"}, method = RequestMethod.GET)
-	public List<DocumentModel> getDocumentsByOrganizationIdAndFileTypeId (@RequestParam("organizationId") Integer organizationId, 
-			@RequestParam("fileTypeId") Integer fileTypeId, @RequestParam("limit") Integer limit) {
-		ServiceLogger.log(logTag, "In getDocumentsByOrganizationIdAndFileTypeId: organizationId = " + organizationId + " and fileTypeId = " + fileTypeId);
-		return documentService.findDocumentsByOrganizationIdAndFileTypeId(organizationId, fileTypeId, limit);
+	@RequestMapping(value="/documents", params = {"recent"}, method = RequestMethod.GET)
+	public PagedResponse getDocuments (@RequestParam("recent") Integer recent, 
+										@RequestParam(value = "page", defaultValue = "0") Integer page, 
+										@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, 
+										@RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
+		ServiceLogger.log(logTag, "In getDocuments filter: ");
+		List<? extends BaseModel> results = documentService.filter(params, recent, page, pageSize);
+		Long count = documentService.count(params);
+		return new PagedResponse(count, results);
 	}
 	
-	@RequestMapping(value="/document/organization", params = {"organizationId", "fileTypeId"}, method = RequestMethod.GET)
-	public DocumentModel getMostRecentDocumentByFileTypeIdAndOrganizationId (@RequestParam("fileTypeId") Integer fileTypeId, @RequestParam("organizationId") Integer organizationId) {
-		ServiceLogger.log(logTag, "in getMostRecentDocumentByFileTypeIdAndOrganizationId: fileTypeId = " + fileTypeId + " and organizationId = " + organizationId);
-		return documentService.findMostRecentDocumentByFileTypeIdAndOrganizationId(fileTypeId, organizationId);
-	}
-	
-	@RequestMapping(value="/document", method = RequestMethod.POST)
-	public DocumentModel postDocument (@RequestBody DocumentModel doc, BindingResult result) throws DMCServiceException {
+	@RequestMapping(value="/documents", method = RequestMethod.POST)
+	public DocumentModel postDocument (@RequestBody @Valid DocumentModel doc) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In postDocument " + doc.getDocumentName());
-		validateSaveDocument(doc.getDocumentUrl(), result);
-		return documentService.save(doc, result);
-	}
-
-	private void validateSaveDocument(String documentUrl, BindingResult result) {
-		awsLinkValidator.validate(documentUrl, result);		
+		return documentService.save(doc);
 	}
 	
-	@RequestMapping(value="/document/{documentId}", method = RequestMethod.DELETE)
-	public DocumentModel deleteDocument (@PathVariable("documentId") Integer documentId) {
+	@ResponseStatus(HttpStatus.OK)
+	@RequestMapping(value="/documents/{documentId}", method = RequestMethod.DELETE)
+	public void deleteDocument (@PathVariable("documentId") Integer documentId) {
 		ServiceLogger.log(logTag, "In deleteDocument id = " + documentId);
-		return documentService.delete(documentId);
+		documentService.delete(documentId);
 	}
 	
-	@RequestMapping(value="/document/organization/count", params = {"organizationId", "fileTypeId"}, method = RequestMethod.GET)
-	public Long countDocumentsByOrganizationIdAndFileTypeId (@RequestParam("organizationId") Integer organizationId, @RequestParam("fileTypeId") Integer fileTypeId) {
-		return documentService.countDocumentsByOrganizationIdAndFileType(organizationId, fileTypeId);
+	@RequestMapping(value="/documents/{documentId}", method = RequestMethod.PATCH)
+	public DocumentModel updateDocument (@RequestBody DocumentModel doc, @PathVariable("documentId") Integer documentId) {
+		ServiceLogger.log(logTag, "In updateDocument: documentId = " + documentId);
+		return documentService.update(doc);
 	}
 }

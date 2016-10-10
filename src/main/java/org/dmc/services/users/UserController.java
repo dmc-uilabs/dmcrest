@@ -14,6 +14,7 @@ import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
+import org.dmc.services.notification.NotificationService;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
@@ -24,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -48,6 +48,9 @@ public class UserController {
 
 	@Inject
 	private UserPrincipalService userPrincipalService;
+	
+	@Inject
+	private NotificationService notificationService;
 
     @RequestMapping(value = "/users/create", method = RequestMethod.POST, headers = {"Content-type=text/plain"})
 	public Id createUser(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
@@ -95,8 +98,9 @@ public class UserController {
 	}
 
     @RequestMapping(value = "/user/save", method = RequestMethod.POST)
-	public UserModel saveUser(@RequestBody UserModel user) {
-		return userService.save(user);
+	public UserModel saveUser(@RequestBody UserModel user,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		return userService.save(user, userEPPN);
 	}
 
 	@RequestMapping(value = "/user/organization/{organizationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -158,11 +162,15 @@ public class UserController {
 		}
 		return orgUserService.changeOrganization(orgUser);
 	}
+	
+	@RequestMapping(value = "/users/{userId}/notifications", params = "action=markAllRead", method = RequestMethod.PUT)
+	public void markNotificationsAsRead(@PathVariable("userId") Integer userId) {
+		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (!userId.equals(loggedIn.getId())) {
+			throw new AccessDeniedException("403 Permission Denied");
+		}
+		
+		notificationService.markAllNotificationsReadForUser(userId);
+	}
 
-    @ExceptionHandler(Exception.class)
-    public ErrorMessage handleException(Exception ex) {
-        ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
-    	ServiceLogger.log(logTag, ex.getMessage() + " Error message " + result);
-    	return result;
-    }
 }
