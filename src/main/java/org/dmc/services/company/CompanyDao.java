@@ -225,7 +225,7 @@ public class CompanyDao {
 					+ "upcoming_project_interests, address_id, email, phone, "
 					+ "website, social_media_linkedin, social_media_twitter, "
 					+ "perfered_comm_method, category_tier, date_joining, reason_joining, "
-					+ "feature_image, logo_image, follow, favorites_count, is_owner, owner)"
+					+ "feature_image, follow, favorites_count, is_owner, owner)"
 					+ "values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 			statement = DBConnector.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -256,11 +256,10 @@ public class CompanyDao {
 			statement.setString(25, company.getDateJoined());
 			statement.setString(26, company.getReasonJoining());
 			statement.setInt(27, commonImageId);
-			statement.setString(28, company.getLogoImage());
-			statement.setBoolean(29, company.getFollow());
-			statement.setInt(30, company.getFavoritesCount());
-			statement.setBoolean(31, company.getIsOwner());
-			statement.setString(32, company.getOwner());
+			statement.setBoolean(28, company.getFollow());
+			statement.setInt(29, company.getFavoritesCount());
+			statement.setBoolean(30, company.getIsOwner());
+			statement.setString(31, company.getOwner());
 			statement.executeUpdate();
 			id = util.getGeneratedKey(statement, "organization_id");
 			ServiceLogger.log(logTag, "ORGANIZATION/COMPANY ID: " + id);
@@ -408,7 +407,7 @@ public class CompanyDao {
 				+ "address_id = ?, email = ?, phone = ?, "
 	            + "website = ?, social_media_linkedin = ?, social_media_twitter = ?, "
 				+ "perfered_comm_method = ?, category_tier = ?, date_joining = ?, reason_joining = ?, "
-				+ "feature_image = ?, logo_image = ?, follow = ?, favorites_count = ?, is_owner = ?, owner = ? "
+				+ "feature_image = ?, follow = ?, favorites_count = ?, is_owner = ?, owner = ? "
 				+ "WHERE organization_id = ?";
 
 				preparedStatement = DBConnector.prepareStatement(query);
@@ -439,12 +438,11 @@ public class CompanyDao {
 				preparedStatement.setString(25, company.getDateJoined());
 				preparedStatement.setString(26, company.getReasonJoining());
 				preparedStatement.setInt(27, commonImageId);
-				preparedStatement.setString(28, company.getLogoImage());
-				preparedStatement.setBoolean(29, company.getFollow());
-				preparedStatement.setInt(30, company.getFavoritesCount());
-				preparedStatement.setBoolean(31, company.getIsOwner());
-				preparedStatement.setString(32, company.getOwner());
-		        preparedStatement.setInt(33, companyId);
+				preparedStatement.setBoolean(28, company.getFollow());
+				preparedStatement.setInt(29, company.getFavoritesCount());
+				preparedStatement.setBoolean(30, company.getIsOwner());
+				preparedStatement.setString(31, company.getOwner());
+		        preparedStatement.setInt(32, companyId);
 		        preparedStatement.executeUpdate();
 
 		        connection.commit();

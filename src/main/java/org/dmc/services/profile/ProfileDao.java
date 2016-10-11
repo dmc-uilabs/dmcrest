@@ -164,7 +164,7 @@ public class ProfileDao {
 
 			// update user
 			query = "UPDATE users SET "
-					+ "realname = ?, title = ?, phone = ?, email = ?, address = ?, image = ?, people_resume = ? "
+					+ "realname = ?, title = ?, phone = ?, email = ?, address = ?, people_resume = ? "
 					+ "WHERE user_id = ? AND user_name = ?";
 
 			statement = DBConnector.prepareStatement(query);
@@ -173,10 +173,9 @@ public class ProfileDao {
 			statement.setString(3, profile.getPhone());
 			statement.setString(4, profile.getEmail());
 			statement.setString(5, profile.getLocation());
-			statement.setString(6, profile.getImage());
-			statement.setString(7, profile.getDescription());
-			statement.setInt(8, id);
-			statement.setString(9, userEPPN);
+			statement.setString(6, profile.getDescription());
+			statement.setInt(7, id);
+			statement.setString(8, userEPPN);
 			// @TODO set company
 			statement.executeUpdate();
 
@@ -213,18 +212,6 @@ public class ProfileDao {
 					// don't really need to do anything
 				}
 			}
-		}
-
-		ServiceLogger.log(LOGTAG, "Attempting to verify document");
-		// Verify the document
-		try {
-			String temp = verify.verify(id, profile.getImage(), "users", userEPPN, "Profiles", "ProfilePictures",
-					"user_id", "image");
-			ServiceLogger.log(LOGTAG, "Verification Machine Response" + temp);
-			ServiceLogger.log(LOGTAG, "Returned from Verification machine");
-		} catch (Exception e) {
-			ServiceLogger.log(LOGTAG, "Unable to verify user profile image: " + e.getMessage());
-			throw new DMCServiceException(DMCError.AWSError, e.getMessage());
 		}
 
 		return new Id.IdBuilder(id).build();
