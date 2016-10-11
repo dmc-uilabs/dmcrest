@@ -7,24 +7,13 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.dmc.services.data.entities.OnboardingStatus;
-import org.dmc.services.data.entities.Organization;
-import org.dmc.services.data.entities.OrganizationAuthorizedIdp;
-import org.dmc.services.data.entities.OrganizationUser;
-import org.dmc.services.data.entities.User;
-import org.dmc.services.data.entities.UserRoleAssignment;
-import org.dmc.services.data.entities.UserToken;
+import org.dmc.services.data.entities.*;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
-import org.dmc.services.data.repositories.OnboardingStatusRepository;
-import org.dmc.services.data.repositories.OrganizationAuthorizedIdpRepository;
-import org.dmc.services.data.repositories.OrganizationRepository;
-import org.dmc.services.data.repositories.OrganizationUserRepository;
-import org.dmc.services.data.repositories.UserRepository;
-import org.dmc.services.data.repositories.UserTokenRepository;
+import org.dmc.services.data.repositories.*;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.notification.NotificationService;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
@@ -71,6 +60,9 @@ public class UserService {
 	@Inject
 	private OrganizationAuthorizedIdpRepository idpRepository;
 
+	@Inject
+	private DocumentRepository documentRepository;
+
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findOne(id));
@@ -85,6 +77,7 @@ public class UserService {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		User user = mapper.mapToEntity(userModel);
 		user.setUsername(userEPPN);
+		this.updateUserProfileLogo(user);
 		return mapper.mapToModel(userRepository.save(user));
 	}
 
@@ -343,6 +336,8 @@ public class UserService {
 			currentUser.setOrganizationUser(updateOrganizationUser(currentUser, patchUser.getCompanyId()));
 		}
 
+		this.updateUserProfileLogo(currentUser);
+
 		return userMapper.mapToModel(userRepository.save(currentUser));
 	}
 
@@ -351,5 +346,15 @@ public class UserService {
 		Organization newOrganization = organizationRepository.findOne(newOrganizationId);
 		notificationService.notifyOrgAdminsOfNewUser(newOrganizationId, user);
 		return orgUserRepo.save(new OrganizationUser(user, newOrganization, false));
+	}
+
+	private void updateUserProfileLogo(User user){
+		if(user.getId() != null){
+			Document document = this.documentRepository.
+					findFirstByParentTypeAndDocClassAndOwnerOrderByModifiedDesc(DocumentParentType.USER, DocumentClass.PROFILE, user);
+			if(document != null){
+				user.setImage(document.getDocumentUrl());
+			}
+		}
 	}
 }
