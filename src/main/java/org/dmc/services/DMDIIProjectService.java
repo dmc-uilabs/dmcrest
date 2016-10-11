@@ -221,11 +221,33 @@ public class DMDIIProjectService {
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 
 		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
-		DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
-		projectEntity.setPrimeOrganization(memberEntity);
+		
+		if(project.getPrimeOrganization() != null) {
+			DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
+			projectEntity.setPrimeOrganization(memberEntity);
+		}
 
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
 
+		return projectMapper.mapToModel(projectEntity);
+	}
+	
+	public DMDIIProjectModel update (DMDIIProjectModel project) {
+		Assert.notNull(project);
+		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
+
+		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
+		DMDIIProject oldEntity = dmdiiProjectRepository.findOne(project.getId());
+		Assert.notNull(oldEntity);
+
+		if(project.getPrimeOrganization() != null) {
+			DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
+			projectEntity.setPrimeOrganization(memberEntity);
+		}
+		
+		projectEntity = dmdiiProjectRepository.save(projectEntity);
+		
 		return projectMapper.mapToModel(projectEntity);
 	}
 
