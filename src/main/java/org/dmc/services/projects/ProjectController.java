@@ -36,7 +36,6 @@ public class ProjectController {
 	private ProjectDao project = new ProjectDao();
 	private ProjectDao projectDao = new ProjectDao();
 	private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
-	private ProjectDocumentDao projectDocumentDao = new ProjectDocumentDao(); 
 
 	@RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
 	public Project getProject(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
@@ -166,30 +165,6 @@ public class ProjectController {
 				throw e;
 			}
 		}
-	}
-
-	/* 
-	 * GWT PROJECT DOCUMENT, returns an array of ProjectDocuments POJO
-	 */
-	@RequestMapping(value = "/projects/{projectID}/project_documents",method = RequestMethod.GET,  produces = {"application/json"} )
-	public ResponseEntity getProjectDocumentsId(@PathVariable("projectID") int projectID,
-			@RequestParam(value = "documentGroupId", required = true, defaultValue="0") Integer documentGroupId, 
-			@RequestParam(value = "limit", defaultValue = "100", required=false) Integer limit,
-	        @RequestParam(value = "order", defaultValue = "ASC", required=false) String order,
-	        @RequestParam(value = "sort", defaultValue = "file_id", required=false) String sort) {
-
-		ServiceLogger.log(logTag, " GET ProjectDocuments by Project " + projectID);
-		int statusCode = HttpStatus.OK.value();
-		ArrayList<ProjectDocument> documentList = null;
-		
-		try {
-			documentList = projectDocumentDao.getProjectDocuments(projectID, documentGroupId, limit, order, sort);
-			return new ResponseEntity<ArrayList<ProjectDocument>>(documentList, HttpStatus.valueOf(statusCode));
-
-		} catch(DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-		}		
 	}
 	
 	/**

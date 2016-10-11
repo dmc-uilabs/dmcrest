@@ -22,6 +22,11 @@ import org.dmc.services.utils.SQLUtils;
 
 public class FavoriteProductsDao {
 
+    private final Integer DEFAULT_LIMIT = 25;
+    private final String DEFAULT_ORDER = "DESC";
+    private final Integer DEFAULT_START = 0;
+    private final String DEFAULT_SORT = "id";
+    
 	private final String logTag = FavoriteProductsDao.class.getName();
 	
     public FavoriteProduct createFavoriteProduct(Integer accountId, Integer serviceId, String userEPPN) throws DMCServiceException {
@@ -87,23 +92,23 @@ public class FavoriteProductsDao {
     }
     
     public List<FavoriteProduct> getFavoriteProductForAccounts(List<Integer> accountIds, String userEPPN) throws DMCServiceException {
-        return getFavoriteProductForAccounts(accountIds, null, null, null, userEPPN);
+        return getFavoriteProductForAccounts(accountIds, DEFAULT_LIMIT, DEFAULT_ORDER, DEFAULT_START, DEFAULT_SORT, userEPPN);
     }
     
-    public List<FavoriteProduct> getFavoriteProductForAccounts(List<Integer> accountIds, Integer limit, String order, String sort, String userEPPN) throws DMCServiceException {
-        return getFavoriteProductByIds(accountIds, limit, order, sort, userEPPN, "account_id");
+    public List<FavoriteProduct> getFavoriteProductForAccounts(List<Integer> accountIds, Integer limit, String order, Integer start, String sort, String userEPPN) throws DMCServiceException {
+        return getFavoriteProductByIds(accountIds, limit, order, start, sort, userEPPN, "account_id");
     }
     
     public List<FavoriteProduct> getFavoriteProductForServices(List<Integer> serviceIds, String userEPPN) throws DMCServiceException {
-        return getFavoriteProductForServices(serviceIds, null, null, null, userEPPN);
+        return getFavoriteProductForServices(serviceIds, DEFAULT_LIMIT, DEFAULT_ORDER, DEFAULT_START, DEFAULT_SORT, userEPPN);
     }
     
-    private List<FavoriteProduct> getFavoriteProductForServices(List<Integer> serviceIds, Integer limit, String order, String sort, String userEPPN) throws DMCServiceException {
-        return getFavoriteProductByIds(serviceIds, limit, order, sort, userEPPN, "service_id");
+    private List<FavoriteProduct> getFavoriteProductForServices(List<Integer> serviceIds, Integer limit, String order, Integer start, String sort, String userEPPN) throws DMCServiceException {
+        return getFavoriteProductByIds(serviceIds, limit, order, start, sort, userEPPN, "service_id");
     }
 
     
-    private List<FavoriteProduct> getFavoriteProductByIds(List<Integer> ids, Integer limit, String order, String sort, String userEPPN, String column) {
+    private List<FavoriteProduct> getFavoriteProductByIds(List<Integer> ids, Integer limit, String order, Integer start, String sort, String userEPPN, String column) {
         ListIterator<Integer> iterator = ids.listIterator();
         ArrayList<FavoriteProduct> favoriteProducts = new ArrayList<FavoriteProduct>();
 
@@ -113,17 +118,23 @@ public class FavoriteProductsDao {
         
         while(iterator.hasNext()) {
             Integer id = iterator.next();
-            
-            String sqlSelectFavoriteProduct = "SELECT * FROM favorite_products WHERE " + column + " = ?";
-            
-            // ADD limit clause
-            // ADD order clause
-            // ADD sort clause
+/*
+            ArrayList<String> validFieldsForSort = new ArrayList<String>();
+            validFieldsForSort.add("id");
+            final String orderClause = SQLUtils.buildOrderByClause(order, sort, validFieldsForSort);
+  */
+//            String sqlSelectFavoriteProduct = "SELECT * FROM favorite_products WHERE " + column + " = ? "+orderClause+" LIMIT ? OFFSET ?";
+            String sqlSelectFavoriteProduct = "SELECT * FROM favorite_products WHERE " + column + " = ? LIMIT ? OFFSET ?";
 
+            ServiceLogger.log(logTag, sqlSelectFavoriteProduct);
+            
             PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlSelectFavoriteProduct);
             
             try {
                 preparedStatement.setInt(1, id);
+                preparedStatement.setInt(2, limit);
+                preparedStatement.setInt(3, start);
+
                 final ResultSet resultSet = preparedStatement.executeQuery();
             
                 while(resultSet.next()) {
@@ -147,9 +158,12 @@ public class FavoriteProductsDao {
         
         ArrayList<String> validFieldsForSort = new ArrayList<String>();
         validFieldsForSort.add("count");
+        validFieldsForSort.add("id");
         final String orderClause = SQLUtils.buildOrderByClause(order, sort, validFieldsForSort);
         
         String sqlSelectFavoriteProduct = "select service_id, count(service_id) from favorite_products GROUP BY service_id "+orderClause+" LIMIT ? OFFSET ?";
+        ServiceLogger.log(logTag, sqlSelectFavoriteProduct);
+
         PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlSelectFavoriteProduct);
         try {
             preparedStatement.setInt(1, limit);

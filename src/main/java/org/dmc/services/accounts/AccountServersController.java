@@ -92,6 +92,9 @@ public class AccountServersController {
 		UserAccountServer userAccountServer = null;
 		
 		try {
+			UserAccountServer original = accountServersDao.getUserAccountServer(Integer.parseInt(serverID), userEPPN);
+			server.setId(original.getId());
+			server.setAccountId(original.getAccountId());
 			userAccountServer = accountServersDao.patchUserAccountServer(serverID, server, userEPPN);
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(logTag, e.getMessage());
