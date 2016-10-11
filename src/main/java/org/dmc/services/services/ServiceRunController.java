@@ -1,40 +1,22 @@
 package org.dmc.services.services;
 
-import org.apache.commons.io.IOUtils;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyUserUtil;
-import org.dmc.services.projects.ProjectController;
-import org.dmc.services.projects.ProjectCreateRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.json.JSONArray;
 import org.json.JSONObject;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import springfox.documentation.spring.web.json.Json;
-
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 
 @RestController
 public class ServiceRunController {

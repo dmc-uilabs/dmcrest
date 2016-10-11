@@ -1,4 +1,4 @@
-package org.dmc.services.services;
+package org.dmc.services.serviceRunTests;
 
 /*import java.io.BufferedReader;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,17 +48,20 @@ import org.apache.http.impl.client.HttpClients;
 public class ServiceRunFileUploadTest {
 	private static final String LOGTAG = ServiceRunFileUploadTest.class.getName();
 	
-	public static void main(String[] args)
+//	public static void main(String[] args)
+	public static void test(String[] args)
 	{
-		String modelString = "{\"interFace\":{\"version\":1,\"modelId\":\"aff647da-d82f-1004-8e7b-5de38b2eeb0f\",\"interfaceId\":\"aff647db-d82f-1004-8e7b-5de38b2eeb0f\",\"type\":\"interface\",\"name\":\"Default Interface\",\"path\":[30]},\"inParams\":{\"SpecimenWidth\":{\"name\":\"SpecimenWidth\",\"type\":\"Real\",\"unit\":\"meter\",\"category\":\"length\",\"value\":3,\"parameterid\":\"d9f30f3a-d800-1004-8f53-704dbfababa8\"},\"CrackLength\":{\"name\":\"CrackLength\",\"type\":\"Real\",\"unit\":\"meter\",\"category\":\"length\",\"value\":1,\"parameterid\":\"d9f30f37-d800-1004-8f53-704dbfababa8\"}},\"outParams\":{\"Alpha\":{\"name\":\"Alpha\",\"type\":\"Real\",\"unit\":\"no unit\",\"category\":\"no unit\",\"value\":0.3333333333333333,\"parameterid\":\"d9f30f3d-d800-1004-8f53-704dbfababa8\",\"instancename\":\"Alpha\"}},\"modelName\":\"Default Interface\",\"modelDescription\":\"\",\"server\":{\"name\":\"localhost\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed\",\"space\":\"USER\"}}";
-
+		//String modelString = "{\"interFace\":{\"version\":1,\"modelId\":\"aff647da-d82f-1004-8e7b-5de38b2eeb0f\",\"interfaceId\":\"aff647db-d82f-1004-8e7b-5de38b2eeb0f\",\"type\":\"interface\",\"name\":\"Default Interface\",\"path\":[30]},\"inParams\":{\"SpecimenWidth\":{\"name\":\"SpecimenWidth\",\"type\":\"Real\",\"unit\":\"meter\",\"category\":\"length\",\"value\":3,\"parameterid\":\"d9f30f3a-d800-1004-8f53-704dbfababa8\"},\"CrackLength\":{\"name\":\"CrackLength\",\"type\":\"Real\",\"unit\":\"meter\",\"category\":\"length\",\"value\":1,\"parameterid\":\"d9f30f37-d800-1004-8f53-704dbfababa8\"}},\"outParams\":{\"Alpha\":{\"name\":\"Alpha\",\"type\":\"Real\",\"unit\":\"no unit\",\"category\":\"no unit\",\"value\":0.3333333333333333,\"parameterid\":\"d9f30f3d-d800-1004-8f53-704dbfababa8\",\"instancename\":\"Alpha\"}},\"modelName\":\"Default Interface\",\"modelDescription\":\"\",\"server\":{\"name\":\"localhost\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed\",\"space\":\"USER\"}}";
+		String modelString = "{\"interFace\":{\"version\":1,\"modelId\":\"9602f2b2-dd93-1004-8f9f-a350a3e7c039\",\"interfaceId\":\"9602f2b3-dd93-1004-8f9f-a350a3e7c039\",\"type\":\"interface\",\"name\":\"Default Interface\",\"path\":[43]},\"inParams\":{\"inFile\":{\"name\":\"inFile\",\"type\":\"File\",\"unit\":\"\",\"value\":\"inFile\",\"parameterid\":\"a3891106-dd93-1004-894e-fd7e2ea7b713\"}},\"outParams\":{\"outFile\":{\"name\":\"outFile\",\"type\":\"File\",\"unit\":\"\",\"value\":\"inFile\",\"parameterid\":\"a3891109-dd93-1004-894e-fd7e2ea7b713\",\"instancename\":\"outFile\"}},\"modelName\":\"Default Interface\",\"modelDescription\":\"\",\"server\":{\"name\":\"localhost\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed\",\"space\":\"USER\"}}";
 		//String modelString = "{\"interFace\":{\"version\":1,\"modelId\":\"bd85f846-d8f4-1004-8f94-37c24b788523\",\"interfaceId\":\"bd85f847-d8f4-1004-8f94-37c24b788523\",\"type\":\"interface\",\"name\":\"Upload a file interface\",\"path\":[31]},\"inParams\":{\"localPath\":{\"name\":\"localPath\",\"type\":\"String\",\"unit\":\"\",\"value\":\"C:/tmp/Out\",\"parameterid\":\"73185a14-d398-1004-8645-569b82669417\"},\"inFile\":{\"name\":\"inFile\",\"type\":\"File\",\"unit\":\"\",\"value\":\"0\",\"parameterid\":\"73185a12-d398-1004-8645-569b82669417\"}},\"outParams\":{\"outFilename\":{\"name\":\"outFilename\",\"type\":\"String\",\"unit\":\"\",\"value\":\"0\",\"parameterid\":\"73185a16-d398-1004-8645-569b82669417\",\"instancename\":\"outFilename\"}},\"modelName\":\"Upload a file interface\",\"modelDescription\":\"\",\"server\":{\"name\":\"localhost\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed\",\"space\":\"USER\"}}";
 		//		String parameters = "{\"interFace\":{\"version\":1,\"modelId\":\"aff647da-d82f-1004-8e7b-5de38b2eeb0f\",\"interfaceId\":\"aff647db-d82f-1004-8e7b-5de38b2eeb0f\",\"type\":\"interface\",\"name\":\"Default Interface\",\"path\":[30]},\"inParams\":{\"SpecimenWidth\":{\"name\":\"SpecimenWidth\",\"type\":\"Real\",\"unit\":\"meter\",\"category\":\"length\",\"value\":3,\"parameterid\":\"d9f30f3a-d800-1004-8f53-704dbfababa8\"},\"CrackLength\":{\"name\":\"CrackLength\",\"type\":\"Real\",\"unit\":\"meter\",\"category\":\"length\",\"value\":1,\"parameterid\":\"d9f30f37-d800-1004-8f53-704dbfababa8\"}},\"outParams\":{\"Alpha\":{\"name\":\"Alpha\",\"type\":\"Real\",\"unit\":\"no unit\",\"category\":\"no unit\",\"value\":0.3333333333333333,\"parameterid\":\"d9f30f3d-d800-1004-8f53-704dbfababa8\",\"instancename\":\"Alpha\"}},\"modelName\":\"Default Interface\",\"modelDescription\":\"\",\"server\":{\"name\":\"localhost\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed\",\"space\":\"USER\"}}";
 		//String queueID = "TestQueue";
 //		MultipartFile mf = new MockMultipartFile("infile", "myContent1".getBytes());
 
+		
 		//String servicePath = "http://52.43.100.191:8080/DOMEApiServicesV7/runModel";
-		String servicePath = "http://localhost:8080/DOMEApiServicesV7/runModel";
+		//String servicePath = "http://localhost:8080/DOMEApiServicesV7/runModel";
+		String servicePath = "http://localhost:8080/DOME/runModel";
 		
 
 		ServiceRunFileUploadTest instance = new ServiceRunFileUploadTest();
@@ -70,12 +73,12 @@ public class ServiceRunFileUploadTest {
 		parameters.put("data", modelString);
 		parameters.put("queue", queueID);
 		HashMap<String,String> files = new HashMap<String,String>();
-		files.put("infile", "c:/tmp/In/test.txt");
+		files.put("inFile", "c:/tmp/In/test.txt");
 		
 		
 		try {
-		//post(servicePath,parameters,files);
-		post(servicePath,parameters,null);
+		post(servicePath,parameters,files);
+		//post(servicePath,parameters,null);
 		System.out.println("Done");
 		}
 		catch (Exception e)
