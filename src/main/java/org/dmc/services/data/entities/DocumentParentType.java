@@ -5,5 +5,6 @@ public enum DocumentParentType {
 	SERVICE,
 	PROJECT,
 	ORGANIZATION,
-	USER;
+	USER,
+	APPSUBMISSION;
 }
