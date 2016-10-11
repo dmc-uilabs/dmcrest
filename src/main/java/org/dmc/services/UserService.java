@@ -351,7 +351,7 @@ public class UserService {
 	private void updateUserProfileLogo(User user){
 		if(user.getId() != null){
 			Document document = this.documentRepository.
-					findFirstByParentTypeAndDocClassAndOwnerOrderByModifiedDesc(DocumentParentType.USER, DocumentClass.PROFILE, user);
+					findFirstByParentTypeAndDocClassAndOwnerOrderByModifiedDesc(DocumentParentType.USER, DocumentClass.IMAGE, user);
 			if(document != null){
 				user.setImage(document.getDocumentUrl());
 			}
