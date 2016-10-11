@@ -66,7 +66,8 @@ public class DMDIIProjectService {
 		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
 				new Sort(
 						new Order(Direction.ASC, "rootNumber"),
-						new Order(Direction.ASC, "callNumber")
+						new Order(Direction.ASC, "callNumber"),
+						new Order(Direction.ASC, "projectNumber")
 				)
 		);
 
