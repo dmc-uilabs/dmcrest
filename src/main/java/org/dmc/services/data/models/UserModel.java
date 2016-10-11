@@ -36,6 +36,7 @@ public class UserModel extends BaseModel {
 	private int account;
 	private List<NotificationModel> notifications;
 	private boolean hasUnreadNotifications;
+	private String timezone;
 
 
 	public Integer getId() {
@@ -260,5 +261,13 @@ public class UserModel extends BaseModel {
 
 	public void setHasUnreadNotifications(boolean hasUnreadNotifications) {
 		this.hasUnreadNotifications = hasUnreadNotifications;
+	}
+	
+	public String getTimezone() {
+		return timezone;
+	}
+	
+	public void setTimezone(String timezone) {
+		this.timezone = timezone;
 	}
 }

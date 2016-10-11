@@ -318,6 +318,7 @@ public class UserService {
 		currentUser.setOnboarding(patchUserEntity.getOnboarding());
 		currentUser.setSkills(patchUserEntity.getSkills());
 		currentUser.setUserContactInfo(patchUserEntity.getUserContactInfo());
+		currentUser.setTimezone(patchUser.getTimezone());
 
 		// If a user is updating their primary user info, un-verify them from their current organization if they have one
 		if( !currentUser.getFirstName().equals(patchUser.getFirstName()) ||

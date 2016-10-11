@@ -90,6 +90,9 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "createdFor", cascade = {CascadeType.DETACH, CascadeType.REMOVE})
 	@OrderBy("created DESC")
 	private List<Notification> notifications;
+	
+	@Column(name = "timezone")
+	private String timezone;
 
 	public Integer getId() {
 		return id;
@@ -258,6 +261,14 @@ public class User extends BaseEntity {
 
 	public void setNotifications(List<Notification> notifications) {
 		this.notifications = notifications;
+	}
+	
+	public String getTimezone() {
+		return timezone;
+	}
+	
+	public void setTimezone(String timezone) {
+		this.timezone = timezone;
 	}
 
 	@Override
