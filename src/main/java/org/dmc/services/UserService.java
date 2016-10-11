@@ -315,6 +315,7 @@ public class UserService {
 
 		currentUser.setRealname(patchUser.getDisplayName());
 		currentUser.setOnboarding(onboardingMapper.mapToEntity(patchUser.getOnboarding()));
+		currentUser.setTimezone(patchUser.getTimezone());
 
 		// If a user is updating their primary user info, un-verify them from their current organization if they have one
 		if( !currentUser.getFirstName().equals(patchUser.getFirstName()) ||
