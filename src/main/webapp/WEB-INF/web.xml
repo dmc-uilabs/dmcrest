@@ -17,11 +17,20 @@
     </init-param>
     
     <load-on-startup>1</load-on-startup>
+	<multipart-config>
+		<!-- 50MB max -->
+		<!-- <location>/tmp</location> -->
+		<max-file-size>524288000</max-file-size>
+		<max-request-size>524288000</max-request-size>
+		<file-size-threshold>524288000</file-size-threshold>
+	</multipart-config>
+    
   </servlet>
 
   <servlet-mapping>
     <servlet-name>dmc-site-services</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
+  
   
 </web-app>
