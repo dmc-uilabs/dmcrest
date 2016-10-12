@@ -73,7 +73,7 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE})
 	@JoinColumn(name = "user_contact_info_id")
 	private UserContactInfo userContactInfo;
 
@@ -90,7 +90,7 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "createdFor", cascade = {CascadeType.DETACH, CascadeType.REMOVE})
 	@OrderBy("created DESC")
 	private List<Notification> notifications;
-	
+
 	@Column(name = "timezone")
 	private String timezone;
 
@@ -262,11 +262,11 @@ public class User extends BaseEntity {
 	public void setNotifications(List<Notification> notifications) {
 		this.notifications = notifications;
 	}
-	
+
 	public String getTimezone() {
 		return timezone;
 	}
-	
+
 	public void setTimezone(String timezone) {
 		this.timezone = timezone;
 	}
