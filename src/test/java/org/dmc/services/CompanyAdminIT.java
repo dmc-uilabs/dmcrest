@@ -165,6 +165,7 @@ public class CompanyAdminIT  extends BaseIT {
 		company.setDateJoined("test dateJoined");
 		company.setReasonJoining("test reasonJoining");
 		company.setFeatureImage(new FeatureImage("feature_image_thumb.jpg", "feature_image_large.jpg"));
+		company.setLogoImage("test logoImage");
 		company.setFollow(true);
 		company.setFavoritesCount(1002);
 		company.setIsOwner(false);
