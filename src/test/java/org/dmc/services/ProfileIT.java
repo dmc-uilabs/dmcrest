@@ -73,6 +73,14 @@ public class ProfileIT extends BaseIT {
         this.createdId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN).body(json)
                 .expect().statusCode(OK.value()).when().post(PROFILE_CREATE_RESOURCE).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+
+        // Adding test to get out preSignedURL
+        Profile profile = given().header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when()
+                .get(PROFILE_READ_RESOURCE, this.createdId.toString()).as(Profile.class);
+
+        // Extract
+        final String preSignedURL = profile.getImage();
+        assertNotNull(preSignedURL);
     }
 
     @Test
@@ -97,6 +105,10 @@ public class ProfileIT extends BaseIT {
         Profile responceProfile = given().header("AJP_eppn", "userEPPN" + unique).expect().statusCode(OK.value()).when()
                 .get(PROFILE_READ_RESOURCE, this.createdId.toString()).as(Profile.class);
 
+        // Extract
+        final String preSignedURL = responceProfile.getImage();
+        assertNotNull(preSignedURL);
+
         ServiceLogger.log(LOGTAG, "orginalProfile " + orginalProfile.toString());
         ServiceLogger.log(LOGTAG, "responceProfile " + responceProfile.toString());
 
@@ -106,6 +118,7 @@ public class ProfileIT extends BaseIT {
         assertTrue("Phone numbers are not equal", orginalProfile.getPhone().equals(responceProfile.getPhone()));
         assertTrue("Emails are not equal", orginalProfile.getEmail().equals(responceProfile.getEmail()));
         assertTrue("Locations are not equal", orginalProfile.getLocation().equals(responceProfile.getLocation()));
+        assertTrue("Images are not equal", orginalProfile.getImage().equals(responceProfile.getImage()));
         assertTrue("Descriptions are not equal",
                 orginalProfile.getDescription().equals(responceProfile.getDescription()));
     }
