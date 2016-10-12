@@ -5,8 +5,7 @@ import java.util.List;
 import org.dmc.services.data.entities.DocumentTag;
 
 public interface DocumentTagRepository extends BaseRepository<DocumentTag, Integer> {
-	
-	List<DocumentTag> findAll();
 
-	DocumentTag save(DocumentTag tag);
+	DocumentTag findByTagName(String tagName);
+
 }
