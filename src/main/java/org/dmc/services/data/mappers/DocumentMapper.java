@@ -3,6 +3,7 @@ package org.dmc.services.data.mappers;
 import javax.inject.Inject;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.models.DocumentModel;
@@ -35,6 +36,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		if (CollectionUtils.isNotEmpty(documentTagModels)) {
 			for (DocumentTagModel documentTagModel : documentTagModels) {
 				String tagName = documentTagModel.getTagName();
+				tagName = StringUtils.lowerCase(tagName);
 				DocumentTag documentTag = this.documentTagRepository.findByTagName(tagName);
 				if (documentTag == null) {
 					documentTag = new DocumentTag();
