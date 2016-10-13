@@ -99,6 +99,12 @@ public class User extends BaseEntity {
 	private String timezone;
 
 	@ManyToMany
+	@JoinTable(name = "users_in_resource_group",
+				joinColumns = @JoinColumn(name = "user_id"),
+				inverseJoinColumns = @JoinColumn(name = "resource_group_id"))
+	private List<ResourceGroup> resourceGroups;
+	
+	@ManyToMany
 	@JoinTable(name = "user_in_server_access_group",
 			joinColumns = @JoinColumn(name="user_id"),
 			inverseJoinColumns = @JoinColumn(name="server_access_group_id"))
