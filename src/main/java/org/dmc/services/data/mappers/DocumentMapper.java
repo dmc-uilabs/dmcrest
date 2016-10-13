@@ -1,11 +1,11 @@
 package org.dmc.services.data.mappers;
 
+import javax.inject.Inject;
+
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.repositories.UserRepository;
 import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
 
 @Component
 public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {

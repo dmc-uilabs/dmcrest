@@ -156,12 +156,12 @@ public class FavoriteProductsDao {
         List<Service> services = new ArrayList<Service>();
         ServiceDao serviceDao = new ServiceDao();
         
-        ArrayList<String> validFieldsForSort = new ArrayList<String>();
+/*        ArrayList<String> validFieldsForSort = new ArrayList<String>();
         validFieldsForSort.add("count");
         validFieldsForSort.add("id");
         final String orderClause = SQLUtils.buildOrderByClause(order, sort, validFieldsForSort);
-        
-        String sqlSelectFavoriteProduct = "select service_id, count(service_id) from favorite_products GROUP BY service_id "+orderClause+" LIMIT ? OFFSET ?";
+  */
+        String sqlSelectFavoriteProduct = "select service_id, count(service_id) AS thecount FROM favorite_products GROUP BY service_id ORDER BY thecount LIMIT ? OFFSET ?";
         ServiceLogger.log(logTag, sqlSelectFavoriteProduct);
 
         PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlSelectFavoriteProduct);

@@ -1,7 +1,12 @@
 package org.dmc.services.services;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
+
+import org.json.JSONObject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -108,5 +113,36 @@ public class DomeModelParam {
 		sb.append("}\n");
 		return sb.toString();
 	}
-
+	
+/*	public static void main(String[] args)
+	{
+		String testString = "{\"serviceId\":\"13\",\"inParams\":{\"localPath\":{\"type\":\"String\",\"name\":\"localPath\",\"unit\":\"\",\"category\":null,\"value\":\"/tmp\",\"parameterid\":\"73185a14-d398-1004-8645-569b82669417\",\"instancename\":null,\"defaultValue\":\"D:/CMCTemp\",\"$$hashKey\":\"object:714\"},\"inFile\":{\"type\":\"File\",\"name\":\"inFile\",\"unit\":\"\",\"category\":null,\"value\":{},\"parameterid\":\"73185a12-d398-1004-8645-569b82669417\",\"instancename\":null,\"defaultValue\":\"0\",\"$$hashKey\":\"object:715\"}},\"outParams\":{\"outFilename\":{\"type\":\"String\",\"name\":\"outFilename\",\"unit\":\"\",\"category\":null,\"value\":null,\"parameterid\":\"73185a16-d398-1004-8645-569b82669417\",\"instancename\":\"outFilename\"}}}";
+    	JSONObject inputs = new JSONObject(testString);
+    	String sId = inputs.getString("serviceId");
+    	JSONObject inpars = inputs.getJSONObject("inParams");	
+    	Map<String,DomeModelParam> parMaps = new HashMap<String,DomeModelParam>();
+    	
+		Iterator it = inpars.keys();
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry)it.next();
+			String variableName = (String)pair.getKey();
+			JSONObject variableValue = (JSONObject) pair.getValue();
+			DomeModelParam parValue = new DomeModelParam();
+			
+			parValue.setType(variableValue.getString("type"));
+			parValue.setName(variableValue.getString("name"));
+			parValue.setUnit(variableValue.getString("unit"));
+			parValue.setCategory(variableValue.getString("category"));
+			parValue.setValue(variableValue.getString("value"));
+			parValue.setParameterid(variableValue.getString("parameterid"));
+			parValue.setInstancename(variableValue.getString("instancename"));
+			parValue.setInstancename(variableValue.getString("defaultValue"));			
+			
+			// Need a type change here.
+			parMaps.put(variableName, parValue);
+		}
+		
+		System.out.println("Done");
+	}
+*/
 }

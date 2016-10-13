@@ -123,6 +123,12 @@ public class DMDIIProjectController {
 		return dmdiiProjectService.save(project);
 	}
 	
+	@RequestMapping(value = "/dmdiiProjects/{id}", method = RequestMethod.PATCH)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	public DMDIIProjectModel update (@RequestBody DMDIIProjectModel project) {
+		return dmdiiProjectService.update(project);
+	}
+	
 	@RequestMapping(value = "/dmdiiProjects/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public void delete(@PathParam("dmdiiProjectId") Integer dmdiiProjectId) {
