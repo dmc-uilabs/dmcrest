@@ -11,12 +11,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -90,7 +94,21 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "createdFor", cascade = {CascadeType.DETACH, CascadeType.REMOVE})
 	@OrderBy("created DESC")
 	private List<Notification> notifications;
-
+	
+	@ManyToMany
+	@JoinTable(name = "user_in_server_access_group",
+			   joinColumns = @JoinColumn(name="user_id"),
+			   inverseJoinColumns = @JoinColumn(name="server_access_group_id"))
+	@JsonIgnore
+	private List<ServerAccess> accessList;
+	
+	public List<ServerAccess> getAccessList(){
+		return accessList;
+	}
+	public void setAccessList(List<ServerAccess> list){
+		accessList=list;
+	}
+	
 	@Override
 	public Integer getId() {
 		return id;
@@ -267,6 +285,7 @@ public class User extends BaseEntity {
 		result = prime * result + ((roles == null) ? 0 : roles.hashCode());
 		result = prime * result + ((userContactInfo == null) ? 0 : userContactInfo.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		result = prime * result + ((accessList == null) ? 0 : accessList.hashCode());
 		return result;
 	}
 
@@ -333,6 +352,11 @@ public class User extends BaseEntity {
 			if (other.username != null)
 				return false;
 		} else if (!username.equals(other.username))
+			return false;
+		if (accessList == null) {
+			if (other.accessList != null)
+				return false;
+		} else if (!accessList.equals(other.accessList))
 			return false;
 		return true;
 	}
