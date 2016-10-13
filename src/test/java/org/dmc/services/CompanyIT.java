@@ -7,12 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 
 import org.dmc.services.company.Company;
-import org.dmc.services.company.CompanyImage;
-import org.dmc.services.reviews.Review;
 import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.reviews.ReviewHelpful;
-import org.dmc.services.company.CompanySkillImage;
-import org.dmc.services.company.CompanyVideo;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.users.User;
 import org.dmc.services.utility.TestUserUtil;
@@ -25,8 +21,6 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CompanyIT extends BaseIT {
@@ -46,13 +40,6 @@ public class CompanyIT extends BaseIT {
 	private static final String COMPANY_CREATE_SKILLS = "/company_skills";
 	private static final String COMPANY_GET_SKILLS = "/companies/{companyID}/company_skills";
 
-	// videos
-	private static final String COMPANY_VIDEOS_GET_RESOURCE = "/companies/{companyID}/company_videos";
-	private static final String COMPANY_VIDEO_CREATE_RESOURCE = "/company_videos";
-	private static final String COMPANY_VIDEO_UPDATE_RESOURCE = "/company_videos/{id}";
-	private static final String COMPANY_VIDEO_DELETE_RESOURCE = "/company_videos/{id}";
-
-	private ArrayList<CompanyVideo> videos = null;
 	private Integer createdId = null;
 	private String imageId = "1";
 	private String reviewId = "1";
@@ -170,90 +157,6 @@ public class CompanyIT extends BaseIT {
 			statusCode(403).
 		when().
 			patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString());
-	}
-
-	@Test
-	public void testCompanyVideoCreate() {
-
-		if (this.createdId != null) {
-			JSONObject json = new JSONObject();
-			json.put("title", "test video title");
-			json.put("link", "test video link");
-			json.put("companyId", this.createdId);
-
-			given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).body(json.toString())
-					.expect().statusCode(200).when().post(COMPANY_VIDEO_CREATE_RESOURCE).then()
-					.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
-		}
-
-	}
-
-	@Test
-	public void testCompanyVideoUpdate() {
-
-		Integer videoId = null;
-		testCompanyVideosGet();
-		if (this.videos != null && this.videos.size() > 0) {
-			videoId = this.videos.get(0).getId();
-			JSONObject json = new JSONObject();
-			json.put("title", "test video title update");
-			json.put("link", "test video link update");
-			json.put("companyId", this.createdId);
-
-			given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).body(json.toString())
-					.expect().statusCode(200).when().patch(COMPANY_VIDEO_UPDATE_RESOURCE, videoId).then()
-					.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
-		}
-	}
-
-	@Test
-	public void testCompanyVideoUpdateNotOwner() {
-
-		Integer videoId = null;
-		testCompanyVideosGet();
-		if (this.videos != null && this.videos.size() > 0) {
-			videoId = this.videos.get(0).getId();
-			JSONObject json = new JSONObject();
-			json.put("title", "test video title update");
-			json.put("link", "test video link update");
-			json.put("companyId", this.createdId);
-
-			given().header("Content-type", "application/json").header("AJP_eppn", randomNonOwnerEPPN)
-					.body(json.toString()).expect().statusCode(403).when()
-					.patch(COMPANY_VIDEO_UPDATE_RESOURCE, videoId);
-		}
-	}
-
-	@Test
-	public void testCompanyVideosGet() {
-
-		ObjectMapper mapper = new ObjectMapper();
-
-		if (this.createdId != null) {
-			testCompanyVideoCreate();
-			JsonNode vs = given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect()
-					.statusCode(200).when().get(COMPANY_VIDEOS_GET_RESOURCE, this.createdId).as(JsonNode.class);
-
-			try {
-				this.videos = mapper.readValue(mapper.treeAsTokens(vs), new TypeReference<ArrayList<CompanyVideo>>() {
-				});
-			} catch (Exception e) {
-				ServiceLogger.log(logTag, e.getMessage());
-			}
-		}
-	}
-
-	@Test
-	public void testCompanyVideoDelete() {
-		if (this.createdId != null) {
-			testCompanyVideosGet();
-			if (this.videos != null && this.videos.size() > 0) {
-				int videoId = this.videos.get(0).getId();
-				given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect()
-						.statusCode(200).when().delete(COMPANY_VIDEO_DELETE_RESOURCE, videoId).then()
-						.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-			}
-		}
 	}
 
 	@After
@@ -479,70 +382,12 @@ public class CompanyIT extends BaseIT {
 	}
 
 	/**
-	 * test case for PATCH /campany_images/{imageID}
-	 */
-	@Test
-	public void testPath_CompanyImageById() {
-		CompanyImage object = new CompanyImage();
-		ObjectMapper mapper = new ObjectMapper();
-		String patchedCompanyImageJSONString = null;
-		try {
-			patchedCompanyImageJSONString = mapper.writeValueAsString(object);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.body(patchedCompanyImageJSONString).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.patch("/company_images/" + imageId);
-	}
-
-	/**
-	 * test case for GET /companies/{companyID}/company_images
-	 */
-	@Test
-	public void testCompanyGet_CompanyImage() {
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.get("/companies/" + companyId + "/company_images");
-	}
-
-	/**
 	 * test case for GET /companies/{companyID}/company_history
 	 */
 	@Test
 	public void testCompanyGet_CompanyHistory() {
 		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/companies/" + companyId + "/company_history");
-	}
-
-	/**
-	 * test case for GET /companies/{companyID}/company_skill_images
-	 */
-	@Test
-	public void testCompanyGet_CompanySkillImage() {
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.get("/companies/" + companyId + "/company_skill_images");
-	}
-
-	/**
-	 * test case for PATCH /company_skill_images/{imageID}
-	 */
-	@Test
-	public void testCompanyPatch_CompanySkillImageById() {
-		CompanySkillImage obj = new CompanySkillImage();
-		ObjectMapper mapper = new ObjectMapper();
-		String patchedCompanySkillImageJSONString = null;
-		try {
-			patchedCompanySkillImageJSONString = mapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		given().header("Content-type", "application/json").header("AJP_eppn", userEPPN)
-				.body(patchedCompanySkillImageJSONString).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.patch("/company_skill_images/" + imageId);
 	}
 
 	/**
