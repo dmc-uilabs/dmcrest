@@ -94,6 +94,12 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "createdFor", cascade = {CascadeType.DETACH, CascadeType.REMOVE})
 	@OrderBy("created DESC")
 	private List<Notification> notifications;
+	
+	@ManyToMany
+	@JoinTable(name = "users_in_resource_group",
+				joinColumns = @JoinColumn(name = "user_id"),
+				inverseJoinColumns = @JoinColumn(name = "resource_group_id"))
+	private List<ResourceGroup> resourceGroups;
 
 	@Column(name = "timezone")
 	private String timezone;
@@ -285,6 +291,14 @@ public class User extends BaseEntity {
 
 	public void setNotifications(List<Notification> notifications) {
 		this.notifications = notifications;
+	}
+
+	public List<ResourceGroup> getResourceGroups() {
+		return resourceGroups;
+	}
+
+	public void setResourceGroups(List<ResourceGroup> resourceGroups) {
+		this.resourceGroups = resourceGroups;
 	}
 
 	public String getTimezone() {
