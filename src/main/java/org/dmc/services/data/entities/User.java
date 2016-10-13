@@ -73,7 +73,7 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
 	private List<UserRoleAssignment> roles;
 
-	@OneToOne(cascade = {CascadeType.MERGE, CascadeType.REMOVE})
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "user_contact_info_id")
 	private UserContactInfo userContactInfo;
 

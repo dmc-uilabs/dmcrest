@@ -7,13 +7,29 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.dmc.services.data.entities.*;
+import org.dmc.services.data.entities.Document;
+import org.dmc.services.data.entities.DocumentClass;
+import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.data.entities.OnboardingStatus;
+import org.dmc.services.data.entities.Organization;
+import org.dmc.services.data.entities.OrganizationAuthorizedIdp;
+import org.dmc.services.data.entities.OrganizationUser;
+import org.dmc.services.data.entities.User;
+import org.dmc.services.data.entities.UserContactInfo;
+import org.dmc.services.data.entities.UserRoleAssignment;
+import org.dmc.services.data.entities.UserToken;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
-import org.dmc.services.data.repositories.*;
+import org.dmc.services.data.repositories.DocumentRepository;
+import org.dmc.services.data.repositories.OnboardingStatusRepository;
+import org.dmc.services.data.repositories.OrganizationAuthorizedIdpRepository;
+import org.dmc.services.data.repositories.OrganizationRepository;
+import org.dmc.services.data.repositories.OrganizationUserRepository;
+import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.notification.NotificationService;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
@@ -265,6 +281,7 @@ public class UserService {
 		user.setRealname(fullName);
 		user.setEmail(email);
 		user.setAddDate(0L);
+		user.setUserContactInfo(new UserContactInfo());
 		user = userRepository.save(user);
 
 		String idpDomain = userEPPN.substring(userEPPN.indexOf('@') + 1);
@@ -310,7 +327,8 @@ public class UserService {
 		currentUser.setAddress(patchUser.getAddress());
 		currentUser.setOnboarding(patchUserEntity.getOnboarding());
 		currentUser.setSkills(patchUserEntity.getSkills());
-		currentUser.setUserContactInfo(patchUserEntity.getUserContactInfo());
+		currentUser.getUserContactInfo().setUserMemberPortalContactInfo(patchUserEntity.getUserContactInfo().getUserMemberPortalContactInfo());
+		currentUser.getUserContactInfo().setUserPublicContactInfo(patchUserEntity.getUserContactInfo().getUserPublicContactInfo());
 		currentUser.setTimezone(patchUser.getTimezone());
 		currentUser.setAboutMe(patchUser.getAboutMe());
 
