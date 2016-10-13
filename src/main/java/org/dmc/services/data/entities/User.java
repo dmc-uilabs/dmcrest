@@ -289,6 +289,14 @@ public class User extends BaseEntity {
 		this.timezone = timezone;
 	}
 
+	public List<ResourceGroup> getResourceGroups() {
+		return resourceGroups;
+	}
+
+	public void setResourceGroups(List<ResourceGroup> resourceGroups) {
+		this.resourceGroups = resourceGroups;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

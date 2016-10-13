@@ -1,6 +1,11 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,17 +13,21 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 
-import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
+import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.search.SearchException;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.solr.SolrUtils;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.ResourceGroup;
+import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.ResourceGroupRepository;
+import org.dmc.services.data.repositories.UserRepository;
 import org.json.JSONObject;
 import org.json.JSONException;
 
@@ -26,6 +35,15 @@ public class ProjectDao {
 
     private Connection connection;
     private static final String LOGTAG = ProjectDao.class.getName();
+    
+    @Inject
+    private ResourceGroupService resourceGroupService;
+    
+    @Inject
+    private ResourceGroupRepository resourceGroupRepository;
+    
+    @Inject
+    private UserRepository userRepository;
 
     public ProjectDao() {
     }
@@ -250,12 +268,26 @@ public class ProjectDao {
             createProjectJoinRequest(Integer.toString(projectId), Integer.toString(userID), userID);
 
             connection.commit();
+            
+            //bolt on resource access for project members
+            User user = userRepository.getOne(userID);
+            List<ResourceGroup> groups = user.getResourceGroups();
+            //add admin role
+            List<ResourceGroup> newGroup = Arrays.asList(resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 2));
+            groups.addAll(newGroup);
+            //add member role
+            newGroup = Arrays.asList(resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 4));
+            groups.addAll(newGroup);
+            user.setResourceGroups(groups);
+            userRepository.save(user);
 
             try {
                 SolrUtils.triggerFullIndexing(SolrUtils.CORE_GFORGE_PROJECTS);
             } catch (SearchException e) {
                 ServiceLogger.log(LOGTAG, e.getMessage());
             }
+            
+            resourceGroupService.newCreate("PROJECT", projectId);
 
             return new Id.IdBuilder(projectId).build();
         } catch (SQLException ex) {
