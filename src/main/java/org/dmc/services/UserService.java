@@ -327,8 +327,10 @@ public class UserService {
 		currentUser.setAddress(patchUser.getAddress());
 		currentUser.setOnboarding(patchUserEntity.getOnboarding());
 		currentUser.setSkills(patchUserEntity.getSkills());
-		currentUser.getUserContactInfo().setUserMemberPortalContactInfo(patchUserEntity.getUserContactInfo().getUserMemberPortalContactInfo());
-		currentUser.getUserContactInfo().setUserPublicContactInfo(patchUserEntity.getUserContactInfo().getUserPublicContactInfo());
+		if(currentUser.getUserContactInfo() != null){
+			currentUser.getUserContactInfo().setUserMemberPortalContactInfo(patchUserEntity.getUserContactInfo().getUserMemberPortalContactInfo());
+			currentUser.getUserContactInfo().setUserPublicContactInfo(patchUserEntity.getUserContactInfo().getUserPublicContactInfo());
+		}
 		currentUser.setTimezone(patchUser.getTimezone());
 		currentUser.setAboutMe(patchUser.getAboutMe());
 
