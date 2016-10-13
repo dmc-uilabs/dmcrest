@@ -102,6 +102,7 @@ public class DocumentService {
 		docEntity.setIsDeleted(false);
 		docEntity.setVerified(false);
 		docEntity.setModified(now);
+		docEntity.setResourceTypeId(1);
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);

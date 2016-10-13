@@ -3,9 +3,14 @@ package org.dmc.services.projects;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.ResourceGroup;
+import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.ResourceGroupRepository;
+import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.utils.SQLUtils;
 
@@ -15,11 +20,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.inject.Inject;
 
 public class ProjectMemberDao {
 
     private Connection connection;
     private final String logTag = ProjectMemberDao.class.getName();
+    
+    @Inject
+    private UserRepository userRepository;
+    
+    @Inject
+    private ResourceGroupRepository resourceGroupRepository;
+    
+    @Inject
+    private ResourceGroupService resourceGroupService;
 
     public ProjectMemberDao() {
     }
@@ -342,6 +360,14 @@ public class ProjectMemberDao {
                 throw new DMCServiceException(DMCError.MemberNotAssignedToProject,
                         "unable to assign " + memberId + " to Project Member role in project " + projectId);
             }
+            
+            //bolt on resource access for project members
+            User user = userRepository.getOne(memberId);
+            List<ResourceGroup> groups = user.getResourceGroups();
+            List<ResourceGroup> newGroup = Arrays.asList(resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 4));
+            groups.addAll(newGroup);
+            user.setResourceGroups(groups);
+            userRepository.save(user);
 
             String updateGroupJoinRequest = "UPDATE group_join_request SET accept_date = now(), reject_date = null "
                     + "WHERE user_id = ? " + "AND group_id = ? ";
@@ -508,6 +534,9 @@ public class ProjectMemberDao {
             connection.rollback();
             throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "error trying to remove user " + memberId + " from role in project " + projectId);
         }
+        
+        User user = userRepository.findOne(memberId);
+        resourceGroupService.removeResourceGroup(user, "PROJECT", projectId, 4);
     }
 
     // this is a helper method and should be called from another method that wraps it in a transaction
