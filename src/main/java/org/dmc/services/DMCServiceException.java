@@ -42,6 +42,7 @@ public class DMCServiceException extends RuntimeException {
         case NotDMDIIMember:
         case NotProjectAdmin:
         case OnlyProjectAdmin:
+        case CannotChangeServerAccess:
             status = HttpStatus.FORBIDDEN;
             break;
         case OtherSQLError:
