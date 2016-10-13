@@ -11,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
@@ -90,6 +92,12 @@ public class User extends BaseEntity {
 	@OneToMany(mappedBy = "createdFor", cascade = {CascadeType.DETACH, CascadeType.REMOVE})
 	@OrderBy("created DESC")
 	private List<Notification> notifications;
+	
+	@ManyToMany
+	@JoinTable(name = "users_in_resource_group",
+				joinColumns = @JoinColumn(name = "user_id"),
+				inverseJoinColumns = @JoinColumn(name = "resource_group_id"))
+	private List<ResourceGroup> resourceGroups;
 
 	@Override
 	public Integer getId() {
@@ -250,6 +258,14 @@ public class User extends BaseEntity {
 
 	public void setNotifications(List<Notification> notifications) {
 		this.notifications = notifications;
+	}
+
+	public List<ResourceGroup> getResourceGroups() {
+		return resourceGroups;
+	}
+
+	public void setResourceGroups(List<ResourceGroup> resourceGroups) {
+		this.resourceGroups = resourceGroups;
 	}
 
 	@Override
