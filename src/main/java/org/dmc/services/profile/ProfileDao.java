@@ -438,6 +438,13 @@ public class ProfileDao {
             queries.add(getProjectInvitationHistoryQuery(userid));
             queries.add(getProjectJoinHistoryQuery(userid));
             queries.add(getProjectDeclineHistoryQuery(userid));
+            queries.add(getProjectDiscussionsHistoryQuery(userid));
+            queries.add(getPublicDiscussionsHistoryQuery(userid));
+            queries.add(getProjectDiscussionCommentHistoryQuery(userid));
+            queries.add(getPublicDiscussionCommentHistoryQuery(userid));
+            queries.add(getServiceReleaseHistoryQuery(userid));
+            queries.add(getServiceRunStartHistoryQuery(userid));
+            queries.add(getServiceRunStopHistoryQuery(userid));
             final ArrayList<ProfileHistory> history = processEventHistoryQuery(queries, order, sort, limit, start);
             return history;
         } catch (SQLException sqle) {
@@ -464,7 +471,6 @@ public class ProfileDao {
             joinQuery += SQLUtils.buildOrderByClause(fixedOrder, fixedSort, validSortFields);
             joinQuery += SQLUtils.buildLimitClause(limit);
             joinQuery += SQLUtils.buildOffsetClause(start);
-            ServiceLogger.log(LOGTAG, "history query: " + joinQuery);
             final PreparedStatement statement = DBConnector.prepareStatement(joinQuery);
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -506,6 +512,68 @@ public class ProfileDao {
                 + "where gjr.user_id = " + userid + " "
                 + "and g.group_id = gjr.group_id "
                 + "and gjr.reject_date is not null ";
+        return query;
+    }
+
+    private String getProjectDiscussionsHistoryQuery(int userid) {
+        // currently date is stored as string instead of an actual timestamp
+        final String query = "select to_timestamp(to_number(d.created_at, '9999999999999999')) as event_date, concat('started \"', title, '\" discussion in project ', g.group_name, ' [p', g.group_id, ' d',d.id,']') as message "
+                + "from individual_discussions d, groups g "
+                + "where d.project_id = g.group_id "
+                + "and d.account_id = " + userid + " ";
+        return query;
+    }
+
+    private String getPublicDiscussionsHistoryQuery(int userid) {
+        // currently date is stored as string instead of an actual timestamp
+        final String query = "select to_timestamp(to_number(d.created_at, '99999999999999999999')) as event_date, concat('started \"', title, '\" public discussion [d',d.id,']') as message "
+                + "from individual_discussions d "
+                + "where d.project_id is null "
+                + "and d.account_id = " + userid + " ";
+        return query;
+    }
+
+    private String getProjectDiscussionCommentHistoryQuery(int userid) {
+        final String query = "select to_timestamp(to_number(c.created_at, '99999999999999999999')) as event_date, concat('commented on \"', title, '\" ', g.group_name, ' project discussion [p', g.group_id, ' d',d.id, ' c',c.id,']') as message "
+                + "from individual_discussions d, groups g, individual_discussions_comments c "
+                + "where d.project_id = g.group_id "
+                + "and c.individual_discussion_id = d.id "
+                + "and d.account_id = " + userid + " ";
+        return query;
+    }
+
+    private String getPublicDiscussionCommentHistoryQuery(int userid) {
+        final String query = "select to_timestamp(to_number(c.created_at, '99999999999999999999')) as event_date, concat('commented on \"', title, '\" public discussion [d',d.id, ' c',c.id,']') as message "
+                + "from individual_discussions d, individual_discussions_comments c "
+                + "where d.project_id is null "
+                + "and c.individual_discussion_id = d.id "
+                + "and d.account_id = " + userid + " ";
+        return query;
+    }
+
+    private String getServiceReleaseHistoryQuery(int userid) {
+        final String query = "select s.release_date + time '00:00' as event_date, concat('service \"', s.title, '\" released ') as message "
+                + "from service s "
+                + "where s.release_date is not null "
+                + "and owner_id = " + userid + " ";
+        return query;
+    }
+
+    private String getServiceRunStartHistoryQuery(int userid) {
+        final String query = "select sr.start_date + time '00:00' as event_date, concat('service \"', s.title, '\" run started [r',sr.run_id,']') as message "
+                + "from service s, service_run sr "
+                + "where s.service_id = sr.service_id "
+                + "and sr.start_date is not null "
+                + "and run_by = " + userid + " ";
+        return query;
+    }
+
+    private String getServiceRunStopHistoryQuery(int userid) {
+        final String query = "select sr.stop_date + time '00:00' as event_date, concat('service \"', s.title, '\" run stopped [r',sr.run_id,']') as message "
+                + "from service s, service_run sr "
+                + "where s.service_id = sr.service_id "
+                + "and sr.stop_date is not null "
+                + "and run_by = " + userid + " ";
         return query;
     }
 }
