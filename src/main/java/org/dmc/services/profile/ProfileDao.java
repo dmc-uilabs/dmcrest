@@ -218,17 +218,6 @@ public class ProfileDao {
             }
         }
 
-        ServiceLogger.log(LOGTAG, "Attempting to verify document");
-        // Verify the document
-        try {
-            String temp = verify.verify(id, profile.getImage(), "users", userEPPN, "Profiles", "ProfilePictures",
-                    "user_id", "image");
-            ServiceLogger.log(LOGTAG, "Verification Machine Response" + temp);
-            ServiceLogger.log(LOGTAG, "Returned from Verification machine");
-        } catch (Exception e) {
-            ServiceLogger.log(LOGTAG, "Unable to verify user profile image: " + e.getMessage());
-            throw new DMCServiceException(DMCError.AWSError, e.getMessage());
-        }
 
         return new Id.IdBuilder(id).build();
     }
