@@ -1,8 +1,8 @@
-package org.dmc.services.projects;
+package org.dmc.services;
 
 import static org.junit.Assert.*;
 
-import org.dmc.services.member.FollowingMember;
+import org.dmc.services.projects.ProjectMember;
 import org.junit.Test;
 
 public class ProjectMemberTest {
