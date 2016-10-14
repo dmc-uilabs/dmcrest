@@ -128,9 +128,12 @@ public class ProfileController {
     public ResponseEntity<?> profilesProfileIDProfileHistoryGet(
             @PathVariable("profileID") String profileID,
             @RequestParam(value = "section", required = false) String section,
-            @RequestParam(value = "limit", required = false) Integer limit) {
-        // do some magic!
-        return new ResponseEntity<List<ProfileHistory>>(HttpStatus.NOT_IMPLEMENTED);
+            @RequestParam(value = "_order", required = false) String order,
+            @RequestParam(value = "_sort", required = false) String sort,
+            @RequestParam(value = "_limit", required = false) Integer limit,
+            @RequestParam(value = "_start", required = false) Integer start,
+            @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+        return new ResponseEntity<List<ProfileHistory>>(profileDao.getHistory(profileID, section, order, sort, limit, start,userEPPN), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/profiles/{profileID}/profile_reviews", produces = {
