@@ -30,13 +30,13 @@ public class ProductController {
 
     @RequestMapping(value = "/{serviceId}/product_reviews", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public ResponseEntity<?> productServiceIdProductReviewsGet(@PathVariable("serviceId") String serviceId,
-                                                                                 @RequestParam(value = "reviewId", required = true) String reviewId,
-                                                                                 @RequestParam(value = "limit", required = false) Integer limit,
-                                                                                 @RequestParam(value = "order", required = false) String order,
-                                                                                 @RequestParam(value = "sort", required = false) String sort,
-                                                                                 @RequestParam(value = "rating", required = false) Integer rating,
-                                                                                 @RequestParam(value = "status", required = false) Boolean status,
-                                                                                 @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+                                                               @RequestParam(value = "reviewId", required = true) String reviewId,
+                                                               @RequestParam(value = "limit", required = false) Integer limit,
+                                                               @RequestParam(value = "order", required = false) String order,
+                                                               @RequestParam(value = "sort", required = false) String sort,
+                                                               @RequestParam(value = "rating", required = false) Integer rating,
+                                                               @RequestParam(value = "status", required = false) Boolean status,
+                                                               @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
         ServiceLogger.log(logTag, "Query for product " + serviceId + " review id " + reviewId);
         List<ProductReview> reviews = null;
         int statusCode = HttpStatus.OK.value();
@@ -45,7 +45,7 @@ public class ProductController {
         try {
             reviewIdInt = Integer.parseInt(reviewId);
         } catch (NumberFormatException nfe) {
-            
+            return new ResponseEntity<String>("invalid review id: " + reviewId, HttpStatus.BAD_REQUEST);
         }
         
         try {

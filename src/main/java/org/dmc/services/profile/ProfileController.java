@@ -144,6 +144,7 @@ public class ProfileController {
             @RequestParam(value = "rating", required = false) Integer rating,
             @RequestParam(value = "status", required = false) Boolean status,
             @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
+        ServiceLogger.log(logTag, "Query for profile " + profileID + " review id " + reviewId);
         List<ProfileReview> reviews = null;
         int statusCode = HttpStatus.OK.value();
         
