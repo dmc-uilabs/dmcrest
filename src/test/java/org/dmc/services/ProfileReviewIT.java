@@ -6,10 +6,13 @@ package org.dmc.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.dmc.services.company.Company;
 import org.dmc.services.profile.ProfileReview;
+import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.utility.CommonUtils;
 import org.dmc.services.utility.TestUserUtil;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -31,6 +35,7 @@ public class ProfileReviewIT extends BaseIT {
     private static final String PROFILE_REVIEW_GET_RESOURCE = "/profiles/{productID}/profile_reviews";
     private static final String PROFILE_REVIEW_POST_RESOURCE = "/profile_reviews";
     private static final String PROFILE_REVIEW_HELPFULL_POST_RESOURCE = "/profile_reviews_helpful";
+    private static final String PROFILE_REVIEW_FLAGGED_POST_RESOURCE = "/profile_reviews_flagged";
 
     private int ownerUserId = -1;
     private String ownerEPPN;
@@ -158,6 +163,11 @@ public class ProfileReviewIT extends BaseIT {
 
         // Add a new review
         int reviewId = addReview(profileId, memberDisplayName, memberUserId, "My awesome review", memberEPPN, 0);
+
+        ReviewFlagged createdReviewFlagged = ReviewIT.addFlaggedReview(reviewId, memberUserId, "Reason", "Comment", memberEPPN, PROFILE_REVIEW_FLAGGED_POST_RESOURCE);
+        ReviewFlagged[] retrievedReviewFlagged = ReviewIT.getFlaggedReview(reviewId, memberUserId, memberEPPN, PROFILE_REVIEW_FLAGGED_POST_RESOURCE);
+        assertTrue("not equal", createdReviewFlagged.equals(retrievedReviewFlagged[0]));
+
         ProfileReview[] profileReviews  =
                 given()
                         .header("Content-type", APPLICATION_JSON_VALUE)
@@ -324,5 +334,4 @@ public class ProfileReviewIT extends BaseIT {
 
         return id;
     }
-
 }

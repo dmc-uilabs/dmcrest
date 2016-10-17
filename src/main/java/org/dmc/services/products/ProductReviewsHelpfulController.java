@@ -1,7 +1,5 @@
 package org.dmc.services.products;
 
-
-import org.dmc.services.reviews.ReviewHelpful;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +15,7 @@ import java.util.List;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.reviews.ReviewDao;
+import org.dmc.services.reviews.ReviewHelpful;
 import org.dmc.services.reviews.ReviewType;
 
 import static org.springframework.http.MediaType.*;

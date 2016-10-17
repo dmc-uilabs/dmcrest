@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.reviews.ReviewHelpful;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -29,5 +30,40 @@ public class ReviewIT extends BaseIT {
             extract().as(ReviewHelpful.class);
         
         return returnedReviewHelpful;
+    }
+    
+    
+    static public ReviewFlagged addFlaggedReview(int review_id, int user_id, String reason, String comment, String userEPPN, String REVIEW_FLAGGED_POST_RESOURCE) {
+        ReviewFlagged reviewFlagged = new ReviewFlagged();
+        reviewFlagged.setReviewId(Integer.toString(review_id));
+        reviewFlagged.setAccountId(Integer.toString(user_id));
+        //ToDo: add String reason, String comment
+        
+        ReviewFlagged retrievedReviewFlagged =
+        given().
+        header("Content-type", APPLICATION_JSON_VALUE).
+        header("AJP_eppn", userEPPN).
+        body(reviewFlagged).
+        expect().
+        statusCode(200).
+        when().
+        post(REVIEW_FLAGGED_POST_RESOURCE).
+        as(ReviewFlagged.class);
+        return retrievedReviewFlagged;
+    }
+    
+    static public ReviewFlagged[] getFlaggedReview(int review_id, int user_id, String userEPPN, String REVIEW_FLAGGED_POST_RESOURCE) {
+        ReviewFlagged[] retrievedReviewFlagged =
+        given().
+        header("Content-type", APPLICATION_JSON_VALUE).
+        header("AJP_eppn", userEPPN).
+        param("reviewId", review_id).
+        param("accountId", user_id).
+        expect().
+        statusCode(200).
+        when().
+        get(REVIEW_FLAGGED_POST_RESOURCE).
+        as(ReviewFlagged[].class);
+        return retrievedReviewFlagged;
     }
 }
