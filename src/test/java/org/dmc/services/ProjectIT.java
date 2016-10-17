@@ -385,7 +385,7 @@ public class ProjectIT extends BaseIT {
         ServiceLogger.log(logTag, "GET " + PROJECT_FOLLOWING_DISCUSSION + " after add returned list: " + results1);
         ServiceLogger.log(logTag,
                 "GET " + PROJECT_FOLLOWING_DISCUSSION + " after add returned list with size(): " + results1.size());
-        assertTrue(results1.size() == 1);
+        assertEquals("expected list with one new following discussions for project 2 by joeengineer", 1, results1.size());
 
         given().header("AJP_eppn", "joeengineer").expect().statusCode(HttpStatus.OK.value()).when()
                 .delete(FOLLOW_DISCUSSIONS_BY_ID, followId);
@@ -396,7 +396,7 @@ public class ProjectIT extends BaseIT {
         ServiceLogger.log(logTag, "GET " + PROJECT_FOLLOWING_DISCUSSION + " after delete returned list: " + results);
         ServiceLogger.log(logTag,
                 "GET " + PROJECT_FOLLOWING_DISCUSSION + " after delete returned list with size(): " + results.size());
-        assertTrue(results.size() == 0);
+        assertEquals("expected empty list of following discussions for project 2 by joeengineer", 0, results.size());
 
     }
 
