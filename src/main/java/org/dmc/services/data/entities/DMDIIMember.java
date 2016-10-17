@@ -45,7 +45,7 @@ public class DMDIIMember extends BaseEntity {
 	@Column(name = "expire_date")
 	private Date expireDate;
 
-	@OneToMany(mappedBy="dmdiiMember", cascade={CascadeType.MERGE, CascadeType.PERSIST})
+	@OneToMany(mappedBy="dmdiiMember", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<DMDIIMemberContact> contacts;
 
 	@OneToMany(mappedBy="dmdiiMember", cascade={CascadeType.MERGE, CascadeType.PERSIST})
