@@ -96,13 +96,6 @@ public class ProjectController {
 		return project.createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, dueDate);
 	}
 
-	@RequestMapping(value = "/projects/oldcreate", method = RequestMethod.POST, headers = { "Content-type=text/plain" })
-	public Id createProject(@RequestBody String payload, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
-
-		ServiceLogger.log(logTag, "In createProject: " + payload + " as user " + userEPPN);
-		return project.createProject(payload, userEPPN);
-	}
-
 	@RequestMapping(value = "/projects/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
 	public ResponseEntity<Id> createProject(@RequestBody ProjectCreateRequest payload, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
 		ServiceLogger.log(logTag, "In createProject: " + payload + " as user " + userEPPN);

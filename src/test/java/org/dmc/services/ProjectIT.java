@@ -98,42 +98,12 @@ public class ProjectIT extends BaseIT {
                 .body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
     }
     
-    @Test
-    public void testProjectCreateJsonString() {
-        ServiceLogger.log(logTag, "starting testProjectCreateJsonString");
-        this.createdId = TestProjectUtil.createProjectOldMethod(userEPPN);
-    }
-    
     // see as an example to configure the object
     // https://github.com/jayway/rest-assured/wiki/Usage#serialization
     @Test
     public void testProjectCreateJsonObject() throws IOException {
         ServiceLogger.log(logTag, "starting testProjectCreateJsonObject");
         this.createdId = TestProjectUtil.createProject(userEPPN);
-    }
-    
-    @Test
-    public void ftestProjectCreateFailOnDuplicate() {
-        ServiceLogger.log(logTag, "starting ftestProjectCreateFailOnDuplicate");
-        final JSONObject json = new JSONObject();
-        final Date date = new Date();
-        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-        final String unique = format.format(date);
-
-        json.put("projectname", "junitTestdup" + unique);
-        json.put("unixname", "junitdup" + unique);
-        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicate: json = " + json.toString());
-
-        // first time should work
-        given().header("Content-type", "text/plain").header("AJP_eppn", userEPPN).body(json.toString()).expect()
-                .statusCode(OK.value()).when().post("/projects/oldcreate").then()
-                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-
-        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicate: try to create again");
-        // second time should fail, because unixname is a duplicate
-        given().header("Content-type", "text/plain").header("AJP_eppn", userEPPN).body(json.toString()).expect()
-                .statusCode(OK.value()).when().post("/projects/oldcreate").then().log().all()
-                .body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
     }
     
     @Test
