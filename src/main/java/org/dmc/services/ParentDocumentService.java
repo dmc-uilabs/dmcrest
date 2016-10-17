@@ -33,7 +33,7 @@ public class ParentDocumentService {
 				}
 				break;
 			case USER:
-				if (DocumentClass.PROFILE.equals(document.getDocClass())) {
+				if (DocumentClass.IMAGE.equals(document.getDocClass())) {
 					updateUserImage(document);
 				}
 

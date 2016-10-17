@@ -11,10 +11,12 @@ import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
+import org.dmc.services.data.entities.UserSkill;
 import org.dmc.services.data.models.NotificationModel;
 import org.dmc.services.data.models.OnboardingStatusModel;
 import org.dmc.services.data.models.UserContactInfoModel;
 import org.dmc.services.data.models.UserModel;
+import org.dmc.services.data.models.UserSkillModel;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.security.SecurityRoles;
@@ -36,10 +38,14 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 		if (model != null) {
 			Mapper<UserContactInfo, UserContactInfoModel> mapper;
 			mapper = mapperFactory.mapperFor(UserContactInfo.class, UserContactInfoModel.class);
+
 			Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper;
 			onboardingMapper = mapperFactory.mapperFor(OnboardingStatus.class, OnboardingStatusModel.class);
 
-			entity = copyProperties(model, new User());
+			Mapper<UserSkill, UserSkillModel> skillMapper;
+			skillMapper = mapperFactory.mapperFor(UserSkill.class, UserSkillModel.class);
+
+			entity = copyProperties(model, new User(), new String[]{"skills"});
 			entity.setRealname(model.getDisplayName());
 			entity.setUserContactInfo(mapper.mapToEntity(model.getUserContactInfo()));
 
@@ -57,6 +63,7 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			}
 
 			entity.setOnboarding(onboardingMapper.mapToEntity(model.getOnboarding()));
+			entity.setSkills(skillMapper.mapToEntity(model.getSkills()));
 		}
 		return entity;
 	}
@@ -71,11 +78,14 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 
 			Mapper<OnboardingStatus, OnboardingStatusModel> onboardingMapper;
 			onboardingMapper = mapperFactory.mapperFor(OnboardingStatus.class, OnboardingStatusModel.class);
-			
+
 			Mapper<Notification, NotificationModel> notificationMapper;
 			notificationMapper = mapperFactory.mapperFor(Notification.class, NotificationModel.class);
 
-			model = copyProperties(entity, new UserModel());
+			Mapper<UserSkill, UserSkillModel> skillMapper;
+			skillMapper = mapperFactory.mapperFor(UserSkill.class, UserSkillModel.class);
+
+			model = copyProperties(entity, new UserModel(), new String[]{"skills"});
 			model.setDisplayName(entity.getRealname());
 			model.setAccountId(entity.getId());
 			model.setProfileId(entity.getId());
@@ -90,12 +100,14 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			model.setUserContactInfo(contactInfoMapper.mapToModel(entity.getUserContactInfo()));
 			model.setTermsConditions(entity.getTermsAndCondition() != null);
 
-			model.setCompanyId((entity.getOrganizationUser() == null) ?
-					null :
-					entity.getOrganizationUser().getOrganization().getId());
+			if(entity.getOrganizationUser() != null) {
+				model.setCompanyId(entity.getOrganizationUser().getOrganization().getId());
+				model.setCompanyName(entity.getOrganizationUser().getOrganization().getName());
+			}
 
 			model.setOnboarding(onboardingMapper.mapToModel(entity.getOnboarding()));
-			
+			model.setSkills(skillMapper.mapToModel(entity.getSkills()));
+
 			model.setNotifications(notificationMapper.mapToModel(entity.getNotifications()));
 			if (entity.getNotifications() == null) {
 				model.setHasUnreadNotifications(false);

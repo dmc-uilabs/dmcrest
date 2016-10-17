@@ -146,6 +146,18 @@ public class DocumentService {
 		return mapper.mapToModel(docEntity);
 	}
 
+	@Transactional
+	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified){
+		Document document = this.documentRepository.findOne(documentId);
+		document.setDocumentUrl(verifiedUrl);
+		document.setVerified(verified);
+
+		this.documentRepository.save(document);
+		this.parentDocumentService.delegateToParent(document);
+
+		return document;
+	}
+
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
 
