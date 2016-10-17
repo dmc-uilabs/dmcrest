@@ -1,26 +1,26 @@
 package org.dmc.services.projects;
 
-import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.search.SearchException;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.solr.SolrUtils;
-import org.dmc.services.data.dao.user.UserDao;
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ProjectDao {
 
@@ -106,10 +106,50 @@ public class ProjectDao {
 
         return null;
     }
+    
+    // Hack to get around having to unravel and re-write the SQL in getAllProjects
+    // Being refactored to use spring-data-jpa within next few sprints
+    public List<Project> getPublicProjects() {
+    	List<Project> projects = new ArrayList<Project>();
+    	
+    	String query = "SELECT DISTINCT id, title, description, due_date, count, componentsCount, taskCount, servicesCount, firstname, lastname"
+    			+ " FROM (" + getSelectProjectQuery() + ") as project"
+    			+ " WHERE project.isPublic = 1";
+    	
+    	ResultSet resultSet = null;
+    	try {
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Project project = readProjectInfoFromResultSet(resultSet);
+                ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
+                projects.add(project);
+            }
+            return projects;
+        }
+
+        catch (SQLException e) {
+            ServiceLogger.log(LOGTAG, e.getMessage());
+        } catch (Exception e) {
+            ServiceLogger.log(LOGTAG, e.getMessage());
+        } finally {
+            if (null != resultSet) {
+                try {
+                    resultSet.close();
+                } catch (Exception ex) {
+                    // don't care
+                }
+            }
+        }
+    	
+    	
+    	return null;
+    }
 
     protected String getSelectProjectQuery() {
         final String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, "
-                + "g.short_description AS description, g.due_date, s.msg_posted AS count, "
+                + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, "
                 + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, "
                 + "c.componentsCount AS componentsCount " + "FROM groups g "
                 + "JOIN (SELECT u.firstname AS firstname, u.lastname AS lastname , r.home_group_id "
@@ -300,8 +340,9 @@ public class ProjectDao {
         final JSONObject json = new JSONObject(jsonStr);
         final String projectname = json.getString("projectname");
         final String unixname = json.getString("unixname");
+        final String type = json.getString("type");
 
-        return createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, 0);
+        return createProject(projectname, unixname, projectname, type, userEPPN, 0);
     }
 
     public Id createProject(ProjectCreateRequest project, String userEPPN)
@@ -311,8 +352,9 @@ public class ProjectDao {
         final String unixname = project.getTitle();
         final String description = project.getDescription();
         final long dueDate = project.getDueDate();
+        final String type = project.getProjectType();
 
-        return createProject(projectname, unixname, description, Project.PRIVATE, userEPPN, dueDate);
+        return createProject(projectname, unixname, description, type, userEPPN, dueDate);
     }
 
     public Id updateProject(int id, Project project, String userEPPN) throws DMCServiceException {
