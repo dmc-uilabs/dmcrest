@@ -1,4 +1,4 @@
-package org.dmc.services.products;
+package org.dmc.services.profile;
 
 
 import org.dmc.services.reviews.ReviewHelpful;
@@ -22,18 +22,18 @@ import org.dmc.services.reviews.ReviewType;
 import static org.springframework.http.MediaType.*;
 
 @Controller
-@RequestMapping(value = "/product_reviews_helpful", produces = {APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/profile_reviews_helpful", produces = {APPLICATION_JSON_VALUE})
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
-public class ProductReviewsHelpfulController {
+public class ProfileReviewsHelpfulController {
     
-    private static final String logTag = ProductReviewsHelpfulController.class.getName();
+    private static final String logTag = ProfileReviewsHelpfulController.class.getName();
     
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-    public ResponseEntity<?> productReviewsHelpfulGet(@RequestParam(value = "reviewId", required = true) String reviewId,
+    public ResponseEntity<?> profileReviewsHelpfulGet(@RequestParam(value = "reviewId", required = true) String reviewId,
                                                       @RequestParam(value = "accountId", required = true) String accountId,
                                                       @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-        ServiceLogger.log(logTag, "productReviewsHelpfulGet: with user " + userEPPN + " for review id" + reviewId + " with account id " + accountId);
-        final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
+        ServiceLogger.log(logTag, "profileReviewsHelpfulGet: with user " + userEPPN + " for review id" + reviewId + " with account id " + accountId);
+        final ReviewDao<ProfileReview> reviewDao = new ReviewDao<ProfileReview>(ReviewType.PROFILE);
         
         try {
             final List<ReviewHelpful> retrunedReviewHelpful = reviewDao.getHelpfulReview(reviewId, accountId, userEPPN);
@@ -46,11 +46,11 @@ public class ProductReviewsHelpfulController {
     
     
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE },method = RequestMethod.POST)
-    public ResponseEntity<?> productReviewsHelpfulPost(@RequestBody ReviewHelpful serviceReviewHelpful,
+    public ResponseEntity<?> profileReviewsHelpfulPost(@RequestBody ReviewHelpful serviceReviewHelpful,
                                                        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
-        ServiceLogger.log(logTag, "productReviewsHelpfulPost: with user " + userEPPN);
+        ServiceLogger.log(logTag, "profileReviewsHelpfulPost: with user " + userEPPN);
 
-        final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
+        final ReviewDao<ProfileReview> reviewDao = new ReviewDao<ProfileReview>(ReviewType.PROFILE);
         
         try {
             final ReviewHelpful retrunedReviewHelpful = reviewDao.createHelpfulReview(serviceReviewHelpful, userEPPN);
@@ -63,11 +63,11 @@ public class ProductReviewsHelpfulController {
     
     
     @RequestMapping(value = "/{helpfulID}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
-    public ResponseEntity<?> productReviewsHelpfulHelpfulIDPatch(@PathVariable("helpfulID") String helpfulID,
+    public ResponseEntity<?> profileReviewsHelpfulHelpfulIDPatch(@PathVariable("helpfulID") String helpfulID,
                                                                  @RequestBody ReviewHelpful helpful,
                                                                  @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
-        ServiceLogger.log(logTag, "productReviewsHelpfulHelpfulIDPatch: with user " + userEPPN + " for helpfulID: " + helpfulID);
-        final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
+        ServiceLogger.log(logTag, "profileReviewsHelpfulHelpfulIDPatch: with user " + userEPPN + " for helpfulID: " + helpfulID);
+        final ReviewDao<ProfileReview> reviewDao = new ReviewDao<ProfileReview>(ReviewType.PROFILE);
         
         try {
             final ReviewHelpful retrunedReviewHelpful = reviewDao.patchHelpfulReview(helpfulID, helpful, userEPPN);

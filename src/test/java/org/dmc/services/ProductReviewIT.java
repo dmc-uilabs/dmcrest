@@ -299,8 +299,8 @@ public class ProductReviewIT extends BaseIT {
                         .path("id");
         
         ServiceLogger.log(logTag, "Added product review for service " + serviceId + ", returned review id " + id);
-        addReviewHelpful(id, memberUserId, memberEPPN, true);
-        addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false);
+        ReviewIT.addReviewHelpful(id, memberUserId, memberEPPN, true, PRODUCT_REVIEW_HELPFULL_POST_RESOURCE);
+        ReviewIT.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PRODUCT_REVIEW_HELPFULL_POST_RESOURCE);
         
         return id;
     }
@@ -321,30 +321,9 @@ public class ProductReviewIT extends BaseIT {
                         .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
                         .extract()
                         .path("id");
-//        addReviewHelpful(id, memberUserId, memberEPPN, true);
-//        addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false);
+//        ReviewIT.addReviewHelpful(id, memberUserId, memberEPPN, true, PRODUCT_REVIEW_HELPFULL_POST_RESOURCE);
+//        ReviewIT.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PRODUCT_REVIEW_HELPFULL_POST_RESOURCE);
 
         return id;
     }
-    
-    private ReviewHelpful addReviewHelpful(int reviewId, int userId, String userEPPN, boolean helpful) {
-        ReviewHelpful reviewHelpful = new ReviewHelpful();
-        reviewHelpful.setReviewId(Integer.toString(reviewId)); // id of review
-        reviewHelpful.setAccountId(Integer.toString(userId)); // id of user
-        reviewHelpful.setHelpfull(helpful);
-        
-        ReviewHelpful returnedReviewHelpful =
-            given().
-                header("Content-type", "application/json").
-                header("AJP_eppn", userEPPN).body(reviewHelpful).
-            expect().
-                statusCode(200).
-            when().
-                post(PRODUCT_REVIEW_HELPFULL_POST_RESOURCE).
-            then().
-                extract().as(ReviewHelpful.class);
-        
-        return returnedReviewHelpful;
-    }
-
 }

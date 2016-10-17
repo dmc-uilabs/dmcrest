@@ -379,14 +379,14 @@ public class ReviewDao<T extends Review> {
         Date date= new Date();
         
         String sqlInsertHelpfulReview = "INSERT INTO " + tablePrefix + "_review_rate (review_id, user_id, review_rate_timestamp, helpfulornot) VALUES (?,?,?,?)";
-        
+
         try {
             PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlInsertHelpfulReview, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, reviewIdInt);
             preparedStatement.setInt(2, user_id);
             preparedStatement.setTimestamp(3, new java.sql.Timestamp(date.getTime()));
             preparedStatement.setBoolean(4, serviceReviewHelpful.getHelpfull());
-                
+            
             preparedStatement.executeUpdate();
             
             int id = util.getGeneratedKey(preparedStatement, "id");

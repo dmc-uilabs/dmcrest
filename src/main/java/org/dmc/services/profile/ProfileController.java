@@ -133,8 +133,7 @@ public class ProfileController {
         return new ResponseEntity<List<ProfileHistory>>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @RequestMapping(value = "/profiles/{profileID}/profile_reviews", produces = {
-            APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+    @RequestMapping(value = "/profiles/{profileID}/profile_reviews", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public ResponseEntity<?> profilesProfileIDProfileReviewsGet(
             @PathVariable("profileID") String profileID,
             @RequestParam(value = "reviewId", required = true) String reviewId,
