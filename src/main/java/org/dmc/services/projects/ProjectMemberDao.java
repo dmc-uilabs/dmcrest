@@ -137,8 +137,8 @@ public class ProjectMemberDao {
                 + "FROM group_join_request gjr " 
                 + "JOIN users u ON gjr.user_id = u.user_id "
                 + "JOIN users ur ON gjr.requester_id = ur.user_id ";
-        final String adminRequiredClause = "gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = "
-                + userId + " and adr.role_name = 'Admin')";
+        final String membershipRequiredClause = "gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = "
+                + userId + ")";
 
         ArrayList<String> clauses =  new ArrayList<String>();
         if (null != projectList ) {
@@ -151,12 +151,12 @@ public class ProjectMemberDao {
         if (null != userMemberIdList) {
             clauses.add(createInvitationClause(userMemberIdList));
         }
-        if (null == projectList && null == userMemberIdList && false == accept) {
+        if (null == projectList && null == userMemberIdList && (null!= accept && false == accept)) {
             clauses.add("gjr.user_id = " + userId);
         } else if (null == projectList && null == userMemberIdList) {
-            clauses.add(adminRequiredClause);
+            clauses.add(membershipRequiredClause);
         } else if (!isIdInInvitationList(Integer.toString(userId), userMemberIdList)) {
-            clauses.add(adminRequiredClause);
+            clauses.add(membershipRequiredClause);
         }
 
         final String acceptClause = createAcceptClause(accept);
