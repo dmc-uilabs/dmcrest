@@ -471,6 +471,7 @@ public class ProfileDao {
             joinQuery += SQLUtils.buildOrderByClause(fixedOrder, fixedSort, validSortFields);
             joinQuery += SQLUtils.buildLimitClause(limit);
             joinQuery += SQLUtils.buildOffsetClause(start);
+            ServiceLogger.log(LOGTAG, "history query: " + joinQuery);
             final PreparedStatement statement = DBConnector.prepareStatement(joinQuery);
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -479,35 +480,46 @@ public class ProfileDao {
                 Timestamp eventDate = resultSet.getTimestamp("event_date");
                 item.setDate(format.format(eventDate));
                 item.setTitle(resultSet.getString("message"));
+                item.setType(ProfileHistory.mapToType(resultSet.getString("type")));
+                item.setLink(resultSet.getString("link"));
                 history.add(item);
             }
         }
         return history;
     }
     private String getProjectInvitationHistoryQuery(int userid) {
-        final String query = "select gjr.request_date as event_date, concat('invited to project ', g.group_name, '(', g.group_id, ') by ', ur.realname) as message "
-                    + "from groups as g, group_join_request as gjr, users as ur "
-                    + "where gjr.user_id = " + userid + " "
-                    + "and g.group_id = gjr.group_id "
-                    + "and gjr.reject_date is null "
-                    + "and gjr.accept_date is null "
-                    + "and gjr.requester_id = ur.user_id "
-                    + "and g.group_id not in (select group_id from group_join_request "
-                    + "                       where user_id = " + userid + " and (accept_date is not null or reject_date is not null)) ";
+        final String query = "select 'added' as type, "
+                + "gjr.request_date as event_date, "
+                + "concat('invited to project ', g.group_name, '(', g.group_id, ') by ', ur.realname) as message, "
+                + "concat('project.php#/', g.group_id, '/home') as link "
+                + "from groups as g, group_join_request as gjr, users as ur "
+                + "where gjr.user_id = " + userid + " "
+                + "and g.group_id = gjr.group_id "
+                + "and gjr.reject_date is null "
+                + "and gjr.accept_date is null "
+                + "and gjr.requester_id = ur.user_id "
+                + "and g.group_id not in (select group_id from group_join_request "
+                + "                       where user_id = " + userid + " and (accept_date is not null or reject_date is not null)) ";
         return query;
     }
 
     private String getProjectJoinHistoryQuery(int userid) {
-        final String query = "select gjr.accept_date as event_date, concat('joined project ', g.group_name, '(', g.group_id, ')') as message "
-                    + "from groups as g, group_join_request as gjr "
-                    + "where gjr.user_id = " + userid + " "
-                    + "and g.group_id = gjr.group_id "
-                    + "and gjr.accept_date is not null ";
+        final String query = "select 'added' as type, "
+                + "gjr.accept_date as event_date, "
+                + "concat('joined project ', g.group_name, '(', g.group_id, ')') as message, "
+                + "concat('project.php#/', g.group_id, '/home') as link "
+                + "from groups as g, group_join_request as gjr "
+                + "where gjr.user_id = " + userid + " "
+                + "and g.group_id = gjr.group_id "
+                + "and gjr.accept_date is not null ";
         return query;
     }
 
     private String getProjectDeclineHistoryQuery(int userid) {
-        final String query = "select gjr.reject_date as event_date, concat('declined project invitation for ', g.group_name, '(', g.group_id, ')') as message "
+        final String query = "select 'completed' as type, "
+                + "gjr.reject_date as event_date, "
+                + "concat('declined project invitation for ', g.group_name, '(', g.group_id, ')') as message, "
+                + "null as link "
                 + "from groups as g, group_join_request as gjr "
                 + "where gjr.user_id = " + userid + " "
                 + "and g.group_id = gjr.group_id "
@@ -517,7 +529,10 @@ public class ProfileDao {
 
     private String getProjectDiscussionsHistoryQuery(int userid) {
         // currently date is stored as string instead of an actual timestamp
-        final String query = "select to_timestamp(to_number(d.created_at, '9999999999999999')) as event_date, concat('started \"', title, '\" discussion in project ', g.group_name, ' [p', g.group_id, ' d',d.id,']') as message "
+        final String query = "select 'discussion' as type, "
+                + "to_timestamp(to_number(d.created_at, '9999999999999999')) as event_date, "
+                + "concat('started \"', title, '\" discussion in project ', g.group_name, ' [p', g.group_id, ' d',d.id,']') as message, "
+                + "concat('individual-discussion.php#/', d.id) as link "
                 + "from individual_discussions d, groups g "
                 + "where d.project_id = g.group_id "
                 + "and d.account_id = " + userid + " ";
@@ -526,7 +541,10 @@ public class ProfileDao {
 
     private String getPublicDiscussionsHistoryQuery(int userid) {
         // currently date is stored as string instead of an actual timestamp
-        final String query = "select to_timestamp(to_number(d.created_at, '99999999999999999999')) as event_date, concat('started \"', title, '\" public discussion [d',d.id,']') as message "
+        final String query = "select 'discussion' as type, "
+                + "to_timestamp(to_number(d.created_at, '99999999999999999999')) as event_date, "
+                + "concat('started \"', title, '\" public discussion [d',d.id,']') as message, "
+                + "concat('individual-discussion.php#/', d.id) as link "
                 + "from individual_discussions d "
                 + "where d.project_id is null "
                 + "and d.account_id = " + userid + " ";
@@ -534,7 +552,10 @@ public class ProfileDao {
     }
 
     private String getProjectDiscussionCommentHistoryQuery(int userid) {
-        final String query = "select to_timestamp(to_number(c.created_at, '99999999999999999999')) as event_date, concat('commented on \"', title, '\" ', g.group_name, ' project discussion [p', g.group_id, ' d',d.id, ' c',c.id,']') as message "
+        final String query = "select 'discussion' as type, "
+                + "to_timestamp(to_number(c.created_at, '99999999999999999999')) as event_date, "
+                + "concat('commented on \"', title, '\" ', g.group_name, ' project discussion [p', g.group_id, ' d',d.id, ' c',c.id,']') as message, "
+                + "concat('individual-discussion.php#/', d.id) as link "
                 + "from individual_discussions d, groups g, individual_discussions_comments c "
                 + "where d.project_id = g.group_id "
                 + "and c.individual_discussion_id = d.id "
@@ -543,7 +564,10 @@ public class ProfileDao {
     }
 
     private String getPublicDiscussionCommentHistoryQuery(int userid) {
-        final String query = "select to_timestamp(to_number(c.created_at, '99999999999999999999')) as event_date, concat('commented on \"', title, '\" public discussion [d',d.id, ' c',c.id,']') as message "
+        final String query = "select 'discussion' as type, "
+                + "to_timestamp(to_number(c.created_at, '99999999999999999999')) as event_date, "
+                + "concat('commented on \"', title, '\" public discussion [d',d.id, ' c',c.id,']') as message, "
+                + "concat('individual-discussion.php#/', d.id) as link "
                 + "from individual_discussions d, individual_discussions_comments c "
                 + "where d.project_id is null "
                 + "and c.individual_discussion_id = d.id "
@@ -552,7 +576,10 @@ public class ProfileDao {
     }
 
     private String getServiceReleaseHistoryQuery(int userid) {
-        final String query = "select s.release_date + time '00:00' as event_date, concat('service \"', s.title, '\" released ') as message "
+        final String query = "select 'shared' as type, "
+                + "s.release_date + time '00:00' as event_date, "
+                + "concat('service \"', s.title, '\" released ') as message, "
+                + "concat('project.php#/',s.project_id, '/services/', s.service_id,'/detail') as link "
                 + "from service s "
                 + "where s.release_date is not null "
                 + "and owner_id = " + userid + " ";
@@ -560,7 +587,10 @@ public class ProfileDao {
     }
 
     private String getServiceRunStartHistoryQuery(int userid) {
-        final String query = "select sr.start_date + time '00:00' as event_date, concat('service \"', s.title, '\" run started [r',sr.run_id,']') as message "
+        final String query = "select 'worked' as type, "
+                + "sr.start_date + time '00:00' as event_date, "
+                + "concat('service \"', s.title, '\" run started [r',sr.run_id,']') as message, "
+                + "concat('project.php#/',s.project_id, '/services/', s.service_id,'/detail') as link "
                 + "from service s, service_run sr "
                 + "where s.service_id = sr.service_id "
                 + "and sr.start_date is not null "
@@ -569,7 +599,10 @@ public class ProfileDao {
     }
 
     private String getServiceRunStopHistoryQuery(int userid) {
-        final String query = "select sr.stop_date + time '00:00' as event_date, concat('service \"', s.title, '\" run stopped [r',sr.run_id,']') as message "
+        final String query = "select 'completed' as type, "
+                + "sr.stop_date + time '00:00' as event_date, "
+                + "concat('service \"', s.title, '\" run stopped [r',sr.run_id,']') as message, "
+                + "concat('project.php#/',s.project_id, '/services/', s.service_id,'/detail') as link "
                 + "from service s, service_run sr "
                 + "where s.service_id = sr.service_id "
                 + "and sr.stop_date is not null "
