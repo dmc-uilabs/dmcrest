@@ -104,9 +104,20 @@ public class VerificationPatch {
 		this.restIP = restIP;
 	}
 
-
-
-
-
-
+	@Override
+	public String toString() {
+		return "VerificationPatch{" +
+				"id=" + id +
+				", url='" + url + '\'' +
+				", table='" + table + '\'' +
+				", folder='" + folder + '\'' +
+				", resourceType='" + resourceType + '\'' +
+				", userEPPN='" + userEPPN + '\'' +
+				", verified=" + verified +
+				", urlColumn='" + urlColumn + '\'' +
+				", idColumn='" + idColumn + '\'' +
+				", scanLog='" + scanLog + '\'' +
+				", restIP='" + restIP + '\'' +
+				'}';
+	}
 }
