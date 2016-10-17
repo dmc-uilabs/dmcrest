@@ -53,6 +53,7 @@ public class FollowDiscussionsDao {
 			retObj.setId(Integer.toString(id));
 			retObj.setIndividualDiscussionId(followDiscussion.getIndividualDiscussionId());
 			retObj.setAccountId(followDiscussion.getAccountId());
+			connection.commit();
 
 		} catch (SQLException se) {
 			try {
