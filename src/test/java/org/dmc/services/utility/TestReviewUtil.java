@@ -1,4 +1,4 @@
-package org.dmc.services;
+package org.dmc.services.utility;
 
 import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.reviews.ReviewHelpful;
@@ -6,9 +6,9 @@ import org.dmc.services.reviews.ReviewHelpful;
 import static com.jayway.restassured.RestAssured.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-public class ReviewIT extends BaseIT {
+public class TestReviewUtil {
     
-    private static final String logTag = ReviewIT.class.getName();
+    private static final String logTag = TestReviewUtil.class.getName();
 
     static public ReviewHelpful addReviewHelpful(int reviewId, int userId, String userEPPN, boolean helpful, String REVIEW_HELPFULL_POST_RESOURCE) {
         ReviewHelpful reviewHelpful = new ReviewHelpful();
@@ -16,7 +16,7 @@ public class ReviewIT extends BaseIT {
         reviewHelpful.setAccountId(Integer.toString(userId)); // id of user
         reviewHelpful.setHelpfull(helpful);
         
-        ServiceLogger.log(logTag, "Added helpful review for reviewId " + reviewId + " from user " + userEPPN + " (id:"+userId+") with helpful = "+helpful+" to endpoint "+REVIEW_HELPFULL_POST_RESOURCE);
+//        ServiceLogger.log(logTag, "Added helpful review for reviewId " + reviewId + " from user " + userEPPN + " (id:"+userId+") with helpful = "+helpful+" to endpoint "+REVIEW_HELPFULL_POST_RESOURCE);
         
         ReviewHelpful returnedReviewHelpful =
         given().

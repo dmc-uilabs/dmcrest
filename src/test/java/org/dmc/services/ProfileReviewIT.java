@@ -12,6 +12,7 @@ import org.dmc.services.profile.ProfileReview;
 import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.utility.CommonUtils;
 import org.dmc.services.utility.TestUserUtil;
+import org.dmc.services.utility.TestReviewUtil;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -164,8 +165,8 @@ public class ProfileReviewIT extends BaseIT {
         // Add a new review
         int reviewId = addReview(profileId, memberDisplayName, memberUserId, "My awesome review", memberEPPN, 0);
 
-        ReviewFlagged createdReviewFlagged = ReviewIT.addFlaggedReview(reviewId, memberUserId, "Reason", "Comment", memberEPPN, PROFILE_REVIEW_FLAGGED_POST_RESOURCE);
-        ReviewFlagged[] retrievedReviewFlagged = ReviewIT.getFlaggedReview(reviewId, memberUserId, memberEPPN, PROFILE_REVIEW_FLAGGED_POST_RESOURCE);
+        ReviewFlagged createdReviewFlagged = TestReviewUtil.addFlaggedReview(reviewId, memberUserId, "Reason", "Comment", memberEPPN, PROFILE_REVIEW_FLAGGED_POST_RESOURCE);
+        ReviewFlagged[] retrievedReviewFlagged = TestReviewUtil.getFlaggedReview(reviewId, memberUserId, memberEPPN, PROFILE_REVIEW_FLAGGED_POST_RESOURCE);
         assertTrue("not equal", createdReviewFlagged.equals(retrievedReviewFlagged[0]));
 
         ProfileReview[] profileReviews  =
@@ -305,8 +306,8 @@ public class ProfileReviewIT extends BaseIT {
                         .path("id");
         
         ServiceLogger.log(logTag, "Added profile review for userid " + profileId + ", returned review id " + id);
-        ReviewIT.addReviewHelpful(id, memberUserId, memberEPPN, true, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
-        ReviewIT.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
+        TestReviewUtil.addReviewHelpful(id, memberUserId, memberEPPN, true, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
+        TestReviewUtil.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
 
         return id;
     }
@@ -329,8 +330,8 @@ public class ProfileReviewIT extends BaseIT {
                         .extract()
                         .path("id");
         
-        //        ReviewIT.addReviewHelpful(id, memberUserId, memberEPPN, true, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
-        //        ReviewIT.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
+        //        TestReviewUtil.addReviewHelpful(id, memberUserId, memberEPPN, true, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
+        //        TestReviewUtil.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
 
         return id;
     }
