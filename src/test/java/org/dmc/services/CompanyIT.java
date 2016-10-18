@@ -167,22 +167,6 @@ public class CompanyIT extends BaseIT {
 			patch(COMPANY_UPDATE_RESOURCE, this.createdId.toString());
 	}
 
-	@Test
-	public void testCompanyVideoCreate() {
-
-		if (this.createdId != null) {
-			JSONObject json = new JSONObject();
-			json.put("title", "test video title");
-			json.put("link", "test video link");
-			json.put("companyId", this.createdId);
-
-			given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).body(json.toString())
-					.expect().statusCode(200).when().post(COMPANY_VIDEO_CREATE_RESOURCE).then()
-					.body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
-		}
-
-	}
-
 	@After
 	public void testCompanyDelete() {
 		given().header("Content-type", "application/json").header("AJP_eppn", randomEPPN).expect().statusCode(200)
@@ -406,30 +390,12 @@ public class CompanyIT extends BaseIT {
 	}
 
 	/**
-	 * test case for GET /companies/{companyID}/company_images
-	 */
-	@Test
-	public void testCompanyGet_CompanyImage() {
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.get("/companies/" + companyId + "/company_images");
-	}
-
-	/**
 	 * test case for GET /companies/{companyID}/company_history
 	 */
 	@Test
 	public void testCompanyGet_CompanyHistory() {
 		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
 				.get("/companies/" + companyId + "/company_history");
-	}
-
-	/**
-	 * test case for GET /companies/{companyID}/company_skill_images
-	 */
-	@Test
-	public void testCompanyGet_CompanySkillImage() {
-		given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.NOT_IMPLEMENTED.value()).when()
-				.get("/companies/" + companyId + "/company_skill_images");
 	}
 
 	/**
