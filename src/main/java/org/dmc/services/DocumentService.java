@@ -9,6 +9,7 @@ import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
+import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
@@ -38,6 +39,9 @@ public class DocumentService {
 
 	@Inject
 	private DocumentTagRepository documentTagRepository;
+	
+	@Inject
+	private UserRepository userRepository;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -49,15 +53,16 @@ public class DocumentService {
 
 	private Verification verify = new Verification();
 
-	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException, DMCServiceException {
+	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+		Integer userId = userRepository.findByUsername(userEPPN).getId();
 		List<Document> results;
 
 		if (recent != null) {
-			results = documentRepository.findAll(where, new PageRequest(0, recent, new Sort(new Order(Direction.DESC, "modified")))).getContent();
+			results = documentRepository.findAllowedDocuments(userId, new PageRequest(0, recent, new Sort(new Order(Direction.DESC, "modified"))), where).getContent();
 		} else {
-			results = documentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
+			results = documentRepository.findAllowedDocuments(userId, new PageRequest(pageNumber, pageSize), where).getContent();
 		}
 
 		if (results.size() == 0) return null;
