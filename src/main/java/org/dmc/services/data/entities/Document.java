@@ -8,6 +8,8 @@ import javax.persistence.*;
 import org.dmc.services.ParentDocumentService;
 import org.hibernate.annotations.Where;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="document")
 @Where(clause = "is_deleted='false'")
@@ -58,6 +60,14 @@ public class Document extends BaseEntity {
 	
 	@Column(name = "verified")
 	private Boolean verified = false;
+	
+	@ManyToMany
+	@JoinTable(name = "resource_in_resource_group",
+				joinColumns = @JoinColumn(name = "resource_id"),
+				inverseJoinColumns = @JoinColumn(name = "resource_group_id"))
+	@Where(clause = "resource_type_id = 1")
+	@JsonIgnore
+	private List<ResourceGroup> resourceGroups;
 
 	public Integer getId() {
 		return id;
@@ -163,11 +173,18 @@ public class Document extends BaseEntity {
 		this.verified = verified;
 	}
 
+	public List<ResourceGroup> getResourceGroups() {
+		return resourceGroups;
+	}
+
+	public void setResourceGroups(List<ResourceGroup> resourceGroups) {
+		this.resourceGroups = resourceGroups;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((resourceTypeId == null) ? 0 : resourceTypeId.hashCode());
 		result = prime * result + ((docClass == null) ? 0 : docClass.hashCode());
 		result = prime * result + ((documentName == null) ? 0 : documentName.hashCode());
 		result = prime * result + ((documentUrl == null) ? 0 : documentUrl.hashCode());
@@ -178,6 +195,8 @@ public class Document extends BaseEntity {
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
 		result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
 		result = prime * result + ((parentType == null) ? 0 : parentType.hashCode());
+		result = prime * result + ((resourceGroups == null) ? 0 : resourceGroups.hashCode());
+		result = prime * result + ((resourceTypeId == null) ? 0 : resourceTypeId.hashCode());
 		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
 		result = prime * result + ((verified == null) ? 0 : verified.hashCode());
 		return result;
@@ -192,15 +211,7 @@ public class Document extends BaseEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		Document other = (Document) obj;
-		if (resourceTypeId == null) {
-			if (other.resourceTypeId != null)
-				return false;
-		} else if (!resourceTypeId.equals(other.resourceTypeId))
-			return false;
-		if (docClass == null) {
-			if (other.docClass != null)
-				return false;
-		} else if (!docClass.equals(other.docClass))
+		if (docClass != other.docClass)
 			return false;
 		if (documentName == null) {
 			if (other.documentName != null)
@@ -244,6 +255,16 @@ public class Document extends BaseEntity {
 			return false;
 		if (parentType != other.parentType)
 			return false;
+		if (resourceGroups == null) {
+			if (other.resourceGroups != null)
+				return false;
+		} else if (!resourceGroups.equals(other.resourceGroups))
+			return false;
+		if (resourceTypeId == null) {
+			if (other.resourceTypeId != null)
+				return false;
+		} else if (!resourceTypeId.equals(other.resourceTypeId))
+			return false;
 		if (tags == null) {
 			if (other.tags != null)
 				return false;
@@ -256,6 +277,4 @@ public class Document extends BaseEntity {
 			return false;
 		return true;
 	}
-
-	
 }
