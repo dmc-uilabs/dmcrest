@@ -238,6 +238,7 @@ public class DocumentService {
 	@Scheduled(cron = "0 1 1 * * ?")
 	@Transactional(rollbackFor = DMCServiceException.class)
 	protected void removeUnverifiedDocuments() {
+		logger.info("Removing unverified document records.");
 		LocalDateTime lastWeek = LocalDate.now().atStartOfDay().minusWeeks(1);
 
 		List<Document> documents = this.documentRepository
@@ -268,6 +269,7 @@ public class DocumentService {
 	@Scheduled(cron = "0 1 1 * * ?")
 	@Transactional(rollbackFor = DMCServiceException.class)
 	protected void refreshDocuments() {
+		logger.info("Refreshing documents in AWS.");
 		LocalDateTime future = LocalDate.now().atStartOfDay().plusDays(2);
 		List<Document> documents = this.documentRepository
 				.findAllByVerifiedIsTrueAndIsDeletedIsFalseAndExpiresBefore(Timestamp.valueOf(future));
