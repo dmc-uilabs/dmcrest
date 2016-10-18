@@ -379,14 +379,14 @@ public class ReviewDao<T extends Review> {
         Date date= new Date();
         
         String sqlInsertHelpfulReview = "INSERT INTO " + tablePrefix + "_review_rate (review_id, user_id, review_rate_timestamp, helpfulornot) VALUES (?,?,?,?)";
-        
+
         try {
             PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlInsertHelpfulReview, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setInt(1, reviewIdInt);
             preparedStatement.setInt(2, user_id);
             preparedStatement.setTimestamp(3, new java.sql.Timestamp(date.getTime()));
             preparedStatement.setBoolean(4, serviceReviewHelpful.getHelpfull());
-                
+            
             preparedStatement.executeUpdate();
             
             int id = util.getGeneratedKey(preparedStatement, "id");
@@ -514,6 +514,88 @@ public class ReviewDao<T extends Review> {
             // ignore
         }
         return count;
+    }
+
+    public ReviewFlagged createFlaggedReview(ReviewFlagged reviewFlagged, String userEPPN) throws DMCServiceException {
+        int user_id = -9999;
+        
+        try {
+            user_id = CompanyUserUtil.getUserId(userEPPN);
+        } catch (SQLException sqlEX) {
+            throw new DMCServiceException(DMCError.Generic, "Unknow user " + userEPPN);
+        }
+        
+        int reviewIdInt = Integer.parseInt(reviewFlagged.getReviewId());
+        Date date= new Date();
+        
+        String sqlInsertHelpfulReview = "INSERT INTO " + tablePrefix + "_review_flag (review_id, user_id, review_flag_timestamp, reason, comment) VALUES (?,?,?,?, ?)";
+        
+        try {
+            PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlInsertHelpfulReview, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setInt(1, reviewIdInt);
+            preparedStatement.setInt(2, user_id);
+            preparedStatement.setTimestamp(3, new java.sql.Timestamp(date.getTime()));
+            preparedStatement.setString(4, "TODO: ADD REASON");
+            preparedStatement.setString(5, "TODO: ADD COMMENT");
+            
+            preparedStatement.executeUpdate();
+            
+            int id = util.getGeneratedKey(preparedStatement, "id");
+            reviewFlagged.setId(Integer.toString(id));
+            
+            return reviewFlagged;
+            
+        } catch (SQLException sqlEX) {
+            throw new DMCServiceException(DMCError.OtherSQLError, sqlEX.getMessage());
+        }
+    }
+    
+    public List<ReviewFlagged> getFlaggedReview(String reviewId, String accountId, String userEPPN) throws DMCServiceException {
+        int user_id = -9999;
+        int account_id = Integer.parseInt(accountId);
+        
+        try {
+            user_id = CompanyUserUtil.getUserId(userEPPN);
+        } catch (SQLException sqlEX) {
+            throw new DMCServiceException(DMCError.Generic, "Unknow user " + userEPPN);
+        }
+        
+        if(account_id != user_id) {
+            throw new DMCServiceException(DMCError.Generic, "user and account ids do not match");
+        }
+        
+        ArrayList<ReviewFlagged> reviewFlaggedList = new ArrayList<ReviewFlagged>();
+        
+        String sqlInsertHelpfulReview = "SELECT * FROM  " + tablePrefix + "_review_flag WHERE review_id = ? AND user_id = ?";
+        
+        final PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlInsertHelpfulReview);
+        try {
+            preparedStatement.setInt(1, Integer.parseInt(reviewId));
+            preparedStatement.setInt(2, user_id);
+            
+            ResultSet rs = preparedStatement.executeQuery();
+            
+            while (rs.next()) {
+                ReviewFlagged reviewFlagged = newFlaggedReview(rs.getInt("id"),
+                                                               rs.getInt("review_id"),
+                                                               rs.getInt("user_id"));  // skipping reason and comment
+                
+                reviewFlaggedList.add(reviewFlagged);
+            }
+        } catch (SQLException sqlEX) {
+            throw new DMCServiceException(DMCError.Generic, "Error retrieving database records");
+            
+        }
+        
+        return reviewFlaggedList;
+    }
+
+    private ReviewFlagged newFlaggedReview(int id, int accountid, int userid) {
+        ReviewFlagged reviewFlagged = new ReviewFlagged();
+        reviewFlagged.setId(Integer.toString(id));
+        reviewFlagged.setReviewId(Integer.toString(accountid));
+        reviewFlagged.setAccountId(Integer.toString(userid));
+        return reviewFlagged;
     }
 
     private void setTablePrefix() throws DMCServiceException {

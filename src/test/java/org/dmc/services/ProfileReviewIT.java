@@ -6,10 +6,14 @@ package org.dmc.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.dmc.services.company.Company;
 import org.dmc.services.profile.ProfileReview;
+import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.utility.CommonUtils;
 import org.dmc.services.utility.TestUserUtil;
+import org.dmc.services.utility.TestReviewUtil;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -17,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -30,6 +35,8 @@ public class ProfileReviewIT extends BaseIT {
 
     private static final String PROFILE_REVIEW_GET_RESOURCE = "/profiles/{productID}/profile_reviews";
     private static final String PROFILE_REVIEW_POST_RESOURCE = "/profile_reviews";
+    private static final String PROFILE_REVIEW_HELPFULL_POST_RESOURCE = "/profile_reviews_helpful";
+    private static final String PROFILE_REVIEW_FLAGGED_POST_RESOURCE = "/profile_reviews_flagged";
 
     private int ownerUserId = -1;
     private String ownerEPPN;
@@ -44,6 +51,7 @@ public class ProfileReviewIT extends BaseIT {
 
     private int companyId = -1;
     private int reviewId = -1;
+    private int profileId = -1;
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -59,7 +67,7 @@ public class ProfileReviewIT extends BaseIT {
         ServiceLogger.log(logTag, "starting setupData");
         String unique = TestUserUtil.generateTime();
 
-        // set up user as owner of company
+        // set up user as owner of profile
         ownerEPPN = "userEPPN" + unique;
         String ownerGivenName = "userGivenName" + unique;
         String ownerSurName = "userSurName" + unique;
@@ -67,7 +75,8 @@ public class ProfileReviewIT extends BaseIT {
         String ownerEmail = "userEmail" + unique;
 
         ownerUserId = CommonUtils.createUser(ownerEPPN, ownerGivenName, ownerSurName, ownerDisplayName, ownerEmail);
-
+        profileId = ownerUserId;
+        
         // add company
         companyId = CommonUtils.createCompany(ownerEPPN);
 
@@ -83,10 +92,6 @@ public class ProfileReviewIT extends BaseIT {
         memberUserId = CommonUtils.createUser(memberEPPN,member3GivenName, member3SurName, member3DisplayName, member3Email);
         CommonUtils.addMemberToCompany(memberUserId, companyId, ownerEPPN);
 
-        // int companyId, String name, int accountId, String comment, String userEPPN
-        int parentReviewId = 0;
-        reviewId = addReview(companyId, memberDisplayName, memberUserId, DEFAULT_COMMENT, memberEPPN, parentReviewId);
-
         // Create a user that is not a member of the company
         String unique4 = TestUserUtil.generateTime();
         nonMemberEPPN = "userEPPN" + unique4;
@@ -97,6 +102,10 @@ public class ProfileReviewIT extends BaseIT {
         nonMemberDisplayName = nonMember3DisplayName;
 
         nonMemberUserId = CommonUtils.createUser(nonMemberEPPN,nonMember3GivenName, nonMember3SurName, nonMember3DisplayName, nonMember3Email);
+
+        // int profileId, String name, int accountId, String comment, String userEPPN
+        int parentReviewId = 0;
+        reviewId = addReview(profileId, memberDisplayName, memberUserId, DEFAULT_COMMENT, memberEPPN, parentReviewId);
     }
 
     @Test
@@ -109,13 +118,15 @@ public class ProfileReviewIT extends BaseIT {
                         .expect()
                         .statusCode(200)
                         .when()
-                        .get(PROFILE_REVIEW_GET_RESOURCE, companyId)
+                        .get(PROFILE_REVIEW_GET_RESOURCE, profileId)
                         .as(ProfileReview[].class);
 
         assertTrue("Profile review list cannot be null", profileReviews != null);
-        assertTrue("Expected 1 company review, got" + profileReviews.length, profileReviews.length == 1);
+        assertTrue("Expected 1 profile review, got" + profileReviews.length, profileReviews.length == 1);
 
         ProfileReview review = profileReviews[0];
+        ServiceLogger.log(logTag, "starting review "+review.toString());
+
         assertTrue(review.getId() != null && review.getId().equals(Integer.toString(reviewId)));
         assertTrue(review.getReviewId() != null && review.getReviewId().equals(Integer.toString(0)));
         assertTrue(review.getAccountId() != null && review.getAccountId().equals(Integer.toString(memberUserId)));
@@ -126,21 +137,17 @@ public class ProfileReviewIT extends BaseIT {
         assertTrue(review.getRating() != null && review.getRating().intValue() == DEFAULT_RATING);
 
         // Note: Until the endpoints for helpful reviews are implemented, likes/dislikes = 0
-        assertTrue(review.getLike() != null && review.getLike().intValue() == DEFAULT_LIKES);
-        assertTrue(review.getDislike() != null && review.getDislike().intValue() == DEFAULT_DISLIKES);
-
+        assertTrue("Expected more then zero review likes", review.getLike() != null && review.getLike().intValue() > 0);
+        assertTrue("Expected more then zero review dislikes", review.getDislike() != null && review.getDislike().intValue() > 0);
         assertTrue(review.getStatus() != null && review.getStatus().booleanValue() == true);
         assertTrue(review.getComment() != null && review.getComment().equals(DEFAULT_COMMENT));
-
-
-
     }
 
     @Test
     public void testAddReviewNonMember () {
 
         int reviewId = 0;
-        String json = createProfileReviewFixture(companyId, nonMemberDisplayName, nonMemberUserId, "This is a cool comment", reviewId);
+        String json = createProfileReviewFixture(profileId, nonMemberDisplayName, nonMemberUserId, "This is a cool comment", reviewId);
 
         given()
                 .header("Content-type", APPLICATION_JSON_VALUE)
@@ -156,7 +163,12 @@ public class ProfileReviewIT extends BaseIT {
     public void testReviewAndReplies() {
 
         // Add a new review
-        int reviewId = addReview(companyId, memberDisplayName, memberUserId, "My awesome review", memberEPPN, 0);
+        int reviewId = addReview(profileId, memberDisplayName, memberUserId, "My awesome review", memberEPPN, 0);
+
+        ReviewFlagged createdReviewFlagged = TestReviewUtil.addFlaggedReview(reviewId, memberUserId, "Reason", "Comment", memberEPPN, PROFILE_REVIEW_FLAGGED_POST_RESOURCE);
+        ReviewFlagged[] retrievedReviewFlagged = TestReviewUtil.getFlaggedReview(reviewId, memberUserId, memberEPPN, PROFILE_REVIEW_FLAGGED_POST_RESOURCE);
+        assertTrue("not equal", createdReviewFlagged.equals(retrievedReviewFlagged[0]));
+
         ProfileReview[] profileReviews  =
                 given()
                         .header("Content-type", APPLICATION_JSON_VALUE)
@@ -165,17 +177,17 @@ public class ProfileReviewIT extends BaseIT {
                         .expect()
                         .statusCode(200)
                         .when()
-                        .get(PROFILE_REVIEW_GET_RESOURCE, companyId)
+                        .get(PROFILE_REVIEW_GET_RESOURCE, profileId)
                         .as(ProfileReview[].class);
 
         assertTrue("Company review list cannot be null", profileReviews != null);
-        assertTrue("Expected 2 company reviews, got" + profileReviews.length, profileReviews.length == 2);
+        assertTrue("Expected 2 profile reviews, got" + profileReviews.length, profileReviews.length == 2);
 
         // Add a review reply
-        int replyReviewId = addReview(companyId, memberDisplayName, memberUserId, DEFAULT_REPLY_COMMENT + " 1", memberEPPN, reviewId);
+        int replyReviewId = addReview(profileId, memberDisplayName, memberUserId, DEFAULT_REPLY_COMMENT + " 1", memberEPPN, reviewId);
 
         // Add a review reply
-        int replyReviewId2 = addReview(companyId, memberDisplayName, memberUserId, DEFAULT_REPLY_COMMENT + " 2", memberEPPN, reviewId);
+        int replyReviewId2 = addReview(profileId, memberDisplayName, memberUserId, DEFAULT_REPLY_COMMENT + " 2", memberEPPN, reviewId);
 
         ProfileReview[] profileReviewReplies  =
                 given()
@@ -185,11 +197,11 @@ public class ProfileReviewIT extends BaseIT {
                         .expect()
                         .statusCode(200)
                         .when()
-                        .get(PROFILE_REVIEW_GET_RESOURCE, companyId)
+                        .get(PROFILE_REVIEW_GET_RESOURCE, profileId)
                         .as(ProfileReview[].class);
 
         assertTrue("Company review list cannot be null", profileReviewReplies != null);
-        assertTrue("Expected 2 company review, got" + profileReviewReplies.length, profileReviewReplies.length == 2);
+        assertTrue("Expected 2 profile review, got" + profileReviewReplies.length, profileReviewReplies.length == 2);
 
         for (int i=0; i < profileReviewReplies.length; i++) {
             ProfileReview review = profileReviewReplies[i];
@@ -223,21 +235,8 @@ public class ProfileReviewIT extends BaseIT {
 
     }
 
-    public static String createProfileReviewFixture(int companyId, String name, int accountId, String comment, int reviewId)
+    public static String createProfileReviewFixture(int profileId, String name, int accountId, String comment, int reviewId)
     {
-//            accountId:1
-//            comment:"Cool stuff!"
-//            companyId:"1"
-//            date:"1468095204202"
-//            dislike:0
-//            id:12
-//            like:0
-//            name:"Thomas Smith"
-//            rating:3
-//            reply:false
-//            reviewId:0
-//            status:true
-
         //String reviewId = Integer.toString(reviewIdCount++);
         boolean status = true;
         BigDecimal date = BigDecimal.valueOf(Calendar.getInstance().getTime().getTime());
@@ -246,10 +245,10 @@ public class ProfileReviewIT extends BaseIT {
         int dislikes = DEFAULT_DISLIKES;
         boolean reply = false;
 
-        return createProfileReviewFixture(companyId, name, reply, Integer.toString(reviewId), status, date, rating, likes, dislikes, comment, accountId);
+        return createProfileReviewFixture(profileId, name, reply, Integer.toString(reviewId), status, date, rating, likes, dislikes, comment, accountId);
     }
 
-    public static String createProfileReviewFixture(int companyId,
+    public static String createProfileReviewFixture(int profileId,
                                                     String name,
                                                     boolean reply,
                                                     String reviewId,
@@ -264,7 +263,7 @@ public class ProfileReviewIT extends BaseIT {
 
         ProfileReview r = new ProfileReview();
         //r.setId(Integer.toString(resultSet.getInt("kd")));
-        r.setProfileId(Integer.toString(companyId));
+        r.setProfileId(Integer.toString(profileId));
         r.setName(name);
         r.setReply(reply);
         r.setReviewId(reviewId);
@@ -277,20 +276,20 @@ public class ProfileReviewIT extends BaseIT {
         r.setAccountId(Integer.toString(accountId));
 
         ObjectMapper mapper = new ObjectMapper();
-        String companyJSONString = null;
+        String jSONString = null;
         try {
-            companyJSONString = mapper.writeValueAsString(r);
+            jSONString = mapper.writeValueAsString(r);
         } catch (JsonProcessingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return companyJSONString;
+        return jSONString;
 
     }
 
-    public int addReview (int companyId, String name, int accountId, String comment, String userEPPN, int reviewId) {
+    public int addReview (int profileId, String name, int accountId, String comment, String userEPPN, int reviewId) {
 
-        String json = createProfileReviewFixture(companyId, name, accountId, comment, reviewId);
+        String json = createProfileReviewFixture(profileId, name, accountId, comment, reviewId);
 
         int id =
                 given()
@@ -305,12 +304,17 @@ public class ProfileReviewIT extends BaseIT {
                         .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
                         .extract()
                         .path("id");
+        
+        ServiceLogger.log(logTag, "Added profile review for userid " + profileId + ", returned review id " + id);
+        TestReviewUtil.addReviewHelpful(id, memberUserId, memberEPPN, true, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
+        TestReviewUtil.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
+
         return id;
     }
 
-    public int addReviewReply (int companyId, String name, int accountId, String comment, int reviewId, String userEPPN, int parentReviewId) {
+    public int addReviewReply (int profileId, String name, int accountId, String comment, int reviewId, String userEPPN, int parentReviewId) {
 
-        String json = createProfileReviewFixture(companyId, name, accountId, comment, parentReviewId);
+        String json = createProfileReviewFixture(profileId, name, accountId, comment, parentReviewId);
 
         int id =
                 given()
@@ -325,7 +329,10 @@ public class ProfileReviewIT extends BaseIT {
                         .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
                         .extract()
                         .path("id");
+        
+        //        TestReviewUtil.addReviewHelpful(id, memberUserId, memberEPPN, true, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
+        //        TestReviewUtil.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PROFILE_REVIEW_HELPFULL_POST_RESOURCE);
+
         return id;
     }
-
 }
