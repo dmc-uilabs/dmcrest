@@ -1,4 +1,4 @@
-package org.dmc.services.products;
+package org.dmc.services.profile;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,23 +17,21 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.reviews.ReviewDao;
 import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.reviews.ReviewType;
-import org.dmc.services.products.ProductReview;
 
 import static org.springframework.http.MediaType.*;
-
 @Controller
-@RequestMapping(value = "/product_reviews_flagged", produces = {APPLICATION_JSON_VALUE})
+@RequestMapping(value = "/profile_reviews_flagged", produces = {APPLICATION_JSON_VALUE})
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
-public class ProductReviewsFlaggedController {
+public class ProfileReviewsFlaggedController {
     
-    private static final String logTag = ProductReviewsFlaggedController.class.getName();
+    private static final String logTag = ProfileReviewsFlaggedController.class.getName();
     
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
-    public ResponseEntity<?> productReviewsFlaggedGet(@RequestParam(value = "reviewId", required = true) String reviewId,
+    public ResponseEntity<?> profileReviewsFlaggedGet(@RequestParam(value = "reviewId", required = true) String reviewId,
                                                                     @RequestParam(value = "accountId", required = true) String accountId,
                                                                     @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
-        ServiceLogger.log(logTag, "productReviewsFlaggedGet: with user " + userEPPN + " for review id" + reviewId + " with account id " + accountId);
-        final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
+        ServiceLogger.log(logTag, "profileReviewsFlaggedGet: with user " + userEPPN + " for review id" + reviewId + " with account id " + accountId);
+        final ReviewDao<ProfileReview> reviewDao = new ReviewDao<ProfileReview>(ReviewType.PROFILE);
         
         try {
             final List<ReviewFlagged> retrunedReviewFlagged = reviewDao.getFlaggedReview(reviewId, accountId, userEPPN);
@@ -45,10 +43,10 @@ public class ProductReviewsFlaggedController {
     }
     
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
-    public ResponseEntity<?> productReviewsFlaggedPost(@RequestBody ReviewFlagged reviewFlagged,
+    public ResponseEntity<?> profileReviewsFlaggedPost(@RequestBody ReviewFlagged reviewFlagged,
                                                        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
-        ServiceLogger.log(logTag, "productReviewsFlaggedPost: with user " + userEPPN);
-        final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
+        ServiceLogger.log(logTag, "profileReviewsFlaggedPost: with user " + userEPPN);
+        final ReviewDao<ProfileReview> reviewDao = new ReviewDao<ProfileReview>(ReviewType.PROFILE);
         
         try {
             final ReviewFlagged retrunedReviewFlagged = reviewDao.createFlaggedReview(reviewFlagged, userEPPN);

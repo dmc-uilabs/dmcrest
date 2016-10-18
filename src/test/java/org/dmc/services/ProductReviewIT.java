@@ -6,12 +6,16 @@ package org.dmc.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.dmc.services.company.Company;
 import org.dmc.services.products.ProductReview;
 import org.dmc.services.reviews.ReviewHelpful;
+import org.dmc.services.reviews.ReviewFlagged;
 import org.dmc.services.services.Service;
 import org.dmc.services.utility.CommonUtils;
 import org.dmc.services.utility.TestUserUtil;
+import org.dmc.services.utility.TestReviewUtil;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -32,6 +36,8 @@ public class ProductReviewIT extends BaseIT {
     private static final String PRODUCT_REVIEW_GET_RESOURCE = "/product/{productID}/product_reviews";
     private static final String PRODUCT_REVIEW_POST_RESOURCE = "/product_reviews";
     private static final String PRODUCT_REVIEW_HELPFULL_POST_RESOURCE = "/product_reviews_helpful";
+    private static final String PRODUCT_REVIEW_FLAGGED_POST_RESOURCE = "/product_reviews_flagged";
+
 
     private int ownerUserId = -1;
     private String ownerEPPN;
@@ -163,6 +169,11 @@ public class ProductReviewIT extends BaseIT {
 
         // Add a new review
         int reviewId = addReview(serviceId, memberDisplayName, memberUserId, "My awesome review", memberEPPN, 0);
+        
+        ReviewFlagged createdReviewFlagged = TestReviewUtil.addFlaggedReview(reviewId, memberUserId, "Reason", "Comment", memberEPPN, PRODUCT_REVIEW_FLAGGED_POST_RESOURCE);
+        ReviewFlagged[] retrievedReviewFlagged = TestReviewUtil.getFlaggedReview(reviewId, memberUserId, memberEPPN, PRODUCT_REVIEW_FLAGGED_POST_RESOURCE);
+        assertTrue("not equal", createdReviewFlagged.equals(retrievedReviewFlagged[0]));
+
         ProductReview[] productReviews  =
                 given()
                         .header("Content-type", "application/json")
@@ -299,8 +310,8 @@ public class ProductReviewIT extends BaseIT {
                         .path("id");
         
         ServiceLogger.log(logTag, "Added product review for service " + serviceId + ", returned review id " + id);
-        addReviewHelpful(id, memberUserId, memberEPPN, true);
-        addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false);
+        TestReviewUtil.addReviewHelpful(id, memberUserId, memberEPPN, true, PRODUCT_REVIEW_HELPFULL_POST_RESOURCE);
+        TestReviewUtil.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PRODUCT_REVIEW_HELPFULL_POST_RESOURCE);
         
         return id;
     }
@@ -321,30 +332,9 @@ public class ProductReviewIT extends BaseIT {
                         .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
                         .extract()
                         .path("id");
-//        addReviewHelpful(id, memberUserId, memberEPPN, true);
-//        addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false);
+//        TestReviewUtil.addReviewHelpful(id, memberUserId, memberEPPN, true, PRODUCT_REVIEW_HELPFULL_POST_RESOURCE);
+//        TestReviewUtil.addReviewHelpful(id, nonMemberUserId, nonMemberEPPN, false, PRODUCT_REVIEW_HELPFULL_POST_RESOURCE);
 
         return id;
     }
-    
-    private ReviewHelpful addReviewHelpful(int reviewId, int userId, String userEPPN, boolean helpful) {
-        ReviewHelpful reviewHelpful = new ReviewHelpful();
-        reviewHelpful.setReviewId(Integer.toString(reviewId)); // id of review
-        reviewHelpful.setAccountId(Integer.toString(userId)); // id of user
-        reviewHelpful.setHelpfull(helpful);
-        
-        ReviewHelpful returnedReviewHelpful =
-            given().
-                header("Content-type", "application/json").
-                header("AJP_eppn", userEPPN).body(reviewHelpful).
-            expect().
-                statusCode(200).
-            when().
-                post(PRODUCT_REVIEW_HELPFULL_POST_RESOURCE).
-            then().
-                extract().as(ReviewHelpful.class);
-        
-        return returnedReviewHelpful;
-    }
-
 }
