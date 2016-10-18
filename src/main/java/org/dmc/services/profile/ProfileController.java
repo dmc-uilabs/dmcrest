@@ -7,6 +7,7 @@ import static org.dmc.services.utils.SQLUtils.SORT_DESCENDING;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.ArrayList;
 
 import javax.xml.ws.http.HTTPException;
 
@@ -178,6 +179,22 @@ public class ProfileController {
         }
     }
 
+    @RequestMapping(value = "/profile_reviews", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+    public ResponseEntity<List<ProfileReview>> profileReviewsGet(
+                                                                 @RequestParam(value = "_limit", required = false) Integer limit,
+                                                                 @RequestParam(value = "_order", required = false) String order,
+                                                                 @RequestParam(value = "_sort", required = false) String sort) {
+        //ProductReviewDao productReviewDao = new ProductReviewDao();
+        
+        String x = new String();
+        Integer y = new Integer(0);
+        Boolean z = new Boolean(false);
+        
+        List<ProfileReview> profileReviews = new ArrayList<ProfileReview>();//productReviewDao.getProductReviews(x, x, limit, order, sort, y, z);
+        return new ResponseEntity<List<ProfileReview>>(profileReviews, HttpStatus.OK);
+    }
+    
+    
     @RequestMapping(value = "/profile_reviews", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
     public ResponseEntity<?> profileReviewsPost(
             @RequestBody ProfileReview profileReview,
