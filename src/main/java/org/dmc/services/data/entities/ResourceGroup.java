@@ -22,7 +22,7 @@ public class ResourceGroup extends BaseEntity {
 	private Integer parentId;
 	
 	@Column(name = "role_id")
-	private Integer role_id;
+	private Integer roleId;
 
 	public Integer getId() {
 		return id;
@@ -49,11 +49,11 @@ public class ResourceGroup extends BaseEntity {
 	}
 
 	public Integer getRoleId() {
-		return role_id;
+		return roleId;
 	}
 
-	public void setRoleId(Integer role_id) {
-		this.role_id = role_id;
+	public void setRoleId(Integer roleId) {
+		this.roleId = roleId;
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class ResourceGroup extends BaseEntity {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
 		result = prime * result + ((parentType == null) ? 0 : parentType.hashCode());
-		result = prime * result + ((role_id == null) ? 0 : role_id.hashCode());
+		result = prime * result + ((roleId == null) ? 0 : roleId.hashCode());
 		return result;
 	}
 
@@ -91,10 +91,10 @@ public class ResourceGroup extends BaseEntity {
 				return false;
 		} else if (!parentType.equals(other.parentType))
 			return false;
-		if (role_id == null) {
-			if (other.role_id != null)
+		if (roleId == null) {
+			if (other.roleId != null)
 				return false;
-		} else if (!role_id.equals(other.role_id))
+		} else if (!roleId.equals(other.roleId))
 			return false;
 		return true;
 	}
