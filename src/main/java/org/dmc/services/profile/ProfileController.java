@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 import static org.dmc.services.utils.SQLUtils.DEFAULT_LIMIT_TEXT;
 import static org.dmc.services.utils.SQLUtils.SORT_DESCENDING;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
@@ -13,10 +14,13 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.company.CompanyUserUtil;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.member.FollowingMember;
 import org.dmc.services.member.FollowingMemberDao;
 import org.dmc.services.services.GetCompareService;
 import org.dmc.services.reviews.ReviewDao;
+import org.dmc.services.reviews.ReviewHelpful;
 import org.dmc.services.reviews.ReviewType;
 
 import org.springframework.http.HttpStatus;
@@ -166,8 +170,8 @@ public class ProfileController {
 
             return new ResponseEntity<List<ProfileReview>>(reviews, HttpStatus.valueOf(statusCode));
         } catch (NumberFormatException nfe) {
-            ServiceLogger.log(logTag, "Invalid companyId: " + profileID + ": " + nfe.getMessage());
-            return new ResponseEntity<String>("Invalid companyId: " + profileID, HttpStatus.BAD_REQUEST);
+            ServiceLogger.log(logTag, "Invalid userId: " + profileID + ": " + nfe.getMessage());
+            return new ResponseEntity<String>("Invalid userId: " + profileID, HttpStatus.BAD_REQUEST);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -189,6 +193,39 @@ public class ProfileController {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
 
+    }
+    
+    @RequestMapping(value = "/profile_reviews/{reviewId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+    public ResponseEntity<?> profileReviewsGetByReviewId(
+    		@PathVariable("reviewID") String reviewId,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+    	ServiceLogger.log(logTag, "Get ProfileReview by reviewId: " + reviewId);
+        int statusCode = HttpStatus.OK.value();
+        ProfileReview review = null;
+        try {
+        	review = (ProfileReview) reviewDao.getReviewByReviewId(reviewId, userEPPN, ProfileReview.class);
+            return new ResponseEntity<ProfileReview>(review, HttpStatus.valueOf(statusCode));
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+    
+    @RequestMapping(value = "/profile_reviews/{reviewId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
+    public ResponseEntity<?> profileReviewsPatchByReviewId(
+    		@PathVariable("reviewID") String reviewId,
+    		@RequestBody ProfileReview review,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+    	ServiceLogger.log(logTag, "ProfileReviewPath: with user" + userEPPN + " with reviewId: " + reviewId);
+    	final ReviewDao<ProfileReview> reviewDao = new ReviewDao<ProfileReview>(ReviewType.PROFILE);
+    	ProfileReview profileReview = null;
+    	try {
+    		profileReview  = reviewDao.patchProfileReview(reviewId, review, userEPPN);
+            return new ResponseEntity<ProfileReview>(profileReview, HttpStatus.OK);
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
     }
 
     @RequestMapping(value = "/profiles/{profileId}/following_members", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
@@ -215,5 +252,6 @@ public class ProfileController {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }	
-    }	
+    }
+    
 }
