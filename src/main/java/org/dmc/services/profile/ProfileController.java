@@ -213,7 +213,7 @@ public class ProfileController {
     
     @RequestMapping(value = "/profile_reviews/{reviewId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
     public ResponseEntity<?> profileReviewsPatchByReviewId(
-    		@PathVariable("reviewID") String reviewId,
+    		@PathVariable("reviewId") String reviewId,
     		@RequestBody ProfileReview review,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
     	ServiceLogger.log(logTag, "ProfileReviewPath: with user" + userEPPN + " with reviewId: " + reviewId);

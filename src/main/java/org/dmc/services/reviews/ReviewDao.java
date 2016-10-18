@@ -789,7 +789,7 @@ public class ReviewDao<T extends Review> {
       if(Integer.parseInt(review.getAccountId()) != user_id) {
           throw new DMCServiceException(DMCError.Generic, "user and account ids do not match");
       }
-      String updateUserReviewNew = "UPDATE" + tablePrefix + "_review_new SET review = ? And rating = ? WHERE id = ?";
+      String updateUserReviewNew = "UPDATE " + tablePrefix + "_review_new SET review = ?, rating = ? WHERE id = ?";
       String sqlInsertHelpfulReview = "UPDATE " + tablePrefix + "_review_rate SET helpfulornot = ? WHERE review_id = ? AND user_id = ?";
       
       final PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlInsertHelpfulReview);
@@ -798,7 +798,7 @@ public class ReviewDao<T extends Review> {
     	  connection.setAutoCommit(false);
           preparedStatement.setBoolean(1, review.getStatus());
           preparedStatement.setInt(2, Integer.parseInt(review.getId()));
-          preparedStatement.setInt(5, user_id);
+          preparedStatement.setInt(3, user_id);
           
           try {
 				int i = preparedStatement.executeUpdate();
@@ -807,7 +807,7 @@ public class ReviewDao<T extends Review> {
                             " for user_id: " + user_id + " and record ");
 				}
 			} catch (SQLException e) {
-					ServiceLogger.log(logTag, "Unable to create follow company");
+					ServiceLogger.log(logTag, "Unable to update for user user_id:" +  user_id);
 					connection.rollback();
 					throw new DMCServiceException(DMCError.OtherSQLError, "Unable to update " + tablePrefix + "_review_rate" + e.getMessage());
 				}
@@ -848,16 +848,4 @@ public class ReviewDao<T extends Review> {
 		}
       return review;
 	}
-
-	
-	/*public static void main(String[] args){
-		Integer limit = null;
-		String order = null;
-        String sort = null;
-        Integer rating = null; 
-        Boolean status = null;
-		ReviewDao reviewDao = new ReviewDao(ReviewType.PROFILE);
-		reviewDao.getReviewByReviewId("1", "userEPPN20161017174331187", ProfileReview.class);
-		//reviewDao.getReviews(18, "1", limit, order, sort, rating, status, "userEPPN20161017174331187", ProfileReview.class);
-	}*/
 }
