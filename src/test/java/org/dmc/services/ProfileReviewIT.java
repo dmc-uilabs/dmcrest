@@ -146,21 +146,17 @@ public class ProfileReviewIT extends BaseIT {
 
     @Test
     public void testGetProfileReviewByReviewId(){
-    	int id = 1;
     	ProfileReview res = given()
          .header("AJP_eppn", memberEPPN)
          .expect()
          .statusCode(HttpStatus.OK.value())
          .when()
-         .get(PROFILE_REVIEW_GET_BY_ID, id)
+         .get(PROFILE_REVIEW_GET_BY_ID, reviewId)
          .as(ProfileReview.class);
-    	
-    	assertTrue(res.getRating() == 3);
+    	System.out.println(res.toString());
+    	assertTrue(res.getRating() == DEFAULT_RATING);
     }
     
-    
-    /*given().header("AJP_eppn", userEPPN).expect().statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).when()
-	.delete(COMPANY_UNFOLLOW_COMPANY_ID, companyId);*/
    // @Test
     public void testAddReviewNonMember () {
 

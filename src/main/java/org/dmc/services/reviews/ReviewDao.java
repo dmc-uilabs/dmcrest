@@ -779,6 +779,7 @@ public class ReviewDao<T extends Review> {
 		int user_id = -9999;
 		Connection connection = DBConnector.connection();
       
+		int reviewIdIndex = Integer.parseInt(reviewId);
       try {
           user_id = CompanyUserUtil.getUserId(userEPPN);
       } catch (SQLException sqlEX) {
@@ -788,8 +789,8 @@ public class ReviewDao<T extends Review> {
       if(Integer.parseInt(review.getAccountId()) != user_id) {
           throw new DMCServiceException(DMCError.Generic, "user and account ids do not match");
       }
-      String updateUserReviewNew = "UPDATE" + tablePrefix + "_review_new SET review = ? And rating = ? AND id = ? AND user_id = ? ";
-      String sqlInsertHelpfulReview = "UPDATE " + tablePrefix + "_review_rate SET helpfulornot = ? AND review_id = ? AND user_id = ?";
+      String updateUserReviewNew = "UPDATE" + tablePrefix + "_review_new SET review = ? And rating = ? WHERE id = ?";
+      String sqlInsertHelpfulReview = "UPDATE " + tablePrefix + "_review_rate SET helpfulornot = ? WHERE review_id = ? AND user_id = ?";
       
       final PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlInsertHelpfulReview);
       final PreparedStatement preparedStatement2 = DBConnector.prepareStatement(updateUserReviewNew);
@@ -813,8 +814,7 @@ public class ReviewDao<T extends Review> {
 
           preparedStatement2.setString(1, review.getComment());
           preparedStatement2.setInt(2, review.getRating());
-          preparedStatement2.setInt(3, Integer.parseInt(review.getId()));
-          preparedStatement2.setInt(4, Integer.parseInt(review.getAccountId()));
+          preparedStatement2.setInt(3, reviewIdIndex);
           try {
 				int i = preparedStatement2.executeUpdate();
 				if(i != 1){

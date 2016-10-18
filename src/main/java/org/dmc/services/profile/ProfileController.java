@@ -197,7 +197,7 @@ public class ProfileController {
     
     @RequestMapping(value = "/profile_reviews/{reviewId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     public ResponseEntity<?> profileReviewsGetByReviewId(
-    		@PathVariable("reviewID") String reviewId,
+    		@PathVariable("reviewId") String reviewId,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
     	ServiceLogger.log(logTag, "Get ProfileReview by reviewId: " + reviewId);
         int statusCode = HttpStatus.OK.value();
