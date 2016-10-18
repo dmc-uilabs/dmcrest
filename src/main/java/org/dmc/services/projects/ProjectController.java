@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import static org.springframework.http.MediaType.*;
 
 @RestController
 public class ProjectController {
@@ -192,21 +193,25 @@ public class ProjectController {
 		}
 	}
 
-	@RequestMapping(value = "/projects/{projectID}/individual-discussion", method = RequestMethod.GET, produces = { "application/json" })
+	@RequestMapping(value = "/projects/{projectID}/individual-discussion", method = RequestMethod.GET, produces = {
+			"application/json" })
 	public ResponseEntity getIndividualDiscussionsFromProjectId(@PathVariable("projectID") Integer projectID,
-			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestParam(value = "_limit", required = false) Integer limit,
-			@RequestParam(value = "_order", required = false) String order, @RequestParam(value = "_sort", required = false) String sort) {
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN,
+			@RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_order", required = false) String order,
+			@RequestParam(value = "_sort", required = false) String sort) {
 		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		ServiceLogger.log(logTag, "getIndividualDiscussionsFromProjectId, userEPPN: " + userEPPN);
 
 		try {
-			return new ResponseEntity<List<IndividualDiscussion>>(individualDiscussionDao.getIndividualDiscussionsFromProjectId(projectID, limit, order, sort), HttpStatus.OK);
+			return new ResponseEntity<List<IndividualDiscussion>>(
+					individualDiscussionDao.getIndividualDiscussionsFromProjectId(projectID, limit, order, sort),
+					HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
 	}
-    
 
 	@ExceptionHandler(Exception.class)
 	public ErrorMessage handleException(Exception ex) {
@@ -216,12 +221,24 @@ public class ProjectController {
 		return result;
 	}
 
-
-	@RequestMapping(value = "/projects/{projectID}/following_discussions", produces = { "application/json", "text/html" }, method = RequestMethod.GET)
-	public ResponseEntity<List<IndividualDiscussion>> projectsProjectIDFollowingDiscussionsGet(@PathVariable("projectID") String projectID,
-			@RequestParam(value = "limit", required = false) Integer limit, @RequestParam(value = "order", required = false) String order, @RequestParam(value = "sort", required = false) String sort) {
-		// do some magic!
-		return new ResponseEntity<List<IndividualDiscussion>>(HttpStatus.NOT_IMPLEMENTED);
+	@RequestMapping(value = "/projects/{projectID}/following_discussions", produces = {
+			"application/json" }, method = RequestMethod.GET)
+	public ResponseEntity<?> getFollowingDiscussionsFromProjectId(@PathVariable("projectID") Integer projectID,
+			@RequestParam(value = "limit", required = false) Integer limit,
+			@RequestParam(value = "order", required = false) String order,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
+		ServiceLogger.log(logTag, "getFollowingDiscussionFromProjectId, userEPPN:" + userEPPN);
+		List<IndividualDiscussion> result;
+		try {
+			result = individualDiscussionDao.getFollowingDiscussionFromProjectId(projectID, limit, order, sort,
+					userEPPN);
+			return new ResponseEntity<List<IndividualDiscussion>>(result, HttpStatus.OK);
+		} catch (DMCServiceException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		}
 	}
 
 	/**
@@ -231,7 +248,7 @@ public class ProjectController {
 	 * @param userEPPN
 	 * @return
 	 */
-	@RequestMapping(value = "/projects/{id}", method = RequestMethod.PATCH, produces = { "application/json" })
+	@RequestMapping(value = "/projects/{id}", method = RequestMethod.PATCH, produces = { APPLICATION_JSON_VALUE })
 	public ResponseEntity updateProject(@PathVariable("id") int id, @RequestBody Project project, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
 		ServiceLogger.log(logTag, "updateProject, for id = " + id + " (body) project: " + project.toString());
 

@@ -7,7 +7,7 @@ import java.util.Objects;
 
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
-public class InlineResponse201  {
+public class FollowedCompany  {
   
   private Integer accountId = null;
   private Integer companyId = null;
@@ -56,7 +56,7 @@ public class InlineResponse201  {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    InlineResponse201 inlineResponse201 = (InlineResponse201) o;
+    FollowedCompany inlineResponse201 = (FollowedCompany) o;
     return Objects.equals(accountId, inlineResponse201.accountId) &&
         Objects.equals(companyId, inlineResponse201.companyId) &&
         Objects.equals(id, inlineResponse201.id);

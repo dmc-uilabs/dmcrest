@@ -28,12 +28,12 @@ public class AccountServersController {
 	
 	@Autowired
 	private ObjectMapper mapper;
-	
+
 	@Autowired
 	private ServerAccessService accessService;
-	
+
 	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<?> accountServersServerIDPost(@RequestBody String body,			
+	public ResponseEntity<?> accountServersServerIDPost(@RequestBody String body,
 														@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "accountServersServerIDPost, userEPPN: " + userEPPN);
 		
@@ -44,7 +44,7 @@ public class AccountServersController {
 			ObjectNode json = mapper.readValue(body, ObjectNode.class);
 			UserAccountServer server = mapper.convertValue(json.get("server"), UserAccountServer.class);
 			Boolean isPub = json.get("isPub").asBoolean();
-			
+
 			userAccountServer = accountServersDao.postUserAccountServer(server, userEPPN);
 			if(isPub){
 				accessService.addServerToGlobalById(Integer.valueOf(userAccountServer.getId()), userEPPN);
@@ -52,7 +52,7 @@ public class AccountServersController {
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-		} catch (Exception e){		
+		} catch (Exception e){
 			ServiceLogger.log(logTag, e.getMessage());
 			return new ResponseEntity<String>("Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -110,12 +110,15 @@ public class AccountServersController {
 		UserAccountServer userAccountServer = null;
 		
 		try {
+			UserAccountServer original = accountServersDao.getUserAccountServer(Integer.parseInt(serverID), userEPPN);
 			ObjectNode json = mapper.readValue(body, ObjectNode.class);
 			UserAccountServer server = mapper.convertValue(json.get("server"), UserAccountServer.class);
+			server.setId(original.getId());
+			server.setAccountId(original.getAccountId());
 			Boolean changePub = json.get("changePub").asBoolean();
-			
+
 			userAccountServer = accountServersDao.patchUserAccountServer(serverID, server, userEPPN);
-			
+
 			if(changePub){
 				accessService.changeServerPublicAccess(Integer.valueOf(serverID), userEPPN);
 			}

@@ -8,23 +8,12 @@ import org.dmc.services.users.UserRunningServices;
 
 public class UserModel extends BaseModel {
 
-	//	private String username;
-	//	private boolean
-	//	private String firstName;
-	//	private String lastName;
-	//	private String email;
-	//	private String address;
-	//	private String phone;
-	//	private Map<Integer, String> roles;
-	//	private UserContactInfoModel userContactInfo;
-	//	private boolean isDMDIIMember;
-	//	private Integer organization;
-	//	private String aboutMe;
-
+	private Integer id;
 	private String displayName;
 	private Integer accountId;
 	private Integer profileId;
 	private Integer companyId;
+	private String companyName;
 	private int role;
 	private String realname;
 	private String title;
@@ -38,6 +27,7 @@ public class UserModel extends BaseModel {
 	private UserRunningServices runningServices = new UserRunningServices();
 	private UserMessages messages = new UserMessages();
 	private OnboardingStatusModel onboarding;
+	private List<UserSkillModel> skills;
 	private Map<Integer, String> roles;
 	private Boolean isDMDIIMember;
 	private UserContactInfoModel userContactInfo;
@@ -46,6 +36,16 @@ public class UserModel extends BaseModel {
 	private int account;
 	private List<NotificationModel> notifications;
 	private boolean hasUnreadNotifications;
+	private String timezone;
+
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	public String getDisplayName() {
 		return displayName;
@@ -77,6 +77,14 @@ public class UserModel extends BaseModel {
 
 	public void setCompanyId(Integer companyId) {
 		this.companyId = companyId;
+	}
+
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
 	}
 
 	public int getRole() {
@@ -183,6 +191,14 @@ public class UserModel extends BaseModel {
 		this.onboarding = onboarding;
 	}
 
+	public List<UserSkillModel> getSkills() {
+		return skills;
+	}
+
+	public void setSkills(List<UserSkillModel> skills) {
+		this.skills = skills;
+	}
+
 	public Map<Integer, String> getRoles() {
 		return roles;
 	}
@@ -245,5 +261,13 @@ public class UserModel extends BaseModel {
 
 	public void setHasUnreadNotifications(boolean hasUnreadNotifications) {
 		this.hasUnreadNotifications = hasUnreadNotifications;
+	}
+	
+	public String getTimezone() {
+		return timezone;
+	}
+	
+	public void setTimezone(String timezone) {
+		this.timezone = timezone;
 	}
 }
