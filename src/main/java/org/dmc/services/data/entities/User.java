@@ -286,7 +286,6 @@ public class User extends BaseEntity {
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((notifications == null) ? 0 : notifications.hashCode());
 		result = prime * result + ((onboarding == null) ? 0 : onboarding.hashCode());
-		result = prime * result + ((organizationUser == null) ? 0 : organizationUser.hashCode());
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((phone == null) ? 0 : phone.hashCode());
 		result = prime * result + ((realname == null) ? 0 : realname.hashCode());
