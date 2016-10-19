@@ -53,6 +53,7 @@ public class FollowDiscussionsDao {
 			retObj.setId(Integer.toString(id));
 			retObj.setIndividualDiscussionId(followDiscussion.getIndividualDiscussionId());
 			retObj.setAccountId(followDiscussion.getAccountId());
+			connection.commit();
 
 		} catch (SQLException se) {
 			try {
@@ -133,7 +134,7 @@ public class FollowDiscussionsDao {
 				connection.rollback();
 				throw new DMCServiceException(DMCError.OtherSQLError, "error trying to unfollow discussion with follow_id " + followId);
 			}
-
+			connection.commit();
 		} catch (SQLException se) {
 			ServiceLogger.log(LOGTAG, se.getMessage());
 			try {
