@@ -1,12 +1,28 @@
 package org.dmc.services;
 
-import com.mysema.query.types.ExpressionUtils;
-import com.mysema.query.types.Predicate;
-import org.dmc.services.data.entities.*;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.dmc.services.data.entities.Directory;
+import org.dmc.services.data.entities.Document;
+import org.dmc.services.data.entities.DocumentClass;
+import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.data.entities.DocumentTag;
+import org.dmc.services.data.entities.QDocument;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.DirectoryModel;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
+import org.dmc.services.data.repositories.DirectoryRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
@@ -22,11 +38,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import javax.inject.Inject;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
+import com.mysema.query.types.ExpressionUtils;
+import com.mysema.query.types.Predicate;
 
 @Service
 public class DocumentService {
@@ -44,6 +57,9 @@ public class DocumentService {
 
 	@Inject
 	private ParentDocumentService parentDocumentService;
+
+	@Inject
+	private DirectoryRepository directoryRepository;
 
 	private final String logTag = DocumentService.class.getName();
 
@@ -179,6 +195,19 @@ public class DocumentService {
 		return tagMapper.mapToModel(documentTagRepository.save(tagMapper.mapToEntity(tag)));
 	}
 
+	public List<DocumentModel> findByDirectory(String directoryName) {
+		Mapper<Document, DocumentModel> documentMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		Directory directory = directoryRepository.findByName(directoryName);
+		List<Document> documents = documentRepository.findByDirectoryAndIsDeletedIsFalse(directory);
+		return documentMapper.mapToModel(documents);
+	}
+
+	public DirectoryModel findDirectoryStructure(String directoryName) {
+		Mapper<Directory, DirectoryModel> directoryMapper = mapperFactory.mapperFor(Directory.class, DirectoryModel.class);
+		DirectoryModel directory = directoryMapper.mapToModel(directoryRepository.findByName(directoryName));
+		return directory;
+	}
+
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
 		if (tagIds == null) {
 			return new ArrayList<>();
@@ -304,5 +333,6 @@ public class DocumentService {
 			}
 		}
 	}
+
 
 }

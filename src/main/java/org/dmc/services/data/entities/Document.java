@@ -3,16 +3,29 @@ package org.dmc.services.data.entities;
 import java.sql.Timestamp;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-import org.dmc.services.ParentDocumentService;
 import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name="document")
 @Where(clause = "is_deleted='false'")
 public class Document extends BaseEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -22,11 +35,11 @@ public class Document extends BaseEntity {
 
 	@Column(name = "url")
 	private String documentUrl;
-	
+
 	@Column(name = "parent_type")
 	@Enumerated(EnumType.STRING)
 	private DocumentParentType parentType;
-	
+
 	@Column(name = "parent_id")
 	private Integer parentId;
 
@@ -45,20 +58,24 @@ public class Document extends BaseEntity {
 
 	@Column(name = "expires")
 	private Timestamp expires;
-	
+
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
-	
+
 	@Column(name = "access_level")
 	//TODO: create enum for site-wide accessLevel
 	private String accessLevel;
-	
+
 	@Column(name = "doc_class")
 	@Enumerated(EnumType.STRING)
 	private DocumentClass docClass;
-	
+
 	@Column(name = "verified")
 	private Boolean verified = false;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "directory_id")
+	private Directory directory;
 
 	public Integer getId() {
 		return id;
@@ -123,7 +140,7 @@ public class Document extends BaseEntity {
 	public void setModified(Timestamp modified) {
 		this.modified = modified;
 	}
-	
+
 	public Timestamp getExpires() {
 		return expires;
 	}
@@ -162,6 +179,14 @@ public class Document extends BaseEntity {
 
 	public void setVerified(Boolean verified) {
 		this.verified = verified;
+	}
+
+	public Directory getDirectory() {
+		return directory;
+	}
+
+	public void setDirectory(Directory directory) {
+		this.directory = directory;
 	}
 
 	@Override
@@ -258,5 +283,5 @@ public class Document extends BaseEntity {
 		return true;
 	}
 
-	
+
 }
