@@ -462,7 +462,7 @@ public class ReviewDao<T extends Review> {
         int user_id = -9999;
         ServiceLogger.log(logTag, "createHelpfulReview: with user " + userEPPN +
                           " for reviewId " + serviceReviewHelpful.getReviewId() +
-                          " with helpful = " + serviceReviewHelpful.getHelpfull());
+                          " with helpful = " + serviceReviewHelpful.getHelpful());
 
         try {
             user_id = CompanyUserUtil.getUserId(userEPPN);
@@ -480,7 +480,7 @@ public class ReviewDao<T extends Review> {
             preparedStatement.setInt(1, reviewIdInt);
             preparedStatement.setInt(2, user_id);
             preparedStatement.setTimestamp(3, new java.sql.Timestamp(date.getTime()));
-            preparedStatement.setBoolean(4, serviceReviewHelpful.getHelpfull());
+            preparedStatement.setBoolean(4, serviceReviewHelpful.getHelpful());
             
             preparedStatement.executeUpdate();
             
@@ -538,7 +538,6 @@ public class ReviewDao<T extends Review> {
     
     public ReviewHelpful patchHelpfulReview(String helpfulID, ReviewHelpful helpful, String userEPPN) throws DMCServiceException {
         int user_id = -9999;
-//        int helpful_id = Integer.parseInt(helpfulID);
         
         try {
             user_id = CompanyUserUtil.getUserId(userEPPN);
@@ -550,14 +549,19 @@ public class ReviewDao<T extends Review> {
             throw new DMCServiceException(DMCError.Generic, "user and account ids do not match");
         }
         
-        String sqlInsertHelpfulReview = "UPDATE " + tablePrefix + "_review_rate SET helpfulornot = ? AND review_id = ? WHERE id = ? AND user_id = ?";
+        if(helpful.getHelpful() == null) { // remove record if user unselects review as helpful or not
+            deleteHelpfulReview(helpfulID, helpful);
+            return helpful;
+        }
         
-        final PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlInsertHelpfulReview);
+        String sqlUpdateHelpfulReview = "UPDATE " + tablePrefix + "_review_rate SET helpfulornot = ? AND review_id = ? WHERE id = ? AND user_id = ?";
+        
+        final PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlUpdateHelpfulReview);
         try {
-            preparedStatement.setBoolean(1, helpful.getHelpfull());
+            preparedStatement.setBoolean(1, helpful.getHelpful());
             preparedStatement.setInt(2, Integer.parseInt(helpful.getReviewId()));
             preparedStatement.setInt(3, Integer.parseInt(helpfulID));
-            preparedStatement.setInt(5, user_id);
+            preparedStatement.setInt(4, user_id);
             
             if(preparedStatement.executeUpdate() != 1) {
                 throw new SQLException("Unable to update " + tablePrefix + "_review_rate" +
@@ -571,13 +575,34 @@ public class ReviewDao<T extends Review> {
         return helpful;
     }
     
+    private void deleteHelpfulReview(String helpfulID, ReviewHelpful helpful) {
+        String sqlDeleteHelpfulReview = "DELETE FROM " + tablePrefix + "_review_rate WHERE review_id = ? AND id = ? AND user_id = ?";
+        int user_id = Integer.parseInt(helpful.getAccountId());
+        final PreparedStatement preparedStatementDelete = DBConnector.prepareStatement(sqlDeleteHelpfulReview);
+        
+        try {
+            preparedStatementDelete.setInt(1, Integer.parseInt(helpful.getReviewId()));
+            preparedStatementDelete.setInt(2, Integer.parseInt(helpfulID));
+            preparedStatementDelete.setInt(3, user_id);
+            
+            if(preparedStatementDelete.executeUpdate() != 1) {
+                throw new SQLException("Unable to delete " + tablePrefix + "_review_rate" +
+                                       " for user_id: " + user_id + " and record " + helpfulID);
+            }
+            
+        } catch (SQLException sqlEX) {
+            throw new DMCServiceException(DMCError.Generic, "Error deleting database records");
+            
+        }
+        return;
+    }
     
     private ReviewHelpful newHelpfulReview(int id, int accountid, int userid, boolean helpfulornot) {
         ReviewHelpful reviewHelpful = new ReviewHelpful();
         reviewHelpful.setId(Integer.toString(id));
         reviewHelpful.setReviewId(Integer.toString(accountid));
         reviewHelpful.setAccountId(Integer.toString(userid));
-        reviewHelpful.setHelpfull(helpfulornot);
+        reviewHelpful.setHelpful(helpfulornot);
         return reviewHelpful;
     }
     

@@ -50,7 +50,7 @@ public class ProfileReviewsHelpfulController {
                                                        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
         ServiceLogger.log(logTag, "profileReviewsHelpfulPost: with user " + userEPPN +
                                   " for reviewId " + serviceReviewHelpful.getReviewId() +
-                                  " with helpful = " + serviceReviewHelpful.getHelpfull());
+                                  " with helpful = " + serviceReviewHelpful.getHelpful());
 
         final ReviewDao<ProfileReview> reviewDao = new ReviewDao<ProfileReview>(ReviewType.PROFILE);
         

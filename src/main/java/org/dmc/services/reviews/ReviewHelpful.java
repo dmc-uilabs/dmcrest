@@ -49,10 +49,10 @@ public class ReviewHelpful  {
   /**
    **/
   @JsonProperty("helpful")
-  public Boolean getHelpfull() {
+  public Boolean getHelpful() {
     return helpful;
   }
-  public void setHelpfull(Boolean helpful) {
+  public void setHelpful(Boolean helpful) {
     this.helpful = helpful;
   }
 
