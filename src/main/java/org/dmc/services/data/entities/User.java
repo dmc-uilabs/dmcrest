@@ -96,9 +96,10 @@ public class User extends BaseEntity {
 	private List<Notification> notifications;
 	
 	@ManyToMany
-	@JoinTable(name = "users_in_resource_group",
+	@JoinTable(name = "user_in_resource_group",
 				joinColumns = @JoinColumn(name = "user_id"),
 				inverseJoinColumns = @JoinColumn(name = "resource_group_id"))
+	@JsonIgnore
 	private List<ResourceGroup> resourceGroups;
 
 	@Column(name = "timezone")

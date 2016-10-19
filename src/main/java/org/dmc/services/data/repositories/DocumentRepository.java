@@ -17,10 +17,8 @@ public interface DocumentRepository extends BaseRepository<Document, Integer> {
 
 	List<Document> findAllByVerifiedIsTrueAndIsDeletedIsFalseAndExpiresBefore(Timestamp expires);
 	
-	@Query(value = "SELECT * from Document AS d, User AS u " +
-					"INNER JOIN d.resourceGroups AS rg " +
-					"INNER JOIN u.resourceGroups " +
-					"WHERE u.id = :userId")
-	Page<Document> findAllowedDocuments (@Param("userId") Integer userId, Pageable page, Predicate where);
+	@Query(value = "SELECT rg from Document d " +
+					"JOIN d.resourceGroups rg")
+	Page<Document> findAllowedDocuments (Predicate where, Pageable page);
 
 }

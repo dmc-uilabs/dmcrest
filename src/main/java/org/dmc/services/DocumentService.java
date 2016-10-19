@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
+
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,7 +34,7 @@ import java.util.*;
 public class DocumentService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
-
+	
 	@Inject
 	private DocumentRepository documentRepository;
 
@@ -55,14 +56,15 @@ public class DocumentService {
 
 	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
-		Integer userId = userRepository.findByUsername(userEPPN).getId();
+		User owner = userRepository.findByUsername(userEPPN);
+		
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
 		List<Document> results;
 
 		if (recent != null) {
-			results = documentRepository.findAllowedDocuments(userId, new PageRequest(0, recent, new Sort(new Order(Direction.DESC, "modified"))), where).getContent();
+			results = documentRepository.findAll(where, new PageRequest(0, recent, new Sort(new Order(Direction.DESC, "modified")))).getContent();
 		} else {
-			results = documentRepository.findAllowedDocuments(userId, new PageRequest(pageNumber, pageSize), where).getContent();
+			results = documentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
 		}
 
 		if (results.size() == 0) return null;
@@ -70,8 +72,9 @@ public class DocumentService {
 		return mapper.mapToModel(results);
 	}
 
-	public Long count(Map filterParams) throws InvalidFilterParameterException {
-		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+	public Long count(Map filterParams, String userEPPN) throws InvalidFilterParameterException {
+		User owner = userRepository.findByUsername(userEPPN);
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
 		return documentRepository.count(where);
 	}
 
@@ -166,11 +169,18 @@ public class DocumentService {
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
+		List<ResourceGroup> userGroups = owner.getResourceGroups();
+		Integer ownerId = owner.getId();
 
+//		expressions.add(joinCondition());
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
 		expressions.add(docClassFilter(filterParams.get("docClass")));
+		if(userGroups != null) {
+			expressions.addAll(resourceGroupFilter(userGroups));
+		}
+		expressions.add(ownerFilter(ownerId));
 
 		return expressions;
 	}
@@ -205,6 +215,34 @@ public class DocumentService {
 		}
 		return returnValue;
 	}
+	
+	private Collection<Predicate> resourceGroupFilter(List<ResourceGroup> resourceGroups) {
+				
+		Collection<Predicate> returnValue = new ArrayList<>();
+		
+		for (ResourceGroup group : resourceGroups) {
+			returnValue.add(QDocument.document.resourceGroups.any().id.eq(group.getId()));
+		}
+		
+		return returnValue;
+	}
+	
+	private Predicate ownerFilter (Integer ownerId) {
+		if (ownerId == null) return null;
+		
+		return QDocument.document.owner().eq(userRepository.findOne(ownerId));
+	}
+	
+//	private Predicate joinCondition() {
+//		
+//		CriteriaBuilder cb = new CriteriaBuilder(entityManager);
+//		JPAQuery query = new JPAQuery();
+//		QDocument document = QDocument.document;
+//		QResourceGroup resourceGroup = QResourceGroup.resourceGroup;
+//		
+////		return null;
+//		return (Predicate) query.from(document).innerJoin(document.resourceGroups, resourceGroup);
+//	}
 
 	private Predicate parentTypeFilter(String parentType) throws InvalidFilterParameterException {
 		if (parentType == null) return null;
