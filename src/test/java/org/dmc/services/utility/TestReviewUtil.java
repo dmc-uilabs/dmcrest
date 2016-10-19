@@ -14,7 +14,7 @@ public class TestReviewUtil {
         ReviewHelpful reviewHelpful = new ReviewHelpful();
         reviewHelpful.setReviewId(Integer.toString(reviewId)); // id of review
         reviewHelpful.setAccountId(Integer.toString(userId)); // id of user
-        reviewHelpful.setHelpfull(helpful);
+        reviewHelpful.setHelpful(helpful);
         
 //        ServiceLogger.log(logTag, "Added helpful review for reviewId " + reviewId + " from user " + userEPPN + " (id:"+userId+") with helpful = "+helpful+" to endpoint "+REVIEW_HELPFULL_POST_RESOURCE);
         

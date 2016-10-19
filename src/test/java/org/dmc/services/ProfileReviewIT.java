@@ -37,6 +37,8 @@ public class ProfileReviewIT extends BaseIT {
     private static final String PROFILE_REVIEW_POST_RESOURCE = "/profile_reviews";
     private static final String PROFILE_REVIEW_HELPFULL_POST_RESOURCE = "/profile_reviews_helpful";
     private static final String PROFILE_REVIEW_FLAGGED_POST_RESOURCE = "/profile_reviews_flagged";
+    private static final String PROFILE_REVIEW_GET_BY_ID = "/profile_reviews/{reviewId}";
+    private static final String PROFILE_REVIEW_PATCH_BY_ID = "/profile_reviews/{reviewId}";
 
     private int ownerUserId = -1;
     private String ownerEPPN;
@@ -109,6 +111,57 @@ public class ProfileReviewIT extends BaseIT {
     }
 
     @Test
+    public void testPatchProfileByProfileReviewId(){
+    	ProfileReview res = given()
+    	         .header("AJP_eppn", memberEPPN)
+    	         .expect()
+    	         .statusCode(HttpStatus.OK.value())
+    	         .when()
+    	         .get(PROFILE_REVIEW_GET_BY_ID, reviewId)
+    	         .as(ProfileReview.class);
+    	assertTrue(res != null);
+    	
+    	String name = res.getName();
+    	int accountId = Integer.parseInt(res.getAccountId());
+    	String comment = res.getComment() + " update comments by test user";
+    	String reviewId = res.getReviewId();
+    	int id = Integer.parseInt(res.getId());
+    	int profileId = Integer.parseInt(res.getProfileId());
+    	
+    	 boolean status = true;
+         BigDecimal date = BigDecimal.valueOf(Calendar.getInstance().getTime().getTime());
+         int rating = DEFAULT_RATING + 1;
+         int likes = DEFAULT_LIKES;
+         int dislikes = DEFAULT_DISLIKES;
+         boolean reply = false;
+    	
+    	String json = createPatchProfileReviewFixture(id, profileId, name, reply, reviewId, status, date, rating, likes, dislikes, comment, accountId);
+    	ProfileReview patch_res = given()
+    			.header("Content-type", APPLICATION_JSON_VALUE)  
+   	         .header("AJP_eppn", memberEPPN)
+   	         .body(json.toString())
+   	         .expect()
+   	         .statusCode(HttpStatus.OK.value())
+   	         .when()
+   	         .patch(PROFILE_REVIEW_PATCH_BY_ID, reviewId)
+   	         .as(ProfileReview.class);
+    	assertTrue(patch_res != null);
+    	
+    	ProfileReview getPatchedResult = given()
+    			
+   	         .header("AJP_eppn", memberEPPN)
+   	         .expect()
+   	         .statusCode(HttpStatus.OK.value())
+   	         .when()
+   	         .get(PROFILE_REVIEW_GET_BY_ID, reviewId)
+   	         .as(ProfileReview.class);
+    	assertTrue(getPatchedResult != null);
+    	assertTrue(getPatchedResult.getComment().equals(comment));
+    	assertTrue(getPatchedResult.getRating() == rating);
+
+    }
+    
+    @Test
     public void testGetReviewsMember () {
         ProfileReview[] profileReviews  =
                 given()
@@ -144,6 +197,18 @@ public class ProfileReviewIT extends BaseIT {
     }
 
     @Test
+    public void testGetProfileReviewByReviewId(){
+    	ProfileReview res = given()
+         .header("AJP_eppn", memberEPPN)
+         .expect()
+         .statusCode(HttpStatus.OK.value())
+         .when()
+         .get(PROFILE_REVIEW_GET_BY_ID, reviewId)
+         .as(ProfileReview.class);
+    	assertTrue(res.getRating() == DEFAULT_RATING);
+    }
+    
+   @Test
     public void testAddReviewNonMember () {
 
         int reviewId = 0;
@@ -286,6 +351,35 @@ public class ProfileReviewIT extends BaseIT {
         return jSONString;
 
     }
+
+	public static String createPatchProfileReviewFixture(int id, int profileId, String name, boolean reply, String reviewId,
+			boolean status, BigDecimal date, int rating, int likes, int dislikes, String comment, int accountId) {
+
+		ProfileReview r = new ProfileReview();
+		r.setId(Integer.toString(id));
+		r.setProfileId(Integer.toString(profileId));
+		r.setName(name);
+		r.setReply(reply);
+		r.setReviewId(reviewId);
+		r.setStatus(status);
+		r.setDate(date);
+		r.setRating(rating);
+		r.setLike(likes);
+		r.setDislike(dislikes);
+		r.setComment(comment);
+		r.setAccountId(Integer.toString(accountId));
+
+		ObjectMapper mapper = new ObjectMapper();
+		String jSONString = null;
+		try {
+			jSONString = mapper.writeValueAsString(r);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return jSONString;
+
+	}
 
     public int addReview (int profileId, String name, int accountId, String comment, String userEPPN, int reviewId) {
 
