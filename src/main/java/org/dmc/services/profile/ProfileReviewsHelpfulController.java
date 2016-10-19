@@ -48,7 +48,9 @@ public class ProfileReviewsHelpfulController {
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE },method = RequestMethod.POST)
     public ResponseEntity<?> profileReviewsHelpfulPost(@RequestBody ReviewHelpful serviceReviewHelpful,
                                                        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
-        ServiceLogger.log(logTag, "profileReviewsHelpfulPost: with user " + userEPPN);
+        ServiceLogger.log(logTag, "profileReviewsHelpfulPost: with user " + userEPPN +
+                                  " for reviewId " + serviceReviewHelpful.getReviewId() +
+                                  " with helpful = " + serviceReviewHelpful.getHelpfull());
 
         final ReviewDao<ProfileReview> reviewDao = new ReviewDao<ProfileReview>(ReviewType.PROFILE);
         

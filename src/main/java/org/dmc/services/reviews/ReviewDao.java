@@ -460,6 +460,9 @@ public class ReviewDao<T extends Review> {
 
     public ReviewHelpful createHelpfulReview(ReviewHelpful serviceReviewHelpful, String userEPPN) throws DMCServiceException {
         int user_id = -9999;
+        ServiceLogger.log(logTag, "createHelpfulReview: with user " + userEPPN +
+                          " for reviewId " + serviceReviewHelpful.getReviewId() +
+                          " with helpful = " + serviceReviewHelpful.getHelpfull());
 
         try {
             user_id = CompanyUserUtil.getUserId(userEPPN);
