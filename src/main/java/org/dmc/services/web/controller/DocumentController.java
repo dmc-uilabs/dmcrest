@@ -47,7 +47,7 @@ public class DocumentController {
 										@RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
 		ServiceLogger.log(logTag, "In getDocuments filter: ");
 		List<? extends BaseModel> results = documentService.filter(params, recent, page, pageSize, userEPPN);
-		Long count = documentService.count(params);
+		Long count = documentService.count(params, userEPPN);
 		return new PagedResponse(count, results);
 	}
 	
