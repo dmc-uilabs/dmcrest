@@ -11,12 +11,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -93,6 +97,20 @@ public class User extends BaseEntity {
 
 	@Column(name = "timezone")
 	private String timezone;
+
+	@ManyToMany
+	@JoinTable(name = "user_in_server_access_group",
+			joinColumns = @JoinColumn(name="user_id"),
+			inverseJoinColumns = @JoinColumn(name="server_access_group_id"))
+	@JsonIgnore
+	private List<ServerAccess> accessList;
+
+	public List<ServerAccess> getAccessList(){
+		return accessList;
+	}
+	public void setAccessList(List<ServerAccess> list){
+		accessList=list;
+	}
 
 	public Integer getId() {
 		return id;
@@ -286,7 +304,6 @@ public class User extends BaseEntity {
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result + ((notifications == null) ? 0 : notifications.hashCode());
 		result = prime * result + ((onboarding == null) ? 0 : onboarding.hashCode());
-		result = prime * result + ((organizationUser == null) ? 0 : organizationUser.hashCode());
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((phone == null) ? 0 : phone.hashCode());
 		result = prime * result + ((realname == null) ? 0 : realname.hashCode());
@@ -295,6 +312,7 @@ public class User extends BaseEntity {
 		result = prime * result + ((termsAndCondition == null) ? 0 : termsAndCondition.hashCode());
 		result = prime * result + ((userContactInfo == null) ? 0 : userContactInfo.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		result = prime * result + ((accessList == null) ? 0 : accessList.hashCode());
 		return result;
 	}
 
@@ -406,6 +424,11 @@ public class User extends BaseEntity {
 			if (other.username != null)
 				return false;
 		} else if (!username.equals(other.username))
+			return false;
+		if (accessList == null) {
+			if (other.accessList != null)
+				return false;
+		} else if (!accessList.equals(other.accessList))
 			return false;
 		return true;
 	}

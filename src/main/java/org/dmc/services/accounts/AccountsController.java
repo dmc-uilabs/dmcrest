@@ -1,5 +1,6 @@
 package org.dmc.services.accounts;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,7 +12,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.DomeServerService;
+import org.dmc.services.ServerAccessService;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.data.entities.DomeServer;
+import org.dmc.services.data.entities.ServerAccess;
 import org.dmc.services.discussions.FollowDiscussionsDao;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
 import org.dmc.services.member.FollowingMemberDao;
@@ -22,6 +27,7 @@ import org.dmc.services.products.FavoriteProductsDao;
 import javax.xml.ws.http.HTTPException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import static org.springframework.http.MediaType.*;
 
@@ -32,6 +38,9 @@ public class AccountsController {
 
     private final String logTag = AccountsController.class.getName();
     private AccountsDao accounts = new AccountsDao();
+    
+    @Autowired
+    DomeServerService serverService;
 
     @RequestMapping(value = "/{accountID}", produces = { "application/json" }, method = RequestMethod.GET)
     public ResponseEntity<UserAccount> accountsAccountIDGet(@PathVariable("accountID") String accountID,
@@ -86,9 +95,9 @@ public class AccountsController {
         AccountsDao accountsDao = new AccountsDao();
 
         try {
-            ServiceLogger.log(logTag, "In accountsAccountIDAccountServersGet, accountID = " + accountID);
-            return new ResponseEntity<List<UserAccountServer>>(
-                    accountsDao.getAccountServersFromAccountID(accountID, limit, order, sort), HttpStatus.OK);
+        	ServiceLogger.log(logTag, "In accountsAccountIDAccountServersGet, accountID = " + accountID);
+        	return new ResponseEntity<List<DomeServer>>(serverService.findAllServers(Integer.valueOf(accountID))
+                    , HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
