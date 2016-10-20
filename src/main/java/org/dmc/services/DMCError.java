@@ -58,6 +58,7 @@ public enum DMCError {
 	CannotDeleteDOMEServerEntry,
 	UnknownUser,
 	NoContentInQuery,
+	CannotChangeServerAccess,
 	
 	//Individual_Discussions
 	InvalidAccountId,
