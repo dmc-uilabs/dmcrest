@@ -376,15 +376,17 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProject_FollowingDiscussion() {
         ServiceLogger.log(logTag, "starting testProject_FollowingDiscussion");
+
+        List<IndividualDiscussion> resultsPrecondition = Arrays.asList(given().header("Content-type", APPLICATION_JSON_VALUE)
+                .header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
+                .get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
+        assertEquals("expected empty list of following discussions for project 2 by joeengineer at beginning of test", 0, resultsPrecondition.size());
+
         String followId = createFollowDiscussionForProject();
 
         List<IndividualDiscussion> results1 = Arrays.asList(given().header("Content-type", APPLICATION_JSON_VALUE)
                 .header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
                 .get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
-
-        ServiceLogger.log(logTag, "GET " + PROJECT_FOLLOWING_DISCUSSION + " after add returned list: " + results1);
-        ServiceLogger.log(logTag,
-                "GET " + PROJECT_FOLLOWING_DISCUSSION + " after add returned list with size(): " + results1.size());
         assertEquals("expected list with one new following discussions for project 2 by joeengineer", 1, results1.size());
 
         given().header("AJP_eppn", "joeengineer").expect().statusCode(HttpStatus.OK.value()).when()
@@ -393,9 +395,6 @@ public class ProjectIT extends BaseIT {
         List<IndividualDiscussion> results = Arrays.asList(given().header("Content-type", APPLICATION_JSON_VALUE)
                 .header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
                 .get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
-        ServiceLogger.log(logTag, "GET " + PROJECT_FOLLOWING_DISCUSSION + " after delete returned list: " + results);
-        ServiceLogger.log(logTag,
-                "GET " + PROJECT_FOLLOWING_DISCUSSION + " after delete returned list with size(): " + results.size());
         assertEquals("expected empty list of following discussions for project 2 by joeengineer", 0, results.size());
 
     }
