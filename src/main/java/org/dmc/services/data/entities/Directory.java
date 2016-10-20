@@ -1,6 +1,7 @@
 package org.dmc.services.data.entities;
 
-import javax.persistence.CascadeType;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,7 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -22,9 +24,12 @@ public class Directory extends BaseEntity {
 	@Column(name = "name")
 	private String name;
 
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
 	private Directory parent;
+
+	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+	private List<Directory> children;
 
 	public Integer getId() {
 		return id;
@@ -48,6 +53,15 @@ public class Directory extends BaseEntity {
 
 	public void setParent(Directory parent) {
 		this.parent = parent;
+	}
+
+	public List<Directory> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<Directory> children) {
+		children.stream().forEach((a) -> a.setParent(this));
+		this.children = children;
 	}
 
 }

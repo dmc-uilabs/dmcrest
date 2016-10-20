@@ -202,10 +202,27 @@ public class DocumentService {
 		return documentMapper.mapToModel(documents);
 	}
 
-	public DirectoryModel findDirectoryStructure(String directoryName) {
+	public DirectoryModel findDirectoryStructure(Integer id) {
 		Mapper<Directory, DirectoryModel> directoryMapper = mapperFactory.mapperFor(Directory.class, DirectoryModel.class);
-		DirectoryModel directory = directoryMapper.mapToModel(directoryRepository.findByName(directoryName));
+		Directory dir = directoryRepository.findOne(id);
+		DirectoryModel directory = directoryMapper.mapToModel(dir);
 		return directory;
+	}
+
+	@Transactional
+	public DirectoryModel saveDirectory(DirectoryModel dir) {
+		Mapper<Directory, DirectoryModel> mapper = mapperFactory.mapperFor(Directory.class, DirectoryModel.class);
+
+		Directory parent = directoryRepository.save(mapper.mapToEntity(dir));
+		DirectoryModel model = mapper.mapToModel(parent);
+
+		for(DirectoryModel child: dir.getChildren()) {
+			child.setParent(parent.getId());
+			child = saveDirectory(child);
+			model.getChildren().add(child);
+		}
+
+		return model;
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
@@ -333,6 +350,5 @@ public class DocumentService {
 			}
 		}
 	}
-
 
 }

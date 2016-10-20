@@ -69,13 +69,18 @@ public class DocumentController {
 	}
 
 	@RequestMapping(value = "/directories/{currentDirectory}", method = RequestMethod.GET)
-	public DirectoryModel getDirectoryStructure(@PathVariable("currentDirectory") String currentDirectory) {
+	public DirectoryModel getDirectoryStructure(@PathVariable("currentDirectory") Integer currentDirectory) {
 		return documentService.findDirectoryStructure(currentDirectory);
 	}
 
-	@RequestMapping(value = "/documents/directory/{directoryName}", method = RequestMethod.GET)
+	@RequestMapping(value = "/documents/directories/{directoryName}", method = RequestMethod.GET)
 	public List<DocumentModel> getDocumentsByDirectory(@PathVariable("directoryName") String directoryName) {
 		return documentService.findByDirectory(directoryName);
+	}
+
+	@RequestMapping(value = "/directories", method = RequestMethod.POST)
+	public DirectoryModel saveDirectoryStructure(@RequestBody DirectoryModel dir) {
+		return documentService.saveDirectory(dir);
 	}
 
 }

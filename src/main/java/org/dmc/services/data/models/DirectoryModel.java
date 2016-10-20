@@ -1,11 +1,13 @@
 package org.dmc.services.data.models;
 
+import java.util.List;
+
 public class DirectoryModel extends BaseModel {
 
 	Integer id;
 	String name;
-	String fullPath;
-	DirectoryModel parent;
+	Integer parent;
+	List <DirectoryModel> children;
 
 	public Integer getId() {
 		return id;
@@ -23,20 +25,20 @@ public class DirectoryModel extends BaseModel {
 		this.name = name;
 	}
 
-	public String getFullPath() {
-		return fullPath;
-	}
-
-	public void setFullPath(String fullPath) {
-		this.fullPath = fullPath;
-	}
-
-	public DirectoryModel getParent() {
+	public Integer getParent() {
 		return parent;
 	}
 
-	public void setParent(DirectoryModel parent) {
+	public void setParent(Integer parent) {
 		this.parent = parent;
+	}
+
+	public List<DirectoryModel> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<DirectoryModel> children) {
+		this.children = children;
 	}
 
 }
