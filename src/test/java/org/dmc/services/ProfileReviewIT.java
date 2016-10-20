@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -112,15 +113,15 @@ public class ProfileReviewIT extends BaseIT {
 
     @Test
     public void testPatchProfileByProfileReviewId(){
-    	ProfileReview res = given()
+    	List<ProfileReview> list =Arrays.asList(given()
     	         .header("AJP_eppn", memberEPPN)
     	         .expect()
     	         .statusCode(HttpStatus.OK.value())
     	         .when()
     	         .get(PROFILE_REVIEW_GET_BY_ID, reviewId)
-    	         .as(ProfileReview.class);
-    	assertTrue(res != null);
-    	
+    	         .as(ProfileReview[].class));
+    	assertTrue(list != null);
+    	ProfileReview res = list.get(0);
     	String name = res.getName();
     	int accountId = Integer.parseInt(res.getAccountId());
     	String comment = res.getComment() + " update comments by test user";
@@ -147,17 +148,18 @@ public class ProfileReviewIT extends BaseIT {
    	         .as(ProfileReview.class);
     	assertTrue(patch_res != null);
     	
-    	ProfileReview getPatchedResult = given()
+    	List<ProfileReview> getPatchedResult =Arrays.asList(given()
     			
    	         .header("AJP_eppn", memberEPPN)
    	         .expect()
    	         .statusCode(HttpStatus.OK.value())
    	         .when()
    	         .get(PROFILE_REVIEW_GET_BY_ID, reviewId)
-   	         .as(ProfileReview.class);
+   	         .as(ProfileReview[].class));
     	assertTrue(getPatchedResult != null);
-    	assertTrue(getPatchedResult.getComment().equals(comment));
-    	assertTrue(getPatchedResult.getRating() == rating);
+    	ProfileReview review = getPatchedResult.get(0);
+    	assertTrue(review.getComment().equals(comment));
+    	assertTrue(review.getRating() == rating);
 
     }
     
@@ -198,14 +200,14 @@ public class ProfileReviewIT extends BaseIT {
 
     @Test
     public void testGetProfileReviewByReviewId(){
-    	ProfileReview res = given()
+    	List<ProfileReview> res = given()
          .header("AJP_eppn", memberEPPN)
          .expect()
          .statusCode(HttpStatus.OK.value())
          .when()
          .get(PROFILE_REVIEW_GET_BY_ID, reviewId)
-         .as(ProfileReview.class);
-    	assertTrue(res.getRating() == DEFAULT_RATING);
+         .as(List.class);
+    	assertTrue(res.size() == 1);
     }
     
    @Test
