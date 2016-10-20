@@ -118,7 +118,7 @@ public class AppSubmission extends BaseEntity {
 	private String systemRequirements;
 	
 	@Column(name = "application_license")
-	private String appLicense;
+	private String appLicense = "Standard DMC License";
 	
 	@Column(name = "standard_license_terms")
 	private boolean standardLicenseTerms = false;

@@ -1,5 +1,6 @@
 package org.dmc.services.accounts;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -8,10 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.ServiceLogger;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import javax.xml.ws.http.HTTPException;
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.ServerAccessService;
+import org.dmc.services.ServiceLogger;
 
 import static org.springframework.http.MediaType.*;
 
@@ -23,20 +26,35 @@ public class AccountServersController {
 	private final String logTag = AccountServersController.class.getName();
 	private AccountServersDao accountServersDao = new AccountServersDao();
 	
-	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
-	public ResponseEntity<?> accountServersServerIDPost(@RequestBody UserAccountServer accountServer,
-																		@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+	@Autowired
+	private ObjectMapper mapper;
 
+	@Autowired
+	private ServerAccessService accessService;
+
+	@RequestMapping(value = "", produces = { "application/json", "text/html" }, method = RequestMethod.POST)
+	public ResponseEntity<?> accountServersServerIDPost(@RequestBody String body,
+														@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "accountServersServerIDPost, userEPPN: " + userEPPN);
 		
 		int httpStatusCode = HttpStatus.CREATED.value();
 		UserAccountServer userAccountServer = null;
 		
 		try {
-			userAccountServer = accountServersDao.postUserAccountServer(accountServer, userEPPN);
+			ObjectNode json = mapper.readValue(body, ObjectNode.class);
+			UserAccountServer server = mapper.convertValue(json.get("server"), UserAccountServer.class);
+			Boolean isPub = json.get("isPub").asBoolean();
+
+			userAccountServer = accountServersDao.postUserAccountServer(server, userEPPN);
+			if(isPub){
+				accessService.addServerToGlobalById(Integer.valueOf(userAccountServer.getId()), userEPPN);
+			}
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		} catch (Exception e){
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>("Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));
@@ -83,7 +101,7 @@ public class AccountServersController {
 	
 	@RequestMapping(value = "/{serverID}", produces = { "application/json", "text/html" },method = RequestMethod.PATCH)
 	public ResponseEntity<?> accountServersServerIDPatch(@PathVariable("serverID") String serverID,
-																		 @RequestBody UserAccountServer server,
+																		 @RequestBody String body,
 																		 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		
 		ServiceLogger.log(logTag, "accountServersServerIDPatch, userEPPN: " + userEPPN);
@@ -93,12 +111,23 @@ public class AccountServersController {
 		
 		try {
 			UserAccountServer original = accountServersDao.getUserAccountServer(Integer.parseInt(serverID), userEPPN);
+			ObjectNode json = mapper.readValue(body, ObjectNode.class);
+			UserAccountServer server = mapper.convertValue(json.get("server"), UserAccountServer.class);
 			server.setId(original.getId());
 			server.setAccountId(original.getAccountId());
+			Boolean changePub = json.get("changePub").asBoolean();
+
 			userAccountServer = accountServersDao.patchUserAccountServer(serverID, server, userEPPN);
+
+			if(changePub){
+				accessService.changeServerPublicAccess(Integer.valueOf(serverID), userEPPN);
+			}
 		} catch (DMCServiceException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		} catch (Exception e){
+			ServiceLogger.log(logTag, e.getMessage());
+			return new ResponseEntity<String>("Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		return new ResponseEntity<UserAccountServer>(userAccountServer, HttpStatus.valueOf(httpStatusCode));

@@ -492,7 +492,6 @@ public class CompanyDao {
 
 	public Id deleteCompany(int id, String userEPPN) {
 
-		CompanyVideoDao videoDao = new CompanyVideoDao();
 		connection = DBConnector.connection();
 		PreparedStatement statement;
 		String query;
@@ -527,9 +526,6 @@ public class CompanyDao {
 		        statement = DBConnector.prepareStatement(query);
 		        statement.setInt(1, id);
 		        statement.executeUpdate();
-
-				// delete organization_video
-				videoDao.deleteCompanyVideo(companyId, -1, userEPPN);
 
 				// delete organization_admin
 				query = "DELETE FROM organization_admin WHERE organization_id = ?";
