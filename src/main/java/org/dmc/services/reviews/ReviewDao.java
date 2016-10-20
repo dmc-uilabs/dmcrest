@@ -138,7 +138,7 @@ public class ReviewDao<T extends Review> {
                         //                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
                         break;
                     case PROFILE:
-                        //                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+                    	r.setEntityId(Integer.toString(resultSet.getInt("users_id")));
                         break;
                     default:
                         throw new DMCServiceException(DMCError.Generic, "Unknow review type");
@@ -178,14 +178,14 @@ public class ReviewDao<T extends Review> {
         } catch (SQLException ex) {
             throw new DMCServiceException(DMCError.OtherSQLError, "Error: " + ex.toString());
         }
-
         return reviews;
     }
 
     
-	public <T extends Review> T getReviewByReviewId(String reviewId, String userEPPN, Class<T> entityClass)
+	public <T extends Review> List<T> getReviewByReviewIdWithReplies(String reviewId, String userEPPN, Class<T> entityClass)
 			throws DMCServiceException {
 		T r = null;
+        List<T> reviews = new ArrayList<T>();
 
 		int user_id = -99999;
 		try {
@@ -212,6 +212,7 @@ public class ReviewDao<T extends Review> {
 			preparedStatement.setInt(2, user_id);
 			this.resultSet = preparedStatement.executeQuery();
 			while (this.resultSet.next()) {
+				//T r = null;
 				try {
 					r = entityClass.newInstance();
 				} catch (InstantiationException ie) {
@@ -260,15 +261,20 @@ public class ReviewDao<T extends Review> {
 				// account_id is associated with organization table: accountId
 				// integer
 				r.setAccountId(Integer.toString(resultSet.getInt("accountId")));
-
 				
-			}
+				if (reviews == null) reviews = new ArrayList<T>();
 
+                reviews.add(r);	
+			}
+			List<T> replies = new ArrayList<T>();
+			replies = getRepliesByReviewId(reviewId, userEPPN, entityClass);
+			reviews.addAll(replies);
+			
 		} catch (SQLException ex) {
 			throw new DMCServiceException(DMCError.OtherSQLError, "Error: " + ex.toString());
 		}
 
-		return r;
+		return reviews;
 	}
     
     
@@ -397,7 +403,7 @@ public class ReviewDao<T extends Review> {
 //                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
                         break;
                     case PROFILE:
-                        //                        r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+                    	r.setEntityId(Integer.toString(resultSet.getInt("users_id")));
                         break;
                     default:
                         throw new DMCServiceException(DMCError.Generic, "Unknow review type");
@@ -443,6 +449,138 @@ public class ReviewDao<T extends Review> {
         return reviews;
     }
 
+	public <T extends Review> List<T> getRepliesByReviewId(String reviewId, String userEPPN, Class<T> entityClass)
+			throws DMCServiceException {
+
+		List<T> reviews = new ArrayList<T>();
+
+		try {
+
+			String whereClause = " WHERE ";
+			int numFields = 0;
+			int reviewIdIndex = -1;
+			int ratingIndex = -1;
+			int statusIndex = -1;
+
+			int reviewIdVal = 0;
+
+			// reviewId > = indicates a specific reviewId, otherwise retrieve
+			// all reviews
+			if (reviewId != null && reviewId.trim().length() > 0) {
+
+				try {
+					reviewIdVal = Integer.parseInt(reviewId.toString());
+
+					if (reviewIdVal > 0) {
+						reviewIdIndex = ++numFields;
+						whereClause += " r.review_id = ?";
+						ServiceLogger.log(logTag, "reviewId index is " + reviewIdIndex + ", value is " + reviewId);
+					}
+				} catch (NumberFormatException nfe) {
+					ServiceLogger.log(logTag, "Error parsing review id: " + reviewId + ": " + nfe.toString());
+				}
+			}
+
+			if (reviewIdVal <= 0) {
+				ServiceLogger.log(logTag, "review_id must be greater than 0 to retrieve company review replies");
+				throw new DMCServiceException(DMCError.OtherSQLError,
+						"review_id must be greater than 0 to retrieve company review replies");
+			}
+
+			/* String query =
+		                "Select r.id, r." + tablePrefix + "_id, u.realname as name, r.user_id as accountId, review_timestamp , r.review as comment, r.rating as rating, count(RR.*) AS count_helpfulOrNot " +
+		                "FROM " + tablePrefix + "_review_new r " +
+		                "LEFT JOIN " + tablePrefix + "  o ON  r." + tablePrefix + "_id  = o." + extraFieldName + "_id " +
+		                "LEFT JOIN " + tablePrefix + "_review_rate RR on RR.review_id = r.id " +
+		                "LEFT JOIN users u ON u.user_id = r.user_id " +
+		                whereClause +
+		                " GROUP BY o." + tableNameField + ", r.id, u.realname";
+*/
+
+			String query = "select r.id, r.review_id AS reviewId, rn." + tablePrefix + "_id as " + tablePrefix
+					+ "_id, u.realname as name, r.user_id as accountId, r.review_reply_timestamp , r.review_reply as comment, count(RR.*) AS count_helpfulOrNot "
+					+ "FROM " + tablePrefix + "_review_reply r " + "LEFT JOIN " + tablePrefix
+					+ "_review_new rn ON rn.id = r.review_id " + "LEFT JOIN " + tablePrefix + "  o ON  rn."
+					+ tablePrefix + "_id  = o." + extraFieldName + "_id " + "LEFT JOIN " + tablePrefix
+					+ "_review_reply_rate RR on RR.review_reply_id = r.id "
+					+ "LEFT JOIN users u ON u.user_id = r.user_id " + whereClause + " GROUP BY rn." + tablePrefix
+					+ "_id, o." + tableNameField + ", r.id, u.realname";
+
+			ServiceLogger.log(logTag, "Get " + tablePrefix + " review replies sql=" + query);
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, reviewIdVal);
+		/*	if (reviewIdIndex != -1)
+				preparedStatement.setInt(reviewIdIndex, reviewIdVal);*/
+			
+			this.resultSet = preparedStatement.executeQuery();
+			while (this.resultSet.next()) {
+				T r = null;
+				try {
+					r = entityClass.newInstance();
+				} catch (InstantiationException ie) {
+
+				} catch (IllegalAccessException iae) {
+
+				}
+
+				switch (reviewType) {
+				case ORGANIZATION:
+					r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+					break;
+				case SERVICE:
+					// r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+					break;
+				case PROFILE:
+					r.setEntityId(Integer.toString(resultSet.getInt("users_id")));
+					break;
+				default:
+					throw new DMCServiceException(DMCError.Generic, "Unknow review type");
+				}
+
+				r.setId(Integer.toString(resultSet.getInt("id")));
+
+				r.setName(resultSet.getString("name"));
+
+				r.setReviewId(resultSet.getString("reviewId"));
+				java.sql.Timestamp reviewTimestamp = resultSet.getTimestamp("review_reply_timestamp");
+				BigDecimal bdDate = new BigDecimal(reviewTimestamp.getTime());
+				r.setDate(bdDate);
+				r.setRating(0); // replies do not have stars
+				r.setComment(resultSet.getString("comment"));
+
+				// replies do not have replies
+				boolean hasRplies = false;
+				r.setReply(hasRplies);
+
+				// r.setStatus(resultSet.getBoolean("status"));
+				r.setStatus(true);
+
+				int count_likes = countHelpfulForReviewReply(Integer.parseInt(r.getId()), true);
+				r.setLike(count_likes);
+
+				int count_dislikes = countHelpfulForReviewReply(Integer.parseInt(r.getId()), false);
+				r.setDislike(count_dislikes);
+
+				// account_id is associated with organization table: accountId
+				// integer
+				r.setAccountId(Integer.toString(resultSet.getInt("accountId")));
+
+				if (reviews == null)
+					reviews = new ArrayList<T>();
+
+				reviews.add(r);
+			}
+
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			throw new DMCServiceException(DMCError.OtherSQLError, "Error: " + ex.toString());
+		}
+
+		return reviews;
+	}
+    
+    
     public int countRepliesForReview (int reviewId) {
         String q = "select count(*) FROM " + tablePrefix + "_review_reply WHERE review_id = " + reviewId;
         int count = 0;
@@ -805,8 +943,7 @@ public class ReviewDao<T extends Review> {
 	public ProfileReview patchProfileReview(String reviewId, ProfileReview review, String userEPPN) {
 		ServiceLogger.log(logTag, "Starting running patchProfileReview: ");
 		int user_id = -9999;
-		Connection connection = DBConnector.connection();
-      
+		Connection connection = DBConnector.connection();    
 		int reviewIdIndex = Integer.parseInt(reviewId);
       try {
           user_id = CompanyUserUtil.getUserId(userEPPN);
@@ -876,4 +1013,21 @@ public class ReviewDao<T extends Review> {
 		}
       return review;
 	}
+	
+	
+	public static void main(String[] args){
+		ReviewDao reviewDao = new ReviewDao(ReviewType.PROFILE);
+		/*List<ProfileReview> reviews = reviewDao.getReviewByReviewId("1", "userEPPN20161017174331187", ProfileReview.class);
+		System.out.println("The review number should be 1 without replies: " +  reviews.size());
+		System.out.println("Print out the results : " +  reviews.toString());
+		List<ProfileReview> reviews2 = reviewDao.getReviewByReviewId("3", "userEPPN20161017174332394", ProfileReview.class);
+		System.out.println("The review number should be 3 with 2 replies: " +  reviews2.size());
+		System.out.println("Print out the results : " +  reviews2.toString());*/
+		
+		
+		List<ProfileReview> reviews = reviewDao.getReviews(19, "0", null, null, null, null, null, "userEPPN20161017174331187", ProfileReview.class);
+		System.out.println("The review number should be 2 without replies: " +  reviews.size());
+		System.out.println("Print out the results : " +  reviews.toString());
+	}
+	
 }

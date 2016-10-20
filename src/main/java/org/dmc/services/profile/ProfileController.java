@@ -218,10 +218,10 @@ public class ProfileController {
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
     	ServiceLogger.log(logTag, "Get ProfileReview by reviewId: " + reviewId);
         int statusCode = HttpStatus.OK.value();
-        ProfileReview review = null;
+        List<ProfileReview> reviews = null;
         try {
-        	review = (ProfileReview) reviewDao.getReviewByReviewId(reviewId, userEPPN, ProfileReview.class);
-            return new ResponseEntity<ProfileReview>(review, HttpStatus.valueOf(statusCode));
+        	reviews = reviewDao.getReviewByReviewIdWithReplies(reviewId, userEPPN, ProfileReview.class);
+            return new ResponseEntity<List<ProfileReview>>(reviews, HttpStatus.valueOf(statusCode));
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
