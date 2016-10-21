@@ -40,6 +40,7 @@ public class ProfileReviewIT extends BaseIT {
     private static final String PROFILE_REVIEW_FLAGGED_POST_RESOURCE = "/profile_reviews_flagged";
     private static final String PROFILE_REVIEW_GET_BY_ID = "/profile_reviews/{reviewId}";
     private static final String PROFILE_REVIEW_PATCH_BY_ID = "/profile_reviews/{reviewId}";
+    private static final String PROFILE_REVIEW_REVIEW_REPLIES_BY_REVIEW_ID = "/review_replies/{reviewId}";
 
     private int ownerUserId = -1;
     private String ownerEPPN;
@@ -208,6 +209,17 @@ public class ProfileReviewIT extends BaseIT {
          .get(PROFILE_REVIEW_GET_BY_ID, reviewId)
          .as(List.class);
     	assertTrue(res.size() == 1);
+    }
+    
+    @Test
+    public void testGetReviewRepliesByReviewId(){
+    	List<ProfileReview> res = given()
+         .header("AJP_eppn", memberEPPN)
+         .expect()
+         .statusCode(HttpStatus.OK.value())
+         .when()
+         .get(PROFILE_REVIEW_REVIEW_REPLIES_BY_REVIEW_ID, reviewId)
+         .as(List.class);
     }
     
    @Test

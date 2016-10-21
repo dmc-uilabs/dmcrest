@@ -163,9 +163,11 @@ public class ProfileController {
             int profileIdInt = Integer.parseInt(profileID);
             
             if (reviewIdInt == 0) {
+            	// if reviewId == 0, which means get all reviews for this specific profileID
                 reviews = reviewDao.getAllReviews(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
                 
             } else if (reviewIdInt > 0) {
+            	// if reviewId > 0, which means get specific review for this specific profileID
                 reviews = reviewDao.getReviewReplies(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
             }
 
@@ -216,7 +218,7 @@ public class ProfileController {
     public ResponseEntity<?> profileReviewsGetByReviewId(
     		@PathVariable("reviewId") String reviewId,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
-    	ServiceLogger.log(logTag, "Get ProfileReview by reviewId: " + reviewId);
+    	ServiceLogger.log(logTag, "Get specific ProfileReview and it's replies by reviewId: " + reviewId);
         int statusCode = HttpStatus.OK.value();
         List<ProfileReview> reviews = null;
         try {
