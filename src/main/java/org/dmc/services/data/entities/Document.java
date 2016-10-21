@@ -1,20 +1,31 @@
 package org.dmc.services.data.entities;
 
+import org.hibernate.annotations.Where;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.sql.Timestamp;
 import java.util.List;
 
-import javax.persistence.*;
-
-import org.dmc.services.ParentDocumentService;
-import org.hibernate.annotations.Where;
-
 @Entity
-@Table(name="document")
+@Table(name = "document")
 @Where(clause = "is_deleted='false'")
 public class Document extends BaseEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Integer id;
 
 	@Column(name = "name")
@@ -22,11 +33,11 @@ public class Document extends BaseEntity {
 
 	@Column(name = "url")
 	private String documentUrl;
-	
+
 	@Column(name = "parent_type")
 	@Enumerated(EnumType.STRING)
 	private DocumentParentType parentType;
-	
+
 	@Column(name = "parent_id")
 	private Integer parentId;
 
@@ -34,10 +45,10 @@ public class Document extends BaseEntity {
 	@JoinColumn(name = "owner_id")
 	private User owner;
 
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "document_tag_join",
-			   joinColumns = @JoinColumn(name="document_id"),
-			   inverseJoinColumns = @JoinColumn(name="document_tag_id"))
+			joinColumns = @JoinColumn(name = "document_id", referencedColumnName = "id"),
+			inverseJoinColumns = @JoinColumn(name = "document_tag_id", referencedColumnName = "id"))
 	private List<DocumentTag> tags;
 
 	@Column(name = "modified")
@@ -45,18 +56,18 @@ public class Document extends BaseEntity {
 
 	@Column(name = "expires")
 	private Timestamp expires;
-	
+
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
-	
+
 	@Column(name = "access_level")
 	//TODO: create enum for site-wide accessLevel
 	private String accessLevel;
-	
+
 	@Column(name = "doc_class")
 	@Enumerated(EnumType.STRING)
 	private DocumentClass docClass;
-	
+
 	@Column(name = "verified")
 	private Boolean verified = false;
 
@@ -123,7 +134,7 @@ public class Document extends BaseEntity {
 	public void setModified(Timestamp modified) {
 		this.modified = modified;
 	}
-	
+
 	public Timestamp getExpires() {
 		return expires;
 	}
@@ -258,5 +269,5 @@ public class Document extends BaseEntity {
 		return true;
 	}
 
-	
+
 }

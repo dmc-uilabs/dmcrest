@@ -8,6 +8,7 @@ import org.dmc.services.data.entities.OnboardingStatus;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.OrganizationAuthorizedIdp;
 import org.dmc.services.data.entities.OrganizationUser;
+import org.dmc.services.data.entities.ServerAccess;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
@@ -22,6 +23,7 @@ import org.dmc.services.data.repositories.OnboardingStatusRepository;
 import org.dmc.services.data.repositories.OrganizationAuthorizedIdpRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
+import org.dmc.services.data.repositories.ServerAccessRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.email.EmailModel;
@@ -82,6 +84,9 @@ public class UserService {
 
 	@Inject
 	private OrganizationAuthorizedIdpRepository idpRepository;
+
+	@Inject
+	private ServerAccessRepository accessRepo;
 
 	@Inject
 	private DocumentRepository documentRepository;
@@ -310,6 +315,7 @@ public class UserService {
 		user.setRealname(fullName);
 		user.setEmail(email);
 		user.setAddDate(0L);
+		user.setAccessList(Arrays.asList(accessRepo.findOneByName("global")));
 		user.setUserContactInfo(new UserContactInfo());
 		user = userRepository.save(user);
 

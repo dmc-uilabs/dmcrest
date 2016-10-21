@@ -10,7 +10,7 @@ public class ReviewHelpful  {
   private String id = null;
   private String reviewId = null;
   private String accountId = null;
-  private Boolean helpfull = null;
+  private Boolean helpful = null;
 
   
   /**
@@ -48,12 +48,12 @@ public class ReviewHelpful  {
   
   /**
    **/
-  @JsonProperty("helpfull")
-  public Boolean getHelpfull() {
-    return helpfull;
+  @JsonProperty("helpful")
+  public Boolean getHelpful() {
+    return helpful;
   }
-  public void setHelpfull(Boolean helpfull) {
-    this.helpfull = helpfull;
+  public void setHelpful(Boolean helpful) {
+    this.helpful = helpful;
   }
 
   
@@ -70,12 +70,12 @@ public class ReviewHelpful  {
     return Objects.equals(id, reviewHelpful.id) &&
         Objects.equals(reviewId, reviewHelpful.reviewId) &&
         Objects.equals(accountId, reviewHelpful.accountId) &&
-        Objects.equals(helpfull, reviewHelpful.helpfull);
+        Objects.equals(helpful, reviewHelpful.helpful);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, reviewId, accountId, helpfull);
+    return Objects.hash(id, reviewId, accountId, helpful);
   }
 
   @Override
@@ -86,7 +86,7 @@ public class ReviewHelpful  {
     sb.append("  id: ").append(id).append("\n");
     sb.append("  reviewId: ").append(reviewId).append("\n");
     sb.append("  accountId: ").append(accountId).append("\n");
-    sb.append("  helpfull: ").append(helpfull).append("\n");
+    sb.append("  helpful: ").append(helpful).append("\n");
     sb.append("}\n");
     return sb.toString();
   }
