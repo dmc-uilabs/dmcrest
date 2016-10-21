@@ -46,7 +46,7 @@ public class ReviewDao<T extends Review> {
 
     }
     
-    public <T extends Review> List<T> getReviews (int entityId, String reviewId, Integer limit, String order,
+    public <T extends Review> List<T> getAllReviews (int entityId, String reviewId, Integer limit, String order,
                                            String sort, Integer rating, Boolean status, String userEPPN, Class<T> entityClass) throws DMCServiceException {
         List<T> reviews = new ArrayList<T>();
 
@@ -487,15 +487,6 @@ public class ReviewDao<T extends Review> {
 						"review_id must be greater than 0 to retrieve company review replies");
 			}
 
-			/* String query =
-		                "Select r.id, r." + tablePrefix + "_id, u.realname as name, r.user_id as accountId, review_timestamp , r.review as comment, r.rating as rating, count(RR.*) AS count_helpfulOrNot " +
-		                "FROM " + tablePrefix + "_review_new r " +
-		                "LEFT JOIN " + tablePrefix + "  o ON  r." + tablePrefix + "_id  = o." + extraFieldName + "_id " +
-		                "LEFT JOIN " + tablePrefix + "_review_rate RR on RR.review_id = r.id " +
-		                "LEFT JOIN users u ON u.user_id = r.user_id " +
-		                whereClause +
-		                " GROUP BY o." + tableNameField + ", r.id, u.realname";
-*/
 
 			String query = "select r.id, r.review_id AS reviewId, rn." + tablePrefix + "_id as " + tablePrefix
 					+ "_id, u.realname as name, r.user_id as accountId, r.review_reply_timestamp , r.review_reply as comment, count(RR.*) AS count_helpfulOrNot "
@@ -1025,7 +1016,7 @@ public class ReviewDao<T extends Review> {
 		System.out.println("Print out the results : " +  reviews2.toString());*/
 		
 		
-		List<ProfileReview> reviews = reviewDao.getReviews(19, "0", null, null, null, null, null, "userEPPN20161017174331187", ProfileReview.class);
+		List<ProfileReview> reviews = reviewDao.getAllReviews(19, "0", null, null, null, null, null, "userEPPN20161017174331187", ProfileReview.class);
 		System.out.println("The review number should be 2 without replies: " +  reviews.size());
 		System.out.println("Print out the results : " +  reviews.toString());
 	}

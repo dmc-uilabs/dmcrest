@@ -163,7 +163,7 @@ public class ProfileController {
             int profileIdInt = Integer.parseInt(profileID);
             
             if (reviewIdInt == 0) {
-                reviews = reviewDao.getReviews(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
+                reviews = reviewDao.getAllReviews(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
                 
             } else if (reviewIdInt > 0) {
                 reviews = reviewDao.getReviewReplies(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
@@ -227,6 +227,23 @@ public class ProfileController {
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
+    
+    @RequestMapping(value = "/review_replies/{reviewId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+    public ResponseEntity<?> reviewRepliesGetByReviewId(
+    		@PathVariable("reviewId") String reviewId,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+    	ServiceLogger.log(logTag, "Get review_replies by reviewId: " + reviewId);
+        int statusCode = HttpStatus.OK.value();
+        List<ProfileReview> reviews = null;
+        try {
+        	reviews = reviewDao.getRepliesByReviewId(reviewId, userEPPN, ProfileReview.class);
+            return new ResponseEntity<List<ProfileReview>>(reviews, HttpStatus.valueOf(statusCode));
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+    
     
     @RequestMapping(value = "/profile_reviews/{reviewId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
     public ResponseEntity<?> profileReviewsPatchByReviewId(
