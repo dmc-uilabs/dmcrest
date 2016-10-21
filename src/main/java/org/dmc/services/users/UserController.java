@@ -1,15 +1,9 @@
 package org.dmc.services.users;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
-import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
@@ -18,7 +12,6 @@ import org.dmc.services.notification.NotificationService;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
-import org.dmc.services.security.UserPrincipalService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,23 +24,22 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import java.util.List;
 
 @RestController
 public class UserController {
 
 	private final String logTag = UserController.class.getName();
 
-	private UserDao userDAO = new UserDao();
-
 	@Inject
 	private UserService userService;
 
 	@Inject
 	private OrganizationUserService orgUserService;
-
-	@Inject
-	private UserPrincipalService userPrincipalService;
 	
 	@Inject
 	private NotificationService notificationService;
@@ -171,6 +163,11 @@ public class UserController {
 		}
 		
 		notificationService.markAllNotificationsReadForUser(userId);
+	}
+
+	@RequestMapping(value = "/users/{userId}/email", method = RequestMethod.POST)
+	public ResponseEntity createTokenEmail(@PathVariable Integer userId, @RequestParam("token") String token){
+		return this.userService.emailToken(userId, token);
 	}
 
 }

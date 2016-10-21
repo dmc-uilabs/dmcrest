@@ -36,6 +36,7 @@ import org.dmc.services.users.VerifyUserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -141,18 +142,17 @@ public class UserService {
 			token = userTokenRepository.save(token);
 		}
 
-		this.emailToken(userEntity, token);
-
 		return mapper.mapToModel(token);
 	}
 
-	private void emailToken(User user, UserToken token) {
-		if(user.getEmail() == null) return;
+	public ResponseEntity emailToken(Integer userId, String token) {
+		User user = this.userRepository.findOne(userId);
+		if(user.getEmail() == null) return ResponseEntity.badRequest().body("User does not have an email!");
 
 		EmailModel emailModel = new EmailModel();
 		emailModel.setName(String.format("%s %s", user.getFirstName(), user.getLastName()));
 		emailModel.setEmail(user.getEmail());
-		emailModel.setToken(token.getToken());
+		emailModel.setToken(token);
 		emailModel.setTemplate(1);
 
 		HttpStatus status = this.emailService.sendEmail(emailModel);
@@ -160,6 +160,8 @@ public class UserService {
 		if (!HttpStatus.OK.equals(status)) {
 			logger.warn("Email for user token was not sent for user: {}", user.getEmail());
 		}
+
+		return ResponseEntity.status(status).build();
 	}
 
 	@Transactional
