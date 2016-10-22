@@ -1,7 +1,6 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -29,6 +28,7 @@ import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.json.JSONObject;
+import org.springframework.transaction.annotation.Transactional;
 import org.json.JSONException;
 
 public class ProjectDao {
@@ -196,17 +196,19 @@ public class ProjectDao {
         return project;
     }
 
+    @Transactional
     public Id createProject(String projectname, String unixname, String description, String projectType,
             String userEPPN, long dueDate) throws SQLException, JSONException, Exception {
         connection = DBConnector.connection();
         // let's start a transaction
         connection.setAutoCommit(false);
         ResultSet resultSet = null;
+        // look up userID
+        final int userID = UserDao.getUserID(userEPPN);
+        final int isPublic = Project.IsPublic(projectType);
+        int projectId = -1;
+        
         try {
-            int projectId = -1;
-            // look up userID
-            final int userID = UserDao.getUserID(userEPPN);
-            final int isPublic = Project.IsPublic(projectType);
 
             // create new project in groups table
             String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date) values ( ?, ?, ?, ?, ?, ?, ? )";
@@ -268,18 +270,6 @@ public class ProjectDao {
             createProjectJoinRequest(Integer.toString(projectId), Integer.toString(userID), userID);
 
             connection.commit();
-            
-            //bolt on resource access for project members
-            User user = userRepository.getOne(userID);
-            List<ResourceGroup> groups = user.getResourceGroups();
-            //add admin role
-            List<ResourceGroup> newGroup = Arrays.asList(resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 2));
-            groups.addAll(newGroup);
-            //add member role
-            newGroup = Arrays.asList(resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 4));
-            groups.addAll(newGroup);
-            user.setResourceGroups(groups);
-            userRepository.save(user);
 
             try {
                 SolrUtils.triggerFullIndexing(SolrUtils.CORE_GFORGE_PROJECTS);
@@ -323,6 +313,26 @@ public class ProjectDao {
             if (null != connection) {
                 connection.setAutoCommit(true);
             }
+            
+            //bolt on resource access process
+            //make sure the project was actually added
+            if (projectId != -1) {
+
+            	//create new resource groups for new project
+            	resourceGroupService.newCreate("PROJECT", projectId);
+            	
+    			User user = userRepository.getOne(userID);
+    			List<ResourceGroup> groups = user.getResourceGroups();
+    			//give the creating user the admin role
+    			ResourceGroup adminGroup = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 2);
+    			groups.add(adminGroup);
+    			//add member role
+    			ResourceGroup memberGroup = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 4);
+    			groups.add(memberGroup);
+    			
+    			user.setResourceGroups(groups);
+    			userRepository.save(user);
+    		}
         }
 
     }

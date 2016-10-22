@@ -30,6 +30,12 @@ public class DocumentModel extends BaseModel {
 	private Date expires;
 	
 	private DocumentClass docClass;
+	
+	private String accessLevel;
+	
+	private List<UserModel> vips;
+	
+	private Boolean isPublic;
 
 	public String getDocumentName() {
 		return documentName;
@@ -101,6 +107,30 @@ public class DocumentModel extends BaseModel {
 
 	public void setDocClass(DocumentClass docClass) {
 		this.docClass = docClass;
+	}
+
+	public String getAccessLevel() {
+		return accessLevel;
+	}
+
+	public void setAccessLevel(String accessLevel) {
+		this.accessLevel = accessLevel;
+	}
+
+	public List<UserModel> getVips() {
+		return vips;
+	}
+
+	public void setVips(List<UserModel> vips) {
+		this.vips = vips;
+	}
+
+	public Boolean getIsPublic() {
+		return isPublic;
+	}
+
+	public void setIsPublic(Boolean isPublic) {
+		this.isPublic = isPublic;
 	}
 
 }

@@ -7,6 +7,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.util.Assert;
+
 @Entity
 @Table(name = "resource_group")
 public class ResourceGroup extends BaseEntity {
@@ -14,7 +16,22 @@ public class ResourceGroup extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
+
+	//default constructor
+	ResourceGroup() {
+		
+	}
 	
+	public ResourceGroup(String parentType, Integer parentId, Integer roleId) {
+		super();
+		Assert.notNull(parentType);
+		Assert.notNull(parentId);
+		Assert.notNull(roleId);
+		this.parentType = parentType;
+		this.parentId = parentId;
+		this.roleId = roleId;
+	}
+
 	@Column(name = "parent_type")
 	private String parentType;
 	

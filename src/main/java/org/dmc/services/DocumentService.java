@@ -11,6 +11,7 @@ import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,9 @@ public class DocumentService {
 
 	@Inject
 	private ParentDocumentService parentDocumentService;
+	
+	@Inject
+	private ResourceAccessService resourceAccessService;
 
 	private final String logTag = DocumentService.class.getName();
 
@@ -60,6 +64,7 @@ public class DocumentService {
 		
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
 		List<Document> results;
+		List<Document> returnList = new ArrayList<>();
 
 		if (recent != null) {
 			results = documentRepository.findAll(where, new PageRequest(0, recent, new Sort(new Order(Direction.DESC, "modified")))).getContent();
@@ -67,9 +72,26 @@ public class DocumentService {
 			results = documentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
 		}
 
-		if (results.size() == 0) return null;
+		//check for access
+		//superadmin's see everything
+		if(owner.getRoles().stream().anyMatch(r->r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
+			return mapper.mapToModel(results);
+		}
+		
+		//else check for their access
+		List<ResourceGroup> userResourceGroups = owner.getResourceGroups();
+		
+		for(Document doc : results) {
 
-		return mapper.mapToModel(results);
+			//check for access
+			if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, owner)) {
+				returnList.add(doc);
+			}
+		}
+		
+		if (returnList.size() == 0) return null;
+
+		return mapper.mapToModel(returnList);
 	}
 
 	public Long count(Map filterParams, String userEPPN) throws InvalidFilterParameterException {
@@ -110,7 +132,7 @@ public class DocumentService {
 		docEntity.setIsDeleted(false);
 		docEntity.setVerified(false);
 		docEntity.setModified(now);
-		docEntity.setResourceTypeId(1);
+		docEntity.setResourceType(ResourceType.DOCUMENT);
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
@@ -162,25 +184,25 @@ public class DocumentService {
 		document.setVerified(verified);
 
 		this.documentRepository.save(document);
-		this.parentDocumentService.delegateToParent(document);
+		this.parentDocumentService.updateParents(document);
 
 		return document;
 	}
 
-	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
+	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
-		List<ResourceGroup> userGroups = owner.getResourceGroups();
-		Integer ownerId = owner.getId();
+//		List<ResourceGroup> userGroups = owner.getResourceGroups();
+//		Integer ownerId = owner.getId();
 
 //		expressions.add(joinCondition());
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
 		expressions.add(docClassFilter(filterParams.get("docClass")));
-		if(userGroups != null) {
-			expressions.addAll(resourceGroupFilter(userGroups));
-		}
-		expressions.add(ownerFilter(ownerId));
+//		if(userGroups != null) {
+//			expressions.addAll(resourceGroupFilter(userGroups));
+//		}
+//		expressions.add(ownerFilter(ownerId));
 
 		return expressions;
 	}
@@ -219,10 +241,13 @@ public class DocumentService {
 	private Collection<Predicate> resourceGroupFilter(List<ResourceGroup> resourceGroups) {
 				
 		Collection<Predicate> returnValue = new ArrayList<>();
+		Collection<Integer> groupIds = new ArrayList<>();
 		
 		for (ResourceGroup group : resourceGroups) {
-			returnValue.add(QDocument.document.resourceGroups.any().id.eq(group.getId()));
+			groupIds.add(group.getId());
 		}
+		
+		returnValue.add(QDocument.document.resourceGroups.any().id.in(groupIds));
 		
 		return returnValue;
 	}
@@ -230,7 +255,7 @@ public class DocumentService {
 	private Predicate ownerFilter (Integer ownerId) {
 		if (ownerId == null) return null;
 		
-		return QDocument.document.owner().eq(userRepository.findOne(ownerId));
+		return QDocument.document.owner().id.eq(ownerId);
 	}
 	
 //	private Predicate joinCondition() {
@@ -303,7 +328,7 @@ public class DocumentService {
 		for (Document document : documents) {
 			try {
 				document.setIsDeleted(true);
-				this.parentDocumentService.delegateToParent(document);
+				this.parentDocumentService.updateParents(document);
 
 				logger.info("Removing old unverified document with owner id: {} and url: {}", document.getOwner().getId(), document.getDocumentUrl());
 
@@ -343,12 +368,11 @@ public class DocumentService {
 				logger.info("Refreshing document with owner id: {} and new url: {}", document.getOwner().getId(), document.getDocumentUrl());
 
 				this.documentRepository.save(document);
-				this.parentDocumentService.delegateToParent(document);
+				this.parentDocumentService.updateParents(document);
 
 			} catch (DMCServiceException ex) {
 				logger.error("Error occurred while refreshing document", ex);
 			}
 		}
 	}
-
 }
