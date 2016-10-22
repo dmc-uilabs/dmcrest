@@ -1,14 +1,12 @@
 package org.dmc.services;
 
-import static java.util.stream.Collectors.toList;
-
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
-import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.slf4j.Logger;
@@ -26,48 +24,21 @@ public class ResourceGroupService {
 	@Inject
 	private UserRepository userRepository;
 	
-	@Inject
-	private DocumentRepository documentRepository;
-	
 	static final Logger LOG = LoggerFactory.getLogger(ResourceGroupService.class);
 	
-	private Boolean hasAccess(Integer userId, String parentType, Integer parentId, String resourceType, Integer resourceId) {
-		List<ResourceGroup> resGroups;
-		List<ResourceGroup> userGroups = userRepository.findOne(userId).getResourceGroups();
-		
-		switch(resourceType.toUpperCase()) {
-		case "DOCUMENT":
-			resGroups = documentRepository.findOne(resourceId).getResourceGroups();
-			break;
-		default:
-			resGroups = null;
-			break;
-		}
-		
-		List<ResourceGroup> matchList = userGroups.stream().
-				filter(resGroups::contains).
-				collect(toList());
-		
-		if(matchList.isEmpty())
-			return false;
-		else
-			return true;
-	}
-
 	@Transactional
 	public void newCreate (String parentType, Integer parentId) {
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
+    	List<Integer> roleIds = Arrays.asList(2,4);
 
-		for(int i = 2; i < 5; i++) {
-			ResourceGroup group = new ResourceGroup();
-			group.setParentType(parentType);
-			group.setParentId(parentId);
-			group.setRoleId(i);
+		for(Integer roleId: roleIds) {
+			ResourceGroup group = new ResourceGroup(parentType, parentId, roleId);
 			resourceGroupRepository.save(group);
 		}
 	}
 	
+	@Transactional
 	public User removeResourceGroup(User user, String parentType, Integer parentId, Integer roleId) {
 		Assert.notNull(user);
 		Assert.notNull(parentType);

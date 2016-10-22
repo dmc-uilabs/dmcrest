@@ -20,8 +20,8 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import org.dmc.services.ParentDocumentService;
 import org.hibernate.annotations.Where;
+import org.hibernate.annotations.WhereJoinTable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -67,8 +67,9 @@ public class Document extends BaseEntity {
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
 	
-	@Column(name = "resource_type_id")
-	private Integer resourceTypeId;
+	@Column(name = "resource_type")
+	@Enumerated(EnumType.STRING)
+	private ResourceType resourceType;
 	
 	@Column(name = "doc_class")
 	@Enumerated(EnumType.STRING)
@@ -77,13 +78,22 @@ public class Document extends BaseEntity {
 	@Column(name = "verified")
 	private Boolean verified = false;
 	
-	@ManyToMany
+	@ManyToMany (fetch = FetchType.EAGER)
 	@JoinTable(name = "resource_in_resource_group",
 				joinColumns = @JoinColumn(name = "resource_id"),
 				inverseJoinColumns = @JoinColumn(name = "resource_group_id"))
-	@Where(clause = "resource_type_id = 1")
+	@WhereJoinTable(clause = "resource_type = 'DOCUMENT'")
 	@JsonIgnore
 	private List<ResourceGroup> resourceGroups;
+	
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "document_user",
+				joinColumns = @JoinColumn(name = "document_id"),
+				inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private List<User> vips;
+	
+	@Column(name = "is_public")
+	private Boolean isPublic;
 
 	public Integer getId() {
 		return id;
@@ -165,12 +175,12 @@ public class Document extends BaseEntity {
 		this.isDeleted = isDeleted;
 	}
 
-	public Integer getResourceTypeId() {
-		return resourceTypeId;
+	public ResourceType getResourceType() {
+		return resourceType;
 	}
 
-	public void setResourceTypeId(Integer resourceTypeId) {
-		this.resourceTypeId = resourceTypeId;
+	public void setResourceType(ResourceType resourceType) {
+		this.resourceType = resourceType;
 	}
 
 	public DocumentClass getDocClass() {
@@ -197,6 +207,22 @@ public class Document extends BaseEntity {
 		this.resourceGroups = resourceGroups;
 	}
 
+	public List<User> getVips() {
+		return vips;
+	}
+
+	public void setVips(List<User> vips) {
+		this.vips = vips;
+	}
+
+	public Boolean getIsPublic() {
+		return isPublic;
+	}
+
+	public void setIsPublic(Boolean isPublic) {
+		this.isPublic = isPublic;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -211,8 +237,8 @@ public class Document extends BaseEntity {
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
 		result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
 		result = prime * result + ((parentType == null) ? 0 : parentType.hashCode());
-		result = prime * result + ((resourceGroups == null) ? 0 : resourceGroups.hashCode());
-		result = prime * result + ((resourceTypeId == null) ? 0 : resourceTypeId.hashCode());
+//		result = prime * result + ((resourceGroups == null) ? 0 : resourceGroups.hashCode());
+		result = prime * result + ((resourceType == null) ? 0 : resourceType.hashCode());
 		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
 		result = prime * result + ((verified == null) ? 0 : verified.hashCode());
 		return result;
@@ -276,10 +302,10 @@ public class Document extends BaseEntity {
 				return false;
 		} else if (!resourceGroups.equals(other.resourceGroups))
 			return false;
-		if (resourceTypeId == null) {
-			if (other.resourceTypeId != null)
+		if (resourceType == null) {
+			if (other.resourceType != null)
 				return false;
-		} else if (!resourceTypeId.equals(other.resourceTypeId))
+		} else if (!resourceType.equals(other.resourceType))
 			return false;
 		if (tags == null) {
 			if (other.tags != null)

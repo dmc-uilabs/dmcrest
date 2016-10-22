@@ -36,7 +36,7 @@ public class ParentDocumentService {
 				if (DocumentClass.IMAGE.equals(document.getDocClass())) {
 					updateUserImage(document);
 				}
-
+				break;
 		}
 	}
 
