@@ -1,9 +1,20 @@
 package org.dmc.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
 import org.dmc.services.discussions.IndividualDiscussion;
@@ -17,28 +28,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 //
 public class ProjectIT extends BaseIT {
 
+    private static final String PROJECTS_RESOURCE = "/projects";
+    private static final String PROJECTS_CREATE_RESOURCE = "/projects/create";
+    private static final String PROJECTS_OLDCREATE_RESOURCE = "/projects/oldcreate";
+    private static final String PROJECT_BY_ID_RESOURCE = "/projects/{projectID}";
     private static final String PROJECT_DISCUSSIONS_RESOURCE = "/projects/{projectID}/all-discussions";
     private static final String PROJECT_INDIVIDUAL_DISCUSSION_RESOURCE = "/projects/{projectID}/individual-discussion";
+    private static final String PROJECT_MEMBERS_RESOURCE = "/projects/{projectID}/projects_members";
     private static final String PROJECT_UPDATE_RESOURCE = "/projects/{id}";
     private static final String PROJECT_GET_ALL_RESOURCE = "/projects/all";
 
@@ -46,18 +50,16 @@ public class ProjectIT extends BaseIT {
     private static final String PROJECT_TAGS = "/projects_tags";
     private static final String PROJECT_DELETE_TAG = "/projects_tags/{tagId}";
     private static final String PROJECT_FOLLOWING_DISCUSSION = "/projects/{projectId}/following_discussions";
-
-    private static final String adminUser = "fforgeadmin";
+    private static final String FOLLOW_DISCUSSIONS = "/follow_discussions";
+    private static final String FOLLOW_DISCUSSIONS_BY_ID = "/follow_discussions/{discussion_id}";
+    private static final String DISCUSSIONS_CREATE = "/discussions/create";
     private final String logTag = ProjectIT.class.getName();
-    private DiscussionIT discussionIT = new DiscussionIT();
     private Integer createdId = null;
-    
+
     private Integer createdTagId = null;
 
-    private String projectId = "1";
-
     private String knownEPPN;
-    
+
     @Before
     public void before() {
         if (knownEPPN == null) {
@@ -68,27 +70,27 @@ public class ProjectIT extends BaseIT {
     @Test
     public void testProject6() {
         ServiceLogger.log(logTag, "starting testProject6");
-        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6").then()
+        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get(PROJECT_BY_ID_RESOURCE,"6").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
     }
-    
+
     @Test
     public void testProject5() {
         ServiceLogger.log(logTag, "starting testProject5 (but really still 6???)");
 
         // TODO: need to update to another demo project
-        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6").then()
+        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get(PROJECT_BY_ID_RESOURCE, "6").then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectSchema.json"));
     }
-    
+
     // this tests could do check more about what tests are returned
     @Test
     public void testProjectList() {
         ServiceLogger.log(logTag, "starting testProjectList");
-        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects").then()
+        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get(PROJECTS_RESOURCE).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
     }
-    
+
     // this tests could do check more about what tests are returned
     @Test
     public void testProjectListAll() {
@@ -97,7 +99,7 @@ public class ProjectIT extends BaseIT {
                 .expect().statusCode(OK.value()).when().get(PROJECT_GET_ALL_RESOURCE).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
     }
-    
+
     // see as an example to configure the object
     // https://github.com/jayway/rest-assured/wiki/Usage#serialization
     @Test
@@ -105,7 +107,7 @@ public class ProjectIT extends BaseIT {
         ServiceLogger.log(logTag, "starting testProjectCreateJsonObject");
         this.createdId = TestProjectUtil.createProject(userEPPN);
     }
-    
+
     @Test
     public void testProjectCreateFailOnDuplicateJson() throws IOException {
         ServiceLogger.log(logTag, "starting testProjectCreateFailOnDuplicateJson");
@@ -121,25 +123,25 @@ public class ProjectIT extends BaseIT {
 
         // first time should work
         given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
-                .statusCode(OK.value()).when().post("/projects/create").then()
+                .statusCode(OK.value()).when().post(PROJECTS_CREATE_RESOURCE).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
 
         ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicateJson: try to create again");
 
         // second time should fail, because unixname is a duplicate
         given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN).body(json).expect()
-                .statusCode(OK.value()).when().post("/projects/create").then().log().all()
+                .statusCode(OK.value()).when().post(PROJECTS_CREATE_RESOURCE).then().log().all()
                 .body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
 
     }
-    
+
     @Test
     public void testProjectTypeChecks() {
         ServiceLogger.log(logTag, "starting testProjectTypeChecks");
         assertEquals(1, Project.IsPublic("Public"));
         assertEquals(0, Project.IsPublic("PRIVATE"));
     }
-    
+
     @Test
     public void testAllProjectDiscussions() {
         ServiceLogger.log(logTag, "starting testAllProjectDiscussions");
@@ -150,9 +152,9 @@ public class ProjectIT extends BaseIT {
         if (this.createdId != null) {
             Integer discussionId = createDiscussion(this.createdId);
             if (discussionId != null) {
-                JsonNode discussions = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN)
-                        .expect().statusCode(200).when().get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId)
-                        .as(JsonNode.class);
+                JsonNode discussions = given().header("Content-type", APPLICATION_JSON_VALUE)
+                        .header("AJP_eppn", knownEPPN).expect().statusCode(OK.value()).when()
+                        .get(PROJECT_DISCUSSIONS_RESOURCE, this.createdId).as(JsonNode.class);
 
                 try {
                     final ArrayList<Discussion> discussionList = mapper.readValue(mapper.treeAsTokens(discussions),
@@ -172,7 +174,6 @@ public class ProjectIT extends BaseIT {
             }
         }
     }
-    
 
     private Integer createDiscussion(Integer projectId) {
         String projId = (projectId != null) ? projectId.toString() : "123";
@@ -183,21 +184,11 @@ public class ProjectIT extends BaseIT {
         json.put("createdAt", 1232000);
         json.put("accountId", "123");
         json.put("projectId", projId);
-        
-        return given()
-                .header("Content-type", APPLICATION_JSON_VALUE)
-                .header("AJP_eppn", knownEPPN)
-                .body(json.toString())
-                .expect()
-                .statusCode(200)
-                .when()
-                .post("/discussions/create")
-                .then()
-                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-                .extract()
-                .path("id");
-    }
 
+        return given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN)
+                .body(json.toString()).expect().statusCode(OK.value()).when().post(DISCUSSIONS_CREATE).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+    }
 
     @Test
     public void testGetProject1Tags() {
@@ -209,8 +200,9 @@ public class ProjectIT extends BaseIT {
                 .get(PROJECT_GET_TAGS_FOR_PROJECT, projectId).as(JsonNode.class);
 
         try {
-            final ArrayList<ProjectTag> tags = mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ProjectTag>>() {
-            });
+            final ArrayList<ProjectTag> tags = mapper.readValue(mapper.treeAsTokens(jsonSpecs),
+                    new TypeReference<ArrayList<ProjectTag>>() {
+                    });
             // assert that we've received tags for the requested project ID
             assertTrue("no tags found for project " + projectId, tags.size() > 0);
             for (ProjectTag tag : tags) {
@@ -222,7 +214,7 @@ public class ProjectIT extends BaseIT {
             throw new DMCServiceException(DMCError.IncorrectType, "unable to parse tag array list: " + e.getMessage());
         }
     }
-    
+
     @Test
     public void testGetAllTags() {
         ServiceLogger.log(logTag, "starting testGetAllTags");
@@ -250,20 +242,21 @@ public class ProjectIT extends BaseIT {
         final JsonNode jsonSpecs = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
                 .get(PROJECT_TAGS).as(JsonNode.class);
         try {
-            final ArrayList<ProjectTag> tags = mapper.readValue(mapper.treeAsTokens(jsonSpecs), new TypeReference<ArrayList<ProjectTag>>() {
-            });
+            final ArrayList<ProjectTag> tags = mapper.readValue(mapper.treeAsTokens(jsonSpecs),
+                    new TypeReference<ArrayList<ProjectTag>>() {
+                    });
             return tags;
         } catch (Exception e) {
             ServiceLogger.log(logTag, e.getMessage());
             throw new DMCServiceException(DMCError.IncorrectType, "error parsing tags array list: " + e.getMessage());
         }
     }
-    
+
     @Test
     public void testProject6Members() {
         ServiceLogger.log(logTag, "starting testProject6Members");
-        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6/projects_members").then()
-                .log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get(PROJECT_MEMBERS_RESOURCE, "6")
+                .then().log().all().body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
 
     }
 
@@ -274,7 +267,8 @@ public class ProjectIT extends BaseIT {
     public void testProjectPost_ProjectTag() {
         ServiceLogger.log(logTag, "starting testProjectPost_ProjectTag");
 
-        final String tagName = "Test-tag-name " + UUID.randomUUID().toString().substring(0, 24);;
+        final String tagName = "Test-tag-name " + UUID.randomUUID().toString().substring(0, 24);
+        ;
         this.createdId = TestProjectUtil.createProject(userEPPN);
 
         if (this.createdId != null) {
@@ -294,8 +288,8 @@ public class ProjectIT extends BaseIT {
             }
 
             final ProjectTag tag = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", userEPPN)
-                    .body(postedProjectTagsJSONString).expect().statusCode(OK.value()).when()
-                    .post(PROJECT_TAGS).as(ProjectTag.class);
+                    .body(postedProjectTagsJSONString).expect().statusCode(OK.value()).when().post(PROJECT_TAGS)
+                    .as(ProjectTag.class);
             createdTagId = Integer.parseInt(tag.getId());
             // assert some attributes on the created tag
             assertTrue("Created Project Tag name is as requested", tag.getName().equals(tagName));
@@ -303,7 +297,7 @@ public class ProjectIT extends BaseIT {
         }
 
     }
-    
+
     /**
      * test case for DELETE /projects_tags/{projectTagid}
      */
@@ -314,7 +308,8 @@ public class ProjectIT extends BaseIT {
         testProjectPost_ProjectTag();
         final int tagCountBeforeDelete = getAllTagsHelper().size();
         final int deletedTagId = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
-                .delete(PROJECT_DELETE_TAG, createdTagId).then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
+                .delete(PROJECT_DELETE_TAG, createdTagId).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
         final int tagCountAfterDelete = getAllTagsHelper().size();
         assertEquals(createdTagId, new Integer(deletedTagId));
         assertTrue("tag count should change by 1 after deleting", tagCountBeforeDelete == tagCountAfterDelete + 1);
@@ -322,50 +317,58 @@ public class ProjectIT extends BaseIT {
 
     /**
      * test case for GET /projects/{projectID}/following_discussions
-     */    
-    
-    private String createFollowDiscussionForProject(){
-    	FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
-		ObjectMapper mapper = new ObjectMapper();
-		String postedFollowDiscussionsJSONString = null;
+     */
 
-		String accountId = "550";
-		String individualDiscussionId = "3";
-		String userEPPN = "joeengineer";
+    private String createFollowDiscussionForProject() {
+        FollowingIndividualDiscussion followToPost = new FollowingIndividualDiscussion();
+        ObjectMapper mapper = new ObjectMapper();
+        String postedFollowDiscussionsJSONString = null;
 
-		followToPost.setIndividualDiscussionId(individualDiscussionId);
-		followToPost.setAccountId(accountId);
+        String accountId = "550";
+        String individualDiscussionId = "3";
+        String userEPPN = "joeengineer";
 
-		try {
-			postedFollowDiscussionsJSONString = mapper.writeValueAsString(followToPost);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+        followToPost.setIndividualDiscussionId(individualDiscussionId);
+        followToPost.setAccountId(accountId);
 
-		FollowingIndividualDiscussion postedFollow = given().header("Content-type", "application/json").header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString)
-				.expect().statusCode(HttpStatus.CREATED.value()).when().post("/follow_discussions").as(FollowingIndividualDiscussion.class);
-		return postedFollow.getId();
+        try {
+            postedFollowDiscussionsJSONString = mapper.writeValueAsString(followToPost);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        FollowingIndividualDiscussion postedFollow = given().header("Content-type", APPLICATION_JSON_VALUE)
+                .header("AJP_eppn", userEPPN).body(postedFollowDiscussionsJSONString).expect()
+                .statusCode(HttpStatus.CREATED.value()).when().post(FOLLOW_DISCUSSIONS)
+                .as(FollowingIndividualDiscussion.class);
+        return postedFollow.getId();
     }
-    
-	@Test
-	public void testProject_FollowingDiscussion() {
-		ServiceLogger.log(logTag, "starting testProject_FollowingDiscussion");
-		String followId = createFollowDiscussionForProject();
 
-		List<IndividualDiscussion> results1 = Arrays.asList(given().header("Content-type", "application/json")
-				.header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
-				.get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
+    @Test
+    public void testProject_FollowingDiscussion() {
+        ServiceLogger.log(logTag, "starting testProject_FollowingDiscussion");
 
-		assertTrue(results1.size() == 1);
-		
-		given().header("AJP_eppn", "joeengineer").expect().statusCode(HttpStatus.OK.value()).when().delete("/follow_discussions/" + Integer.parseInt(followId));
+        List<IndividualDiscussion> resultsPrecondition = Arrays.asList(given().header("Content-type", APPLICATION_JSON_VALUE)
+                .header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
+                .get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
+        assertEquals("expected empty list of following discussions for project 2 by joeengineer at beginning of test", 0, resultsPrecondition.size());
 
-		List<IndividualDiscussion> results = Arrays.asList(given().header("Content-type", "application/json")
-				.header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
-				.get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
-		assertTrue(results.size() == 0);
+        String followId = createFollowDiscussionForProject();
 
-	}
+        List<IndividualDiscussion> results1 = Arrays.asList(given().header("Content-type", APPLICATION_JSON_VALUE)
+                .header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
+                .get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
+        assertEquals("expected list with one new following discussions for project 2 by joeengineer", 1, results1.size());
+
+        given().header("AJP_eppn", "joeengineer").expect().statusCode(HttpStatus.OK.value()).when()
+                .delete(FOLLOW_DISCUSSIONS_BY_ID, followId);
+
+        List<IndividualDiscussion> results = Arrays.asList(given().header("Content-type", APPLICATION_JSON_VALUE)
+                .header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when()
+                .get(PROJECT_FOLLOWING_DISCUSSION, 2).as(IndividualDiscussion[].class));
+        assertEquals("expected empty list of following discussions for project 2 by joeengineer", 0, results.size());
+
+    }
 
     /**
      * PATCH /projects/{projectId}
@@ -381,8 +384,8 @@ public class ProjectIT extends BaseIT {
             json.put("description", "test project description update");
             json.put("dueDate", 0);
 
-            final int updatedId = given().header("Content-type", "application/json").header("AJP_eppn", knownEPPN)
-                    .body(json.toString()).expect().statusCode(200).when()
+            final int updatedId = given().header("Content-type", APPLICATION_JSON_VALUE).header("AJP_eppn", knownEPPN)
+                    .body(json.toString()).expect().statusCode(OK.value()).when()
                     .patch(PROJECT_UPDATE_RESOURCE, this.createdId).then()
                     .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json")).extract().path("id");
 

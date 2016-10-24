@@ -44,6 +44,10 @@ public class ProjectMembersIT extends BaseIT {
     private static final String MEMBER_RESOURCE_BY_ID = "/projects_members/{requestId}";
     private static final String SAVEMEMBER_RESOURCE_BY_ID = "/saveprojects_members/{requestId}";
     private static final String MEMBERS_RESOURCE = "/members";
+    private static final String PROJECT_MEMBERS_BY_PROJECT = "/projects/{projectId}/projects_members";
+    private static final String PROJECT_JOIN_REQUESTS = "/projects_join_requests";
+    private static final String PROJECT_JOIN_REQUESTS_BY_PROJECT = "/projects/{projectId}/projects_join_requests";
+    private static final String PROJECT_JOIN_REQUESTS_BY_PROFILE = "/profiles/{profileId}/projects_join_requests";
 
     private static final String adminUser = "fforgeadmin";
     private final static String LOGTAG = ProjectMembersIT.class.getName();
@@ -61,8 +65,23 @@ public class ProjectMembersIT extends BaseIT {
     @Test
     public void testProject6Members() {
         ServiceLogger.log(LOGTAG, "starting testProject6Members");
-        given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get("/projects/6/projects_members").then()
+        final ValidatableResponse responseAsAdmin = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when().get(PROJECT_MEMBERS_BY_PROJECT, 6).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+        // based on data loaded in gforge.psql
+        final JSONArray jsonArrayAsAdmin = new JSONArray(responseAsAdmin.extract().asString());
+        assertTrue("Expecting at least two results for forgeadmin since we set up that and use it widely in testing, but found fewer", 2 <= jsonArrayAsAdmin.length());
+
+        final ValidatableResponse responseAsMember = given().header("AJP_eppn", "testUser").expect().statusCode(OK.value()).when().get(PROJECT_MEMBERS_BY_PROJECT, 6).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+        // based on data loaded in gforge.psql
+        final JSONArray jsonArrayAsMember = new JSONArray(responseAsMember.extract().asString());
+        assertTrue("Expecting at least two results for forgeadmin since we set up that and use it widely in testing, but found fewer", 2 <= jsonArrayAsMember.length());
+
+        final ValidatableResponse responseAsNonMember = given().header("AJP_eppn", "joeengineer").expect().statusCode(OK.value()).when().get(PROJECT_MEMBERS_BY_PROJECT, 6).then()
+                .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
+        // based on data loaded in gforge.psql
+        final JSONArray jsonArrayAsNonMember = new JSONArray(responseAsNonMember.extract().asString());
+        assertTrue("Expecting at least two results for forgeadmin since we set up that and use it widely in testing, but found fewer", 0 == jsonArrayAsNonMember.length());
     }
 
     @Test
@@ -146,7 +165,7 @@ public class ProjectMembersIT extends BaseIT {
     public void testProjectJoinRequests() {
         ServiceLogger.log(LOGTAG, "starting testProjectJoinRequests");
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
-                .get("/projects_join_requests").then()
+                .get(PROJECT_JOIN_REQUESTS).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 
         // based on data loaded in gforge.psql
@@ -190,7 +209,7 @@ public class ProjectMembersIT extends BaseIT {
     public void testProjectJoinRequestsWithParamList() {
         ServiceLogger.log(LOGTAG, "starting testProjectJoinRequestsWithParamList");
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).param("projectId", "4,6")
-                .param("profileId", "145").expect().statusCode(OK.value()).when().get("/projects_join_requests").then()
+                .param("profileId", "145").expect().statusCode(OK.value()).when().get(PROJECT_JOIN_REQUESTS).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 
         ServiceLogger.log(LOGTAG, "testProjectJoinRequests " + response.extract().asString());
@@ -206,7 +225,7 @@ public class ProjectMembersIT extends BaseIT {
     public void testProjectJoinRequestsProject6() {
         ServiceLogger.log(LOGTAG, "starting testProjectJoinRequestsProject6");
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
-                .get("/projects/6/projects_join_requests").then()
+                .get(PROJECT_JOIN_REQUESTS_BY_PROJECT, 6).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 
         ServiceLogger.log(LOGTAG, "testProjectJoinRequestsProject6" + response.extract().asString());
@@ -252,7 +271,7 @@ public class ProjectMembersIT extends BaseIT {
     public void testProjectJoinRequestsProfile111() {
         ServiceLogger.log(LOGTAG, "starting testProjectJoinRequestsProfile111");
         final ValidatableResponse response = given().header("AJP_eppn", userEPPN).expect().statusCode(OK.value()).when()
-                .get("/profiles/111/projects_join_requests").then()
+                .get(PROJECT_JOIN_REQUESTS_BY_PROFILE, 111).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectJoinRequestListSchema.json"));
 
         ServiceLogger.log(LOGTAG, "testProjectJoinRequestsProfile111" + response.extract().asString());
@@ -753,7 +772,7 @@ public class ProjectMembersIT extends BaseIT {
     public void testGetMembersMultipleProjects() {
         ServiceLogger.log(LOGTAG, "starting testGetMembersMultipleProjects");
         given().header("AJP_eppn", userEPPN).param("projectId", 6).param("projectId", 3)
-                .expect().statusCode(OK.value()).when().get("/projects_members").then()
+                .expect().statusCode(OK.value()).when().get(PROJECT_MEMBERS_RESOURCE).then()
                 .body(matchesJsonSchemaInClasspath("Schemas/projectMemberListSchema.json"));
     }
 
