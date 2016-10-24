@@ -10,6 +10,7 @@ import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,14 +32,15 @@ public class DocumentController {
 	public DocumentModel getDocument(@PathVariable("id") Integer id) {
 		return documentService.findOne(id);
 	}
-
-	@RequestMapping(value = "/documents", params = {"recent"}, method = RequestMethod.GET)
-	public PagedResponse getDocuments(@RequestParam("recent") Integer recent,
-	                                  @RequestParam(value = "page", defaultValue = "0") Integer page,
-	                                  @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-	                                  @RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
-		List<? extends BaseModel> results = documentService.filter(params, recent, page, pageSize);
-		Long count = documentService.count(params);
+	
+	@RequestMapping(value="/documents", params = {"recent"}, method = RequestMethod.GET)
+	public PagedResponse getDocuments (@RequestParam("recent") Integer recent, 
+										@RequestParam(value = "page", defaultValue = "0") Integer page, 
+										@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+										@RequestHeader(value = "AJP_eppn") String userEPPN,
+										@RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
+		List<? extends BaseModel> results = documentService.filter(params, recent, page, pageSize, userEPPN);
+		Long count = documentService.count(params, userEPPN);
 		return new PagedResponse(count, results);
 	}
 
