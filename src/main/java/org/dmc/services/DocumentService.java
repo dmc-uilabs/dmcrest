@@ -25,7 +25,9 @@ import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.repositories.DirectoryRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
+import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,18 +47,24 @@ import com.mysema.query.types.Predicate;
 public class DocumentService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
-
+	
 	@Inject
 	private DocumentRepository documentRepository;
 
 	@Inject
 	private DocumentTagRepository documentTagRepository;
+	
+	@Inject
+	private UserRepository userRepository;
 
 	@Inject
 	private MapperFactory mapperFactory;
 
 	@Inject
 	private ParentDocumentService parentDocumentService;
+	
+	@Inject
+	private ResourceAccessService resourceAccessService;
 
 	@Inject
 	private DirectoryRepository directoryRepository;
@@ -65,10 +73,13 @@ public class DocumentService {
 
 	private Verification verify = new Verification();
 
-	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException, DMCServiceException {
+	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+		User owner = userRepository.findByUsername(userEPPN);
+		
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
 		List<Document> results;
+		List<Document> returnList = new ArrayList<>();
 
 		if (recent != null) {
 			results = documentRepository.findAll(where, new PageRequest(0, recent, new Sort(new Order(Direction.DESC, "modified")))).getContent();
@@ -76,13 +87,31 @@ public class DocumentService {
 			results = documentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
 		}
 
-		if (results.size() == 0) return null;
+		//check for access
+		//superadmin's see everything
+		if(owner.getRoles().stream().anyMatch(r->r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
+			return mapper.mapToModel(results);
+		}
+		
+		//else check for their access
+		List<ResourceGroup> userResourceGroups = owner.getResourceGroups();
+		
+		for(Document doc : results) {
 
-		return mapper.mapToModel(results);
+			//check for access
+			if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, owner)) {
+				returnList.add(doc);
+			}
+		}
+		
+		if (returnList.size() == 0) return null;
+
+		return mapper.mapToModel(returnList);
 	}
 
-	public Long count(Map filterParams) throws InvalidFilterParameterException {
-		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+	public Long count(Map filterParams, String userEPPN) throws InvalidFilterParameterException {
+		User owner = userRepository.findByUsername(userEPPN);
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
 		return documentRepository.count(where);
 	}
 
@@ -118,6 +147,7 @@ public class DocumentService {
 		docEntity.setIsDeleted(false);
 		docEntity.setVerified(false);
 		docEntity.setModified(now);
+		docEntity.setResourceType(ResourceType.DOCUMENT);
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
@@ -169,14 +199,14 @@ public class DocumentService {
 		document.setVerified(verified);
 
 		this.documentRepository.save(document);
-		this.parentDocumentService.delegateToParent(document);
+		this.parentDocumentService.updateParents(document);
 
 		return document;
 	}
 
-	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
+	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
-
+		
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
@@ -245,6 +275,20 @@ public class DocumentService {
 		}
 		return returnValue;
 	}
+	
+	private Collection<Predicate> resourceGroupFilter(List<ResourceGroup> resourceGroups) {
+				
+		Collection<Predicate> returnValue = new ArrayList<>();
+		Collection<Integer> groupIds = new ArrayList<>();
+		
+		for (ResourceGroup group : resourceGroups) {
+			groupIds.add(group.getId());
+		}
+		
+		returnValue.add(QDocument.document.resourceGroups.any().id.in(groupIds));
+		
+		return returnValue;
+	}
 
 	private Predicate parentTypeFilter(String parentType) throws InvalidFilterParameterException {
 		if (parentType == null) return null;
@@ -296,6 +340,7 @@ public class DocumentService {
 	@Scheduled(cron = "0 1 1 * * ?")
 	@Transactional(rollbackFor = DMCServiceException.class)
 	protected void removeUnverifiedDocuments() {
+		logger.info("Removing unverified document records.");
 		LocalDateTime lastWeek = LocalDate.now().atStartOfDay().minusWeeks(1);
 
 		List<Document> documents = this.documentRepository
@@ -304,7 +349,7 @@ public class DocumentService {
 		for (Document document : documents) {
 			try {
 				document.setIsDeleted(true);
-				this.parentDocumentService.delegateToParent(document);
+				this.parentDocumentService.updateParents(document);
 
 				logger.info("Removing old unverified document with owner id: {} and url: {}", document.getOwner().getId(), document.getDocumentUrl());
 
@@ -326,6 +371,7 @@ public class DocumentService {
 	@Scheduled(cron = "0 1 1 * * ?")
 	@Transactional(rollbackFor = DMCServiceException.class)
 	protected void refreshDocuments() {
+		logger.info("Refreshing documents in AWS.");
 		LocalDateTime future = LocalDate.now().atStartOfDay().plusDays(2);
 		List<Document> documents = this.documentRepository
 				.findAllByVerifiedIsTrueAndIsDeletedIsFalseAndExpiresBefore(Timestamp.valueOf(future));
@@ -343,12 +389,11 @@ public class DocumentService {
 				logger.info("Refreshing document with owner id: {} and new url: {}", document.getOwner().getId(), document.getDocumentUrl());
 
 				this.documentRepository.save(document);
-				this.parentDocumentService.delegateToParent(document);
+				this.parentDocumentService.updateParents(document);
 
 			} catch (DMCServiceException ex) {
 				logger.error("Error occurred while refreshing document", ex);
 			}
 		}
 	}
-
 }

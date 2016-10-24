@@ -1,5 +1,20 @@
 package org.dmc.services.data.entities;
 
+import org.hibernate.annotations.Where;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -20,14 +35,18 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Where;
+import org.hibernate.annotations.WhereJoinTable;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name="document")
+@Table(name = "document")
 @Where(clause = "is_deleted='false'")
-public class Document extends BaseEntity {
-
+public class Document extends ResourceEntity {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Integer id;
 
 	@Column(name = "name")
@@ -47,10 +66,10 @@ public class Document extends BaseEntity {
 	@JoinColumn(name = "owner_id")
 	private User owner;
 
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "document_tag_join",
-			   joinColumns = @JoinColumn(name="document_id"),
-			   inverseJoinColumns = @JoinColumn(name="document_tag_id"))
+			joinColumns = @JoinColumn(name = "document_id", referencedColumnName = "id"),
+			inverseJoinColumns = @JoinColumn(name = "document_tag_id", referencedColumnName = "id"))
 	private List<DocumentTag> tags;
 
 	@Column(name = "modified")
@@ -65,13 +84,34 @@ public class Document extends BaseEntity {
 	@Column(name = "access_level")
 	//TODO: create enum for site-wide accessLevel
 	private String accessLevel;
-
+	
+	@Column(name = "resource_type")
+	@Enumerated(EnumType.STRING)
+	private ResourceType resourceType;
+	
 	@Column(name = "doc_class")
 	@Enumerated(EnumType.STRING)
 	private DocumentClass docClass;
 
 	@Column(name = "verified")
 	private Boolean verified = false;
+	
+	@ManyToMany (fetch = FetchType.EAGER)
+	@JoinTable(name = "resource_in_resource_group",
+				joinColumns = @JoinColumn(name = "resource_id"),
+				inverseJoinColumns = @JoinColumn(name = "resource_group_id"))
+	@WhereJoinTable(clause = "resource_type = 'DOCUMENT'")
+	@JsonIgnore
+	private List<ResourceGroup> resourceGroups;
+	
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "document_user",
+				joinColumns = @JoinColumn(name = "document_id"),
+				inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private List<User> vips;
+	
+	@Column(name = "is_public")
+	private Boolean isPublic;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "directory_id")
@@ -157,12 +197,12 @@ public class Document extends BaseEntity {
 		this.isDeleted = isDeleted;
 	}
 
-	public String getAccessLevel() {
-		return accessLevel;
+	public ResourceType getResourceType() {
+		return resourceType;
 	}
 
-	public void setAccessLevel(String accessLevel) {
-		this.accessLevel = accessLevel;
+	public void setResourceType(ResourceType resourceType) {
+		this.resourceType = resourceType;
 	}
 
 	public DocumentClass getDocClass() {
@@ -189,11 +229,34 @@ public class Document extends BaseEntity {
 		this.directory = directory;
 	}
 
+	public List<ResourceGroup> getResourceGroups() {
+		return resourceGroups;
+	}
+
+	public void setResourceGroups(List<ResourceGroup> resourceGroups) {
+		this.resourceGroups = resourceGroups;
+	}
+
+	public List<User> getVips() {
+		return vips;
+	}
+
+	public void setVips(List<User> vips) {
+		this.vips = vips;
+	}
+
+	public Boolean getIsPublic() {
+		return isPublic;
+	}
+
+	public void setIsPublic(Boolean isPublic) {
+		this.isPublic = isPublic;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((accessLevel == null) ? 0 : accessLevel.hashCode());
 		result = prime * result + ((docClass == null) ? 0 : docClass.hashCode());
 		result = prime * result + ((documentName == null) ? 0 : documentName.hashCode());
 		result = prime * result + ((documentUrl == null) ? 0 : documentUrl.hashCode());
@@ -204,6 +267,8 @@ public class Document extends BaseEntity {
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
 		result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
 		result = prime * result + ((parentType == null) ? 0 : parentType.hashCode());
+//		result = prime * result + ((resourceGroups == null) ? 0 : resourceGroups.hashCode());
+		result = prime * result + ((resourceType == null) ? 0 : resourceType.hashCode());
 		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
 		result = prime * result + ((verified == null) ? 0 : verified.hashCode());
 		return result;
@@ -218,15 +283,7 @@ public class Document extends BaseEntity {
 		if (getClass() != obj.getClass())
 			return false;
 		Document other = (Document) obj;
-		if (accessLevel == null) {
-			if (other.accessLevel != null)
-				return false;
-		} else if (!accessLevel.equals(other.accessLevel))
-			return false;
-		if (docClass == null) {
-			if (other.docClass != null)
-				return false;
-		} else if (!docClass.equals(other.docClass))
+		if (docClass != other.docClass)
 			return false;
 		if (documentName == null) {
 			if (other.documentName != null)
@@ -270,6 +327,16 @@ public class Document extends BaseEntity {
 			return false;
 		if (parentType != other.parentType)
 			return false;
+		if (resourceGroups == null) {
+			if (other.resourceGroups != null)
+				return false;
+		} else if (!resourceGroups.equals(other.resourceGroups))
+			return false;
+		if (resourceType == null) {
+			if (other.resourceType != null)
+				return false;
+		} else if (!resourceType.equals(other.resourceType))
+			return false;
 		if (tags == null) {
 			if (other.tags != null)
 				return false;
@@ -282,6 +349,4 @@ public class Document extends BaseEntity {
 			return false;
 		return true;
 	}
-
-
 }

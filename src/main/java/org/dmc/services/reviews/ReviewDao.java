@@ -1,6 +1,7 @@
 package org.dmc.services.reviews;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -20,6 +21,7 @@ import org.dmc.services.utils.SQLUtils;
 import org.dmc.services.reviews.Review;
 import org.dmc.services.company.CompanyReview;
 import org.dmc.services.company.CompanyUserUtil;
+import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.profile.ProfileReview;
 import org.dmc.services.products.ProductReview;
 
@@ -180,6 +182,96 @@ public class ReviewDao<T extends Review> {
         return reviews;
     }
 
+    
+	public <T extends Review> T getReviewByReviewId(String reviewId, String userEPPN, Class<T> entityClass)
+			throws DMCServiceException {
+		T r = null;
+
+		int user_id = -99999;
+		try {
+	          user_id = UserDao.getUserID(userEPPN);
+	      } catch (SQLException sqlEX) {
+	          throw new DMCServiceException(DMCError.Generic, "Unknow user " + userEPPN);
+	      }
+		try {
+
+			String whereClause = " WHERE r.id = ? AND r.user_id = ?";
+			int reviewIdVal = 0;
+			reviewIdVal = Integer.parseInt(reviewId.toString());
+			String query = "Select r.id, r." + tablePrefix
+					+ "_id, u.realname as name, r.user_id as accountId, review_timestamp , r.review as comment, r.rating as rating, count(RR.*) AS count_helpfulOrNot "
+					+ "FROM " + tablePrefix + "_review_new r " + "LEFT JOIN " + tablePrefix + "  o ON  r." + tablePrefix
+					+ "_id  = o." + extraFieldName + "_id " + "LEFT JOIN " + tablePrefix
+					+ "_review_rate RR on RR.review_id = r.id " + "LEFT JOIN users u ON u.user_id = r.user_id "
+					+ whereClause + " GROUP BY o." + tableNameField + ", r.id, u.realname";
+
+			ServiceLogger.log(logTag, "Get " + tablePrefix + " reviews sql=" + query);
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setInt(1, reviewIdVal);
+			preparedStatement.setInt(2, user_id);
+			this.resultSet = preparedStatement.executeQuery();
+			while (this.resultSet.next()) {
+				try {
+					r = entityClass.newInstance();
+				} catch (InstantiationException ie) {
+
+				} catch (IllegalAccessException iae) {
+
+				}
+
+				switch (reviewType) {
+				case ORGANIZATION:
+					r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+					break;
+				case SERVICE:
+					// r.setEntityId(Integer.toString(resultSet.getInt("organization_id")));
+					break;
+				case PROFILE:
+					r.setEntityId(Integer.toString(resultSet.getInt("users_id")));
+					break;
+				default:
+					throw new DMCServiceException(DMCError.Generic, "Unknow review type");
+				}
+
+				r.setId(Integer.toString(resultSet.getInt("id")));
+				r.setName(resultSet.getString("name"));
+				r.setReviewId(reviewId);
+				java.sql.Timestamp reviewTimestamp = resultSet.getTimestamp("review_timestamp");
+				BigDecimal bdDate = new BigDecimal(reviewTimestamp.getTime());
+				r.setDate(bdDate);
+				r.setRating(resultSet.getInt("rating"));
+				r.setComment(resultSet.getString("comment"));
+
+				// set to true if review has a reply?
+				int count_replies = countRepliesForReview(Integer.parseInt(reviewId));
+				boolean hasRplies = (count_replies > 0);
+				r.setReply(hasRplies);
+
+				// r.setStatus(resultSet.getBoolean("status"));
+				r.setStatus(true);
+
+				int count_likes = countHelpfulForReview(Integer.parseInt(r.getId()), true);
+				r.setLike(count_likes);
+
+				int count_dislikes = countHelpfulForReview(Integer.parseInt(r.getId()), false);
+				r.setDislike(count_dislikes);
+
+				// account_id is associated with organization table: accountId
+				// integer
+				r.setAccountId(Integer.toString(resultSet.getInt("accountId")));
+
+				
+			}
+
+		} catch (SQLException ex) {
+			throw new DMCServiceException(DMCError.OtherSQLError, "Error: " + ex.toString());
+		}
+
+		return r;
+	}
+    
+    
     private static ArrayList<String> getReviewFields() {
         final ArrayList<String> reviewFields = new ArrayList<String>();
         reviewFields.add("id");
@@ -368,6 +460,9 @@ public class ReviewDao<T extends Review> {
 
     public ReviewHelpful createHelpfulReview(ReviewHelpful serviceReviewHelpful, String userEPPN) throws DMCServiceException {
         int user_id = -9999;
+        ServiceLogger.log(logTag, "createHelpfulReview: with user " + userEPPN +
+                          " for reviewId " + serviceReviewHelpful.getReviewId() +
+                          " with helpful = " + serviceReviewHelpful.getHelpful());
 
         try {
             user_id = CompanyUserUtil.getUserId(userEPPN);
@@ -385,7 +480,7 @@ public class ReviewDao<T extends Review> {
             preparedStatement.setInt(1, reviewIdInt);
             preparedStatement.setInt(2, user_id);
             preparedStatement.setTimestamp(3, new java.sql.Timestamp(date.getTime()));
-            preparedStatement.setBoolean(4, serviceReviewHelpful.getHelpfull());
+            preparedStatement.setBoolean(4, serviceReviewHelpful.getHelpful());
             
             preparedStatement.executeUpdate();
             
@@ -443,7 +538,6 @@ public class ReviewDao<T extends Review> {
     
     public ReviewHelpful patchHelpfulReview(String helpfulID, ReviewHelpful helpful, String userEPPN) throws DMCServiceException {
         int user_id = -9999;
-//        int helpful_id = Integer.parseInt(helpfulID);
         
         try {
             user_id = CompanyUserUtil.getUserId(userEPPN);
@@ -455,14 +549,19 @@ public class ReviewDao<T extends Review> {
             throw new DMCServiceException(DMCError.Generic, "user and account ids do not match");
         }
         
-        String sqlInsertHelpfulReview = "UPDATE " + tablePrefix + "_review_rate SET helpfulornot = ? AND review_id = ? WHERE id = ? AND user_id = ?";
+        if(helpful.getHelpful() == null) { // remove record if user unselects review as helpful or not
+            deleteHelpfulReview(helpfulID, helpful);
+            return helpful;
+        }
         
-        final PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlInsertHelpfulReview);
+        String sqlUpdateHelpfulReview = "UPDATE " + tablePrefix + "_review_rate SET helpfulornot = ? AND review_id = ? WHERE id = ? AND user_id = ?";
+        
+        final PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlUpdateHelpfulReview);
         try {
-            preparedStatement.setBoolean(1, helpful.getHelpfull());
+            preparedStatement.setBoolean(1, helpful.getHelpful());
             preparedStatement.setInt(2, Integer.parseInt(helpful.getReviewId()));
             preparedStatement.setInt(3, Integer.parseInt(helpfulID));
-            preparedStatement.setInt(5, user_id);
+            preparedStatement.setInt(4, user_id);
             
             if(preparedStatement.executeUpdate() != 1) {
                 throw new SQLException("Unable to update " + tablePrefix + "_review_rate" +
@@ -476,13 +575,34 @@ public class ReviewDao<T extends Review> {
         return helpful;
     }
     
+    private void deleteHelpfulReview(String helpfulID, ReviewHelpful helpful) {
+        String sqlDeleteHelpfulReview = "DELETE FROM " + tablePrefix + "_review_rate WHERE review_id = ? AND id = ? AND user_id = ?";
+        int user_id = Integer.parseInt(helpful.getAccountId());
+        final PreparedStatement preparedStatementDelete = DBConnector.prepareStatement(sqlDeleteHelpfulReview);
+        
+        try {
+            preparedStatementDelete.setInt(1, Integer.parseInt(helpful.getReviewId()));
+            preparedStatementDelete.setInt(2, Integer.parseInt(helpfulID));
+            preparedStatementDelete.setInt(3, user_id);
+            
+            if(preparedStatementDelete.executeUpdate() != 1) {
+                throw new SQLException("Unable to delete " + tablePrefix + "_review_rate" +
+                                       " for user_id: " + user_id + " and record " + helpfulID);
+            }
+            
+        } catch (SQLException sqlEX) {
+            throw new DMCServiceException(DMCError.Generic, "Error deleting database records");
+            
+        }
+        return;
+    }
     
     private ReviewHelpful newHelpfulReview(int id, int accountid, int userid, boolean helpfulornot) {
         ReviewHelpful reviewHelpful = new ReviewHelpful();
         reviewHelpful.setId(Integer.toString(id));
         reviewHelpful.setReviewId(Integer.toString(accountid));
         reviewHelpful.setAccountId(Integer.toString(userid));
-        reviewHelpful.setHelpfull(helpfulornot);
+        reviewHelpful.setHelpful(helpfulornot);
         return reviewHelpful;
     }
     
@@ -681,4 +801,79 @@ public class ReviewDao<T extends Review> {
         return new Id.IdBuilder(id).build();
     }
 
+
+	public ProfileReview patchProfileReview(String reviewId, ProfileReview review, String userEPPN) {
+		ServiceLogger.log(logTag, "Starting running patchProfileReview: ");
+		int user_id = -9999;
+		Connection connection = DBConnector.connection();
+      
+		int reviewIdIndex = Integer.parseInt(reviewId);
+      try {
+          user_id = CompanyUserUtil.getUserId(userEPPN);
+      } catch (SQLException sqlEX) {
+          throw new DMCServiceException(DMCError.Generic, "Unknow user " + userEPPN);
+      }
+      
+      if(Integer.parseInt(review.getAccountId()) != user_id) {
+          throw new DMCServiceException(DMCError.Generic, "user and account ids do not match");
+      }
+      String updateUserReviewNew = "UPDATE " + tablePrefix + "_review_new SET review = ?, rating = ? WHERE id = ?";
+      String sqlInsertHelpfulReview = "UPDATE " + tablePrefix + "_review_rate SET helpfulornot = ? WHERE review_id = ? AND user_id = ?";
+      
+      final PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlInsertHelpfulReview);
+      final PreparedStatement preparedStatement2 = DBConnector.prepareStatement(updateUserReviewNew);
+      try {
+    	  connection.setAutoCommit(false);
+          preparedStatement.setBoolean(1, review.getStatus());
+          preparedStatement.setInt(2, Integer.parseInt(review.getId()));
+          preparedStatement.setInt(3, user_id);
+          
+          try {
+				int i = preparedStatement.executeUpdate();
+				if(i != 1){
+					throw new SQLException("Unable to update " + tablePrefix + "_review_rate" +
+                            " for user_id: " + user_id + " and record ");
+				}
+			} catch (SQLException e) {
+					ServiceLogger.log(logTag, "Unable to update for user user_id:" +  user_id);
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "Unable to update " + tablePrefix + "_review_rate" + e.getMessage());
+				}
+
+          preparedStatement2.setString(1, review.getComment());
+          preparedStatement2.setInt(2, review.getRating());
+          preparedStatement2.setInt(3, reviewIdIndex);
+          try {
+				int i = preparedStatement2.executeUpdate();
+				if(i != 1){
+					throw new SQLException("Unable to update " + tablePrefix + "_review_new" +
+                          " for user_id: " + user_id + " and record ");
+				}
+			} catch (SQLException e) {
+					ServiceLogger.log(logTag, "Unable to create follow company");
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "Unable to update " + tablePrefix + "_review_new" + e.getMessage());
+				}
+          
+      } catch (SQLException sqlEX) {
+ 
+    	  ServiceLogger.log(logTag, sqlEX.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				ServiceLogger.log(logTag, e1.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, "unable to rollback: " + e1.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, sqlEX.getMessage());
+		} finally {
+			if (connection != null) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+      return review;
+	}
 }
