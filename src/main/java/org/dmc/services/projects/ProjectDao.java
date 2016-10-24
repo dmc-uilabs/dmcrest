@@ -30,12 +30,12 @@ public class ProjectDao {
     public ProjectDao() {
     }
 
-    // get project info if user has a role in the project.
+    // get project info if user has a role in the project or project is public
     public Project getProject(int projectId, String userEPPN) {
         ResultSet resultSet = null;
-        // check if user has a role in project
+        // check if user has a role in project or project is public
         try {
-            if (!hasProjectRole(projectId, userEPPN)) {
+            if (!isProjectPublic(projectId) && !hasProjectRole(projectId, userEPPN)) {
                 return null;
             }
             String query = getSelectProjectQuery();
@@ -459,6 +459,20 @@ public class ProjectDao {
         }
         // else user has a role
         return true;
+    }
+    
+    public boolean isProjectPublic(int projectId) throws SQLException {
+    	ResultSet resultSet = null;
+    	String query = "SELECT is_public FROM groups g WHERE g.is_public = 1 AND g.group_id = ?";
+    	PreparedStatement statement = DBConnector.prepareStatement(query);
+    	statement.setInt(1, projectId);
+    	statement.execute();
+    	resultSet = statement.getResultSet();
+    	if (!resultSet.next()) {
+    		return false;
+    	} else {
+    		return true;
+    	}
     }
 
     public ArrayList<ProjectJoinRequest> getProjectJoinRequest(ArrayList<String> projects, ArrayList<String> profiles,
