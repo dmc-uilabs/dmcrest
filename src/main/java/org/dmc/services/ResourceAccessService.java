@@ -12,22 +12,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class ResourceAccessService {
 
-	public Boolean hasAccess (ResourceType resourceType, Object argEntity, User owner) {
+	public Boolean hasAccess (ResourceType resourceType, Object argEntity, User requester) {
 		
 		//superadmins see all
-		if(owner.getRoles().stream()
+		if(requester.getRoles().stream()
 				.anyMatch(r->r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
 			return true;
 		}
 		
 		List<ResourceGroup> resGroups;
-		List<ResourceGroup> userGroups = owner.getResourceGroups();
+		List<ResourceGroup> userGroups = requester.getResourceGroups();
 		
 		switch(resourceType) {
 		case DOCUMENT:
 			Document doc = (Document) argEntity;
 			//public documents are seen by all, VIPs have access, so do owners
-			if(doc.getIsPublic() || doc.getVips().contains(owner) || doc.getOwner().equals(owner)) {
+			if(doc.getIsPublic() || doc.getVips().contains(requester) || doc.getOwner().equals(requester)) {
 				return true;
 			}
 			
