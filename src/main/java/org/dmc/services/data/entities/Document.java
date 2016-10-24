@@ -319,6 +319,4 @@ public class Document extends ResourceEntity {
 			return false;
 		return true;
 	}
-
-
 }
