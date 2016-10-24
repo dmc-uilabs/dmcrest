@@ -17,6 +17,9 @@ import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.entities.QDocument;
+import org.dmc.services.data.entities.ResourceGroup;
+import org.dmc.services.data.entities.ResourceType;
+import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DirectoryModel;
@@ -47,13 +50,13 @@ import com.mysema.query.types.Predicate;
 public class DocumentService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
-	
+
 	@Inject
 	private DocumentRepository documentRepository;
 
 	@Inject
 	private DocumentTagRepository documentTagRepository;
-	
+
 	@Inject
 	private UserRepository userRepository;
 
@@ -62,7 +65,7 @@ public class DocumentService {
 
 	@Inject
 	private ParentDocumentService parentDocumentService;
-	
+
 	@Inject
 	private ResourceAccessService resourceAccessService;
 
@@ -76,7 +79,7 @@ public class DocumentService {
 	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User owner = userRepository.findByUsername(userEPPN);
-		
+
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
 		List<Document> results;
 		List<Document> returnList = new ArrayList<>();
@@ -92,10 +95,10 @@ public class DocumentService {
 		if(owner.getRoles().stream().anyMatch(r->r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
 			return mapper.mapToModel(results);
 		}
-		
+
 		//else check for their access
 		List<ResourceGroup> userResourceGroups = owner.getResourceGroups();
-		
+
 		for(Document doc : results) {
 
 			//check for access
@@ -103,7 +106,7 @@ public class DocumentService {
 				returnList.add(doc);
 			}
 		}
-		
+
 		if (returnList.size() == 0) return null;
 
 		return mapper.mapToModel(returnList);
@@ -206,7 +209,7 @@ public class DocumentService {
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
-		
+
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
@@ -275,18 +278,18 @@ public class DocumentService {
 		}
 		return returnValue;
 	}
-	
+
 	private Collection<Predicate> resourceGroupFilter(List<ResourceGroup> resourceGroups) {
-				
+
 		Collection<Predicate> returnValue = new ArrayList<>();
 		Collection<Integer> groupIds = new ArrayList<>();
-		
+
 		for (ResourceGroup group : resourceGroups) {
 			groupIds.add(group.getId());
 		}
-		
+
 		returnValue.add(QDocument.document.resourceGroups.any().id.in(groupIds));
-		
+
 		return returnValue;
 	}
 
