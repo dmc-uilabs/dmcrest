@@ -27,4 +27,15 @@ public class DMDIIMemberNewsService {
 		
 		return mapper.mapToModel(memberNewsEntity);
 	}
+	
+	public DMDIIMemberNewsModel delete(Integer newsId) {
+		Mapper<DMDIIMemberNews, DMDIIMemberNewsModel> mapper = mapperFactory.mapperFor(DMDIIMemberNews.class, DMDIIMemberNewsModel.class);
+		
+		DMDIIMemberNews newsEntity = dmdiiMemberNewsRepository.findOne(newsId);
+		
+		newsEntity.setIsDeleted(true);
+		newsEntity = dmdiiMemberNewsRepository.save(newsEntity);
+		
+		return mapper.mapToModel(newsEntity);
+	}
 }

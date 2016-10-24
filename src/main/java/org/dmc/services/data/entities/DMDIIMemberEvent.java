@@ -11,10 +11,13 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "dmdii_member_events")
+@Where(clause = "is_deleted = 'false'")
 public class DMDIIMemberEvent extends BaseEntity {
 
 	@Id
@@ -34,6 +37,10 @@ public class DMDIIMemberEvent extends BaseEntity {
 	@Temporal(TemporalType.DATE)
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date date;
+
+	@Column(name = "is_deleted")
+	private Boolean isDeleted;
+	
 
 	public Integer getId() {
 		return id;
@@ -73,6 +80,14 @@ public class DMDIIMemberEvent extends BaseEntity {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 	@Override
