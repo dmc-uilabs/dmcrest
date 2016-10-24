@@ -191,18 +191,11 @@ public class DocumentService {
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
-//		List<ResourceGroup> userGroups = owner.getResourceGroups();
-//		Integer ownerId = owner.getId();
-
-//		expressions.add(joinCondition());
+		
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
 		expressions.add(docClassFilter(filterParams.get("docClass")));
-//		if(userGroups != null) {
-//			expressions.addAll(resourceGroupFilter(userGroups));
-//		}
-//		expressions.add(ownerFilter(ownerId));
 
 		return expressions;
 	}
@@ -251,23 +244,6 @@ public class DocumentService {
 		
 		return returnValue;
 	}
-	
-	private Predicate ownerFilter (Integer ownerId) {
-		if (ownerId == null) return null;
-		
-		return QDocument.document.owner().id.eq(ownerId);
-	}
-	
-//	private Predicate joinCondition() {
-//		
-//		CriteriaBuilder cb = new CriteriaBuilder(entityManager);
-//		JPAQuery query = new JPAQuery();
-//		QDocument document = QDocument.document;
-//		QResourceGroup resourceGroup = QResourceGroup.resourceGroup;
-//		
-////		return null;
-//		return (Predicate) query.from(document).innerJoin(document.resourceGroups, resourceGroup);
-//	}
 
 	private Predicate parentTypeFilter(String parentType) throws InvalidFilterParameterException {
 		if (parentType == null) return null;
