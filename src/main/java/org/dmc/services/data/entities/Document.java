@@ -28,8 +28,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "document")
 @Where(clause = "is_deleted='false'")
-public class Document extends BaseEntity {
-
+public class Document extends ResourceEntity {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
