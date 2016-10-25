@@ -91,13 +91,13 @@ public class AccountsController {
             "application/json" }, method = RequestMethod.GET)
     public ResponseEntity accountsAccountIDAccountServersGet(@PathVariable("accountID") String accountID,
             @RequestParam(value = "_limit", required = false, defaultValue = "10") Integer limit,
-            @RequestParam(value = "_order", required = false, defaultValue = "DESC") String order,
-            @RequestParam(value = "_sort", required = false, defaultValue = "id") String sort) {
+            @RequestParam(value = "_order", required = false, defaultValue = "ASC") String order,
+            @RequestParam(value = "_sort", required = false, defaultValue = "name") String sort) {
 
         try {
         	ServiceLogger.log(logTag, "In accountsAccountIDAccountServersGet, accountID = " + accountID);
         	return new ResponseEntity<List<DomeServer>>(serverService.findAllServers(Integer.valueOf(accountID),
-        			new PageRequest(0, limit, order.equals("ASC")?Direction.ASC:Direction.DESC, sort)), HttpStatus.OK);
+        			new PageRequest(0, limit, order.equals("DESC")?Direction.DESC:Direction.ASC, sort)), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
