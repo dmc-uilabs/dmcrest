@@ -1,16 +1,17 @@
 package org.dmc.services.accounts;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-02-22T14:57:06.776Z")
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class UserAccountServer  {
   
   private String id = null;
   private String accountId = null;
-  private String port = null;
   private String name = null;
   private String ip = null;
   private String status = null;
@@ -40,15 +41,6 @@ public class UserAccountServer  {
     this.accountId = accountId;
   }
 
-  /**
-   **/
-  @JsonProperty("port")
-  public String getPort() {
-    return port;
-  }
-  public void setPort(String port) {
-    this.port = port;
-  }
   
   /**
    **/
