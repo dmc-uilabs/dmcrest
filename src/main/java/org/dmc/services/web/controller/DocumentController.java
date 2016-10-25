@@ -8,6 +8,7 @@ import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.models.PagedResponse;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -47,6 +48,11 @@ public class DocumentController {
 	@RequestMapping(value = "/documents", method = RequestMethod.POST)
 	public DocumentModel postDocument(@RequestBody @Valid DocumentModel doc) throws DMCServiceException {
 		return documentService.save(doc);
+	}
+
+	@RequestMapping(value = "/documents/{id}/user/{userId}", method = RequestMethod.POST)
+	public ResponseEntity createDocumentForUser(@PathVariable("id") Integer documentId, @PathVariable("userId") Integer userId){
+		return this.documentService.shareDocument(documentId, userId);
 	}
 
 	@ResponseStatus(HttpStatus.OK)
