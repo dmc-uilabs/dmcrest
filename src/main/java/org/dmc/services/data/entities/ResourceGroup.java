@@ -22,7 +22,7 @@ public class ResourceGroup extends BaseEntity {
 		
 	}
 	
-	public ResourceGroup(String parentType, Integer parentId, Integer roleId) {
+	public ResourceGroup(DocumentParentType parentType, Integer parentId, Integer roleId) {
 		super();
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
@@ -33,7 +33,7 @@ public class ResourceGroup extends BaseEntity {
 	}
 
 	@Column(name = "parent_type")
-	private String parentType;
+	private DocumentParentType parentType;
 	
 	@Column(name = "parent_id")
 	private Integer parentId;
@@ -49,11 +49,11 @@ public class ResourceGroup extends BaseEntity {
 		this.id = id;
 	}
 
-	public String getParentType() {
+	public DocumentParentType getParentType() {
 		return parentType;
 	}
 
-	public void setParentType(String parentType) {
+	public void setParentType(DocumentParentType parentType) {
 		this.parentType = parentType;
 	}
 
