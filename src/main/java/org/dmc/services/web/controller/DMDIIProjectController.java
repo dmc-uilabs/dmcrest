@@ -182,6 +182,12 @@ public class DMDIIProjectController {
 		return dmdiiProjectUpdateService.save(projectUpdate);
 	}
 	
+	@RequestMapping(value = "/dmdiiProjetUpdate/{id}", method = RequestMethod.DELETE)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	public void deleteUpdate(@PathParam("updateId") Integer updateId) {
+		dmdiiProjectUpdateService.delete(updateId);
+	}
+	
 	@RequestMapping(value = "/contributingCompanies", params = "dmdiiMemberId", method = RequestMethod.GET)
 	public List<DMDIIProjectModel> getDMDIIProjectsByContributingCompany (@RequestParam ("dmdiiMemberId") Integer dmdiiMemberId) {
 		ServiceLogger.log(logTag, "In getDMDIIProjectsByContributingCompany: " + dmdiiMemberId);
