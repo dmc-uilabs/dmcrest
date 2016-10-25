@@ -1,5 +1,11 @@
 package org.dmc.services.web.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
 import org.dmc.services.data.models.BaseModel;
@@ -18,11 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
-
 @RestController
 public class DocumentController {
 
@@ -35,8 +36,8 @@ public class DocumentController {
 	}
 
 	@RequestMapping(value="/documents", params = {"recent"}, method = RequestMethod.GET)
-	public PagedResponse getDocuments (@RequestParam("recent") Integer recent, 
-										@RequestParam(value = "page", defaultValue = "0") Integer page, 
+	public PagedResponse getDocuments (@RequestParam("recent") Integer recent,
+										@RequestParam(value = "page", defaultValue = "0") Integer page,
 										@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
 										@RequestHeader(value = "AJP_eppn") String userEPPN,
 										@RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
@@ -61,19 +62,29 @@ public class DocumentController {
 		return documentService.update(doc);
 	}
 
-	@RequestMapping(value = "/directories/{currentDirectory}", method = RequestMethod.GET)
-	public DirectoryModel getDirectoryStructure(@PathVariable("currentDirectory") Integer currentDirectory) {
-		return documentService.findDirectoryStructure(currentDirectory);
+	@RequestMapping(value = "/directories", method = RequestMethod.GET)
+	public List<DirectoryModel> getAllDirectories() {
+		return documentService.findAllDirectories();
 	}
 
-	@RequestMapping(value = "/documents/directories/{directoryName}", method = RequestMethod.GET)
-	public List<DocumentModel> getDocumentsByDirectory(@PathVariable("directoryName") String directoryName) {
-		return documentService.findByDirectory(directoryName);
+	@RequestMapping(value = "/directories/{directoryId}", method = RequestMethod.GET)
+	public DirectoryModel getDirectoryStructure(@PathVariable("directoryId") Integer directoryId) {
+		return documentService.findDirectoryById(directoryId);
+	}
+
+	@RequestMapping(value = "/documents/directories/{directoryId}", method = RequestMethod.GET)
+	public List<DocumentModel> getDocumentsByDirectory(@PathVariable("directoryId") Integer directoryId) {
+		return documentService.findByDirectory(directoryId);
 	}
 
 	@RequestMapping(value = "/directories", method = RequestMethod.POST)
 	public DirectoryModel saveDirectoryStructure(@RequestBody DirectoryModel dir) {
 		return documentService.saveDirectory(dir);
+	}
+
+	@RequestMapping(value = "/directories/{directoryId}", method = RequestMethod.DELETE)
+	public void deleteDirectory(@PathVariable Integer directoryId) {
+		documentService.deleteDirectory(directoryId);
 	}
 
 	@RequestMapping(value = "/documents/tags", method = RequestMethod.GET)

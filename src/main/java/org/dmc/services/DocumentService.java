@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -228,14 +229,21 @@ public class DocumentService {
 		return tagMapper.mapToModel(documentTagRepository.save(tagMapper.mapToEntity(tag)));
 	}
 
-	public List<DocumentModel> findByDirectory(String directoryName) {
+	public List<DocumentModel> findByDirectory(Integer directoryId) {
 		Mapper<Document, DocumentModel> documentMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		Directory directory = directoryRepository.findByName(directoryName);
+		Directory directory = directoryRepository.findOne(directoryId);
 		List<Document> documents = documentRepository.findByDirectoryAndIsDeletedIsFalse(directory);
 		return documentMapper.mapToModel(documents);
 	}
 
-	public DirectoryModel findDirectoryStructure(Integer id) {
+	public List<DirectoryModel> findAllDirectories() {
+		Mapper<Directory, DirectoryModel> directoryMapper = mapperFactory.mapperFor(Directory.class, DirectoryModel.class);
+		List<Directory> directories = directoryRepository.findByParent(null);
+		List<DirectoryModel> directoryModels = directoryMapper.mapToModel(directories);
+		return directoryModels;
+	}
+
+	public DirectoryModel findDirectoryById(Integer id) {
 		Mapper<Directory, DirectoryModel> directoryMapper = mapperFactory.mapperFor(Directory.class, DirectoryModel.class);
 		Directory dir = directoryRepository.findOne(id);
 		DirectoryModel directory = directoryMapper.mapToModel(dir);
@@ -256,6 +264,23 @@ public class DocumentService {
 		}
 
 		return model;
+	}
+
+	@Transactional
+	public void deleteDirectory(Integer directoryId) {
+		Directory dir = directoryRepository.findOne(directoryId);
+
+		recursiveDelete(dir);
+	}
+
+	private void recursiveDelete(Directory dir) {
+		for(Iterator<Directory> iterator = dir.getChildren().iterator(); iterator.hasNext(); ) {
+			Directory child = iterator.next();
+			iterator.remove();
+			recursiveDelete(child);
+		}
+
+		directoryRepository.delete(dir);
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
