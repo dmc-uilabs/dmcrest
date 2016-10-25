@@ -16,13 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 public class ProjectMemberController {
 
+	@Inject
+    private ProjectMemberDao projectMemberDao;
+	
     private static final String LOGTAG = ProjectMemberController.class.getName();
-    private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
 
     /**
      * GET member
