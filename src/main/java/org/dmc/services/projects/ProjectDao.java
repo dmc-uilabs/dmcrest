@@ -1,7 +1,6 @@
 package org.dmc.services.projects;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -23,14 +22,15 @@ import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.solr.SolrUtils;
 import org.dmc.services.data.dao.user.UserDao;
-import org.dmc.services.data.entities.ResourceGroup;
+import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.User;
-import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.json.JSONException;
 
+@Component
 public class ProjectDao {
 
     private Connection connection;
@@ -38,9 +38,6 @@ public class ProjectDao {
     
     @Inject
     private ResourceGroupService resourceGroupService;
-    
-    @Inject
-    private ResourceGroupRepository resourceGroupRepository;
     
     @Inject
     private UserRepository userRepository;
@@ -276,8 +273,6 @@ public class ProjectDao {
             } catch (SearchException e) {
                 ServiceLogger.log(LOGTAG, e.getMessage());
             }
-            
-            resourceGroupService.newCreate("PROJECT", projectId);
 
             return new Id.IdBuilder(projectId).build();
         } catch (SQLException ex) {
@@ -319,19 +314,13 @@ public class ProjectDao {
             if (projectId != -1) {
 
             	//create new resource groups for new project
-            	resourceGroupService.newCreate("PROJECT", projectId);
+            	resourceGroupService.newCreate(DocumentParentType.PROJECT, projectId);
             	
     			User user = userRepository.getOne(userID);
-    			List<ResourceGroup> groups = user.getResourceGroups();
     			//give the creating user the admin role
-    			ResourceGroup adminGroup = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 2);
-    			groups.add(adminGroup);
+    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 2);
     			//add member role
-    			ResourceGroup memberGroup = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 4);
-    			groups.add(memberGroup);
-    			
-    			user.setResourceGroups(groups);
-    			userRepository.save(user);
+    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
     		}
         }
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.lang.Exception;
 
+import javax.inject.Inject;
 import javax.xml.ws.http.HTTPException;
 
 import org.dmc.services.DMCServiceException;
@@ -30,10 +31,12 @@ import static org.springframework.http.MediaType.*;
 
 @RestController
 public class ProjectController {
+	
+	@Inject
+	private ProjectDao project;
 
 	private final String logTag = ProjectController.class.getName();
 	private DiscussionListDao discussionListDao = new DiscussionListDao();
-	private ProjectDao project = new ProjectDao();
 	private ProjectDao projectDao = new ProjectDao();
 	private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
 

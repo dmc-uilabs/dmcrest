@@ -7,6 +7,7 @@ import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
@@ -346,14 +347,6 @@ public class ProjectMemberDao {
                 throw new DMCServiceException(DMCError.MemberNotAssignedToProject,
                         "unable to assign " + memberId + " to Project Member role in project " + projectId);
             }
-            
-            //bolt on resource access for project members
-            User user = userRepository.getOne(memberId);
-            List<ResourceGroup> groups = user.getResourceGroups();
-            List<ResourceGroup> newGroup = Arrays.asList(resourceGroupRepository.findByParentTypeAndParentIdAndRoleId("PROJECT", projectId, 4));
-            groups.addAll(newGroup);
-            user.setResourceGroups(groups);
-            userRepository.save(user);
 
             String updateGroupJoinRequest = "UPDATE group_join_request SET accept_date = now(), reject_date = null "
                     + "WHERE user_id = ? " + "AND group_id = ? ";
@@ -369,6 +362,12 @@ public class ProjectMemberDao {
                 connection.rollback();
                 throw new DMCServiceException(DMCError.NoExistingRequest,
                         "no existing request to join the project " + projectId + " for memberId " + memberId);
+            } else {
+                
+                //bolt on resource access for project members
+                User user = userRepository.getOne(memberId);
+                resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+            	
             }
 
             return findMemberRequest(memberId, projectId, fromUserId);
@@ -520,9 +519,6 @@ public class ProjectMemberDao {
             connection.rollback();
             throw new DMCServiceException(DMCError.MemberNotAssignedToProject, "error trying to remove user " + memberId + " from role in project " + projectId);
         }
-        
-        User user = userRepository.findOne(memberId);
-        resourceGroupService.removeResourceGroup(user, "PROJECT", projectId, 4);
     }
 
     // this is a helper method and should be called from another method that wraps it in a transaction
@@ -538,6 +534,11 @@ public class ProjectMemberDao {
             // if we have > 1 that the user has more requests for this project and we are rejecting all of them
             connection.rollback();
             throw new DMCServiceException(DMCError.BadURL, "no project request for " + memberId + " in project " + projectId);
+        } else {
+            
+            User user = userRepository.findOne(memberId);
+            resourceGroupService.removeResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+        	
         }
     }
 

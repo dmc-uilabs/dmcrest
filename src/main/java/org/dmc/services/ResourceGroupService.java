@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
@@ -27,7 +28,7 @@ public class ResourceGroupService {
 	static final Logger LOG = LoggerFactory.getLogger(ResourceGroupService.class);
 	
 	@Transactional
-	public void newCreate (String parentType, Integer parentId) {
+	public void newCreate (DocumentParentType parentType, Integer parentId) {
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
     	List<Integer> roleIds = Arrays.asList(2,4);
@@ -39,7 +40,19 @@ public class ResourceGroupService {
 	}
 	
 	@Transactional
-	public User removeResourceGroup(User user, String parentType, Integer parentId, Integer roleId) {
+	public void removeAll(DocumentParentType parentType, Integer parentId) {
+		Assert.notNull(parentType);
+		Assert.notNull(parentId);
+    	List<Integer> roleIds = Arrays.asList(2,4);
+
+		for(Integer roleId: roleIds) {
+			ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId(parentType, parentId, roleId);
+			resourceGroupRepository.delete(group);
+		}
+	}
+	
+	@Transactional
+	public User removeResourceGroup(User user, DocumentParentType parentType, Integer parentId, Integer roleId) {
 		Assert.notNull(user);
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
@@ -49,6 +62,20 @@ public class ResourceGroupService {
 		List<ResourceGroup> groups = user.getResourceGroups();
 		groups.remove(group);
 		user.setResourceGroups(groups);
+		return userRepository.save(user);
+	}
+	
+	@Transactional
+	public User addResourceGroup(User user, DocumentParentType parentType, Integer parentId, Integer roleId) {
+		Assert.notNull(user);
+		Assert.notNull(parentType);
+		Assert.notNull(parentId);
+		Assert.notNull(roleId);
+		
+		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId(parentType, parentId, roleId);
+		List<ResourceGroup> userGroups = user.getResourceGroups();
+		userGroups.add(group);
+		user.setResourceGroups(userGroups);
 		return userRepository.save(user);
 	}
 }
