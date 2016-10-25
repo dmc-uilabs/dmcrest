@@ -10,8 +10,10 @@ import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -29,6 +34,7 @@ import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 @Service
@@ -53,6 +59,9 @@ public class DocumentService {
 	
 	@Inject
 	private ResourceAccessService resourceAccessService;
+
+	@Inject
+	private EmailService emailService;
 
 	private final String logTag = DocumentService.class.getName();
 
@@ -189,6 +198,24 @@ public class DocumentService {
 		return document;
 	}
 
+	public ResponseEntity shareDocument(Integer documentId, Integer userId){
+		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+
+		Document document = this.documentRepository.findOne(documentId);
+
+		if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
+			throw new AccessDeniedException("User does not have permission to share document");
+		}
+
+		User userToShareWith = this.userRepository.findOne(userId);
+		String key = AWSConnector.createPath(document.getDocumentUrl());
+		String presignedUrl = AWSConnector.generatePresignedUrl(key,
+				Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
+
+		return this.emailService.sendEmail(userToShareWith, 2, presignedUrl);
+	}
+
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
 		
@@ -203,11 +230,6 @@ public class DocumentService {
 	public List<DocumentTagModel> getAllTags() {
 		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class, DocumentTagModel.class);
 		return tagMapper.mapToModel(documentTagRepository.findAll());
-	}
-
-	public DocumentTagModel saveDocumentTag(DocumentTagModel tag) {
-		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class, DocumentTagModel.class);
-		return tagMapper.mapToModel(documentTagRepository.save(tagMapper.mapToEntity(tag)));
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {

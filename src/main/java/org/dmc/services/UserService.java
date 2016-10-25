@@ -152,21 +152,7 @@ public class UserService {
 
 	public ResponseEntity emailToken(Integer userId, String token) {
 		User user = this.userRepository.findOne(userId);
-		if(user.getEmail() == null) return ResponseEntity.badRequest().body("User does not have an email!");
-
-		EmailModel emailModel = new EmailModel();
-		emailModel.setName(String.format("%s %s", user.getFirstName(), user.getLastName()));
-		emailModel.setEmail(user.getEmail());
-		emailModel.setToken(token);
-		emailModel.setTemplate(1);
-
-		HttpStatus status = this.emailService.sendEmail(emailModel);
-
-		if (!HttpStatus.OK.equals(status)) {
-			logger.warn("Email for user token was not sent for user: {}", user.getEmail());
-		}
-
-		return ResponseEntity.status(status).build();
+		return this.emailService.sendEmail(user, 1, token);
 	}
 
 	@Transactional
