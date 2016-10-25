@@ -14,6 +14,7 @@ import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.utils.SQLUtils;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+@Component
 public class ProjectMemberDao {
 
     private Connection connection;
