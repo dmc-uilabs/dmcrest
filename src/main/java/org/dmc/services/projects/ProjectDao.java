@@ -1,5 +1,12 @@
 package org.dmc.services.projects;
 
+<<<<<<< HEAD
+=======
+import java.util.ArrayList;
+
+import javax.inject.Inject;
+
+>>>>>>> master
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,19 +20,37 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
+import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.search.SearchException;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.solr.SolrUtils;
+<<<<<<< HEAD
+=======
+import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.UserRepository;
+import org.json.JSONObject;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+>>>>>>> master
 import org.json.JSONException;
 import org.json.JSONObject;
 
+@Component
 public class ProjectDao {
 
     private Connection connection;
     private static final String LOGTAG = ProjectDao.class.getName();
+    
+    @Inject
+    private ResourceGroupService resourceGroupService;
+    
+    @Inject
+    private UserRepository userRepository;
 
     public ProjectDao() {
     }
@@ -218,17 +243,19 @@ public class ProjectDao {
         return project;
     }
 
+    @Transactional
     public Id createProject(String projectname, String unixname, String description, String projectType,
             String userEPPN, long dueDate) throws SQLException, JSONException, Exception {
         connection = DBConnector.connection();
         // let's start a transaction
         connection.setAutoCommit(false);
         ResultSet resultSet = null;
+        // look up userID
+        final int userID = UserDao.getUserID(userEPPN);
+        final int isPublic = Project.IsPublic(projectType);
+        int projectId = -1;
+        
         try {
-            int projectId = -1;
-            // look up userID
-            final int userID = UserDao.getUserID(userEPPN);
-            final int isPublic = Project.IsPublic(projectType);
 
             // create new project in groups table
             String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date) values ( ?, ?, ?, ?, ?, ?, ? )";
@@ -331,6 +358,20 @@ public class ProjectDao {
             if (null != connection) {
                 connection.setAutoCommit(true);
             }
+            
+            //bolt on resource access process
+            //make sure the project was actually added
+            if (projectId != -1) {
+
+            	//create new resource groups for new project
+            	resourceGroupService.newCreate(DocumentParentType.PROJECT, projectId);
+            	
+    			User user = userRepository.getOne(userID);
+    			//give the creating user the admin role
+    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 2);
+    			//add member role
+    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+    		}
         }
 
     }

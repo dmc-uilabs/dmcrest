@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
 import javax.xml.ws.http.HTTPException;
 
 import org.assertj.core.util.Lists;
@@ -33,10 +34,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ProjectController {
+	
+	@Inject
+	private ProjectDao project;
 
 	private final String logTag = ProjectController.class.getName();
 	private DiscussionListDao discussionListDao = new DiscussionListDao();
-	private ProjectDao project = new ProjectDao();
 	private ProjectDao projectDao = new ProjectDao();
 	private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
 

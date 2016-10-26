@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.websocket.server.PathParam;
 
 import org.dmc.services.DMDIIMemberEventService;
 import org.dmc.services.DMDIIMemberNewsService;
@@ -113,6 +114,18 @@ public class DMDIIMemberController {
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIMemberNewsModel saveDMDIIMemberNews (@RequestBody DMDIIMemberNewsModel memberNews) {
 		return dmdiiMemberNewsService.save(memberNews);
+	}
+	
+	@RequestMapping(value = "/dmdiiMember/events/{id}", method = RequestMethod.DELETE)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	public void deleteEvent(@PathParam("eventId") Integer eventId) {
+		dmdiiMemberEventService.delete(eventId);
+	}
+	
+	@RequestMapping(value = "/dmdiiMember/news/{id}", method = RequestMethod.DELETE)
+	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
+	public void deleteNews(@PathParam("newsId") Integer newsId) {
+		dmdiiMemberNewsService.delete(newsId);
 	}
 
 	@RequestMapping(value = "/dmdiiMember/all", method = RequestMethod.GET)
