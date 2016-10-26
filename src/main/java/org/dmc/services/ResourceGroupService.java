@@ -60,9 +60,13 @@ public class ResourceGroupService {
 		
 		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId(parentType, parentId, roleId);
 		List<ResourceGroup> groups = user.getResourceGroups();
-		groups.remove(group);
-		user.setResourceGroups(groups);
-		return userRepository.save(user);
+		if (group != null) {
+			groups.remove(group);
+			user.setResourceGroups(groups);
+			return userRepository.save(user);
+		}
+		
+		return user;
 	}
 	
 	@Transactional
@@ -74,8 +78,12 @@ public class ResourceGroupService {
 		
 		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId(parentType, parentId, roleId);
 		List<ResourceGroup> userGroups = user.getResourceGroups();
-		userGroups.add(group);
-		user.setResourceGroups(userGroups);
-		return userRepository.save(user);
+		if (!userGroups.contains(group)) {
+			userGroups.add(group);
+			user.setResourceGroups(userGroups);
+			return userRepository.save(user);
+		}
+		
+		return user;
 	}
 }
