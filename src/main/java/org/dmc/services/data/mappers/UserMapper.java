@@ -49,17 +49,14 @@ public class UserMapper extends AbstractMapper<User, UserModel> {
 			entity.setRealname(model.getDisplayName());
 			entity.setUserContactInfo(mapper.mapToEntity(model.getUserContactInfo()));
 
-			if (model.getCompanyId() != null) {
+			if (model.getCompanyId() != null && !model.getCompanyId().equals(-1)) {
 				OrganizationUser orgUserEntity = organizationUserRepository
 						.findByUserIdAndOrganizationId(entity.getId(), model.getCompanyId());
 
-				if (orgUserEntity == null) {
-					orgUserEntity = new OrganizationUser();
-					orgUserEntity.setOrganization(organizationRepository.findOne(model.getCompanyId()));
+				if (orgUserEntity != null) {
+					entity.setOrganizationUser(orgUserEntity);
 				}
 
-				entity.setOrganizationUser(orgUserEntity);
-				entity.getOrganizationUser().setUser(entity);
 			}
 
 			entity.setOnboarding(onboardingMapper.mapToEntity(model.getOnboarding()));
