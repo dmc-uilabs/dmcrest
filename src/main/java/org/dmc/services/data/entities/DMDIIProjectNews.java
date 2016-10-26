@@ -11,10 +11,13 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "dmdii_project_news")
+@Where(clause = "is_deleted='false'")
 public class DMDIIProjectNews extends BaseEntity {
 
 	@Id
@@ -35,6 +38,9 @@ public class DMDIIProjectNews extends BaseEntity {
 	@Column(name = "dmdii_project_number")
 	private String projectNumber;
 
+	@Column(name = "is_deleted")
+	private Boolean isDeleted;
+	
 	public Integer getId() {
 		return id;
 	}
@@ -73,6 +79,14 @@ public class DMDIIProjectNews extends BaseEntity {
 
 	public void setProjectNumber(String projectNumber) {
 		this.projectNumber = projectNumber;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 	@Override

@@ -13,7 +13,7 @@ public interface DocumentRepository extends BaseRepository<Document, Integer> {
 	List<Document> findAllByVerifiedIsFalseAndModifiedBefore(Timestamp modified);
 
 	List<Document> findAllByVerifiedIsTrueAndIsDeletedIsFalseAndExpiresBefore(Timestamp expires);
-
+	
 	Document findFirstByParentTypeAndDocClassAndOwnerOrderByModifiedDesc(DocumentParentType parentType, DocumentClass docClass, User owner);
 
 }
