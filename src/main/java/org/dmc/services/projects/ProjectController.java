@@ -1,12 +1,17 @@
 package org.dmc.services.projects;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.lang.Exception;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.inject.Inject;
 import javax.xml.ws.http.HTTPException;
 
+import org.assertj.core.util.Lists;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
@@ -14,20 +19,18 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionListDao;
 import org.dmc.services.discussions.IndividualDiscussion;
-import org.dmc.services.discussions.IndividualDiscussionComment;
 import org.dmc.services.discussions.IndividualDiscussionDao;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import static org.springframework.http.MediaType.*;
 
 @RestController
 public class ProjectController {
@@ -48,13 +51,13 @@ public class ProjectController {
 	}
 
 	@RequestMapping(value = "/projects", method = RequestMethod.GET)
-	public ArrayList<Project> getProjectList(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+	public List<Project> getProjectList(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
-		return project.getProjectList(userEPPN);
+		return getAllPublicAndPrivateProjects(userEPPN);
 	}
 
 	@RequestMapping(value = "projects/all", method = RequestMethod.GET)
-	public ArrayList<Project> getProjectList(
+	public List<Project> getProjectList(
 	        @RequestParam(value="_order", required=false) String order,
 	        @RequestParam(value="_sort", required=false) String sort,
             @RequestParam(value="_start", required=false) Integer start,
@@ -62,7 +65,25 @@ public class ProjectController {
 	        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
         // @TODO: expand to handle arguments and change return type to a ResponseEntity to match new approach for error handling
-        return project.getProjectList(userEPPN);
+        return getAllPublicAndPrivateProjects(userEPPN);
+	}
+	
+	// Hack to add support for public projects, being rewritten to use JPA soon
+	private List<Project> getAllPublicAndPrivateProjects(String userEPPN) {		
+		List<Project> privateProjects = project.getProjectList(userEPPN);
+		List<Project> publicProjects = project.getPublicProjects();
+		
+		Set<Project> projects = new TreeSet<Project>(new Comparator<Project>() {
+			@Override
+			public int compare(Project o1, Project o2) {
+				return Integer.compare(o1.getId(), o2.getId());
+			}
+		});
+		
+		projects.addAll(privateProjects);
+		projects.addAll(publicProjects);
+		
+		return Lists.newArrayList(projects);
 	}
 	
 	// leaving this as an example of how to work with parameters to URL
@@ -76,13 +97,6 @@ public class ProjectController {
 
 		long dueDate = 0;
 		return project.createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, dueDate);
-	}
-
-	@RequestMapping(value = "/projects/oldcreate", method = RequestMethod.POST, headers = { "Content-type=text/plain" })
-	public Id createProject(@RequestBody String payload, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
-
-		ServiceLogger.log(logTag, "In createProject: " + payload + " as user " + userEPPN);
-		return project.createProject(payload, userEPPN);
 	}
 
 	@RequestMapping(value = "/projects/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
