@@ -336,9 +336,9 @@ public class CompanyIT extends BaseIT {
 		String user1 = addMember(randomEPPN, this.createdId);
 		String user2 = addMember(randomEPPN, this.createdId);
 
-		String nonMemberEPPN = "fforgeadmin";
+		String nonMemberEPPN = "test3";
 
-		// fforgeadmin not a member of company, so expect to get 403 response
+		// test3 not a member of company, so expect to get 403 response
 		// (UNAUTHORIZED)
 		given().param("companyID", this.createdId.toString()).header("AJP_eppn", nonMemberEPPN).expect().statusCode(403)
 				.when().get(COMPANY_GET_MEMBERS, this.createdId.toString());
