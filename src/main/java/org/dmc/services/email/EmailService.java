@@ -13,7 +13,7 @@ public class EmailService {
 	private static final String EMAIL_URL;
 
 	static {
-		String host = System.getenv("verifyUrl");
+		String host = System.getenv("verifyURL");
 		if (host == null) {
 			host = "localhost";
 		}
@@ -23,7 +23,7 @@ public class EmailService {
 	public HttpStatus sendEmail(EmailModel emailModel) {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpEntity<EmailModel> request = new HttpEntity<>(emailModel);
-		ResponseEntity<EmailModel> response = restTemplate.exchange(EMAIL_URL, HttpMethod.POST, request, EmailModel.class);
+		ResponseEntity<String> response = restTemplate.exchange(EMAIL_URL, HttpMethod.POST, request, String.class);
 		return response.getStatusCode();
 	}
 
