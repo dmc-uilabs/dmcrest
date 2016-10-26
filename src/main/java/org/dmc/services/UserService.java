@@ -1,11 +1,5 @@
 package org.dmc.services;
 
-import java.util.Arrays;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
@@ -32,6 +26,8 @@ import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.ServerAccessRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
+import org.dmc.services.email.EmailModel;
+import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.notification.NotificationService;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
@@ -39,12 +35,22 @@ import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.security.UserPrincipalService;
 import org.dmc.services.users.VerifyUserResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 public class UserService {
+
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -79,11 +85,14 @@ public class UserService {
 	@Inject
 	private OrganizationAuthorizedIdpRepository idpRepository;
 
-	@Autowired
+	@Inject
 	private ServerAccessRepository accessRepo;
 
 	@Inject
 	private DocumentRepository documentRepository;
+
+	@Inject
+	private EmailService emailService;
 
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -139,6 +148,25 @@ public class UserService {
 		}
 
 		return mapper.mapToModel(token);
+	}
+
+	public ResponseEntity emailToken(Integer userId, String token) {
+		User user = this.userRepository.findOne(userId);
+		if(user.getEmail() == null) return ResponseEntity.badRequest().body("User does not have an email!");
+
+		EmailModel emailModel = new EmailModel();
+		emailModel.setName(String.format("%s %s", user.getFirstName(), user.getLastName()));
+		emailModel.setEmail(user.getEmail());
+		emailModel.setToken(token);
+		emailModel.setTemplate(1);
+
+		HttpStatus status = this.emailService.sendEmail(emailModel);
+
+		if (!HttpStatus.OK.equals(status)) {
+			logger.warn("Email for user token was not sent for user: {}", user.getEmail());
+		}
+
+		return ResponseEntity.status(status).build();
 	}
 
 	@Transactional

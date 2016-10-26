@@ -1,15 +1,5 @@
 package org.dmc.services.services;
 
-import org.dmc.services.*;
-import org.dmc.services.company.CompanyDao;
-import org.dmc.services.data.dao.user.UserDao;
-import org.dmc.services.search.SearchException;
-import org.dmc.services.search.SearchQueueImpl;
-import org.dmc.services.services.ServiceHistory.PeriodEnum;
-import org.dmc.services.services.ServiceHistory.SectionEnum;
-import org.dmc.solr.SolrUtils;
-import org.dmc.services.sharedattributes.FeatureImage;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +10,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.dmc.services.Config;
+import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.SqlTypeConverterUtility;
+import org.dmc.services.company.CompanyDao;
+import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.search.SearchException;
+import org.dmc.services.search.SearchQueueImpl;
+import org.dmc.services.services.ServiceHistory.PeriodEnum;
+import org.dmc.services.services.ServiceHistory.SectionEnum;
+import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.solr.SolrUtils;
 
 public class ServiceDao {
 
@@ -302,7 +307,7 @@ public class ServiceDao {
             }
         }
     }
-	
+
 	public ArrayList<Service> getServices(Integer limit,
             String order,
             Integer start,
@@ -313,21 +318,23 @@ public class ServiceDao {
             List<String>ratings,
             String favorites,
             List<String> dates,
+            String published,
             List<String> fromLocations,
             String userEPPN) {
-		return getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN, null);
+		return getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, published, fromLocations, userEPPN, null);
 	}
-	
+
     public ArrayList<Service> getServices(Integer limit,
-            String order, 
-            Integer start, 
-            String sort, 
-            String titleLike, 
-            String serviceType, 
-            List<Integer> authors, 
-            List<String>ratings, 
-            String favorites, 
-            List<String> dates, 
+            String order,
+            Integer start,
+            String sort,
+            String titleLike,
+            String serviceType,
+            List<Integer> authors,
+            List<String>ratings,
+            String favorites,
+            List<String> dates,
+            String published,
             List<String> fromLocations,
             String userEPPN,
             Integer filterByCompany)
@@ -336,7 +343,7 @@ public class ServiceDao {
         ResultSet resultSet = null;
         try {
             final PreparedStatement preparedStatement = setupGetServicesQuery(limit, order, start, sort, titleLike,
-                                                                              serviceType, authors, ratings, favorites, dates,
+                                                                              serviceType, authors, ratings, favorites, dates, published,
                                                                               fromLocations, userEPPN, filterByCompany);
 
             resultSet = preparedStatement.executeQuery();
@@ -362,25 +369,26 @@ public class ServiceDao {
     }
 
 
-    private PreparedStatement setupGetServicesQuery(Integer limit, 
-            String order, 
-            Integer start, 
-            String sort, 
-            String titleLike, 
-            String serviceType, 
-            List<Integer> authors, 
-            List<String>ratings, 
-            String favorites, 
-            List<String> dates, 
-            List<String> fromLocations,
-            String userEPPN,
-            Integer filterByCompany)
+    private PreparedStatement setupGetServicesQuery(Integer limit,
+			String order,
+			Integer start,
+			String sort,
+			String titleLike,
+			String serviceType,
+			List<Integer> authors,
+			List<String>ratings,
+			String favorites,
+			List<String> dates,
+			String published,
+			List<String> fromLocations,
+			String userEPPN,
+			Integer filterByCompany)
                 throws Exception {
         String query = "SELECT * FROM service";
 
         final ArrayList<String> whereClauses = new ArrayList<String>();
         final ArrayList<String> orderByClauses = new ArrayList<String>();
-					
+
         if (null != fromLocations && fromLocations.size() > 0) {
             String fromClause = " from_location in (?";
             // already have first placeholder, so start count from 1 instead of
@@ -414,6 +422,12 @@ public class ServiceDao {
             datesClause += ")";
             whereClauses.add(datesClause);
         }
+
+		if(published != null && (published.equals("true") || published.equals("false"))) {
+			String publishedClause = " published = ?";
+			whereClauses.add(publishedClause);
+		}
+
         query += addClauses(whereClauses, " WHERE ", " AND ");
         query += addClauses(orderByClauses, " ORDER BY ", ", ");
 
@@ -426,12 +440,17 @@ public class ServiceDao {
             ServiceLogger.log(logTag, "  parameter " + parameterIndex + " : from " + location);
             parameterIndex++;
         }
-        
+
         if(null != filterByCompany) {
             preparedStatement.setInt(parameterIndex, filterByCompany);
             parameterIndex++;
         }
-                    
+
+        if(published != null && (published.equals("true") || published.equals("false"))) {
+			preparedStatement.setBoolean(parameterIndex, Boolean.parseBoolean(published));
+			parameterIndex++;
+		}
+
         if (null != start) {
         }
         return preparedStatement;
