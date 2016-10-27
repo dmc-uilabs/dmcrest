@@ -1,20 +1,5 @@
 package org.dmc.services.data.entities;
 
-import org.hibernate.annotations.Where;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -43,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = "document")
 @Where(clause = "is_deleted='false'")
 public class Document extends ResourceEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
@@ -81,21 +66,17 @@ public class Document extends ResourceEntity {
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
 
-	@Column(name = "access_level")
-	//TODO: create enum for site-wide accessLevel
-	private String accessLevel;
-	
 	@Column(name = "resource_type")
 	@Enumerated(EnumType.STRING)
 	private ResourceType resourceType;
-	
+
 	@Column(name = "doc_class")
 	@Enumerated(EnumType.STRING)
 	private DocumentClass docClass;
 
 	@Column(name = "verified")
 	private Boolean verified = false;
-	
+
 	@ManyToMany (fetch = FetchType.EAGER)
 	@JoinTable(name = "resource_in_resource_group",
 				joinColumns = @JoinColumn(name = "resource_id"),
@@ -103,13 +84,13 @@ public class Document extends ResourceEntity {
 	@WhereJoinTable(clause = "resource_type = 'DOCUMENT'")
 	@JsonIgnore
 	private List<ResourceGroup> resourceGroups;
-	
+
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "document_user",
 				joinColumns = @JoinColumn(name = "document_id"),
 				inverseJoinColumns = @JoinColumn(name = "user_id"))
 	private List<User> vips;
-	
+
 	@Column(name = "is_public")
 	private Boolean isPublic;
 
