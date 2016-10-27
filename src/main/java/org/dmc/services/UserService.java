@@ -362,7 +362,7 @@ public class UserService {
 		currentUser.setAddress(patchUser.getAddress());
 		currentUser.setOnboarding(patchUserEntity.getOnboarding());
 		currentUser.setSkills(patchUserEntity.getSkills());
-		if(currentUser.getUserContactInfo() != null){
+		if(currentUser.getUserContactInfo() != null && patchUserEntity.getUserContactInfo() != null){
 			currentUser.getUserContactInfo().setUserMemberPortalContactInfo(patchUserEntity.getUserContactInfo().getUserMemberPortalContactInfo());
 			currentUser.getUserContactInfo().setUserPublicContactInfo(patchUserEntity.getUserContactInfo().getUserPublicContactInfo());
 		}
@@ -386,22 +386,25 @@ public class UserService {
 			currentUser.setEmail(patchUser.getEmail());
 		}
 
-		// if user doesn't currently have an organization or is changing their organization, update the organization user record
-		if((currentUser.getOrganizationUser() == null && patchUser.getCompanyId() != null) ||
-			(currentUser.getOrganizationUser() != null && !patchUser.getCompanyId().equals(currentUser.getOrganizationUser().getOrganization().getId()))) {
-			currentUser.setOrganizationUser(updateOrganizationUser(currentUser, patchUser.getCompanyId()));
-		}
+		currentUser.setOrganizationUser(createOrganizationUser(currentUser, patchUser.getCompanyId()));
 
 		this.updateUserProfileLogo(currentUser);
 
 		return userMapper.mapToModel(userRepository.save(currentUser));
 	}
 
-	private OrganizationUser updateOrganizationUser(User user, Integer newOrganizationId) {
-		orgUserRepo.deleteByUserId(user.getId());
-		Organization newOrganization = organizationRepository.findOne(newOrganizationId);
-		notificationService.notifyOrgAdminsOfNewUser(newOrganizationId, user);
-		return orgUserRepo.save(new OrganizationUser(user, newOrganization, false));
+	private OrganizationUser createOrganizationUser(User user, Integer organizationId) {
+		if(organizationId == null) return null;
+
+		Organization organization = this.organizationRepository.findOne(organizationId);
+		OrganizationUser organizationUser = this.orgUserRepo.findByUserId(user.getId());
+
+		if(organizationUser == null && organization != null) {
+			notificationService.notifyOrgAdminsOfNewUser(organizationId, user);
+			organizationUser = orgUserRepo.save(new OrganizationUser(user, organization, false));
+		}
+
+		return organizationUser;
 	}
 
 	private void updateUserProfileLogo(User user){

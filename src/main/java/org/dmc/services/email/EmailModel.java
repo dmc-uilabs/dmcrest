@@ -2,10 +2,19 @@ package org.dmc.services.email;
 
 public class EmailModel {
 
+	private Integer id = 33;
 	private String name;
 	private String email;
 	private String token;
 	private Integer template;
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	public String getName() {
 		return name;

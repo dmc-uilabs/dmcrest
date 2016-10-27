@@ -27,4 +27,15 @@ public class DMDIIProjectEventsService {
 		
 		return mapper.mapToModel(projectEventEntity);
 	}
+	
+	public DMDIIProjectEventModel delete(Integer projectEventId) {
+		Mapper<DMDIIProjectEvent, DMDIIProjectEventModel> mapper = mapperFactory.mapperFor(DMDIIProjectEvent.class, DMDIIProjectEventModel.class);
+		
+		DMDIIProjectEvent eventEntity = dmdiiProjectEventsRepository.findOne(projectEventId);
+		
+		eventEntity.setIsDeleted(true);
+		eventEntity = dmdiiProjectEventsRepository.save(eventEntity);
+		
+		return mapper.mapToModel(eventEntity);
+	}
 }

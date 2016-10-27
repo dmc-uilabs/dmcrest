@@ -47,6 +47,9 @@ public class DMDIIProjectUpdate extends BaseEntity {
 	@Column(name = "access_level")
 	@Enumerated(EnumType.STRING)
 	private DMDIIProjectItemAccessLevel accessLevel;
+	
+	@Column(name = "is_deleted")
+	private Boolean isDeleted;
 
 	public Integer getId() {
 		return id;
@@ -102,6 +105,14 @@ public class DMDIIProjectUpdate extends BaseEntity {
 
 	public void setAccessLevel(DMDIIProjectItemAccessLevel accessLevel) {
 		this.accessLevel = accessLevel;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 	@Override
