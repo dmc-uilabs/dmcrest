@@ -165,7 +165,7 @@ public class ProjectDao {
 
     protected String getSelectProjectQuery() {
         final String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, "
-                + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, "
+                + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.requires_approval as requires_approval, "
                 + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, "
                 + "c.componentsCount AS componentsCount " + "FROM groups g "
                 + "JOIN (SELECT u.firstname AS firstname, u.lastname AS lastname , r.home_group_id "
@@ -206,6 +206,8 @@ public class ProjectDao {
         final int num_components = resultSet.getInt("componentsCount");
         final int num_tasks = resultSet.getInt("taskCount");
         final int num_services = resultSet.getInt("servicesCount");
+        final Boolean requiresApproval = resultSet.getBoolean("requires_approval");
+        final Boolean isPublic = resultSet.getBoolean("isPublic");
 
         final ProjectTask task = new ProjectTask(num_tasks, projectId);
         final ProjectService service = new ProjectService(num_services, projectId);
@@ -228,6 +230,8 @@ public class ProjectDao {
         project.setComponents(component);
         project.setProjectManager(projectManager);
         project.setDueDate(due_date);
+        project.setRequiresAdminApprovalToJoin(requiresApproval);
+        project.setIsPublic(isPublic);
 
         ServiceLogger.log(LOGTAG, project.toString());
 
@@ -235,7 +239,7 @@ public class ProjectDao {
     }
 
     @Transactional
-    public Id createProject(String projectname, String unixname, String description, String projectType,
+    public Id createProject(String projectname, String unixname, String description, String projectType, String approvalOption,
             String userEPPN, long dueDate) throws SQLException, JSONException, Exception {
         connection = DBConnector.connection();
         // let's start a transaction
@@ -248,8 +252,10 @@ public class ProjectDao {
 
         try {
 
+            Boolean requiresApproval = Project.needAdminApprovalToJoin(approvalOption);
+
             // create new project in groups table
-            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date) values ( ?, ?, ?, ?, ?, ?, ? )";
+            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval) values ( ?, ?, ?, ?, ?, ?, ? )";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
             preparedStatement.setString(1, projectname);
             preparedStatement.setString(2, unixname);
@@ -258,6 +264,7 @@ public class ProjectDao {
             preparedStatement.setInt(5, isPublic);
             preparedStatement.setInt(6, userID);
             preparedStatement.setTimestamp(7, new Timestamp(dueDate));
+            preparedStatement.setBoolean(8, requiresApproval);
             preparedStatement.executeUpdate();
 
             // since no parameters can use execute query safely
@@ -373,8 +380,9 @@ public class ProjectDao {
         final String projectname = json.getString("projectname");
         final String unixname = json.getString("unixname");
         final String type = json.getString("type");
+        final String approvalOption = json.getString("approvalOption");
 
-        return createProject(projectname, unixname, projectname, type, userEPPN, 0);
+        return createProject(projectname, unixname, projectname, type, approvalOption, userEPPN, 0);
     }
 
     public Id createProject(ProjectCreateRequest project, String userEPPN)
@@ -385,8 +393,9 @@ public class ProjectDao {
         final String description = project.getDescription();
         final long dueDate = project.getDueDate();
         final String type = project.getProjectType();
+        final String approvalOption = project.getApprovalOption();
 
-        return createProject(projectname, unixname, description, type, userEPPN, dueDate);
+        return createProject(projectname, unixname, description, type, approvalOption, userEPPN, dueDate);
     }
 
     public Id updateProject(int id, Project project, String userEPPN) throws DMCServiceException {

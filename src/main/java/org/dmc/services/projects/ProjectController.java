@@ -96,7 +96,7 @@ public class ProjectController {
 		ServiceLogger.log(logTag, "In createProject: " + projectname + ", " + unixname + " as user " + userEPPN);
 
 		long dueDate = 0;
-		return project.createProject(projectname, unixname, projectname, Project.PRIVATE, userEPPN, dueDate);
+		return project.createProject(projectname, unixname, projectname, Project.PRIVATE, "admin", userEPPN, dueDate);
 	}
 
 	@RequestMapping(value = "/projects/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
