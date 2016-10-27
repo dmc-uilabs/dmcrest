@@ -1,12 +1,6 @@
 package org.dmc.services.projects;
 
-<<<<<<< HEAD
-=======
-import java.util.ArrayList;
 
-import javax.inject.Inject;
-
->>>>>>> master
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,6 +10,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -23,32 +19,27 @@ import org.dmc.services.Id;
 import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.search.SearchException;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.solr.SolrUtils;
-<<<<<<< HEAD
-=======
-import org.dmc.services.data.dao.user.UserDao;
-import org.dmc.services.data.entities.DocumentParentType;
-import org.dmc.services.data.entities.User;
-import org.dmc.services.data.repositories.UserRepository;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
->>>>>>> master
-import org.json.JSONException;
-import org.json.JSONObject;
 
 @Component
 public class ProjectDao {
 
     private Connection connection;
     private static final String LOGTAG = ProjectDao.class.getName();
-    
+
     @Inject
     private ResourceGroupService resourceGroupService;
-    
+
     @Inject
     private UserRepository userRepository;
 
@@ -131,16 +122,16 @@ public class ProjectDao {
 
         return null;
     }
-    
+
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
     // Being refactored to use spring-data-jpa within next few sprints
     public List<Project> getPublicProjects() {
     	List<Project> projects = new ArrayList<Project>();
-    	
+
     	String query = "SELECT DISTINCT id, title, description, due_date, count, componentsCount, taskCount, servicesCount, firstname, lastname"
     			+ " FROM (" + getSelectProjectQuery() + ") as project"
     			+ " WHERE project.isPublic = 1";
-    	
+
     	ResultSet resultSet = null;
     	try {
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
@@ -167,8 +158,8 @@ public class ProjectDao {
                 }
             }
         }
-    	
-    	
+
+
     	return null;
     }
 
@@ -254,7 +245,7 @@ public class ProjectDao {
         final int userID = UserDao.getUserID(userEPPN);
         final int isPublic = Project.IsPublic(projectType);
         int projectId = -1;
-        
+
         try {
 
             // create new project in groups table
@@ -358,14 +349,14 @@ public class ProjectDao {
             if (null != connection) {
                 connection.setAutoCommit(true);
             }
-            
+
             //bolt on resource access process
             //make sure the project was actually added
             if (projectId != -1) {
 
             	//create new resource groups for new project
             	resourceGroupService.newCreate(DocumentParentType.PROJECT, projectId);
-            	
+
     			User user = userRepository.getOne(userID);
     			//give the creating user the admin role
     			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 2);
@@ -501,7 +492,7 @@ public class ProjectDao {
         // else user has a role
         return true;
     }
-    
+
     public boolean isProjectPublic(int projectId) throws SQLException {
     	ResultSet resultSet = null;
     	String query = "SELECT is_public FROM groups g WHERE g.is_public = 1 AND g.group_id = ?";
@@ -592,8 +583,8 @@ public class ProjectDao {
         final int userId = UserDao.getUserID(userEPPN);
 
         return createProjectJoinRequest(projectId, profileId, userId);
-    } 
-    
+    }
+
     private boolean selfAutoJoin(int projectId, int profileId, int requesterId) {
         if (profileId == requesterId) {
             final String autoJoinProject = "UPDATE group_join_request SET accept_date = now() WHERE user_id = ? AND requester_id = ? and group_id = ?";
@@ -620,7 +611,7 @@ public class ProjectDao {
         Integer projectId = Integer.parseInt(projectIdAsString);
         Integer profileId = Integer.parseInt(profileIdAsString);
         ProjectMemberDao projectMemberDao = new ProjectMemberDao();
-        
+
         if (!projectMemberDao.isUserProjectAdmin(projectId, requesterId)) {
             throw new DMCServiceException(DMCError.NotProjectAdmin, requesterId + " is not allowed to invite new members to project");
         }
@@ -632,7 +623,7 @@ public class ProjectDao {
         try {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            // if it is a duplicate we'll continue without error, 
+            // if it is a duplicate we'll continue without error,
             // other errors will fail
             if (!e.getMessage().contains("duplicate key")) {
                 throw e;
