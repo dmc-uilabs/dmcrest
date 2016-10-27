@@ -1,5 +1,8 @@
 package org.dmc.services.data.mappers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -8,12 +11,10 @@ import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
+import org.dmc.services.data.repositories.DirectoryRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
@@ -24,12 +25,18 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 	@Inject
 	private DocumentTagRepository documentTagRepository;
 
+	@Inject
+	private DirectoryRepository directoryRepository;
+
 	@Override
 	public Document mapToEntity(DocumentModel model) {
 		if (model == null) return null;
 		Document entity = copyProperties(model, new Document());
 
 		entity.setOwner(userRepository.findOne(model.getOwnerId()));
+
+		if(model.getDirectoryId() != null)
+			entity.setDirectory(directoryRepository.findOne(model.getDirectoryId()));
 
 		List<DocumentTagModel> documentTagModels = model.getTags();
 		List<DocumentTag> documentTags = new ArrayList<>();
@@ -57,6 +64,8 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		DocumentModel model = copyProperties(entity, new DocumentModel());
 
 		model.setOwnerId(entity.getOwner().getId());
+		if(entity.getDirectory() != null)
+			model.setDirectoryId(entity.getDirectory().getId());
 
 		return model;
 	}
