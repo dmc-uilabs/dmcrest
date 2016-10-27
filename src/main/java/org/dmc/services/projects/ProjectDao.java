@@ -312,7 +312,7 @@ public class ProjectDao {
             preparedStatement.executeUpdate();
 
             // create user as a member of the project
-            createProjectJoinRequest(Integer.toString(projectId), Integer.toString(userID), userID);
+            createProjectJoinRequest(Integer.toString(projectId), Integer.toString(userID), userID, userEPPN);
 
             connection.commit();
 
@@ -591,7 +591,7 @@ public class ProjectDao {
         final String profileId = json.getProfileId();
         final int userId = UserDao.getUserID(userEPPN);
 
-        return createProjectJoinRequest(projectId, profileId, userId);
+        return createProjectJoinRequest(projectId, profileId, userId, userEPPN);
     }
 
     private boolean selfAutoJoin(int projectId, int profileId, int requesterId) {
@@ -614,16 +614,29 @@ public class ProjectDao {
         return false;
     }
 
-    private ProjectJoinRequest createProjectJoinRequest(String projectIdAsString, String profileIdAsString, int requesterId)
+    private ProjectJoinRequest createProjectJoinRequest(String projectIdAsString, String profileIdAsString, int requesterId, String userEPPN)
             throws SQLException, Exception {
 
         Integer projectId = Integer.parseInt(projectIdAsString);
         Integer profileId = Integer.parseInt(profileIdAsString);
         ProjectMemberDao projectMemberDao = new ProjectMemberDao();
+        Project project = this.getProject(projectId, userEPPN);
+        
+        Boolean allowed = false;
 
-        if (!projectMemberDao.isUserProjectAdmin(projectId, requesterId)) {
-            throw new DMCServiceException(DMCError.NotProjectAdmin, requesterId + " is not allowed to invite new members to project");
+        if (projectMemberDao.isUserProjectAdmin(projectId, requesterId)) {
+            allowed = true;
         }
+        
+        // Non-admins are allowed to add themselves to projects that don't require admin approval
+        if (profileId == requesterId && project != null && !project.getRequiresAdminApprovalToJoin()) {
+        	allowed = true;
+        }
+        
+        if (!allowed) {
+        	throw new DMCServiceException(DMCError.NotProjectAdmin, requesterId + " is not allowed to invite new members to project");
+        }
+        
         final String createProjectJoinRequestQuery = "insert into group_join_request (group_id, user_id, requester_id, request_date) values (?, ?, ?, now())";
         final PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectJoinRequestQuery);
         preparedStatement.setInt(1, projectId);
