@@ -1,6 +1,7 @@
 package org.dmc.services;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections.IteratorUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
@@ -38,11 +39,14 @@ import org.dmc.services.security.UserPrincipalService;
 import org.dmc.services.users.VerifyUserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -106,11 +110,20 @@ public class UserService {
 		return mapper.mapToModel(userRepository.findByUsername(username));
 	}
 
-	public List<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter) {
+	/*public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter) {
 		Mapper<User, SimpleUserModel> mapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
-		List<User> users = this.userRepository.findAll(
-				UserPredicates.likeFirstOrLastName(firstNameFilter, lastNameFilter), pageRequest).getContent();
-		return mapper.mapToModel(users);
+		List<User> users = IteratorUtils.toList(
+				userRepository.findAll(UserPredicates.likeFirstOrLastName(firstNameFilter, lastNameFilter)).iterator());
+		List<SimpleUserModel> simpleUsers = mapper.mapToModel(users);
+		return new PageImpl<>(simpleUsers, pageRequest, simpleUsers.size());
+	}*/
+
+	public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter) {
+		Mapper<User, SimpleUserModel> mapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
+		Page<User> users =
+				userRepository.findAll(UserPredicates.likeFirstOrLastName(firstNameFilter, lastNameFilter), pageRequest);
+		List<SimpleUserModel> simpleUsers = mapper.mapToModel(users.getContent());
+		return new PageImpl<>(simpleUsers, pageRequest, users.getTotalElements());
 	}
 
 	public UserModel save(UserModel userModel, String userEPPN) {

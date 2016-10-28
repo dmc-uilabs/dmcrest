@@ -13,6 +13,7 @@ import org.dmc.services.notification.NotificationService;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,7 +69,7 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/users", method = RequestMethod.GET)
-	public List<SimpleUserModel> getAllUsers(
+	public Page<SimpleUserModel> getAllUsers(
 			@RequestParam(value = "page") Integer page,
 			@RequestParam(value = "pageSize") Integer pageSize,
 			@RequestParam(value = "firstName", required = false) List<String> firstName,
