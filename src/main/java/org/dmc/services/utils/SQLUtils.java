@@ -26,7 +26,7 @@ public class SQLUtils {
         String orderByClause = "";
         boolean lastFieldHasOrder = false;
         if (sort != null && sort.trim().length() > 0) {
-            orderByClause = "ORDER ";
+            orderByClause = "ORDER BY ";
             final String[] tokens = sort.split(",");
             for (String token : tokens) {
                 final String[] parts = token.trim().split(" +");
@@ -36,10 +36,10 @@ public class SQLUtils {
                 if (!validSortFields.contains(parts[0].trim())) {
                     throw new DMCServiceException(DMCError.BadURL, "invalid sort field: " + token.trim());
                 }
-                orderByClause += parts[0];
+                orderByClause += parts[0] + " ";
                 if (parts.length > 1) {
                     if (parts[1].equals(SORT_ASCENDING) || parts[1].equals(SORT_DESCENDING)) {
-                        orderByClause += " " + parts[1];
+                        orderByClause += parts[1] + " ";
                         lastFieldHasOrder = true;
                     } else {
                         throw new DMCServiceException(DMCError.BadURL, "invalid sort option " + parts[1] + " on field " + parts[0]);
@@ -55,12 +55,12 @@ public class SQLUtils {
             orderByClause = orderByClause.substring(0, orderByClause.length()-2);   // remove last ", "
         }
         // order only added if ORDER BY
-        if (orderByClause.length() > 0 && order != null && order.trim().length() >0) {
+        if (orderByClause.length() > 0 && order != null && order.trim().length() > 0) {
             if (lastFieldHasOrder) {
                 throw new DMCServiceException(DMCError.BadURL, "specified order, but last field already had order");
             }
             if (order.equals(SORT_ASCENDING) || order.equals(SORT_DESCENDING)) {
-                orderByClause += " " + order;
+                orderByClause += order + " ";
             } else {
                 throw new DMCServiceException(DMCError.BadURL, "invalid sort option: " + order);
             }
@@ -79,7 +79,7 @@ public class SQLUtils {
 
         String limitClause = "";
         if (limit != null) {
-            limitClause = "LIMIT " + limit;
+            limitClause = "LIMIT " + limit + " ";
         }
         return limitClause;
     }
@@ -95,7 +95,7 @@ public class SQLUtils {
     public static String buildOffsetClause(Integer start) {
         String offsetClause = "";
         if (start != null) {
-            offsetClause = "OFFSET " + start;
+            offsetClause = "OFFSET " + start + " ";
         }
         return offsetClause;
     }

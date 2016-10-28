@@ -11,7 +11,9 @@ import javax.transaction.Transactional;
 import org.dmc.services.DMDIIDocumentService;
 import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.OrganizationUserService;
+import org.dmc.services.ResourceGroupService;
 import org.dmc.services.data.entities.AreaOfExpertise;
+import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QOrganization;
@@ -61,6 +63,9 @@ public class OrganizationService {
 	
 	@Inject
 	private DMDIIDocumentService dmdiiDocumentService;
+	
+	@Inject
+	private ResourceGroupService resourceGroupService;
 
 	public List<OrganizationModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
@@ -99,6 +104,13 @@ public class OrganizationService {
 			User userEntity = userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
 			organizationUserService.createVerifiedOrganizationUser(userEntity, organizationEntity);
 			userRoleAssignmentService.assignInitialCompanyAdmin(userEntity, organizationEntity);
+			
+			//add ResourceGroups for new Organization
+			resourceGroupService.newCreate(DocumentParentType.ORGANIZATION, organizationEntity.getId());
+			
+			//add user to admin resource group
+			resourceGroupService.addResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), 2);
+			
 		} else {
 			organizationEntity = organizationRepository.save(organizationEntity);
 		}
@@ -165,5 +177,9 @@ public class OrganizationService {
 		List<DMDIIProjectModel> projectModels = dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(organizationId, 0, Integer.MAX_VALUE);
 		projectModels.stream().map(n -> n.getId()).forEach(dmdiiDocumentService::deleteDMDIIDocumentsByDMDIIProjectId);
 		organizationRepository.delete(organizationId);
+		
+		//remove associated resource groups
+		resourceGroupService.removeAll(DocumentParentType.ORGANIZATION, organizationId);
+		
 	}
 }

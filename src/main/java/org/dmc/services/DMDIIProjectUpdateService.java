@@ -53,5 +53,11 @@ public class DMDIIProjectUpdateService {
 
 		return updateMapper.mapToModel(updateEntity);
 	}
+	
+	public void delete(Integer updateId) {
+		DMDIIProjectUpdate updateEntity = dmdiiProjectUpdateRepository.findOne(updateId);
+		updateEntity.setIsDeleted(true);
+		dmdiiProjectUpdateRepository.save(updateEntity);
+	}
 
 }

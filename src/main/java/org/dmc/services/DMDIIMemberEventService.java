@@ -27,4 +27,15 @@ public class DMDIIMemberEventService {
 		
 		return mapper.mapToModel(memberEventEntity);
 	}
+	
+	public DMDIIMemberEventModel delete(Integer eventId) {
+		Mapper<DMDIIMemberEvent, DMDIIMemberEventModel> mapper = mapperFactory.mapperFor(DMDIIMemberEvent.class, DMDIIMemberEventModel.class);
+		
+		DMDIIMemberEvent eventEntity = dmdiiMemberEventRepository.findOne(eventId);
+		
+		eventEntity.setIsDeleted(true);
+		eventEntity = dmdiiMemberEventRepository.save(eventEntity);
+		
+		return mapper.mapToModel(eventEntity);
+	}
 }

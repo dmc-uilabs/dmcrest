@@ -3,11 +3,18 @@ package org.dmc.services.projects;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.data.entities.ResourceGroup;
+import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.ResourceGroupRepository;
+import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.utils.SQLUtils;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,11 +22,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.inject.Inject;
+
+@Component
 public class ProjectMemberDao {
 
     private Connection connection;
     private final String logTag = ProjectMemberDao.class.getName();
+    
+    @Inject
+    private UserRepository userRepository;
+    
+    @Inject
+    private ResourceGroupRepository resourceGroupRepository;
+    
+    @Inject
+    private ResourceGroupService resourceGroupService;
 
     public ProjectMemberDao() {
     }
@@ -343,6 +364,12 @@ public class ProjectMemberDao {
                 connection.rollback();
                 throw new DMCServiceException(DMCError.NoExistingRequest,
                         "no existing request to join the project " + projectId + " for memberId " + memberId);
+            } else {
+                
+                //bolt on resource access for project members
+                User user = userRepository.getOne(memberId);
+                resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+            	
             }
 
             return findMemberRequest(memberId, projectId, fromUserId);
@@ -509,6 +536,11 @@ public class ProjectMemberDao {
             // if we have > 1 that the user has more requests for this project and we are rejecting all of them
             connection.rollback();
             throw new DMCServiceException(DMCError.BadURL, "no project request for " + memberId + " in project " + projectId);
+        } else {
+            
+            User user = userRepository.findOne(memberId);
+            resourceGroupService.removeResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+        	
         }
     }
 
