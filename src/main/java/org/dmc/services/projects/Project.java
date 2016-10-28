@@ -185,7 +185,7 @@ public class Project {
 	}
 	
 	public static Boolean needAdminApprovalToJoin(String approvalOption) {
-		if (approvalOption.equals("all")) {
+		if (approvalOption != null && approvalOption.equals("all")) {
 			return false;
 		} else {
 			return true;
