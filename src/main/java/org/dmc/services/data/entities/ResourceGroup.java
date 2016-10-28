@@ -22,14 +22,14 @@ public class ResourceGroup extends BaseEntity {
 		
 	}
 	
-	public ResourceGroup(DocumentParentType parentType, Integer parentId, Integer roleId) {
+	public ResourceGroup(DocumentParentType parentType, Integer parentId, Role role) {
 		super();
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
-		Assert.notNull(roleId);
+		Assert.notNull(role);
 		this.parentType = parentType;
 		this.parentId = parentId;
-		this.roleId = roleId;
+		this.role = role;
 	}
 
 	@Column(name = "parent_type")
@@ -39,7 +39,7 @@ public class ResourceGroup extends BaseEntity {
 	private Integer parentId;
 	
 	@Column(name = "role_id")
-	private Integer roleId;
+	private Role role;
 
 	public Integer getId() {
 		return id;
@@ -65,12 +65,12 @@ public class ResourceGroup extends BaseEntity {
 		this.parentId = parentId;
 	}
 
-	public Integer getRoleId() {
-		return roleId;
+	public Role getRole() {
+		return role;
 	}
 
-	public void setRoleId(Integer roleId) {
-		this.roleId = roleId;
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class ResourceGroup extends BaseEntity {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((parentId == null) ? 0 : parentId.hashCode());
 		result = prime * result + ((parentType == null) ? 0 : parentType.hashCode());
-		result = prime * result + ((roleId == null) ? 0 : roleId.hashCode());
+		result = prime * result + ((role == null) ? 0 : role.hashCode());
 		return result;
 	}
 
@@ -108,10 +108,10 @@ public class ResourceGroup extends BaseEntity {
 				return false;
 		} else if (!parentType.equals(other.parentType))
 			return false;
-		if (roleId == null) {
-			if (other.roleId != null)
+		if (role == null) {
+			if (other.role != null)
 				return false;
-		} else if (!roleId.equals(other.roleId))
+		} else if (!role.equals(other.role))
 			return false;
 		return true;
 	}

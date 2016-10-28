@@ -109,7 +109,7 @@ public class OrganizationService {
 			resourceGroupService.newCreate(DocumentParentType.ORGANIZATION, organizationEntity.getId());
 			
 			//add user to admin resource group
-			resourceGroupService.addResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), 2);
+			resourceGroupService.addResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), "ADMIN");
 			
 		} else {
 			organizationEntity = organizationRepository.save(organizationEntity);

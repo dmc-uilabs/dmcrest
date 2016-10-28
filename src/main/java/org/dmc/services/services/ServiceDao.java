@@ -1,5 +1,15 @@
 package org.dmc.services.services;
 
+import org.dmc.services.*;
+import org.dmc.services.company.CompanyDao;
+import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.search.SearchException;
+import org.dmc.services.search.SearchQueueImpl;
+import org.dmc.services.services.ServiceHistory.PeriodEnum;
+import org.dmc.services.services.ServiceHistory.SectionEnum;
+import org.dmc.solr.SolrUtils;
+import org.dmc.services.sharedattributes.FeatureImage;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
