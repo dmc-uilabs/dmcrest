@@ -261,7 +261,7 @@ public class ProjectDao {
             Boolean requiresApproval = Project.needAdminApprovalToJoin(approvalOption);
 
             // create new project in groups table
-            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval) values ( ?, ?, ?, ?, ?, ?, ? )";
+            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval) values ( ?, ?, ?, ?, ?, ?, ?, ? )";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
             preparedStatement.setString(1, projectname);
             preparedStatement.setString(2, unixname);
