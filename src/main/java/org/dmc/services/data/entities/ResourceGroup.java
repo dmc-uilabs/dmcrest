@@ -2,6 +2,8 @@ package org.dmc.services.data.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,7 +24,7 @@ public class ResourceGroup extends BaseEntity {
 		
 	}
 	
-	public ResourceGroup(DocumentParentType parentType, Integer parentId, Role role) {
+	public ResourceGroup(DocumentParentType parentType, Integer parentId, String role) {
 		super();
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
@@ -33,13 +35,14 @@ public class ResourceGroup extends BaseEntity {
 	}
 
 	@Column(name = "parent_type")
+	@Enumerated(EnumType.STRING)
 	private DocumentParentType parentType;
 	
 	@Column(name = "parent_id")
 	private Integer parentId;
 	
-	@Column(name = "role_id")
-	private Role role;
+	@Column(name = "role")
+	private String role;
 
 	public Integer getId() {
 		return id;
@@ -65,11 +68,11 @@ public class ResourceGroup extends BaseEntity {
 		this.parentId = parentId;
 	}
 
-	public Role getRole() {
+	public String getRole() {
 		return role;
 	}
 
-	public void setRole(Role role) {
+	public void setRole(String role) {
 		this.role = role;
 	}
 

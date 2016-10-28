@@ -21,7 +21,7 @@ public class ServiceEntity extends BaseEntity {
 	private Integer id;
 	
 	@Column(name = "organization_id")
-	private Organization organization;
+	private Integer organizationId;
 	
 	@Column(name = "title")
 	private String title;
@@ -30,7 +30,7 @@ public class ServiceEntity extends BaseEntity {
 	private String description;
 	
 	@Column(name = "owner_id")
-	private User owner;
+	private Integer ownerId;
 	
 	@Column(name = "release_date")
 	private Date releaseDate;
@@ -45,7 +45,7 @@ public class ServiceEntity extends BaseEntity {
 	private String specifications;
 	
 	@Column(name = "project_id")
-	private Project project;
+	private Integer projectId;
 	
 	@Column(name = "from_location")
 	private String fromLocation;
@@ -67,12 +67,12 @@ public class ServiceEntity extends BaseEntity {
 		this.id = id;
 	}
 
-	public Organization getOrganization() {
-		return organization;
+	public Integer getOrganizationId() {
+		return organizationId;
 	}
 
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
+	public void setOrganizationId(Integer organizationId) {
+		this.organizationId = organizationId;
 	}
 
 	public String getTitle() {
@@ -91,12 +91,12 @@ public class ServiceEntity extends BaseEntity {
 		this.description = description;
 	}
 
-	public User getOwner() {
-		return owner;
+	public Integer getOwnerId() {
+		return ownerId;
 	}
 
-	public void setOwner(User owner) {
-		this.owner = owner;
+	public void setOwnerId(Integer ownerId) {
+		this.ownerId = ownerId;
 	}
 
 	public Date getReleaseDate() {
@@ -131,12 +131,12 @@ public class ServiceEntity extends BaseEntity {
 		this.specifications = specifications;
 	}
 
-	public Project getProject() {
-		return project;
+	public Integer getProjectId() {
+		return projectId;
 	}
 
-	public void setProject(Project project) {
-		this.project = project;
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
 	}
 
 	public String getFromLocation() {
@@ -178,7 +178,7 @@ public class ServiceEntity extends BaseEntity {
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((fromLocation == null) ? 0 : fromLocation.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((organization == null) ? 0 : organization.hashCode());
+		result = prime * result + ((organizationId == null) ? 0 : organizationId.hashCode());
 		result = prime * result + ((parent == null) ? 0 : parent.hashCode());
 		result = prime * result + ((published == null) ? 0 : published.hashCode());
 		result = prime * result + ((releaseDate == null) ? 0 : releaseDate.hashCode());
@@ -214,10 +214,10 @@ public class ServiceEntity extends BaseEntity {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (organization == null) {
-			if (other.organization != null)
+		if (organizationId == null) {
+			if (other.organizationId != null)
 				return false;
-		} else if (!organization.equals(other.organization))
+		} else if (!organizationId.equals(other.organizationId))
 			return false;
 		if (parent == null) {
 			if (other.parent != null)

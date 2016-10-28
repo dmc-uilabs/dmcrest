@@ -42,9 +42,11 @@ public class ResourceAccessService {
 			if(userGroups != null) {
 				for(ResourceGroup group : userGroups) {
 					if(group.getParentType() == DocumentParentType.PROJECT) {
-						documentService.findServiceDocumentsByProjectId(group.getParentId())
+						if(documentService.findServiceDocumentsByProjectId(group.getParentId())
 						.stream()
-						.anyMatch(d -> d.getId().equals(doc.getId()));
+						.anyMatch(d -> d.getId().equals(doc.getId()))) {
+							return true;
+						}
 					}
 				}
 			}

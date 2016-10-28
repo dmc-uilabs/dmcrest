@@ -7,7 +7,6 @@ import javax.inject.Inject;
 
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.ResourceGroup;
-import org.dmc.services.data.entities.Role;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.RoleRepository;
@@ -37,9 +36,9 @@ public class ResourceGroupService {
 	public void newCreate (DocumentParentType parentType, Integer parentId) {
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
-    	List<Role> roles = Arrays.asList(roleRepository.findByRole(SecurityRoles.ADMIN), roleRepository.findByRole(SecurityRoles.MEMBER));
+    	List<String> roles = Arrays.asList(SecurityRoles.ADMIN, SecurityRoles.MEMBER);
 
-		for(Role role: roles) {
+		for(String role: roles) {
 			ResourceGroup group = new ResourceGroup(parentType, parentId, role);
 			resourceGroupRepository.save(group);
 		}
@@ -49,22 +48,20 @@ public class ResourceGroupService {
 	public void removeAll(DocumentParentType parentType, Integer parentId) {
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
-    	List<Role> roles = Arrays.asList(roleRepository.findByRole(SecurityRoles.ADMIN), roleRepository.findByRole(SecurityRoles.MEMBER));
+    	List<String> roles = Arrays.asList(SecurityRoles.ADMIN, SecurityRoles.MEMBER);
 
-		for(Role role: roles) {
+		for(String role: roles) {
 			ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
 			resourceGroupRepository.delete(group);
 		}
 	}
 	
 	@Transactional
-	public User removeResourceGroup(User user, DocumentParentType parentType, Integer parentId, String roleName) {
+	public User removeResourceGroup(User user, DocumentParentType parentType, Integer parentId, String role) {
 		Assert.notNull(user);
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
-		Assert.notNull(roleName);
-		
-		Role role = roleRepository.findByRole(roleName);
+		Assert.notNull(role);
 		
 		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
 		List<ResourceGroup> groups = user.getResourceGroups();
@@ -78,13 +75,11 @@ public class ResourceGroupService {
 	}
 	
 	@Transactional
-	public User addResourceGroup(User user, DocumentParentType parentType, Integer parentId, String roleName) {
+	public User addResourceGroup(User user, DocumentParentType parentType, Integer parentId, String role) {
 		Assert.notNull(user);
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
-		Assert.notNull(roleName);
-		
-		Role role = roleRepository.findByRole(roleName);
+		Assert.notNull(role);
 		
 		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
 		List<ResourceGroup> userGroups = user.getResourceGroups();
