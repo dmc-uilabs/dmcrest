@@ -3,7 +3,9 @@ package org.dmc.services.roleassignment;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.dmc.services.ResourceGroupService;
 import org.dmc.services.UserService;
+import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.Role;
 import org.dmc.services.data.entities.User;
@@ -14,6 +16,7 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserRoleAssignmentModel;
 import org.dmc.services.data.repositories.RoleRepository;
+import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserRoleAssignmentRepository;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.organization.OrganizationService;
@@ -31,6 +34,9 @@ public class UserRoleAssignmentService {
 
 	@Inject
 	private UserRoleAssignmentRepository userRoleAssignmentRepository;
+	
+	@Inject
+	private UserRepository userRepository;
 
 	@Inject
 	private RoleRepository roleRepository;
@@ -40,9 +46,17 @@ public class UserRoleAssignmentService {
 
 	@Inject
 	private OrganizationService organizationService;
+	
+	@Inject
+	private ResourceGroupService resourceGroupService;
 
 	@Transactional
 	public void deleteByUserIdAndOrganizationId(Integer userId, Integer organizationId) {
+		
+		//remove resource groups
+		resourceGroupService.removeResourceGroup(userRepository.findOne(userId), DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.ADMIN);
+		resourceGroupService.removeResourceGroup(userRepository.findOne(userId), DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.MEMBER);
+		
 		userRoleAssignmentRepository.deleteByUserIdAndOrganizationId(userId, organizationId);
 	}
 
@@ -85,18 +99,35 @@ public class UserRoleAssignmentService {
 		newAssignment.setRole(userRole);
 
 		deleteByUserIdAndOrganizationId(userId, organizationId);
+		
+		//add resource group to user
+		if(role.equals(SecurityRoles.ADMIN)) {
+			resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.ADMIN);
+			resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.MEMBER);
+		} else if(role.equals(SecurityRoles.MEMBER)) {
+			resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.MEMBER);			
+		}
+		
 		return userRoleAssignmentMapper.mapToModel(userRoleAssignmentRepository.save(newAssignment));
 	}
 
 	public UserRoleAssignment assignInitialCompanyAdmin(User user, Organization organization) {
 		Role role = roleRepository.findByRole(SecurityRoles.ADMIN);
 		UserRoleAssignment userRoleAssignmentEntity = new UserRoleAssignment(user, organization, role);
+		
+		//add resource group
+		resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organization.getId(), SecurityRoles.ADMIN);
+		
 		return userRoleAssignmentRepository.save(userRoleAssignmentEntity);
 	}
 
 	public UserRoleAssignment setUserAsMemberForAuthorizedIdps(User user, Organization organization) {
 		Role role = roleRepository.findByRole(SecurityRoles.MEMBER);
 		UserRoleAssignment userRoleAssignmentEntity = new UserRoleAssignment(user, organization, role);
+		
+		//add resource group
+		resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organization.getId(), SecurityRoles.MEMBER);
+		
 		return userRoleAssignmentRepository.save(userRoleAssignmentEntity);
 	}
 

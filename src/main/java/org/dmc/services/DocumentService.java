@@ -9,6 +9,7 @@ import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
+import org.dmc.services.data.repositories.ServiceRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.SecurityRoles;
@@ -53,6 +54,9 @@ public class DocumentService {
 	
 	@Inject
 	private ResourceAccessService resourceAccessService;
+	
+	@Inject
+	private ServiceRepository serviceRepository;
 
 	private final String logTag = DocumentService.class.getName();
 
@@ -349,6 +353,31 @@ public class DocumentService {
 			} catch (DMCServiceException ex) {
 				logger.error("Error occurred while refreshing document", ex);
 			}
+		}
+	}
+	
+	public List<Document> findServiceDocumentsByProjectId (Integer projectId) {
+		List<ServiceEntity> services = serviceRepository.findByProjectId(projectId);
+		List<Document> documents = new ArrayList<>();
+		
+		for(ServiceEntity service : services) {
+			documents.addAll(documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, service.getId()));
+		}
+		
+		return documents;
+	}
+	
+	public void duplicateDocumentsByParentTypeAndId (DocumentParentType oldParentType, Integer oldParentId, DocumentParentType newParentType, Integer newParentId) {
+		List<Document> originalDocs = documentRepository.findByParentTypeAndParentId(oldParentType, oldParentId);
+		
+		if (originalDocs != null && !originalDocs.isEmpty()) {
+			for (Document doc : originalDocs) {
+				doc.setId(null);
+				doc.setParentType(newParentType);
+				doc.setParentId(newParentId);
+				doc.setModified(new Timestamp(System.currentTimeMillis()));
+				documentRepository.save(doc);
+			} 
 		}
 	}
 }

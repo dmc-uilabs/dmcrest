@@ -2,7 +2,10 @@ package org.dmc.services;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.dmc.services.data.entities.Document;
+import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.ResourceType;
 import org.dmc.services.data.entities.User;
@@ -11,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ResourceAccessService {
+	
+	@Inject
+	private DocumentService documentService;
 
 	public Boolean hasAccess (ResourceType resourceType, Object argEntity, User requester) {
 		
@@ -32,6 +38,16 @@ public class ResourceAccessService {
 			}
 			
 			resGroups = doc.getResourceGroups();
+			
+			if(userGroups != null) {
+				for(ResourceGroup group : userGroups) {
+					if(group.getParentType() == DocumentParentType.PROJECT) {
+						documentService.findServiceDocumentsByProjectId(group.getParentId())
+						.stream()
+						.anyMatch(d -> d.getId().equals(doc.getId()));
+					}
+				}
+			}
 			
 			break;
 		default:

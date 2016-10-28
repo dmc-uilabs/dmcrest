@@ -13,6 +13,7 @@ import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.profile.Profile;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.utils.SQLUtils;
 import org.springframework.stereotype.Component;
 
@@ -368,7 +369,7 @@ public class ProjectMemberDao {
                 
                 //bolt on resource access for project members
                 User user = userRepository.getOne(memberId);
-                resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+                resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
             	
             }
 
@@ -539,7 +540,7 @@ public class ProjectMemberDao {
         } else {
             
             User user = userRepository.findOne(memberId);
-            resourceGroupService.removeResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+            resourceGroupService.removeResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
         	
         }
     }
