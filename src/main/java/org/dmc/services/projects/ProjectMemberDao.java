@@ -41,6 +41,9 @@ public class ProjectMemberDao {
     
     @Inject
     private ResourceGroupService resourceGroupService;
+    
+    @Inject
+    private ProjectDao projectDao;
 
     public ProjectMemberDao() {
     }
@@ -235,8 +238,7 @@ public class ProjectMemberDao {
          * so I am extracting the data and sending to that function call in ProjectDao
          */
         
-        final ProjectDao project = new ProjectDao();
-        project.createProjectJoinRequest(request, userEPPN);
+        projectDao.createProjectJoinRequest(request, userEPPN);
         createdMember.setAccept(member.getFromProfileId().equals(member.getProfileId()) ? true : false);
         createdMember.setDate(System.currentTimeMillis());
         createdMember.setFrom(userEPPN);

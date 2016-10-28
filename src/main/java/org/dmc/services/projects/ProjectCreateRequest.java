@@ -20,6 +20,7 @@ public class ProjectCreateRequest {
 	private String description = null; 
 	private String projectType = null;
 	private long dueDate = 0;
+	private String approvalOption = null;
 	
 //	@JsonCreator
 //	public ProjectCreateRequest(@JsonProperty("name") String name, @JsonProperty("description") String description)
@@ -68,6 +69,16 @@ public class ProjectCreateRequest {
 	@JsonProperty("type")
 	public void setProjectType(String value){
 		projectType = value;
+	}
+	
+	@JsonProperty("approvalOption")
+	public String getApprovalOption() {
+		return approvalOption;
+	}
+	
+	@JsonProperty("approvalOption")
+	public void setApprovalOption(String value) {
+		approvalOption = value;
 	}
 	
 	@Override
