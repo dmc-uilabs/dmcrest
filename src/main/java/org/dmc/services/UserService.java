@@ -1,7 +1,6 @@
 package org.dmc.services;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.collections.IteratorUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
@@ -31,7 +30,6 @@ import org.dmc.services.email.EmailModel;
 import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.notification.NotificationService;
-import org.dmc.services.predicates.UserPredicates;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
@@ -46,12 +44,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.dmc.services.predicates.UserPredicates.buildPredicate;
+import static org.dmc.services.predicates.UserPredicates.likeFirstName;
+import static org.dmc.services.predicates.UserPredicates.likeLastName;
 
 @Service
 public class UserService {
@@ -113,7 +114,7 @@ public class UserService {
 	public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter) {
 		Mapper<User, SimpleUserModel> mapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
 		Page<User> users =
-				userRepository.findAll(UserPredicates.likeFirstOrLastName(firstNameFilter, lastNameFilter), pageRequest);
+				userRepository.findAll(buildPredicate(likeFirstName(firstNameFilter), likeLastName(lastNameFilter)), pageRequest);
 		List<SimpleUserModel> simpleUsers = mapper.mapToModel(users.getContent());
 		return new PageImpl<>(simpleUsers, pageRequest, users.getTotalElements());
 	}
