@@ -48,6 +48,9 @@ public class ProjectDao {
     
     @Inject
     private ProjectJoinApprovalRequestRepository projectJoinApprovalRequestRepository;
+    
+    @Inject
+    private ProjectMemberDao projectMemberDao;
 
     public ProjectDao() {
     }
@@ -626,7 +629,6 @@ public class ProjectDao {
 
         Integer projectId = Integer.parseInt(projectIdAsString);
         Integer profileId = Integer.parseInt(profileIdAsString);
-        ProjectMemberDao projectMemberDao = new ProjectMemberDao();
         Project project = this.getProject(projectId, userEPPN);
         
         Boolean allowed = false;
