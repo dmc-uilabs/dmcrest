@@ -20,7 +20,10 @@ import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.data.entities.ProjectJoinApprovalRequest;
+import org.dmc.services.data.entities.ProjectJoinApprovalRequest.ProjectJoinApprovalRequestStatus;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.ProjectJoinApprovalRequestRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.search.SearchException;
 import org.dmc.services.sharedattributes.FeatureImage;
@@ -42,6 +45,9 @@ public class ProjectDao {
 
     @Inject
     private UserRepository userRepository;
+    
+    @Inject
+    private ProjectJoinApprovalRequestRepository projectJoinApprovalRequestRepository;
 
     public ProjectDao() {
     }
@@ -594,8 +600,9 @@ public class ProjectDao {
         return createProjectJoinRequest(projectId, profileId, userId, userEPPN);
     }
 
-    private boolean selfAutoJoin(int projectId, int profileId, int requesterId) {
-        if (profileId == requesterId) {
+    // AutoJoin is applicable for self joining OR when there is an aproved join request
+    private boolean autoJoin(int projectId, int profileId, int requesterId, Boolean approvedJoinRequest) {
+        if (profileId == requesterId || approvedJoinRequest) {
             final String autoJoinProject = "UPDATE group_join_request SET accept_date = now() WHERE user_id = ? AND requester_id = ? and group_id = ?";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(autoJoinProject);
             try {
@@ -614,7 +621,7 @@ public class ProjectDao {
         return false;
     }
 
-    private ProjectJoinRequest createProjectJoinRequest(String projectIdAsString, String profileIdAsString, int requesterId, String userEPPN)
+    public ProjectJoinRequest createProjectJoinRequest(String projectIdAsString, String profileIdAsString, int requesterId, String userEPPN)
             throws SQLException, Exception {
 
         Integer projectId = Integer.parseInt(projectIdAsString);
@@ -623,6 +630,7 @@ public class ProjectDao {
         Project project = this.getProject(projectId, userEPPN);
         
         Boolean allowed = false;
+        Boolean approvedJoinRequest = false;
 
         if (projectMemberDao.isUserProjectAdmin(projectId, requesterId)) {
             allowed = true;
@@ -631,6 +639,11 @@ public class ProjectDao {
         // Non-admins are allowed to add themselves to projects that don't require admin approval
         if (profileId == requesterId && project != null && !project.getRequiresAdminApprovalToJoin()) {
         	allowed = true;
+        }
+        
+        if (approvedProjectJoinApprovalRequestExists(projectId, profileId)) {
+        	allowed = true;
+        	approvedJoinRequest = true;
         }
         
         if (!allowed) {
@@ -652,7 +665,7 @@ public class ProjectDao {
             }
         }
 
-        if (this.selfAutoJoin(projectId, profileId, requesterId))
+        if (this.autoJoin(projectId, profileId, requesterId, approvedJoinRequest))
             ServiceLogger.log(LOGTAG, "selfAutoJoin done");
         else
             ServiceLogger.log(LOGTAG, "not a selfAutoJoin");
@@ -672,6 +685,16 @@ public class ProjectDao {
         }
         ServiceLogger.log(LOGTAG, "going to fail now because we didn't find the expected ProjectJoinRequest");
         throw new DMCServiceException(DMCError.NoExistingRequest, "Failed to create join request - we should have found one and returned");
+    }
+    
+    private Boolean approvedProjectJoinApprovalRequestExists(Integer projectId, Integer userId) {
+    	ProjectJoinApprovalRequest request = projectJoinApprovalRequestRepository.findByProjectIdAndUserId(projectId, userId);
+    	
+    	if (request != null && request.getStatus().equals(ProjectJoinApprovalRequestStatus.APPROVED)) {
+    		return true;
+    	} else {
+    		return false;
+    	}
     }
 
     // sample query for member 111 by fforgeadmin user (102), If by and member

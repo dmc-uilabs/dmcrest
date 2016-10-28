@@ -16,12 +16,16 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.data.models.ProjectJoinApprovalRequestModel;
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionListDao;
 import org.dmc.services.discussions.IndividualDiscussion;
 import org.dmc.services.discussions.IndividualDiscussionDao;
+import org.dmc.services.exceptions.ArgumentNotFoundException;
+import org.dmc.services.security.UserPrincipal;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +41,9 @@ public class ProjectController {
 	
 	@Inject
 	private ProjectDao project;
+	
+	@Inject
+	private ProjectJoinApprovalRequestService projectJoinApprovalRequestSevice;
 
 	private final String logTag = ProjectController.class.getName();
 	private DiscussionListDao discussionListDao = new DiscussionListDao();
@@ -280,6 +287,29 @@ public class ProjectController {
 		}
 
 		return new ResponseEntity<Id>(updatedId, HttpStatus.valueOf(httpStatusCode));
+	}
+	
+	@RequestMapping(value = "/projects/{id}/joinApprovalRequests", method = RequestMethod.GET)
+	public List<ProjectJoinApprovalRequestModel> getProjectJoinApprovalRequests(@PathVariable("id") Integer projectId) {
+		return projectJoinApprovalRequestSevice.getProjectJoinApprovalRequests(projectId);
+	}
+	
+	@RequestMapping(value = "/projects/{id}/joinApprovalRequests", method = RequestMethod.POST)
+	public ProjectJoinApprovalRequestModel createProjectJoinApprovalRequest(@PathVariable("id") Integer projectId) {
+		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return projectJoinApprovalRequestSevice.createProjectJoinApprovalRequest(projectId, userPrincipal.getUsername());
+	}
+	
+	@RequestMapping(value = "/projectJoinApprovalRequests/{id}", method = RequestMethod.PUT, params = "action=approve")
+	public ProjectJoinApprovalRequestModel approveProjectJoinApprovalRequest(@PathVariable("id") Integer id) throws Exception {
+		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return projectJoinApprovalRequestSevice.approveRequest(id, user.getId());
+	}
+	
+	@RequestMapping(value = "/projectJoinApprovalRequests/{id}", method = RequestMethod.PUT, params = "action=decline")
+	public ProjectJoinApprovalRequestModel declineProjectJoinApprovalRequest(@PathVariable("id") Integer id) throws ArgumentNotFoundException {
+		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return projectJoinApprovalRequestSevice.declineRequest(id, user.getId());
 	}
 
 }
