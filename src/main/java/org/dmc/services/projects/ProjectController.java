@@ -235,6 +235,14 @@ public class ProjectController {
 		}
 	}
 
+	@ExceptionHandler(Exception.class)
+	public ErrorMessage handleException(Exception ex) {
+		// prepare responseEntity
+		ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage()).build();
+		ServiceLogger.log(logTag, result.getMessage());
+		return result;
+	}
+	
 	@RequestMapping(value = "/projects/{projectID}/following_discussions", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<?> getFollowingDiscussionsFromProjectId(@PathVariable("projectID") Integer projectID,
