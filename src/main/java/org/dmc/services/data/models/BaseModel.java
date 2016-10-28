@@ -1,7 +1,6 @@
 package org.dmc.services.data.models;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public class BaseModel implements Serializable {
 	

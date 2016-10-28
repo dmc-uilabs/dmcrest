@@ -1,7 +1,5 @@
 package org.dmc.services.products;
 
-
-import org.dmc.services.reviews.ReviewHelpful;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +15,7 @@ import java.util.List;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.reviews.ReviewDao;
+import org.dmc.services.reviews.ReviewHelpful;
 import org.dmc.services.reviews.ReviewType;
 
 import static org.springframework.http.MediaType.*;
@@ -32,6 +31,7 @@ public class ProductReviewsHelpfulController {
     public ResponseEntity<?> productReviewsHelpfulGet(@RequestParam(value = "reviewId", required = true) String reviewId,
                                                       @RequestParam(value = "accountId", required = true) String accountId,
                                                       @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+        ServiceLogger.log(logTag, "productReviewsHelpfulGet: with user " + userEPPN + " for review id" + reviewId + " with account id " + accountId);
         final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
         
         try {
@@ -47,6 +47,8 @@ public class ProductReviewsHelpfulController {
     @RequestMapping(value = "", produces = { APPLICATION_JSON_VALUE },method = RequestMethod.POST)
     public ResponseEntity<?> productReviewsHelpfulPost(@RequestBody ReviewHelpful serviceReviewHelpful,
                                                        @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+        ServiceLogger.log(logTag, "productReviewsHelpfulPost: with user " + userEPPN);
+
         final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
         
         try {
@@ -61,8 +63,9 @@ public class ProductReviewsHelpfulController {
     
     @RequestMapping(value = "/{helpfulID}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
     public ResponseEntity<?> productReviewsHelpfulHelpfulIDPatch(@PathVariable("helpfulID") String helpfulID,
-                                                                             @RequestBody ReviewHelpful helpful,
-                                                                             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+                                                                 @RequestBody ReviewHelpful helpful,
+                                                                 @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+        ServiceLogger.log(logTag, "productReviewsHelpfulHelpfulIDPatch: with user " + userEPPN + " for helpfulID: " + helpfulID);
         final ReviewDao<ProductReview> reviewDao = new ReviewDao<ProductReview>(ReviewType.SERVICE);
         
         try {

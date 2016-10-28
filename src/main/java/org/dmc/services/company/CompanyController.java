@@ -1,34 +1,33 @@
 package org.dmc.services.company;
 
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.ErrorMessage;
-import org.dmc.services.Id;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.components.Component;
-import org.dmc.services.services.Service;
-import org.dmc.services.services.ServiceDao;
-import org.dmc.services.users.User;
-import org.dmc.services.reviews.ReviewDao;
-import org.dmc.services.reviews.ReviewType;
-
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.ErrorMessage;
+import org.dmc.services.Id;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.components.Component;
+import org.dmc.services.reviews.ReviewDao;
+import org.dmc.services.reviews.ReviewType;
+import org.dmc.services.services.Service;
+import org.dmc.services.services.ServiceDao;
+import org.dmc.services.users.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CompanyController {
@@ -37,7 +36,6 @@ public class CompanyController {
 
     private CompanyDao companyDao = new CompanyDao();
     private CompanySkillDao skillDao = new CompanySkillDao();
-    private CompanyVideoDao videoDao = new CompanyVideoDao();
     private ReviewDao<CompanyReview> reviewDao = new ReviewDao(ReviewType.ORGANIZATION);
 
     /**
@@ -59,7 +57,7 @@ public class CompanyController {
             return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
         }
     }
-    
+
     @RequestMapping(value = "/companies/{id}", method = RequestMethod.GET, produces = { APPLICATION_JSON_VALUE})
     public ResponseEntity getCompany(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
         ServiceLogger.log(logTag, "getCompany, id: " + id);
@@ -76,9 +74,9 @@ public class CompanyController {
             return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
         }
     }
-    
-    
-    
+
+
+
     @RequestMapping(value = "/companies/create", method = RequestMethod.POST, produces = {APPLICATION_JSON_VALUE})
     @ResponseBody
     public Id createCompany(@RequestBody Company company, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
@@ -95,7 +93,7 @@ public class CompanyController {
 
         int statusCode = HttpStatus.OK.value();
         Id retrievedId = null;
-        
+
         try {
             retrievedId = companyDao.updateCompany(id, company, userEPPN);
             return new ResponseEntity<Id>(retrievedId, HttpStatus.valueOf(statusCode));
@@ -103,113 +101,13 @@ public class CompanyController {
             statusCode = e.getStatusCode();
             ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
             return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-        }  
+        }
     }
-    
+
     @RequestMapping(value = "/companies/{id}/delete", method = RequestMethod.DELETE)
     public Id deleteCompany(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
         ServiceLogger.log(logTag, "deleteCompany, id: " + id);
         return  companyDao.deleteCompany(id, userEPPN);
-    }
-
-    /**
-     * Retrieve company videos
-     *
-     * @param id
-     * @param userEPPN
-     * @return
-     */
-    @RequestMapping(value = "/companies/{id}/company_videos", method = RequestMethod.GET, produces = { APPLICATION_JSON_VALUE })
-    public ResponseEntity getCompanyVideos(@PathVariable("id") int id, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
-
-        ServiceLogger.log(logTag, "getCompanyVideos, userEPPN: " + userEPPN);
-        int statusCode = HttpStatus.OK.value();
-        ArrayList<CompanyVideo> videos = null;
-
-        try {
-            videos = videoDao.getCompanyVideos(id, userEPPN);
-            return new ResponseEntity<ArrayList<CompanyVideo>>(videos, HttpStatus.valueOf(statusCode));
-        } catch (HTTPException e) {
-            ServiceLogger.log(logTag, e.getMessage());
-            statusCode = e.getStatusCode();
-            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-        }
-    }
-
-    /**
-     * Create a company video
-     * @param video
-     * @param userEPPN
-     * @return
-     */
-
-    @RequestMapping(value = "/company_videos", method = RequestMethod.POST, produces = { APPLICATION_JSON_VALUE })
-    @ResponseBody
-    public ResponseEntity createCompanyVideo(@RequestBody CompanyVideo video, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
-
-        ServiceLogger.log(logTag, "createCompanyVideo");
-        int statusCode = HttpStatus.OK.value();
-        Id id = null;
-
-        try {
-            id = videoDao.createCompanyVideo(video, userEPPN);
-            return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
-        } catch (HTTPException e) {
-            statusCode = e.getStatusCode();
-            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-        }
-    }
-
-    /**
-     * Delete a company video
-     * @param id
-     * @param userEPPN
-     * @return
-     */
-    @RequestMapping(value = "/company_videos/{id}", method = RequestMethod.DELETE, produces = { APPLICATION_JSON_VALUE })
-    public ResponseEntity deleteCompanyVideos(@PathVariable("id") int videoId, @RequestHeader(value = "AJP_eppn", required = true) String userEPPN) {
-
-        ServiceLogger.log(logTag, "deleteCompanyVideos, userEPPN: " + userEPPN);
-        int statusCode = HttpStatus.OK.value();
-        Id id = null;
-
-        try {
-            id = videoDao.deleteCompanyVideo(-1, videoId, userEPPN);
-            return new ResponseEntity<Id>(id, HttpStatus.valueOf(statusCode));
-        } catch (HTTPException e) {
-            ServiceLogger.log(logTag, e.getMessage());
-            statusCode = e.getStatusCode();
-            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
-            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-        }
-    }
-
-    /**
-     * Update Company Video
-     * @param id
-     * @param video
-     * @param userEPPN
-     * @return
-     */
-    @RequestMapping(value = "/company_videos/{id}", method = RequestMethod.PATCH, produces = { APPLICATION_JSON_VALUE })
-    public ResponseEntity updateCompanyVideo(@PathVariable("id") int id,
-                            @RequestBody CompanyVideo video,
-                            @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
-        ServiceLogger.log(logTag, "updateCompanyVideo, video: " + video.toString());
-
-        int httpStatusCode = HttpStatus.OK.value();
-        Id updatedId = null;
-        
-        try {
-            updatedId = videoDao.updateCompanyVideo(id, video, userEPPN);
-        } catch (DMCServiceException e) {
-			ServiceLogger.logException(logTag, e);
-			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-		} 
-
-        return new ResponseEntity<Id>(updatedId, HttpStatus.valueOf(httpStatusCode));        
     }
 
     /**
@@ -276,32 +174,6 @@ public class CompanyController {
         }
     }
 
-
-     @RequestMapping(value = "/companies/{companyID}/company_images",
-                produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
-                method = RequestMethod.GET)
-              public ResponseEntity companiesCompanyIDCompanyImagesGet(
-            @PathVariable("companyID") String companyID){
-                  // do some magic!
-    	 		if(companyID == null || Integer.parseInt(companyID) == -1) {
-    	 			ErrorMessage error = new ErrorMessage("Company Id out of bounds");
-    	 			return new ResponseEntity<ErrorMessage>(error, HttpStatus.BAD_REQUEST);
-    	 		}
-                  return new ResponseEntity<List<CompanyImage>>(HttpStatus.NOT_IMPLEMENTED);
-              }
-
-     @RequestMapping(value = "/company_images/{imageID}",
-                produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
-                method = RequestMethod.PATCH)
-              public ResponseEntity<CompanyImage> companyImagesImageIDPatch(
-            @PathVariable("imageID") String imageID,
-            @RequestBody CompanyImage image){
-                  // do some magic!
-                  return new ResponseEntity<CompanyImage>(HttpStatus.NOT_IMPLEMENTED);
-              }
-
-
-
      @RequestMapping(value = "/companies/{companyID}/company_history",
                 produces = {APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
                 method = RequestMethod.GET)
@@ -310,27 +182,6 @@ public class CompanyController {
                   // do some magic!
                   return new ResponseEntity<List<CompanyHistory>>(HttpStatus.NOT_IMPLEMENTED);
               }
-
-
-     @RequestMapping(value = "/companies/{companyID}/company_skill_images",
-                produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
-                method = RequestMethod.GET)
-              public ResponseEntity<List<CompanySkillImage>> companiesCompanyIDCompanySkillImagesGet(
-            @PathVariable("companyID") String companyID){
-                  // do some magic!
-                  return new ResponseEntity<List<CompanySkillImage>>(HttpStatus.NOT_IMPLEMENTED);
-              }
-
-     @RequestMapping(value = "/company_skill_images/{imageID}",
-                produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE },
-                method = RequestMethod.PATCH)
-              public ResponseEntity<CompanySkillImage> companySkillImagesImageIDPatch(
-            @PathVariable("imageID") String imageID,
-            @RequestBody CompanySkillImage image){
-                  // do some magic!
-                  return new ResponseEntity<CompanySkillImage>(HttpStatus.NOT_IMPLEMENTED);
-              }
-
 
      @RequestMapping(value = "/companies/{companyID}/company_reviews", produces = { APPLICATION_JSON_VALUE, TEXT_HTML_VALUE }, method = RequestMethod.GET)
      public ResponseEntity companiesCompanyIDCompanyReviewsGet (
@@ -404,7 +255,7 @@ public class CompanyController {
         @RequestParam(value = "ratings", required = false) List<String> ratings,
         @RequestParam(value = "favorites", required = false) String favorites,
         @RequestParam(value = "dates", required = false) List<String> dates) {
-        
+
         ServiceDao serviceDao = new ServiceDao();
         try {
             ServiceLogger.log(logTag, "In marketNewServicesGet");
@@ -415,7 +266,7 @@ public class CompanyController {
                 order = "DESC";
                 sort = "release_date";
             }
-            return new ResponseEntity<List<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN, Integer.parseInt(companyID)), HttpStatus.OK);
+            return new ResponseEntity<List<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, null, fromLocations, userEPPN, Integer.parseInt(companyID)), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -482,7 +333,7 @@ public class CompanyController {
  			ServiceLogger.log(logTag, e.getMessage());
  			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
  		}
- 		
+
  	}
 
  	@RequestMapping(value = "/company/unfollow/{followed_companyId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.DELETE)

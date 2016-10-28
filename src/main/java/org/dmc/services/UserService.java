@@ -1,11 +1,5 @@
 package org.dmc.services;
 
-import java.util.Arrays;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
@@ -14,6 +8,7 @@ import org.dmc.services.data.entities.OnboardingStatus;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.OrganizationAuthorizedIdp;
 import org.dmc.services.data.entities.OrganizationUser;
+import org.dmc.services.data.entities.ServerAccess;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
@@ -28,8 +23,11 @@ import org.dmc.services.data.repositories.OnboardingStatusRepository;
 import org.dmc.services.data.repositories.OrganizationAuthorizedIdpRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
+import org.dmc.services.data.repositories.ServerAccessRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
+import org.dmc.services.email.EmailModel;
+import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.notification.NotificationService;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
@@ -37,11 +35,22 @@ import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.security.UserPrincipalService;
 import org.dmc.services.users.VerifyUserResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 public class UserService {
+
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -77,7 +86,13 @@ public class UserService {
 	private OrganizationAuthorizedIdpRepository idpRepository;
 
 	@Inject
+	private ServerAccessRepository accessRepo;
+
+	@Inject
 	private DocumentRepository documentRepository;
+
+	@Inject
+	private EmailService emailService;
 
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -133,6 +148,25 @@ public class UserService {
 		}
 
 		return mapper.mapToModel(token);
+	}
+
+	public ResponseEntity emailToken(Integer userId, String token) {
+		User user = this.userRepository.findOne(userId);
+		if(user.getEmail() == null) return ResponseEntity.badRequest().body("User does not have an email!");
+
+		EmailModel emailModel = new EmailModel();
+		emailModel.setName(String.format("%s %s", user.getFirstName(), user.getLastName()));
+		emailModel.setEmail(user.getEmail());
+		emailModel.setToken(token);
+		emailModel.setTemplate(1);
+
+		HttpStatus status = this.emailService.sendEmail(emailModel);
+
+		if (!HttpStatus.OK.equals(status)) {
+			logger.warn("Email for user token was not sent for user: {}", user.getEmail());
+		}
+
+		return ResponseEntity.status(status).build();
 	}
 
 	@Transactional
@@ -281,6 +315,7 @@ public class UserService {
 		user.setRealname(fullName);
 		user.setEmail(email);
 		user.setAddDate(0L);
+		user.setAccessList(Arrays.asList(accessRepo.findOneByName("global")));
 		user.setUserContactInfo(new UserContactInfo());
 		user = userRepository.save(user);
 
@@ -327,7 +362,7 @@ public class UserService {
 		currentUser.setAddress(patchUser.getAddress());
 		currentUser.setOnboarding(patchUserEntity.getOnboarding());
 		currentUser.setSkills(patchUserEntity.getSkills());
-		if(currentUser.getUserContactInfo() != null){
+		if(currentUser.getUserContactInfo() != null && patchUserEntity.getUserContactInfo() != null){
 			currentUser.getUserContactInfo().setUserMemberPortalContactInfo(patchUserEntity.getUserContactInfo().getUserMemberPortalContactInfo());
 			currentUser.getUserContactInfo().setUserPublicContactInfo(patchUserEntity.getUserContactInfo().getUserPublicContactInfo());
 		}
@@ -351,22 +386,25 @@ public class UserService {
 			currentUser.setEmail(patchUser.getEmail());
 		}
 
-		// if user doesn't currently have an organization or is changing their organization, update the organization user record
-		if((currentUser.getOrganizationUser() == null && patchUser.getCompanyId() != null) ||
-			(currentUser.getOrganizationUser() != null && !patchUser.getCompanyId().equals(currentUser.getOrganizationUser().getOrganization().getId()))) {
-			currentUser.setOrganizationUser(updateOrganizationUser(currentUser, patchUser.getCompanyId()));
-		}
+		currentUser.setOrganizationUser(createOrganizationUser(currentUser, patchUser.getCompanyId()));
 
 		this.updateUserProfileLogo(currentUser);
 
 		return userMapper.mapToModel(userRepository.save(currentUser));
 	}
 
-	private OrganizationUser updateOrganizationUser(User user, Integer newOrganizationId) {
-		orgUserRepo.deleteByUserId(user.getId());
-		Organization newOrganization = organizationRepository.findOne(newOrganizationId);
-		notificationService.notifyOrgAdminsOfNewUser(newOrganizationId, user);
-		return orgUserRepo.save(new OrganizationUser(user, newOrganization, false));
+	private OrganizationUser createOrganizationUser(User user, Integer organizationId) {
+		if(organizationId == null) return null;
+
+		Organization organization = this.organizationRepository.findOne(organizationId);
+		OrganizationUser organizationUser = this.orgUserRepo.findByUserId(user.getId());
+
+		if(organizationUser == null && organization != null) {
+			notificationService.notifyOrgAdminsOfNewUser(organizationId, user);
+			organizationUser = orgUserRepo.save(new OrganizationUser(user, organization, false));
+		}
+
+		return organizationUser;
 	}
 
 	private void updateUserProfileLogo(User user){

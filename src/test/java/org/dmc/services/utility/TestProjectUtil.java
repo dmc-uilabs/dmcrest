@@ -17,20 +17,6 @@ import org.json.JSONObject;
 public class TestProjectUtil {
     private final static String LOGTAG = TestProjectUtil.class.getName(); 
 
-    public static int createProjectOldMethod(String user) {
-        final String unique = UUID.randomUUID().toString().substring(0, 24);
-    
-        final JSONObject json = new JSONObject();
-        json.put("projectname", "junit" + unique);
-        json.put("unixname", "junit" + unique);
-        ServiceLogger.log(LOGTAG, "testProjectCreateJsonString: json = " + json.toString());
-    
-        final int createdId = given().header("AJP_eppn", user).body(json.toString()).expect().statusCode(OK.value()).when()
-                .post("/projects/oldcreate").then().body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"))
-                .extract().path("id");
-        return createdId;
-    }
-
     public static int createProject(String user) {
         final Date date = new Date();
         final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");

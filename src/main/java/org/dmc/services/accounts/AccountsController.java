@@ -1,5 +1,8 @@
 package org.dmc.services.accounts;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,7 +14,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.DomeServerService;
+import org.dmc.services.ServerAccessService;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.data.entities.DomeServer;
+import org.dmc.services.data.entities.ServerAccess;
 import org.dmc.services.discussions.FollowDiscussionsDao;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
 import org.dmc.services.member.FollowingMemberDao;
@@ -22,6 +29,7 @@ import org.dmc.services.products.FavoriteProductsDao;
 import javax.xml.ws.http.HTTPException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import static org.springframework.http.MediaType.*;
 
@@ -32,6 +40,9 @@ public class AccountsController {
 
     private final String logTag = AccountsController.class.getName();
     private AccountsDao accounts = new AccountsDao();
+    
+    @Autowired
+    DomeServerService serverService;
 
     @RequestMapping(value = "/{accountID}", produces = { "application/json" }, method = RequestMethod.GET)
     public ResponseEntity<UserAccount> accountsAccountIDGet(@PathVariable("accountID") String accountID,
@@ -79,16 +90,14 @@ public class AccountsController {
     @RequestMapping(value = "/{accountID}/account_servers", produces = {
             "application/json" }, method = RequestMethod.GET)
     public ResponseEntity accountsAccountIDAccountServersGet(@PathVariable("accountID") String accountID,
-            @RequestParam(value = "_limit", required = false) Integer limit,
-            @RequestParam(value = "_order", required = false) String order,
-            @RequestParam(value = "_sort", required = false) String sort) {
-
-        AccountsDao accountsDao = new AccountsDao();
+            @RequestParam(value = "_limit", required = false, defaultValue = "10") Integer limit,
+            @RequestParam(value = "_order", required = false, defaultValue = "ASC") String order,
+            @RequestParam(value = "_sort", required = false, defaultValue = "name") String sort) {
 
         try {
-            ServiceLogger.log(logTag, "In accountsAccountIDAccountServersGet, accountID = " + accountID);
-            return new ResponseEntity<List<UserAccountServer>>(
-                    accountsDao.getAccountServersFromAccountID(accountID, limit, order, sort), HttpStatus.OK);
+        	ServiceLogger.log(logTag, "In accountsAccountIDAccountServersGet, accountID = " + accountID);
+        	return new ResponseEntity<List<DomeServer>>(serverService.findAllServers(Integer.valueOf(accountID),
+        			new PageRequest(0, limit, order.equals("DESC")?Direction.DESC:Direction.ASC, sort)), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());

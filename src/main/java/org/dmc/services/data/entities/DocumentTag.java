@@ -13,9 +13,10 @@ public class DocumentTag extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	@Column(name="id")
+	public Integer id;
 
-	@Column(name = "tag_name")
+	@Column(name = "tag_name", unique = true)
 	private String tagName;
 
 	public Integer getId() {

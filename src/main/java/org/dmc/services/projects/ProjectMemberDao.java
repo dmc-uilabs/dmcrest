@@ -3,11 +3,18 @@ package org.dmc.services.projects;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.data.entities.ResourceGroup;
+import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.ResourceGroupRepository;
+import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.utils.SQLUtils;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,11 +22,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.inject.Inject;
+
+@Component
 public class ProjectMemberDao {
 
     private Connection connection;
     private final String logTag = ProjectMemberDao.class.getName();
+    
+    @Inject
+    private UserRepository userRepository;
+    
+    @Inject
+    private ResourceGroupRepository resourceGroupRepository;
+    
+    @Inject
+    private ResourceGroupService resourceGroupService;
 
     public ProjectMemberDao() {
     }
@@ -137,8 +158,8 @@ public class ProjectMemberDao {
                 + "FROM group_join_request gjr " 
                 + "JOIN users u ON gjr.user_id = u.user_id "
                 + "JOIN users ur ON gjr.requester_id = ur.user_id ";
-        final String adminRequiredClause = "gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = "
-                + userId + " and adr.role_name = 'Admin')";
+        final String membershipRequiredClause = "gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = "
+                + userId + ")";
 
         ArrayList<String> clauses =  new ArrayList<String>();
         if (null != projectList ) {
@@ -151,12 +172,12 @@ public class ProjectMemberDao {
         if (null != userMemberIdList) {
             clauses.add(createInvitationClause(userMemberIdList));
         }
-        if (null == projectList && null == userMemberIdList && false == accept) {
+        if (null == projectList && null == userMemberIdList && (null!= accept && false == accept)) {
             clauses.add("gjr.user_id = " + userId);
         } else if (null == projectList && null == userMemberIdList) {
-            clauses.add(adminRequiredClause);
+            clauses.add(membershipRequiredClause);
         } else if (!isIdInInvitationList(Integer.toString(userId), userMemberIdList)) {
-            clauses.add(adminRequiredClause);
+            clauses.add(membershipRequiredClause);
         }
 
         final String acceptClause = createAcceptClause(accept);
@@ -343,6 +364,12 @@ public class ProjectMemberDao {
                 connection.rollback();
                 throw new DMCServiceException(DMCError.NoExistingRequest,
                         "no existing request to join the project " + projectId + " for memberId " + memberId);
+            } else {
+                
+                //bolt on resource access for project members
+                User user = userRepository.getOne(memberId);
+                resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+            	
             }
 
             return findMemberRequest(memberId, projectId, fromUserId);
@@ -509,6 +536,11 @@ public class ProjectMemberDao {
             // if we have > 1 that the user has more requests for this project and we are rejecting all of them
             connection.rollback();
             throw new DMCServiceException(DMCError.BadURL, "no project request for " + memberId + " in project " + projectId);
+        } else {
+            
+            User user = userRepository.findOne(memberId);
+            resourceGroupService.removeResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+        	
         }
     }
 
