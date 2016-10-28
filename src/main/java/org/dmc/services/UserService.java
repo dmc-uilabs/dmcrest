@@ -110,14 +110,6 @@ public class UserService {
 		return mapper.mapToModel(userRepository.findByUsername(username));
 	}
 
-	/*public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter) {
-		Mapper<User, SimpleUserModel> mapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
-		List<User> users = IteratorUtils.toList(
-				userRepository.findAll(UserPredicates.likeFirstOrLastName(firstNameFilter, lastNameFilter)).iterator());
-		List<SimpleUserModel> simpleUsers = mapper.mapToModel(users);
-		return new PageImpl<>(simpleUsers, pageRequest, simpleUsers.size());
-	}*/
-
 	public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter) {
 		Mapper<User, SimpleUserModel> mapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
 		Page<User> users =
