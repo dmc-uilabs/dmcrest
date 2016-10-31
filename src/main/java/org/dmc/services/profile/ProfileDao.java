@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
-import org.dmc.services.AWSConnector;
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
@@ -22,7 +21,6 @@ import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.dao.user.UserOnboardingDao;
 import org.dmc.services.services.GetCompareService;
 import org.dmc.services.sharedattributes.Util;
-import org.dmc.services.verification.Verification;
 import org.json.JSONException;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
@@ -30,9 +28,6 @@ import org.springframework.util.StringUtils;
 public class ProfileDao {
 
 	private static final String LOGTAG = ProfileDao.class.getName();
-
-	private AWSConnector AWS = new AWSConnector();
-	private Verification verify = new Verification();
 
 	public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id)
 			throws DMCServiceException {
@@ -232,21 +227,6 @@ public class ProfileDao {
 			// update onboarding status
 			final UserOnboardingDao userOnboardingDao = new UserOnboardingDao();
 			userOnboardingDao.deleteUserOnboarding(id);
-
-			// Get the Image URL to delete
-			/*
-			 * final String AWSquery =
-			 * "SELECT image FROM users WHERE user_id = ? AND user_name = ?";
-			 * final PreparedStatement AWSstatement =
-			 * DBConnector.prepareStatement(AWSquery); AWSstatement.setInt(1,
-			 * id); AWSstatement.setString(2, userEPPN); final ResultSet url =
-			 * AWSstatement.executeQuery();
-			 *
-			 * String URL = null; if(url.next()){ URL = url.getString(1); }
-			 *
-			 * //Call function to delete try{ AWS.remove(URL, userEPPN); } catch
-			 * (DMCServiceException e) { return null; }
-			 */
 
 			this.deleteSkills(id);
 			final String query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";
