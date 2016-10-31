@@ -33,13 +33,13 @@ public class SQLUtilsTest {
     @Test
     public void setsOrderToStringWithoutSortOption() {
         final String orderByClause = SQLUtils.buildOrderByClause(null, "abc", validSortFields);
-        assertEquals("ORDER abc", orderByClause);
+        assertEquals("ORDER BY abc ", orderByClause);
     }
 
     @Test
     public void setsOrderToTrimmedStringWithoutSortOption() {
         final String orderByClause = SQLUtils.buildOrderByClause(null, " abc ", validSortFields);
-        assertEquals("ORDER abc", orderByClause);
+        assertEquals("ORDER BY abc ", orderByClause);
     }
 
     @Test
@@ -51,13 +51,13 @@ public class SQLUtilsTest {
     @Test
     public void setsOrderWithAscending() {
         final String orderByClause = SQLUtils.buildOrderByClause(SQLUtils.SORT_ASCENDING, "abc", validSortFields);
-        assertEquals("ORDER abc ASC", orderByClause);
+        assertEquals("ORDER BY abc ASC ", orderByClause);
     }
 
     @Test
     public void setsOrderWithDescending() {
         final String orderByClause = SQLUtils.buildOrderByClause(SQLUtils.SORT_DESCENDING, " xxx ", validSortFields);
-        assertEquals("ORDER xxx DESC", orderByClause);
+        assertEquals("ORDER BY xxx DESC ", orderByClause);
     }
 
     @Test(expected = DMCServiceException.class)
@@ -68,19 +68,19 @@ public class SQLUtilsTest {
     @Test
     public void setsOrderForMultipleFields() {
         final String orderByClause = SQLUtils.buildOrderByClause(null, "abc, xxx", validSortFields);
-        assertEquals("ORDER abc, xxx", orderByClause);
+        assertEquals("ORDER BY abc , xxx ", orderByClause);
     }
 
     @Test
     public void setsOrderForMultipleFieldsWithOrder() {
         final String orderByClause = SQLUtils.buildOrderByClause(SQLUtils.SORT_ASCENDING, "abc, xxx", validSortFields);
-        assertEquals("ORDER abc, xxx ASC", orderByClause);
+        assertEquals("ORDER BY abc , xxx ASC ", orderByClause);
     }
 
     @Test
     public void setsOrderForMultipleFieldsWithOrderInSortFields() {
         final String orderByClause = SQLUtils.buildOrderByClause(null, "abc   DESC,   xxx ASC", validSortFields);
-        assertEquals("ORDER abc DESC, xxx ASC", orderByClause);
+        assertEquals("ORDER BY abc DESC , xxx ASC ", orderByClause);
     }
 
     @Test(expected = DMCServiceException.class)
@@ -102,13 +102,13 @@ public class SQLUtilsTest {
     @Test
     public void setsLimitString() {
         final String limitClause = SQLUtils.buildLimitClause(15);
-        assertEquals("LIMIT 15", limitClause);
+        assertEquals("LIMIT 15 ", limitClause);
     }
 
     @Test
     public void setsOffsetString() {
         final String offsetClause = SQLUtils.buildOffsetClause(5);
-        assertEquals("OFFSET 5", offsetClause);
+        assertEquals("OFFSET 5 ", offsetClause);
     }
 
     @Test

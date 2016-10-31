@@ -26,7 +26,7 @@ public class ProfileHistory  {
   
   private PeriodEnum period = null;
   public enum TypeEnum {
-     completed,  rated,  added,  worked, 
+     completed,  rated,  added,  worked, favorited, shared, discussion 
   };
   
   private TypeEnum type = null;
@@ -164,6 +164,26 @@ public class ProfileHistory  {
         Objects.equals(type, profileHistory.type);
   }
 
+  public static TypeEnum mapToType(String typeString) {
+      switch (typeString.toLowerCase()) {
+      case "completed":
+          return TypeEnum.completed;
+      case "added":
+          return TypeEnum.added;
+      case "rated":
+          return TypeEnum.rated;
+      case "worked":
+          return TypeEnum.worked;
+      case "favorited":
+          return TypeEnum.favorited;
+      case "shared":
+          return TypeEnum.shared;
+      case "discussion":
+          return TypeEnum.discussion;
+      default:
+          return TypeEnum.worked;
+      }
+  }
   @Override
   public int hashCode() {
     return Objects.hash(id, companyId, title, date, profileId, user, link, section, period, type);
