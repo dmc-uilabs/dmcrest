@@ -16,4 +16,5 @@ public interface DocumentRepository extends BaseRepository<Document, Integer> {
 	
 	Document findFirstByParentTypeAndDocClassAndOwnerOrderByModifiedDesc(DocumentParentType parentType, DocumentClass docClass, User owner);
 
+	List<Document> findByParentTypeAndParentId(DocumentParentType parentType, Integer parentId);
 }

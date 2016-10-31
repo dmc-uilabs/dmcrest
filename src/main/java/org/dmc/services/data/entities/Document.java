@@ -20,7 +20,6 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import org.hibernate.annotations.Where;
 import org.hibernate.annotations.WhereJoinTable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

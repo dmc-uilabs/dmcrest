@@ -26,6 +26,7 @@ import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.ProjectJoinApprovalRequestRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.search.SearchException;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.solr.SolrUtils;
@@ -375,9 +376,9 @@ public class ProjectDao {
 
     			User user = userRepository.getOne(userID);
     			//give the creating user the admin role
-    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 2);
+    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.ADMIN);
     			//add member role
-    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
     		}
         }
 

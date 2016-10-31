@@ -9,7 +9,9 @@ import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
+import org.dmc.services.data.repositories.RoleRepository;
 import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.security.SecurityRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,16 +27,19 @@ public class ResourceGroupService {
 	@Inject
 	private UserRepository userRepository;
 	
+	@Inject
+	private RoleRepository roleRepository;
+	
 	static final Logger LOG = LoggerFactory.getLogger(ResourceGroupService.class);
 	
 	@Transactional
 	public void newCreate (DocumentParentType parentType, Integer parentId) {
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
-    	List<Integer> roleIds = Arrays.asList(2,4);
+    	List<String> roles = Arrays.asList(SecurityRoles.ADMIN, SecurityRoles.MEMBER);
 
-		for(Integer roleId: roleIds) {
-			ResourceGroup group = new ResourceGroup(parentType, parentId, roleId);
+		for(String role: roles) {
+			ResourceGroup group = new ResourceGroup(parentType, parentId, role);
 			resourceGroupRepository.save(group);
 		}
 	}
@@ -43,22 +48,22 @@ public class ResourceGroupService {
 	public void removeAll(DocumentParentType parentType, Integer parentId) {
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
-    	List<Integer> roleIds = Arrays.asList(2,4);
+    	List<String> roles = Arrays.asList(SecurityRoles.ADMIN, SecurityRoles.MEMBER);
 
-		for(Integer roleId: roleIds) {
-			ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId(parentType, parentId, roleId);
+		for(String role: roles) {
+			ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
 			resourceGroupRepository.delete(group);
 		}
 	}
 	
 	@Transactional
-	public User removeResourceGroup(User user, DocumentParentType parentType, Integer parentId, Integer roleId) {
+	public User removeResourceGroup(User user, DocumentParentType parentType, Integer parentId, String role) {
 		Assert.notNull(user);
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
-		Assert.notNull(roleId);
+		Assert.notNull(role);
 		
-		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId(parentType, parentId, roleId);
+		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
 		List<ResourceGroup> groups = user.getResourceGroups();
 		if (group != null) {
 			groups.remove(group);
@@ -70,13 +75,13 @@ public class ResourceGroupService {
 	}
 	
 	@Transactional
-	public User addResourceGroup(User user, DocumentParentType parentType, Integer parentId, Integer roleId) {
+	public User addResourceGroup(User user, DocumentParentType parentType, Integer parentId, String role) {
 		Assert.notNull(user);
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
-		Assert.notNull(roleId);
+		Assert.notNull(role);
 		
-		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRoleId(parentType, parentId, roleId);
+		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
 		List<ResourceGroup> userGroups = user.getResourceGroups();
 		if (!userGroups.contains(group)) {
 			userGroups.add(group);
