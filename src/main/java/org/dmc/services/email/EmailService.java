@@ -36,7 +36,7 @@ public class EmailService {
 
 		RestTemplate restTemplate = new RestTemplate();
 		HttpEntity<EmailModel> request = new HttpEntity<>(emailModel);
-		ResponseEntity<EmailModel> response = restTemplate.exchange(EMAIL_URL, HttpMethod.POST, request, EmailModel.class);
+		ResponseEntity<String> response = restTemplate.exchange(EMAIL_URL, HttpMethod.POST, request, String.class);
 
 		if (!HttpStatus.OK.equals(response.getStatusCode())) {
 			logger.warn("Email for user token was not sent for user: {}", user.getEmail());
