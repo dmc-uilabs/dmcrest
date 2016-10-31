@@ -32,4 +32,15 @@ public class UserPredicates extends Predicates {
 
 		return builder.getValue();
 	}
+
+	public static Predicate likeUserName(List<String> likeUserName){
+		BooleanBuilder builder = new BooleanBuilder();
+
+		if (isNotEmpty(likeUserName)) {
+			likeUserName.stream().filter(StringUtils::isNotEmpty).forEach(userName ->
+					builder.or(QUser.user.username.containsIgnoreCase(userName)));
+		}
+
+		return builder.getValue();
+	}
 }

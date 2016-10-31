@@ -53,6 +53,7 @@ import java.util.List;
 import static org.dmc.services.predicates.UserPredicates.buildPredicate;
 import static org.dmc.services.predicates.UserPredicates.likeFirstName;
 import static org.dmc.services.predicates.UserPredicates.likeLastName;
+import static org.dmc.services.predicates.UserPredicates.likeUserName;
 
 @Service
 public class UserService {
@@ -111,10 +112,10 @@ public class UserService {
 		return mapper.mapToModel(userRepository.findByUsername(username));
 	}
 
-	public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter) {
+	public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter, List<String> userNameFilter) {
 		Mapper<User, SimpleUserModel> mapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
-		Page<User> users =
-				userRepository.findAll(buildPredicate(likeFirstName(firstNameFilter), likeLastName(lastNameFilter)), pageRequest);
+		Page<User> users = userRepository.findAll(
+						buildPredicate(likeFirstName(firstNameFilter), likeLastName(lastNameFilter), likeUserName(userNameFilter)), pageRequest);
 		List<SimpleUserModel> simpleUsers = mapper.mapToModel(users.getContent());
 		return new PageImpl<>(simpleUsers, pageRequest, users.getTotalElements());
 	}
