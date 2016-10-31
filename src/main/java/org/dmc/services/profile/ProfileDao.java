@@ -12,7 +12,6 @@ import java.sql.Timestamp;
 
 import javax.xml.ws.http.HTTPException;
 
-import org.dmc.services.AWSConnector;
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
@@ -25,7 +24,6 @@ import org.dmc.services.data.dao.user.UserOnboardingDao;
 import org.dmc.services.services.GetCompareService;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.services.utils.SQLUtils;
-import org.dmc.services.verification.Verification;
 import org.json.JSONException;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
@@ -34,11 +32,8 @@ public class ProfileDao {
 
     private static final String LOGTAG = ProfileDao.class.getName();
 
-    private AWSConnector AWS = new AWSConnector();
-    private Verification verify = new Verification();
-
-    public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id)
-            throws DMCServiceException {
+	public ArrayList<Profile> getProfiles(String userEPPN, Integer limit, String order, String sort, List<String> id)
+			throws DMCServiceException {
 
         String whereClause = "";
         if (null != id) {
@@ -237,61 +232,46 @@ public class ProfileDao {
             final UserOnboardingDao userOnboardingDao = new UserOnboardingDao();
             userOnboardingDao.deleteUserOnboarding(id);
 
-            // Get the Image URL to delete
-            /*
-             * final String AWSquery =
-             * "SELECT image FROM users WHERE user_id = ? AND user_name = ?";
-             * final PreparedStatement AWSstatement =
-             * DBConnector.prepareStatement(AWSquery); AWSstatement.setInt(1,
-             * id); AWSstatement.setString(2, userEPPN); final ResultSet url =
-             * AWSstatement.executeQuery();
-             *
-             * String URL = null; if(url.next()){ URL = url.getString(1); }
-             *
-             * //Call function to delete try{ AWS.remove(URL, userEPPN); } catch
-             * (DMCServiceException e) { return null; }
-             */
-
-            this.deleteSkills(id);
-            final String query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";
-            statement = DBConnector.prepareStatement(query);
-            statement.setInt(1, id);
-            statement.setString(2, userEPPN);
-            statement.executeUpdate();
-            connection.commit();
-        } catch (SQLException e) {
-            ServiceLogger.log(LOGTAG, e.getMessage());
-            if (connection != null) {
-                try {
-                    ServiceLogger.log(LOGTAG, "Transaction Profile Delete Rolled back");
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    ServiceLogger.log(LOGTAG, ex.getMessage());
-                }
-            }
-            return null;
-        } catch (JSONException e) {
-            ServiceLogger.log(LOGTAG, e.getMessage());
-            if (connection != null) {
-                try {
-                    ServiceLogger.log(LOGTAG, "Transaction Profile Delete Rolled back");
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    ServiceLogger.log(LOGTAG, ex.getMessage());
-                }
-            }
-            return null;
-        } finally {
-            if (null != connection) {
-                try {
-                    connection.setAutoCommit(true);
-                } catch (SQLException ex) {
-                    // don't really need to do anything
-                }
-            }
-        }
-        return new Id.IdBuilder(id).build();
-    }
+			this.deleteSkills(id);
+			final String query = "DELETE FROM users WHERE user_id = ? AND user_name = ?";
+			statement = DBConnector.prepareStatement(query);
+			statement.setInt(1, id);
+			statement.setString(2, userEPPN);
+			statement.executeUpdate();
+			connection.commit();
+		} catch (SQLException e) {
+			ServiceLogger.log(LOGTAG, e.getMessage());
+			if (connection != null) {
+				try {
+					ServiceLogger.log(LOGTAG, "Transaction Profile Delete Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(LOGTAG, ex.getMessage());
+				}
+			}
+			return null;
+		} catch (JSONException e) {
+			ServiceLogger.log(LOGTAG, e.getMessage());
+			if (connection != null) {
+				try {
+					ServiceLogger.log(LOGTAG, "Transaction Profile Delete Rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(LOGTAG, ex.getMessage());
+				}
+			}
+			return null;
+		} finally {
+			if (null != connection) {
+				try {
+					connection.setAutoCommit(true);
+				} catch (SQLException ex) {
+					// don't really need to do anything
+				}
+			}
+		}
+		return new Id.IdBuilder(id).build();
+	}
 
     public boolean createSkills(int userId, ArrayList<String> skills) throws SQLException {
         final Util util = Util.getInstance();

@@ -40,7 +40,7 @@ public class DocumentController {
 										@RequestHeader(value = "AJP_eppn") String userEPPN,
 										@RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
 		List<? extends BaseModel> results = documentService.filter(params, recent, page, pageSize, userEPPN);
-		Long count = documentService.count(params, userEPPN);
+		Long count = Long.valueOf(results.size());
 		return new PagedResponse(count, results);
 	}
 
