@@ -85,18 +85,19 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 		model.setOwnerId(entity.getOwner().getId());
 		
-		for(ResourceGroup group : entity.getResourceGroups()) {
-			String accessLevel = null;
-			if(group.getRole().equals(SecurityRoles.ADMIN)) {
-				accessLevel = "ADMIN";
-				break;
-			} else if(group.getRole().equals(SecurityRoles.MEMBER)) {
-				accessLevel = "MEMBER";
-			}
-			
-			model.setAccessLevel(accessLevel);
-		}
+		if (CollectionUtils.isNotEmpty(entity.getResourceGroups())) {
+			for (ResourceGroup group : entity.getResourceGroups()) {
+				String accessLevel = null;
+				if (group.getRole().equals(SecurityRoles.ADMIN)) {
+					accessLevel = "ADMIN";
+					break;
+				} else if (group.getRole().equals(SecurityRoles.MEMBER)) {
+					accessLevel = "MEMBER";
+				}
 
+				model.setAccessLevel(accessLevel);
+			} 
+		}
 		return model;
 	}
 
