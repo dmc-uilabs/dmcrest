@@ -13,8 +13,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Where;
+
 @Entity
 @Table(name = "directory")
+@Where(clause = "is_deleted='FALSE'")
 public class Directory extends BaseEntity {
 
 	@Id
@@ -26,10 +29,15 @@ public class Directory extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
+	@Where(clause = "is_deleted='FALSE'")
 	private Directory parent;
 
 	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+	@Where(clause = "is_deleted='FALSE'")
 	private List<Directory> children;
+
+	@Column(name = "is_deleted")
+	private Boolean isDeleted;
 
 	public Integer getId() {
 		return id;
@@ -62,6 +70,14 @@ public class Directory extends BaseEntity {
 	public void setChildren(List<Directory> children) {
 		children.stream().forEach((a) -> a.setParent(this));
 		this.children = children;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 }

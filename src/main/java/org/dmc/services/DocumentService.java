@@ -280,7 +280,14 @@ public class DocumentService {
 			recursiveDelete(child);
 		}
 
-		directoryRepository.delete(dir);
+		// soft delete current directory's documents
+		List<Document> docs = documentRepository.findByDirectoryAndIsDeletedIsFalse(dir);
+		docs.stream().forEach((a) -> a.setIsDeleted(true));
+		documentRepository.save(docs);
+
+		// soft delete current directory
+		dir.setIsDeleted(true);
+		directoryRepository.save(dir);
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
