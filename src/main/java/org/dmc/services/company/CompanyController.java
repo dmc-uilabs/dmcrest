@@ -1,34 +1,33 @@
 package org.dmc.services.company;
 
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.ErrorMessage;
-import org.dmc.services.Id;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.components.Component;
-import org.dmc.services.services.Service;
-import org.dmc.services.services.ServiceDao;
-import org.dmc.services.users.User;
-import org.dmc.services.reviews.ReviewDao;
-import org.dmc.services.reviews.ReviewType;
-
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.ErrorMessage;
+import org.dmc.services.Id;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.components.Component;
+import org.dmc.services.reviews.ReviewDao;
+import org.dmc.services.reviews.ReviewType;
+import org.dmc.services.services.Service;
+import org.dmc.services.services.ServiceDao;
+import org.dmc.services.users.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CompanyController {
@@ -58,7 +57,7 @@ public class CompanyController {
             return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
         }
     }
-    
+
     @RequestMapping(value = "/companies/{id}", method = RequestMethod.GET, produces = { APPLICATION_JSON_VALUE})
     public ResponseEntity getCompany(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
         ServiceLogger.log(logTag, "getCompany, id: " + id);
@@ -75,9 +74,9 @@ public class CompanyController {
             return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
         }
     }
-    
-    
-    
+
+
+
     @RequestMapping(value = "/companies/create", method = RequestMethod.POST, produces = {APPLICATION_JSON_VALUE})
     @ResponseBody
     public Id createCompany(@RequestBody Company company, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
@@ -94,7 +93,7 @@ public class CompanyController {
 
         int statusCode = HttpStatus.OK.value();
         Id retrievedId = null;
-        
+
         try {
             retrievedId = companyDao.updateCompany(id, company, userEPPN);
             return new ResponseEntity<Id>(retrievedId, HttpStatus.valueOf(statusCode));
@@ -102,9 +101,9 @@ public class CompanyController {
             statusCode = e.getStatusCode();
             ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
             return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
-        }  
+        }
     }
-    
+
     @RequestMapping(value = "/companies/{id}/delete", method = RequestMethod.DELETE)
     public Id deleteCompany(@PathVariable("id") int id, @RequestHeader(value="AJP_eppn", required=true) String userEPPN) {
         ServiceLogger.log(logTag, "deleteCompany, id: " + id);
@@ -256,7 +255,7 @@ public class CompanyController {
         @RequestParam(value = "ratings", required = false) List<String> ratings,
         @RequestParam(value = "favorites", required = false) String favorites,
         @RequestParam(value = "dates", required = false) List<String> dates) {
-        
+
         ServiceDao serviceDao = new ServiceDao();
         try {
             ServiceLogger.log(logTag, "In marketNewServicesGet");
@@ -267,7 +266,7 @@ public class CompanyController {
                 order = "DESC";
                 sort = "release_date";
             }
-            return new ResponseEntity<List<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, fromLocations, userEPPN, Integer.parseInt(companyID)), HttpStatus.OK);
+            return new ResponseEntity<List<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, null, fromLocations, userEPPN, Integer.parseInt(companyID)), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -334,7 +333,7 @@ public class CompanyController {
  			ServiceLogger.log(logTag, e.getMessage());
  			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
  		}
- 		
+
  	}
 
  	@RequestMapping(value = "/company/unfollow/{followed_companyId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.DELETE)

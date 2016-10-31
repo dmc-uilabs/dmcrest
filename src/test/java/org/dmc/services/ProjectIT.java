@@ -1,9 +1,20 @@
 package org.dmc.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
 import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.FollowingIndividualDiscussion;
 import org.dmc.services.discussions.IndividualDiscussion;
@@ -17,20 +28,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 //
 public class ProjectIT extends BaseIT {
@@ -99,42 +100,12 @@ public class ProjectIT extends BaseIT {
                 .body(matchesJsonSchemaInClasspath("Schemas/projectListSchema.json"));
     }
 
-    @Test
-    public void testProjectCreateJsonString() {
-        ServiceLogger.log(logTag, "starting testProjectCreateJsonString");
-        this.createdId = TestProjectUtil.createProjectOldMethod(userEPPN);
-    }
-
     // see as an example to configure the object
     // https://github.com/jayway/rest-assured/wiki/Usage#serialization
     @Test
     public void testProjectCreateJsonObject() throws IOException {
         ServiceLogger.log(logTag, "starting testProjectCreateJsonObject");
         this.createdId = TestProjectUtil.createProject(userEPPN);
-    }
-
-    @Test
-    public void ftestProjectCreateFailOnDuplicate() {
-        ServiceLogger.log(logTag, "starting ftestProjectCreateFailOnDuplicate");
-        final JSONObject json = new JSONObject();
-        final Date date = new Date();
-        final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-        final String unique = format.format(date);
-
-        json.put("projectname", "junitTestdup" + unique);
-        json.put("unixname", "junitdup" + unique);
-        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicate: json = " + json.toString());
-
-        // first time should work
-        given().header("Content-type", "text/plain").header("AJP_eppn", userEPPN).body(json.toString()).expect()
-                .statusCode(OK.value()).when().post(PROJECTS_OLDCREATE_RESOURCE).then()
-                .body(matchesJsonSchemaInClasspath("Schemas/idSchema.json"));
-
-        ServiceLogger.log(logTag, "testProjectCreateFailOnDuplicate: try to create again");
-        // second time should fail, because unixname is a duplicate
-        given().header("Content-type", "text/plain").header("AJP_eppn", userEPPN).body(json.toString()).expect()
-                .statusCode(OK.value()).when().post(PROJECTS_OLDCREATE_RESOURCE).then().log().all()
-                .body(matchesJsonSchemaInClasspath("Schemas/errorSchema.json"));
     }
 
     @Test

@@ -18,7 +18,7 @@ public class EmailService {
 	private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
 	static {
-		String host = System.getenv("verifyUrl");
+		String host = System.getenv("verifyURL");
 		if (host == null) {
 			host = "localhost";
 		}
