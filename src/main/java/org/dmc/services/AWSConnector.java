@@ -7,10 +7,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -119,7 +118,7 @@ public class AWSConnector {
 
     public static String refreshURL(String path) throws DMCServiceException {
         ServiceLogger.log(LOGTAG, "Refreshing pre-signed URL.");
-        return generatePresignedUrl(path, Date.from(LocalDate.now().plusMonths(1).atStartOfDay().toInstant(ZoneOffset.UTC)));
+        return generatePresignedUrl(path, DateUtils.addMonths(new Date(), 1));
     }
 
     public static String generatePresignedUrl(String key, Date expiration){
