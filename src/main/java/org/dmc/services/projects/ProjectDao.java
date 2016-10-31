@@ -113,7 +113,6 @@ public class ProjectDao {
                 ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                 projects.add(project);
             }
-            return projects;
         }
 
         catch (SQLException e) {
@@ -130,7 +129,7 @@ public class ProjectDao {
             }
         }
 
-        return null;
+        return projects;
     }
 
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
@@ -152,7 +151,6 @@ public class ProjectDao {
                 ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                 projects.add(project);
             }
-            return projects;
         }
 
         catch (SQLException e) {
@@ -170,7 +168,7 @@ public class ProjectDao {
         }
 
 
-    	return null;
+    	return projects;
     }
 
     protected String getSelectProjectQuery() {
