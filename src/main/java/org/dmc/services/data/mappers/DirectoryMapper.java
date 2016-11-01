@@ -58,16 +58,4 @@ public class DirectoryMapper extends AbstractMapper<Directory, DirectoryModel> {
 		return DirectoryModel.class;
 	}
 
-//	private void setFullDirectoryPaths(DirectoryModel dir) {
-//		String fullPath = "/" + dir.getName();
-//
-//		DirectoryModel parent = dir.getParent();
-//		while(parent != null) {
-//			fullPath = "/" + parent.getName() + fullPath;
-//			parent = parent.getParent();
-//		}
-//
-//		dir.setFullPath(fullPath);
-//	}
-
 }
