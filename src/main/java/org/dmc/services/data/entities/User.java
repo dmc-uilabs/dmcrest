@@ -88,13 +88,13 @@ public class User extends BaseEntity {
 	@JoinColumn(table = "onboarding_status", name = "user_id")
 	private OnboardingStatus onboarding;
 
-	@OneToMany(mappedBy="user", cascade={CascadeType.MERGE, CascadeType.REMOVE})
+	@OneToMany(mappedBy="user", cascade=CascadeType.ALL, orphanRemoval = true)
 	private List<UserSkill> skills;
 
 	@OneToMany(mappedBy = "createdFor", cascade = {CascadeType.DETACH, CascadeType.REMOVE})
 	@OrderBy("created DESC")
 	private List<Notification> notifications;
-	
+
 	@ManyToMany
 	@JoinTable(name = "user_in_resource_group",
 				joinColumns = @JoinColumn(name = "user_id"),
@@ -104,7 +104,7 @@ public class User extends BaseEntity {
 
 	@Column(name = "timezone")
 	private String timezone;
-	
+
 	@ManyToMany
 	@JoinTable(name = "user_in_server_access_group",
 			joinColumns = @JoinColumn(name="user_id"),

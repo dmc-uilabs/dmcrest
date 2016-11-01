@@ -1,5 +1,12 @@
 package org.dmc.services;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
@@ -8,10 +15,10 @@ import org.dmc.services.data.entities.OnboardingStatus;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.OrganizationAuthorizedIdp;
 import org.dmc.services.data.entities.OrganizationUser;
-import org.dmc.services.data.entities.ServerAccess;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
+import org.dmc.services.data.entities.UserSkill;
 import org.dmc.services.data.entities.UserToken;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
@@ -41,11 +48,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class UserService {
@@ -342,6 +344,16 @@ public class UserService {
 		return onboardingStatusRepository.save(status);
 	}
 
+	private Boolean containsSkill(List<UserSkill> unmanagedSkills, UserSkill managedSkill) {
+		for(UserSkill unmanagedSkill: unmanagedSkills) {
+			if(managedSkill.getId().equals(unmanagedSkill.getId())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	@Transactional
 	public UserModel patch(String userEPPN, UserModel patchUser) {
 		Assert.notNull(userEPPN, "Missing required parameter userEPPN");
@@ -361,7 +373,24 @@ public class UserService {
 		currentUser.setTitle(patchUser.getTitle());
 		currentUser.setAddress(patchUser.getAddress());
 		currentUser.setOnboarding(patchUserEntity.getOnboarding());
-		currentUser.setSkills(patchUserEntity.getSkills());
+
+		// remove skills that aren't in new list from managed list of skills
+		Iterator<UserSkill> iterator = currentUser.getSkills().iterator();
+		while(iterator.hasNext()) {
+			UserSkill managedSkill = iterator.next();
+
+			if( !containsSkill(patchUserEntity.getSkills(), managedSkill) ) {
+				iterator.remove();
+			}
+		}
+
+		// add new skills to the managed list
+		for(UserSkill newSkill: patchUserEntity.getSkills()) {
+			if(newSkill.getId() == null) {
+				currentUser.getSkills().add(newSkill);
+			}
+		}
+
 		if(currentUser.getUserContactInfo() != null && patchUserEntity.getUserContactInfo() != null){
 			currentUser.getUserContactInfo().setUserMemberPortalContactInfo(patchUserEntity.getUserContactInfo().getUserMemberPortalContactInfo());
 			currentUser.getUserContactInfo().setUserPublicContactInfo(patchUserEntity.getUserContactInfo().getUserPublicContactInfo());
