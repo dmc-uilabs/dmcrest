@@ -9,7 +9,6 @@ import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
-import org.dmc.services.data.repositories.RoleRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.security.SecurityRoles;
 import org.slf4j.Logger;
@@ -26,9 +25,6 @@ public class ResourceGroupService {
 	
 	@Inject
 	private UserRepository userRepository;
-	
-	@Inject
-	private RoleRepository roleRepository;
 	
 	static final Logger LOG = LoggerFactory.getLogger(ResourceGroupService.class);
 	
