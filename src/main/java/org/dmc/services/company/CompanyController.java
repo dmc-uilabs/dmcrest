@@ -208,7 +208,7 @@ public class CompanyController {
                 int companyIdInt = Integer.parseInt(companyID);
 
                 if (reviewIdInt == 0) {
-                    reviews = reviewDao.getReviews(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN, CompanyReview.class);
+                    reviews = reviewDao.getAllReviews(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN, CompanyReview.class);
 
                 } else if (reviewIdInt > 0) {
                     reviews = reviewDao.getReviewReplies(companyIdInt, reviewId, limit, order, sort, rating, status, userEPPN, CompanyReview.class);
