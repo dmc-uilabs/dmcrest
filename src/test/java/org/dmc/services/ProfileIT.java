@@ -365,25 +365,6 @@ public class ProfileIT extends BaseIT {
     }
 
     /**
-     * test case for GET /profiles/{profileID}/profile_history
-     */
-    @Test
-    public void testProfileGet_ProfileHistory() {
-        given().header("AJP_eppn", userEPPN).expect().statusCode(NOT_IMPLEMENTED.value()).when()
-                .get(PROFILE_HISTORY, profileId);
-    }
-
-    /**
-     * test case for GET /profiles/{profileID}/profile_reviews
-     */
-    @Ignore
-    @Test
-    public void testProfileGet_ProfileReview() {
-        given().header("AJP_eppn", userEPPN).param("reviewId", "1").expect().statusCode(NOT_IMPLEMENTED.value()).when()
-                .get(PROFILE_REVIEWS);
-    }
-
-    /**
      * test case for GET /profiles/{profileID}/following_members Same logic as
      * get /accounts/{accountID}/following_members
      */
