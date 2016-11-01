@@ -72,7 +72,7 @@ public class DirectoryService {
 		}
 
 		// soft delete current directory's documents
-		List<Document> docs = documentRepository.findByDirectoryAndIsDeletedIsFalse(dir);
+		List<Document> docs = documentRepository.findByDirectory(dir);
 		docs.stream().forEach((a) -> a.setIsDeleted(true));
 		documentRepository.save(docs);
 

@@ -14,8 +14,8 @@ public interface DocumentRepository extends BaseRepository<Document, Integer> {
 	List<Document> findAllByVerifiedIsFalseAndModifiedBefore(Timestamp modified);
 
 	List<Document> findAllByVerifiedIsTrueAndIsDeletedIsFalseAndExpiresBefore(Timestamp expires);
-	
+
 	Document findFirstByParentTypeAndDocClassAndOwnerOrderByModifiedDesc(DocumentParentType parentType, DocumentClass docClass, User owner);
 
-	List<Document> findByDirectoryAndIsDeletedIsFalse(Directory dir);
+	List<Document> findByDirectory(Directory dir);
 }

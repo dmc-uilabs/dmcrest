@@ -30,6 +30,7 @@ import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -129,9 +131,22 @@ public class DocumentService {
 
 	public List<DocumentModel> findByDirectory(Integer directoryId) {
 		Mapper<Document, DocumentModel> documentMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		User currentUser = userRepository.findOne(
+				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()
+		);
+		List<Document> results;
+		List<Document> returnList = new ArrayList<>();
+
 		Directory directory = directoryRepository.findOne(directoryId);
-		List<Document> documents = documentRepository.findByDirectoryAndIsDeletedIsFalse(directory);
-		return documentMapper.mapToModel(documents);
+		results = documentRepository.findByDirectory(directory);
+
+		for(Document doc : results) {
+			if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
+				returnList.add(doc);
+			}
+		}
+
+		return documentMapper.mapToModel(returnList);
 	}
 
 	public DocumentModel save(DocumentModel doc) throws DMCServiceException, IllegalArgumentException {
