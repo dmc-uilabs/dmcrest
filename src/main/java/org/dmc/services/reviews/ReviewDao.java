@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
@@ -19,11 +18,9 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.utils.SQLUtils;
 
 import org.dmc.services.reviews.Review;
-import org.dmc.services.company.CompanyReview;
 import org.dmc.services.company.CompanyUserUtil;
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.profile.ProfileReview;
-import org.dmc.services.products.ProductReview;
 
 import org.dmc.services.sharedattributes.Util;
 

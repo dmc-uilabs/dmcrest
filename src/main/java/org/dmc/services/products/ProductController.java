@@ -52,7 +52,7 @@ public class ProductController {
             int productIdInt = Integer.parseInt(serviceId);
             
             if (reviewIdInt == 0) {
-                reviews = reviewDao.getReviews(productIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProductReview.class);
+                reviews = reviewDao.getAllReviews(productIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProductReview.class);
                 
             } else if (reviewIdInt > 0) {
                 reviews = reviewDao.getReviewReplies(productIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProductReview.class);
