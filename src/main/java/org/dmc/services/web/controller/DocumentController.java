@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.DirectoryService;
 import org.dmc.services.DocumentService;
 import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DirectoryModel;
@@ -29,6 +30,9 @@ public class DocumentController {
 
 	@Inject
 	private DocumentService documentService;
+
+	@Inject
+	private DirectoryService directoryService;
 
 	@RequestMapping(value = "/documents/{id}", method = RequestMethod.GET)
 	public DocumentModel getDocument(@PathVariable("id") Integer id) {
@@ -64,27 +68,28 @@ public class DocumentController {
 
 	@RequestMapping(value = "/directories", method = RequestMethod.GET)
 	public List<DirectoryModel> getAllDirectories() {
-		return documentService.findAllDirectories();
+		return directoryService.findAllDirectories();
 	}
 
 	@RequestMapping(value = "/directories/{directoryId}", method = RequestMethod.GET)
 	public DirectoryModel getDirectoryStructure(@PathVariable("directoryId") Integer directoryId) {
-		return documentService.findDirectoryById(directoryId);
+		return directoryService.findDirectoryById(directoryId);
 	}
 
 	@RequestMapping(value = "/documents/directories/{directoryId}", method = RequestMethod.GET)
 	public List<DocumentModel> getDocumentsByDirectory(@PathVariable("directoryId") Integer directoryId) {
-		return documentService.findByDirectory(directoryId);
+		return directoryService.findByDirectory(directoryId);
 	}
 
 	@RequestMapping(value = "/directories", method = RequestMethod.POST)
 	public DirectoryModel saveDirectoryStructure(@RequestBody DirectoryModel dir) {
-		return documentService.saveDirectory(dir);
+		return directoryService.saveDirectory(dir);
 	}
 
+	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = "/directories/{directoryId}", method = RequestMethod.DELETE)
 	public void deleteDirectory(@PathVariable Integer directoryId) {
-		documentService.deleteDirectory(directoryId);
+		directoryService.deleteDirectory(directoryId);
 	}
 
 	@RequestMapping(value = "/documents/tags", method = RequestMethod.GET)

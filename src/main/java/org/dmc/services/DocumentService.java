@@ -6,13 +6,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.dmc.services.data.entities.Directory;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
@@ -23,7 +21,6 @@ import org.dmc.services.data.entities.ResourceType;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
-import org.dmc.services.data.models.DirectoryModel;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.repositories.DirectoryRepository;
@@ -227,67 +224,6 @@ public class DocumentService {
 	public DocumentTagModel saveDocumentTag(DocumentTagModel tag) {
 		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class, DocumentTagModel.class);
 		return tagMapper.mapToModel(documentTagRepository.save(tagMapper.mapToEntity(tag)));
-	}
-
-	public List<DocumentModel> findByDirectory(Integer directoryId) {
-		Mapper<Document, DocumentModel> documentMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		Directory directory = directoryRepository.findOne(directoryId);
-		List<Document> documents = documentRepository.findByDirectoryAndIsDeletedIsFalse(directory);
-		return documentMapper.mapToModel(documents);
-	}
-
-	public List<DirectoryModel> findAllDirectories() {
-		Mapper<Directory, DirectoryModel> directoryMapper = mapperFactory.mapperFor(Directory.class, DirectoryModel.class);
-		List<Directory> directories = directoryRepository.findByParent(null);
-		List<DirectoryModel> directoryModels = directoryMapper.mapToModel(directories);
-		return directoryModels;
-	}
-
-	public DirectoryModel findDirectoryById(Integer id) {
-		Mapper<Directory, DirectoryModel> directoryMapper = mapperFactory.mapperFor(Directory.class, DirectoryModel.class);
-		Directory dir = directoryRepository.findOne(id);
-		DirectoryModel directory = directoryMapper.mapToModel(dir);
-		return directory;
-	}
-
-	@Transactional
-	public DirectoryModel saveDirectory(DirectoryModel dir) {
-		Mapper<Directory, DirectoryModel> mapper = mapperFactory.mapperFor(Directory.class, DirectoryModel.class);
-
-		Directory parent = directoryRepository.save(mapper.mapToEntity(dir));
-		DirectoryModel model = mapper.mapToModel(parent);
-
-		for(DirectoryModel child: dir.getChildren()) {
-			child.setParent(parent.getId());
-			child = saveDirectory(child);
-			model.getChildren().add(child);
-		}
-
-		return model;
-	}
-
-	@Transactional
-	public void deleteDirectory(Integer directoryId) {
-		Directory dir = directoryRepository.findOne(directoryId);
-
-		recursiveDelete(dir);
-	}
-
-	private void recursiveDelete(Directory dir) {
-		for(Iterator<Directory> iterator = dir.getChildren().iterator(); iterator.hasNext(); ) {
-			Directory child = iterator.next();
-			iterator.remove();
-			recursiveDelete(child);
-		}
-
-		// soft delete current directory's documents
-		List<Document> docs = documentRepository.findByDirectoryAndIsDeletedIsFalse(dir);
-		docs.stream().forEach((a) -> a.setIsDeleted(true));
-		documentRepository.save(docs);
-
-		// soft delete current directory
-		dir.setIsDeleted(true);
-		directoryRepository.save(dir);
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
