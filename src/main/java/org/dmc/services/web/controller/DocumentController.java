@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 
 import org.dmc.services.DMCServiceException;
-import org.dmc.services.DirectoryService;
 import org.dmc.services.DocumentService;
 import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DocumentModel;
@@ -29,9 +28,6 @@ public class DocumentController {
 
 	@Inject
 	private DocumentService documentService;
-
-	@Inject
-	private DirectoryService directoryService;
 
 	@RequestMapping(value = "/documents/{id}", method = RequestMethod.GET)
 	public DocumentModel getDocument(@PathVariable("id") Integer id) {
