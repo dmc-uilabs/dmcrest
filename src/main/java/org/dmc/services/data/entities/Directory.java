@@ -37,7 +37,7 @@ public class Directory extends BaseEntity {
 	private List<Directory> children;
 
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 
 	public Integer getId() {
 		return id;

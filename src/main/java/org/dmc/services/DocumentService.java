@@ -130,6 +130,7 @@ public class DocumentService {
 	}
 
 	public List<DocumentModel> findByDirectory(Integer directoryId) {
+		Assert.notNull(directoryId);
 		Mapper<Document, DocumentModel> documentMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User currentUser = userRepository.findOne(
 				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()
@@ -138,11 +139,13 @@ public class DocumentService {
 		List<Document> returnList = new ArrayList<>();
 
 		Directory directory = directoryRepository.findOne(directoryId);
-		results = documentRepository.findByDirectory(directory);
+		if(directory != null) {
+			results = documentRepository.findByDirectory(directory);
 
-		for(Document doc : results) {
-			if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
-				returnList.add(doc);
+			for(Document doc : results) {
+				if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
+					returnList.add(doc);
+				}
 			}
 		}
 
