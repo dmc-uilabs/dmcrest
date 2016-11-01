@@ -10,7 +10,6 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.DirectoryService;
 import org.dmc.services.DocumentService;
 import org.dmc.services.data.models.BaseModel;
-import org.dmc.services.data.models.DirectoryModel;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.models.PagedResponse;
@@ -66,34 +65,14 @@ public class DocumentController {
 		return documentService.update(doc);
 	}
 
-	@RequestMapping(value = "/directories", method = RequestMethod.GET)
-	public List<DirectoryModel> getAllDirectories() {
-		return directoryService.findAllDirectories();
-	}
-
-	@RequestMapping(value = "/directories/{directoryId}", method = RequestMethod.GET)
-	public DirectoryModel getDirectoryStructure(@PathVariable("directoryId") Integer directoryId) {
-		return directoryService.findDirectoryById(directoryId);
-	}
-
 	@RequestMapping(value = "/documents/directories/{directoryId}", method = RequestMethod.GET)
 	public List<DocumentModel> getDocumentsByDirectory(@PathVariable("directoryId") Integer directoryId) {
 		return documentService.findByDirectory(directoryId);
-	}
-
-	@RequestMapping(value = "/directories", method = RequestMethod.POST)
-	public DirectoryModel saveDirectoryStructure(@RequestBody DirectoryModel dir) {
-		return directoryService.saveDirectory(dir);
-	}
-
-	@ResponseStatus(HttpStatus.OK)
-	@RequestMapping(value = "/directories/{directoryId}", method = RequestMethod.DELETE)
-	public void deleteDirectory(@PathVariable Integer directoryId) {
-		directoryService.deleteDirectory(directoryId);
 	}
 
 	@RequestMapping(value = "/documents/tags", method = RequestMethod.GET)
 	public List<DocumentTagModel> getDocumentTags() {
 		return this.documentService.getAllTags();
 	}
+
 }
