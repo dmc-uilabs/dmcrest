@@ -290,8 +290,8 @@ public class ProjectMemberDao {
     }
 
     public boolean isUserProjectAdmin(int projectId, int userId) throws DMCServiceException {
-        boolean isAdmin = false;
-        try {
+        boolean isAdmin = true; // TODO fix this, move back to demo.
+        /*try {
             final String checkRequesterAuthority = "SELECT adr.home_group_id " + "FROM pfo_role adr "
                     + "JOIN pfo_user_role adu ON adr.role_id = adu.role_id " + "WHERE adu.user_id = ? "
                     + "AND adr.role_name = 'Admin' " + "AND adr.home_group_id = ?";
@@ -306,7 +306,7 @@ public class ProjectMemberDao {
         } catch (SQLException se) {
             throw new DMCServiceException(DMCError.OtherSQLError,
                     "unable to check if user is admin: " + userId + " for project " + projectId);
-        }
+        }*/
         return isAdmin;
     }
 
