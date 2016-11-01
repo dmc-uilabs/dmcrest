@@ -10,7 +10,6 @@ import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DirectoryModel;
-import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.repositories.DirectoryRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.springframework.stereotype.Service;
@@ -27,14 +26,6 @@ public class DirectoryService {
 
 	@Inject
 	private MapperFactory mapperFactory;
-
-
-	public List<DocumentModel> findByDirectory(Integer directoryId) {
-		Mapper<Document, DocumentModel> documentMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		Directory directory = directoryRepository.findOne(directoryId);
-		List<Document> documents = documentRepository.findByDirectoryAndIsDeletedIsFalse(directory);
-		return documentMapper.mapToModel(documents);
-	}
 
 	public List<DirectoryModel> findAllDirectories() {
 		Mapper<Directory, DirectoryModel> directoryMapper = mapperFactory.mapperFor(Directory.class, DirectoryModel.class);

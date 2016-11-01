@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.dmc.services.data.entities.Directory;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
@@ -124,6 +125,13 @@ public class DocumentService {
 		if (docList.size() == 0) return null;
 
 		return mapper.mapToModel(docList.get(0));
+	}
+
+	public List<DocumentModel> findByDirectory(Integer directoryId) {
+		Mapper<Document, DocumentModel> documentMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		Directory directory = directoryRepository.findOne(directoryId);
+		List<Document> documents = documentRepository.findByDirectoryAndIsDeletedIsFalse(directory);
+		return documentMapper.mapToModel(documents);
 	}
 
 	public DocumentModel save(DocumentModel doc) throws DMCServiceException, IllegalArgumentException {

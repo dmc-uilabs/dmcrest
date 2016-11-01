@@ -78,7 +78,7 @@ public class DocumentController {
 
 	@RequestMapping(value = "/documents/directories/{directoryId}", method = RequestMethod.GET)
 	public List<DocumentModel> getDocumentsByDirectory(@PathVariable("directoryId") Integer directoryId) {
-		return directoryService.findByDirectory(directoryId);
+		return documentService.findByDirectory(directoryId);
 	}
 
 	@RequestMapping(value = "/directories", method = RequestMethod.POST)
