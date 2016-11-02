@@ -166,9 +166,11 @@ public class ProfileController {
             int profileIdInt = Integer.parseInt(profileID);
             
             if (reviewIdInt == 0) {
-                reviews = reviewDao.getReviews(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
+            	// if reviewId == 0, which means get all reviews for this specific profileID
+                reviews = reviewDao.getAllReviews(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
                 
             } else if (reviewIdInt > 0) {
+            	// if reviewId > 0, which means get specific review for this specific profileID
                 reviews = reviewDao.getReviewReplies(profileIdInt, reviewId, limit, order, sort, rating, status, userEPPN, ProfileReview.class);
             }
 
@@ -219,17 +221,34 @@ public class ProfileController {
     public ResponseEntity<?> profileReviewsGetByReviewId(
     		@PathVariable("reviewId") String reviewId,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
-    	ServiceLogger.log(logTag, "Get ProfileReview by reviewId: " + reviewId);
+    	ServiceLogger.log(logTag, "Get specific ProfileReview and it's replies by reviewId: " + reviewId);
         int statusCode = HttpStatus.OK.value();
-        ProfileReview review = null;
+        List<ProfileReview> reviews = null;
         try {
-        	review = (ProfileReview) reviewDao.getReviewByReviewId(reviewId, userEPPN, ProfileReview.class);
-            return new ResponseEntity<ProfileReview>(review, HttpStatus.valueOf(statusCode));
+        	reviews = reviewDao.getReviewByReviewIdWithReplies(reviewId, userEPPN, ProfileReview.class);
+            return new ResponseEntity<List<ProfileReview>>(reviews, HttpStatus.valueOf(statusCode));
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
+    
+    @RequestMapping(value = "/review_replies/{reviewId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
+    public ResponseEntity<?> reviewRepliesGetByReviewId(
+    		@PathVariable("reviewId") String reviewId,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN){
+    	ServiceLogger.log(logTag, "Get review_replies by reviewId: " + reviewId);
+        int statusCode = HttpStatus.OK.value();
+        List<ProfileReview> reviews = null;
+        try {
+        	reviews = reviewDao.getRepliesByReviewId(reviewId, userEPPN, ProfileReview.class);
+            return new ResponseEntity<List<ProfileReview>>(reviews, HttpStatus.valueOf(statusCode));
+        } catch (DMCServiceException e) {
+            ServiceLogger.logException(logTag, e);
+            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+    
     
     @RequestMapping(value = "/profile_reviews/{reviewId}", produces = { APPLICATION_JSON_VALUE }, method = RequestMethod.PATCH)
     public ResponseEntity<?> profileReviewsPatchByReviewId(
