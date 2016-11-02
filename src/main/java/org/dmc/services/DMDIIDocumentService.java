@@ -1,8 +1,9 @@
 package org.dmc.services;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +25,10 @@ import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.data.repositories.DMDIIQuickLinkRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -50,6 +54,8 @@ public class DMDIIDocumentService {
 
 	@Inject
 	private MapperFactory mapperFactory;
+
+	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
 	
 	private final String logTag = DMDIIDocumentService.class.getName();
 	
@@ -59,7 +65,6 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		List<DMDIIDocument> results = dmdiiDocumentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
-		results = refreshDocuments(results);
 		return mapper.mapToModel(results);
 	}
 	
@@ -67,7 +72,6 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByIsDeletedFalse(new PageRequest(pageNumber, pageSize)).getContent();
 		
-		documents = refreshDocuments(documents);
 		return mapper.mapToModel(documents);
 	}
 	
@@ -76,7 +80,6 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectId(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
 		
-		documents = refreshDocuments(documents);
 		return mapper.mapToModel(documents);
 	}
 
@@ -85,7 +88,6 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(dmdiiDocumentId));
 		
-		docList = refreshDocuments(docList);
 		return mapper.mapToModel(docList.get(0));
 	}
 
@@ -101,7 +103,6 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeOrderByModifiedDesc(fileTypeId));
 		
-		docList = refreshDocuments(docList);
 		return mapper.mapToModel(docList.get(0));
 		
 	}
@@ -110,7 +111,6 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeAndDmdiiProjectIdOrderByModifiedDesc(fileTypeId, dmdiiProjectId));
 		
-		docList = refreshDocuments(docList);
 		return mapper.mapToModel(docList.get(0));
 	}
 	
@@ -226,33 +226,68 @@ public class DMDIIDocumentService {
 		
 		return mapper.mapToModel(docEntity);
 	}
-	
-	protected List<DMDIIDocument> refreshDocuments (List<DMDIIDocument> docs) throws DMCServiceException {
-		List<DMDIIDocument> freshDocs = new ArrayList<DMDIIDocument>();
-		//Refresh check
-		for (DMDIIDocument doc : docs) {
-			if(AWSConnector.isTimeStampExpired(doc.getExpires())) {
-				//Get path from URL
-				String path = AWSConnector.createPath(doc.getDocumentUrl());
-				
-				//Refresh URL
-				String newURL = AWSConnector.refreshURL(path);
-				
-				//create a timestamp
-				Timestamp expires = new Timestamp(Calendar.getInstance().getTime().getTime());
-				
-				//add a month
-				expires.setTime(expires.getTime() + (1000*60*60*24*30));
-				
-				//update the entity
-				doc.setDocumentUrl(newURL);
-				doc.setExpires(expires);
-				doc = dmdiiDocumentRepository.save(doc);
+
+	/**
+	 * Removes all unverified document records that are a week old.
+	 * <p>
+	 * This is scheduled to run every day at 1:06 AM.
+	 * The pattern is a list of six single space-separated fields: representing second, minute, hour, day, month, weekday.
+	 */
+	@Scheduled(cron = "0 6 1 * * ?")
+	@Transactional(rollbackFor = DMCServiceException.class)
+	protected void removeUnverifiedDocuments() {
+		logger.info("Removing unverified document records.");
+		LocalDateTime lastWeek = LocalDate.now().atStartOfDay().minusWeeks(1);
+
+		List<DMDIIDocument> documents = this.dmdiiDocumentRepository
+				.findAllByVerifiedIsFalseAndModifiedBefore(Timestamp.valueOf(lastWeek));
+
+		for (DMDIIDocument document : documents) {
+			try {
+				document.setIsDeleted(true);
+
+				logger.info("Removing old unverified document with owner id: {} and url: {}", document.getOwner().getId(), document.getDocumentUrl());
+
+				this.dmdiiDocumentRepository.delete(document);
+			} catch (DMCServiceException ex) {
+				logger.error("Error occurred while removing old unverified document", ex);
 			}
-			
-			freshDocs.add(doc);
+
 		}
-		
-		return freshDocs;
+	}
+
+	/**
+	 * Refreshes all documents that are about to expire.
+	 * Documents that are active and have less than or equal to 1 day left for expiration are refreshed.
+	 * <p>
+	 * This is scheduled to run every day at 1:06 AM.
+	 * The pattern is a list of six single space-separated fields: representing second, minute, hour, day, month, weekday.
+	 */
+	@Scheduled(cron = "0 6 1 * * ?")
+	@Transactional(rollbackFor = DMCServiceException.class)
+	protected void refreshDocuments() {
+		logger.info("Refreshing documents in AWS.");
+		LocalDateTime future = LocalDate.now().atStartOfDay().plusDays(2);
+		List<DMDIIDocument> documents = this.dmdiiDocumentRepository
+				.findAllByVerifiedIsTrueAndIsDeletedIsFalseAndExpiresBefore(Timestamp.valueOf(future));
+
+		for (DMDIIDocument document : documents) {
+			try {
+				String path = AWSConnector.createPath(document.getDocumentUrl());
+				String newURL = AWSConnector.refreshURL(path);
+
+				LocalDateTime nextMonth = LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1);
+
+				document.setDocumentUrl(newURL);
+				document.setExpires(Timestamp.valueOf(nextMonth));
+
+				logger.info("Refreshing document with owner id: {} and new url: {}", document.getOwner().getId(), document.getDocumentUrl());
+
+				this.dmdiiDocumentRepository.save(document);
+
+			} catch (DMCServiceException ex) {
+				logger.error("Error occurred while refreshing document", ex);
+			}
+		}
 	}
 }
