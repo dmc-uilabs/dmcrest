@@ -151,6 +151,7 @@ public class DocumentService {
 		docEntity.setExpires(expires);
 		docEntity.setIsDeleted(false);
 		docEntity.setVerified(false);
+		docEntity.setIsPublic(false);
 		docEntity.setModified(now);
 		docEntity.setResourceType(ResourceType.DOCUMENT);
 		docEntity.setVersion(1);
