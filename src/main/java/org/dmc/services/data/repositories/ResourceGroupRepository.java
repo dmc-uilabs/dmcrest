@@ -5,5 +5,5 @@ import org.dmc.services.data.entities.ResourceGroup;
 
 public interface ResourceGroupRepository extends BaseRepository<ResourceGroup, Integer>{
 
-	ResourceGroup findByParentTypeAndParentIdAndRoleId(DocumentParentType parentType, Integer parentId, Integer roleId);
+	ResourceGroup findByParentTypeAndParentIdAndRole(DocumentParentType parentType, Integer parentId, String role);
 }

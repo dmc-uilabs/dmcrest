@@ -10,6 +10,7 @@ import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
+import org.dmc.services.data.repositories.ServiceRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
@@ -67,13 +68,16 @@ public class DocumentService {
 	private ResourceAccessService resourceAccessService;
 
 	@Inject
+	private ServiceRepository serviceRepository;
+
+	@Inject
 	private EmailService emailService;
 
 	private final String logTag = DocumentService.class.getName();
 
 	private Verification verify = new Verification();
 
-	public List<DocumentModel> filter(Map filterParams, Integer recent, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
+	public List<DocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User owner = userRepository.findByUsername(userEPPN);
 
@@ -81,23 +85,16 @@ public class DocumentService {
 		List<Document> results;
 		List<Document> returnList = new ArrayList<>();
 
-		if (recent != null) {
-			results = documentRepository.findAll(where, new PageRequest(0, recent, new Sort(new Order(Direction.DESC, "modified")))).getContent();
-		} else {
-			results = documentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
-		}
+		results = documentRepository.findAll(where, new PageRequest(0, 5000, new Sort(new Order(Direction.DESC, "modified")))).getContent();
 
+		if (results.size() == 0) return null;
 		//check for access
 		//superadmin's see everything
-		if (owner.getRoles().stream().anyMatch(r -> r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
-			return mapper.mapToModel(results);
+		if(owner.getRoles().stream().anyMatch(r->r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
+			return mapper.mapToModel(pagify(results, pageNumber, pageSize));
 		}
-
-		//else check for their access
-		List<ResourceGroup> userResourceGroups = owner.getResourceGroups();
-
-		for (Document doc : results) {
-
+		
+		for(Document doc : results) {
 			//check for access
 			if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, owner)) {
 				returnList.add(doc);
@@ -106,7 +103,30 @@ public class DocumentService {
 
 		if (returnList.size() == 0) return null;
 
-		return mapper.mapToModel(returnList);
+		return mapper.mapToModel(pagify(returnList, pageNumber, pageSize));
+	}
+
+	private List<Document> pagify(List<Document> docs, Integer pageNumber, Integer pageSize) {
+		Integer upperLowerBound = pageSize;
+		Integer lowerUpperBound;
+		if (pageNumber != 0) {
+			lowerUpperBound = (pageNumber * pageSize);
+		} else {
+			lowerUpperBound = 0;
+		}
+
+		List<Document> returnList = new ArrayList<Document>(docs);
+		if (lowerUpperBound != 0) {
+			//clear the low end
+			returnList.subList(0, lowerUpperBound).clear();
+		}
+
+		if (upperLowerBound < returnList.size()) {
+			//clear the upper end
+			returnList.subList(upperLowerBound, returnList.size()).clear();
+		}
+
+		return returnList;
 	}
 
 	public Long count(Map filterParams, String userEPPN) throws InvalidFilterParameterException {
@@ -148,6 +168,7 @@ public class DocumentService {
 		docEntity.setVerified(false);
 		docEntity.setModified(now);
 		docEntity.setResourceType(ResourceType.DOCUMENT);
+		docEntity.setVersion(1);
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
@@ -185,6 +206,8 @@ public class DocumentService {
 
 		docEntity.setExpires(oldEntity.getExpires());
 		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
+		Integer oldVersion = docEntity.getVersion();
+		docEntity.setVersion(oldVersion++);
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
@@ -399,6 +422,31 @@ public class DocumentService {
 
 			} catch (DMCServiceException ex) {
 				logger.error("Error occurred while refreshing document", ex);
+			}
+		}
+	}
+
+	public List<Document> findServiceDocumentsByProjectId (Integer projectId) {
+		List<ServiceEntity> services = serviceRepository.findByProjectId(projectId);
+		List<Document> documents = new ArrayList<>();
+
+		for(ServiceEntity service : services) {
+			documents.addAll(documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, service.getId()));
+		}
+
+		return documents;
+	}
+
+	public void duplicateDocumentsByParentTypeAndId (DocumentParentType oldParentType, Integer oldParentId, DocumentParentType newParentType, Integer newParentId) {
+		List<Document> originalDocs = documentRepository.findByParentTypeAndParentId(oldParentType, oldParentId);
+
+		if (originalDocs != null && !originalDocs.isEmpty()) {
+			for (Document doc : originalDocs) {
+				doc.setId(null);
+				doc.setParentType(newParentType);
+				doc.setParentId(newParentId);
+				doc.setModified(new Timestamp(System.currentTimeMillis()));
+				documentRepository.save(doc);
 			}
 		}
 	}

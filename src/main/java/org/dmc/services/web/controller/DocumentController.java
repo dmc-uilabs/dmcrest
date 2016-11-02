@@ -34,14 +34,13 @@ public class DocumentController {
 		return documentService.findOne(id);
 	}
 	
-	@RequestMapping(value="/documents", params = {"recent"}, method = RequestMethod.GET)
-	public PagedResponse getDocuments (@RequestParam("recent") Integer recent, 
-										@RequestParam(value = "page", defaultValue = "0") Integer page, 
+	@RequestMapping(value="/documents", method = RequestMethod.GET)
+	public PagedResponse getDocuments (@RequestParam(value = "page", defaultValue = "0") Integer page, 
 										@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
 										@RequestHeader(value = "AJP_eppn") String userEPPN,
 										@RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
-		List<? extends BaseModel> results = documentService.filter(params, recent, page, pageSize, userEPPN);
-		Long count = documentService.count(params, userEPPN);
+		List<? extends BaseModel> results = documentService.filter(params, page, pageSize, userEPPN);
+		Long count = Long.valueOf(results.size());
 		return new PagedResponse(count, results);
 	}
 
