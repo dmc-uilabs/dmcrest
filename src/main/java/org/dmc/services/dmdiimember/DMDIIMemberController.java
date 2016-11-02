@@ -1,11 +1,5 @@
 package org.dmc.services.dmdiimember;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.websocket.server.PathParam;
-
 import org.dmc.services.DMDIIMemberEventService;
 import org.dmc.services.DMDIIMemberNewsService;
 import org.dmc.services.data.models.BaseModel;
@@ -28,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @PreAuthorize(SecurityRoles.REQUIRED_ROLE_DMDII_MEMBER)
@@ -116,15 +114,15 @@ public class DMDIIMemberController {
 		return dmdiiMemberNewsService.save(memberNews);
 	}
 	
-	@RequestMapping(value = "/dmdiiMember/events/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/dmdiiMember/events/{eventId}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
-	public void deleteEvent(@PathParam("eventId") Integer eventId) {
+	public void deleteEvent(@PathVariable("eventId") Integer eventId) {
 		dmdiiMemberEventService.delete(eventId);
 	}
 	
-	@RequestMapping(value = "/dmdiiMember/news/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/dmdiiMember/news/{newsId}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
-	public void deleteNews(@PathParam("newsId") Integer newsId) {
+	public void deleteNews(@PathVariable("newsId") Integer newsId) {
 		dmdiiMemberNewsService.delete(newsId);
 	}
 

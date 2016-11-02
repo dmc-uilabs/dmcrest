@@ -39,7 +39,7 @@ public class DMDIIMemberEvent extends BaseEntity {
 	private Date date;
 
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 	
 
 	public Integer getId() {

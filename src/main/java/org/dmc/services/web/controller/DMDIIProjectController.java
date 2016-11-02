@@ -1,13 +1,5 @@
 package org.dmc.services.web.controller;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.websocket.server.PathParam;
-
 import org.dmc.services.DMDIIProjectEventsService;
 import org.dmc.services.DMDIIProjectNewsService;
 import org.dmc.services.DMDIIProjectService;
@@ -30,6 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @PreAuthorize(SecurityRoles.REQUIRED_ROLE_DMDII_MEMBER)
@@ -131,8 +129,8 @@ public class DMDIIProjectController {
 	
 	@RequestMapping(value = "/dmdiiProjects/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
-	public void delete(@PathParam("dmdiiProjectId") Integer dmdiiProjectId) {
-		dmdiiProjectService.delete(dmdiiProjectId);
+	public void delete(@PathVariable("id") Integer id) {
+		dmdiiProjectService.delete(id);
 	}
 
 	@RequestMapping(value = "/dmdiiProject/news", params = "limit", method = RequestMethod.GET)
@@ -159,14 +157,14 @@ public class DMDIIProjectController {
 	
 	@RequestMapping(value = "/dmdiiProject/events/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
-	public void deleteEvent(@PathParam("eventId") Integer eventId) {
-		dmdiiProjectEventsService.delete(eventId);
+	public void deleteEvent(@PathVariable("id") Integer id) {
+		dmdiiProjectEventsService.delete(id);
 	}
 	
 	@RequestMapping(value = "/dmdiiProject/news/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
-	public void deleteNews(@PathParam("newsId") Integer newsId) {
-		dmdiiProjectNewsService.delete(newsId);
+	public void deleteNews(@PathVariable("id") Integer id) {
+		dmdiiProjectNewsService.delete(id);
 	}
 	
 	@RequestMapping(value = "/dmdiiProjectUpdate", params = {"limit", "projectId"}, method = RequestMethod.GET)
@@ -184,8 +182,8 @@ public class DMDIIProjectController {
 	
 	@RequestMapping(value = "/dmdiiProjectUpdate/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
-	public void deleteUpdate(@PathParam("updateId") Integer updateId) {
-		dmdiiProjectUpdateService.delete(updateId);
+	public void deleteUpdate(@PathVariable("id") Integer id) {
+		dmdiiProjectUpdateService.delete(id);
 	}
 	
 	@RequestMapping(value = "/contributingCompanies", params = "dmdiiMemberId", method = RequestMethod.GET)
