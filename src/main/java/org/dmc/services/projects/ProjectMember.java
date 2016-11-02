@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
-import org.dmc.services.member.FollowingMember;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

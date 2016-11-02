@@ -508,6 +508,7 @@ public class Entities {
 		document.setIsDeleted(false);
 		document.setDocClass(DocumentClass.LOGO);
 		document.setVerified(true);
+		document.setVersion(1);
 		
 		return document;
 	}

@@ -1,5 +1,8 @@
 package org.dmc.services.data.repositories;
 
+import java.sql.Timestamp;
+import java.util.List;
+
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,5 +23,9 @@ public interface DMDIIDocumentRepository extends BaseRepository<DMDIIDocument, I
 
 	@Query("SELECT d from DMDIIDocument d WHERE d.id = :dmdiiDocumentId")
 	DMDIIDocument findOne (@Param("dmdiiDocumentId") Integer dmdiiDocumentId);
+
+	List<DMDIIDocument> findAllByVerifiedIsFalseAndModifiedBefore(Timestamp valueOf);
+
+	List<DMDIIDocument> findAllByVerifiedIsTrueAndIsDeletedIsFalseAndExpiresBefore(Timestamp valueOf);
 
 }

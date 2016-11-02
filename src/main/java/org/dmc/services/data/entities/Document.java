@@ -20,7 +20,6 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import org.hibernate.annotations.Where;
 import org.hibernate.annotations.WhereJoinTable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -93,7 +92,10 @@ public class Document extends ResourceEntity {
 	private List<User> vips;
 	
 	@Column(name = "is_public")
-	private Boolean isPublic;
+	private Boolean isPublic = false;
+	
+	@Column(name = "version")
+	private Integer version;
 
 	public Integer getId() {
 		return id;
@@ -221,6 +223,14 @@ public class Document extends ResourceEntity {
 
 	public void setIsPublic(Boolean isPublic) {
 		this.isPublic = isPublic;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 
 	@Override

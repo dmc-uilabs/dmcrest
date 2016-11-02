@@ -26,6 +26,8 @@ public class DMDIIDocumentModel extends BaseModel {
 	private Boolean verified;
 	
 	private String accessLevel;
+	
+	private Integer version;
 
 	public String getDocumentName() {
 		return documentName;
@@ -113,6 +115,14 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	public void setAccessLevel(String accessLevel) {
 		this.accessLevel = accessLevel;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 
 	

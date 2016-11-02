@@ -6,10 +6,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentTag;
+import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.repositories.DocumentTagRepository;
+import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -23,6 +26,9 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 	@Inject
 	private DocumentTagRepository documentTagRepository;
+	
+	@Inject
+	private ResourceGroupRepository resourceGroupRepository;
 
 	@Override
 	public Document mapToEntity(DocumentModel model) {
@@ -46,7 +52,28 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 			}
 		}
 		entity.setTags(documentTags);
-
+		
+		if (model.getAccessLevel() != null) {
+			//set resource groups from accessLevel
+			List<ResourceGroup> docGroups = new ArrayList<>();
+			ResourceGroup group;
+			switch (model.getAccessLevel()) {
+			case SecurityRoles.ADMIN:
+				group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
+						model.getParentId(), SecurityRoles.ADMIN);
+				docGroups.add(group);
+				break;
+			case SecurityRoles.MEMBER:
+				group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
+						model.getParentId(), SecurityRoles.ADMIN);
+				docGroups.add(group);
+				group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
+						model.getParentId(), SecurityRoles.MEMBER);
+				docGroups.add(group);
+				break;
+			}
+			entity.setResourceGroups(docGroups);
+		}
 		return entity;
 	}
 
@@ -57,7 +84,20 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		DocumentModel model = copyProperties(entity, new DocumentModel());
 
 		model.setOwnerId(entity.getOwner().getId());
+		
+		if (CollectionUtils.isNotEmpty(entity.getResourceGroups())) {
+			for (ResourceGroup group : entity.getResourceGroups()) {
+				String accessLevel = null;
+				if (group.getRole().equals(SecurityRoles.ADMIN)) {
+					accessLevel = "ADMIN";
+					break;
+				} else if (group.getRole().equals(SecurityRoles.MEMBER)) {
+					accessLevel = "MEMBER";
+				}
 
+				model.setAccessLevel(accessLevel);
+			} 
+		}
 		return model;
 	}
 
