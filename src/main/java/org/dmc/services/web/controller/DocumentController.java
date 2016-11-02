@@ -1,5 +1,6 @@
 package org.dmc.services.web.controller;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
 import org.dmc.services.data.models.BaseModel;
@@ -40,7 +41,14 @@ public class DocumentController {
 										@RequestHeader(value = "AJP_eppn") String userEPPN,
 										@RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
 		List<? extends BaseModel> results = documentService.filter(params, page, pageSize, userEPPN);
-		Long count = Long.valueOf(results.size());
+
+		Long count;
+		if(CollectionUtils.isNotEmpty(results)) {
+			count = Long.valueOf(results.size());
+		} else {
+			count = 0L;
+		}
+
 		return new PagedResponse(count, results);
 	}
 
