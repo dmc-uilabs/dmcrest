@@ -69,6 +69,9 @@ public class DMDIIDocument extends BaseEntity {
 	
 	@Column(name = "verified")
 	private Boolean verified = false;
+	
+	@Column(name = "version")
+	private Integer version;
 
 	public Integer getId() {
 		return id;
@@ -164,6 +167,14 @@ public class DMDIIDocument extends BaseEntity {
 
 	public void setVerified(Boolean verified) {
 		this.verified = verified;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 
 	@Override

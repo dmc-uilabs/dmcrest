@@ -1,33 +1,33 @@
 package org.dmc.services.users;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import java.util.ArrayList;
-import java.lang.Exception;
+import java.util.Iterator;
+
+import javax.inject.Inject;
 
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.projects.ProjectMember;
-import org.dmc.services.projects.ProjectMemberDao;
 import org.dmc.services.profile.Profile;
 import org.dmc.services.profile.ProfileDao;
-
-import java.util.Iterator;
-
-import org.springframework.http.ResponseEntity;
+import org.dmc.services.projects.ProjectMember;
+import org.dmc.services.projects.ProjectMemberDao;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 public class AssignUserController {
 
     private final static String LOGTAG = AssignUserController.class.getName();
-    private ProjectMemberDao projectMemberDao = new ProjectMemberDao();
+    
+    @Inject
+    private ProjectMemberDao projectMemberDao;
 
 	/**
 	 * GET assign_users

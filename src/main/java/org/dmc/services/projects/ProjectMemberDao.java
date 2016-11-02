@@ -8,11 +8,10 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.company.CompanyDao;
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.entities.DocumentParentType;
-import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
-import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.profile.Profile;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.utils.SQLUtils;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +21,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import javax.inject.Inject;
 
 @Component
@@ -37,10 +33,10 @@ public class ProjectMemberDao {
     private UserRepository userRepository;
     
     @Inject
-    private ResourceGroupRepository resourceGroupRepository;
+    private ResourceGroupService resourceGroupService;
     
     @Inject
-    private ResourceGroupService resourceGroupService;
+    private ProjectDao projectDao;
 
     public ProjectMemberDao() {
     }
@@ -235,8 +231,7 @@ public class ProjectMemberDao {
          * so I am extracting the data and sending to that function call in ProjectDao
          */
         
-        final ProjectDao project = new ProjectDao();
-        project.createProjectJoinRequest(request, userEPPN);
+        projectDao.createProjectJoinRequest(request, userEPPN);
         createdMember.setAccept(member.getFromProfileId().equals(member.getProfileId()) ? true : false);
         createdMember.setDate(System.currentTimeMillis());
         createdMember.setFrom(userEPPN);
@@ -368,7 +363,7 @@ public class ProjectMemberDao {
                 
                 //bolt on resource access for project members
                 User user = userRepository.getOne(memberId);
-                resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+                resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
             	
             }
 
@@ -539,7 +534,7 @@ public class ProjectMemberDao {
         } else {
             
             User user = userRepository.findOne(memberId);
-            resourceGroupService.removeResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+            resourceGroupService.removeResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
         	
         }
     }
