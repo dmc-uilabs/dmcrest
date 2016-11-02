@@ -133,6 +133,7 @@ public class DMDIIDocumentService {
 		docEntity.setIsDeleted(false);
 		docEntity.setVerified(false);
 		docEntity.setModified(now);
+		docEntity.setVersion(1);
 		
 		docEntity = dmdiiDocumentRepository.save(docEntity);
 		
@@ -205,6 +206,25 @@ public class DMDIIDocumentService {
 		List<DMDIIDocument> docs = dmdiiDocumentRepository.findByDmdiiProjectIdAndIsDeletedFalse(new PageRequest(0, Integer.MAX_VALUE), dmdiiProjectId).getContent();
 		docs.stream().forEach(n -> n.setIsDeleted(true));
 		dmdiiDocumentRepository.save(docs);
+	}
+	
+	@Transactional
+	public DMDIIDocumentModel update(DMDIIDocumentModel doc) throws IllegalArgumentException {
+		Assert.notNull(doc);
+		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
+		
+		DMDIIDocument docEntity = mapper.mapToEntity(doc);
+		DMDIIDocument oldEntity = dmdiiDocumentRepository.findOne(doc.getId());
+		Assert.notNull(oldEntity);
+		
+		docEntity.setExpires(oldEntity.getExpires());
+		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
+		Integer oldVersion = docEntity.getVersion();
+		docEntity.setVersion(oldVersion++);
+		
+		docEntity= dmdiiDocumentRepository.save(docEntity);
+		
+		return mapper.mapToModel(docEntity);
 	}
 	
 	protected List<DMDIIDocument> refreshDocuments (List<DMDIIDocument> docs) throws DMCServiceException {
