@@ -5,6 +5,7 @@ import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.UserService;
 import org.dmc.services.data.models.OrganizationUserModel;
+import org.dmc.services.data.models.SimpleUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
@@ -12,6 +13,8 @@ import org.dmc.services.notification.NotificationService;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +66,16 @@ public class UserController {
     {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
 		return userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+	}
+
+	@RequestMapping(value = "/users", method = RequestMethod.GET)
+	public Page<SimpleUserModel> getAllUsers(
+			@RequestParam(value = "page") Integer page,
+			@RequestParam(value = "pageSize") Integer pageSize,
+			@RequestParam(value = "firstName", required = false) List<String> firstName,
+			@RequestParam(value = "lastName", required = false) List<String> lastName,
+			@RequestParam(value = "userName", required = false) List<String> userName) {
+		return this.userService.findAll(new PageRequest(page, pageSize, null), firstName, lastName, userName);
 	}
 
 	@RequestMapping(value = "/user", produces = { "application/json" }, method = RequestMethod.PATCH)
