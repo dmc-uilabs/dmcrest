@@ -37,6 +37,8 @@ public class DocumentModel extends BaseModel {
 
 	private Boolean isPublic;
 
+	private Integer version;
+
 	private Integer directoryId;
 
 	public String getDocumentName() {
@@ -141,6 +143,14 @@ public class DocumentModel extends BaseModel {
 
 	public void setDirectoryId(Integer directoryId) {
 		this.directoryId = directoryId;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 
 }

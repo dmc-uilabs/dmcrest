@@ -92,7 +92,10 @@ public class Document extends ResourceEntity {
 	private List<User> vips;
 
 	@Column(name = "is_public")
-	private Boolean isPublic;
+	private Boolean isPublic = false;
+
+	@Column(name = "version")
+	private Integer version;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "directory_id")
@@ -232,6 +235,14 @@ public class Document extends ResourceEntity {
 
 	public void setIsPublic(Boolean isPublic) {
 		this.isPublic = isPublic;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
 	}
 
 	@Override

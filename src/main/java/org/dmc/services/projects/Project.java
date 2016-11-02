@@ -7,20 +7,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Project {
 	
-	private  int id;
-	private  String title;
-	private  String projectManager;
-	private  String projectManagerId;
-	private  String companyId;
-	private  FeatureImage featureImage;
-	private  String images;
-	private  String description;
-	private  long dueDate;
-	private  ProjectTask task;
-	private  ProjectDiscussion discussion; 
-	private  ProjectService service;
-	private  ProjectComponent component;
-	private  String approvalOption;
+	private int id;
+	private String title;
+	private String projectManager;
+	private String projectManagerId;
+	private String companyId;
+	private FeatureImage featureImage;
+	private String images;
+	private String description;
+	private long dueDate;
+	private ProjectTask task;
+	private ProjectDiscussion discussion; 
+	private ProjectService service;
+	private ProjectComponent component;
+	private Boolean requiresAdminApprovalToJoin;
+	private Boolean isPublic;
 
 	private final String logTag = Project.class.getName();
 	
@@ -41,7 +42,7 @@ public class Project {
 		this.discussion = new ProjectDiscussion(0, id); 
 		this.service = new ProjectService(0, id);
 		this.component = new ProjectComponent(0, id);
-		this.approvalOption = null;
+		this.requiresAdminApprovalToJoin = true;
 	}
 	
 	@JsonProperty("id")
@@ -148,12 +149,22 @@ public class Project {
 		this.component = component;
 	}
 	
-	@JsonProperty("approvalOption")
-	public String getApprovalOption(){
-		return approvalOption;
+	@JsonProperty("requiresAdminApprovalToJoin")
+	public Boolean getRequiresAdminApprovalToJoin() {
+		return requiresAdminApprovalToJoin;
 	}
-	public void setApprovalOption(String approvalOption){
-		this.approvalOption = approvalOption;
+	
+	public void setRequiresAdminApprovalToJoin(Boolean requiresAdminApprovalToJoin) {
+		this.requiresAdminApprovalToJoin = requiresAdminApprovalToJoin;
+	}
+	
+	@JsonProperty("isPublic")
+	public Boolean getIsPublic() {
+		return isPublic;
+	}
+	
+	public void setIsPublic(Boolean isPublic) {
+		this.isPublic = isPublic;
 	}
 	
 	@Override
@@ -171,5 +182,13 @@ public class Project {
 		if (projectType.toLowerCase().equals(PRIVATE)) return 0;
 		if (projectType.toLowerCase().equals(PUBLIC)) return 1;
 		return 0;
+	}
+	
+	public static Boolean needAdminApprovalToJoin(String approvalOption) {
+		if (approvalOption != null && approvalOption.equals("all")) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 }

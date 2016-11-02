@@ -20,9 +20,13 @@ import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
 import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.data.entities.ProjectJoinApprovalRequest;
+import org.dmc.services.data.entities.ProjectJoinApprovalRequest.ProjectJoinApprovalRequestStatus;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.ProjectJoinApprovalRequestRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.search.SearchException;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.services.sharedattributes.Util;
 import org.dmc.solr.SolrUtils;
@@ -42,6 +46,12 @@ public class ProjectDao {
 
     @Inject
     private UserRepository userRepository;
+    
+    @Inject
+    private ProjectJoinApprovalRequestRepository projectJoinApprovalRequestRepository;
+    
+    @Inject
+    private ProjectMemberDao projectMemberDao;
 
     public ProjectDao() {
     }
@@ -103,7 +113,6 @@ public class ProjectDao {
                 ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                 projects.add(project);
             }
-            return projects;
         }
 
         catch (SQLException e) {
@@ -120,7 +129,7 @@ public class ProjectDao {
             }
         }
 
-        return null;
+        return projects;
     }
 
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
@@ -142,7 +151,6 @@ public class ProjectDao {
                 ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                 projects.add(project);
             }
-            return projects;
         }
 
         catch (SQLException e) {
@@ -160,12 +168,12 @@ public class ProjectDao {
         }
 
 
-    	return null;
+    	return projects;
     }
 
     protected String getSelectProjectQuery() {
         final String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, "
-                + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, "
+                + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.requires_approval as requires_approval, "
                 + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, "
                 + "c.componentsCount AS componentsCount " + "FROM groups g "
                 + "JOIN (SELECT u.firstname AS firstname, u.lastname AS lastname , r.home_group_id "
@@ -206,6 +214,8 @@ public class ProjectDao {
         final int num_components = resultSet.getInt("componentsCount");
         final int num_tasks = resultSet.getInt("taskCount");
         final int num_services = resultSet.getInt("servicesCount");
+        final Boolean requiresApproval = resultSet.getBoolean("requires_approval");
+        final Boolean isPublic = resultSet.getBoolean("isPublic");
 
         final ProjectTask task = new ProjectTask(num_tasks, projectId);
         final ProjectService service = new ProjectService(num_services, projectId);
@@ -228,6 +238,8 @@ public class ProjectDao {
         project.setComponents(component);
         project.setProjectManager(projectManager);
         project.setDueDate(due_date);
+        project.setRequiresAdminApprovalToJoin(requiresApproval);
+        project.setIsPublic(isPublic);
 
         ServiceLogger.log(LOGTAG, project.toString());
 
@@ -235,7 +247,7 @@ public class ProjectDao {
     }
 
     @Transactional
-    public Id createProject(String projectname, String unixname, String description, String projectType,
+    public Id createProject(String projectname, String unixname, String description, String projectType, String approvalOption,
             String userEPPN, long dueDate) throws SQLException, JSONException, Exception {
         connection = DBConnector.connection();
         // let's start a transaction
@@ -248,8 +260,10 @@ public class ProjectDao {
 
         try {
 
+            Boolean requiresApproval = Project.needAdminApprovalToJoin(approvalOption);
+
             // create new project in groups table
-            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date) values ( ?, ?, ?, ?, ?, ?, ? )";
+            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval) values ( ?, ?, ?, ?, ?, ?, ?, ? )";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
             preparedStatement.setString(1, projectname);
             preparedStatement.setString(2, unixname);
@@ -258,6 +272,7 @@ public class ProjectDao {
             preparedStatement.setInt(5, isPublic);
             preparedStatement.setInt(6, userID);
             preparedStatement.setTimestamp(7, new Timestamp(dueDate));
+            preparedStatement.setBoolean(8, requiresApproval);
             preparedStatement.executeUpdate();
 
             // since no parameters can use execute query safely
@@ -305,7 +320,7 @@ public class ProjectDao {
             preparedStatement.executeUpdate();
 
             // create user as a member of the project
-            createProjectJoinRequest(Integer.toString(projectId), Integer.toString(userID), userID);
+            createProjectJoinRequest(Integer.toString(projectId), Integer.toString(userID), userID, userEPPN);
 
             connection.commit();
 
@@ -359,9 +374,9 @@ public class ProjectDao {
 
     			User user = userRepository.getOne(userID);
     			//give the creating user the admin role
-    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 2);
+    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.ADMIN);
     			//add member role
-    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, 4);
+    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
     		}
         }
 
@@ -373,8 +388,9 @@ public class ProjectDao {
         final String projectname = json.getString("projectname");
         final String unixname = json.getString("unixname");
         final String type = json.getString("type");
+        final String approvalOption = json.getString("approvalOption");
 
-        return createProject(projectname, unixname, projectname, type, userEPPN, 0);
+        return createProject(projectname, unixname, projectname, type, approvalOption, userEPPN, 0);
     }
 
     public Id createProject(ProjectCreateRequest project, String userEPPN)
@@ -385,8 +401,9 @@ public class ProjectDao {
         final String description = project.getDescription();
         final long dueDate = project.getDueDate();
         final String type = project.getProjectType();
+        final String approvalOption = project.getApprovalOption();
 
-        return createProject(projectname, unixname, description, type, userEPPN, dueDate);
+        return createProject(projectname, unixname, description, type, approvalOption, userEPPN, dueDate);
     }
 
     public Id updateProject(int id, Project project, String userEPPN) throws DMCServiceException {
@@ -582,11 +599,12 @@ public class ProjectDao {
         final String profileId = json.getProfileId();
         final int userId = UserDao.getUserID(userEPPN);
 
-        return createProjectJoinRequest(projectId, profileId, userId);
+        return createProjectJoinRequest(projectId, profileId, userId, userEPPN);
     }
 
-    private boolean selfAutoJoin(int projectId, int profileId, int requesterId) {
-        if (profileId == requesterId) {
+    // AutoJoin is applicable for self joining OR when there is an aproved join request
+    private boolean autoJoin(int projectId, int profileId, int requesterId, Boolean approvedJoinRequest) {
+        if (profileId == requesterId || approvedJoinRequest) {
             final String autoJoinProject = "UPDATE group_join_request SET accept_date = now() WHERE user_id = ? AND requester_id = ? and group_id = ?";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(autoJoinProject);
             try {
@@ -605,16 +623,34 @@ public class ProjectDao {
         return false;
     }
 
-    private ProjectJoinRequest createProjectJoinRequest(String projectIdAsString, String profileIdAsString, int requesterId)
+    public ProjectJoinRequest createProjectJoinRequest(String projectIdAsString, String profileIdAsString, int requesterId, String userEPPN)
             throws SQLException, Exception {
 
         Integer projectId = Integer.parseInt(projectIdAsString);
         Integer profileId = Integer.parseInt(profileIdAsString);
-        ProjectMemberDao projectMemberDao = new ProjectMemberDao();
+        Project project = this.getProject(projectId, userEPPN);
+        
+        Boolean allowed = false;
+        Boolean approvedJoinRequest = false;
 
-        if (!projectMemberDao.isUserProjectAdmin(projectId, requesterId)) {
-            throw new DMCServiceException(DMCError.NotProjectAdmin, requesterId + " is not allowed to invite new members to project");
+        if (projectMemberDao.isUserProjectAdmin(projectId, requesterId)) {
+            allowed = true;
         }
+        
+        // Non-admins are allowed to add themselves to projects that don't require admin approval
+        if (profileId == requesterId && project != null && !project.getRequiresAdminApprovalToJoin()) {
+        	allowed = true;
+        }
+        
+        if (approvedProjectJoinApprovalRequestExists(projectId, profileId)) {
+        	allowed = true;
+        	approvedJoinRequest = true;
+        }
+        
+        if (!allowed) {
+        	throw new DMCServiceException(DMCError.NotProjectAdmin, requesterId + " is not allowed to invite new members to project");
+        }
+        
         final String createProjectJoinRequestQuery = "insert into group_join_request (group_id, user_id, requester_id, request_date) values (?, ?, ?, now())";
         final PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectJoinRequestQuery);
         preparedStatement.setInt(1, projectId);
@@ -630,7 +666,7 @@ public class ProjectDao {
             }
         }
 
-        if (this.selfAutoJoin(projectId, profileId, requesterId))
+        if (this.autoJoin(projectId, profileId, requesterId, approvedJoinRequest))
             ServiceLogger.log(LOGTAG, "selfAutoJoin done");
         else
             ServiceLogger.log(LOGTAG, "not a selfAutoJoin");
@@ -650,6 +686,16 @@ public class ProjectDao {
         }
         ServiceLogger.log(LOGTAG, "going to fail now because we didn't find the expected ProjectJoinRequest");
         throw new DMCServiceException(DMCError.NoExistingRequest, "Failed to create join request - we should have found one and returned");
+    }
+    
+    private Boolean approvedProjectJoinApprovalRequestExists(Integer projectId, Integer userId) {
+    	ProjectJoinApprovalRequest request = projectJoinApprovalRequestRepository.findByProjectIdAndUserId(projectId, userId);
+    	
+    	if (request != null && request.getStatus().equals(ProjectJoinApprovalRequestStatus.APPROVED)) {
+    		return true;
+    	} else {
+    		return false;
+    	}
     }
 
     // sample query for member 111 by fforgeadmin user (102), If by and member
