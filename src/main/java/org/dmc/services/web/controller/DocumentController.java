@@ -51,8 +51,10 @@ public class DocumentController {
 	}
 
 	@RequestMapping(value = "/documents/{id}/user/{userId}", method = RequestMethod.POST)
-	public ResponseEntity createDocumentForUser(@PathVariable("id") Integer documentId, @PathVariable("userId") Integer userId){
-		return this.documentService.shareDocument(documentId, userId);
+	public ResponseEntity createDocumentForUser(@PathVariable("id") Integer documentId,
+	                                            @PathVariable("userId") Integer userId,
+	                                            @RequestParam( value = "dmdii", defaultValue = "false") boolean dmdii){
+		return this.documentService.shareDocument(documentId, userId, dmdii);
 	}
 
 	@ResponseStatus(HttpStatus.OK)
