@@ -55,12 +55,6 @@ public class DMDIIDocumentController {
 		ServiceLogger.log(logTag, "In getAllDMDIIDocuments filter");
 		return dmdiiDocumentService.filter(params, page, pageSize);
 	}
-
-	@RequestMapping(value = "/dmdiidocuments/undeleted", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = {"application/json"})
-	public List<DMDIIDocumentModel> getUndeletedDMDIIDocuments(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize) throws DMCServiceException {
-		ServiceLogger.log(logTag, "In getUndeletedDMDIIDocuments");
-		return dmdiiDocumentService.getUndeletedDMDIIDocuments(page, pageSize);
-	}
 	
 	@RequestMapping(value = "/dmdiidocument", method = RequestMethod.POST, consumes = {"application/json"})
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
@@ -69,6 +63,11 @@ public class DMDIIDocumentController {
 		
 		validateSaveDocument(doc.getDocumentUrl(), result);
 		return dmdiiDocumentService.save(doc, result);
+	}
+	
+	@RequestMapping(value = "/dmdiidocuments/{documentId}", method = RequestMethod.PATCH)
+	public DMDIIDocumentModel updateDMDIIDocument (@RequestBody DMDIIDocumentModel doc, @PathVariable("documentId") Integer documentId) {
+		return dmdiiDocumentService.update(doc);
 	}
 
 	private void validateSaveDocument(String documentUrl, BindingResult result) {

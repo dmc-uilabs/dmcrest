@@ -13,7 +13,6 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
-import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserRoleAssignmentRepository;
 import org.dmc.services.notification.NotificationService;

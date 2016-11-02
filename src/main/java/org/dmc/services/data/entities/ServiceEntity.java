@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.dmc.services.projects.Project;
-
 @Entity
 @Table(name = "service")
 public class ServiceEntity extends BaseEntity {
