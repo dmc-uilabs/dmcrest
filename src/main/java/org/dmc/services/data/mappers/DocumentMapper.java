@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.entities.ResourceGroup;
+import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.repositories.DocumentTagRepository;
@@ -53,6 +54,16 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		}
 		entity.setTags(documentTags);
 		
+		List<Integer> vipIds = model.getVipIds();
+		List<User> vipEntities = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(vipIds)) {
+			for (Integer vipId : vipIds) {
+				User vip = userRepository.findOne(vipId);
+				vipEntities.add(vip);
+			}
+		}
+		entity.setVips(vipEntities);
+		
 		if (model.getAccessLevel() != null) {
 			//set resource groups from accessLevel
 			List<ResourceGroup> docGroups = new ArrayList<>();
@@ -82,8 +93,16 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		if (entity == null) return null;
 
 		DocumentModel model = copyProperties(entity, new DocumentModel());
+		List<Integer> vipIds = new ArrayList<>();
 
 		model.setOwnerId(entity.getOwner().getId());
+		
+		if (CollectionUtils.isNotEmpty(entity.getVips())) {
+			for (User vip : entity.getVips()) {
+				vipIds.add(vip.getId());
+			}
+		}
+		model.setVips(vipIds);
 		
 		if (CollectionUtils.isNotEmpty(entity.getResourceGroups())) {
 			for (ResourceGroup group : entity.getResourceGroups()) {

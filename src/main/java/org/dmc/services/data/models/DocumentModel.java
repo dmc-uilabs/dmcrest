@@ -33,7 +33,7 @@ public class DocumentModel extends BaseModel {
 	
 	private String accessLevel;
 	
-	private List<UserModel> vips;
+	private List<Integer> vipIds;
 	
 	private Boolean isPublic;
 	
@@ -119,12 +119,12 @@ public class DocumentModel extends BaseModel {
 		this.accessLevel = accessLevel;
 	}
 
-	public List<UserModel> getVips() {
-		return vips;
+	public List<Integer> getVipIds() {
+		return vipIds;
 	}
 
-	public void setVips(List<UserModel> vips) {
-		this.vips = vips;
+	public void setVips(List<Integer> vipIds) {
+		this.vipIds = vipIds;
 	}
 
 	public Boolean getIsPublic() {
