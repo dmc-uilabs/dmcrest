@@ -37,6 +37,7 @@ import com.mysema.query.types.Predicate;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -212,7 +213,7 @@ public class DocumentServiceTest {
 		DocumentModel expected = this.documentModel;
 		DocumentModel actual = this.documentService.save(this.documentModel);
 		assertTrue(actual.equals(expected));
-		Mockito.verify(documentRepository).save(any(Document.class));
+		Mockito.verify(documentRepository, atLeast(2)).save(any(Document.class));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)

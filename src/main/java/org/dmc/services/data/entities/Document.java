@@ -100,6 +100,9 @@ public class Document extends ResourceEntity {
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "directory_id")
 	private Directory directory;
+	
+	@Column(name = "base_doc_id")
+	private Integer baseDocId;
 
 	public Integer getId() {
 		return id;
@@ -243,6 +246,14 @@ public class Document extends ResourceEntity {
 
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public Integer getBaseDocId() {
+		return baseDocId;
+	}
+
+	public void setBaseDocId(Integer baseDocId) {
+		this.baseDocId = baseDocId;
 	}
 
 	@Override

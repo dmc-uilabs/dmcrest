@@ -40,6 +40,8 @@ public class DocumentModel extends BaseModel {
 	private Integer version;
 
 	private Integer directoryId;
+	
+	private Integer baseDocId;
 
 	public String getDocumentName() {
 		return documentName;
@@ -151,6 +153,14 @@ public class DocumentModel extends BaseModel {
 
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public Integer getBaseDocId() {
+		return baseDocId;
+	}
+
+	public void setBaseDocId(Integer baseDocId) {
+		this.baseDocId = baseDocId;
 	}
 
 }

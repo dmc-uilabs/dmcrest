@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.data.entities.Directory;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
@@ -78,8 +79,6 @@ public class DocumentService {
 	@Inject
 	private DirectoryRepository directoryRepository;
 
-	private final String logTag = DocumentService.class.getName();
-
 	private Verification verify = new Verification();
 
 	public List<DocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
@@ -90,7 +89,7 @@ public class DocumentService {
 		List<Document> results;
 		List<Document> returnList = new ArrayList<>();
 
-		results = documentRepository.findAll(where, new PageRequest(0, 5000, new Sort(new Order(Direction.DESC, "modified")))).getContent();
+		results = documentRepository.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "modified")))).getContent();
 
 		if (results.size() == 0) return null;
 		//check for access
@@ -196,15 +195,19 @@ public class DocumentService {
 		docEntity.setVerified(false);
 		docEntity.setModified(now);
 		docEntity.setResourceType(ResourceType.DOCUMENT);
-		docEntity.setVersion(1);
+		docEntity.setIsPublic(false);
+		docEntity.setVersion(0);
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
+		
+		docEntity.setBaseDocId(docEntity.getId());
+		docEntity = documentRepository.save(docEntity);
 
-		ServiceLogger.log(logTag, "Attempting to verify document");
+		logger.debug("Attempting to verify document");
 		//Verify the document
 		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document", docEntity.getOwner().getUsername(), folder, "Documents", "id", "url");
-		ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
+		logger.debug("Verification Machine Response: " + temp);
 
 		return docMapper.mapToModel(docEntity);
 	}
@@ -234,8 +237,6 @@ public class DocumentService {
 
 		docEntity.setExpires(oldEntity.getExpires());
 		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
-		Integer oldVersion = docEntity.getVersion();
-		docEntity.setVersion(oldVersion++);
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
@@ -257,11 +258,13 @@ public class DocumentService {
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
+		Predicate baseDocsOnly = QDocument.document.version.eq(0);
 
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
 		expressions.add(docClassFilter(filterParams.get("docClass")));
+		expressions.add(baseDocsOnly);
 
 		return expressions;
 	}
@@ -440,6 +443,75 @@ public class DocumentService {
 				doc.setModified(new Timestamp(System.currentTimeMillis()));
 				documentRepository.save(doc);
 			}
+		}
+	}
+	
+	public List<DocumentModel> getVersions (Integer docId, String userEPPN) throws IllegalAccessException {
+		Assert.notNull(docId);
+		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		User requester = userRepository.findByUsername(userEPPN);
+		Document docEntity = documentRepository.findOne(docId);
+		Integer baseDocId = docEntity.getBaseDocId();
+		
+		if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, docEntity, requester)) {
+			Predicate where = QDocument.document.baseDocId.eq(baseDocId);
+			List<Document> documents = this.documentRepository
+					.findAll(where,
+							new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.ASC, "version"))))
+					.getContent();
+			
+			if(!CollectionUtils.isEmpty(documents)) {
+				return mapper.mapToModel(documents);
+			}
+		} else {
+			throw new IllegalAccessException("User does not have access to base document");			
+		}
+		
+		return null;
+	}
+	
+	private Integer nextVersion (Integer baseDocId) {
+		Predicate where = QDocument.document.baseDocId.eq(baseDocId);
+		List<Document> documents = this.documentRepository.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "version")))).getContent();
+		
+		return documents.get(0).getVersion() + 1;
+	}
+	
+	public DocumentModel createNewVersion (DocumentModel doc, String userEPPN) throws IllegalAccessException {
+		Assert.notNull(doc);
+		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		User requester = userRepository.findByUsername(userEPPN);		
+		Document docEntity = mapper.mapToEntity(doc);
+		Document baseEntity = documentRepository.findOne(doc.getBaseDocId());
+		String folder = "APPLICATION";
+
+		if (doc.getParentType() != null) {
+			folder = doc.getParentType().toString();
+		}
+
+		//thirty days in milliseconds
+		Long duration = 1000L * 60L * 60L * 24L * 30L;
+
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		Timestamp expires = new Timestamp(now.getTime() + duration);
+		
+		if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, baseEntity, requester)) {
+			docEntity.setExpires(expires);
+			docEntity.setModified(now);
+			docEntity.setId(null);
+			docEntity.setIsDeleted(false);
+			docEntity.setVerified(false);
+			docEntity.setVersion(nextVersion(doc.getBaseDocId()));
+
+			docEntity = documentRepository.save(docEntity);
+			
+			logger.debug("Attempting to verify document");
+			//Verify the document
+			String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document", docEntity.getOwner().getUsername(), folder, "Documents", "id", "url");
+			logger.debug("Verification Machine Response: " + temp);
+			return mapper.mapToModel(docEntity);
+		} else {
+			throw new IllegalAccessException("User does not have access to base document");
 		}
 	}
 }
