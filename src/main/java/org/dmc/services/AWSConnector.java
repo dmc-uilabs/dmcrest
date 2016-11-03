@@ -1,21 +1,17 @@
 package org.dmc.services;
 
-import java.net.URL;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.HttpMethod;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.DMCServiceException;
+import org.apache.commons.lang3.time.DateUtils;
+
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 /*
  * A Helper class for file uploads and signed URL retrieval from AWS S3
@@ -121,34 +117,19 @@ public class AWSConnector {
     }// createPath
 
     public static String refreshURL(String path) throws DMCServiceException {
-        final AmazonS3 s3client = getAmazonS3Client();
-
         ServiceLogger.log(LOGTAG, "Refreshing pre-signed URL.");
+        return generatePresignedUrl(path, DateUtils.addMonths(new Date(), 1));
+    }
 
-        // Parameters for Request, can change expiration time to any amount.
-        final java.util.Date expiration = getExpirationTime();
-
-        final GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(destBucket, path);
-        generatePresignedUrlRequest.setMethod(HttpMethod.GET);
-        generatePresignedUrlRequest.setExpiration(expiration);
-
-        final URL url = s3client.generatePresignedUrl(generatePresignedUrlRequest);
-        final String preSignedURL = url.toString();
-        return preSignedURL;
+    public static String generatePresignedUrl(String key, Date expiration){
+        final AmazonS3 s3client = getAmazonS3Client();
+        return s3client.generatePresignedUrl(destBucket, key, expiration).toString();
     }
 
     private static AmazonS3 getAmazonS3Client() {
         final BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
         final AmazonS3 s3client = new AmazonS3Client(awsCreds);
         return s3client;
-    }
-
-    private static java.util.Date getExpirationTime() {
-        final java.util.Date expiration = new java.util.Date();
-        long milliSeconds = expiration.getTime();
-        milliSeconds += (1000L * 60L * 60L * 24L * 30L); // Add 1 month.
-        expiration.setTime(milliSeconds);
-        return expiration;
     }
 
     // Helper function to check if timestamp expired
