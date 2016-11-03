@@ -19,10 +19,12 @@ import org.dmc.services.Id;
 import org.dmc.services.ResourceGroupService;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.Directory;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.ProjectJoinApprovalRequest;
 import org.dmc.services.data.entities.ProjectJoinApprovalRequest.ProjectJoinApprovalRequestStatus;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.DirectoryRepository;
 import org.dmc.services.data.repositories.ProjectJoinApprovalRequestRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.search.SearchException;
@@ -46,10 +48,13 @@ public class ProjectDao {
 
     @Inject
     private UserRepository userRepository;
-    
+
+    @Inject
+    private DirectoryRepository directoryRepository;
+
     @Inject
     private ProjectJoinApprovalRequestRepository projectJoinApprovalRequestRepository;
-    
+
     @Inject
     private ProjectMemberDao projectMemberDao;
 
@@ -174,6 +179,7 @@ public class ProjectDao {
     protected String getSelectProjectQuery() {
         final String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, "
                 + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.requires_approval as requires_approval, "
+                + "g.directory_id, "
                 + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, "
                 + "c.componentsCount AS componentsCount " + "FROM groups g "
                 + "JOIN (SELECT u.firstname AS firstname, u.lastname AS lastname , r.home_group_id "
@@ -216,6 +222,7 @@ public class ProjectDao {
         final int num_services = resultSet.getInt("servicesCount");
         final Boolean requiresApproval = resultSet.getBoolean("requires_approval");
         final Boolean isPublic = resultSet.getBoolean("isPublic");
+        final Integer directoryId = resultSet.getInt("directory_id");
 
         final ProjectTask task = new ProjectTask(num_tasks, projectId);
         final ProjectService service = new ProjectService(num_services, projectId);
@@ -240,6 +247,7 @@ public class ProjectDao {
         project.setDueDate(due_date);
         project.setRequiresAdminApprovalToJoin(requiresApproval);
         project.setIsPublic(isPublic);
+        project.setDirectoryId(directoryId);
 
         ServiceLogger.log(LOGTAG, project.toString());
 
@@ -262,8 +270,18 @@ public class ProjectDao {
 
             Boolean requiresApproval = Project.needAdminApprovalToJoin(approvalOption);
 
+            Directory projectDirectory = new Directory();
+            projectDirectory.setName("home");
+            projectDirectory.setParent(null);
+            projectDirectory.setIsDeleted(false);
+            projectDirectory = directoryRepository.save(projectDirectory);
+            Integer directoryId = null;
+            if(projectDirectory != null) {
+            	directoryId = projectDirectory.getId();
+            }
+
             // create new project in groups table
-            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval) values ( ?, ?, ?, ?, ?, ?, ?, ? )";
+            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval, directory_id) values ( ?, ?, ?, ?, ?, ?, ?, ?, ? )";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
             preparedStatement.setString(1, projectname);
             preparedStatement.setString(2, unixname);
@@ -273,6 +291,7 @@ public class ProjectDao {
             preparedStatement.setInt(6, userID);
             preparedStatement.setTimestamp(7, new Timestamp(dueDate));
             preparedStatement.setBoolean(8, requiresApproval);
+            preparedStatement.setInt(9, directoryId);
             preparedStatement.executeUpdate();
 
             // since no parameters can use execute query safely
@@ -629,28 +648,28 @@ public class ProjectDao {
         Integer projectId = Integer.parseInt(projectIdAsString);
         Integer profileId = Integer.parseInt(profileIdAsString);
         Project project = this.getProject(projectId, userEPPN);
-        
+
         Boolean allowed = false;
         Boolean approvedJoinRequest = false;
 
         if (projectMemberDao.isUserProjectAdmin(projectId, requesterId)) {
             allowed = true;
         }
-        
+
         // Non-admins are allowed to add themselves to projects that don't require admin approval
         if (profileId == requesterId && project != null && !project.getRequiresAdminApprovalToJoin()) {
         	allowed = true;
         }
-        
+
         if (approvedProjectJoinApprovalRequestExists(projectId, profileId)) {
         	allowed = true;
         	approvedJoinRequest = true;
         }
-        
+
         if (!allowed) {
         	throw new DMCServiceException(DMCError.NotProjectAdmin, requesterId + " is not allowed to invite new members to project");
         }
-        
+
         final String createProjectJoinRequestQuery = "insert into group_join_request (group_id, user_id, requester_id, request_date) values (?, ?, ?, now())";
         final PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectJoinRequestQuery);
         preparedStatement.setInt(1, projectId);
@@ -687,10 +706,10 @@ public class ProjectDao {
         ServiceLogger.log(LOGTAG, "going to fail now because we didn't find the expected ProjectJoinRequest");
         throw new DMCServiceException(DMCError.NoExistingRequest, "Failed to create join request - we should have found one and returned");
     }
-    
+
     private Boolean approvedProjectJoinApprovalRequestExists(Integer projectId, Integer userId) {
     	ProjectJoinApprovalRequest request = projectJoinApprovalRequestRepository.findByProjectIdAndUserId(projectId, userId);
-    	
+
     	if (request != null && request.getStatus().equals(ProjectJoinApprovalRequestStatus.APPROVED)) {
     		return true;
     	} else {
