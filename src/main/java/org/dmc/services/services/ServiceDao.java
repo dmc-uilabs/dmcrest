@@ -1,15 +1,5 @@
 package org.dmc.services.services;
 
-import org.dmc.services.*;
-import org.dmc.services.company.CompanyDao;
-import org.dmc.services.data.dao.user.UserDao;
-import org.dmc.services.search.SearchException;
-import org.dmc.services.search.SearchQueueImpl;
-import org.dmc.services.services.ServiceHistory.PeriodEnum;
-import org.dmc.services.services.ServiceHistory.SectionEnum;
-import org.dmc.solr.SolrUtils;
-import org.dmc.services.sharedattributes.FeatureImage;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -259,6 +249,43 @@ public class ServiceDao {
                 }
             }
         }
+    }
+
+    // bravest code in this codebase
+    public ArrayList<Service> getServiceListByIds(List<Integer> serviceIds) throws DMCServiceException {
+    	ArrayList<Service> list = new ArrayList<Service>();
+    	ResultSet resultSet = null;
+    	try {
+    		String query = "SELECT * FROM service";
+
+    		for(int i = 0; i < serviceIds.size(); i++) {
+    			if(i == 0) {
+    				query += " WHERE service_id = " + serviceIds.get(i);
+    			} else {
+    				query += " OR service_id = " + serviceIds.get(i);
+    			}
+    		}
+
+    		resultSet = DBConnector.executeQuery(query);
+
+    		while (resultSet.next()) {
+                Service service = readServiceResultSet(resultSet);
+                list.add(service);
+            }
+
+    		return list;
+    	} catch(Exception e) {
+    		ServiceLogger.log(logTag,  e.getMessage());
+    		throw new DMCServiceException(DMCError.OtherSQLError, "unable to get serviceList: " + e.getMessage());
+    	} finally {
+    		if (null != resultSet) {
+                try {
+                    resultSet.close();
+                } catch (Exception ex) {
+                    // don't care
+                }
+            }
+    	}
     }
 
     public ArrayList<Service> getServiceList(int projectId) throws DMCServiceException {
