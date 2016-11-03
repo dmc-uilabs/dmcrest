@@ -16,9 +16,11 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name="dmdii_project_update")
+@Where(clause = "is_deleted='false'")
 public class DMDIIProjectUpdate extends BaseEntity {
 
 	@Id
@@ -49,7 +51,7 @@ public class DMDIIProjectUpdate extends BaseEntity {
 	private DMDIIProjectItemAccessLevel accessLevel;
 	
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 
 	public Integer getId() {
 		return id;

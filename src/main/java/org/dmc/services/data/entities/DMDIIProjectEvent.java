@@ -36,7 +36,7 @@ public class DMDIIProjectEvent extends BaseEntity {
 	private Date eventDate;
 
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 	
 	public Integer getId() {
 		return id;

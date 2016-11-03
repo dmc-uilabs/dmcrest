@@ -36,7 +36,7 @@ public class DMDIIMemberNews extends BaseEntity {
 	private Date dateCreated;
 
 	@Column(name = "is_deleted")
-	private Boolean isDeleted;
+	private Boolean isDeleted = false;
 	
 
 	public Integer getId() {
