@@ -1,16 +1,7 @@
 package org.dmc.services;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-
+import com.mysema.query.types.ExpressionUtils;
+import com.mysema.query.types.Predicate;
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIDocumentTag;
 import org.dmc.services.data.entities.QDMDIIDocument;
@@ -23,6 +14,7 @@ import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.data.repositories.DMDIIQuickLinkRepository;
+import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
@@ -34,8 +26,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 
-import com.mysema.query.types.ExpressionUtils;
-import com.mysema.query.types.Predicate;
+import javax.inject.Inject;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class DMDIIDocumentService {
@@ -50,7 +49,7 @@ public class DMDIIDocumentService {
 	private DMDIIQuickLinkRepository dmdiiQuickLinkRepository;
 	
 	@Inject
-	private UserService userService;
+	private UserRepository userRepository;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -66,13 +65,6 @@ public class DMDIIDocumentService {
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		List<DMDIIDocument> results = dmdiiDocumentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
 		return mapper.mapToModel(results);
-	}
-	
-	public List<DMDIIDocumentModel> getUndeletedDMDIIDocuments(Integer pageNumber, Integer pageSize) throws DMCServiceException {
-		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByIsDeletedFalse(new PageRequest(pageNumber, pageSize)).getContent();
-		
-		return mapper.mapToModel(documents);
 	}
 	
 	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProject (Integer dmdiiProjectId, Integer pageNumber, Integer pageSize) throws DMCServiceException {
@@ -117,10 +109,9 @@ public class DMDIIDocumentService {
 	public DMDIIDocumentModel save (DMDIIDocumentModel doc, BindingResult result) throws DMCServiceException {
 		
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		
+
 		DMDIIDocument docEntity = docMapper.mapToEntity(doc);
-		User userEntity = userMapper.mapToEntity(userService.findOne(doc.getOwnerId()));
+		User userEntity = this.userRepository.findOne(doc.getOwnerId());
 		docEntity.setOwner(userEntity);
 		
 		//current time plus one month
