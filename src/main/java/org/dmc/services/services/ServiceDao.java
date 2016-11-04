@@ -251,9 +251,9 @@ public class ServiceDao {
         }
     }
 
-    // bravest code in this codebase
+    // accounting for ?id=?&id=?... passed to endpoint
     public ArrayList<Service> getServiceListByIds(List<Integer> serviceIds) throws DMCServiceException {
-    	ArrayList<Service> list = new ArrayList<Service>();
+    	ArrayList<Service> returnList = new ArrayList<Service>();
     	ResultSet resultSet = null;
     	try {
     		String query = "SELECT * FROM service";
@@ -270,15 +270,15 @@ public class ServiceDao {
 
     		while (resultSet.next()) {
                 Service service = readServiceResultSet(resultSet);
-                list.add(service);
+                returnList.add(service);
             }
 
-    		return list;
+    		return returnList;
     	} catch(Exception e) {
     		ServiceLogger.log(logTag,  e.getMessage());
     		throw new DMCServiceException(DMCError.OtherSQLError, "unable to get serviceList: " + e.getMessage());
     	} finally {
-    		if (null != resultSet) {
+    		if (resSet != null) {
                 try {
                     resultSet.close();
                 } catch (Exception ex) {
