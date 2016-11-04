@@ -12,6 +12,7 @@ public class ProjectMember {
     private int profileId;
     private int projectId;
     private boolean accept;
+    private boolean rejected = false;
     private int fromProfileId;
     private String from;
     private Date date;
@@ -68,6 +69,16 @@ public class ProjectMember {
     @JsonProperty("accept")
     public void setAccept(boolean value) {
         accept = value;
+    }
+    
+    @JsonProperty("rejected")
+    public boolean getRejected() {
+    	return rejected;
+    }
+    
+    @JsonProperty("rejected")
+    public void setRejected(boolean value) {
+    	rejected = value;
     }
 
     @JsonProperty("fromProfileId")
