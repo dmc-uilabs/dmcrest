@@ -79,4 +79,11 @@ public class DocumentController {
 	public List<DocumentTagModel> getDocumentTags() {
 		return this.documentService.getAllTags();
 	}
+	
+	@RequestMapping(value = "/documents/clone", method = RequestMethod.POST)
+	public List<DocumentModel> cloneDocuments (@RequestParam(value = "docIds") List<Integer> docIds,
+												@RequestHeader(value = "AJP_eppn") String userEPPN,
+												@RequestParam(value = "parentTypeId") Integer parentTypeId) {
+		return documentService.cloneDocuments(docIds, parentTypeId, userEPPN);
+	}
 }

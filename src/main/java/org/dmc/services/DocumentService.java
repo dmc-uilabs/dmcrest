@@ -2,6 +2,8 @@ package org.dmc.services;
 
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.data.entities.*;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
@@ -169,7 +171,7 @@ public class DocumentService {
 		docEntity.setIsPublic(false);
 		docEntity.setModified(now);
 		docEntity.setResourceType(ResourceType.DOCUMENT);
-		docEntity.setVersion(1);
+		docEntity.setVersion(0);
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
@@ -437,18 +439,48 @@ public class DocumentService {
 
 		return documents;
 	}
+	
+	public List<DocumentModel> cloneDocuments (List<Integer> docIds, Integer newParentId, String userEPPN) {
+		Assert.notNull(newParentId);
+		Assert.isTrue(CollectionUtils.isNotEmpty(docIds));
+		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		
+		User newOwner = userRepository.findByUsername(userEPPN);
+		List<Document> newDocs = new ArrayList<>();
+		
+		for (Integer docId : docIds) {
+			Document oldDoc = documentRepository.findOne(docId);
+			Document newDoc = new Document();
+			List<DocumentTag> newTags = new ArrayList<>();
 
-	public void duplicateDocumentsByParentTypeAndId (DocumentParentType oldParentType, Integer oldParentId, DocumentParentType newParentType, Integer newParentId) {
-		List<Document> originalDocs = documentRepository.findByParentTypeAndParentId(oldParentType, oldParentId);
+			//thirty days in milliseconds
+			Long duration = 1000L * 60L * 60L * 24L * 30L;
 
-		if (originalDocs != null && !originalDocs.isEmpty()) {
-			for (Document doc : originalDocs) {
-				doc.setId(null);
-				doc.setParentType(newParentType);
-				doc.setParentId(newParentId);
-				doc.setModified(new Timestamp(System.currentTimeMillis()));
-				documentRepository.save(doc);
+			Timestamp now = new Timestamp(System.currentTimeMillis());
+			Timestamp expires = new Timestamp(now.getTime() + duration);
+
+			newDoc.setOwner(newOwner);
+			newDoc.setExpires(expires);
+			newDoc.setIsDeleted(false);
+			newDoc.setIsPublic(oldDoc.getIsPublic());
+			newDoc.setModified(now);
+			newDoc.setVersion(0);
+			newDoc.setDocClass(oldDoc.getDocClass());
+			newDoc.setDocumentName(oldDoc.getDocumentName());
+			newDoc.setDocumentUrl(oldDoc.getDocumentUrl());
+			newDoc.setParentType(oldDoc.getParentType());
+			newDoc.setResourceType(oldDoc.getResourceType());
+			for (DocumentTag tag : oldDoc.getTags()) {
+				newTags.add(tag);
 			}
+			newDoc.setTags(newTags);
+			
+			newDoc.setParentId(newParentId);
+			
+			newDoc = documentRepository.save(newDoc);
+			newDocs.add(newDoc);
 		}
+		
+		return mapper.mapToModel(newDocs);
 	}
 }
