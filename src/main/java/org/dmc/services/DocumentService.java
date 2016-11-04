@@ -3,15 +3,20 @@ package org.dmc.services;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.dmc.services.data.entities.DMDIIDocument;
+import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.Directory;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
@@ -26,12 +31,15 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
+import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DirectoryRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.data.repositories.ServiceRepository;
 import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.verification.Verification;
@@ -41,7 +49,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +67,9 @@ public class DocumentService {
 
 	@Inject
 	private DocumentRepository documentRepository;
+
+	@Inject
+	private DMDIIDocumentRepository dmdiiDocumentRepository;
 
 	@Inject
 	private DocumentTagRepository documentTagRepository;
@@ -79,6 +92,11 @@ public class DocumentService {
 	@Inject
 	private DirectoryRepository directoryRepository;
 
+	@Inject
+	private EmailService emailService;
+
+	private final String logTag = DocumentService.class.getName();
+
 	private Verification verify = new Verification();
 
 	public List<DocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
@@ -100,7 +118,7 @@ public class DocumentService {
 
 		for(Document doc : results) {
 			//check for access
-			if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, owner)) {
+			if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, owner)) {
 				returnList.add(doc);
 			}
 		}
@@ -201,7 +219,7 @@ public class DocumentService {
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
-		
+
 		docEntity.setBaseDocId(docEntity.getId());
 		docEntity = documentRepository.save(docEntity);
 
@@ -246,7 +264,7 @@ public class DocumentService {
 	}
 
 	@Transactional
-	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified){
+	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified) {
 		Document document = this.documentRepository.findOne(documentId);
 		document.setDocumentUrl(verifiedUrl);
 		document.setVerified(verified);
@@ -257,8 +275,50 @@ public class DocumentService {
 		return document;
 	}
 
+	public ResponseEntity shareDocument(Integer documentId, Integer userId, Boolean dmdii) {
+		String documentUrl;
+
+		if (dmdii) {
+			documentUrl = getDMDIIDocumentUrl(documentId);
+		} else {
+			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+
+			Document document = this.documentRepository.findOne(documentId);
+
+			if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
+				throw new AccessDeniedException("User does not have permission to share document");
+			}
+
+			documentUrl = document.getDocumentUrl();
+		}
+
+		User userToShareWith = this.userRepository.findOne(userId);
+		String key = AWSConnector.createPath(documentUrl);
+		String presignedUrl = AWSConnector.generatePresignedUrl(key,
+				Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
+
+		return this.emailService.sendEmail(userToShareWith, 2, presignedUrl);
+	}
+
+	private String getDMDIIDocumentUrl(Integer documentId) {
+		DMDIIDocument document = this.dmdiiDocumentRepository.getOne(documentId);
+		if (document.getDmdiiProject() != null && document.getAccessLevel() != null) {
+			List<DMDIIMember> projectMembers = new ArrayList<>();
+			projectMembers.add(document.getDmdiiProject().getPrimeOrganization());
+			projectMembers.addAll(document.getDmdiiProject().getContributingCompanies());
+
+			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
+			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds)) {
+				throw new AccessDeniedException("User does not have permission to share document");
+			}
+		}
+		return document.getDocumentUrl();
+	}
+
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
+
 		Predicate baseDocsOnly = QDocument.document.version.eq(0);
 
 		expressions.addAll(tagFilter(filterParams.get("tags")));
@@ -273,11 +333,6 @@ public class DocumentService {
 	public List<DocumentTagModel> getAllTags() {
 		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class, DocumentTagModel.class);
 		return tagMapper.mapToModel(documentTagRepository.findAll());
-	}
-
-	public DocumentTagModel saveDocumentTag(DocumentTagModel tag) {
-		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class, DocumentTagModel.class);
-		return tagMapper.mapToModel(documentTagRepository.save(tagMapper.mapToEntity(tag)));
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
@@ -446,42 +501,42 @@ public class DocumentService {
 			}
 		}
 	}
-	
+
 	public List<DocumentModel> getVersions (Integer docId, String userEPPN) throws IllegalAccessException {
 		Assert.notNull(docId);
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User requester = userRepository.findByUsername(userEPPN);
 		Document docEntity = documentRepository.findOne(docId);
 		Integer baseDocId = docEntity.getBaseDocId();
-		
+
 		if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, docEntity, requester)) {
 			Predicate where = QDocument.document.baseDocId.eq(baseDocId);
 			List<Document> documents = this.documentRepository
 					.findAll(where,
 							new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.ASC, "version"))))
 					.getContent();
-			
+
 			if(!CollectionUtils.isEmpty(documents)) {
 				return mapper.mapToModel(documents);
 			}
 		} else {
-			throw new IllegalAccessException("User does not have access to base document");			
+			throw new IllegalAccessException("User does not have access to base document");
 		}
-		
+
 		return null;
 	}
-	
+
 	private Integer nextVersion (Integer baseDocId) {
 		Predicate where = QDocument.document.baseDocId.eq(baseDocId);
 		List<Document> documents = this.documentRepository.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "version")))).getContent();
-		
+
 		return documents.get(0).getVersion() + 1;
 	}
-	
+
 	public DocumentModel createNewVersion (DocumentModel doc, String userEPPN) throws IllegalAccessException {
 		Assert.notNull(doc);
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
-		User requester = userRepository.findByUsername(userEPPN);		
+		User requester = userRepository.findByUsername(userEPPN);
 		Document docEntity = mapper.mapToEntity(doc);
 		Document baseEntity = documentRepository.findOne(doc.getBaseDocId());
 		String folder = "APPLICATION";
@@ -495,7 +550,7 @@ public class DocumentService {
 
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 		Timestamp expires = new Timestamp(now.getTime() + duration);
-		
+
 		if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, baseEntity, requester)) {
 			docEntity.setExpires(expires);
 			docEntity.setModified(now);
@@ -505,7 +560,7 @@ public class DocumentService {
 			docEntity.setVersion(nextVersion(doc.getBaseDocId()));
 
 			docEntity = documentRepository.save(docEntity);
-			
+
 			logger.debug("Attempting to verify document");
 			//Verify the document
 			String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document", docEntity.getOwner().getUsername(), folder, "Documents", "id", "url");
