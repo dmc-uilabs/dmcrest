@@ -54,7 +54,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		}
 		entity.setTags(documentTags);
 		
-		if (model.getAccessLevel() != null && !model.getParentType().equals(DocumentParentType.SERVICE)) {
+		if (model.getAccessLevel() != null && !DocumentParentType.SERVICE.equals(model.getParentType())) {
 			//set resource groups from accessLevel
 			List<ResourceGroup> docGroups = new ArrayList<>();
 			ResourceGroup group;
