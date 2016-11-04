@@ -7,12 +7,16 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
+import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.data.repositories.ServiceRepository;
 import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +24,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -30,19 +37,24 @@ import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DocumentService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
-	
+
 	@Inject
 	private DocumentRepository documentRepository;
 
 	@Inject
+	private DMDIIDocumentRepository dmdiiDocumentRepository;
+
+	@Inject
 	private DocumentTagRepository documentTagRepository;
-	
+
 	@Inject
 	private UserRepository userRepository;
 
@@ -51,12 +63,15 @@ public class DocumentService {
 
 	@Inject
 	private ParentDocumentService parentDocumentService;
-	
+
 	@Inject
 	private ResourceAccessService resourceAccessService;
-	
+
 	@Inject
 	private ServiceRepository serviceRepository;
+
+	@Inject
+	private EmailService emailService;
 
 	private final String logTag = DocumentService.class.getName();
 
@@ -65,11 +80,11 @@ public class DocumentService {
 	public List<DocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User owner = userRepository.findByUsername(userEPPN);
-		
+
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
 		List<Document> results;
 		List<Document> returnList = new ArrayList<>();
-		
+
 		results = documentRepository.findAll(where, new PageRequest(0, 5000, new Sort(new Order(Direction.DESC, "modified")))).getContent();
 
 		if (results.size() == 0) return null;
@@ -81,16 +96,16 @@ public class DocumentService {
 		
 		for(Document doc : results) {
 			//check for access
-			if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, owner)) {
+			if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, owner)) {
 				returnList.add(doc);
 			}
 		}
-		
+
 		if (returnList.size() == 0) return null;
-			
+
 		return mapper.mapToModel(pagify(returnList, pageNumber, pageSize));
 	}
-	
+
 	private List<Document> pagify(List<Document> docs, Integer pageNumber, Integer pageSize) {
 		Integer upperLowerBound = pageSize;
 		Integer lowerUpperBound;
@@ -99,18 +114,18 @@ public class DocumentService {
 		} else {
 			lowerUpperBound = 0;
 		}
-		
+
 		List<Document> returnList = new ArrayList<Document>(docs);
 		if (lowerUpperBound != 0) {
 			//clear the low end
 			returnList.subList(0, lowerUpperBound).clear();
 		}
-		
+
 		if (upperLowerBound < returnList.size()) {
 			//clear the upper end
 			returnList.subList(upperLowerBound, returnList.size()).clear();
 		}
-		
+
 		return returnList;
 	}
 
@@ -202,7 +217,7 @@ public class DocumentService {
 	}
 
 	@Transactional
-	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified){
+	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified) {
 		Document document = this.documentRepository.findOne(documentId);
 		document.setDocumentUrl(verifiedUrl);
 		document.setVerified(verified);
@@ -213,9 +228,50 @@ public class DocumentService {
 		return document;
 	}
 
+	public ResponseEntity shareDocument(Integer documentId, Integer userId, Boolean dmdii) {
+		String documentUrl;
+
+		if (dmdii) {
+			documentUrl = getDMDIIDocumentUrl(documentId);
+		} else {
+			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+
+			Document document = this.documentRepository.findOne(documentId);
+
+			if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
+				throw new AccessDeniedException("User does not have permission to share document");
+			}
+
+			documentUrl = document.getDocumentUrl();
+		}
+
+		User userToShareWith = this.userRepository.findOne(userId);
+		String key = AWSConnector.createPath(documentUrl);
+		String presignedUrl = AWSConnector.generatePresignedUrl(key,
+				Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
+
+		return this.emailService.sendEmail(userToShareWith, 2, presignedUrl);
+	}
+
+	private String getDMDIIDocumentUrl(Integer documentId) {
+		DMDIIDocument document = this.dmdiiDocumentRepository.getOne(documentId);
+		if (document.getDmdiiProject() != null && document.getAccessLevel() != null) {
+			List<DMDIIMember> projectMembers = new ArrayList<>();
+			projectMembers.add(document.getDmdiiProject().getPrimeOrganization());
+			projectMembers.addAll(document.getDmdiiProject().getContributingCompanies());
+
+			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
+			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds)) {
+				throw new AccessDeniedException("User does not have permission to share document");
+			}
+		}
+		return document.getDocumentUrl();
+	}
+
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
-		
+
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
@@ -227,11 +283,6 @@ public class DocumentService {
 	public List<DocumentTagModel> getAllTags() {
 		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class, DocumentTagModel.class);
 		return tagMapper.mapToModel(documentTagRepository.findAll());
-	}
-
-	public DocumentTagModel saveDocumentTag(DocumentTagModel tag) {
-		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class, DocumentTagModel.class);
-		return tagMapper.mapToModel(documentTagRepository.save(tagMapper.mapToEntity(tag)));
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
@@ -254,18 +305,18 @@ public class DocumentService {
 		}
 		return returnValue;
 	}
-	
+
 	private Collection<Predicate> resourceGroupFilter(List<ResourceGroup> resourceGroups) {
-				
+
 		Collection<Predicate> returnValue = new ArrayList<>();
 		Collection<Integer> groupIds = new ArrayList<>();
-		
+
 		for (ResourceGroup group : resourceGroups) {
 			groupIds.add(group.getId());
 		}
-		
+
 		returnValue.add(QDocument.document.resourceGroups.any().id.in(groupIds));
-		
+
 		return returnValue;
 	}
 
@@ -375,21 +426,21 @@ public class DocumentService {
 			}
 		}
 	}
-	
+
 	public List<Document> findServiceDocumentsByProjectId (Integer projectId) {
 		List<ServiceEntity> services = serviceRepository.findByProjectId(projectId);
 		List<Document> documents = new ArrayList<>();
-		
+
 		for(ServiceEntity service : services) {
 			documents.addAll(documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, service.getId()));
 		}
-		
+
 		return documents;
 	}
-	
+
 	public void duplicateDocumentsByParentTypeAndId (DocumentParentType oldParentType, Integer oldParentId, DocumentParentType newParentType, Integer newParentId) {
 		List<Document> originalDocs = documentRepository.findByParentTypeAndParentId(oldParentType, oldParentId);
-		
+
 		if (originalDocs != null && !originalDocs.isEmpty()) {
 			for (Document doc : originalDocs) {
 				doc.setId(null);
@@ -397,7 +448,7 @@ public class DocumentService {
 				doc.setParentId(newParentId);
 				doc.setModified(new Timestamp(System.currentTimeMillis()));
 				documentRepository.save(doc);
-			} 
+			}
 		}
 	}
 }

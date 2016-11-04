@@ -1,5 +1,8 @@
 package org.dmc.services.email;
 
+import org.dmc.services.data.entities.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -12,6 +15,8 @@ public class EmailService {
 
 	private static final String EMAIL_URL;
 
+	private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+
 	static {
 		String host = System.getenv("verifyURL");
 		if (host == null) {
@@ -20,11 +25,24 @@ public class EmailService {
 		EMAIL_URL = "http://" + host + ":4000/";
 	}
 
-	public HttpStatus sendEmail(EmailModel emailModel) {
+	public ResponseEntity sendEmail(User user, Integer template, String token) {
+		if(user.getEmail() == null) return ResponseEntity.badRequest().body("User does not have an email!");
+
+		EmailModel emailModel = new EmailModel();
+		emailModel.setName(String.format("%s %s", user.getFirstName(), user.getLastName()));
+		emailModel.setEmail(user.getEmail());
+		emailModel.setToken(token);
+		emailModel.setTemplate(template);
+
 		RestTemplate restTemplate = new RestTemplate();
 		HttpEntity<EmailModel> request = new HttpEntity<>(emailModel);
 		ResponseEntity<String> response = restTemplate.exchange(EMAIL_URL, HttpMethod.POST, request, String.class);
-		return response.getStatusCode();
+
+		if (!HttpStatus.OK.equals(response.getStatusCode())) {
+			logger.warn("Email for user token was not sent for user: {}", user.getEmail());
+		}
+
+		return response;
 	}
 
 }
