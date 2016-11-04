@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dmc.services.data.entities.Document;
+import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.models.DocumentModel;
@@ -53,7 +54,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		}
 		entity.setTags(documentTags);
 		
-		if (model.getAccessLevel() != null) {
+		if (model.getAccessLevel() != null && !model.getParentType().equals(DocumentParentType.SERVICE)) {
 			//set resource groups from accessLevel
 			List<ResourceGroup> docGroups = new ArrayList<>();
 			ResourceGroup group;
