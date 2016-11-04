@@ -1,10 +1,6 @@
 package org.dmc.services.roleassignment;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.dmc.services.ResourceGroupService;
-import org.dmc.services.UserService;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.Role;
@@ -25,6 +21,9 @@ import org.dmc.services.security.SecurityRoles;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 
 @Service
 public class UserRoleAssignmentService {
@@ -40,9 +39,6 @@ public class UserRoleAssignmentService {
 
 	@Inject
 	private RoleRepository roleRepository;
-
-	@Inject
-	private UserService userService;
 
 	@Inject
 	private OrganizationService organizationService;
@@ -81,7 +77,7 @@ public class UserRoleAssignmentService {
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 		Mapper<UserRoleAssignment, UserRoleAssignmentModel> userRoleAssignmentMapper = mapperFactory.mapperFor(UserRoleAssignment.class, UserRoleAssignmentModel.class);
 
-		User user = userMapper.mapToEntity(userService.findOne(userId));
+		User user = this.userRepository.findOne(userId);
 		Organization org = orgMapper.mapToEntity(organizationService.findById(organizationId));
 		Role userRole = roleRepository.findByRole(role);
 

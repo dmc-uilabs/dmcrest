@@ -139,7 +139,7 @@ public class UserController {
 			}
 		} else if ("unverify".equals(action)) {
 
-			if (PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId)) {
+			if (PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationId) || userId.equals(loggedIn.getId())) {
 				response = userService.unverifyUser(userId);
 			} else {
 				throw new AccessDeniedException("403 Permission Denied");
