@@ -453,14 +453,10 @@ public class DocumentService {
 			Document newDoc = new Document();
 			List<DocumentTag> newTags = new ArrayList<>();
 
-			//thirty days in milliseconds
-			Long duration = 1000L * 60L * 60L * 24L * 30L;
-
 			Timestamp now = new Timestamp(System.currentTimeMillis());
-			Timestamp expires = new Timestamp(now.getTime() + duration);
 
 			newDoc.setOwner(newOwner);
-			newDoc.setExpires(expires);
+			newDoc.setExpires(oldDoc.getExpires());
 			newDoc.setIsDeleted(false);
 			newDoc.setIsPublic(oldDoc.getIsPublic());
 			newDoc.setModified(now);
