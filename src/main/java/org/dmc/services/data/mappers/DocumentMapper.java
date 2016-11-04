@@ -82,10 +82,11 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		if (entity == null) return null;
 
 		DocumentModel model = copyProperties(entity, new DocumentModel());
+		List<ResourceGroup> groups = entity.getResourceGroups();
 
 		model.setOwnerId(entity.getOwner().getId());
 		
-		if (CollectionUtils.isNotEmpty(entity.getResourceGroups())) {
+		if (CollectionUtils.isNotEmpty(groups)) {
 			for (ResourceGroup group : entity.getResourceGroups()) {
 				String accessLevel = null;
 				if (group.getRole().equals(SecurityRoles.ADMIN)) {
