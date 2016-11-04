@@ -35,8 +35,6 @@ public class DocumentModel extends BaseModel {
 	
 	private List<UserModel> vips;
 	
-	private Boolean isPublic;
-	
 	private Integer version;
 
 	public String getDocumentName() {
@@ -125,14 +123,6 @@ public class DocumentModel extends BaseModel {
 
 	public void setVips(List<UserModel> vips) {
 		this.vips = vips;
-	}
-
-	public Boolean getIsPublic() {
-		return isPublic;
-	}
-
-	public void setIsPublic(Boolean isPublic) {
-		this.isPublic = isPublic;
 	}
 
 	public Integer getVersion() {
