@@ -278,7 +278,7 @@ public class ServiceDao {
     		ServiceLogger.log(logTag,  e.getMessage());
     		throw new DMCServiceException(DMCError.OtherSQLError, "unable to get serviceList: " + e.getMessage());
     	} finally {
-    		if (resSet != null) {
+    		if (resultSet != null) {
                 try {
                     resultSet.close();
                 } catch (Exception ex) {
