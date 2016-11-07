@@ -1,5 +1,12 @@
 package org.dmc.services.data.dao.user;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.xml.ws.http.HTTPException;
+
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -7,12 +14,6 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.users.User;
 import org.dmc.services.users.UserOnboarding;
 import org.springframework.http.HttpStatus;
-
-import javax.xml.ws.http.HTTPException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 public class UserDao {
 
@@ -70,7 +71,7 @@ public class UserDao {
     }
 
     public static int getUserID(String userEPPN) throws SQLException {
-        String query = "select user_id from users where user_name = ?;";
+        String query = "select user_id from users where user_name = ?";
         final Integer userId = DBConnector.jdbcTemplate().queryForObject(query, Integer.class, userEPPN);
         return userId;
     }
