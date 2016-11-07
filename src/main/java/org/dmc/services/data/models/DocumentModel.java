@@ -22,6 +22,8 @@ public class DocumentModel extends BaseModel {
 
 	@NotNull
 	private Integer ownerId;
+	
+	private String ownerDisplayName;
 
 	private List<DocumentTagModel> tags;
 
@@ -77,6 +79,14 @@ public class DocumentModel extends BaseModel {
 
 	public void setOwnerId(Integer ownerId) {
 		this.ownerId = ownerId;
+	}
+
+	public String getOwnerDisplayName() {
+		return ownerDisplayName;
+	}
+
+	public void setOwnerDisplayName(String ownerDisplayName) {
+		this.ownerDisplayName = ownerDisplayName;
 	}
 
 	public List<DocumentTagModel> getTags() {

@@ -33,7 +33,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 	@Override
 	public Document mapToEntity(DocumentModel model) {
 		if (model == null) return null;
-		Document entity = copyProperties(model, new Document());
+		Document entity = copyProperties(model, new Document(), new String[]{"ownerDisplayName"});
 
 		entity.setOwner(userRepository.findOne(model.getOwnerId()));
 
@@ -84,6 +84,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		DocumentModel model = copyProperties(entity, new DocumentModel());
 
 		model.setOwnerId(entity.getOwner().getId());
+		model.setOwnerDisplayName(entity.getOwner().getRealname());
 		
 		if (CollectionUtils.isNotEmpty(entity.getResourceGroups())) {
 			for (ResourceGroup group : entity.getResourceGroups()) {

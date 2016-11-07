@@ -4,7 +4,9 @@ import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIDocumentTag;
+import org.dmc.services.data.entities.DMDIIQuickLink;
 import org.dmc.services.data.entities.QDMDIIDocument;
+import org.dmc.services.data.entities.QDMDIIQuickLink;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
@@ -238,6 +240,12 @@ public class DMDIIDocumentService {
 				document.setIsDeleted(true);
 
 				logger.info("Removing old unverified document with owner id: {} and url: {}", document.getOwner().getId(), document.getDocumentUrl());
+				//check to see if this is a quicklink document
+				Predicate where = QDMDIIQuickLink.dMDIIQuickLink.doc().eq(document);
+				DMDIIQuickLink link = dmdiiQuickLinkRepository.findOne(where);
+				if(link != null) {
+					this.dmdiiQuickLinkRepository.delete(link);
+				}
 
 				this.dmdiiDocumentRepository.delete(document);
 			} catch (DMCServiceException ex) {
