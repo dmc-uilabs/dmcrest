@@ -10,4 +10,6 @@ public interface DMDIIDocumentTagRepository extends BaseRepository<DMDIIDocument
 
 	DMDIIDocumentTag save(DMDIIDocumentTag tag);
 
+	DMDIIDocumentTag findByTagName(String tagName);
+
 }
