@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,6 +80,9 @@ public class ResourceGroupService {
 		
 		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
 		List<ResourceGroup> userGroups = user.getResourceGroups();
+		if(userGroups == null){
+			userGroups = new ArrayList<>();
+		}
 		if (!userGroups.contains(group)) {
 			userGroups.add(group);
 			user.setResourceGroups(userGroups);
