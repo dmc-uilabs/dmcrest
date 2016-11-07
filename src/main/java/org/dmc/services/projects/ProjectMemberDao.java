@@ -201,11 +201,20 @@ public class ProjectMemberDao {
                 member.setProfileId(Integer.toString(resultSet.getInt("user_id")));
                 member.setProjectId(Integer.toString(resultSet.getInt("group_id")));
                 final Timestamp acceptTimestamp = resultSet.getTimestamp("accept_date");
+                final Timestamp rejectTimestamp = resultSet.getTimestamp("reject_date");
+                
                 if (null != acceptTimestamp) {
                     member.setAccept(true);
                 } else {
                     member.setAccept(false);
                 }
+                
+                if (null != rejectTimestamp) {
+                	member.setRejected(true);
+                } else {
+                	member.setRejected(false);
+                }
+                
                 member.setFromProfileId(Integer.toString(resultSet.getInt("requester_id")));
                 member.setFrom(resultSet.getString("requester_name"));
                 final Timestamp requestTimestamp = resultSet.getTimestamp("request_date");

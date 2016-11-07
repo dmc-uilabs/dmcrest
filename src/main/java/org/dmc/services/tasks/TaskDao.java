@@ -350,7 +350,7 @@ public class TaskDao {
 
     private String createTaskListQuery(Integer projectId, Integer taskId) {
         String query = "select " + "T.project_task_id," + "T.summary as title," + "T.group_project_id,"
-                + "G.group_name as project_title," + "x.user_name as assignee," + "U.user_name as created_by,"
+                + "G.group_name as project_title," + "x.user_name as assignee, x.realname as assigneeName, " + "U.user_name as created_by, U.realname as createdByName, "
                 + "x.assigned_to_id, " + "T.end_date, " + "T.priority, " + "T.details, " + "S.status_name as status "
                 + "from project_task T " + "LEFT JOIN (select * from Users U2, project_assigned_to p "
                 + "where U2.user_id = p.assigned_to_id) x " + "on T.project_task_id = x.project_task_id, "
@@ -419,15 +419,16 @@ public class TaskDao {
             Integer group_project_id = resultSet.getInt("group_project_id");
             String projectTitle = resultSet.getString("project_title");
 
-            String assignee = resultSet.getString("assignee");
+            String assignee = resultSet.getString("assigneeName");
             int assigneeId = resultSet.getInt("assigned_to_id");
             String assigneeIdStr = null;
             if (assigneeId > 0) {
                 assigneeIdStr = Integer.toString(assigneeId);
             }
 
-            String reporter = resultSet.getString("created_by");
-            int reporterId = UserDao.getUserID(reporter);
+            String reporter = resultSet.getString("createdByName");
+            String reporterEPPN = resultSet.getString("created_by");
+            int reporterId = UserDao.getUserID(reporterEPPN);
             String reporterIdStr = null;
             if (reporterId > 0) {
                 reporterIdStr = Integer.toString(reporterId);
