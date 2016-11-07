@@ -10,7 +10,7 @@ public class Project {
 	private int id;
 	private String title;
 	private String projectManager;
-	private String projectManagerId;
+	private Integer projectManagerId;
 	private String companyId;
 	private FeatureImage featureImage;
 	private String images;
@@ -32,7 +32,6 @@ public class Project {
 		this.id = -1;
 		this.title = new String();
 		this.projectManager = new String();;
-		this.projectManagerId = new String();
 		this.companyId = new String();
 		this.featureImage = new FeatureImage("", "");
 		this.images = new String();
@@ -70,10 +69,10 @@ public class Project {
 	}
 	
 	@JsonProperty("projectManagerId")
-	public String getProjectManagerId(){
+	public Integer getProjectManagerId(){
 		return projectManagerId;
 	}
-	public void setProjectManagerId(String projectManagerId){
+	public void setProjectManagerId(Integer projectManagerId){
 		this.projectManagerId = projectManagerId;
 	}
 	
