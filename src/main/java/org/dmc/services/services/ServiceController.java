@@ -1,25 +1,27 @@
 package org.dmc.services.services;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.dmc.services.ErrorMessage;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import static org.springframework.http.MediaType.*;
 
 @RestController
 public class ServiceController {
@@ -43,10 +45,15 @@ public class ServiceController {
     }
 
     @RequestMapping(value = "/services", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getServiceList() {
+    public ResponseEntity<?> getServiceList(@RequestParam(value = "id", required = false) List<Integer> serviceIds) {
         try {
             ServiceLogger.log(LOGTAG, "In getServiceList");
-            return new ResponseEntity<ArrayList<Service>>(serviceDao.getServiceList(), HttpStatus.OK);
+
+            if(serviceIds != null) {
+            	return new ResponseEntity<ArrayList<Service>>(serviceDao.getServiceListByIds(serviceIds), HttpStatus.OK);
+            } else {
+            	return new ResponseEntity<ArrayList<Service>>(serviceDao.getServiceList(), HttpStatus.OK);
+            }
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -203,7 +210,7 @@ public class ServiceController {
 
     /**
      * Create Service Specification
-     * 
+     *
      * @param video
      * @param userEPPN
      * @return
@@ -236,7 +243,7 @@ public class ServiceController {
 
     /**
      * Create Service Specifications
-     * 
+     *
      * @param video
      * @param userEPPN
      * @return
@@ -260,7 +267,7 @@ public class ServiceController {
 
     /**
      * Update Service Specification
-     * 
+     *
      * @param video
      * @param userEPPN
      * @return
@@ -284,7 +291,7 @@ public class ServiceController {
 
     /**
      * Retrieve service Specifications for A Services
-     * 
+     *
      * @param id
      * @param userEPPN
      * @return
@@ -311,7 +318,7 @@ public class ServiceController {
 
     /**
      * Retrieve service Specifications
-     * 
+     *
      * @param id
      * @param userEPPN
      * @return
