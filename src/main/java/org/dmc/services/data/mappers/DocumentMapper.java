@@ -92,6 +92,9 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 						model.getParentId(), SecurityRoles.MEMBER);
 				docGroups.add(group);
 				break;
+			case SecurityRoles.PUBLIC:
+				entity.setIsPublic(true);
+				break;
 			}
 			entity.setResourceGroups(docGroups);
 		}
@@ -133,6 +136,11 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 				model.setAccessLevel(accessLevel);
 			}
 		}
+		
+		if (entity.getIsPublic()) {
+			model.setAccessLevel(SecurityRoles.PUBLIC);
+		}
+		
 		return model;
 	}
 
