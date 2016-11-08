@@ -142,7 +142,7 @@ public class ProjectDao {
     public List<Project> getPublicProjects() {
     	List<Project> projects = new ArrayList<Project>();
 
-    	String query = "SELECT DISTINCT id, title, description, due_date, count, componentsCount, taskCount, servicesCount, firstname, lastname, isPublic, requires_approval"
+    	String query = "SELECT DISTINCT id, title, description, due_date, count, componentsCount, taskCount, servicesCount, firstname, lastname, isPublic, requires_approval, creatorUserId"
     			+ " FROM (" + getSelectProjectQuery() + ") as project"
     			+ " WHERE project.isPublic = 1";
 
@@ -180,7 +180,7 @@ public class ProjectDao {
         final String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, "
                 + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.requires_approval as requires_approval, "
                 + "g.directory_id, "
-                + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, "
+                + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, g.user_id as creatorUserId, "
                 + "c.componentsCount AS componentsCount " + "FROM groups g "
                 + "JOIN (SELECT u.firstname AS firstname, u.lastname AS lastname , r.home_group_id "
                 + "FROM pfo_user_role ur " + "JOIN users u ON u.user_id = ur.user_id "
@@ -223,6 +223,7 @@ public class ProjectDao {
         final Boolean requiresApproval = resultSet.getBoolean("requires_approval");
         final Boolean isPublic = resultSet.getBoolean("isPublic");
         final Integer directoryId = resultSet.getInt("directory_id");
+        final Integer userId = resultSet.getInt("creatorUserId");
 
         final ProjectTask task = new ProjectTask(num_tasks, projectId);
         final ProjectService service = new ProjectService(num_services, projectId);
@@ -248,6 +249,7 @@ public class ProjectDao {
         project.setRequiresAdminApprovalToJoin(requiresApproval);
         project.setIsPublic(isPublic);
         project.setDirectoryId(directoryId);
+        project.setProjectManagerId(userId);
 
         ServiceLogger.log(LOGTAG, project.toString());
 
