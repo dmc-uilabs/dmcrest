@@ -43,7 +43,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 		entity.setOwner(userRepository.findOne(model.getOwnerId()));
 
-		if(model.getDirectoryId() != null)
+		if (model.getDirectoryId() != null)
 			entity.setDirectory(directoryRepository.findOne(model.getDirectoryId()));
 
 		List<DocumentTagModel> documentTagModels = model.getTags();
@@ -74,31 +74,32 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 		if (model.getAccessLevel() != null) {
 
-		if (model.getAccessLevel() != null && !DocumentParentType.SERVICE.equals(model.getParentType())) {
-			//set resource groups from accessLevel
-			List<ResourceGroup> docGroups = new ArrayList<>();
-			ResourceGroup group;
-			switch (model.getAccessLevel()) {
-			case SecurityRoles.ADMIN:
-				group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
-						model.getParentId(), SecurityRoles.ADMIN);
-				docGroups.add(group);
-				break;
-			case SecurityRoles.MEMBER:
-				group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
-						model.getParentId(), SecurityRoles.ADMIN);
-				docGroups.add(group);
-				group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
-						model.getParentId(), SecurityRoles.MEMBER);
-				docGroups.add(group);
-				break;
-			case SecurityRoles.PUBLIC:
-				entity.setIsPublic(true);
-				break;
+			if (model.getAccessLevel() != null && !DocumentParentType.SERVICE.equals(model.getParentType())) {
+				//set resource groups from accessLevel
+				List<ResourceGroup> docGroups = new ArrayList<>();
+				ResourceGroup group;
+				switch (model.getAccessLevel()) {
+					case SecurityRoles.ADMIN:
+						group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
+								model.getParentId(), SecurityRoles.ADMIN);
+						docGroups.add(group);
+						break;
+					case SecurityRoles.MEMBER:
+						group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
+								model.getParentId(), SecurityRoles.ADMIN);
+						docGroups.add(group);
+						group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
+								model.getParentId(), SecurityRoles.MEMBER);
+						docGroups.add(group);
+						break;
+					case SecurityRoles.PUBLIC:
+						entity.setIsPublic(true);
+						break;
+				}
+				entity.setResourceGroups(docGroups);
 			}
-			entity.setResourceGroups(docGroups);
+			return entity;
 		}
-		return entity;
 	}
 
 	@Override
