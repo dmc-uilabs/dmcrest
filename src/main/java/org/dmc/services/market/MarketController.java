@@ -56,6 +56,7 @@ public class MarketController {
             @RequestParam(value = "order", required = false) String order,
             @RequestParam(value = "start", required = false) Integer start,
             @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "published", required = false) String published,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         try {
             ServiceLogger.log(logTag, "In marketNewServicesGet");
@@ -66,7 +67,7 @@ public class MarketController {
                 order = "DESC";
                 sort = "release_date";
             }
-            return new ResponseEntity<ArrayList<Service>>(serviceDao.getServices(limit, order, start, sort, null, null, null, null, null, null, null, fromLocations, userEPPN), HttpStatus.OK);
+            return new ResponseEntity<ArrayList<Service>>(serviceDao.getServices(limit, order, start, sort, null, null, null, null, null, null, published, fromLocations, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
