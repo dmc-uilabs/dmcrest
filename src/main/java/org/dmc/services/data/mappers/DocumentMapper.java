@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dmc.services.data.entities.Document;
+import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.models.DocumentModel;
@@ -61,6 +62,8 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		entity.setTags(documentTags);
 
 		if (model.getAccessLevel() != null) {
+
+		if (model.getAccessLevel() != null && !DocumentParentType.SERVICE.equals(model.getParentType())) {
 			//set resource groups from accessLevel
 			List<ResourceGroup> docGroups = new ArrayList<>();
 			ResourceGroup group;
@@ -89,6 +92,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		if (entity == null) return null;
 
 		DocumentModel model = copyProperties(entity, new DocumentModel());
+		List<ResourceGroup> groups = entity.getResourceGroups();
 
 		model.setOwnerId(entity.getOwner().getId());
 		model.setOwnerDisplayName(entity.getOwner().getRealname());
@@ -97,7 +101,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 			model.setDirectoryId(entity.getDirectory().getId());
 		}
 
-		if (CollectionUtils.isNotEmpty(entity.getResourceGroups())) {
+		if (CollectionUtils.isNotEmpty(groups)) {
 			for (ResourceGroup group : entity.getResourceGroups()) {
 				String accessLevel = null;
 				if (group.getRole().equals(SecurityRoles.ADMIN)) {
