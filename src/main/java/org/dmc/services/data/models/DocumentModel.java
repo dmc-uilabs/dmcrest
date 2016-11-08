@@ -35,11 +35,7 @@ public class DocumentModel extends BaseModel {
 
 	private String accessLevel;
 
-	private List<UserModel> vips;
-
 	private List<Integer> vipIds;
-
-	private Boolean isPublic;
 
 	private Integer version;
 
@@ -139,16 +135,8 @@ public class DocumentModel extends BaseModel {
 		return vipIds;
 	}
 
-	public void setVips(List<Integer> vipIds) {
+	public void setVipIds(List<Integer> vipIds) {
 		this.vipIds = vipIds;
-	}
-
-	public Boolean getIsPublic() {
-		return isPublic;
-	}
-
-	public void setIsPublic(Boolean isPublic) {
-		this.isPublic = isPublic;
 	}
 
 	public Integer getDirectoryId() {

@@ -211,12 +211,10 @@ public class DocumentService {
 		docEntity.setExpires(expires);
 		docEntity.setIsDeleted(false);
 		docEntity.setVerified(false);
-		if(doc.getIsPublic() == null) {
+		if (doc.getAccessLevel() == null) {
 			docEntity.setIsPublic(false);
 		}
 		docEntity.setModified(now);
-		docEntity.setResourceType(ResourceType.DOCUMENT);
-		docEntity.setIsPublic(false);
 		docEntity.setVersion(0);
 
 		docEntity = documentRepository.save(docEntity);

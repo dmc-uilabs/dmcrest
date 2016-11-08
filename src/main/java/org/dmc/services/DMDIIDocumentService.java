@@ -12,7 +12,6 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIDocumentModel;
 import org.dmc.services.data.models.DMDIIDocumentTagModel;
-import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.DMDIIDocumentRepository;
 import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.data.repositories.DMDIIQuickLinkRepository;
