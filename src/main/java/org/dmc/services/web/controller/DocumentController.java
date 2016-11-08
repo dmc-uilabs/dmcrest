@@ -1,5 +1,11 @@
 package org.dmc.services.web.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
@@ -19,11 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
-
 @RestController
 public class DocumentController {
 
@@ -34,9 +35,9 @@ public class DocumentController {
 	public DocumentModel getDocument(@PathVariable("id") Integer id) {
 		return documentService.findOne(id);
 	}
-	
+
 	@RequestMapping(value="/documents", method = RequestMethod.GET)
-	public PagedResponse getDocuments (@RequestParam(value = "page", defaultValue = "0") Integer page, 
+	public PagedResponse getDocuments (@RequestParam(value = "page", defaultValue = "0") Integer page,
 										@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
 										@RequestHeader(value = "AJP_eppn") String userEPPN,
 										@RequestParam Map<String, String> params) throws DMCServiceException, InvalidFilterParameterException {
@@ -75,8 +76,23 @@ public class DocumentController {
 		return documentService.update(doc);
 	}
 
+	@RequestMapping(value = "/documents/directories/{directoryId}", method = RequestMethod.GET)
+	public List<DocumentModel> getDocumentsByDirectory(@PathVariable("directoryId") Integer directoryId) {
+		return documentService.findByDirectory(directoryId);
+	}
+
 	@RequestMapping(value = "/documents/tags", method = RequestMethod.GET)
 	public List<DocumentTagModel> getDocumentTags() {
 		return this.documentService.getAllTags();
+	}
+	
+	@RequestMapping(value = "/documents/versions/{baseDocId}", method = RequestMethod.GET)
+	public List<DocumentModel> getVersions (@PathVariable("baseDocId") Integer baseDocId, @RequestHeader(value = "AJP_eppn") String userEPPN) throws IllegalAccessException {
+		return this.documentService.getVersions(baseDocId, userEPPN);
+	}
+	
+	@RequestMapping(value = "/documents", method = RequestMethod.PUT)
+	public DocumentModel createNewVersion (@RequestBody @Valid DocumentModel doc, @RequestHeader(value = "AJP_eppn") String userEPPN) throws IllegalAccessException {
+		return this.documentService.createNewVersion(doc, userEPPN);
 	}
 }

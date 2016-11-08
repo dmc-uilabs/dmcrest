@@ -15,9 +15,9 @@ public class DocumentModel extends BaseModel {
 
 	@AWSLink
 	private String documentUrl;
-	
+
 	private DocumentParentType parentType;
-	
+
 	private Integer parentId;
 
 	@NotNull
@@ -30,16 +30,20 @@ public class DocumentModel extends BaseModel {
 	private Date modified;
 
 	private Date expires;
-	
+
 	private DocumentClass docClass;
-	
+
 	private String accessLevel;
-	
+
 	private List<UserModel> vips;
-	
+
 	private Boolean isPublic;
-	
+
 	private Integer version;
+
+	private Integer directoryId;
+	
+	private Integer baseDocId;
 
 	public String getDocumentName() {
 		return documentName;
@@ -145,12 +149,28 @@ public class DocumentModel extends BaseModel {
 		this.isPublic = isPublic;
 	}
 
+	public Integer getDirectoryId() {
+		return directoryId;
+	}
+
+	public void setDirectoryId(Integer directoryId) {
+		this.directoryId = directoryId;
+	}
+
 	public Integer getVersion() {
 		return version;
 	}
 
 	public void setVersion(Integer version) {
 		this.version = version;
+	}
+
+	public Integer getBaseDocId() {
+		return baseDocId;
+	}
+
+	public void setBaseDocId(Integer baseDocId) {
+		this.baseDocId = baseDocId;
 	}
 
 }

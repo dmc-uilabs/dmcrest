@@ -1,5 +1,8 @@
 package org.dmc.services.data.mappers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -9,14 +12,12 @@ import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
+import org.dmc.services.data.repositories.DirectoryRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
@@ -26,9 +27,12 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 	@Inject
 	private DocumentTagRepository documentTagRepository;
-	
+
 	@Inject
 	private ResourceGroupRepository resourceGroupRepository;
+
+	@Inject
+	private DirectoryRepository directoryRepository;
 
 	@Override
 	public Document mapToEntity(DocumentModel model) {
@@ -36,6 +40,9 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		Document entity = copyProperties(model, new Document(), new String[]{"ownerDisplayName"});
 
 		entity.setOwner(userRepository.findOne(model.getOwnerId()));
+
+		if(model.getDirectoryId() != null)
+			entity.setDirectory(directoryRepository.findOne(model.getDirectoryId()));
 
 		List<DocumentTagModel> documentTagModels = model.getTags();
 		List<DocumentTag> documentTags = new ArrayList<>();
@@ -52,7 +59,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 			}
 		}
 		entity.setTags(documentTags);
-		
+
 		if (model.getAccessLevel() != null) {
 			//set resource groups from accessLevel
 			List<ResourceGroup> docGroups = new ArrayList<>();
@@ -85,7 +92,11 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 		model.setOwnerId(entity.getOwner().getId());
 		model.setOwnerDisplayName(entity.getOwner().getRealname());
-		
+
+		if(entity.getDirectory() != null){
+			model.setDirectoryId(entity.getDirectory().getId());
+		}
+
 		if (CollectionUtils.isNotEmpty(entity.getResourceGroups())) {
 			for (ResourceGroup group : entity.getResourceGroups()) {
 				String accessLevel = null;
@@ -97,7 +108,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 				}
 
 				model.setAccessLevel(accessLevel);
-			} 
+			}
 		}
 		return model;
 	}
