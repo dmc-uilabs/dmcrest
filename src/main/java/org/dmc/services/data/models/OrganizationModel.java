@@ -48,6 +48,12 @@ public class OrganizationModel extends BaseModel {
 	private List<AreaOfExpertiseModel> desiredAreasOfExpertise = new ArrayList<AreaOfExpertiseModel>();
 
 	private Integer dmdiiMemberId;
+	
+	private String postCollaboration;
+	
+	private String upcomingProjectInterests;
+	
+	private String pastProjects;
 
 	public String getName() {
 		return name;
@@ -223,6 +229,30 @@ public class OrganizationModel extends BaseModel {
 
 	public void setDmdiiMemberId(Integer dmdiiMemberId) {
 		this.dmdiiMemberId = dmdiiMemberId;
+	}
+
+	public String getPostCollaboration() {
+		return postCollaboration;
+	}
+
+	public void setPostCollaboration(String postCollaboration) {
+		this.postCollaboration = postCollaboration;
+	}
+
+	public String getUpcomingProjectInterests() {
+		return upcomingProjectInterests;
+	}
+
+	public void setUpcomingProjectInterests(String upcomingProjectInterests) {
+		this.upcomingProjectInterests = upcomingProjectInterests;
+	}
+
+	public String getPastProjects() {
+		return pastProjects;
+	}
+
+	public void setPastProjects(String pastProjects) {
+		this.pastProjects = pastProjects;
 	}
 
 }
