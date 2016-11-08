@@ -11,6 +11,7 @@ import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.entities.ResourceGroup;
+import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.repositories.DirectoryRepository;
@@ -61,6 +62,16 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		}
 		entity.setTags(documentTags);
 
+		List<Integer> vipIds = model.getVipIds();
+		List<User> vipEntities = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(vipIds)) {
+			for (Integer vipId : vipIds) {
+				User vip = userRepository.findOne(vipId);
+				vipEntities.add(vip);
+			}
+		}
+		entity.setVips(vipEntities);
+
 		if (model.getAccessLevel() != null) {
 
 		if (model.getAccessLevel() != null && !DocumentParentType.SERVICE.equals(model.getParentType())) {
@@ -96,6 +107,14 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 		model.setOwnerId(entity.getOwner().getId());
 		model.setOwnerDisplayName(entity.getOwner().getRealname());
+
+		List<Integer> vipIds = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(entity.getVips())) {
+			for (User vip : entity.getVips()) {
+				vipIds.add(vip.getId());
+			}
+		}
+		model.setVips(vipIds);
 
 		if(entity.getDirectory() != null){
 			model.setDirectoryId(entity.getDirectory().getId());

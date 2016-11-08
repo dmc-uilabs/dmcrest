@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.ResourceGroup;
@@ -33,8 +34,10 @@ public class ResourceAccessService {
 		case DOCUMENT:
 			Document doc = (Document) argEntity;
 			//public documents are seen by all, VIPs have access, so do owners
-			if(doc.getIsPublic() || doc.getVips().contains(requester) || doc.getOwner().equals(requester)) {
+			if(doc.getIsPublic() || doc.getOwner().equals(requester)) {
 				return true;
+			} else if (CollectionUtils.isNotEmpty(doc.getVips())) {
+				return doc.getVips().contains(requester);
 			}
 			
 			resGroups = doc.getResourceGroups();
