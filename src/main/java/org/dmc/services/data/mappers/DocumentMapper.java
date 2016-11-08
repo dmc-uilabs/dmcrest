@@ -98,8 +98,9 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 				}
 				entity.setResourceGroups(docGroups);
 			}
-			return entity;
 		}
+
+		return entity;
 	}
 
 	@Override
