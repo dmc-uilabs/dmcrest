@@ -15,7 +15,7 @@ public class DMDIIDocumentTag extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Column(name = "tag_name")
+	@Column(name = "tag_name", unique = true)
 	private String tagName;
 
 	public Integer getId() {

@@ -1,23 +1,27 @@
 package org.dmc.services.data.mappers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.UserService;
 import org.dmc.services.data.entities.DMDIIDocument;
+import org.dmc.services.data.entities.DMDIIDocumentTag;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIProject;
 import org.dmc.services.data.entities.DMDIIProjectItemAccessLevel;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DMDIIDocumentModel;
+import org.dmc.services.data.models.DMDIIDocumentTagModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.UserModel;
+import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocumentModel> {
@@ -28,11 +32,14 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 	@Inject
 	private UserService userService;
 
+	@Inject
+	private DMDIIDocumentTagRepository tagRepository;
+
 
 	@Override
 	public DMDIIDocument mapToEntity(DMDIIDocumentModel model) {
 		if (model == null) return null;
-		DMDIIDocument entity = copyProperties(model, new DMDIIDocument());
+		DMDIIDocument entity = copyProperties(model, new DMDIIDocument(), new String[]{"isDeleted", "verified"});
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
@@ -46,6 +53,23 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 		if (model.getAccessLevel() != null) {
 			entity.setAccessLevel(DMDIIProjectItemAccessLevel.valueOf(model.getAccessLevel()));
 		}
+
+		List<DMDIIDocumentTagModel> documentTagModels = model.getTags();
+		List<DMDIIDocumentTag> documentTags = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(documentTagModels)) {
+			for (DMDIIDocumentTagModel documentTagModel : documentTagModels) {
+				String tagName = documentTagModel.getTagName();
+				tagName = StringUtils.lowerCase(tagName);
+				DMDIIDocumentTag documentTag = this.tagRepository.findByTagName(tagName);
+				if (documentTag == null) {
+					documentTag = new DMDIIDocumentTag();
+					documentTag.setTagName(tagName);
+				}
+				documentTags.add(documentTag);
+			}
+		}
+		entity.setTags(documentTags);
+
 
 		return entity;
 	}

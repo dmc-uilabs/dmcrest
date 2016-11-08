@@ -212,8 +212,9 @@ public class DMDIIDocumentService {
 		
 		docEntity.setExpires(oldEntity.getExpires());
 		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
-		Integer oldVersion = docEntity.getVersion();
+		Integer oldVersion = oldEntity.getVersion();
 		docEntity.setVersion(oldVersion++);
+		docEntity.setVerified(oldEntity.getVerified());
 		
 		docEntity= dmdiiDocumentRepository.save(docEntity);
 		

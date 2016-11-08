@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -44,7 +45,7 @@ public class DMDIIDocument extends BaseEntity {
 	@JoinColumn(name = "owner_id")
 	private User owner;
 
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "dmdii_document_tag_join",
 			   joinColumns = @JoinColumn(name="dmdii_document_id"),
 			   inverseJoinColumns = @JoinColumn(name="dmdii_document_tag_id"))
