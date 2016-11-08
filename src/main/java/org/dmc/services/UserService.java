@@ -1,17 +1,5 @@
 package org.dmc.services;
 
-import static org.dmc.services.predicates.Predicates.buildPredicate;
-import static org.dmc.services.predicates.UserPredicates.likeFirstName;
-import static org.dmc.services.predicates.UserPredicates.likeLastName;
-import static org.dmc.services.predicates.UserPredicates.likeUserName;
-
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
@@ -39,7 +27,6 @@ import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.ServerAccessRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
-import org.dmc.services.email.EmailModel;
 import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.notification.NotificationService;
@@ -53,10 +40,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.dmc.services.predicates.Predicates.buildPredicate;
+import static org.dmc.services.predicates.UserPredicates.likeDisplayName;
+import static org.dmc.services.predicates.UserPredicates.likeFirstName;
+import static org.dmc.services.predicates.UserPredicates.likeLastName;
 
 @Service
 public class UserService {
@@ -115,10 +112,10 @@ public class UserService {
 		return mapper.mapToModel(userRepository.findByUsername(username));
 	}
 
-	public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter, List<String> userNameFilter) {
+	public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter, List<String> displayNameFilter) {
 		Mapper<User, SimpleUserModel> mapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
 		Page<User> users = userRepository.findAll(
-						buildPredicate(likeFirstName(firstNameFilter), likeLastName(lastNameFilter), likeUserName(userNameFilter)), pageRequest);
+						buildPredicate(likeFirstName(firstNameFilter), likeLastName(lastNameFilter), likeDisplayName(displayNameFilter)), pageRequest);
 		List<SimpleUserModel> simpleUsers = mapper.mapToModel(users.getContent());
 		return new PageImpl<>(simpleUsers, pageRequest, users.getTotalElements());
 	}

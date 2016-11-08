@@ -74,8 +74,8 @@ public class UserController {
 			@RequestParam(value = "pageSize") Integer pageSize,
 			@RequestParam(value = "firstName", required = false) List<String> firstName,
 			@RequestParam(value = "lastName", required = false) List<String> lastName,
-			@RequestParam(value = "userName", required = false) List<String> userName) {
-		return this.userService.findAll(new PageRequest(page, pageSize, null), firstName, lastName, userName);
+			@RequestParam(value = "displayName", required = false) List<String> displayName) {
+		return this.userService.findAll(new PageRequest(page, pageSize, null), firstName, lastName, displayName);
 	}
 
 	@RequestMapping(value = "/user", produces = { "application/json" }, method = RequestMethod.PATCH)
