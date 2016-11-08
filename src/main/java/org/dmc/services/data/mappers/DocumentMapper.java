@@ -11,6 +11,7 @@ import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.entities.ResourceGroup;
+import org.dmc.services.data.entities.ResourceType;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
@@ -42,6 +43,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		Document entity = copyProperties(model, new Document(), new String[]{"ownerDisplayName"});
 
 		entity.setOwner(userRepository.findOne(model.getOwnerId()));
+		entity.setResourceType(ResourceType.DOCUMENT);
 
 		if (model.getDirectoryId() != null)
 			entity.setDirectory(directoryRepository.findOne(model.getDirectoryId()));
@@ -83,11 +85,11 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 						group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
 								model.getParentId(), SecurityRoles.ADMIN);
 						docGroups.add(group);
+						group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
+								model.getParentId(), SecurityRoles.MEMBER);
+						docGroups.add(group);
 						break;
 					case SecurityRoles.MEMBER:
-						group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
-								model.getParentId(), SecurityRoles.ADMIN);
-						docGroups.add(group);
 						group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(model.getParentType(),
 								model.getParentId(), SecurityRoles.MEMBER);
 						docGroups.add(group);
@@ -107,7 +109,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 	public DocumentModel mapToModel(Document entity) {
 		if (entity == null) return null;
 
-		DocumentModel model = copyProperties(entity, new DocumentModel());
+		DocumentModel model = copyProperties(entity, new DocumentModel(), new String[]{"resourceType"});
 		List<ResourceGroup> groups = entity.getResourceGroups();
 
 		model.setOwnerId(entity.getOwner().getId());
@@ -119,7 +121,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 				vipIds.add(vip.getId());
 			}
 		}
-		model.setVips(vipIds);
+		model.setVipIds(vipIds);
 
 		if(entity.getDirectory() != null){
 			model.setDirectoryId(entity.getDirectory().getId());
