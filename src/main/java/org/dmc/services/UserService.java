@@ -10,6 +10,8 @@ import org.dmc.services.data.entities.OrganizationAuthorizedIdp;
 import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.entities.UserContactInfo;
+import org.dmc.services.data.entities.UserMemberPortalContactInfo;
+import org.dmc.services.data.entities.UserPublicContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.entities.UserSkill;
 import org.dmc.services.data.entities.UserToken;
@@ -17,7 +19,10 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.SimpleUserModel;
+import org.dmc.services.data.models.UserContactInfoModel;
+import org.dmc.services.data.models.UserMemberPortalContactInfoModel;
 import org.dmc.services.data.models.UserModel;
+import org.dmc.services.data.models.UserPublicContactInfoModel;
 import org.dmc.services.data.models.UserTokenModel;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.OnboardingStatusRepository;
@@ -37,6 +42,7 @@ import org.dmc.services.security.UserPrincipalService;
 import org.dmc.services.users.VerifyUserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -376,10 +382,8 @@ public class UserService {
 			}
 		}
 
-		if (currentUser.getUserContactInfo() != null && patchUserEntity.getUserContactInfo() != null) {
-			currentUser.getUserContactInfo().setUserMemberPortalContactInfo(patchUserEntity.getUserContactInfo().getUserMemberPortalContactInfo());
-			currentUser.getUserContactInfo().setUserPublicContactInfo(patchUserEntity.getUserContactInfo().getUserPublicContactInfo());
-		}
+		this.patchUserContactInfo(currentUser, patchUser);
+
 		currentUser.setTimezone(patchUser.getTimezone());
 		currentUser.setAboutMe(patchUser.getAboutMe());
 
@@ -405,6 +409,38 @@ public class UserService {
 		this.updateUserProfileLogo(currentUser);
 
 		return userMapper.mapToModel(userRepository.save(currentUser));
+	}
+
+	private void patchUserContactInfo(User currentUser, UserModel patchUser) {
+		if (currentUser.getUserContactInfo() != null && patchUser.getUserContactInfo() != null) {
+
+			UserContactInfo currentUserContactInfo = currentUser.getUserContactInfo();
+			UserMemberPortalContactInfo currentUserMemberPortalContactInfo = currentUserContactInfo.getUserMemberPortalContactInfo();
+			UserPublicContactInfo currentUserPublicContactInfo = currentUserContactInfo.getUserPublicContactInfo();
+
+			UserContactInfoModel newUserContactInfo = patchUser.getUserContactInfo();
+			UserMemberPortalContactInfoModel newUserMemberPortalContactInfo = newUserContactInfo.getUserMemberPortalContactInfo();
+			UserPublicContactInfoModel newUserPublicContactInfo = newUserContactInfo.getUserPublicContactInfo();
+
+			if (newUserMemberPortalContactInfo != null) {
+				if (currentUserMemberPortalContactInfo == null) {
+					currentUserMemberPortalContactInfo = new UserMemberPortalContactInfo();
+				}
+
+				BeanUtils.copyProperties(newUserMemberPortalContactInfo, currentUserMemberPortalContactInfo, new String[]{"id"});
+				currentUser.getUserContactInfo().setUserMemberPortalContactInfo(currentUserMemberPortalContactInfo);
+
+			}
+
+			if (newUserPublicContactInfo != null) {
+				if (currentUserPublicContactInfo == null) {
+					currentUserPublicContactInfo = new UserPublicContactInfo();
+				}
+
+				BeanUtils.copyProperties(newUserPublicContactInfo, currentUserPublicContactInfo, new String[]{"id"});
+				currentUser.getUserContactInfo().setUserPublicContactInfo(currentUserPublicContactInfo);
+			}
+		}
 	}
 
 	private OrganizationUser createOrganizationUser(User user, Integer organizationId) {
