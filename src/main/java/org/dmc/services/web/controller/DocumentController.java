@@ -85,14 +85,21 @@ public class DocumentController {
 	public List<DocumentTagModel> getDocumentTags() {
 		return this.documentService.getAllTags();
 	}
-	
+
 	@RequestMapping(value = "/documents/versions/{baseDocId}", method = RequestMethod.GET)
 	public List<DocumentModel> getVersions (@PathVariable("baseDocId") Integer baseDocId, @RequestHeader(value = "AJP_eppn") String userEPPN) throws IllegalAccessException {
 		return this.documentService.getVersions(baseDocId, userEPPN);
 	}
-	
+
 	@RequestMapping(value = "/documents", method = RequestMethod.PUT)
 	public DocumentModel createNewVersion (@RequestBody @Valid DocumentModel doc, @RequestHeader(value = "AJP_eppn") String userEPPN) throws IllegalAccessException {
 		return this.documentService.createNewVersion(doc, userEPPN);
+	}
+
+	@RequestMapping(value = "/documents/clone", method = RequestMethod.POST)
+	public List<DocumentModel> cloneDocuments (@RequestParam(value = "docIds") List<Integer> docIds,
+	                                           @RequestHeader(value = "AJP_eppn") String userEPPN,
+	                                           @RequestParam(value = "parentTypeId") Integer parentTypeId) {
+		return documentService.cloneDocuments(docIds, parentTypeId, userEPPN);
 	}
 }

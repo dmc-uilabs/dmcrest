@@ -490,18 +490,44 @@ public class DocumentService {
 		return documents;
 	}
 
-	public void duplicateDocumentsByParentTypeAndId (DocumentParentType oldParentType, Integer oldParentId, DocumentParentType newParentType, Integer newParentId) {
-		List<Document> originalDocs = documentRepository.findByParentTypeAndParentId(oldParentType, oldParentId);
+	public List<DocumentModel> cloneDocuments (List<Integer> docIds, Integer newParentId, String userEPPN) {
+		Assert.notNull(newParentId);
+		Assert.isTrue(CollectionUtils.isNotEmpty(docIds));
+		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 
-		if (originalDocs != null && !originalDocs.isEmpty()) {
-			for (Document doc : originalDocs) {
-				doc.setId(null);
-				doc.setParentType(newParentType);
-				doc.setParentId(newParentId);
-				doc.setModified(new Timestamp(System.currentTimeMillis()));
-				documentRepository.save(doc);
+		User newOwner = userRepository.findByUsername(userEPPN);
+		List<Document> newDocs = new ArrayList<>();
+
+		for (Integer docId : docIds) {
+			Document oldDoc = documentRepository.findOne(docId);
+			Document newDoc = new Document();
+			List<DocumentTag> newTags = new ArrayList<>();
+
+			Timestamp now = new Timestamp(System.currentTimeMillis());
+
+			newDoc.setOwner(newOwner);
+			newDoc.setExpires(oldDoc.getExpires());
+			newDoc.setIsDeleted(false);
+			newDoc.setIsPublic(oldDoc.getIsPublic());
+			newDoc.setModified(now);
+			newDoc.setVersion(0);
+			newDoc.setDocClass(oldDoc.getDocClass());
+			newDoc.setDocumentName(oldDoc.getDocumentName());
+			newDoc.setDocumentUrl(oldDoc.getDocumentUrl());
+			newDoc.setParentType(oldDoc.getParentType());
+			newDoc.setResourceType(oldDoc.getResourceType());
+			for (DocumentTag tag : oldDoc.getTags()) {
+				newTags.add(tag);
 			}
+			newDoc.setTags(newTags);
+
+			newDoc.setParentId(newParentId);
+
+			newDoc = documentRepository.save(newDoc);
+			newDocs.add(newDoc);
 		}
+
+		return mapper.mapToModel(newDocs);
 	}
 
 	public List<DocumentModel> getVersions (Integer docId, String userEPPN) throws IllegalAccessException {
