@@ -182,7 +182,6 @@ public class DMDIIDocument extends BaseEntity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((accessLevel == null) ? 0 : accessLevel.hashCode());
-		result = prime * result + ((dmdiiProject == null) ? 0 : dmdiiProject.hashCode());
 		result = prime * result + ((documentName == null) ? 0 : documentName.hashCode());
 		result = prime * result + ((documentUrl == null) ? 0 : documentUrl.hashCode());
 		result = prime * result + ((expires == null) ? 0 : expires.hashCode());
