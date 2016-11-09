@@ -171,14 +171,16 @@ public class DocumentService {
 		Assert.notNull(directoryId);
 		Mapper<Document, DocumentModel> documentMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User currentUser = userRepository.findOne(
-				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId()
-		);
+				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
 		List<Document> results;
 		List<Document> returnList = new ArrayList<>();
 
 		Directory directory = directoryRepository.findOne(directoryId);
 		if(directory != null) {
-			results = documentRepository.findByDirectory(directory);
+			Predicate baseDocsOnly = QDocument.document.version.eq(0);
+			Predicate byDirectory = QDocument.document.directory().eq(directory);
+			Predicate where = ExpressionUtils.allOf(baseDocsOnly, byDirectory);
+			results = documentRepository.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "modified")))).getContent();
 
 			for(Document doc : results) {
 				if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
