@@ -1,15 +1,18 @@
 package org.dmc.services.data.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class MiniUserModel extends BaseModel {
 	
-	private String displayName;
+	@JsonProperty("displayName")
+	private String realname;
 	private String email;
 	
-	public String getDisplayName() {
-		return displayName;
+	public String getRealname() {
+		return realname;
 	}
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
+	public void setRealname(String realname) {
+		this.realname = realname;
 	}
 	public String getEmail() {
 		return email;
