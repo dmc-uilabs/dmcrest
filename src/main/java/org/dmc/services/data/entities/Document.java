@@ -81,7 +81,6 @@ public class Document extends ResourceEntity {
 	@JoinTable(name = "resource_in_resource_group",
 				joinColumns = @JoinColumn(name = "resource_id"),
 				inverseJoinColumns = @JoinColumn(name = "resource_group_id"))
-	@WhereJoinTable(clause = "resource_type = 'DOCUMENT'")
 	@JsonIgnore
 	private List<ResourceGroup> resourceGroups;
 
