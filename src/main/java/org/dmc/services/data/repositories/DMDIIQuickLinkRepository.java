@@ -1,5 +1,6 @@
 package org.dmc.services.data.repositories;
 
+import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIQuickLink;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +17,7 @@ public interface DMDIIQuickLinkRepository extends BaseRepository<DMDIIQuickLink,
 	@Query(value = "DELETE from dmdii_quick_link WHERE id = :id", nativeQuery = true)
 	Integer deleteById(@Param("id") Integer id);
 
-	Long countByDoc(@Param("dmdiiDocumentId") Integer dmdiiDocumentId);
+	Long countByDoc(DMDIIDocument dmdiiDocument);
 
 	@Modifying
 	@Query(value = "DELETE from dmdii_quick_link WHERE dmdii_document_id = :dmdiiDocumentId", nativeQuery = true)
