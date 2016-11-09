@@ -15,6 +15,7 @@ import org.dmc.services.data.entities.ResourceType;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
+import org.dmc.services.data.models.SimpleUserModel;
 import org.dmc.services.data.repositories.DirectoryRepository;
 import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
@@ -64,11 +65,11 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		}
 		entity.setTags(documentTags);
 
-		List<Integer> vipIds = model.getVipIds();
+		List<SimpleUserModel> vips = model.getVips();
 		List<User> vipEntities = new ArrayList<>();
-		if (CollectionUtils.isNotEmpty(vipIds)) {
-			for (Integer vipId : vipIds) {
-				User vip = userRepository.findOne(vipId);
+		if (CollectionUtils.isNotEmpty(vips)) {
+			for (SimpleUserModel simpleVip : vips) {
+				User vip = userRepository.findOne(simpleVip.getId());
 				vipEntities.add(vip);
 			}
 		}
@@ -108,6 +109,7 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 	@Override
 	public DocumentModel mapToModel(Document entity) {
 		if (entity == null) return null;
+		Mapper<User, SimpleUserModel> userMapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
 
 		DocumentModel model = copyProperties(entity, new DocumentModel(), new String[]{"resourceType", "resourceGroups"});
 		List<ResourceGroup> groups = entity.getResourceGroups();
@@ -115,13 +117,13 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		model.setOwnerId(entity.getOwner().getId());
 		model.setOwnerDisplayName(entity.getOwner().getRealname());
 
-		List<Integer> vipIds = new ArrayList<>();
+		List<SimpleUserModel> vips = new ArrayList<>();
 		if (CollectionUtils.isNotEmpty(entity.getVips())) {
 			for (User vip : entity.getVips()) {
-				vipIds.add(vip.getId());
+				vips.add(userMapper.mapToModel(vip));
 			}
 		}
-		model.setVipIds(vipIds);
+		model.setVips(vips);
 
 		if(entity.getDirectory() != null){
 			model.setDirectoryId(entity.getDirectory().getId());

@@ -35,13 +35,15 @@ public class DocumentModel extends BaseModel {
 
 	private String accessLevel;
 
-	private List<Integer> vipIds;
+	private List<SimpleUserModel> vips;
 
 	private Integer version;
 
 	private Integer directoryId;
 
 	private Integer baseDocId;
+	
+	private Boolean hasVersions;
 
 	public String getDocumentName() {
 		return documentName;
@@ -131,12 +133,12 @@ public class DocumentModel extends BaseModel {
 		this.accessLevel = accessLevel;
 	}
 
-	public List<Integer> getVipIds() {
-		return vipIds;
+	public List<SimpleUserModel> getVips() {
+		return vips;
 	}
 
-	public void setVipIds(List<Integer> vipIds) {
-		this.vipIds = vipIds;
+	public void setVips(List<SimpleUserModel> vips) {
+		this.vips = vips;
 	}
 
 	public Integer getDirectoryId() {
@@ -161,6 +163,14 @@ public class DocumentModel extends BaseModel {
 
 	public void setBaseDocId(Integer baseDocId) {
 		this.baseDocId = baseDocId;
+	}
+
+	public Boolean getHasVersions() {
+		return hasVersions;
+	}
+
+	public void setHasVersions(Boolean hasVersions) {
+		this.hasVersions = hasVersions;
 	}
 
 }

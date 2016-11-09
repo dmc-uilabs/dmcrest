@@ -14,6 +14,7 @@ public class SimpleUserModel extends BaseModel {
 	private String email;
 	private String companyName;
 	private Integer companyId;
+	private Integer id;
 
 	public String getRealname() {
 		return realname;
@@ -85,5 +86,13 @@ public class SimpleUserModel extends BaseModel {
 
 	public void setCompanyId(Integer companyId) {
 		this.companyId = companyId;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 }

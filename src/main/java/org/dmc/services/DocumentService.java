@@ -113,7 +113,15 @@ public class DocumentService {
 		//check for access
 		//superadmin's see everything
 		if(owner.getRoles().stream().anyMatch(r->r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
-			return mapper.mapToModel(pagify(results, pageNumber, pageSize));
+			List<DocumentModel> returnModels = mapper.mapToModel(pagify(results, pageNumber, pageSize));
+			for (DocumentModel d : returnModels) {
+				if (hasVersions(d.getId())) {
+					d.setHasVersions(true);
+				} else {
+					d.setHasVersions(false);
+				}
+			}
+			return returnModels;
 		}
 
 		for(Document doc : results) {
@@ -124,8 +132,18 @@ public class DocumentService {
 		}
 
 		if (returnList.size() == 0) return null;
+		
+		List<DocumentModel> returnModels = mapper.mapToModel(pagify(returnList, pageNumber, pageSize));
+		
+		for (DocumentModel d : returnModels) {
+			if (hasVersions(d.getId())) {
+				d.setHasVersions(true);
+			} else {
+				d.setHasVersions(false);
+			}
+		}
 
-		return mapper.mapToModel(pagify(returnList, pageNumber, pageSize));
+		return returnModels;
 	}
 
 	private List<Document> pagify(List<Document> docs, Integer pageNumber, Integer pageSize) {
@@ -163,8 +181,16 @@ public class DocumentService {
 		List<Document> docList = Collections.singletonList(documentRepository.findOne(documentId));
 
 		if (docList.size() == 0) return null;
+		
+		DocumentModel retModel =mapper.mapToModel(docList.get(0));
+		
+		if(hasVersions(retModel.getId())) {
+			retModel.setHasVersions(true);
+		} else {
+			retModel.setHasVersions(false);
+		}
 
-		return mapper.mapToModel(docList.get(0));
+		return retModel;
 	}
 
 	public List<DocumentModel> findByDirectory(Integer directoryId) {
@@ -189,7 +215,19 @@ public class DocumentService {
 			}
 		}
 
-		return documentMapper.mapToModel(returnList);
+		if (returnList.size() == 0) return null;
+		
+		List<DocumentModel> returnModels = documentMapper.mapToModel(returnList);
+		
+		for (DocumentModel d : returnModels) {
+			if (hasVersions(d.getId())) {
+				d.setHasVersions(true);
+			} else {
+				d.setHasVersions(false);
+			}
+		}
+
+		return returnModels;
 	}
 
 	public DocumentModel save(DocumentModel doc) throws DMCServiceException, IllegalArgumentException {
@@ -597,5 +635,14 @@ public class DocumentService {
 		} else {
 			throw new IllegalAccessException("User does not have access to base document");
 		}
+	}
+	
+	private Boolean hasVersions(Integer docId) {
+		Predicate where = QDocument.document.baseDocId.eq(docId);
+		if(documentRepository.count(where) > 1L) {
+			return true;
+		}
+		
+		return false;		
 	}
 }
