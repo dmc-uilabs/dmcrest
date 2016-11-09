@@ -10,6 +10,7 @@ import java.util.Map;
 import org.dmc.services.AWSConnector;
 import org.dmc.services.DocumentService;
 import org.dmc.services.ParentDocumentService;
+import org.dmc.services.ResourceGroupService;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.Entities;
 import org.dmc.services.data.mappers.DocumentMapper;
@@ -58,6 +59,9 @@ public class DocumentServiceTest {
 	
 	@Mock
 	private Verification verify;
+	
+	@Mock
+	private ResourceGroupService resourceGroupService;
 	
 	@Mock
 	private MapperFactory mapperFactory;
@@ -258,6 +262,8 @@ public class DocumentServiceTest {
 		.thenReturn(this.document);
 		when(this.verify.verify(any(Integer.class), any(String.class), any(String.class), any(String.class), any(String.class), any(String.class), any(String.class), any(String.class)))
 		.thenReturn(verifyString);
+		when(this.resourceGroupService.updateDocumentResourceGroups(any(Document.class), any(String.class)))
+		.thenReturn(this.document);
 		when(this.documentRepository.save(any(Document.class)))
 		.thenReturn(this.document);
 		
