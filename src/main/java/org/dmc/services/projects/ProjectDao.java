@@ -142,7 +142,7 @@ public class ProjectDao {
     public List<Project> getPublicProjects() {
     	List<Project> projects = new ArrayList<Project>();
 
-    	String query = "SELECT DISTINCT id, title, description, due_date, count, componentsCount, taskCount, servicesCount, firstname, lastname, isPublic, requires_approval, creatorUserId"
+    	String query = "SELECT DISTINCT id, title, description, due_date, count, componentsCount, taskCount, servicesCount, firstname, lastname, isPublic, requires_approval, creatorUserId, directory_id"
     			+ " FROM (" + getSelectProjectQuery() + ") as project"
     			+ " WHERE project.isPublic = 1";
 
