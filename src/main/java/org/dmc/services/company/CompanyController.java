@@ -254,7 +254,8 @@ public class CompanyController {
         @RequestParam(value = "authors", required = false) List<Integer> authors,
         @RequestParam(value = "ratings", required = false) List<String> ratings,
         @RequestParam(value = "favorites", required = false) String favorites,
-        @RequestParam(value = "dates", required = false) List<String> dates) {
+        @RequestParam(value = "dates", required = false) List<String> dates,
+        @RequestParam(value = "published", required = false) String published) {
 
         ServiceDao serviceDao = new ServiceDao();
         try {
@@ -266,7 +267,7 @@ public class CompanyController {
                 order = "DESC";
                 sort = "release_date";
             }
-            return new ResponseEntity<List<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, null, fromLocations, userEPPN, Integer.parseInt(companyID)), HttpStatus.OK);
+            return new ResponseEntity<List<Service>>(serviceDao.getServices(limit, order, start, sort, titleLike, serviceType, authors, ratings, favorites, dates, published, fromLocations, userEPPN, Integer.parseInt(companyID)), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(logTag, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
