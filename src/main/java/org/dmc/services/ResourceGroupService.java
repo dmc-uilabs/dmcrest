@@ -6,9 +6,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.security.SecurityRoles;
@@ -26,6 +29,9 @@ public class ResourceGroupService {
 	
 	@Inject
 	private UserRepository userRepository;
+	
+	@Inject
+	private DocumentRepository documentRepository;
 	
 	static final Logger LOG = LoggerFactory.getLogger(ResourceGroupService.class);
 	
@@ -54,7 +60,7 @@ public class ResourceGroupService {
 	}
 	
 	@Transactional
-	public User removeResourceGroup(User user, DocumentParentType parentType, Integer parentId, String role) {
+	public User removeUserResourceGroup(User user, DocumentParentType parentType, Integer parentId, String role) {
 		Assert.notNull(user);
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
@@ -72,7 +78,7 @@ public class ResourceGroupService {
 	}
 	
 	@Transactional
-	public User addResourceGroup(User user, DocumentParentType parentType, Integer parentId, String role) {
+	public User addUserResourceGroup(User user, DocumentParentType parentType, Integer parentId, String role) {
 		Assert.notNull(user);
 		Assert.notNull(parentType);
 		Assert.notNull(parentId);
@@ -90,5 +96,58 @@ public class ResourceGroupService {
 		}
 		
 		return user;
+	}
+	
+	public Document updateDocumentResourceGroups(Document doc, String role) {
+		Assert.notNull(doc);
+		Assert.notNull(role);
+		
+		List<ResourceGroup> groups = doc.getResourceGroups();
+
+		ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(doc.getParentType(), doc.getParentId(), role);
+		
+		if(CollectionUtils.isNotEmpty(groups)) {
+			if(role.equals(SecurityRoles.ADMIN)) {
+				if(!groups.contains(group)) {
+					//if ADMIN group isn't already here, add it
+					groups.add(group);
+				}
+				
+				//if access was MEMBER before, remove it now
+				ResourceGroup memGroup = resourceGroupRepository.findByParentTypeAndParentIdAndRole(doc.getParentType(), doc.getParentId(), SecurityRoles.MEMBER);
+				
+				if(groups.contains(memGroup)) {
+					groups.remove(memGroup);
+				}
+				
+			} else if (role.equals(SecurityRoles.MEMBER)) {
+				if(!groups.contains(group)) {
+					//if MEMBER group isn't already here, add it
+					groups.add(group);
+					
+					//if ADMIN group isn't already here, add it
+					ResourceGroup adminGroup = resourceGroupRepository.findByParentTypeAndParentIdAndRole(doc.getParentType(), doc.getParentId(), SecurityRoles.ADMIN);
+					
+					if(!groups.contains(adminGroup)) {
+						groups.add(adminGroup);
+					}
+				}						
+			} else if (role.equals(SecurityRoles.PUBLIC)) {
+				//we don't need resource group for this parentType and parentId, remove them if they exist
+				ResourceGroup adminGroup = resourceGroupRepository.findByParentTypeAndParentIdAndRole(doc.getParentType(), doc.getParentId(), SecurityRoles.ADMIN);
+				ResourceGroup memGroup = resourceGroupRepository.findByParentTypeAndParentIdAndRole(doc.getParentType(), doc.getParentId(), SecurityRoles.MEMBER);
+				if (groups.contains(adminGroup)) {
+					groups.remove(adminGroup);
+				}
+				
+				if (groups.contains(memGroup)) {
+					groups.remove(memGroup);
+				}
+			}
+		}
+		
+		doc.setResourceGroups(groups);
+		
+		return doc;
 	}
 }

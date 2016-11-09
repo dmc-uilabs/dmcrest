@@ -372,7 +372,7 @@ public class ProjectMemberDao {
                 
                 //bolt on resource access for project members
                 User user = userRepository.getOne(memberId);
-                resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
+                resourceGroupService.addUserResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
             	
             }
 
@@ -543,7 +543,7 @@ public class ProjectMemberDao {
         } else {
             
             User user = userRepository.findOne(memberId);
-            resourceGroupService.removeResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
+            resourceGroupService.removeUserResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
         	
         }
     }

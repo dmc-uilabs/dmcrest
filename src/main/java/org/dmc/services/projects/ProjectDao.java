@@ -395,9 +395,9 @@ public class ProjectDao {
 
     			User user = userRepository.getOne(userID);
     			//give the creating user the admin role
-    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.ADMIN);
+    			resourceGroupService.addUserResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.ADMIN);
     			//add member role
-    			resourceGroupService.addResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
+    			resourceGroupService.addUserResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
     		}
         }
 

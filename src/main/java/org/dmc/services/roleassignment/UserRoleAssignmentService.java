@@ -50,8 +50,8 @@ public class UserRoleAssignmentService {
 	public void deleteByUserIdAndOrganizationId(Integer userId, Integer organizationId) {
 		
 		//remove resource groups
-		resourceGroupService.removeResourceGroup(userRepository.findOne(userId), DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.ADMIN);
-		resourceGroupService.removeResourceGroup(userRepository.findOne(userId), DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.MEMBER);
+		resourceGroupService.removeUserResourceGroup(userRepository.findOne(userId), DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.ADMIN);
+		resourceGroupService.removeUserResourceGroup(userRepository.findOne(userId), DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.MEMBER);
 		
 		userRoleAssignmentRepository.deleteByUserIdAndOrganizationId(userId, organizationId);
 	}
@@ -98,10 +98,10 @@ public class UserRoleAssignmentService {
 		
 		//add resource group to user
 		if(role.equals(SecurityRoles.ADMIN)) {
-			resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.ADMIN);
-			resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.MEMBER);
+			resourceGroupService.addUserResourceGroup(user, DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.ADMIN);
+			resourceGroupService.addUserResourceGroup(user, DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.MEMBER);
 		} else if(role.equals(SecurityRoles.MEMBER)) {
-			resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.MEMBER);			
+			resourceGroupService.addUserResourceGroup(user, DocumentParentType.ORGANIZATION, organizationId, SecurityRoles.MEMBER);			
 		}
 		
 		return userRoleAssignmentMapper.mapToModel(userRoleAssignmentRepository.save(newAssignment));
@@ -112,7 +112,7 @@ public class UserRoleAssignmentService {
 		UserRoleAssignment userRoleAssignmentEntity = new UserRoleAssignment(user, organization, role);
 		
 		//add resource group
-		resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organization.getId(), SecurityRoles.ADMIN);
+		resourceGroupService.addUserResourceGroup(user, DocumentParentType.ORGANIZATION, organization.getId(), SecurityRoles.ADMIN);
 		
 		return userRoleAssignmentRepository.save(userRoleAssignmentEntity);
 	}
@@ -122,7 +122,7 @@ public class UserRoleAssignmentService {
 		UserRoleAssignment userRoleAssignmentEntity = new UserRoleAssignment(user, organization, role);
 		
 		//add resource group
-		resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organization.getId(), SecurityRoles.MEMBER);
+		resourceGroupService.addUserResourceGroup(user, DocumentParentType.ORGANIZATION, organization.getId(), SecurityRoles.MEMBER);
 		
 		return userRoleAssignmentRepository.save(userRoleAssignmentEntity);
 	}

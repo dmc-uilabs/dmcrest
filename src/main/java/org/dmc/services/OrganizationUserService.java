@@ -75,7 +75,7 @@ public class OrganizationUserService {
 		organizationUserRepository.deleteByUserId(user.getId());
 		
 		//add resource group for org member
-		resourceGroupService.addResourceGroup(user, DocumentParentType.ORGANIZATION, organization.getId(), SecurityRoles.MEMBER);
+		resourceGroupService.addUserResourceGroup(user, DocumentParentType.ORGANIZATION, organization.getId(), SecurityRoles.MEMBER);
 		
 		return organizationUserRepository.save(new OrganizationUser(user, organization, true));
 	}
@@ -93,8 +93,8 @@ public class OrganizationUserService {
 
 			//delete user resource groups for old org
 			User user = userRepository.findOne(model.getUserId());
-			resourceGroupService.removeResourceGroup(user, DocumentParentType.ORGANIZATION, model.getOrganizationId(), SecurityRoles.MEMBER);
-			resourceGroupService.removeResourceGroup(user, DocumentParentType.ORGANIZATION, model.getOrganizationId(), SecurityRoles.ADMIN);
+			resourceGroupService.removeUserResourceGroup(user, DocumentParentType.ORGANIZATION, model.getOrganizationId(), SecurityRoles.MEMBER);
+			resourceGroupService.removeUserResourceGroup(user, DocumentParentType.ORGANIZATION, model.getOrganizationId(), SecurityRoles.ADMIN);
 			
 			organizationUserRepository.delete(currentOrganizationUser.getId());
 			userRoleRepository.deleteByUserIdAndOrganizationId(model.getUserId(), model.getOrganizationId());

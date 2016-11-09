@@ -94,6 +94,9 @@ public class DocumentService {
 
 	@Inject
 	private EmailService emailService;
+	
+	@Inject
+	private ResourceGroupService resourceGroupService;
 
 	private final String logTag = DocumentService.class.getName();
 
@@ -296,6 +299,8 @@ public class DocumentService {
 
 		docEntity.setExpires(oldEntity.getExpires());
 		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
+		
+		docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
