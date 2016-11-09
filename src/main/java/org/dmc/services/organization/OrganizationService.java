@@ -123,6 +123,8 @@ public class OrganizationService {
 			resourceGroupService.addResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), "ADMIN");
 			
 		} else {
+			Organization existingOrg = this.organizationRepository.findOne(organizationEntity.getId());
+			organizationEntity.setLogoImage(existingOrg.getLogoImage());
 			organizationEntity = organizationRepository.save(organizationEntity);
 		}
 
