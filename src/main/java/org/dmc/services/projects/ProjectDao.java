@@ -629,7 +629,7 @@ public class ProjectDao {
             final String autoJoinProject = "UPDATE group_join_request SET accept_date = now() WHERE user_id = ? AND requester_id = ? and group_id = ?";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(autoJoinProject);
             try {
-                preparedStatement.setInt(1, requesterId);
+                preparedStatement.setInt(1, profileId);
                 preparedStatement.setInt(2, requesterId);
                 preparedStatement.setInt(3, projectId);
                 preparedStatement.executeUpdate();
