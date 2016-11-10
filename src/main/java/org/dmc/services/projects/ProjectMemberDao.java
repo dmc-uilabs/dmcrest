@@ -355,7 +355,7 @@ public class ProjectMemberDao {
             }
 
             String updateGroupJoinRequest = "UPDATE group_join_request SET accept_date = now(), reject_date = null "
-                    + "WHERE user_id = ? " + "AND group_id = ? AND reject_date is not null";
+                    + "WHERE user_id = ? " + "AND group_id = ? AND reject_date is null";
             preparedStatement = DBConnector.prepareStatement(updateGroupJoinRequest);
             preparedStatement.setInt(1, memberId);
             preparedStatement.setInt(2, projectId);
