@@ -8,9 +8,11 @@ import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ResourceGroupService;
 import org.dmc.services.data.entities.AreaOfExpertise;
+import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
+import org.dmc.services.data.entities.QDocument;
 import org.dmc.services.data.entities.QOrganization;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
@@ -18,6 +20,7 @@ import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
+import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
@@ -66,6 +69,9 @@ public class OrganizationService {
 
 	@Inject
 	private ResourceGroupService resourceGroupService;
+	
+	@Inject
+	private DocumentRepository documentRepository;
 
 	public Page<OrganizationModel> filter(PageRequest pageRequest, List<String> names, List<Integer> areasOfExpertise,
 	                                      List<Integer> desiredAreasOfExpertise) {
@@ -162,6 +168,14 @@ public class OrganizationService {
 
 		//remove associated resource groups
 		resourceGroupService.removeAll(DocumentParentType.ORGANIZATION, organizationId);
+		
+		//remove organization documents
+		Predicate where = QDocument.document.parentType.eq(DocumentParentType.ORGANIZATION).and(QDocument.document.parentId.eq(organizationId));
+		List<Document> orgDocs = (List<Document>) documentRepository.findAll(where);
+		for(Document doc : orgDocs) {
+			doc.setIsDeleted(true);
+			documentRepository.save(doc);
+		}
 
 	}
 }
