@@ -360,7 +360,7 @@ public class ProjectMemberDao {
             preparedStatement.setInt(1, memberId);
             preparedStatement.setInt(2, projectId);
             rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected != 1) {
+            if (rowsAffected < 1) {
                 // if we have < 1, then nothing happened, probably we didn't
                 // have a group_join_request
                 // so rollback shouldn't cost us anything.
