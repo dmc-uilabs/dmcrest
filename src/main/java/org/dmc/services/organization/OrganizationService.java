@@ -1,8 +1,16 @@
 package org.dmc.services.organization;
 
-import com.mysema.query.jpa.JPASubQuery;
-import com.mysema.query.types.Predicate;
-import com.mysema.query.types.query.ListSubQuery;
+import static org.dmc.services.predicates.OrganizationPredicates.likeAreasOfExpertise;
+import static org.dmc.services.predicates.OrganizationPredicates.likeDesiredAreasOfExpertise;
+import static org.dmc.services.predicates.OrganizationPredicates.likeOrganizationName;
+import static org.dmc.services.predicates.Predicates.buildPredicate;
+
+import java.util.Iterator;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.dmc.services.DMDIIDocumentService;
 import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.OrganizationUserService;
@@ -14,6 +22,7 @@ import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDocument;
 import org.dmc.services.data.entities.QOrganization;
+import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
@@ -31,14 +40,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.util.List;
-
-import static org.dmc.services.predicates.OrganizationPredicates.buildPredicate;
-import static org.dmc.services.predicates.OrganizationPredicates.likeAreasOfExpertise;
-import static org.dmc.services.predicates.OrganizationPredicates.likeDesiredAreasOfExpertise;
-import static org.dmc.services.predicates.OrganizationPredicates.likeOrganizationName;
+import com.mysema.query.jpa.JPASubQuery;
+import com.mysema.query.types.Predicate;
+import com.mysema.query.types.query.ListSubQuery;
 
 @Service
 public class OrganizationService {
@@ -69,7 +73,7 @@ public class OrganizationService {
 
 	@Inject
 	private ResourceGroupService resourceGroupService;
-	
+
 	@Inject
 	private DocumentRepository documentRepository;
 
@@ -127,7 +131,7 @@ public class OrganizationService {
 
 			//add user to admin resource group
 			resourceGroupService.addUserResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), "ADMIN");
-			
+
 		} else {
 			Organization existingOrg = this.organizationRepository.findOne(organizationEntity.getId());
 			organizationEntity.setLogoImage(existingOrg.getLogoImage());
@@ -166,16 +170,33 @@ public class OrganizationService {
 		projectModels.stream().map(n -> n.getId()).forEach(dmdiiDocumentService::deleteDMDIIDocumentsByDMDIIProjectId);
 		organizationRepository.delete(organizationId);
 
-		//remove associated resource groups
-		resourceGroupService.removeAll(DocumentParentType.ORGANIZATION, organizationId);
-		
+		List<User> users = userRepository.findByOrganizationUserOrganizationId(organizationId);
+
+		for(User user: users) {
+			if(user.getResourceGroups() != null) {
+				Iterator<ResourceGroup> iterator = user.getResourceGroups().iterator();
+				while(iterator.hasNext()) {
+					ResourceGroup group = iterator.next();
+					if(DocumentParentType.ORGANIZATION.equals(group.getParentType()) && organizationId.equals(group.getParentId())) {
+						iterator.remove();
+					}
+				}
+			}
+		}
+
+		userRepository.save(users);
+
+
 		//remove organization documents
 		Predicate where = QDocument.document.parentType.eq(DocumentParentType.ORGANIZATION).and(QDocument.document.parentId.eq(organizationId));
 		List<Document> orgDocs = (List<Document>) documentRepository.findAll(where);
 		for(Document doc : orgDocs) {
+			doc.getResourceGroups().clear();
 			doc.setIsDeleted(true);
 			documentRepository.save(doc);
 		}
 
+		//remove associated resource groups
+		resourceGroupService.removeAll(DocumentParentType.ORGANIZATION, organizationId);
 	}
 }
