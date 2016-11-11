@@ -1,5 +1,19 @@
 package org.dmc.services.company;
 
+import static org.dmc.services.company.CompanyUserUtil.isMemberOfCompany;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import javax.xml.ws.http.HTTPException;
+
 import org.dmc.services.Config;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
@@ -17,19 +31,6 @@ import org.dmc.solr.SolrUtils;
 import org.json.JSONException;
 import org.springframework.http.HttpStatus;
 
-import javax.xml.ws.http.HTTPException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import static org.dmc.services.company.CompanyUserUtil.isMemberOfCompany;
-
 public class CompanyDao {
 
 	private static final String logTag = CompanyDao.class.getName();
@@ -46,7 +47,7 @@ public class CompanyDao {
         try {
             // get all organizations;
             // does the organization need to be active member?  assume no.
-            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name, logo_image FROM organization");
+            resultSet = DBConnector.executeQuery("SELECT organization_id, accountid, name, logo_image FROM organization WHERE is_deleted = false");
             companies = new ArrayList<Company>();
 
             while (resultSet.next()) {
@@ -79,7 +80,8 @@ public class CompanyDao {
 			String query = "SELECT * FROM organization o "
 					+ "JOIN common_address a ON o.address_id = a.id "
 // 					+ "JOIN common_image i ON o.feature_image = i.id "
-					+ "WHERE o.organization_id = "  + id;
+					+ "WHERE o.organization_id = "  + id + " "
+					+ "AND o.is_deleted = false";
 			//ServiceLogger.log(logTag, "getCompany query: " + query);
 			resultSet = DBConnector.executeQuery(query);
 
@@ -913,8 +915,8 @@ public class CompanyDao {
 
 		return members;
 	}
-	
-	
+
+
 	public FollowedCompany postCompanyFollow(Integer accountId, Integer companyId, String userEPPN) throws DMCServiceException {
 		ServiceLogger.log(logTag, "Starting running postCompanyFollow: ");
 		String errorHeader = "CHECK AUTHORIZED USER ID : ";
@@ -931,7 +933,7 @@ public class CompanyDao {
 		if(userId != accountId){
 			throw new DMCServiceException(DMCError.InvalidAccountId, errMessage);
 		}
-		
+
 		try {
 			connection.setAutoCommit(false);
 			final String query = "INSERT into user_company_follow (account_id, company_id) values (?, ?)";
@@ -946,7 +948,7 @@ public class CompanyDao {
 					connection.rollback();
 					throw new DMCServiceException(DMCError.OtherSQLError, "Unable to follow company" + e.getMessage());
 				}
-				
+
 			}
 
 			final String queryCompareService = "SELECT * from user_company_follow WHERE account_id = ? AND company_id = ?";
@@ -955,7 +957,7 @@ public class CompanyDao {
 			preparedStatement2.setInt(2, companyId);
 			resultSet = preparedStatement2.executeQuery();
 			//resultSet = DBConnector.executeQuery(queryCompareService);
-			
+
 			int id = -1;
 			if (resultSet.next()) {
 				id = resultSet.getInt("id");
@@ -995,7 +997,7 @@ public class CompanyDao {
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			throw new DMCServiceException(DMCError.UnknownUser, e.getMessage());
-		}	
+		}
 		try {
 			connection.setAutoCommit(false);
 			final String query = "DELETE from user_company_follow WHERE account_id = ? AND company_id = ?";
