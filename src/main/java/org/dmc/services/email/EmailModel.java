@@ -6,6 +6,7 @@ public class EmailModel {
 	private String name;
 	private String email;
 	private String token;
+	private String requester;
 	private Integer template;
 
 	public Integer getId() {
@@ -38,6 +39,14 @@ public class EmailModel {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getRequester() {
+		return requester;
+	}
+
+	public void setRequester(String requester) {
+		this.requester = requester;
 	}
 
 	public Integer getTemplate() {

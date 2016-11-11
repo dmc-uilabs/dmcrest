@@ -1,14 +1,19 @@
 package org.dmc.services.email;
 
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.security.UserPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import javax.inject.Inject;
 
 @Component
 public class EmailService {
@@ -16,6 +21,9 @@ public class EmailService {
 	private static final String EMAIL_URL;
 
 	private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+
+	@Inject
+	private UserRepository userRepository;
 
 	static {
 		String host = System.getenv("verifyURL");
@@ -26,13 +34,17 @@ public class EmailService {
 	}
 
 	public ResponseEntity sendEmail(User user, Integer template, String token) {
-		if(user.getEmail() == null) return ResponseEntity.badRequest().body("User does not have an email!");
+		if (user.getEmail() == null) return ResponseEntity.badRequest().body("User does not have an email!");
+
+		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User requester = this.userRepository.findByUsername(userPrincipal.getUsername());
 
 		EmailModel emailModel = new EmailModel();
 		emailModel.setName(String.format("%s %s", user.getFirstName(), user.getLastName()));
 		emailModel.setEmail(user.getEmail());
 		emailModel.setToken(token);
 		emailModel.setTemplate(template);
+		emailModel.setRequester(requester.getEmail());
 
 		RestTemplate restTemplate = new RestTemplate();
 		HttpEntity<EmailModel> request = new HttpEntity<>(emailModel);
