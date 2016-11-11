@@ -504,7 +504,6 @@ public class Organization extends BaseEntity {
 		result = prime * result + ((logoImage == null) ? 0 : logoImage.hashCode());
 		result = prime * result + ((naicsCode == null) ? 0 : naicsCode.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((organizationUsers == null) ? 0 : organizationUsers.hashCode());
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
 		result = prime * result + ((pastProjects == null) ? 0 : pastProjects.hashCode());
 		result = prime * result + ((perferedCommMethod == null) ? 0 : perferedCommMethod.hashCode());
