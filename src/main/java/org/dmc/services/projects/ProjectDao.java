@@ -70,7 +70,7 @@ public class ProjectDao {
                 return null;
             }
             String query = getSelectProjectQuery();
-            query += "WHERE g.group_id = ? ";
+            query += "WHERE g.group_id = ? AND g.use_webdav = 1";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setInt(1, projectId);
 
@@ -104,7 +104,7 @@ public class ProjectDao {
                 + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
                 + " pfo_role.home_group_id IS NOT NULL AND"
                 + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
-                + " where project_info.id = project_id.home_group_id";
+                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1";
 
         ServiceLogger.log(LOGTAG, "groupIdList: " + groupIdList);
         ResultSet resultSet = null;
@@ -144,10 +144,10 @@ public class ProjectDao {
 
     	String query = "SELECT DISTINCT id, title, description, due_date, count, componentsCount, taskCount, servicesCount, firstname, lastname, isPublic, requires_approval, creatorUserId, directory_id"
     			+ " FROM (" + getSelectProjectQuery() + ") as project"
-    			+ " WHERE project.isPublic = 1";
+    			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1";
 
     	ResultSet resultSet = null;
-    	try {
+    	try {       
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 
             resultSet = preparedStatement.executeQuery();
@@ -178,7 +178,7 @@ public class ProjectDao {
 
     protected String getSelectProjectQuery() {
         final String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, "
-                + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.requires_approval as requires_approval, "
+                + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.use_webdav as useWebdav, g.requires_approval as requires_approval, "
                 + "g.directory_id, "
                 + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, g.user_id as creatorUserId, "
                 + "c.componentsCount AS componentsCount " + "FROM groups g "
