@@ -36,7 +36,7 @@ public class DMDIIDocument extends BaseEntity {
 
 	@Column(name = "url")
 	private String documentUrl;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "dmdii_project_id")
 	private DMDIIProject dmdiiProject;
@@ -57,20 +57,20 @@ public class DMDIIDocument extends BaseEntity {
 
 	@Column(name = "expires")
 	private Timestamp expires;
-	
+
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
-	
+
 	@Column(name = "access_level")
-	@Enumerated(EnumType.STRING)
-	private DMDIIProjectItemAccessLevel accessLevel;
-	
+	// @Enumerated(EnumType.STRING)
+	private String accessLevel;
+
 	@Column(name = "file_type_id")
 	private Integer fileType;
-	
+
 	@Column(name = "verified")
 	private Boolean verified = false;
-	
+
 	@Column(name = "version")
 	private Integer version;
 
@@ -129,7 +129,7 @@ public class DMDIIDocument extends BaseEntity {
 	public void setModified(Date modified) {
 		this.modified = modified;
 	}
-	
+
 	public Timestamp getExpires() {
 		return expires;
 	}
@@ -146,11 +146,11 @@ public class DMDIIDocument extends BaseEntity {
 		this.isDeleted = isDeleted;
 	}
 
-	public DMDIIProjectItemAccessLevel getAccessLevel() {
+	public String getAccessLevel() {
 		return accessLevel;
 	}
 
-	public void setAccessLevel(DMDIIProjectItemAccessLevel accessLevel) {
+	public void setAccessLevel(String accessLevel) {
 		this.accessLevel = accessLevel;
 	}
 

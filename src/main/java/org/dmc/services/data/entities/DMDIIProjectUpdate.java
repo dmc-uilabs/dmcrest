@@ -26,30 +26,30 @@ public class DMDIIProjectUpdate extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
+
 	@Column(name="date")
 	@Temporal(TemporalType.DATE)
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date date;
-	
+
 	@Column(name="title")
 	private String title;
-	
+
 	@Column(name="description")
 	private String description;
-	
+
 	@ManyToOne
 	@JoinColumn(name="creator_id")
 	private User creator;
-	
+
 	@ManyToOne
 	@JoinColumn(name="project_id")
 	private DMDIIProject project;
-	
+
 	@Column(name = "access_level")
-	@Enumerated(EnumType.STRING)
-	private DMDIIProjectItemAccessLevel accessLevel;
-	
+	// @Enumerated(EnumType.STRING)
+	private String accessLevel;
+
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
 
@@ -101,12 +101,12 @@ public class DMDIIProjectUpdate extends BaseEntity {
 		this.project = project;
 	}
 
-	public DMDIIProjectItemAccessLevel getAccessLevel() {
-		return accessLevel;
+	public String getAccessLevel() {
+	  return accessLevel;
 	}
 
-	public void setAccessLevel(DMDIIProjectItemAccessLevel accessLevel) {
-		this.accessLevel = accessLevel;
+	public void setAccessLevel(String accessLevel) {
+	  this.accessLevel = accessLevel;
 	}
 
 	public Boolean getIsDeleted() {

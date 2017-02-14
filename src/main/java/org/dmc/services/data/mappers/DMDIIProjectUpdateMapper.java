@@ -24,7 +24,7 @@ public class DMDIIProjectUpdateMapper extends AbstractMapper<DMDIIProjectUpdate,
 
 	@Inject
 	private DMDIIProjectService dmdiiProjectService;
-	
+
 	@Inject
 	private UserService userService;
 
@@ -32,48 +32,48 @@ public class DMDIIProjectUpdateMapper extends AbstractMapper<DMDIIProjectUpdate,
 	public DMDIIProjectUpdate mapToEntity(DMDIIProjectUpdateModel model) {
 		Assert.notNull(model);
 		DMDIIProjectUpdate entity = copyProperties(model, new DMDIIProjectUpdate());
-		
+
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-		
+
 		entity.setCreator(userMapper.mapToEntity(userService.findOne(model.getCreator())));
 		entity.setProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProject())));
 		entity.setDate(new DateTime(model.getCreated()).toDate());
-		
+
 		if (model.getAccessLevel() != null) {
-			entity.setAccessLevel(DMDIIProjectItemAccessLevel.valueOf(model.getAccessLevel()));
+			entity.setAccessLevel(model.getAccessLevel());
 		}
-		
+
 		return entity;
 	}
 
 	@Override
 	public DMDIIProjectUpdateModel mapToModel(DMDIIProjectUpdate entity) {
 		Assert.notNull(entity);
-		
+
 		if (entity.getAccessLevel() != null) {
 			Boolean isAuthorized = PermissionEvaluationHelper.userMeetsProjectAccessRequirement(entity.getAccessLevel(), entity.getProject().getId());
-			
+
 			if (!isAuthorized) {
 				return null;
 			}
 		}
-		
+
 		DMDIIProjectUpdateModel model = copyProperties(entity, new DMDIIProjectUpdateModel());
-		
+
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-		
+
 		Format formatter = new SimpleDateFormat("yyyy-MM-dd");
-		
+
 		model.setCreator(entity.getCreator().getId());
 		model.setDmdiiProject(entity.getProject().getId());
 		model.setCreated(formatter.format(entity.getDate()));
-		
+
 		if (entity.getAccessLevel() != null) {
 			model.setAccessLevel(entity.getAccessLevel().toString());
 		}
-		
+
 		return model;
 	}
 

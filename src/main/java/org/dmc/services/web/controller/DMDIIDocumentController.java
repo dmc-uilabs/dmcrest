@@ -18,7 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod; 
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,7 +30,7 @@ public class DMDIIDocumentController {
 
 	@Inject
 	DMDIIDocumentService dmdiiDocumentService;
-	
+
 	@Inject
 	private AWSLinkValidator awsLinkValidator;
 
@@ -38,7 +38,7 @@ public class DMDIIDocumentController {
 	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProjectId(@RequestParam ("dmdiiProjectId") Integer dmdiiProjectId,
 																		@RequestParam("page") Integer page,
 																		@RequestParam("pageSize") Integer pageSize) throws DMCServiceException {
-		ServiceLogger.log(logTag, "In getAllDMDIIDocumentsByDMDIIProjectId: " + dmdiiProjectId);
+		ServiceLogger.log(logTag, "In getAllDMDIIDocumentsByDMDIIProjectId: >>>>>>>> " + dmdiiProjectId);
 
 		return dmdiiDocumentService.getDMDIIDocumentsByDMDIIProject(dmdiiProjectId, page, pageSize);
 	}
@@ -46,7 +46,7 @@ public class DMDIIDocumentController {
 	@RequestMapping(value = "/dmdiidocument/{dmdiiDocumentId}", method = RequestMethod.GET)
 	public DMDIIDocumentModel getDMDIIDocumentByDMDIIDocumentId(@PathVariable("dmdiiDocumentId") Integer dmdiiDocumentId) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In getDMDIIDocumentByDMDIIDocumentId: " + dmdiiDocumentId);
-		
+
 		return dmdiiDocumentService.findOne(dmdiiDocumentId);
 	}
 
@@ -55,23 +55,23 @@ public class DMDIIDocumentController {
 		ServiceLogger.log(logTag, "In getAllDMDIIDocuments filter");
 		return dmdiiDocumentService.filter(params, page, pageSize);
 	}
-	
+
 	@RequestMapping(value = "/dmdiidocument", method = RequestMethod.POST, consumes = {"application/json"})
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIDocumentModel postDMDIIDocument (@RequestBody DMDIIDocumentModel doc, BindingResult result) throws DMCServiceException {
 		ServiceLogger.log(logTag, "Post DMDIIDocument " + doc.getDocumentName());
-		
-		validateSaveDocument(doc.getDocumentUrl(), result);
+
+		// validateSaveDocument(doc.getDocumentUrl(), result);
 		return dmdiiDocumentService.save(doc, result);
 	}
-	
+
 	@RequestMapping(value = "/dmdiidocuments/{documentId}", method = RequestMethod.PATCH)
 	public DMDIIDocumentModel updateDMDIIDocument (@RequestBody DMDIIDocumentModel doc, @PathVariable("documentId") Integer documentId) {
 		return dmdiiDocumentService.update(doc);
 	}
 
 	private void validateSaveDocument(String documentUrl, BindingResult result) {
-		awsLinkValidator.validate(documentUrl, result);		
+		awsLinkValidator.validate(documentUrl, result);
 	}
 
 	@RequestMapping(value = "/dmdiidocuments/getAllTags", method = RequestMethod.GET)
@@ -85,24 +85,24 @@ public class DMDIIDocumentController {
 		ServiceLogger.log(logTag, "Post DMDIIDocumentTag " + tag.getTagName());
 		return dmdiiDocumentService.saveDocumentTag(tag);
 	}
-	
+
 	@RequestMapping(value = "/staticdocument/{fileTypeId}", method = RequestMethod.GET)
 	public DMDIIDocumentModel getMostRecentStaticDocumentByFileTypeId (@PathVariable("fileTypeId") Integer fileTypeId) throws DMCServiceException {
 		ServiceLogger.log(logTag, "In getMostRecentStaticDocumentByFileTypeId: " + fileTypeId);
 		return dmdiiDocumentService.findMostRecentStaticFileByFileTypeId(fileTypeId);
 	}
-	
+
 	@RequestMapping(value = "/dmdiidocument/filetype", params = {"fileTypeId", "dmdiiProjectId"}, method = RequestMethod.GET)
 	public DMDIIDocumentModel getMostRecentDocumentByFileTypeIdAndDMDIIProjectId (@RequestParam("fileTypeId") Integer fileTypeId, @RequestParam("dmdiiProjectId") Integer dmdiiProjectId) {
 		ServiceLogger.log(logTag, "In getMostRecentDocumentByFileTypeIdAndDMDIIProjectId: fileType = " + fileTypeId + " dmdiiProject = " + dmdiiProjectId);
 		return dmdiiDocumentService.findMostRecentDocumentByFileTypeIdAndDMDIIProjectId(fileTypeId, dmdiiProjectId);
 	}
-	
+
 	@RequestMapping(value="/dmdiidocument/{dmdiiDocumentId}", method = RequestMethod.DELETE)
 	public DMDIIDocumentModel deleteDMDIIDocument (@PathVariable("dmdiiDocumentId") Integer dmdiiDocumentId) {
 		ServiceLogger.log(logTag, "In deleteDMDIIDocument id = " + dmdiiDocumentId);
 		return dmdiiDocumentService.delete(dmdiiDocumentId);
 	}
-	
-	
+
+
 }

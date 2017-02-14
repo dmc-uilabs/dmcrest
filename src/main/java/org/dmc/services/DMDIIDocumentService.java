@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.dmc.services.ServiceLogger;
 
 @Service
 public class DMDIIDocumentService {
@@ -45,10 +46,10 @@ public class DMDIIDocumentService {
 
 	@Inject
 	private DMDIIDocumentTagRepository dmdiiDocumentTagRepository;
-	
+
 	@Inject
 	private DMDIIQuickLinkRepository dmdiiQuickLinkRepository;
-	
+
 	@Inject
 	private UserRepository userRepository;
 
@@ -56,9 +57,9 @@ public class DMDIIDocumentService {
 	private MapperFactory mapperFactory;
 
 	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
-	
+
 	private final String logTag = DMDIIDocumentService.class.getName();
-	
+
 	private Verification verify = new Verification();
 
 	public List<DMDIIDocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException, DMCServiceException {
@@ -67,12 +68,14 @@ public class DMDIIDocumentService {
 		List<DMDIIDocument> results = dmdiiDocumentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
 		return mapper.mapToModel(results);
 	}
-	
+
 	public List<DMDIIDocumentModel> getDMDIIDocumentsByDMDIIProject (Integer dmdiiProjectId, Integer pageNumber, Integer pageSize) throws DMCServiceException {
 		Assert.notNull(dmdiiProjectId);
+
+			ServiceLogger.log("getting all dmdii docs pby project id ", "In getAllDMDIIDocumentsByDMDIIProjectId: " + dmdiiProjectId);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectId(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
-		
+ServiceLogger.log("after the mapper ", "In getAllDMDIIDocumentsByDMDIIProjectId: " );
 		return mapper.mapToModel(documents);
 	}
 
@@ -80,60 +83,60 @@ public class DMDIIDocumentService {
 		Assert.notNull(dmdiiDocumentId);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(dmdiiDocumentId));
-		
+
 		return mapper.mapToModel(docList.get(0));
 	}
 
 	public DMDIIDocument findOneEntity(Integer id) throws DMCServiceException {
 		Assert.notNull(id);
 		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(id);
-		
+
 		return docEntity;
 	}
-	
+
 	public DMDIIDocumentModel findMostRecentStaticFileByFileTypeId (Integer fileTypeId) throws DMCServiceException {
 		Assert.notNull(fileTypeId);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeOrderByModifiedDesc(fileTypeId));
-		
+
 		return mapper.mapToModel(docList.get(0));
-		
+
 	}
-	
+
 	public DMDIIDocumentModel findMostRecentDocumentByFileTypeIdAndDMDIIProjectId (Integer fileTypeId, Integer dmdiiProjectId) {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeAndDmdiiProjectIdOrderByModifiedDesc(fileTypeId, dmdiiProjectId));
-		
+
 		return mapper.mapToModel(docList.get(0));
 	}
-	
+
 	public DMDIIDocumentModel save (DMDIIDocumentModel doc, BindingResult result) throws DMCServiceException {
-		
+		         	ServiceLogger.log("SSS         ", "Attempting to verify DMDII document");
 		Mapper<DMDIIDocument, DMDIIDocumentModel> docMapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 
 		DMDIIDocument docEntity = docMapper.mapToEntity(doc);
 		User userEntity = this.userRepository.findOne(doc.getOwnerId());
 		docEntity.setOwner(userEntity);
-		
+
 		//current time plus one month
 		Long duration = 1000L * 60L * 60L * 24L * 30L;
-		
+
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 		Timestamp expires = new Timestamp(now.getTime() + duration);
-		
+
 		docEntity.setExpires(expires);
 		docEntity.setIsDeleted(false);
 		docEntity.setVerified(false);
 		docEntity.setModified(now);
 		docEntity.setVersion(1);
-		
+
 		docEntity = dmdiiDocumentRepository.save(docEntity);
-		
+
 		ServiceLogger.log(logTag, "Attempting to verify DMDII document");
 		//Verify the document
 		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", userEntity.getUsername(), "ProjectOfDMDII", "Documents", "id", "url");
 		ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
-		
+
 		return docMapper.mapToModel(docEntity);
 	}
 
@@ -174,7 +177,7 @@ public class DMDIIDocumentService {
 		}
 		return returnValue;
 	}
-	
+
 	@Transactional
 	public DMDIIDocumentModel delete (Integer dmdiiDocumentId) {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
@@ -183,40 +186,40 @@ public class DMDIIDocumentService {
 		if(dmdiiQuickLinkRepository.countByDoc(dmdiiDocument) > 0) {
 			dmdiiQuickLinkRepository.deleteByDMDIIDocumentId(dmdiiDocumentId);
 		}
-		
+
 		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(dmdiiDocumentId);
-		
+
 		docEntity.setIsDeleted(true);
-		
+
 		docEntity = dmdiiDocumentRepository.save(docEntity);
-		
+
 		return mapper.mapToModel(docEntity);
 	}
-	
+
 	@Transactional
 	public void deleteDMDIIDocumentsByDMDIIProjectId(Integer dmdiiProjectId) {
 		List<DMDIIDocument> docs = dmdiiDocumentRepository.findByDmdiiProjectIdAndIsDeletedFalse(new PageRequest(0, Integer.MAX_VALUE), dmdiiProjectId).getContent();
 		docs.stream().forEach(n -> n.setIsDeleted(true));
 		dmdiiDocumentRepository.save(docs);
 	}
-	
+
 	@Transactional
 	public DMDIIDocumentModel update(DMDIIDocumentModel doc) throws IllegalArgumentException {
 		Assert.notNull(doc);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
-		
+
 		DMDIIDocument docEntity = mapper.mapToEntity(doc);
 		DMDIIDocument oldEntity = dmdiiDocumentRepository.findOne(doc.getId());
 		Assert.notNull(oldEntity);
-		
+
 		docEntity.setExpires(oldEntity.getExpires());
 		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
 		Integer oldVersion = oldEntity.getVersion();
 		docEntity.setVersion(oldVersion++);
 		docEntity.setVerified(oldEntity.getVerified());
-		
+
 		docEntity= dmdiiDocumentRepository.save(docEntity);
-		
+
 		return mapper.mapToModel(docEntity);
 	}
 

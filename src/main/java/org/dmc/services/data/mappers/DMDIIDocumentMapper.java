@@ -22,6 +22,11 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.dmc.services.ServiceLogger;
+
+
+
+
 
 @Component
 public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocumentModel> {
@@ -39,19 +44,26 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 	@Override
 	public DMDIIDocument mapToEntity(DMDIIDocumentModel model) {
 		if (model == null) return null;
+		ServiceLogger.log("in the mapper for each document ", "");
+
 		DMDIIDocument entity = copyProperties(model, new DMDIIDocument(), new String[]{"isDeleted", "verified"});
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 
 		entity.setOwner(userMapper.mapToEntity(userService.findOne(model.getOwnerId())));
+		ServiceLogger.log(" in the access level for each document ", model.getDocumentName());
+
 		if(model.getDmdiiProjectId() != null)
 			entity.setDmdiiProject(projectMapper.mapToEntity(dmdiiProjectService.findOne(model.getDmdiiProjectId())));
 		else
 			entity.setDmdiiProject(null);
-		
+
 		if (model.getAccessLevel() != null) {
-			entity.setAccessLevel(DMDIIProjectItemAccessLevel.valueOf(model.getAccessLevel()));
+			ServiceLogger.log("in the access level for each document ", model.getAccessLevel());
+
+
+			entity.setAccessLevel(model.getAccessLevel());
 		}
 
 		List<DMDIIDocumentTagModel> documentTagModels = model.getTags();
@@ -77,12 +89,12 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 	@Override
 	public DMDIIDocumentModel mapToModel(DMDIIDocument entity) {
 		if (entity == null) return null;
-		
+
 		if (entity.getDmdiiProject() != null && entity.getAccessLevel() != null) {
 			List<DMDIIMember> projectMembers = new ArrayList<DMDIIMember>();
 			projectMembers.add(entity.getDmdiiProject().getPrimeOrganization());
 			projectMembers.addAll(entity.getDmdiiProject().getContributingCompanies());
-			
+
 			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
 			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(entity.getAccessLevel(), projectMemberIds)) {
 				return null;
@@ -90,20 +102,20 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 		}
 
 		DMDIIDocumentModel model = copyProperties(entity, new DMDIIDocumentModel());
-		
+
 		model.setOwnerId(entity.getOwner().getId());
 		if(entity.getDmdiiProject() != null)
 			model.setDmdiiProjectId(entity.getDmdiiProject().getId());
 		else
 			model.setDmdiiProjectId(null);
-		
+
 		if (entity.getAccessLevel() != null) {
 			model.setAccessLevel(entity.getAccessLevel().toString());
 		}
 
 		return model;
 	}
-	
+
 	@Override
 	public Class<DMDIIDocument> supportsEntity() {
 		return DMDIIDocument.class;
