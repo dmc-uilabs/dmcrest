@@ -75,15 +75,6 @@ public class DMDIIDocumentService {
 			ServiceLogger.log("getting all dmdii docs pby project id ", "In getAllDMDIIDocumentsByDMDIIProjectId: " + dmdiiProjectId);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectId(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
-
-
-		for (int i = 0; i < documents.size(); i++) {
-				System.out.println(documents.get(i).getAccessLevel());
-		}
-
-
-      //  ServiceLogger.log("getting some list objs properties ", " --------------------- ", documents.get(0).getAccessLevel() );
-			ServiceLogger.log("after the mapper ", "In getAllDMDIIDocumentsByDMDIIProjectId: " );
 		return mapper.mapToModel(documents);
 	}
 
