@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Entities {
-	
+
 	private static final Calendar today = GregorianCalendar.getInstance();
 	private static final Random RANDOM = new Random();
 
@@ -453,7 +453,7 @@ public class Entities {
 		calendar.add(field, amount);
 		return calendar.getTime();
 	}
-	
+
 	public static DMDIIDocumentTag dmdiiDocumentTag() {
 		DMDIIDocumentTag dmdiiDocumentTag = new DMDIIDocumentTag();
 		dmdiiDocumentTag.setId(1000);
@@ -463,10 +463,10 @@ public class Entities {
 
 	public static DMDIIDocument dmdiiDocument() throws Exception {
 		DMDIIDocument dmdiiDocument = new DMDIIDocument();
-		
+
 		List<DMDIIDocumentTag> tagList = new ArrayList<>();
 		tagList.add(dmdiiDocumentTag());
-		
+
 		dmdiiDocument.setId(1000);
 		dmdiiDocument.setDocumentName(DOCUMENT_NAME);
 		dmdiiDocument.setDocumentUrl(DOCUMENT_URL);
@@ -476,26 +476,26 @@ public class Entities {
 		dmdiiDocument.setModified(new Date());
 		dmdiiDocument.setExpires(new Timestamp(System.currentTimeMillis()));
 		dmdiiDocument.setIsDeleted(false);
-		dmdiiDocument.setAccessLevel(DMDIIProjectItemAccessLevel.PROJECT_PARTICIPANT_VIPS);
+		// dmdiiDocument.setAccessLevel(DMDIIProjectItemAccessLevel.PROJECT_PARTICIPANT_VIPS);
 		dmdiiDocument.setFileType(2);
 		dmdiiDocument.setVerified(true);
-		
+
 		return dmdiiDocument;
 	}
-	
+
 	public static DocumentTag documentTag() {
 		DocumentTag documentTag = new DocumentTag();
 		documentTag.setId(1000);
 		documentTag.setTagName(TAG_NAME);
 		return documentTag;
 	}
-	
+
 	public static Document document() throws Exception {
 		Document document = new Document();
-		
+
 		List<DocumentTag> tagList = new ArrayList<>();
 		tagList.add(documentTag());
-		
+
 		document.setId(1000);
 		document.setDocumentName(DOCUMENT_NAME);
 		document.setDocumentUrl(DOCUMENT_URL);
@@ -509,7 +509,7 @@ public class Entities {
 		document.setDocClass(DocumentClass.LOGO);
 		document.setVerified(true);
 		document.setVersion(1);
-		
+
 		return document;
 	}
 }

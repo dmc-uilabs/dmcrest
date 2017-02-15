@@ -25,6 +25,20 @@ import java.util.stream.Collectors;
 import org.dmc.services.ServiceLogger;
 
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.dmc.services.DMDIIProjectService;
+import org.dmc.services.UserService;
+import org.dmc.services.data.entities.DMDIIProject;
+import org.dmc.services.data.entities.DMDIIProjectItemAccessLevel;
+import org.dmc.services.data.entities.DMDIIProjectUpdate;
+import org.dmc.services.data.entities.User;
+import org.dmc.services.data.models.DMDIIProjectModel;
+import org.dmc.services.data.models.DMDIIProjectUpdateModel;
+import org.dmc.services.data.models.UserModel;
+import org.dmc.services.security.PermissionEvaluationHelper;
+import org.joda.time.DateTime;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 
 
@@ -43,6 +57,8 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 
 	@Override
 	public DMDIIDocument mapToEntity(DMDIIDocumentModel model) {
+		System.out.println("inside the here");
+
 		if (model == null) return null;
 		ServiceLogger.log("in the mapper for each document ", "");
 
@@ -88,6 +104,11 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 
 	@Override
 	public DMDIIDocumentModel mapToModel(DMDIIDocument entity) {
+		System.out.println("inside the heresssss");
+		Boolean isAuthorized = false;
+
+
+
 		if (entity == null) return null;
 
 		if (entity.getDmdiiProject() != null && entity.getAccessLevel() != null) {
@@ -111,6 +132,26 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 
 		if (entity.getAccessLevel() != null) {
 			model.setAccessLevel(entity.getAccessLevel().toString());
+
+			System.out.println("model access level check"+entity.getAccessLevel().toString());
+
+
+
+
+		}
+
+
+
+		if (entity.getAccessLevel().equals("ORG") ) {
+
+
+			System.out.println("Entity ownew id ------------------ the org  ------  "+entity.getAccessLevel()+"    "+ entity.getDmdiiProject().getId());
+
+			// model = null;
+
+      // isAuthorized = PermissionEvaluationHelper.userMeetsProjectAccessRequirement(entity.getAccessLevel(), entity.getDmdiiProject().getId());
+
+			ServiceLogger.log("is authorizzzzed xxxx  ", Boolean.toString(PermissionEvaluationHelper.userMeetsProjectAccessRequirement(entity.getAccessLevel(), entity.getDmdiiProject().getId())));
 		}
 
 		return model;

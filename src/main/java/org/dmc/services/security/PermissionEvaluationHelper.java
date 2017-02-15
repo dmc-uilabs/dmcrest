@@ -1,5 +1,5 @@
 package org.dmc.services.security;
-
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,13 +31,43 @@ public class PermissionEvaluationHelper {
 
 		ServiceLogger.log("Doc access   info ", accessLevel);
 
+   System.out.println("AHORA------------------ the org  ------  ");
+
+// TODO split accessLevel into the various words and compare them with the org id
+
+		// if (accessLevel.indexOf(Integer.toString(user.getmyOrg())) >= 0){
+		// 	meetsRequirement = true;
+		// }
+
+    String[] accessSplit = accessLevel.split("\\s");
 
 
-// TODO split accessLevel into the various words and compare them with the org id 
 
-		if (accessLevel.indexOf(Integer.toString(user.getmyOrg())) >= 0){
-			meetsRequirement = true;
+		if (accessSplit[0].equals("ORG")){
+								System.out.println("Inside the ORG structure " );
+								System.out.println("My org is "+ Integer.toString(user.getmyOrg()) );
+
+			for (int x=1; x<accessSplit.length; x++) {
+					if (accessSplit[x].equals(Integer.toString(user.getmyOrg()).trim())){
+						System.out.println("My org IS on the list " + Integer.toString(user.getmyOrg()));
+						meetsRequirement = true;
+					}else{
+            	System.out.println("My org is not in the list testing the org value "+ Integer.toString(user.getmyOrg()) );
+					}
+			}
+
 		}
+
+
+
+
+
+
+
+
+
+
+
 
      ServiceLogger.log("before all  ...  ", accessLevel);
 		if(accessLevel.equals("ALL_MEMBERS")){
@@ -56,6 +86,7 @@ public class PermissionEvaluationHelper {
 		}
 
     	ServiceLogger.log("in the very access level ", Boolean.toString(meetsRequirement));
+
 		return meetsRequirement;
 	}
 
