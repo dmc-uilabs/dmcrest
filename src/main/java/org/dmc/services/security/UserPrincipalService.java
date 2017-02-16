@@ -29,7 +29,7 @@ public class UserPrincipalService implements UserDetailsService {
 			throw new UsernameNotFoundException("Could not find user with username: " + username);
 		}
 
-		UserPrincipal principal = new UserPrincipal(user.getId(), user.getUsername(), user.getOrganizationUser().getOrganization().getId());
+		UserPrincipal principal = new UserPrincipal(user.getId(), user.getUsername());
 
 		for (UserRoleAssignment roleAssignment : user.getRoles()) {
 			String role = roleAssignment.getRole().getRole();

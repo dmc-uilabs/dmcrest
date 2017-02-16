@@ -19,6 +19,10 @@ public class UserPrincipal implements UserDetails {
 	private Map<Integer, String> rolesByOrgId = new HashMap<Integer, String>();
 	private Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<SimpleGrantedAuthority>();
 
+	public UserPrincipal(Integer id, String username) {
+		this.id = id;
+		this.username = username;		
+	}
 	public UserPrincipal(Integer id, String username, Integer myOrg) {
 		this.id = id;
 		this.username = username;
