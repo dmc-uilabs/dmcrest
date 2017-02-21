@@ -421,6 +421,25 @@ public class ServiceRunDOMEAPI {
 		// Otherwise try to find out if there is any new messages from ActiveMQ
 		String queueName = serviceRun.getQueueName();
 		ServiceRunActiveMQ activeMQ = new ServiceRunActiveMQ();
+		
+		Map<String, DomeModelParam> previousOutputs = new HashMap<String, DomeModelParam>();
+		try{
+			previousOutputs = serviceRun.getAllOutputParams();
+		}catch(Exception e){
+			ServiceLogger.log(LOGTAG, "Error getting output params:"+e.getMessage());
+		}
+
+		if(previousOutputs.size()==numOutput && serviceRun.getStatus() == 1){
+			result.setStatus(ServiceRunResult.COMPLETE);
+			result.setOuts(previousOutputs);
+			serviceRun.setEndOfRun();
+			serviceRun.setEndOfRunTime();
+			return result;
+		}
+		if(serviceRun.getStatus() == 1){
+			result.setStatus(ServiceRunResult.RUNNING);
+			return result;
+		}
 		ArrayList<String> newResult = activeMQ.readMessageFromMQ(queueName);
 		if (newResult.size()==0) 
 			{
@@ -508,10 +527,19 @@ public class ServiceRunDOMEAPI {
 				}
 			}
 		}
-		if (serviceRun.getCollectedNumOutputPars()==numOutput && serviceRun.getStatus()==1)
+		try{
+			outs = serviceRun.getAllOutputParams();
+		}catch(Exception e){
+			ServiceLogger.log(LOGTAG, "Error getting output params:"+e.getMessage());
+		}
+		if (outs.size()==numOutput && serviceRun.getStatus()==1)
 		{
 			// Delete queue from ActiveMQ
-			activeMQ.deleteQueue(queueName);
+			try{
+				activeMQ.deleteQueue(queueName);
+			}catch(Exception e){
+				ServiceLogger.log(LOGTAG, "Error Deleting queue"+e.getMessage());
+			}
 			serviceRun.setEndOfRunTime();
 			result.setStatus(ServiceRunResult.COMPLETE);
 		}
