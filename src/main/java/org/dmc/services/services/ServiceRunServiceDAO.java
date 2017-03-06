@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
@@ -198,6 +199,34 @@ public class ServiceRunServiceDAO {
 		if (rs.next()) result = rs.getInt("num");
 		return result;
 	}
+
+	public HashMap<String, DomeModelParam> getAllOutputParams() throws Exception
+	{
+		HashMap<String, DomeModelParam> returnHash = new HashMap<String, DomeModelParam>();
+		DomeModelParam domeModelParam;
+		String paramIdTxt = "";
+		String query = "select int.parameter_id_txt as paramIdTxt, int.name as name, int.parameter_id as parameter_id, int.type as type, int.category as category, int.unit as unit, run.value as value from service_run_parameter run, service_interface_parameter int where int.parameter_id = run.parameter_id and int.input_parameter=false and run.run_id=?";
+		PreparedStatement queueStat = DBConnector.prepareStatement(query);
+		queueStat.setInt(1, run_id);
+		ResultSet rs = queueStat.executeQuery();
+
+		while(rs.next()){
+			paramIdTxt = rs.getString("paramIdTxt");
+
+			domeModelParam = new DomeModelParam();
+			domeModelParam.setName(rs.getString("name"));
+			domeModelParam.setParameterid(rs.getString("parameter_id"));
+			domeModelParam.setType(rs.getString("type"));
+			domeModelParam.setCategory(rs.getString("category"));
+			domeModelParam.setUnit(rs.getString("unit"));
+			domeModelParam.setValue(rs.getString("value"));
+
+			returnHash.put(domeModelParam.getName(), domeModelParam);
+		}
+
+		return returnHash;
+	}
+
 
 	public int getRun_id() {
 		return run_id;

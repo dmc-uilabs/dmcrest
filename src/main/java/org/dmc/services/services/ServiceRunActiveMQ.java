@@ -11,6 +11,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -26,7 +29,7 @@ public class ServiceRunActiveMQ {
     private String activeMQServerPort = "61616";
     private String activeMQUser = "admin";
     private String activeMQUserPass = "asdfgqwer";
-    private int TIMEOUT = 3000;
+    private int TIMEOUT = 10;
     private Boolean NON_TRANSACTED = false;
     private String activeMQServerURL;
 	
@@ -65,6 +68,11 @@ public class ServiceRunActiveMQ {
                     if (message instanceof TextMessage) {
                         String text = ((TextMessage) message).getText();
                         result.add(text);
+			JSONObject msgObj = new JSONObject(result.get(result.size()-1)); 
+			JSONObject idObj = msgObj.getJSONObject("id");
+			if ((idObj.getString("idString")).compareTo("end_of_run") == 0){
+				break;
+			}
                     }
                 } else {
                     break;
