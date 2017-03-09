@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import static org.springframework.http.MediaType.*;
 
@@ -66,6 +67,18 @@ public class ServiceRunsController {
 			ServiceLogger.logException(LOGTAG, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
 		}
+	}
+
+	@RequestMapping(value = "/cancel_run/{serviceID}", produces = { APPLICATION_JSON_VALUE, "text/html" }, method = RequestMethod.POST)
+	public ResponseEntity<?> cancelServiceRun(@PathVariable("serviceID") String serviceID,
+					@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+			try {
+					ServiceLogger.log(LOGTAG, "In cancelServiceRun");
+					return new ResponseEntity<String>("This worked", HttpStatus.OK);
+			} catch (DMCServiceException e) {
+					ServiceLogger.logException(LOGTAG, e);
+					return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+			}
 	}
 
 }

@@ -341,19 +341,4 @@ public class ServiceController {
         }
     }
 
-
-    @RequestMapping(value = "/services/cancel_run/{serviceID}", produces = { APPLICATION_JSON_VALUE, "text/html" }, method = RequestMethod.POST)
-    public ResponseEntity<?> cancelServiceRun(@PathVariable("serviceID") String serviceID,
-            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-        try {
-            ServiceLogger.log(LOGTAG, "In createService");
-            return new ResponseEntity<String>("This worked", HttpStatus.OK);
-        } catch (DMCServiceException e) {
-            ServiceLogger.logException(LOGTAG, e);
-            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
-        }
-    }
-
-
-
 }
