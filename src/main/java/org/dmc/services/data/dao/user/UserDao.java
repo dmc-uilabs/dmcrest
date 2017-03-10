@@ -102,11 +102,10 @@ public class UserDao {
   			preparedStatement.execute();
         ResultSet resultSet = preparedStatement.getResultSet();
 
+        //If there are no results, return false
         if (!resultSet.isBeforeFirst()) {
-          System.out.println("*********************\n*************************\nReturn false");
           return false;
         } else {
-          System.out.println("*********************\n*************************\nReturn true");
           return true;
         }
 

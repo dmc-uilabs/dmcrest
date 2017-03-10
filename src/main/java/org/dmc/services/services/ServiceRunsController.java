@@ -81,7 +81,7 @@ public class ServiceRunsController {
 
 			} catch (DMCServiceException e) {
 					ServiceLogger.logException(LOGTAG, e);
-					return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+					return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 			}
 	}
 

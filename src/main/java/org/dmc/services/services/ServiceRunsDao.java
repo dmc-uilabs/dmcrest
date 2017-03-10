@@ -312,12 +312,6 @@ public class ServiceRunsDao {
 			int userId = userDao.getUserID(userEPPN);
 			boolean isSuperAdmin = userDao.isSuperAdmin(userId);
 			String runBy = getSingleServiceRun(serviceRunId).getRunBy();
-
-			System.out.println("*********************\n*************************");
-			System.out.println(userId);
-			System.out.println(isSuperAdmin);
-			System.out.println(runBy);
-
 			authorizedToCancel = isSuperAdmin || (userId ==  Integer.parseInt(runBy));
 		} catch (SQLException se) {
 
