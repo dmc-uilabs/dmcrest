@@ -18,6 +18,8 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.Util;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.dmc.services.data.dao.user.UserDao;
 
 public class ServiceRunsDao {
 
@@ -302,33 +304,53 @@ public class ServiceRunsDao {
 		return serviceRuns;
 	}
 
-	public void cancelServiceRun(String id) throws DMCServiceException {
-		final Connection connection = DBConnector.connection();
-		// GetServiceRun retObj = new GetServiceRun();
+	private boolean authorizedToCancel(String userEPPN, String serviceRunId) {
+		UserDao userDao = new UserDao();
+		boolean authorizedToCancel = false;
 
 		try {
-			connection.setAutoCommit(false);
+			int userId = userDao.getUserID(userEPPN);
+			boolean isSuperAdmin = userDao.isSuperAdmin(userId);
+			String runBy = getSingleServiceRun(serviceRunId).getRunBy();
 
-			String serviceRunQuery = "UPDATE service_run SET status = 2 WHERE run_id = ?";
+			System.out.println("*********************\n*************************");
+			System.out.println(userId);
+			System.out.println(isSuperAdmin);
+			System.out.println(runBy);
 
-			int i = 1;
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(serviceRunQuery);
-			// if (serviceRunObj.getStatus() != null) {
-			// 	preparedStatement.setInt(i, serviceRunObj.getStatus().intValue());
-			// 	i++;
-			// }
-			// if (serviceRunObj.getPercentCompleted() != null) {
-			// 	preparedStatement.setInt(i, serviceRunObj.getPercentCompleted().intValue());
-			// 	i++;
-			// }
-			preparedStatement.setInt(i, Integer.parseInt(id));
-			int rowsAffected = preparedStatement.executeUpdate();
-			if (rowsAffected != 1) {
-				connection.rollback();
-				throw new DMCServiceException(DMCError.OtherSQLError, "unable to update serviceRun ");
+			authorizedToCancel = isSuperAdmin || (userId ==  Integer.parseInt(runBy));
+		} catch (SQLException se) {
+
+		}
+
+		return authorizedToCancel;
+	}
+
+	public GetServiceRun cancelServiceRun(String id, String userEPPN) throws DMCServiceException {
+		final Connection connection = DBConnector.connection();
+		GetServiceRun retObj = new GetServiceRun();
+
+		try {
+
+			if (authorizedToCancel(userEPPN, id)) {
+				connection.setAutoCommit(false);
+
+				String serviceRunQuery = "UPDATE service_run SET status = 2 WHERE run_id = ?";
+
+				int i = 1;
+				PreparedStatement preparedStatement = DBConnector.prepareStatement(serviceRunQuery);
+
+				preparedStatement.setInt(i, Integer.parseInt(id));
+				int rowsAffected = preparedStatement.executeUpdate();
+				if (rowsAffected != 1) {
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "unable to update serviceRun");
+				}
+			} else {
+				throw new DMCServiceException(DMCError.OtherSQLError, "not authorized to update serviceRun");
 			}
 
-			// retObj = getSingleServiceRun(id);
+			retObj = getSingleServiceRun(id);
 
 		} catch (SQLException se) {
 			ServiceLogger.log(LOGTAG, se.getMessage());
@@ -348,7 +370,7 @@ public class ServiceRunsDao {
 
 		}
 
-		// return retObj;
+		return retObj;
 	}
 
 }

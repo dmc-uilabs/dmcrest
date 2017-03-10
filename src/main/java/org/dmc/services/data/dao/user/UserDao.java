@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSet;
 
 public class UserDao {
 
@@ -90,5 +91,24 @@ public class UserDao {
         } catch (SQLException se) {
             throw new DMCServiceException(DMCError.UnknownUser, se.getMessage());
         }
+    }
+
+    public static boolean isSuperAdmin(int id) throws SQLException {
+        String query = "select user_id from user_role_assignment ura join role r on r.id = ura.role_id where user_id = ? and role = 'SUPERADMIN'";
+
+        int i = 1;
+  			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+  			preparedStatement.setInt(i, id);
+  			preparedStatement.execute();
+        ResultSet resultSet = preparedStatement.getResultSet();
+
+        if (!resultSet.isBeforeFirst()) {
+          System.out.println("*********************\n*************************\nReturn false");
+          return false;
+        } else {
+          System.out.println("*********************\n*************************\nReturn true");
+          return true;
+        }
+
     }
 }

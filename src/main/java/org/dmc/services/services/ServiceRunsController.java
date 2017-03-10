@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+
 import static org.springframework.http.MediaType.*;
 
 import java.util.ArrayList;
@@ -75,9 +76,9 @@ public class ServiceRunsController {
 		final ServiceRunsDao serviceRunsDao = new ServiceRunsDao();
 			try {
 					ServiceLogger.log(LOGTAG, "In cancelServiceRun");
-					serviceRunsDao.cancelServiceRun(serviceID);
 
-					return new ResponseEntity<String>("This worked", HttpStatus.OK);
+					return new ResponseEntity<GetServiceRun>(serviceRunsDao.cancelServiceRun(serviceID, userEPPN), HttpStatus.OK);
+
 			} catch (DMCServiceException e) {
 					ServiceLogger.logException(LOGTAG, e);
 					return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
