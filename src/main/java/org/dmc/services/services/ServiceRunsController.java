@@ -72,8 +72,11 @@ public class ServiceRunsController {
 	@RequestMapping(value = "/cancel_run/{serviceID}", produces = { APPLICATION_JSON_VALUE, "text/html" }, method = RequestMethod.POST)
 	public ResponseEntity<?> cancelServiceRun(@PathVariable("serviceID") String serviceID,
 					@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		final ServiceRunsDao serviceRunsDao = new ServiceRunsDao();
 			try {
 					ServiceLogger.log(LOGTAG, "In cancelServiceRun");
+					serviceRunsDao.cancelServiceRun(serviceID);
+
 					return new ResponseEntity<String>("This worked", HttpStatus.OK);
 			} catch (DMCServiceException e) {
 					ServiceLogger.logException(LOGTAG, e);
