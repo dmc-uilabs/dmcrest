@@ -9,7 +9,6 @@ public class ServiceRunResult  {
 
 	public static final int RUNNING=0;
 	public static final int COMPLETE=1;
-  public static final int CANCELLED=2;
 	public static final int NOTSET=-1;
 
 	private Map<String, DomeModelParam> outParams=new HashMap<String, DomeModelParam>();
