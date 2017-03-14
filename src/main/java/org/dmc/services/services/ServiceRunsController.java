@@ -1,6 +1,8 @@
 package org.dmc.services.services;
 
 import org.dmc.services.DMCServiceException;
+import javax.xml.ws.http.HTTPException;
+import org.dmc.services.ErrorMessage;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.discussions.IndividualDiscussionComment;
 import org.dmc.services.discussions.IndividualDiscussionDao;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestHeader;
-
 
 import static org.springframework.http.MediaType.*;
 
@@ -73,15 +74,20 @@ public class ServiceRunsController {
 	@RequestMapping(value = "/cancel_run/{serviceID}", produces = { APPLICATION_JSON_VALUE, "text/html" }, method = RequestMethod.POST)
 	public ResponseEntity<?> cancelServiceRun(@PathVariable("serviceID") String serviceID,
 					@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		int statusCode = HttpStatus.OK.value();
 		final ServiceRunsDao serviceRunsDao = new ServiceRunsDao();
 			try {
 					ServiceLogger.log(LOGTAG, "In cancelServiceRun");
-
-					return new ResponseEntity<GetServiceRun>(serviceRunsDao.cancelServiceRun(serviceID, userEPPN), HttpStatus.OK);
-
+					return new ResponseEntity<GetServiceRun>(serviceRunsDao.cancelServiceRun(serviceID, userEPPN), HttpStatus.valueOf(statusCode));
 			} catch (DMCServiceException e) {
-					ServiceLogger.logException(LOGTAG, e);
-					return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+					// ServiceLogger.logException(LOGTAG, e);
+					// return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+					throw e;
+			} catch (HTTPException e) {
+					ServiceLogger.log(LOGTAG, "Not authorized to cancel service run");
+					statusCode = e.getStatusCode();
+					ErrorMessage error = new ErrorMessage.ErrorMessageBuilder("Not authorized to cancel service run").build();
+					return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
 			}
 	}
 

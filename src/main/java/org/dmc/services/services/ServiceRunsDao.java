@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.ws.http.HTTPException;
+import org.springframework.http.HttpStatus;
+
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -320,7 +323,7 @@ public class ServiceRunsDao {
 		return authorizedToCancel;
 	}
 
-	public GetServiceRun cancelServiceRun(String id, String userEPPN) throws DMCServiceException {
+	public GetServiceRun cancelServiceRun(String id, String userEPPN) throws DMCServiceException, HTTPException {
 		final Connection connection = DBConnector.connection();
 		GetServiceRun retObj = new GetServiceRun();
 
@@ -338,10 +341,10 @@ public class ServiceRunsDao {
 				int rowsAffected = preparedStatement.executeUpdate();
 				if (rowsAffected != 1) {
 					connection.rollback();
-					throw new DMCServiceException(DMCError.OtherSQLError, "unable to update serviceRun");
+					throw new DMCServiceException(DMCError.OtherSQLError, "unable to update service run");
 				}
 			} else {
-				throw new DMCServiceException(DMCError.OtherSQLError, "not authorized to update serviceRun");
+				throw new HTTPException(HttpStatus.FORBIDDEN.value());
 			}
 
 			retObj = getSingleServiceRun(id);
