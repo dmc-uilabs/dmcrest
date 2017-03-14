@@ -80,8 +80,6 @@ public class ServiceRunsController {
 					ServiceLogger.log(LOGTAG, "In cancelServiceRun");
 					return new ResponseEntity<GetServiceRun>(serviceRunsDao.cancelServiceRun(serviceID, userEPPN), HttpStatus.valueOf(statusCode));
 			} catch (DMCServiceException e) {
-					// ServiceLogger.logException(LOGTAG, e);
-					// return new ResponseEntity<String>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 					throw e;
 			} catch (HTTPException e) {
 					ServiceLogger.log(LOGTAG, "Not authorized to cancel service run");
