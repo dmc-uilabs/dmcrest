@@ -332,7 +332,7 @@ public class ServiceRunsDao {
 			if (authorizedToCancel(userEPPN, id)) {
 				connection.setAutoCommit(false);
 
-				String serviceRunQuery = "UPDATE service_run SET status = 2 WHERE run_id = ?";
+				String serviceRunQuery = "UPDATE service_run SET status = 2 WHERE status=0 AND run_id = ?";
 
 				int i = 1;
 				PreparedStatement preparedStatement = DBConnector.prepareStatement(serviceRunQuery);
