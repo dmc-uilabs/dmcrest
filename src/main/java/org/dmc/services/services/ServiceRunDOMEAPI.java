@@ -413,7 +413,6 @@ public class ServiceRunDOMEAPI {
 		ServiceRunServiceInterfaceDAO si = new ServiceRunServiceInterfaceDAO(service_id);
 		int numOutput =  si.getNumOutputPars(interfaceId);
 		int collectedOutput = serviceRun.getNumOutputPars(runId);
-		int currentStatus =  si.getNumOutputPars(status);
 		if (numOutput==collectedOutput)
 			{
 				result.setStatus(ServiceRunResult.COMPLETE);
@@ -421,7 +420,7 @@ public class ServiceRunDOMEAPI {
 			}
 
 		// If service run has been cancelled, go no further
-		if (currentStatus == 2)
+		if (status == 2)
 			{
 				return result;
 			}
