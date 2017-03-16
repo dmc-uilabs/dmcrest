@@ -413,6 +413,16 @@ public class ServiceRunDOMEAPI {
 		ServiceRunServiceInterfaceDAO si = new ServiceRunServiceInterfaceDAO(service_id);
 		int numOutput =  si.getNumOutputPars(interfaceId);
 		int collectedOutput = serviceRun.getNumOutputPars(runId);
+
+		// Pulling previous results prior to checking for success or cancel so that
+		//	current results can be returned
+		Map<String, DomeModelParam> previousOutputs = new HashMap<String, DomeModelParam>();
+		try{
+			previousOutputs = serviceRun.getAllOutputParams();
+		}catch(Exception e){
+			ServiceLogger.log(LOGTAG, "Error getting output params:"+e.getMessage());
+		}
+
 		if (numOutput==collectedOutput)
 			{
 				result.setStatus(ServiceRunResult.COMPLETE);
@@ -422,19 +432,14 @@ public class ServiceRunDOMEAPI {
 		// If service run has been cancelled, go no further
 		if (status == 2)
 			{
+				result.setStatus(ServiceRunResult.CANCELLED);
+				result.setOuts(previousOutputs);
 				return result;
 			}
 
 		// Otherwise try to find out if there is any new messages from ActiveMQ
 		String queueName = serviceRun.getQueueName();
 		ServiceRunActiveMQ activeMQ = new ServiceRunActiveMQ();
-
-		Map<String, DomeModelParam> previousOutputs = new HashMap<String, DomeModelParam>();
-		try{
-			previousOutputs = serviceRun.getAllOutputParams();
-		}catch(Exception e){
-			ServiceLogger.log(LOGTAG, "Error getting output params:"+e.getMessage());
-		}
 
 		if(previousOutputs.size()==numOutput && serviceRun.getStatus() == 1){
 			result.setStatus(ServiceRunResult.COMPLETE);
