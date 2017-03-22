@@ -39,25 +39,22 @@ public class RecentUpdateDao {
 	private Connection connection;
 
     public ArrayList<RecentUpdate> getRecentUpdates(String userEPPN) throws HTTPException {
-        ArrayList<RecentUpdate> recentUpdates = null;
+        ArrayList<RecentUpdate> recentUpdates = new ArrayList<RecentUpdate>();
         ServiceLogger.log(logTag, "User: " + userEPPN + " asking for recent updates");
 
         try {
-            resultSet = DBConnector.executeQuery("SELECT update_date, update_type, update_id, parent_id, description FROM recent_update");
+            resultSet = DBConnector.executeQuery("SELECT id, update_date, update_type, update_id, parent_id, description FROM recent_update");
 
             while (resultSet.next()) {
-                String updateDate = resultSet.getString("update_date");
-                String updateType = resultSet.getString("update_type");
-                int updateId = resultSet.getInt("update_id");
-                int parentId = resultSet.getInt("parent_id");
-                String description = resultSet.getString("description");
 
                 RecentUpdate recentUpdate = new RecentUpdate();
+                recentUpdate.setId(resultSet.getInt("id"));
                 recentUpdate.setUpdateDate(resultSet.getString("update_date"));
                 recentUpdate.setUpdateType(resultSet.getString("update_type"));
                 recentUpdate.setUpdateId(resultSet.getInt("update_id"));
                 recentUpdate.setParentId(resultSet.getInt("parent_id"));
                 recentUpdate.setDescription(resultSet.getString("description"));
+
                 recentUpdates.add(recentUpdate);
             }
 
