@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.dmc.services.data.models.DMDIIProjectUpdateModel;
+import org.dmc.services.data.entities.DMDIIProjectUpdate;
+
 @RestController
 public class RecentUpdateController {
 
@@ -46,5 +49,13 @@ public class RecentUpdateController {
         }
     }
 
+    // public void addRecentUpdate(DMDIIDocument dmdiiDocument) {
+    //
+    // }
+
+    public void addRecentUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) {
+      recentUpdateDao.createRecentUpdate(dmdiiProjectUpdate);
+      // System.out.println(dmdiiProjectUpdate.getTitle());
+    }
 
 }

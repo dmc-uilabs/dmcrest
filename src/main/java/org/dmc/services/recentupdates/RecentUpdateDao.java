@@ -13,6 +13,7 @@ import java.util.List;
 import javax.xml.ws.http.HTTPException;
 
 import org.dmc.services.Config;
+import org.dmc.services.data.entities.DMDIIProjectUpdate;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -64,5 +65,16 @@ public class RecentUpdateDao {
         }
         return recentUpdates;
 	}
+
+  public void createRecentUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws HTTPException {
+    RecentUpdate recentUpdate = new RecentUpdate();
+
+    recentUpdate.setUpdateDate(dmdiiProjectUpdate.getDate());
+    recentUpdate.setUpdateType("update");
+    recentUpdate.setUpdateId(dmdiiProjectUpdate.getId());
+    recentUpdate.setParentId(dmdiiProjectUpdate.getProject().getId());
+    recentUpdate.setDescription(dmdiiProjectUpdate.getTitle());
+    
+  }
 
 }
