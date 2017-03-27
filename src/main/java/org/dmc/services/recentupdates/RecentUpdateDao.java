@@ -69,12 +69,12 @@ public class RecentUpdateDao {
   public void createRecentUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws HTTPException {
     RecentUpdate recentUpdate = new RecentUpdate();
 
-    recentUpdate.setUpdateDate(dmdiiProjectUpdate.getDate());
+    recentUpdate.setUpdateDate(dmdiiProjectUpdate.getDate().toString());
     recentUpdate.setUpdateType("update");
     recentUpdate.setUpdateId(dmdiiProjectUpdate.getId());
     recentUpdate.setParentId(dmdiiProjectUpdate.getProject().getId());
     recentUpdate.setDescription(dmdiiProjectUpdate.getTitle());
-    
+
   }
 
 }
