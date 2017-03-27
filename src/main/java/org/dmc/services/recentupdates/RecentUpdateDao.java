@@ -67,14 +67,39 @@ public class RecentUpdateDao {
 	}
 
   public void createRecentUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws HTTPException {
-    RecentUpdate recentUpdate = new RecentUpdate();
+    // RecentUpdate recentUpdate = new RecentUpdate();
+		//
+    // recentUpdate.setUpdateDate(dmdiiProjectUpdate.getDate().toString());
+    // recentUpdate.setUpdateType("update");
+    // recentUpdate.setUpdateId(dmdiiProjectUpdate.getId());
+    // recentUpdate.setParentId(dmdiiProjectUpdate.getProject().getId());
+    // recentUpdate.setDescription(dmdiiProjectUpdate.getTitle());
 
-    recentUpdate.setUpdateDate(dmdiiProjectUpdate.getDate().toString());
-    recentUpdate.setUpdateType("update");
-    recentUpdate.setUpdateId(dmdiiProjectUpdate.getId());
-    recentUpdate.setParentId(dmdiiProjectUpdate.getProject().getId());
-    recentUpdate.setDescription(dmdiiProjectUpdate.getTitle());
+		// java.sql.Timestamp date = dmdiiProjectUpdate.getDate().getTime();
+		java.sql.Timestamp date = new java.sql.Timestamp(dmdiiProjectUpdate.getDate().getTime());
+		String updateType = "update";
+		int updateId = dmdiiProjectUpdate.getId();
+		int parentId = dmdiiProjectUpdate.getProject().getId();
+		String description = dmdiiProjectUpdate.getTitle();
+
+		try {
+			String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description)"
+			+ "values ( ?, ?, ?, ?, ?)";
+
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setTimestamp(1, date);
+			preparedStatement.setString(2, updateType);
+			preparedStatement.setInt(3, updateId);
+			preparedStatement.setInt(4, parentId);
+			preparedStatement.setString(5, description);
+			preparedStatement.executeUpdate();
+
+		} catch (SQLException e) {
+				ServiceLogger.log(logTag, e.getMessage());
+		}
 
   }
+
+
 
 }
