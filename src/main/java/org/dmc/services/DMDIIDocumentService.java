@@ -17,6 +17,7 @@ import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.data.repositories.DMDIIQuickLinkRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.recentupdates.RecentUpdateController;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,8 +134,13 @@ public class DMDIIDocumentService {
 
 		ServiceLogger.log(logTag, "Attempting to verify DMDII document");
 		//Verify the document
-		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", userEntity.getUsername(), "ProjectOfDMDII", "Documents", "id", "url");
-		ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
+		// String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", userEntity.getUsername(), "ProjectOfDMDII", "Documents", "id", "url");
+		// ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
+
+		// Test of recent update controller
+		RecentUpdateController recentUpdateController = new RecentUpdateController();
+		recentUpdateController.addRecentUpdate(docEntity);
+		// Test of recent update controller
 
 		return docMapper.mapToModel(docEntity);
 	}
