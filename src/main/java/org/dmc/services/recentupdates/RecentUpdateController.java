@@ -61,8 +61,12 @@ public class RecentUpdateController {
     //   recentUpdateDao.createRecentUpdate(dmdiiDocument);
     // }
 
-    public void addRecentUpdate(Object dmdiiDocument) {
-      recentUpdateDao.createRecentUpdate(dmdiiDocument);
+    public void addRecentUpdate(Object updateEntity) {
+      recentUpdateDao.createRecentUpdate(updateEntity);
+    }
+
+    public void addRecentUpdate(Object updateEntity, Object updateEntityTwo) {
+      recentUpdateDao.createRecentUpdate(updateEntity, updateEntityTwo);
     }
 
 }

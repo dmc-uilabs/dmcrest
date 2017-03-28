@@ -222,7 +222,7 @@ public class DMDIIProjectService {
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 
 		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
-		
+
 		if(project.getPrimeOrganization() != null) {
 			DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
 			projectEntity.setPrimeOrganization(memberEntity);
@@ -232,7 +232,7 @@ public class DMDIIProjectService {
 
 		return projectMapper.mapToModel(projectEntity);
 	}
-	
+
 	public DMDIIProjectModel update (DMDIIProjectModel project) {
 		Assert.notNull(project);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
@@ -246,9 +246,9 @@ public class DMDIIProjectService {
 			DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
 			projectEntity.setPrimeOrganization(memberEntity);
 		}
-		
+
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
-		
+
 		return projectMapper.mapToModel(projectEntity);
 	}
 

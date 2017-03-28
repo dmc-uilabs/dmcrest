@@ -9,10 +9,13 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.lang.reflect.Method;
+import java.lang.Class;
 
 import javax.xml.ws.http.HTTPException;
 
 import org.dmc.services.Config;
+import org.dmc.services.data.entities.BaseEntity;
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIProjectUpdate;
 import org.dmc.services.DBConnector;
@@ -128,13 +131,15 @@ public class RecentUpdateDao {
 	//
   // }
 
+	// This function is for newly-created updates, and therefore does no comparison
+	//	with the 'original' object
 	public void createRecentUpdate(Object updatedItem) throws HTTPException {
 
 		try {
 			switch (updatedItem.getClass().getSimpleName()) {
-				case "DMDIIDocument":  addNewDMDIIDocument((DMDIIDocument)updatedItem);
+				case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem);
 					break;
-				case "DMDIIProjectUpdate": addNewDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem);
+				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem);
 				default: break;
 			}
 		} catch (SQLException e) {
@@ -143,42 +148,118 @@ public class RecentUpdateDao {
 
   }
 
-	private void addNewDMDIIDocument(DMDIIDocument dmdiiDocument) throws SQLException {
+	// This function is for updates on existing entries, and therefore does do a
+	//	comparison with the 'original' object
+	public void createRecentUpdate(Object updatedItem, Object originalItem) throws HTTPException {
+		// switch (itemClass.getSimpleName()) {
+		// 	case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem);
+		// 		break;
+		// 	case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem);
+		// 	default: break;
+		// }
+
+		Class itemClass = originalItem.getClass();
+
+		// try {
+
+			Method[] methods = itemClass.getMethods();
+			for(int i = 0; i < methods.length; i++) {
+				String methName = methods[i].getName();
+				System.out.println(methName);
+
+				if (methName.startsWith("get")) {
+
+					// String origValue = methods[i].invoke(originalItem).toString();
+					String origValue = valueToString(methods[i], originalItem);
+					String newValue = valueToString(methods[i], updatedItem);
+
+					System.out.println(origValue);
+					System.out.println(newValue);
+
+					if (origValue.equals(newValue)) {
+						System.out.println("!!!!values match!!!!");
+						// System.out.println(origValue);
+						// System.out.println(newValue);
+						// String attributeName = methName.replace("get","");
+						// String description = attributeName+" has been updated";
+						// String internalDescription = "From "++" to "+;
+					}
+				}
+			}
+
+			// TODO: add exception handling
+		// } catch (java.lang.reflect.InvocationTargetException e) {}
+
+	}
+
+	private String valueToString(Method method, Object item) {
+
+		Class itemClass = item.getClass();
+		Class baseEntity;
+
+		try {
+			baseEntity = Class.forName("BaseEntity");
+		} catch (java.lang.ClassNotFoundException e) {}
+
+		System.out.println("is assignable");
+		System.out.println(baseEntity.isAssignableFrom(itemClass));
+
+		try {
+			return method.invoke(item).toString();
+		} catch (IllegalAccessException|java.lang.reflect.InvocationTargetException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			return "";
+		}
+	}
+
+	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument) throws SQLException {
+		String description = dmdiiDocument.getDocumentName();
+		addDMDIIDocumentUpdate(dmdiiDocument, description);
+	}
+
+	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument, String description) throws SQLException {
 		String updateType = dmdiiDocument.getClass().getSimpleName();
 		int updateId = dmdiiDocument.getId();
 		int parentId = dmdiiDocument.getDmdiiProject().getId();
-		String description = dmdiiDocument.getDocumentName();
+		int userId = dmdiiDocument.getOwner().getId();
 
 		try {
-			insertUpdate(updateType, updateId, parentId, description);
+			insertUpdate(updateType, updateId, parentId, description, userId);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
 
 	}
 
-	private void addNewDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws SQLException {
+	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws SQLException {
+
+			String description = dmdiiProjectUpdate.getTitle();
+			addDMDIIProjectUpdate(dmdiiProjectUpdate, description);
+
+	}
+
+	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate, String description) throws SQLException {
 			String updateType = dmdiiProjectUpdate.getClass().getSimpleName();
 			int updateId = dmdiiProjectUpdate.getId();
 			int parentId = dmdiiProjectUpdate.getProject().getId();
-			String description = dmdiiProjectUpdate.getTitle();
+			int userId = dmdiiProjectUpdate.getCreator().getId();
 
 		try {
-			insertUpdate(updateType, updateId, parentId, description);
+			insertUpdate(updateType, updateId, parentId, description, userId);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
 
 	}
 
-	private void insertUpdate(String updateType, int updateId, int parentId, String description) throws SQLException {
+	private void insertUpdate(String updateType, int updateId, int parentId, String description, int userId) throws SQLException {
 
 		Long currentTime = System.currentTimeMillis() / 1000L;
 		System.out.println(currentTime);
 
 		try {
-			String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description)"
-			+ "values ( ?, ?, ?, ?, ?)";
+			String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description, user_id)"
+			+ "values ( ?, ?, ?, ?, ?, ?)";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			// preparedStatement.setTimestamp(1, date);
@@ -187,6 +268,7 @@ public class RecentUpdateDao {
 			preparedStatement.setInt(3, updateId);
 			preparedStatement.setInt(4, parentId);
 			preparedStatement.setString(5, description);
+			preparedStatement.setInt(6, userId);
 			preparedStatement.executeUpdate();
 
 		} catch (SQLException e) {
