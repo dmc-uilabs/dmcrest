@@ -68,37 +68,82 @@ public class RecentUpdateDao {
         return recentUpdates;
 	}
 
-  public void createRecentUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws HTTPException {
-		// Set variables for the attributes of a project updat
-		java.sql.Timestamp date = new java.sql.Timestamp(dmdiiProjectUpdate.getDate().getTime());
-		String updateType = "update";
-		int updateId = dmdiiProjectUpdate.getId();
-		int parentId = dmdiiProjectUpdate.getProject().getId();
-		String description = dmdiiProjectUpdate.getTitle();
+  // public void createRecentUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws HTTPException {
+	// 	// Set variables for the attributes of a project updat
+	// 	java.sql.Timestamp date = new java.sql.Timestamp(dmdiiProjectUpdate.getDate().getTime());
+	// 	String updateType = "update";
+	// 	int updateId = dmdiiProjectUpdate.getId();
+	// 	int parentId = dmdiiProjectUpdate.getProject().getId();
+	// 	String description = dmdiiProjectUpdate.getTitle();
+	//
+	// 	// Run SQL insert of those values
+	// 	try {
+	// 		String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description)"
+	// 		+ "values ( ?, ?, ?, ?, ?)";
+	//
+	// 		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+	// 		preparedStatement.setTimestamp(1, date);
+	// 		preparedStatement.setString(2, updateType);
+	// 		preparedStatement.setInt(3, updateId);
+	// 		preparedStatement.setInt(4, parentId);
+	// 		preparedStatement.setString(5, description);
+	// 		preparedStatement.executeUpdate();
+	//
+	// 	} catch (SQLException e) {
+	// 			ServiceLogger.log(logTag, e.getMessage());
+	// 	}
+	//
+  // }
+	//
+	// public void createRecentUpdate(DMDIIDocument dmdiiDocument) throws HTTPException {
+	// 	// Set variables for the attributes of a project updat
+	// 	// java.sql.Timestamp date = new java.sql.Timestamp(dmdiiDocument.getModified().getTime());
+	// 	String updateType = "dmdiiDocument";
+	// 	int updateId = dmdiiDocument.getId();
+	// 	int parentId = dmdiiDocument.getDmdiiProject().getId();
+	// 	String description = dmdiiDocument.getDocumentName();
+	//
+	// 	try {
+	// 		insertUpdate(updateType, updateId, parentId, description);
+	// 	} catch (SQLException e) {
+	// 		ServiceLogger.log(logTag, e.getMessage());
+	// 	}
+	//
+	// 	// Run SQL insert of those values
+	// 	// try {
+	// 	// 	String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description)"
+	// 	// 	+ "values ( ?, ?, ?, ?, ?)";
+	// 	//
+	// 	// 	PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+	// 	// 	preparedStatement.setTimestamp(1, date);
+	// 	// 	preparedStatement.setString(2, updateType);
+	// 	// 	preparedStatement.setInt(3, updateId);
+	// 	// 	preparedStatement.setInt(4, parentId);
+	// 	// 	preparedStatement.setString(5, description);
+	// 	// 	preparedStatement.executeUpdate();
+	// 	//
+	// 	// } catch (SQLException e) {
+	// 	// 		ServiceLogger.log(logTag, e.getMessage());
+	// 	// }
+	//
+  // }
 
-		// Run SQL insert of those values
+	public void createRecentUpdate(Object updatedItem) throws HTTPException {
+
 		try {
-			String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description)"
-			+ "values ( ?, ?, ?, ?, ?)";
-
-			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-			preparedStatement.setTimestamp(1, date);
-			preparedStatement.setString(2, updateType);
-			preparedStatement.setInt(3, updateId);
-			preparedStatement.setInt(4, parentId);
-			preparedStatement.setString(5, description);
-			preparedStatement.executeUpdate();
-
+			switch (updatedItem.getClass().getSimpleName()) {
+				case "DMDIIDocument":  addNewdmdiiDocument((DMDIIDocument)updatedItem);
+				break;
+				default: break;
+			}
 		} catch (SQLException e) {
-				ServiceLogger.log(logTag, e.getMessage());
+
 		}
 
   }
 
-	public void createRecentUpdate(DMDIIDocument dmdiiDocument) throws HTTPException {
-		// Set variables for the attributes of a project updat
-		// java.sql.Timestamp date = new java.sql.Timestamp(dmdiiDocument.getModified().getTime());
-		String updateType = "dmdiiDocument";
+	public void addNewdmdiiDocument(DMDIIDocument dmdiiDocument) throws SQLException {
+		String updateType = dmdiiDocument.getClass().getSimpleName();
 		int updateId = dmdiiDocument.getId();
 		int parentId = dmdiiDocument.getDmdiiProject().getId();
 		String description = dmdiiDocument.getDocumentName();
@@ -109,24 +154,7 @@ public class RecentUpdateDao {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
 
-		// Run SQL insert of those values
-		// try {
-		// 	String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description)"
-		// 	+ "values ( ?, ?, ?, ?, ?)";
-		//
-		// 	PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-		// 	preparedStatement.setTimestamp(1, date);
-		// 	preparedStatement.setString(2, updateType);
-		// 	preparedStatement.setInt(3, updateId);
-		// 	preparedStatement.setInt(4, parentId);
-		// 	preparedStatement.setString(5, description);
-		// 	preparedStatement.executeUpdate();
-		//
-		// } catch (SQLException e) {
-		// 		ServiceLogger.log(logTag, e.getMessage());
-		// }
-
-  }
+	}
 
 	private void insertUpdate(String updateType, int updateId, int parentId, String description) throws SQLException {
 

@@ -53,13 +53,16 @@ public class RecentUpdateController {
     //
     // }
 
-    public void addRecentUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) {
-      recentUpdateDao.createRecentUpdate(dmdiiProjectUpdate);
-    }
+    // public void addRecentUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) {
+    //   recentUpdateDao.createRecentUpdate(dmdiiProjectUpdate);
+    // }
+    //
+    // public void addRecentUpdate(DMDIIDocument dmdiiDocument) {
+    //   recentUpdateDao.createRecentUpdate(dmdiiDocument);
+    // }
 
-    public void addRecentUpdate(DMDIIDocument dmdiiDocument) {
+    public void addRecentUpdate(Object dmdiiDocument) {
       recentUpdateDao.createRecentUpdate(dmdiiDocument);
     }
-
 
 }
