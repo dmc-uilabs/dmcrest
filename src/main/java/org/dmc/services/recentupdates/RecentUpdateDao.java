@@ -132,8 +132,9 @@ public class RecentUpdateDao {
 
 		try {
 			switch (updatedItem.getClass().getSimpleName()) {
-				case "DMDIIDocument":  addNewdmdiiDocument((DMDIIDocument)updatedItem);
-				break;
+				case "DMDIIDocument":  addNewDMDIIDocument((DMDIIDocument)updatedItem);
+					break;
+				case "DMDIIProjectUpdate": addNewDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem);
 				default: break;
 			}
 		} catch (SQLException e) {
@@ -142,11 +143,25 @@ public class RecentUpdateDao {
 
   }
 
-	public void addNewdmdiiDocument(DMDIIDocument dmdiiDocument) throws SQLException {
+	private void addNewDMDIIDocument(DMDIIDocument dmdiiDocument) throws SQLException {
 		String updateType = dmdiiDocument.getClass().getSimpleName();
 		int updateId = dmdiiDocument.getId();
 		int parentId = dmdiiDocument.getDmdiiProject().getId();
 		String description = dmdiiDocument.getDocumentName();
+
+		try {
+			insertUpdate(updateType, updateId, parentId, description);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+
+	}
+
+	private void addNewDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws SQLException {
+			String updateType = dmdiiProjectUpdate.getClass().getSimpleName();
+			int updateId = dmdiiProjectUpdate.getId();
+			int parentId = dmdiiProjectUpdate.getProject().getId();
+			String description = dmdiiProjectUpdate.getTitle();
 
 		try {
 			insertUpdate(updateType, updateId, parentId, description);
