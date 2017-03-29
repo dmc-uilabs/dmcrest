@@ -54,12 +54,8 @@ public class DMDIIProjectUpdateService {
 
 		updateEntity = dmdiiProjectUpdateRepository.save(updateEntity);
 
-		// Test of recent update controller
-
 		RecentUpdateController recentUpdateController = new RecentUpdateController();
-		recentUpdateController.addRecentUpdate(updateEntity, updateEntity);
-		// Test of recent update controller
-
+		recentUpdateController.addRecentUpdate(updateEntity);
 
 		return updateMapper.mapToModel(updateEntity);
 	}

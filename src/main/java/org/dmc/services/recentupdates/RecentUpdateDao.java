@@ -97,10 +97,16 @@ public class RecentUpdateDao {
 		for(int i = 0; i < methods.length; i++) {
 			String methName = methods[i].getName();
 			if (methName.startsWith("get")) {
+
 				String origValue = valueToString(methods[i], originalItem);
 				String newValue = valueToString(methods[i], updatedItem);
 
-				if (origValue.equals(newValue)) {
+				System.out.println("---Comparing--------------------------------------------------");
+				System.out.println(methods[i]);
+				System.out.println(origValue);
+				System.out.println(newValue);
+
+				if (!origValue.equals(newValue)) {
 					String attributeName = methName.replace("get","");
 					String description = attributeName+" has been updated";
 					String internalDescription = "from "+origValue+" to "+newValue;
@@ -110,7 +116,7 @@ public class RecentUpdateDao {
 		}
 
 	}
-	
+
 	// This function is step two for newly-created updates, and directs the update to the
 	//	class-specific method required
 	public void createRecentUpdate(Object updatedItem, String description, String internalDescription) throws HTTPException {
@@ -119,6 +125,7 @@ public class RecentUpdateDao {
 				case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem, description, internalDescription);
 					break;
 				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem, description, internalDescription);
+					break;
 				default: break;
 			}
 		} catch (SQLException e) {
@@ -131,6 +138,12 @@ public class RecentUpdateDao {
 
 		try {
 			Object methodReturn = method.invoke(item);
+
+			// If the method returns nothing, just return a blank string
+			if (methodReturn == null) {
+				return "";
+			}
+
 			Class returnClass = methodReturn.getClass();
 
 			// If the return of the method is another hibernate object, call getId to

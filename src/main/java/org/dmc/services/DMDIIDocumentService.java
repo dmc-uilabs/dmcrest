@@ -137,10 +137,8 @@ public class DMDIIDocumentService {
 		// String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", userEntity.getUsername(), "ProjectOfDMDII", "Documents", "id", "url");
 		// ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
 
-		// Test of recent update controller
 		RecentUpdateController recentUpdateController = new RecentUpdateController();
 		recentUpdateController.addRecentUpdate(docEntity);
-		// Test of recent update controller
 
 		return docMapper.mapToModel(docEntity);
 	}
@@ -222,6 +220,9 @@ public class DMDIIDocumentService {
 		Integer oldVersion = oldEntity.getVersion();
 		docEntity.setVersion(oldVersion++);
 		docEntity.setVerified(oldEntity.getVerified());
+
+		RecentUpdateController recentUpdateController = new RecentUpdateController();
+		recentUpdateController.addRecentUpdate(docEntity, oldEntity);
 
 		docEntity= dmdiiDocumentRepository.save(docEntity);
 
