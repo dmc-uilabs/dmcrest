@@ -40,9 +40,6 @@ public class RecentUpdateDao {
 
 	private static final String logTag = RecentUpdateDao.class.getName();
 	private ResultSet resultSet;
-
-	// Only declare here and instantiate in method where it is used
-	// Instantiating here may cause NullPointer Exceptions
 	private Connection connection;
 
     public ArrayList<RecentUpdate> getRecentUpdates(String userEPPN) throws HTTPException {
@@ -72,65 +69,6 @@ public class RecentUpdateDao {
         return recentUpdates;
 	}
 
-  // public void createRecentUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws HTTPException {
-	// 	// Set variables for the attributes of a project updat
-	// 	java.sql.Timestamp date = new java.sql.Timestamp(dmdiiProjectUpdate.getDate().getTime());
-	// 	String updateType = "update";
-	// 	int updateId = dmdiiProjectUpdate.getId();
-	// 	int parentId = dmdiiProjectUpdate.getProject().getId();
-	// 	String description = dmdiiProjectUpdate.getTitle();
-	//
-	// 	// Run SQL insert of those values
-	// 	try {
-	// 		String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description)"
-	// 		+ "values ( ?, ?, ?, ?, ?)";
-	//
-	// 		PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-	// 		preparedStatement.setTimestamp(1, date);
-	// 		preparedStatement.setString(2, updateType);
-	// 		preparedStatement.setInt(3, updateId);
-	// 		preparedStatement.setInt(4, parentId);
-	// 		preparedStatement.setString(5, description);
-	// 		preparedStatement.executeUpdate();
-	//
-	// 	} catch (SQLException e) {
-	// 			ServiceLogger.log(logTag, e.getMessage());
-	// 	}
-	//
-  // }
-	//
-	// public void createRecentUpdate(DMDIIDocument dmdiiDocument) throws HTTPException {
-	// 	// Set variables for the attributes of a project updat
-	// 	// java.sql.Timestamp date = new java.sql.Timestamp(dmdiiDocument.getModified().getTime());
-	// 	String updateType = "dmdiiDocument";
-	// 	int updateId = dmdiiDocument.getId();
-	// 	int parentId = dmdiiDocument.getDmdiiProject().getId();
-	// 	String description = dmdiiDocument.getDocumentName();
-	//
-	// 	try {
-	// 		insertUpdate(updateType, updateId, parentId, description);
-	// 	} catch (SQLException e) {
-	// 		ServiceLogger.log(logTag, e.getMessage());
-	// 	}
-	//
-	// 	// Run SQL insert of those values
-	// 	// try {
-	// 	// 	String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description)"
-	// 	// 	+ "values ( ?, ?, ?, ?, ?)";
-	// 	//
-	// 	// 	PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-	// 	// 	preparedStatement.setTimestamp(1, date);
-	// 	// 	preparedStatement.setString(2, updateType);
-	// 	// 	preparedStatement.setInt(3, updateId);
-	// 	// 	preparedStatement.setInt(4, parentId);
-	// 	// 	preparedStatement.setString(5, description);
-	// 	// 	preparedStatement.executeUpdate();
-	// 	//
-	// 	// } catch (SQLException e) {
-	// 	// 		ServiceLogger.log(logTag, e.getMessage());
-	// 	// }
-	//
-  // }
 
 	// This function is for newly-created updates, and therefore does no comparison
 	//	with the 'original' object
@@ -149,20 +87,6 @@ public class RecentUpdateDao {
 
   }
 
-
-	public void createRecentUpdateSwitch(Object updatedItem, String description, String internalDescription) throws HTTPException {
-		try {
-			switch (updatedItem.getClass().getSimpleName()) {
-				case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem, description, internalDescription);
-					break;
-				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem, description, internalDescription);
-				default: break;
-			}
-		} catch (SQLException e) {
-
-		}
-	}
-
 	// This function is for updates on existing entries, and therefore does do a
 	//	comparison with the 'original' object
 	public void createRecentUpdate(Object updatedItem, Object originalItem) throws HTTPException {
@@ -180,14 +104,28 @@ public class RecentUpdateDao {
 					String attributeName = methName.replace("get","");
 					String description = attributeName+" has been updated";
 					String internalDescription = "from "+origValue+" to "+newValue;
-					createRecentUpdateSwitch(updatedItem, description, internalDescription);
+					createRecentUpdate(updatedItem, description, internalDescription);
 				}
-
 			}
 		}
 
-
 	}
+	
+	// This function is step two for newly-created updates, and directs the update to the
+	//	class-specific method required
+	public void createRecentUpdate(Object updatedItem, String description, String internalDescription) throws HTTPException {
+		try {
+			switch (updatedItem.getClass().getSimpleName()) {
+				case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem, description, internalDescription);
+					break;
+				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem, description, internalDescription);
+				default: break;
+			}
+		} catch (SQLException e) {
+
+		}
+	}
+
 
 	private String valueToString(Method method, Object item) {
 
