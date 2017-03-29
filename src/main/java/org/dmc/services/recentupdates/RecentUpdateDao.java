@@ -21,6 +21,7 @@ import org.dmc.services.data.entities.BaseEntity;
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIProject;
 import org.dmc.services.data.entities.DMDIIProjectUpdate;
+import org.dmc.services.data.entities.Organization;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -49,7 +50,6 @@ public class RecentUpdateDao {
         ServiceLogger.log(logTag, "User: " + userEPPN + " asking for recent updates");
 
         try {
-            // resultSet = DBConnector.executeQuery("SELECT id, update_date, update_type, update_id, parent_id, description FROM recent_update");
 						resultSet = DBConnector.executeQuery("select ru.id, update_date, update_type, update_id, ru.parent_id, ru.description, project_title from recent_update ru left join dmdii_project dp on dp.id = ru.parent_id left join dmdii_project_update pu  on pu.id = ru.update_id and ru.update_type = 'DMDIIProjectUpdate' left join dmdii_document dd  on dd.id = ru.update_id and ru.update_type = 'DMDIIDocument' WHERE dp.is_deleted = 'f' AND ( (parent_id = update_id  AND dp.is_deleted = 'f') OR (pu.id is not NULL AND pu.is_deleted = 'f') OR (dd.id is not NULL AND dd.is_deleted = 'f') ) order by ru.id desc");
 
             while (resultSet.next()) {
@@ -84,6 +84,8 @@ public class RecentUpdateDao {
 				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem);
 					break;
 				case "DMDIIProject": addUpdateForDMDIIProject((DMDIIProject)updatedItem);
+					break;
+				case "Organization": addUpdateForOrganization((Organization)updatedItem);
 					break;
 				default: break;
 			}
@@ -129,6 +131,8 @@ public class RecentUpdateDao {
 				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem, description, internalDescription);
 					break;
 				case "DMDIIProject": addUpdateForDMDIIProject((DMDIIProject)updatedItem, description, internalDescription);
+					break;
+				case "Organization": addUpdateForOrganization((Organization)updatedItem, description, internalDescription);
 					break;
 				default: break;
 			}
@@ -243,6 +247,34 @@ public class RecentUpdateDao {
 			int parentId = updateId;
 			// TODO -- need to update this to pull in who actually creaetd the project
 			int userId = dmdiiProject.getPrincipalPointOfContact().getId();
+
+		try {
+			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+
+	}
+
+
+	// Overloading for adding Organizations (or updating the organizations themselves)
+	private void addUpdateForOrganization(Organization organization) throws SQLException {
+			String description = organization.getName();
+			addUpdateForOrganization(organization, description);
+	}
+
+	private void addUpdateForOrganization(Organization organization, String description) throws SQLException {
+		String internalDescription = "";
+		addUpdateForOrganization(organization, description, internalDescription);
+	}
+
+	private void addUpdateForOrganization(Organization organization, String description, String internalDescription) throws SQLException {
+			String updateType = organization.getClass().getSimpleName();
+			int updateId = organization.getId();
+			int parentId = updateId;
+			// TODO update organization creation/modification to capture who is updating what
+			//	right now, appears we have no owner information
+			int userId = 0;
 
 		try {
 			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);
