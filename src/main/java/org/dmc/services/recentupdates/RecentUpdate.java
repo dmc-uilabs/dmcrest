@@ -17,6 +17,7 @@ public class RecentUpdate {
   	private int updateId;
   	private int parentId;
     private String description;
+    private String parentTitle;
 
   	/**
   	 **/
@@ -81,7 +82,15 @@ public class RecentUpdate {
       this.description = description;
     }
 
-
+    /**
+     **/
+    @JsonProperty("parentTitle")
+    public String getParentTitle() {
+      return parentTitle;
+    }
+    public void setParentTitle(String parentTitle) {
+      this.parentTitle = parentTitle;
+    }
   	// @Override
   	// public int hashCode() {
   	// 	return Objects.hash(id, updateDate, updateType, updateId, parentId);

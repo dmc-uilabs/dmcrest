@@ -49,7 +49,8 @@ public class RecentUpdateDao {
         ServiceLogger.log(logTag, "User: " + userEPPN + " asking for recent updates");
 
         try {
-            resultSet = DBConnector.executeQuery("SELECT id, update_date, update_type, update_id, parent_id, description FROM recent_update");
+            // resultSet = DBConnector.executeQuery("SELECT id, update_date, update_type, update_id, parent_id, description FROM recent_update");
+						resultSet = DBConnector.executeQuery("select ru.id, update_date, update_type, update_id, ru.parent_id, ru.description, project_title from recent_update ru left join dmdii_project dp on dp.id = ru.parent_id left join dmdii_project_update pu  on pu.id = ru.update_id and ru.update_type = 'DMDIIProjectUpdate' left join dmdii_document dd  on dd.id = ru.update_id and ru.update_type = 'DMDIIDocument' WHERE dp.is_deleted = 'f' AND ( (parent_id = update_id  AND dp.is_deleted = 'f') OR (pu.id is not NULL AND pu.is_deleted = 'f') OR (dd.id is not NULL AND dd.is_deleted = 'f') ) order by ru.id desc");
 
             while (resultSet.next()) {
 
@@ -60,6 +61,7 @@ public class RecentUpdateDao {
                 recentUpdate.setUpdateId(resultSet.getInt("update_id"));
                 recentUpdate.setParentId(resultSet.getInt("parent_id"));
                 recentUpdate.setDescription(resultSet.getString("description"));
+								recentUpdate.setParentTitle(resultSet.getString("project_title"));
 
                 recentUpdates.add(recentUpdate);
             }
