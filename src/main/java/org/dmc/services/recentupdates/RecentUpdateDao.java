@@ -149,6 +149,20 @@ public class RecentUpdateDao {
 
   }
 
+
+	public void createRecentUpdateSwitch(Object updatedItem, String description, String internalDescription) throws HTTPException {
+		try {
+			switch (updatedItem.getClass().getSimpleName()) {
+				case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem, description, internalDescription);
+					break;
+				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem, description, internalDescription);
+				default: break;
+			}
+		} catch (SQLException e) {
+
+		}
+	}
+
 	// This function is for updates on existing entries, and therefore does do a
 	//	comparison with the 'original' object
 	public void createRecentUpdate(Object updatedItem, Object originalItem) throws HTTPException {
@@ -166,10 +180,9 @@ public class RecentUpdateDao {
 					String attributeName = methName.replace("get","");
 					String description = attributeName+" has been updated";
 					String internalDescription = "from "+origValue+" to "+newValue;
-					// This is where the update will be generated
-					System.out.println(description+" "+internalDescription);
+					createRecentUpdateSwitch(updatedItem, description, internalDescription);
 				}
-				
+
 			}
 		}
 
@@ -196,54 +209,63 @@ public class RecentUpdateDao {
 		}
 	}
 
+	// Overloading for adding DMDII Documents
 	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument) throws SQLException {
 		String description = dmdiiDocument.getDocumentName();
 		addDMDIIDocumentUpdate(dmdiiDocument, description);
 	}
 
 	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument, String description) throws SQLException {
+		String internalDescription = "";
+		addDMDIIDocumentUpdate(dmdiiDocument, description, internalDescription);
+	}
+
+	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument, String description, String internalDescription) throws SQLException {
 		String updateType = dmdiiDocument.getClass().getSimpleName();
 		int updateId = dmdiiDocument.getId();
 		int parentId = dmdiiDocument.getDmdiiProject().getId();
 		int userId = dmdiiDocument.getOwner().getId();
 
 		try {
-			insertUpdate(updateType, updateId, parentId, description, userId);
+			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
 
 	}
 
+	// Overloading for adding DMDII Project Updates
 	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws SQLException {
-
 			String description = dmdiiProjectUpdate.getTitle();
 			addDMDIIProjectUpdate(dmdiiProjectUpdate, description);
-
 	}
 
 	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate, String description) throws SQLException {
+		String internalDescription = "";
+		addDMDIIProjectUpdate(dmdiiProjectUpdate, description, internalDescription);
+	}
+
+	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate, String description, String internalDescription) throws SQLException {
 			String updateType = dmdiiProjectUpdate.getClass().getSimpleName();
 			int updateId = dmdiiProjectUpdate.getId();
 			int parentId = dmdiiProjectUpdate.getProject().getId();
 			int userId = dmdiiProjectUpdate.getCreator().getId();
 
 		try {
-			insertUpdate(updateType, updateId, parentId, description, userId);
+			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
 
 	}
 
-	private void insertUpdate(String updateType, int updateId, int parentId, String description, int userId) throws SQLException {
+	private void insertUpdate(String updateType, int updateId, int parentId, String description, int userId, String internalDescription) throws SQLException {
 
 		Long currentTime = System.currentTimeMillis() / 1000L;
-		System.out.println(currentTime);
 
 		try {
-			String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description, user_id)"
-			+ "values ( ?, ?, ?, ?, ?, ?)";
+			String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description, user_id, internal_description)"
+			+ "values ( ?, ?, ?, ?, ?, ?, ?)";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			// preparedStatement.setTimestamp(1, date);
@@ -253,6 +275,7 @@ public class RecentUpdateDao {
 			preparedStatement.setInt(4, parentId);
 			preparedStatement.setString(5, description);
 			preparedStatement.setInt(6, userId);
+			preparedStatement.setString(7, internalDescription);
 			preparedStatement.executeUpdate();
 
 		} catch (SQLException e) {
