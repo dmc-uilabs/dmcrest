@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.lang.reflect.Method;
 import java.lang.Class;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.xml.ws.http.HTTPException;
 
@@ -151,62 +152,45 @@ public class RecentUpdateDao {
 	// This function is for updates on existing entries, and therefore does do a
 	//	comparison with the 'original' object
 	public void createRecentUpdate(Object updatedItem, Object originalItem) throws HTTPException {
-		// switch (itemClass.getSimpleName()) {
-		// 	case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem);
-		// 		break;
-		// 	case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem);
-		// 	default: break;
-		// }
 
 		Class itemClass = originalItem.getClass();
+		Method[] methods = itemClass.getMethods();
 
-		// try {
+		for(int i = 0; i < methods.length; i++) {
+			String methName = methods[i].getName();
+			if (methName.startsWith("get")) {
+				String origValue = valueToString(methods[i], originalItem);
+				String newValue = valueToString(methods[i], updatedItem);
 
-			Method[] methods = itemClass.getMethods();
-			for(int i = 0; i < methods.length; i++) {
-				String methName = methods[i].getName();
-				System.out.println(methName);
-
-				if (methName.startsWith("get")) {
-
-					// String origValue = methods[i].invoke(originalItem).toString();
-					String origValue = valueToString(methods[i], originalItem);
-					String newValue = valueToString(methods[i], updatedItem);
-
-					System.out.println(origValue);
-					System.out.println(newValue);
-
-					if (origValue.equals(newValue)) {
-						System.out.println("!!!!values match!!!!");
-						// System.out.println(origValue);
-						// System.out.println(newValue);
-						// String attributeName = methName.replace("get","");
-						// String description = attributeName+" has been updated";
-						// String internalDescription = "From "++" to "+;
-					}
+				if (origValue.equals(newValue)) {
+					String attributeName = methName.replace("get","");
+					String description = attributeName+" has been updated";
+					String internalDescription = "from "+origValue+" to "+newValue;
+					// This is where the update will be generated
+					System.out.println(description+" "+internalDescription);
 				}
+				
 			}
+		}
 
-			// TODO: add exception handling
-		// } catch (java.lang.reflect.InvocationTargetException e) {}
 
 	}
 
 	private String valueToString(Method method, Object item) {
 
-		Class itemClass = item.getClass();
-		Class baseEntity;
-
 		try {
-			baseEntity = Class.forName("BaseEntity");
-		} catch (java.lang.ClassNotFoundException e) {}
+			Object methodReturn = method.invoke(item);
+			Class returnClass = methodReturn.getClass();
 
-		System.out.println("is assignable");
-		System.out.println(baseEntity.isAssignableFrom(itemClass));
+			// If the return of the method is another hibernate object, call getId to
+			//	return its id
+			if (BaseEntity.class.isAssignableFrom(returnClass)) {
+				return ((BaseEntity)methodReturn).getId().toString();
+			}
 
-		try {
+			// Otherwise, just return the method's return as a string
 			return method.invoke(item).toString();
-		} catch (IllegalAccessException|java.lang.reflect.InvocationTargetException e) {
+		} catch (IllegalAccessException|InvocationTargetException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return "";
 		}
