@@ -221,10 +221,12 @@ public class DMDIIDocumentService {
 		docEntity.setVersion(oldVersion++);
 		docEntity.setVerified(oldEntity.getVerified());
 
+		// Insert update for all modified fields
 		RecentUpdateController recentUpdateController = new RecentUpdateController();
 		recentUpdateController.addRecentUpdate(docEntity, oldEntity);
 
 		docEntity= dmdiiDocumentRepository.save(docEntity);
+
 
 		return mapper.mapToModel(docEntity);
 	}

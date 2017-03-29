@@ -18,6 +18,7 @@ import javax.xml.ws.http.HTTPException;
 import org.dmc.services.Config;
 import org.dmc.services.data.entities.BaseEntity;
 import org.dmc.services.data.entities.DMDIIDocument;
+import org.dmc.services.data.entities.DMDIIProject;
 import org.dmc.services.data.entities.DMDIIProjectUpdate;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
@@ -69,7 +70,6 @@ public class RecentUpdateDao {
         return recentUpdates;
 	}
 
-
 	// This function is for newly-created updates, and therefore does no comparison
 	//	with the 'original' object
 	public void createRecentUpdate(Object updatedItem) throws HTTPException {
@@ -79,6 +79,9 @@ public class RecentUpdateDao {
 				case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem);
 					break;
 				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem);
+					break;
+				case "DMDIIProject": addUpdateForDMDIIProject((DMDIIProject)updatedItem);
+					break;
 				default: break;
 			}
 		} catch (SQLException e) {
@@ -101,10 +104,10 @@ public class RecentUpdateDao {
 				String origValue = valueToString(methods[i], originalItem);
 				String newValue = valueToString(methods[i], updatedItem);
 
-				System.out.println("---Comparing--------------------------------------------------");
-				System.out.println(methods[i]);
-				System.out.println(origValue);
-				System.out.println(newValue);
+				// System.out.println("---Comparing--------------------------------------------------");
+				// System.out.println(methods[i]);
+				// System.out.println(origValue);
+				// System.out.println(newValue);
 
 				if (!origValue.equals(newValue)) {
 					String attributeName = methName.replace("get","");
@@ -125,6 +128,8 @@ public class RecentUpdateDao {
 				case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem, description, internalDescription);
 					break;
 				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem, description, internalDescription);
+					break;
+				case "DMDIIProject": addUpdateForDMDIIProject((DMDIIProject)updatedItem, description, internalDescription);
 					break;
 				default: break;
 			}
@@ -201,6 +206,32 @@ public class RecentUpdateDao {
 			int updateId = dmdiiProjectUpdate.getId();
 			int parentId = dmdiiProjectUpdate.getProject().getId();
 			int userId = dmdiiProjectUpdate.getCreator().getId();
+
+		try {
+			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+
+	}
+
+	// Overloading for adding DMDII Projects (or updating the projects themselves)
+	private void addUpdateForDMDIIProject(DMDIIProject dmdiiProject) throws SQLException {
+			String description = dmdiiProject.getProjectTitle();
+			addUpdateForDMDIIProject(dmdiiProject, description);
+	}
+
+	private void addUpdateForDMDIIProject(DMDIIProject dmdiiProject, String description) throws SQLException {
+		String internalDescription = "";
+		addUpdateForDMDIIProject(dmdiiProject, description, internalDescription);
+	}
+
+	private void addUpdateForDMDIIProject(DMDIIProject dmdiiProject, String description, String internalDescription) throws SQLException {
+			String updateType = dmdiiProject.getClass().getSimpleName();
+			int updateId = dmdiiProject.getId();
+			int parentId = updateId;
+			// TODO -- need to update this to pull in who actually creaetd the project
+			int userId = dmdiiProject.getPrincipalPointOfContact().getId();
 
 		try {
 			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);

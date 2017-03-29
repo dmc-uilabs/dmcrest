@@ -118,7 +118,11 @@ public class DMDIIProjectController {
 	@RequestMapping(value = "/dmdiiProject/save", method = RequestMethod.POST)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectModel saveDMDIIProject (@RequestBody DMDIIProjectModel project) {
-		return dmdiiProjectService.save(project);
+		if (project.getId() == null) {
+			return dmdiiProjectService.save(project);
+		} else {
+			return dmdiiProjectService.update(project);
+		}
 	}
 
 	@RequestMapping(value = "/dmdiiProjects/{id}", method = RequestMethod.PATCH)
