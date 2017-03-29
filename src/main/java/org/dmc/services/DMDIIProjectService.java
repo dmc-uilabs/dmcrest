@@ -232,7 +232,7 @@ public class DMDIIProjectService {
 		}
 
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
-		// Insert update for all modified fields
+		// Insert update for newly-created project
 		RecentUpdateController recentUpdateController = new RecentUpdateController();
 		recentUpdateController.addRecentUpdate(projectEntity);
 

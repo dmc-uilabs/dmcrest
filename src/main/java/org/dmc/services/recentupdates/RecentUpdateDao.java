@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.lang.reflect.Method;
 import java.lang.Class;
@@ -101,13 +102,11 @@ public class RecentUpdateDao {
 			String methName = methods[i].getName();
 			if (methName.startsWith("get")) {
 
+				System.out.println("---methName---");
+				System.out.println(methName);
+
 				String origValue = valueToString(methods[i], originalItem);
 				String newValue = valueToString(methods[i], updatedItem);
-
-				// System.out.println("---Comparing--------------------------------------------------");
-				// System.out.println(methods[i]);
-				// System.out.println(origValue);
-				// System.out.println(newValue);
 
 				if (!origValue.equals(newValue)) {
 					String attributeName = methName.replace("get","");
@@ -157,8 +156,13 @@ public class RecentUpdateDao {
 				return ((BaseEntity)methodReturn).getId().toString();
 			}
 
+			// If the return of the method is a date, return epoch
+			if (Date.class.isAssignableFrom(returnClass)) {
+				return Long.toString(((Date)methodReturn).getTime());
+			}
+
 			// Otherwise, just return the method's return as a string
-			return method.invoke(item).toString();
+			return methodReturn.toString();
 		} catch (IllegalAccessException|InvocationTargetException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return "";
