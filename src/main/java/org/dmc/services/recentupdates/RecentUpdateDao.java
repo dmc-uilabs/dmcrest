@@ -102,8 +102,6 @@ public class RecentUpdateDao {
 			String methName = methods[i].getName();
 			if (methName.startsWith("get")) {
 
-				System.out.println("---methName---");
-				System.out.println(methName);
 
 				String origValue = valueToString(methods[i], originalItem);
 				String newValue = valueToString(methods[i], updatedItem);
@@ -159,6 +157,13 @@ public class RecentUpdateDao {
 			// If the return of the method is a date, return epoch
 			if (Date.class.isAssignableFrom(returnClass)) {
 				return Long.toString(((Date)methodReturn).getTime());
+			}
+
+			// Once we've covered the above, if the class isn't a string, bool or number
+			//	of some kind, return blank string.
+			//	TODO be able to deal with collections?
+			if (!Number.class.isAssignableFrom(returnClass) && !String.class.isAssignableFrom(returnClass) && !Boolean.class.isAssignableFrom(returnClass)) {
+				return "";
 			}
 
 			// Otherwise, just return the method's return as a string
