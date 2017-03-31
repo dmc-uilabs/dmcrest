@@ -17,6 +17,7 @@ public class ProjectMember {
     private String from;
     private Date date;
     private String id;
+    private String title;
 
     public ProjectMember() {
     }
@@ -70,12 +71,12 @@ public class ProjectMember {
     public void setAccept(boolean value) {
         accept = value;
     }
-    
+
     @JsonProperty("rejected")
     public boolean getRejected() {
     	return rejected;
     }
-    
+
     @JsonProperty("rejected")
     public void setRejected(boolean value) {
     	rejected = value;
@@ -112,6 +113,16 @@ public class ProjectMember {
         date = new Date(value);
     }
 
+    @JsonProperty("title")
+    public String getTitle() {
+      return title;
+    }
+
+    @JsonProperty("title")
+    public void setTitle(String value){
+      title = value;
+    }
+
     @Override
     public boolean equals(Object o) {
       if (this == o) {
@@ -139,7 +150,7 @@ public class ProjectMember {
     public String toString()  {
       StringBuilder sb = new StringBuilder();
       sb.append("class ProjectMember {\n");
-      
+
       sb.append("  id: ").append(id).append("\n");
       sb.append("  profileId: ").append(profileId).append("\n");
       sb.append("  projectId: ").append(projectId).append("\n");
@@ -150,7 +161,7 @@ public class ProjectMember {
       sb.append("}\n");
       return sb.toString();
     }
-    
+
     private void fixId()
     {
         id = getProjectId() + "-" + getProfileId() + "-" + getFromProfileId();
