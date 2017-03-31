@@ -13,11 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.ws.http.HTTPException;
+import org.springframework.http.HttpStatus;
+
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.sharedattributes.Util;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.dmc.services.data.dao.user.UserDao;
 
 public class ServiceRunsDao {
 
@@ -300,6 +305,69 @@ public class ServiceRunsDao {
 		}
 
 		return serviceRuns;
+	}
+
+	private boolean authorizedToCancel(String userEPPN, String serviceRunId) {
+		UserDao userDao = new UserDao();
+		boolean authorizedToCancel = false;
+
+		try {
+			int userId = userDao.getUserID(userEPPN);
+			boolean isSuperAdmin = userDao.isSuperAdmin(userId);
+			String runBy = getSingleServiceRun(serviceRunId).getRunBy();
+			authorizedToCancel = isSuperAdmin || (userId ==  Integer.parseInt(runBy));
+		} catch (SQLException se) {
+
+		}
+
+		return authorizedToCancel;
+	}
+
+	public GetServiceRun cancelServiceRun(String id, String userEPPN) throws DMCServiceException, HTTPException {
+		final Connection connection = DBConnector.connection();
+		GetServiceRun retObj = new GetServiceRun();
+
+		try {
+
+			if (authorizedToCancel(userEPPN, id)) {
+				connection.setAutoCommit(false);
+
+				String serviceRunQuery = "UPDATE service_run SET status = 2 WHERE status=0 AND run_id = ?";
+
+				int i = 1;
+				PreparedStatement preparedStatement = DBConnector.prepareStatement(serviceRunQuery);
+
+				preparedStatement.setInt(i, Integer.parseInt(id));
+				int rowsAffected = preparedStatement.executeUpdate();
+				if (rowsAffected != 1) {
+					connection.rollback();
+					throw new DMCServiceException(DMCError.OtherSQLError, "unable to update service run");
+				}
+			} else {
+				throw new HTTPException(HttpStatus.FORBIDDEN.value());
+			}
+
+			retObj = getSingleServiceRun(id);
+
+		} catch (SQLException se) {
+			ServiceLogger.log(LOGTAG, se.getMessage());
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				ServiceLogger.log(LOGTAG, e.getMessage());
+			}
+			throw new DMCServiceException(DMCError.OtherSQLError, se.getMessage());
+
+		} finally {
+			try {
+				connection.setAutoCommit(true);
+			} catch (SQLException se) {
+				ServiceLogger.log(LOGTAG, se.getMessage());
+			}
+
+		}
+
+		return retObj;
 	}
 
 }
