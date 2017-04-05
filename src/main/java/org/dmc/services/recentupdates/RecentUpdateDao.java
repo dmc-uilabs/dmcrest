@@ -19,6 +19,7 @@ import javax.xml.ws.http.HTTPException;
 import org.dmc.services.Config;
 import org.dmc.services.data.entities.BaseEntity;
 import org.dmc.services.data.entities.DMDIIDocument;
+import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIProject;
 import org.dmc.services.data.entities.DMDIIProjectUpdate;
 import org.dmc.services.data.entities.Organization;
@@ -87,6 +88,8 @@ public class RecentUpdateDao {
 					break;
 				case "Organization": addUpdateForOrganization((Organization)updatedItem);
 					break;
+				case "DMDIIMember": addUpdateForDMDIIMember((DMDIIMember)updatedItem);
+					break;
 				default: break;
 			}
 		} catch (SQLException e) {
@@ -135,6 +138,8 @@ public class RecentUpdateDao {
 					break;
 				case "Organization": addUpdateForOrganization((Organization)updatedItem, description, internalDescription, attributeName);
 					break;
+				// case "DMDIIMember": addUpdateForDMDIIMember((DMDIIMember)updatedItem, description, internalDescription, attributeName);
+				// 	break;
 				default: break;
 			}
 		} catch (SQLException e) {
@@ -282,6 +287,35 @@ public class RecentUpdateDao {
 			int updateId = organization.getId();
 			int parentId = updateId;
 			// TODO update organization creation/modification to capture who is updating what
+			//	right now, appears we have no owner information
+			int userId = 0;
+
+		try {
+			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription, attributeName);
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+		}
+
+	}
+
+
+	// Overloading for adding DMDIIMember
+	private void addUpdateForDMDIIMember(DMDIIMember dmdiimember) throws SQLException {
+			String description = dmdiimember.getOrganization().getName();
+			addUpdateForDMDIIMember(dmdiimember, description);
+	}
+
+	private void addUpdateForDMDIIMember(DMDIIMember dmdiimember, String description) throws SQLException {
+		String internalDescription = "";
+		String attributeName = "";
+		addUpdateForDMDIIMember(dmdiimember, description, internalDescription, attributeName);
+	}
+
+	private void addUpdateForDMDIIMember(DMDIIMember dmdiimember, String description, String internalDescription, String attributeName) throws SQLException {
+			String updateType = dmdiimember.getClass().getSimpleName();
+			int updateId = dmdiimember.getOrganization().getId();
+			int parentId = updateId;
+			// TODO update dmdiimember creation/modification to capture who is updating what
 			//	right now, appears we have no owner information
 			int userId = 0;
 
