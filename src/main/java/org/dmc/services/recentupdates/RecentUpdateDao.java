@@ -106,7 +106,8 @@ public class RecentUpdateDao {
 			String methName = methods[i].getName();
 			if (methName.startsWith("get")) {
 
-
+				// System.out.println("--methname");
+				// System.out.println(methName);
 				String origValue = valueToString(methods[i], originalItem);
 				String newValue = valueToString(methods[i], updatedItem);
 
@@ -114,7 +115,7 @@ public class RecentUpdateDao {
 					String attributeName = methName.replace("get","");
 					String description = attributeName+" has been updated";
 					String internalDescription = "from "+origValue+" to "+newValue;
-					createRecentUpdate(updatedItem, description, internalDescription);
+					createRecentUpdate(updatedItem, description, internalDescription, attributeName);
 				}
 			}
 		}
@@ -123,16 +124,16 @@ public class RecentUpdateDao {
 
 	// This function is step two for newly-created updates, and directs the update to the
 	//	class-specific method required
-	public void createRecentUpdate(Object updatedItem, String description, String internalDescription) throws HTTPException {
+	public void createRecentUpdate(Object updatedItem, String description, String internalDescription, String attributeName) throws HTTPException {
 		try {
 			switch (updatedItem.getClass().getSimpleName()) {
-				case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem, description, internalDescription);
+				case "DMDIIDocument":  addDMDIIDocumentUpdate((DMDIIDocument)updatedItem, description, internalDescription, attributeName);
 					break;
-				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem, description, internalDescription);
+				case "DMDIIProjectUpdate": addDMDIIProjectUpdate((DMDIIProjectUpdate)updatedItem, description, internalDescription, attributeName);
 					break;
-				case "DMDIIProject": addUpdateForDMDIIProject((DMDIIProject)updatedItem, description, internalDescription);
+				case "DMDIIProject": addUpdateForDMDIIProject((DMDIIProject)updatedItem, description, internalDescription, attributeName);
 					break;
-				case "Organization": addUpdateForOrganization((Organization)updatedItem, description, internalDescription);
+				case "Organization": addUpdateForOrganization((Organization)updatedItem, description, internalDescription, attributeName);
 					break;
 				default: break;
 			}
@@ -153,6 +154,8 @@ public class RecentUpdateDao {
 			}
 
 			Class returnClass = methodReturn.getClass();
+			// System.out.println("---the class is");
+			// System.out.println(returnClass);
 
 			// If the return of the method is another hibernate object, call getId to
 			//	return its id
@@ -164,6 +167,8 @@ public class RecentUpdateDao {
 			if (Date.class.isAssignableFrom(returnClass)) {
 				return Long.toString(((Date)methodReturn).getTime());
 			}
+
+			// ((ArrayList)methodReturn).size();
 
 			// Once we've covered the above, if the class isn't a string, bool or number
 			//	of some kind, return blank string.
@@ -188,17 +193,18 @@ public class RecentUpdateDao {
 
 	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument, String description) throws SQLException {
 		String internalDescription = "";
-		addDMDIIDocumentUpdate(dmdiiDocument, description, internalDescription);
+		String attributeName = "";
+		addDMDIIDocumentUpdate(dmdiiDocument, description, internalDescription, attributeName);
 	}
 
-	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument, String description, String internalDescription) throws SQLException {
+	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument, String description, String internalDescription, String attributeName) throws SQLException {
 		String updateType = dmdiiDocument.getClass().getSimpleName();
 		int updateId = dmdiiDocument.getId();
 		int parentId = dmdiiDocument.getDmdiiProject().getId();
 		int userId = dmdiiDocument.getOwner().getId();
 
 		try {
-			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);
+			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription, attributeName);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
@@ -213,17 +219,18 @@ public class RecentUpdateDao {
 
 	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate, String description) throws SQLException {
 		String internalDescription = "";
-		addDMDIIProjectUpdate(dmdiiProjectUpdate, description, internalDescription);
+		String attributeName = "";
+		addDMDIIProjectUpdate(dmdiiProjectUpdate, description, internalDescription, attributeName);
 	}
 
-	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate, String description, String internalDescription) throws SQLException {
+	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate, String description, String internalDescription, String attributeName) throws SQLException {
 			String updateType = dmdiiProjectUpdate.getClass().getSimpleName();
 			int updateId = dmdiiProjectUpdate.getId();
 			int parentId = dmdiiProjectUpdate.getProject().getId();
 			int userId = dmdiiProjectUpdate.getCreator().getId();
 
 		try {
-			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);
+			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription, attributeName);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
@@ -238,10 +245,11 @@ public class RecentUpdateDao {
 
 	private void addUpdateForDMDIIProject(DMDIIProject dmdiiProject, String description) throws SQLException {
 		String internalDescription = "";
-		addUpdateForDMDIIProject(dmdiiProject, description, internalDescription);
+		String attributeName = "";
+		addUpdateForDMDIIProject(dmdiiProject, description, internalDescription, attributeName);
 	}
 
-	private void addUpdateForDMDIIProject(DMDIIProject dmdiiProject, String description, String internalDescription) throws SQLException {
+	private void addUpdateForDMDIIProject(DMDIIProject dmdiiProject, String description, String internalDescription, String attributeName) throws SQLException {
 			String updateType = dmdiiProject.getClass().getSimpleName();
 			int updateId = dmdiiProject.getId();
 			int parentId = updateId;
@@ -249,7 +257,7 @@ public class RecentUpdateDao {
 			int userId = dmdiiProject.getPrincipalPointOfContact().getId();
 
 		try {
-			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);
+			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription, attributeName);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
@@ -265,10 +273,11 @@ public class RecentUpdateDao {
 
 	private void addUpdateForOrganization(Organization organization, String description) throws SQLException {
 		String internalDescription = "";
-		addUpdateForOrganization(organization, description, internalDescription);
+		String attributeName = "";
+		addUpdateForOrganization(organization, description, internalDescription, attributeName);
 	}
 
-	private void addUpdateForOrganization(Organization organization, String description, String internalDescription) throws SQLException {
+	private void addUpdateForOrganization(Organization organization, String description, String internalDescription, String attributeName) throws SQLException {
 			String updateType = organization.getClass().getSimpleName();
 			int updateId = organization.getId();
 			int parentId = updateId;
@@ -277,20 +286,20 @@ public class RecentUpdateDao {
 			int userId = 0;
 
 		try {
-			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription);
+			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription, attributeName);
 		} catch (SQLException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 		}
 
 	}
 
-	private void insertUpdate(String updateType, int updateId, int parentId, String description, int userId, String internalDescription) throws SQLException {
+	private void insertUpdate(String updateType, int updateId, int parentId, String description, int userId, String internalDescription, String attributeName) throws SQLException {
 
 		Long currentTime = System.currentTimeMillis() / 1000L;
 
 		try {
-			String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description, user_id, internal_description)"
-			+ "values ( ?, ?, ?, ?, ?, ?, ?)";
+			String query = "INSERT INTO recent_update (update_date, update_type, update_id, parent_id, description, user_id, internal_description, attribute_name)"
+			+ "values ( ?, ?, ?, ?, ?, ?, ?, ?)";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			// preparedStatement.setTimestamp(1, date);
@@ -301,6 +310,7 @@ public class RecentUpdateDao {
 			preparedStatement.setString(5, description);
 			preparedStatement.setInt(6, userId);
 			preparedStatement.setString(7, internalDescription);
+			preparedStatement.setString(8, attributeName);
 			preparedStatement.executeUpdate();
 
 		} catch (SQLException e) {
