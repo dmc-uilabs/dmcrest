@@ -46,12 +46,12 @@ public class RecentUpdateDao {
 	private ResultSet resultSet;
 	private Connection connection;
 
-    public ArrayList<RecentUpdate> getRecentUpdates(String userEPPN) throws HTTPException {
+    public ArrayList<RecentUpdate> getRecentUpdates(String userEPPN, int limit) throws HTTPException {
         ArrayList<RecentUpdate> recentUpdates = new ArrayList<RecentUpdate>();
         ServiceLogger.log(logTag, "User: " + userEPPN + " asking for recent updates");
 
         try {
-						resultSet = DBConnector.executeQuery("select ru.id, update_date, update_type, update_id, ru.parent_id, ru.description, project_title from recent_update ru 	left join dmdii_project dp on dp.id = ru.parent_id		and ru.update_type in ('DMDIIDocument', 'DMDIIProjectUpdate','DMDIIProject')		and dp.is_deleted = 'f'	left join dmdii_project_update pu on pu.id = ru.update_id 		and ru.update_type = 'DMDIIProjectUpdate' 		and pu.is_deleted = 'f'	left join dmdii_document dd on dd.id = ru.update_id 		and ru.update_type = 'DMDIIDocument'		and dd.is_deleted = 'f'WHERE (	parent_id = update_id	OR pu.id is not NULL 	OR dd.id is not NULL	OR update_type='DMDIIMember'      )AND (	(attribute_name = '' AND update_type in ('DMDIIDocument','DMDIIProjectUpdate'))	OR	(update_type='DMDIIProject' and attribute_name='ProjectStatus')	OR	(update_type='DMDIIMember')    )	order by ru.id desc");
+						resultSet = DBConnector.executeQuery("select ru.id, update_date, update_type, update_id, ru.parent_id, ru.description, project_title from recent_update ru 	left join dmdii_project dp on dp.id = ru.parent_id		and ru.update_type in ('DMDIIDocument', 'DMDIIProjectUpdate','DMDIIProject')		and dp.is_deleted = 'f'	left join dmdii_project_update pu on pu.id = ru.update_id 		and ru.update_type = 'DMDIIProjectUpdate' 		and pu.is_deleted = 'f'	left join dmdii_document dd on dd.id = ru.update_id 		and ru.update_type = 'DMDIIDocument'		and dd.is_deleted = 'f'WHERE (	parent_id = update_id	OR pu.id is not NULL 	OR dd.id is not NULL	OR update_type='DMDIIMember'      )AND (	(attribute_name = '' AND update_type in ('DMDIIDocument','DMDIIProjectUpdate'))	OR	(update_type='DMDIIProject' and attribute_name='ProjectStatus')	OR	(update_type='DMDIIMember')    )	order by ru.id desc limit "+Integer.toString(limit));
 
             while (resultSet.next()) {
 

@@ -35,17 +35,17 @@ public class RecentUpdateController {
     private RecentUpdateDao recentUpdateDao = new RecentUpdateDao();
 
     @RequestMapping(value = "/recent_updates", method = RequestMethod.GET, produces = {APPLICATION_JSON_VALUE})
-    public ResponseEntity getRecentUpdates(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+    public ResponseEntity getRecentUpdates(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
+        @RequestParam(value = "limit", required = false, defaultValue = "3") Integer limit) {
         ServiceLogger.log(LOGTAG, "getRecentUpdates, userEPPN: " + userEPPN);
         int statusCode = HttpStatus.OK.value();
-        String responseText = "a string of response";
 
         try {
           ArrayList<RecentUpdate> recentUpdates = null;
-          recentUpdates = recentUpdateDao.getRecentUpdates(userEPPN);
+          recentUpdates = recentUpdateDao.getRecentUpdates(userEPPN, limit);
           return new ResponseEntity<ArrayList<RecentUpdate>>(recentUpdates, HttpStatus.valueOf(statusCode));
         } catch (HTTPException e) {
-          return new ResponseEntity(responseText, HttpStatus.valueOf(statusCode));
+          return new ResponseEntity(e, HttpStatus.valueOf(statusCode));
         }
     }
 
