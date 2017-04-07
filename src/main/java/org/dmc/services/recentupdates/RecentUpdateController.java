@@ -13,9 +13,11 @@ import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.ServiceLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 
 import org.dmc.services.data.entities.DMDIIProjectUpdate;
 import org.dmc.services.data.entities.DMDIIDocument;
@@ -35,6 +38,7 @@ public class RecentUpdateController {
     private RecentUpdateDao recentUpdateDao = new RecentUpdateDao();
 
     @RequestMapping(value = "/recent_updates", method = RequestMethod.GET, produces = {APPLICATION_JSON_VALUE})
+    @PreAuthorize(SecurityRoles.REQUIRED_ROLE_DMDII_MEMBER)
     public ResponseEntity getRecentUpdates(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN,
         @RequestParam(value = "limit", required = false, defaultValue = "3") Integer limit) {
         ServiceLogger.log(LOGTAG, "getRecentUpdates, userEPPN: " + userEPPN);
