@@ -30,7 +30,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -42,7 +44,7 @@ public class UserController {
 
 	@Inject
 	private OrganizationUserService orgUserService;
-	
+
 	@Inject
 	private NotificationService notificationService;
 
@@ -99,6 +101,14 @@ public class UserController {
     @RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserModel getUser(@PathVariable Integer id) {
 		return userService.findOne(id);
+	}
+
+	@RequestMapping(value = "/user/{id}/userName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, String> getUserName(@PathVariable Integer id) {
+		UserModel userModel = userService.findOne(id);
+		Map<String, String> hm = new HashMap<>();
+		hm.put("displayName", userModel.getDisplayName());
+		return hm;
 	}
 
     @RequestMapping(value = "/user/save", method = RequestMethod.POST)
@@ -166,14 +176,14 @@ public class UserController {
 		}
 		return orgUserService.changeOrganization(orgUser);
 	}
-	
+
 	@RequestMapping(value = "/users/{userId}/notifications", params = "action=markAllRead", method = RequestMethod.PUT)
 	public void markNotificationsAsRead(@PathVariable("userId") Integer userId) {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (!userId.equals(loggedIn.getId())) {
 			throw new AccessDeniedException("403 Permission Denied");
 		}
-		
+
 		notificationService.markAllNotificationsReadForUser(userId);
 	}
 
