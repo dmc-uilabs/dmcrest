@@ -104,11 +104,16 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/user/{id}/userName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, String> getUserName(@PathVariable Integer id) {
+	public ResponseEntity<Map<String, String>> getUserName(@PathVariable Integer id) {
 		UserModel userModel = userService.findOne(id);
 		Map<String, String> hm = new HashMap<>();
-		hm.put("displayName", userModel.getDisplayName());
-		return hm;
+		if (userModel == null) {
+			hm.put("errorMessage", "User with the id of " + id + " not found." );
+			return new ResponseEntity<>(hm, HttpStatus.NOT_FOUND);
+		} else {
+			hm.put("displayName", userModel.getDisplayName());
+			return ResponseEntity.ok(hm);
+		}
 	}
 
     @RequestMapping(value = "/user/save", method = RequestMethod.POST)
