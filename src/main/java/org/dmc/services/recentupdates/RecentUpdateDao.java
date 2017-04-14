@@ -51,7 +51,6 @@ public class RecentUpdateDao {
         ServiceLogger.log(logTag, "User: " + userEPPN + " asking for recent updates");
 
         try {
-						// resultSet = DBConnector.executeQuery("select ru.id, update_date, update_type, update_id, ru.parent_id, ru.description, project_title, attribute_name from recent_update ru 	left join dmdii_project dp on dp.id = ru.parent_id		and ru.update_type in ('DMDIIDocument', 'DMDIIProjectUpdate','DMDIIProject')		and dp.is_deleted = 'f'	left join dmdii_project_update pu on pu.id = ru.update_id 		and ru.update_type = 'DMDIIProjectUpdate' 		and pu.is_deleted = 'f'	left join dmdii_document dd on dd.id = ru.update_id 		and ru.update_type = 'DMDIIDocument'		and dd.is_deleted = 'f'WHERE (	parent_id = update_id	OR pu.id is not NULL 	OR dd.id is not NULL	OR update_type='DMDIIMember'      )AND (	(attribute_name = '' AND update_type in ('DMDIIDocument','DMDIIProjectUpdate'))	OR	(update_type='DMDIIProject' and attribute_name='ProjectStatus')	OR	(update_type='DMDIIMember')    )	order by ru.id desc limit "+Integer.toString(limit));
 						resultSet = DBConnector.executeQuery("select ru.id, update_date, update_type, update_id, ru.parent_id, ru.description, project_title, org.name, attribute_name from recent_update ru left join dmdii_project dp on dp.id = ru.parent_id and ru.update_type in ('DMDIIDocument', 'DMDIIProjectUpdate','DMDIIProject') and dp.is_deleted = 'f' left join dmdii_project_update pu on pu.id = ru.update_id  and ru.update_type = 'DMDIIProjectUpdate' and pu.is_deleted = 'f' left join dmdii_document dd on dd.id = ru.update_id and ru.update_type = 'DMDIIDocument' and dd.is_deleted = 'f' left join organization org on org.organization_id = ru.parent_id and ru.update_type in ('DMDIIMember') WHERE (parent_id = update_id OR pu.id is not NULL OR dd.id is not NULL OR update_type='DMDIIMember') AND ((attribute_name = '' AND update_type in ('DMDIIDocument','DMDIIProjectUpdate')) OR (update_type='DMDIIProject' and attribute_name='ProjectStatus') OR (update_type='DMDIIMember')) order by ru.id desc limit "+Integer.toString(limit));
 
             while (resultSet.next()) {
@@ -63,7 +62,6 @@ public class RecentUpdateDao {
                 recentUpdate.setUpdateId(resultSet.getInt("update_id"));
                 recentUpdate.setParentId(resultSet.getInt("parent_id"));
                 recentUpdate.setDescription(resultSet.getString("description"));
-								// recentUpdate.setParentTitle(resultSet.getString("project_title"));
 								String parentTitle = resultSet.getString("project_title") != null ? resultSet.getString("project_title") : resultSet.getString("name");
 								recentUpdate.setParentTitle(parentTitle);
 
@@ -111,12 +109,8 @@ public class RecentUpdateDao {
 		for(int i = 0; i < methods.length; i++) {
 			String methName = methods[i].getName();
 			if (methName.startsWith("get")) {
-
-				// System.out.println("--methname");
-				// System.out.println(methName);
 				String origValue = valueToString(methods[i], originalItem);
 				String newValue = valueToString(methods[i], updatedItem);
-
 				if (!origValue.equals(newValue)) {
 					String attributeName = methName.replace("get","");
 					String description = attributeName+" has been updated";
@@ -162,8 +156,6 @@ public class RecentUpdateDao {
 			}
 
 			Class returnClass = methodReturn.getClass();
-			// System.out.println("---the class is");
-			// System.out.println(returnClass);
 
 			// If the return of the method is another hibernate object, call getId to
 			//	return its id
@@ -175,8 +167,6 @@ public class RecentUpdateDao {
 			if (Date.class.isAssignableFrom(returnClass)) {
 				return Long.toString(((Date)methodReturn).getTime());
 			}
-
-			// ((ArrayList)methodReturn).size();
 
 			// Once we've covered the above, if the class isn't a string, bool or number
 			//	of some kind, return blank string.
@@ -196,10 +186,6 @@ public class RecentUpdateDao {
 	// Overloading for adding DMDII Documents
 	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument) throws SQLException {
 		String description = dmdiiDocument.getDocumentName();
-		addDMDIIDocumentUpdate(dmdiiDocument, description);
-	}
-
-	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument, String description) throws SQLException {
 		String internalDescription = "";
 		String attributeName = "";
 		addDMDIIDocumentUpdate(dmdiiDocument, description, internalDescription, attributeName);
@@ -222,14 +208,11 @@ public class RecentUpdateDao {
 	// Overloading for adding DMDII Project Updates
 	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate) throws SQLException {
 			String description = dmdiiProjectUpdate.getTitle();
-			addDMDIIProjectUpdate(dmdiiProjectUpdate, description);
+			String internalDescription = "";
+			String attributeName = "";
+			addDMDIIProjectUpdate(dmdiiProjectUpdate, description, internalDescription, attributeName);
 	}
 
-	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate, String description) throws SQLException {
-		String internalDescription = "";
-		String attributeName = "";
-		addDMDIIProjectUpdate(dmdiiProjectUpdate, description, internalDescription, attributeName);
-	}
 
 	private void addDMDIIProjectUpdate(DMDIIProjectUpdate dmdiiProjectUpdate, String description, String internalDescription, String attributeName) throws SQLException {
 			String updateType = dmdiiProjectUpdate.getClass().getSimpleName();
@@ -248,13 +231,9 @@ public class RecentUpdateDao {
 	// Overloading for adding DMDII Projects (or updating the projects themselves)
 	private void addUpdateForDMDIIProject(DMDIIProject dmdiiProject) throws SQLException {
 			String description = dmdiiProject.getProjectTitle();
-			addUpdateForDMDIIProject(dmdiiProject, description);
-	}
-
-	private void addUpdateForDMDIIProject(DMDIIProject dmdiiProject, String description) throws SQLException {
-		String internalDescription = "";
-		String attributeName = "";
-		addUpdateForDMDIIProject(dmdiiProject, description, internalDescription, attributeName);
+			String internalDescription = "";
+			String attributeName = "";
+			addUpdateForDMDIIProject(dmdiiProject, description, internalDescription, attributeName);
 	}
 
 	private void addUpdateForDMDIIProject(DMDIIProject dmdiiProject, String description, String internalDescription, String attributeName) throws SQLException {
@@ -272,17 +251,12 @@ public class RecentUpdateDao {
 
 	}
 
-
 	// Overloading for adding Organizations (or updating the organizations themselves)
 	private void addUpdateForOrganization(Organization organization) throws SQLException {
 			String description = organization.getName();
-			addUpdateForOrganization(organization, description);
-	}
-
-	private void addUpdateForOrganization(Organization organization, String description) throws SQLException {
-		String internalDescription = "";
-		String attributeName = "";
-		addUpdateForOrganization(organization, description, internalDescription, attributeName);
+			String internalDescription = "";
+			String attributeName = "";
+			addUpdateForOrganization(organization, description, internalDescription, attributeName);
 	}
 
 	private void addUpdateForOrganization(Organization organization, String description, String internalDescription, String attributeName) throws SQLException {
@@ -305,13 +279,9 @@ public class RecentUpdateDao {
 	// Overloading for adding DMDIIMember
 	private void addUpdateForDMDIIMember(DMDIIMember dmdiimember) throws SQLException {
 			String description = dmdiimember.getOrganization().getName();
-			addUpdateForDMDIIMember(dmdiimember, description);
-	}
-
-	private void addUpdateForDMDIIMember(DMDIIMember dmdiimember, String description) throws SQLException {
-		String internalDescription = "";
-		String attributeName = "";
-		addUpdateForDMDIIMember(dmdiimember, description, internalDescription, attributeName);
+			String internalDescription = "";
+			String attributeName = "";
+			addUpdateForDMDIIMember(dmdiimember, description, internalDescription, attributeName);
 	}
 
 	private void addUpdateForDMDIIMember(DMDIIMember dmdiimember, String description, String internalDescription, String attributeName) throws SQLException {
