@@ -27,12 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import org.dmc.services.data.entities.DMDIIProjectUpdate;
 import org.dmc.services.data.entities.DMDIIDocument;
-// import org.dmc.services.data.entities.DMDIIMember;
-// import org.dmc.services.data.entities.DMDIIProject;
-// import org.dmc.services.data.entities.Organization;
 
 @RestController
 public class RecentUpdateController {
