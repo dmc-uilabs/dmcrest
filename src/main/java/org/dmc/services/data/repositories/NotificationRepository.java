@@ -12,7 +12,7 @@ public interface NotificationRepository extends BaseRepository<Notification, Int
 	void markAllNotificationsReadForUser(@Param("userId") Integer userId);
 
 	@Modifying
-	@Query("update Notification n set n.unread = 'false' where n.createdFor.id = :userId and n.id = :notificationId")
+	@Query("update Notification n set n.unread = 'false', is_deleted = 'true' where n.createdFor.id = :userId and n.id = :notificationId")
 	void markNotificationRead(@Param("userId") Integer userId, @Param("notificationId") Integer notificationId);
 
 }
