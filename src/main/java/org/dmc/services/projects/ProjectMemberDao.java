@@ -28,13 +28,13 @@ public class ProjectMemberDao {
 
     private Connection connection;
     private final String logTag = ProjectMemberDao.class.getName();
-    
+
     @Inject
     private UserRepository userRepository;
-    
+
     @Inject
     private ResourceGroupService resourceGroupService;
-    
+
     @Inject
     private ProjectDao projectDao;
 
@@ -44,7 +44,7 @@ public class ProjectMemberDao {
     /**
      * Get Members - Currently returning all members' Profiles who are part of a
      * DMDII Company
-     * 
+     *
      * @param userEPPN
      * @return
      * @throws DMCServiceException
@@ -135,7 +135,7 @@ public class ProjectMemberDao {
     }
 
     private String createAcceptClause(Boolean accept) {
-        
+
         if (accept != null) {
             if (accept.booleanValue()) {
                 return "gjr.accept_date is not null";
@@ -150,10 +150,11 @@ public class ProjectMemberDao {
         // requesting user must be administrator of the project to get the
         // list of members, unless user is requesting own membership.
 
-        String projectMembersQuery = "SELECT gjr.group_id, gjr.user_id, gjr.requester_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.realname, ur.realname requester_name "
-                + "FROM group_join_request gjr " 
+        String projectMembersQuery = "SELECT gjr.group_id, gjr.user_id, gjr.requester_id, gjr.request_date, gjr.accept_date, gjr.reject_date, u.realname, ur.realname requester_name, g.group_name title "
+                + "FROM group_join_request gjr "
                 + "JOIN users u ON gjr.user_id = u.user_id "
-                + "JOIN users ur ON gjr.requester_id = ur.user_id ";
+                + "JOIN users ur ON gjr.requester_id = ur.user_id "
+                + "JOIN groups g ON gjr.group_id = g.group_id ";
         final String membershipRequiredClause = "gjr.group_id in (SELECT adr.home_group_id from pfo_role adr join pfo_user_role adu on adr.role_id = adu.role_id where adu.user_id = "
                 + userId + ")";
 
@@ -180,7 +181,7 @@ public class ProjectMemberDao {
         if (null != acceptClause) {
             clauses.add(acceptClause);
         }
-        
+
         if (clauses.size() > 0) {
             projectMembersQuery += "WHERE " + clauses.get(0);
             for (int i = 1; i < clauses.size(); ++i) {
@@ -202,23 +203,24 @@ public class ProjectMemberDao {
                 member.setProjectId(Integer.toString(resultSet.getInt("group_id")));
                 final Timestamp acceptTimestamp = resultSet.getTimestamp("accept_date");
                 final Timestamp rejectTimestamp = resultSet.getTimestamp("reject_date");
-                
+
                 if (null != acceptTimestamp) {
                     member.setAccept(true);
                 } else {
                     member.setAccept(false);
                 }
-                
+
                 if (null != rejectTimestamp) {
                 	member.setRejected(true);
                 } else {
                 	member.setRejected(false);
                 }
-                
+
                 member.setFromProfileId(Integer.toString(resultSet.getInt("requester_id")));
                 member.setFrom(resultSet.getString("requester_name"));
                 final Timestamp requestTimestamp = resultSet.getTimestamp("request_date");
                 member.setDate(requestTimestamp.getTime());
+                member.setTitle(resultSet.getString("title"));
                 list.add(member);
             }
             return list;
@@ -231,7 +233,7 @@ public class ProjectMemberDao {
     public ProjectMember createProjectMemberRequest(ProjectMember member, String userEPPN)
             throws SQLException, Exception {
         final ProjectMember createdMember = new ProjectMember();
-        
+
         final PostProjectJoinRequest request = new PostProjectJoinRequest();
         request.setProfileId(member.getId().split("-")[1]);
         request.setProjectId(member.getProjectId());
@@ -239,7 +241,7 @@ public class ProjectMemberDao {
          * Note: this is rather messy, but there already exists code to handle insertions in to project_join_requests
          * so I am extracting the data and sending to that function call in ProjectDao
          */
-        
+
         projectDao.createProjectJoinRequest(request, userEPPN);
         createdMember.setAccept(member.getFromProfileId().equals(member.getProfileId()) ? true : false);
         createdMember.setDate(System.currentTimeMillis());
@@ -275,13 +277,13 @@ public class ProjectMemberDao {
 
             if (memberId != userId)
                 throw new DMCServiceException(DMCError.UnknownUser, "Not the correct user");
-            
+
             final boolean ok = isUserProjectAdmin(projectId, requesterId);
             if (!ok) {
                 throw new DMCServiceException(DMCError.NotProjectAdmin,
                         userEPPN + " does not have permission to invite new members, you must be a project Admin");
             }
-            
+
             final int roleId = GetRole(projectId, "Project Member");
             return acceptMember(memberId, roleId, projectId, requesterId);
 
@@ -369,11 +371,11 @@ public class ProjectMemberDao {
                 throw new DMCServiceException(DMCError.NoExistingRequest,
                         "no existing request to join the project " + projectId + " for memberId " + memberId);
             } else {
-                
+
                 //bolt on resource access for project members
                 User user = userRepository.getOne(memberId);
                 resourceGroupService.addUserResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
-            	
+
             }
 
             return findMemberRequest(memberId, projectId, fromUserId);
@@ -541,10 +543,10 @@ public class ProjectMemberDao {
             connection.rollback();
             throw new DMCServiceException(DMCError.BadURL, "no project request for " + memberId + " in project " + projectId);
         } else {
-            
+
             User user = userRepository.findOne(memberId);
             resourceGroupService.removeUserResourceGroup(user, DocumentParentType.PROJECT, projectId, SecurityRoles.MEMBER);
-        	
+
         }
     }
 
