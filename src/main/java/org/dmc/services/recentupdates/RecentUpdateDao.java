@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -176,8 +178,15 @@ public class RecentUpdateDao {
 				return "";
 			}
 
-			// Otherwise, just return the method's return as a string
-			return methodReturn.toString();
+			// Otherwise, return the method's return as a string -- if it can be formatted as a number,
+			//	do that to avoid mismatches on decimals, etc.
+			try {
+				Number num = NumberFormat.getInstance().parse(methodReturn.toString());
+				return num.toString();
+			} catch (ParseException e) {
+				return methodReturn.toString();
+			}
+
 		} catch (IllegalAccessException|InvocationTargetException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return "";
