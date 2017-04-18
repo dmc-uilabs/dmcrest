@@ -42,7 +42,7 @@ public class UserController {
 
 	@Inject
 	private OrganizationUserService orgUserService;
-	
+
 	@Inject
 	private NotificationService notificationService;
 
@@ -166,15 +166,28 @@ public class UserController {
 		}
 		return orgUserService.changeOrganization(orgUser);
 	}
-	
-	@RequestMapping(value = "/users/{userId}/notifications", params = "action=markAllRead", method = RequestMethod.PUT)
-	public void markNotificationsAsRead(@PathVariable("userId") Integer userId) {
+
+	@RequestMapping(value = "/users/{userId}/notifications/{notificationId}", params = "action=markNotificationRead", method = RequestMethod.GET)
+	public NotificationUserResponse markNotificationRead(@PathVariable("userId") Integer userId, @PathVariable("notificationId") Integer notificationId) {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		if (!userId.equals(loggedIn.getId())) {
 			throw new AccessDeniedException("403 Permission Denied");
 		}
-		
+
+		notificationService.markNotificationRead(userId, notificationId);
+
+		return new NotificationUserResponse("Notification Marked As Read");
+	}
+
+	@RequestMapping(value = "/users/{userId}/notifications", params = "action=markAllRead", method = RequestMethod.GET)
+	public NotificationUserResponse markNotificationsAsRead(@PathVariable("userId") Integer userId) {
+		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (!userId.equals(loggedIn.getId())) {
+			throw new AccessDeniedException("403 Permission Denied");
+		}
+
 		notificationService.markAllNotificationsReadForUser(userId);
+		return new NotificationUserResponse("Notifications Marked As Read");
 	}
 
 	@RequestMapping(value = "/users/{userId}/email", method = RequestMethod.POST)
