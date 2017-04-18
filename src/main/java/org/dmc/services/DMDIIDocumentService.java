@@ -134,8 +134,8 @@ public class DMDIIDocumentService {
 
 		ServiceLogger.log(logTag, "Attempting to verify DMDII document");
 		//Verify the document
-		// String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", userEntity.getUsername(), "ProjectOfDMDII", "Documents", "id", "url");
-		// ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
+		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", userEntity.getUsername(), "ProjectOfDMDII", "Documents", "id", "url");
+		ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
 
 		RecentUpdateController recentUpdateController = new RecentUpdateController();
 		recentUpdateController.addRecentUpdate(docEntity);
