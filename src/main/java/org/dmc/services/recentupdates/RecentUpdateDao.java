@@ -64,6 +64,7 @@ public class RecentUpdateDao {
                 recentUpdate.setDescription(resultSet.getString("description"));
 								String parentTitle = resultSet.getString("project_title") != null ? resultSet.getString("project_title") : resultSet.getString("name");
 								recentUpdate.setParentTitle(parentTitle);
+								recentUpdate.setAttributeName(resultSet.getString("attribute_name"));
 
                 recentUpdates.add(recentUpdate);
             }

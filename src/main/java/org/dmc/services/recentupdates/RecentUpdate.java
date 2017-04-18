@@ -92,15 +92,12 @@ public class RecentUpdate {
     public void setParentTitle(String parentTitle) {
       this.parentTitle = parentTitle;
     }
-  	// @Override
-  	// public int hashCode() {
-  	// 	return Objects.hash(id, updateDate, updateType, updateId, parentId);
-  	// }
+
     @JsonProperty("attributeName")
     public String getAttributeName() {
       return attributeName;
     }
-    public void setAttributeName(String parentTitle) {
+    public void setAttributeName(String attributeName) {
       this.attributeName = attributeName;
     }
 
