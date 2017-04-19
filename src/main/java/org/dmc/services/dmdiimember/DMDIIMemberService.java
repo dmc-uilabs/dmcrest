@@ -28,6 +28,7 @@ import org.dmc.services.data.repositories.DMDIIMemberEventRepository;
 import org.dmc.services.data.repositories.DMDIIMemberNewsRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.organization.OrganizationService;
+import org.dmc.services.recentupdates.RecentUpdateController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -116,6 +117,9 @@ public class DMDIIMemberService {
 			DMDIIMember originalEntity = dmdiiMemberDao.findOne(memberEntity.getId());
 			memberEntity.setProjects(originalEntity.getProjects());
 		}
+
+		RecentUpdateController recentUpdateController = new RecentUpdateController();
+		recentUpdateController.addRecentUpdate(memberEntity);
 
 		return memberMapper.mapToModel(dmdiiMemberDao.save(memberEntity));
 	}

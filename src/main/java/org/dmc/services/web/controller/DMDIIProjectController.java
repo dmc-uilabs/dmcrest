@@ -37,10 +37,10 @@ public class DMDIIProjectController {
 
 	@Inject
 	private DMDIIProjectService dmdiiProjectService;
-	
+
 	@Inject
 	private DMDIIProjectEventsService dmdiiProjectEventsService;
-	
+
 	@Inject
 	private DMDIIProjectNewsService dmdiiProjectNewsService;
 
@@ -66,13 +66,13 @@ public class DMDIIProjectController {
 		Long count = dmdiiProjectService.countDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId);
 		return new PagedResponse(count, results);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiprojects/member/active", method = RequestMethod.GET)
 	public PagedResponse getActiveDMDIIProjectsByDMDIIMemberId(@RequestParam("dmdiiMemberId") Integer dmdiiMemberId,
 																		@RequestParam("page") Integer page,
 																		@RequestParam("pageSize") Integer pageSize) {
 		ServiceLogger.log(logTag, "In getActiveDMDIIProjectsByDMDIIMemberId as member " + dmdiiMemberId);
-		
+
 		List<DMDIIProjectModel> results = dmdiiProjectService.findDMDIIProjectsByPrimeOrganizationIdAndIsActive(dmdiiMemberId, page, pageSize);
 		List<DMDIIProjectModel> ccResults = dmdiiProjectService.findActiveDMDIIProjectsByContributingCompany(dmdiiMemberId);
 		List<DMDIIProjectModel> totalResults = new ArrayList<DMDIIProjectModel>(results);
@@ -118,15 +118,19 @@ public class DMDIIProjectController {
 	@RequestMapping(value = "/dmdiiProject/save", method = RequestMethod.POST)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectModel saveDMDIIProject (@RequestBody DMDIIProjectModel project) {
-		return dmdiiProjectService.save(project);
+		if (project.getId() == null) {
+			return dmdiiProjectService.save(project);
+		} else {
+			return dmdiiProjectService.update(project);
+		}
 	}
-	
+
 	@RequestMapping(value = "/dmdiiProjects/{id}", method = RequestMethod.PATCH)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectModel update (@RequestBody DMDIIProjectModel project) {
 		return dmdiiProjectService.update(project);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiProjects/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public void delete(@PathVariable("id") Integer id) {
@@ -142,50 +146,50 @@ public class DMDIIProjectController {
 	public List<DMDIIProjectEventModel> getDmdiiProjectEvents(@RequestParam("limit") Integer limit) {
 		return dmdiiProjectService.getDmdiiProjectEvents(limit);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiProject/events", method = RequestMethod.POST)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectEventModel saveDMDIIProjectEvent (@RequestBody DMDIIProjectEventModel projectEvent) {
 		return dmdiiProjectEventsService.save(projectEvent);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiProject/news", method = RequestMethod.POST)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectNewsModel saveDMDIIProjectNews (@RequestBody DMDIIProjectNewsModel projectNews) {
 		return dmdiiProjectNewsService.save(projectNews);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiProject/events/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public void deleteEvent(@PathVariable("id") Integer id) {
 		dmdiiProjectEventsService.delete(id);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiProject/news/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public void deleteNews(@PathVariable("id") Integer id) {
 		dmdiiProjectNewsService.delete(id);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiProjectUpdate", params = {"limit", "projectId"}, method = RequestMethod.GET)
 	public List<DMDIIProjectUpdateModel> getDMDIIProjectUpdates (@RequestParam("limit") Integer limit, @RequestParam("projectId") Integer projectId) {
 		ServiceLogger.log(logTag, "In getDMDIIProjectUpdates");
 		return dmdiiProjectUpdateService.getDMDIIProjectUpdatesByProjectId(limit, projectId);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiProjectUpdate", method = RequestMethod.POST)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public DMDIIProjectUpdateModel saveDMDIIProjectUpdate (@RequestBody DMDIIProjectUpdateModel projectUpdate) {
 		ServiceLogger.log(logTag, "In saveDMDIIProjectUpdate");
 		return dmdiiProjectUpdateService.save(projectUpdate);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiProjectUpdate/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public void deleteUpdate(@PathVariable("id") Integer id) {
 		dmdiiProjectUpdateService.delete(id);
 	}
-	
+
 	@RequestMapping(value = "/contributingCompanies", params = "dmdiiMemberId", method = RequestMethod.GET)
 	public List<DMDIIProjectModel> getDMDIIProjectsByContributingCompany (@RequestParam ("dmdiiMemberId") Integer dmdiiMemberId) {
 		ServiceLogger.log(logTag, "In getDMDIIProjectsByContributingCompany: " + dmdiiMemberId);

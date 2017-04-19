@@ -16,6 +16,8 @@ import org.dmc.services.data.repositories.DMDIIProjectUpdateRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import org.dmc.services.recentupdates.RecentUpdateController;
+
 @Service
 public class DMDIIProjectUpdateService {
 
@@ -43,6 +45,7 @@ public class DMDIIProjectUpdateService {
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
 		DMDIIProjectUpdate updateEntity = updateMapper.mapToEntity(update);
+
 		DMDIIProject projectEntity = projectMapper.mapToEntity(dmdiiProjectService.findOne(update.getDmdiiProject()));
 		User userEntity = userMapper.mapToEntity(userService.findOne(update.getCreator()));
 
@@ -51,9 +54,12 @@ public class DMDIIProjectUpdateService {
 
 		updateEntity = dmdiiProjectUpdateRepository.save(updateEntity);
 
+		RecentUpdateController recentUpdateController = new RecentUpdateController();
+		recentUpdateController.addRecentUpdate(updateEntity);
+
 		return updateMapper.mapToModel(updateEntity);
 	}
-	
+
 	public void delete(Integer updateId) {
 		DMDIIProjectUpdate updateEntity = dmdiiProjectUpdateRepository.findOne(updateId);
 		updateEntity.setIsDeleted(true);

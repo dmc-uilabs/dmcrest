@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-
 import org.dmc.services.DMDIIDocumentService;
 import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.OrganizationUserService;
@@ -32,6 +31,7 @@ import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.recentupdates.RecentUpdateController;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
 import org.dmc.services.security.UserPrincipal;
 import org.springframework.data.domain.Page;
@@ -135,6 +135,10 @@ public class OrganizationService {
 		} else {
 			Organization existingOrg = this.organizationRepository.findOne(organizationEntity.getId());
 			organizationEntity.setLogoImage(existingOrg.getLogoImage());
+
+			RecentUpdateController recentUpdateController = new RecentUpdateController();
+			recentUpdateController.addRecentUpdate(organizationEntity, existingOrg);
+
 			organizationEntity = organizationRepository.save(organizationEntity);
 		}
 

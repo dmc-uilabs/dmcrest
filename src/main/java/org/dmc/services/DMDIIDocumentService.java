@@ -17,6 +17,7 @@ import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.data.repositories.DMDIIQuickLinkRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.recentupdates.RecentUpdateController;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,6 +137,9 @@ public class DMDIIDocumentService {
 		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "dmdii_document", userEntity.getUsername(), "ProjectOfDMDII", "Documents", "id", "url");
 		ServiceLogger.log(logTag, "Verification Machine Response: " + temp);
 
+		RecentUpdateController recentUpdateController = new RecentUpdateController();
+		recentUpdateController.addRecentUpdate(docEntity);
+
 		return docMapper.mapToModel(docEntity);
 	}
 
@@ -217,7 +221,12 @@ public class DMDIIDocumentService {
 		docEntity.setVersion(oldVersion++);
 		docEntity.setVerified(oldEntity.getVerified());
 
+		// Insert update for all modified fields
+		RecentUpdateController recentUpdateController = new RecentUpdateController();
+		recentUpdateController.addRecentUpdate(docEntity, oldEntity);
+
 		docEntity= dmdiiDocumentRepository.save(docEntity);
+
 
 		return mapper.mapToModel(docEntity);
 	}

@@ -26,6 +26,7 @@ import org.dmc.services.data.repositories.DMDIIProjectRepository;
 import org.dmc.services.dmdiimember.DMDIIMemberDao;
 import org.dmc.services.dmdiimember.DMDIIMemberService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
+import org.dmc.services.recentupdates.RecentUpdateController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -35,6 +36,7 @@ import org.springframework.util.Assert;
 
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
+
 
 @Service
 public class DMDIIProjectService {
@@ -218,21 +220,25 @@ public class DMDIIProjectService {
 
 	public DMDIIProjectModel save(DMDIIProjectModel project) {
 		Assert.notNull(project);
+
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 
 		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
-		
+
 		if(project.getPrimeOrganization() != null) {
 			DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
 			projectEntity.setPrimeOrganization(memberEntity);
 		}
 
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
+		// Insert update for newly-created project
+		RecentUpdateController recentUpdateController = new RecentUpdateController();
+		recentUpdateController.addRecentUpdate(projectEntity);
 
 		return projectMapper.mapToModel(projectEntity);
 	}
-	
+
 	public DMDIIProjectModel update (DMDIIProjectModel project) {
 		Assert.notNull(project);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
@@ -246,9 +252,13 @@ public class DMDIIProjectService {
 			DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
 			projectEntity.setPrimeOrganization(memberEntity);
 		}
-		
+
+		// Insert update for all modified fields
+		RecentUpdateController recentUpdateController = new RecentUpdateController();
+		recentUpdateController.addRecentUpdate(projectEntity, oldEntity);
+
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
-		
+
 		return projectMapper.mapToModel(projectEntity);
 	}
 
