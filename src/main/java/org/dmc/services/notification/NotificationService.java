@@ -25,33 +25,38 @@ public class NotificationService {
 
 	@Inject
 	private NotificationRepository notificationRepository;
-	
+
 	@Inject
 	private UserService userService;
-	
+
 	@Inject
 	private OrganizationUserService organizationUserService;
-	
+
 	@Inject
 	private MapperFactory mapperFactory;
-	
+
 	@Transactional
 	public void markAllNotificationsReadForUser(Integer userId) {
 		notificationRepository.markAllNotificationsReadForUser(userId);
 	}
-	
+
+	@Transactional
+	public void markNotificationRead(Integer userId, Integer notificationId){
+		notificationRepository.markNotificationRead(userId, notificationId);
+	}
+
 	public void notifyOrgAdminsOfNewUser(Integer organizationId, String username) {
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		User user = userMapper.mapToEntity(userService.findByUsername(username));
 		notifyOrgAdminsOfNewUser(organizationId, user);
 	}
-	
+
 	public void notifyOrgAdminsOfNewUser(Integer organizationId, User user) {
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		
+
 		List<UserModel> orgAdmins = userService.findByOrganizationIdAndRole(organizationId, SecurityRoles.ADMIN);
 		List<Notification> notifications = new ArrayList<Notification>();
-		
+
 		for (UserModel admin : orgAdmins) {
 			Notification notification = new Notification();
 			notification.setType(NotificationType.NEW_USER_JOINED_ORGANIZATION);
@@ -60,10 +65,10 @@ public class NotificationService {
 			notification.setCreatedFor(userMapper.mapToEntity(admin));
 			notifications.add(notification);
 		}
-		
+
 		notificationRepository.save(notifications);
 	}
-	
+
 	public void sendRequestForVerification(Integer userId) throws InvalidOrganizationUserException {
 		OrganizationUserModel orgUser = organizationUserService.getByUserId(userId);
 		if (orgUser == null) {
@@ -71,19 +76,19 @@ public class NotificationService {
 		} else if (orgUser.getIsVerified()) {
 			throw new InvalidOrganizationUserException("User is already verified");
 		}
-		
+
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		User user = userMapper.mapToEntity(userService.findOne(userId));
-		
+
 		sendRequestForVerification(orgUser.getOrganizationId(), user);
 	}
-	
+
 	public void sendRequestForVerification(Integer organizationId, User user) {
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		
+
 		List<UserModel> orgAdmins = userService.findByOrganizationIdAndRole(organizationId, SecurityRoles.ADMIN);
 		List<Notification> notifications = new ArrayList<Notification>();
-		
+
 		for (UserModel admin : orgAdmins) {
 			Notification notification = new Notification();
 			notification.setType(NotificationType.USER_REQUESTS_VERIFICATION);
@@ -92,7 +97,7 @@ public class NotificationService {
 			notification.setCreatedFor(userMapper.mapToEntity(admin));
 			notifications.add(notification);
 		}
-		
+
 		notificationRepository.save(notifications);
 	}
 }

@@ -10,7 +10,8 @@ public class NotificationModel extends BaseModel {
 	private Date created;
 	private String message;
 	private boolean unread;
-	
+	private boolean isDeleted;
+
 	public String getType() {
 		return type;
 	}
@@ -47,5 +48,10 @@ public class NotificationModel extends BaseModel {
 	public void setUnread(boolean unread) {
 		this.unread = unread;
 	}
-	
+	public boolean isDeleted(){
+		return isDeleted;
+	}
+	public void setDeleted(boolean isDeleted){
+		this.isDeleted = isDeleted;
+	}
 }
