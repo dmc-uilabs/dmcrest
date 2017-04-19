@@ -30,7 +30,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -99,6 +101,19 @@ public class UserController {
     @RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserModel getUser(@PathVariable Integer id) {
 		return userService.findOne(id);
+	}
+
+	@RequestMapping(value = "/user/{id}/userName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Map<String, String>> getUserName(@PathVariable Integer id) {
+		UserModel userModel = userService.findOne(id);
+		Map<String, String> hm = new HashMap<>();
+		if (userModel == null) {
+			hm.put("errorMessage", "User with the id of " + id + " not found." );
+			return new ResponseEntity<>(hm, HttpStatus.NOT_FOUND);
+		} else {
+			hm.put("displayName", userModel.getDisplayName());
+			return ResponseEntity.ok(hm);
+		}
 	}
 
     @RequestMapping(value = "/user/save", method = RequestMethod.POST)
@@ -173,7 +188,6 @@ public class UserController {
 		if (!userId.equals(loggedIn.getId())) {
 			throw new AccessDeniedException("403 Permission Denied");
 		}
-
 		notificationService.markNotificationRead(userId, notificationId);
 
 		return new NotificationUserResponse("Notification Marked As Read");
@@ -185,7 +199,6 @@ public class UserController {
 		if (!userId.equals(loggedIn.getId())) {
 			throw new AccessDeniedException("403 Permission Denied");
 		}
-
 		notificationService.markAllNotificationsReadForUser(userId);
 		return new NotificationUserResponse("Notifications Marked As Read");
 	}
