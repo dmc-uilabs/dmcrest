@@ -118,8 +118,10 @@ public class DMDIIMemberService {
 			memberEntity.setProjects(originalEntity.getProjects());
 		}
 
-		RecentUpdateController recentUpdateController = new RecentUpdateController();
-		recentUpdateController.addRecentUpdate(memberEntity);
+		if (!dmdiiMemberDao.existsByOrganizationId(memberModel.getOrganization().getId())) {
+			RecentUpdateController recentUpdateController = new RecentUpdateController();
+			recentUpdateController.addRecentUpdate(memberEntity);
+		}
 
 		return memberMapper.mapToModel(dmdiiMemberDao.save(memberEntity));
 	}
