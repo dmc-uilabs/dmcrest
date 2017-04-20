@@ -198,8 +198,11 @@ public class ServiceRunsDao {
 			columnsInServiceRunTable.add("stop_date");
 			columnsInServiceRunTable.add("interface_id");
 			columnsInServiceRunTable.add("queue_name");
+			columnsInServiceRunTable.add("user_name");
 
-			String serviceRunQuery = "SELECT * FROM service_run";
+			String serviceRunQuery = "SELECT run_id, service_run.status, account_id, run_by, service_id, percent_complete, start_date, stop_date, interface_id, queue_name, firstname, lastname "+
+			 													"FROM service_run, users "+
+																"WHERE run_by = user_id";
 
 			if (sort == null) {
 				serviceRunQuery += " ORDER BY run_id";
@@ -241,6 +244,7 @@ public class ServiceRunsDao {
 					if (resultSet.getDate("stop_date") != null) {
 						singleServiceRun.setStopDate(resultSet.getDate("stop_date").toString());
 					}
+					singleServiceRun.setUserName(resultSet.getString("firstname")+" "+resultSet.getString("lastname"));
 
 					String parameterQuery = "SELECT * FROM service_interface_parameter WHERE interface_id = ?";
 					PreparedStatement preparedStatementParameter = DBConnector.prepareStatement(parameterQuery);

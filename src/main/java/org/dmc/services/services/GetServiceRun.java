@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class GetServiceRun  {
-  
+
   private String serviceId = null;
   private String accountId = null;
   private String runBy = null;
@@ -22,8 +22,9 @@ public class GetServiceRun  {
   private String stopDate = null;
   private String stopTime = null;
   private ModelInterface _interface = null;
+  private String userName = null;
 
-  
+
   /**
    **/
   @JsonProperty("serviceId")
@@ -34,7 +35,7 @@ public class GetServiceRun  {
     this.serviceId = serviceId;
   }
 
-  
+
   /**
    **/
   @JsonProperty("accountId")
@@ -45,7 +46,7 @@ public class GetServiceRun  {
     this.accountId = accountId;
   }
 
-  
+
   /**
    **/
   @JsonProperty("runBy")
@@ -56,7 +57,7 @@ public class GetServiceRun  {
     this.runBy = runBy;
   }
 
-  
+
   /**
    **/
   @JsonProperty("status")
@@ -67,7 +68,7 @@ public class GetServiceRun  {
     this.status = status;
   }
 
-  
+
   /**
    **/
   @JsonProperty("percentCompleted")
@@ -78,7 +79,7 @@ public class GetServiceRun  {
     this.percentCompleted = percentCompleted;
   }
 
-  
+
   /**
    **/
   @JsonProperty("startDate")
@@ -89,7 +90,7 @@ public class GetServiceRun  {
     this.startDate = startDate;
   }
 
-  
+
   /**
    **/
   @JsonProperty("startTime")
@@ -100,7 +101,7 @@ public class GetServiceRun  {
     this.startTime = startTime;
   }
 
-  
+
   /**
    **/
   @JsonProperty("project")
@@ -111,7 +112,7 @@ public class GetServiceRun  {
     this.project = project;
   }
 
-  
+
   /**
    **/
   @JsonProperty("id")
@@ -122,7 +123,7 @@ public class GetServiceRun  {
     this.id = id;
   }
 
-  
+
   /**
    **/
   @JsonProperty("stopDate")
@@ -133,7 +134,7 @@ public class GetServiceRun  {
     this.stopDate = stopDate;
   }
 
-  
+
   /**
    **/
   @JsonProperty("stopTime")
@@ -144,7 +145,7 @@ public class GetServiceRun  {
     this.stopTime = stopTime;
   }
 
-  
+
   /**
    **/
   @JsonProperty("interface")
@@ -155,7 +156,17 @@ public class GetServiceRun  {
     this._interface = _interface;
   }
 
-  
+  /**
+   **/
+  @JsonProperty("userName")
+  public String getUserName() {
+    return userName;
+  }
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+
+
 
   @Override
   public boolean equals(Object o) {
@@ -189,7 +200,7 @@ public class GetServiceRun  {
   public String toString()  {
     StringBuilder sb = new StringBuilder();
     sb.append("class GetServiceRun {\n");
-    
+
     sb.append("  serviceId: ").append(serviceId).append("\n");
     sb.append("  accountId: ").append(accountId).append("\n");
     sb.append("  runBy: ").append(runBy).append("\n");
