@@ -242,9 +242,10 @@ public class ServiceRunsDao {
 						singleServiceRun.setStopDate(resultSet.getDate("stop_date").toString());
 					}
 
-					String parameterQuery = "SELECT * FROM service_interface_parameter WHERE interface_id = ?";
+					String parameterQuery = "SELECT * FROM service_interface_parameter sip join service_run_parameter srp on srp.parameter_id = sip.parameter_id and srp.run_id = ?";
+
 					PreparedStatement preparedStatementParameter = DBConnector.prepareStatement(parameterQuery);
-					preparedStatementParameter.setInt(1, resultSet.getInt("interface_id"));
+					preparedStatementParameter.setInt(1, resultSet.getInt("run_id"));
 					preparedStatementParameter.execute();
 					ResultSet resultSetParameter = preparedStatementParameter.getResultSet();
 
@@ -254,7 +255,7 @@ public class ServiceRunsDao {
 						parameter.setType(resultSetParameter.getString("type"));
 						parameter.setUnit(resultSetParameter.getString("unit"));
 						parameter.setCategory(resultSetParameter.getString("category"));
-						parameter.setValue(resultSetParameter.getString("default_value"));
+						parameter.setValue(resultSetParameter.getString("value"));
 						parameter.setParameterid(resultSetParameter.getString("parameter_id_txt"));
 						parameter.setInstancename(resultSetParameter.getString("instancename"));
 
