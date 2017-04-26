@@ -6,9 +6,11 @@ import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.DocumentService;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
@@ -31,6 +33,9 @@ public class ServiceController {
     private ServiceDao serviceDao = new ServiceDao();
     private ServiceTagsDao serviceTagsDao = new ServiceTagsDao();
     private ServiceSpecificationDao specificationDao = new ServiceSpecificationDao();
+
+    @Inject
+    private DocumentService documentService;
 
     @RequestMapping(value = "/services/{id}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getService(@PathVariable("id") int id,
@@ -102,6 +107,9 @@ public class ServiceController {
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         try {
             ServiceLogger.log(LOGTAG, "In patchService, serviceID = " + serviceID);
+            if (service.getPublished()) {
+              documentService.makeDocsPublic(serviceID);
+            }
             return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
