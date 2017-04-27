@@ -34,7 +34,7 @@ import org.dmc.solr.SolrUtils;
 import org.dmc.services.security.UserPrincipal;
 // import org.dmc.services.data.entities.DMDIIProjectItemAccessLevel;
 import org.springframework.security.core.context.SecurityContextHolder;
-// import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.SecurityRoles;
 
 public class ServiceDao {
 
@@ -141,11 +141,13 @@ public class ServiceDao {
 
     public Service patchService(String serviceIdText, Service requestedBody, String userEPPN)
             throws DMCServiceException {
-        try {
 
-            if (!userIsAuthorizedToUpdate(serviceIdText)) {
-              throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceIdText);
-            }
+              if (!userIsAuthorizedToUpdate(serviceIdText, userEPPN)) {
+                throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceIdText);
+              }
+
+            try {
+
 
             final int serviceId = Integer.parseInt(serviceIdText);
             if (serviceId != requestedBody.getId()) {
@@ -683,13 +685,18 @@ public class ServiceDao {
 
     }
 
-    public Boolean userIsAuthorizedToUpdate(String serviceId) {
+    public Boolean userIsAuthorizedToUpdate(String serviceId, String userEPPN) {
       Boolean isAuthorized = false;
-      UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-      final int companyIdD = CompanyDao.getUserCompanyId(user.getId());
 
-      if (user.hasAuthority(SecurityRoles.SUPERADMIN) || companyIdD.equals(158)) {
-        isAuthorized = true;
+      try {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Service service = getService(Integer.parseInt(serviceId), userEPPN);
+
+        if (Integer.parseInt(service.getOwner()) == user.getId() || user.hasAuthority(SecurityRoles.SUPERADMIN)) {
+          isAuthorized = true;
+        }
+      } catch (Exception e) {
+        System.out.println(e);
       }
 
       return isAuthorized;

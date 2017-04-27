@@ -105,7 +105,6 @@ public class ServiceController {
 
     @RequestMapping(value = "/services/{serviceID}", produces = { APPLICATION_JSON_VALUE,
             TEXT_HTML_VALUE }, method = RequestMethod.PATCH)
-    @PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
     public ResponseEntity<?> servicesServiceIDPatch(@PathVariable("serviceID") String serviceID,
             @RequestBody Service service,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
