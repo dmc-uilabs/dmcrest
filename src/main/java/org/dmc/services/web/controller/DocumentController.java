@@ -105,12 +105,9 @@ public class DocumentController {
 		return documentService.cloneDocuments(docIds, parentTypeId, userEPPN);
 	}
 	
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity exceptionHandler(Exception e) throws Exception {
-		if (e.getClass().getSimpleName().equals("IllegalAccessException") || e.getClass().getSimpleName().equals("DMCServiceException")){
-			throw e;
-		}
-		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder("REST Document Controller Error").build();
-		return new ResponseEntity<ErrorMessage>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+	@ExceptionHandler(IllegalAccessException.class)
+	public ResponseEntity exceptionHandler(IllegalAccessException e) {
+		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+		return new ResponseEntity<ErrorMessage>(error, HttpStatus.FORBIDDEN);
 	}
 }
