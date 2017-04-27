@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
+import org.dmc.services.ErrorMessage;
 import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @RestController
 public class DocumentController {
@@ -101,5 +103,14 @@ public class DocumentController {
 	                                           @RequestHeader(value = "AJP_eppn") String userEPPN,
 	                                           @RequestParam(value = "parentTypeId") Integer parentTypeId) {
 		return documentService.cloneDocuments(docIds, parentTypeId, userEPPN);
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity exceptionHandler(Exception e) throws Exception {
+		if (e.getClass().getSimpleName().equals("IllegalAccessException") || e.getClass().getSimpleName().equals("DMCServiceException")){
+			throw e;
+		}
+		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder("REST Document Controller Error").build();
+		return new ResponseEntity<ErrorMessage>(error, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }
