@@ -26,7 +26,23 @@ import org.dmc.services.services.ServiceHistory.SectionEnum;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.solr.SolrUtils;
 
+// import javax.inject.Inject;
+// import org.dmc.services.UserService;
+// import org.dmc.services.data.models.UserModel;
+// import org.dmc.services.data.entities.User;
+// import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.security.UserPrincipal;
+// import org.dmc.services.data.entities.DMDIIProjectItemAccessLevel;
+import org.springframework.security.core.context.SecurityContextHolder;
+// import org.dmc.services.security.SecurityRoles;
+
 public class ServiceDao {
+
+    // @Inject
+    // private UserRepository userRepository;
+    //
+    // @Inject
+    // private UserService userService;
 
     private final String logTag = ServiceDao.class.getName();
     private Connection connection = null;
@@ -126,6 +142,20 @@ public class ServiceDao {
     public Service patchService(String serviceIdText, Service requestedBody, String userEPPN)
             throws DMCServiceException {
         try {
+
+            // System.out.println("MAKE THIS WORK");
+            // UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            // User requester = this.userRepository.findByUsername(userPrincipal.getUsername());
+            // UserModel me = userService.findOne(requester.getId());
+            // ServiceLogger.log("",     Integer.toString(me.getCompanyId()));
+
+            // if (!userIsAuthorizedToUpdate(serviceIdText)) {
+            //   throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceIdText);
+            // }
+
+            UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            user.myOrg();
+
             final int serviceId = Integer.parseInt(serviceIdText);
             if (serviceId != requestedBody.getId()) {
                 throw new DMCServiceException(DMCError.OtherSQLError,
@@ -661,5 +691,23 @@ public class ServiceDao {
         }
 
     }
+
+    // public Boolean userIsAuthorizedToUpdate(String serviceId) {
+    //   Boolean isAuthorized = false;
+    //   UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    //
+    //   if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
+    //     System.out.println("SecurityRoles.SUPERADMIN");
+    //   }
+    //   try {
+    //     System.out.println(userService);
+    //     System.out.println(userService.findOne(1));
+    //     UserModel um = userService.findOne(user.getId());
+    //   } catch (Exception e) {
+    //     System.out.println(e);
+    //   }
+    //
+    //   return isAuthorized;
+    // }
 
 }
