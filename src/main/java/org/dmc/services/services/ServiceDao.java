@@ -150,8 +150,9 @@ public class ServiceDao {
             query += "parent=?, ";
             query += "published=? ";
             query += "where ";
-            query += "service_id=? and ";
-            query += "owner_id=?";
+            query += "service_id=?";
+            // removing the below to allow all superAdmins to modify services
+            // query += "owner_id=?";
 
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setObject(1, SqlTypeConverterUtility.getInt(requestedBody.getCompanyId()),
@@ -168,7 +169,7 @@ public class ServiceDao {
             preparedStatement.setString(9, requestedBody.getParent());
             preparedStatement.setBoolean(10, requestedBody.getPublished());
             preparedStatement.setInt(11, serviceId);
-            preparedStatement.setInt(12, userID);
+            // preparedStatement.setInt(12, userID);
             final int rowsAffected = preparedStatement.executeUpdate();
             if (1 != rowsAffected) {
                 throw new Exception("didn't correctly modify service " + requestedBody.getId());

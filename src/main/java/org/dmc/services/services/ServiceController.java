@@ -14,8 +14,11 @@ import org.dmc.services.DocumentService;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.security.SecurityRoles;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -102,6 +105,7 @@ public class ServiceController {
 
     @RequestMapping(value = "/services/{serviceID}", produces = { APPLICATION_JSON_VALUE,
             TEXT_HTML_VALUE }, method = RequestMethod.PATCH)
+    @PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
     public ResponseEntity<?> servicesServiceIDPatch(@PathVariable("serviceID") String serviceID,
             @RequestBody Service service,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
