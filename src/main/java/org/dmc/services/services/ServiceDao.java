@@ -142,7 +142,7 @@ public class ServiceDao {
     public Service patchService(String serviceIdText, Service requestedBody, String userEPPN)
             throws DMCServiceException {
 
-              if (!userIsAuthorizedToUpdate(serviceIdText, userEPPN)) {
+              if (!userIsAuthorizedToUpdate(serviceIdText, userEPPN, requestedBody)) {
                 throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceIdText);
               }
 
@@ -685,16 +685,19 @@ public class ServiceDao {
 
     }
 
-    public Boolean userIsAuthorizedToUpdate(String serviceId, String userEPPN) {
+    public Boolean userIsAuthorizedToUpdate(String serviceId, String userEPPN, Service requestedBody) {
       Boolean isAuthorized = false;
 
       try {
         UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Service service = getService(Integer.parseInt(serviceId), userEPPN);
 
-        if (Integer.parseInt(service.getOwner()) == user.getId() || user.hasAuthority(SecurityRoles.SUPERADMIN)) {
+        if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
+          isAuthorized = true;
+        } else if (Integer.parseInt(service.getOwner()) == user.getId() && !requestedBody.getPublished()) {
           isAuthorized = true;
         }
+
       } catch (Exception e) {
         System.out.println(e);
       }
