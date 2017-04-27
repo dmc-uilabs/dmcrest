@@ -143,18 +143,9 @@ public class ServiceDao {
             throws DMCServiceException {
         try {
 
-            // System.out.println("MAKE THIS WORK");
-            // UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            // User requester = this.userRepository.findByUsername(userPrincipal.getUsername());
-            // UserModel me = userService.findOne(requester.getId());
-            // ServiceLogger.log("",     Integer.toString(me.getCompanyId()));
-
-            // if (!userIsAuthorizedToUpdate(serviceIdText)) {
-            //   throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceIdText);
-            // }
-
-            UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            user.myOrg();
+            if (!userIsAuthorizedToUpdate(serviceIdText)) {
+              throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceIdText);
+            }
 
             final int serviceId = Integer.parseInt(serviceIdText);
             if (serviceId != requestedBody.getId()) {
@@ -692,22 +683,16 @@ public class ServiceDao {
 
     }
 
-    // public Boolean userIsAuthorizedToUpdate(String serviceId) {
-    //   Boolean isAuthorized = false;
-    //   UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    //
-    //   if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
-    //     System.out.println("SecurityRoles.SUPERADMIN");
-    //   }
-    //   try {
-    //     System.out.println(userService);
-    //     System.out.println(userService.findOne(1));
-    //     UserModel um = userService.findOne(user.getId());
-    //   } catch (Exception e) {
-    //     System.out.println(e);
-    //   }
-    //
-    //   return isAuthorized;
-    // }
+    public Boolean userIsAuthorizedToUpdate(String serviceId) {
+      Boolean isAuthorized = false;
+      UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+      final int companyIdD = CompanyDao.getUserCompanyId(user.getId());
+
+      if (user.hasAuthority(SecurityRoles.SUPERADMIN) || companyIdD.equals(158)) {
+        isAuthorized = true;
+      }
+
+      return isAuthorized;
+    }
 
 }

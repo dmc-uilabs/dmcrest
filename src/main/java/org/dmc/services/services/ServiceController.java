@@ -117,7 +117,8 @@ public class ServiceController {
             return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
-            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+            return new ResponseEntity<ErrorMessage>(error, e.getHttpStatusCode());
         }
     }
 
