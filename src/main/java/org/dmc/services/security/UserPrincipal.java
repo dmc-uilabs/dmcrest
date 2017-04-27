@@ -6,27 +6,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.inject.Inject;
-import org.dmc.services.UserService;
-import org.dmc.services.data.models.UserModel;
-import org.dmc.services.data.entities.User;
-import org.dmc.services.data.repositories.UserRepository;
-import org.dmc.services.security.UserPrincipal;
-import org.dmc.services.data.entities.DMDIIProjectItemAccessLevel;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.dmc.services.security.SecurityRoles;
-
 public class UserPrincipal implements UserDetails {
 
-	// @Inject
-	// private UserRepository userRepository;
-
-	// @Inject
-	// private UserService userService;
 
 	private Integer id;
 	private String username;
@@ -124,15 +110,6 @@ public class UserPrincipal implements UserDetails {
 
 	public void setIsUpperTierMember(Boolean isUpperTierMember) {
 		this.isUpperTierMember = isUpperTierMember;
-	}
-
-	public void myOrg() {
-		UserService userService = new UserService();
-		System.out.println("MAKE THIS WORK");
-		System.out.println(userService);
-		UserModel me = userService.findOne(getId());
-		System.out.println(Integer.toString(me.getCompanyId()));
-
 	}
 
 }
