@@ -75,7 +75,7 @@ public class ProjectController {
         return getAllPublicAndPrivateProjects(userEPPN);
 	}
 
-	@RequestMapping(value = "projects/allPublic", method = RequestMethod.GET)
+	@RequestMapping(value = "projects/public", method = RequestMethod.GET)
 	public List<Project> getPublicProjectList(
 			@RequestParam(value="_order", required=false) String order,
 			@RequestParam(value="_sort", required=false) String sort,
@@ -86,7 +86,7 @@ public class ProjectController {
 		return projectDao.getPublicProjects(limit, start);
 	}
 
-	@RequestMapping(value = "projects/myProjects", method = RequestMethod.GET)
+	@RequestMapping(value = "projects/my-projects", method = RequestMethod.GET)
 	public List<Project> getMyProjectList(
 			@RequestParam(value="_order", required=false) String order,
 			@RequestParam(value="_sort", required=false) String sort,
