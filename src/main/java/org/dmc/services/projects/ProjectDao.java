@@ -145,7 +145,7 @@ public class ProjectDao {
     public List<Project> getPublicProjects(Integer limit, Integer offset) {
     	List<Project> projects = new ArrayList<Project>();
 
-    	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, firstname, lastname, isPublic, requires_approval, creatorUserId, directory_id, register_time"
+    	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time"
     			+ " FROM (" + getSelectProjectQuery() + ") as project"
     			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1 ORDER BY id DESC";
 
@@ -184,12 +184,12 @@ public class ProjectDao {
     }
 
     protected String getSelectProjectQuery() {
-        final String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, "
+        final String query = "SELECT g.group_id AS id, g.group_name AS title, x.userName AS userName, "
                 + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.use_webdav as useWebdav, g.requires_approval as requires_approval, "
                 + "g.directory_id, g.register_time, "
                 + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, g.user_id as creatorUserId, "
                 + "c.componentsCount AS componentsCount, d.discussionsCount AS discussionsCount " + "FROM groups g "
-                + "JOIN (SELECT u.firstname AS firstname, u.lastname AS lastname , r.home_group_id "
+                + "JOIN (SELECT u.realname AS userName, r.home_group_id "
                 + "FROM pfo_user_role ur " + "JOIN users u ON u.user_id = ur.user_id "
                 + "JOIN pfo_role r ON r.role_id = ur.role_id "
                 + "WHERE r.role_name = 'Admin') x on g.group_id = x.home_group_id "
@@ -201,7 +201,7 @@ public class ProjectDao {
                 + "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects "
                 + "GROUP BY group_id) AS c ON c.id = g.group_id LEFT JOIN "
                 + "(SELECT count(*) AS discussionsCount, project_id AS id FROM individual_discussions "
-                + "GROUP BY project_id) AS d ON d.id = g.group_id ";
+                + "GROUP BY project_id) AS d ON d.id = g.group_id ORDER BY id DESC";
         return query;
     }
 
@@ -240,7 +240,7 @@ public class ProjectDao {
         final ProjectDiscussion discussion = new ProjectDiscussion(num_discussions, projectId);
         final ProjectComponent component = new ProjectComponent(num_components, projectId);
 
-        final String projectManager = resultSet.getString("firstname") + " " + resultSet.getString("lastname");
+        final String projectManager = resultSet.getString("userName");
         ServiceLogger.log(LOGTAG,
                 "projectId: " + projectId + "num_discussions: " + num_discussions + "num_components: " + num_components
                         + "num_tasks: " + num_tasks + "num_services: " + num_services + "description: " + description);
