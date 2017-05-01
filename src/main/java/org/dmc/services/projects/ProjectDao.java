@@ -103,7 +103,7 @@ public class ProjectDao {
                 + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
                 + " pfo_role.home_group_id IS NOT NULL AND"
                 + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
-                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1";
+                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
 
         if (limit != null && offset != null) {
             groupIdList += " LIMIT " + limit + " OFFSET " + offset;
@@ -147,7 +147,7 @@ public class ProjectDao {
 
     	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, firstname, lastname, isPublic, requires_approval, creatorUserId, directory_id, register_time"
     			+ " FROM (" + getSelectProjectQuery() + ") as project"
-    			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1";
+    			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1 ORDER BY id DESC";
 
     	if (limit != null && offset != null) {
     	    query += " LIMIT " + limit + " OFFSET " + offset;
