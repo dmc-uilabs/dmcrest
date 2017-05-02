@@ -56,7 +56,6 @@ public class EmailService {
 		EmailModel emailModel = new EmailModel();
 		emailModel.setName(String.format("%s %s", user.getFirstName(), user.getLastName()));
 		emailModel.setEmail(user.getEmail());
-		// emailModel.setToken(token);
 		emailModel.setParams(jsonParams);
 		emailModel.setTemplate(template);
 		emailModel.setRequester(requester.getEmail());
