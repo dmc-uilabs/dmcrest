@@ -1,5 +1,8 @@
 package org.dmc.services.email;
 
+import java.util.HashMap;
+import java.io.IOException;
+
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.security.UserPrincipal;
@@ -12,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.inject.Inject;
 
@@ -33,8 +38,17 @@ public class EmailService {
 		EMAIL_URL = "http://" + host + ":4000/";
 	}
 
-	public ResponseEntity sendEmail(User user, Integer template, String token) {
+	public ResponseEntity sendEmail(User user, Integer template, HashMap params) {
 		if (user.getEmail() == null) return ResponseEntity.badRequest().body("User does not have an email!");
+
+		String jsonParams = "";
+
+		try {
+			ObjectMapper mapperObj = new ObjectMapper();
+			jsonParams = mapperObj.writeValueAsString(params);
+		} catch (IOException e) {
+			logger.warn("Failed to parse params to JSON");
+		}
 
 		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User requester = this.userRepository.findByUsername(userPrincipal.getUsername());
@@ -42,7 +56,7 @@ public class EmailService {
 		EmailModel emailModel = new EmailModel();
 		emailModel.setName(String.format("%s %s", user.getFirstName(), user.getLastName()));
 		emailModel.setEmail(user.getEmail());
-		emailModel.setToken(token);
+		emailModel.setParams(jsonParams);
 		emailModel.setTemplate(template);
 		emailModel.setRequester(requester.getEmail());
 

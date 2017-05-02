@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -94,7 +95,7 @@ public class DocumentService {
 
 	@Inject
 	private EmailService emailService;
-	
+
 	@Inject
 	private ResourceGroupService resourceGroupService;
 
@@ -135,9 +136,9 @@ public class DocumentService {
 		}
 
 		if (returnList.size() == 0) return null;
-		
+
 		List<DocumentModel> returnModels = mapper.mapToModel(pagify(returnList, pageNumber, pageSize));
-		
+
 		for (DocumentModel d : returnModels) {
 			if (hasVersions(d.getId())) {
 				d.setHasVersions(true);
@@ -184,9 +185,9 @@ public class DocumentService {
 		List<Document> docList = Collections.singletonList(documentRepository.findOne(documentId));
 
 		if (docList.size() == 0) return null;
-		
+
 		DocumentModel retModel =mapper.mapToModel(docList.get(0));
-		
+
 		if(hasVersions(retModel.getId())) {
 			retModel.setHasVersions(true);
 		} else {
@@ -219,9 +220,9 @@ public class DocumentService {
 		}
 
 		if (returnList.size() == 0) return null;
-		
+
 		List<DocumentModel> returnModels = documentMapper.mapToModel(returnList);
-		
+
 		for (DocumentModel d : returnModels) {
 			if (hasVersions(d.getId())) {
 				d.setHasVersions(true);
@@ -299,7 +300,7 @@ public class DocumentService {
 
 		docEntity.setExpires(oldEntity.getExpires());
 		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
-		
+
 		docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
 
 		docEntity = documentRepository.save(docEntity);
@@ -322,9 +323,11 @@ public class DocumentService {
 
 	public ResponseEntity shareDocument(Integer documentId, Integer userId, Boolean dmdii) {
 		String documentUrl;
+		String documentName;
 
 		if (dmdii) {
 			documentUrl = getDMDIIDocumentUrl(documentId);
+			documentName = getDMDIIDocumentName(documentId);
 		} else {
 			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
@@ -336,6 +339,7 @@ public class DocumentService {
 			}
 
 			documentUrl = document.getDocumentUrl();
+			documentName = document.getDocumentName();
 		}
 
 		User userToShareWith = this.userRepository.findOne(userId);
@@ -343,7 +347,11 @@ public class DocumentService {
 		String presignedUrl = AWSConnector.generatePresignedUrl(key,
 				Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
 
-		return this.emailService.sendEmail(userToShareWith, 2, presignedUrl);
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("presignedUrl", presignedUrl);
+		params.put("documentName", documentName);
+
+		return this.emailService.sendEmail(userToShareWith, 2, params);
 	}
 
 	private String getDMDIIDocumentUrl(Integer documentId) {
@@ -359,6 +367,21 @@ public class DocumentService {
 			}
 		}
 		return document.getDocumentUrl();
+	}
+
+	private String getDMDIIDocumentName(Integer documentId) {
+		DMDIIDocument document = this.dmdiiDocumentRepository.getOne(documentId);
+		if (document.getDmdiiProject() != null && document.getAccessLevel() != null) {
+			List<DMDIIMember> projectMembers = new ArrayList<>();
+			projectMembers.add(document.getDmdiiProject().getPrimeOrganization());
+			projectMembers.addAll(document.getDmdiiProject().getContributingCompanies());
+
+			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
+			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds)) {
+				throw new AccessDeniedException("User does not have permission to share document");
+			}
+		}
+		return document.getDocumentName();
 	}
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
@@ -641,13 +664,13 @@ public class DocumentService {
 			throw new IllegalAccessException("User does not have access to base document");
 		}
 	}
-	
+
 	private Boolean hasVersions(Integer docId) {
 		Predicate where = QDocument.document.baseDocId.eq(docId);
 		if(documentRepository.count(where) > 1L) {
 			return true;
 		}
-		
-		return false;		
+
+		return false;
 	}
 }
