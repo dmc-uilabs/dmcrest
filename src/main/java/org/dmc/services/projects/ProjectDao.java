@@ -68,7 +68,7 @@ public class ProjectDao {
             if (!isProjectPublic(projectId) && !hasProjectRole(projectId, userEPPN)) {
                 return null;
             }
-            String query = getSelectProjectQuery();
+            String query = getSelectProjectQuery(null);
             query += "WHERE g.group_id = ? AND g.use_webdav = 1";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setInt(1, projectId);
@@ -94,16 +94,20 @@ public class ProjectDao {
     }
 
     // get any project the user is a member of
-    public ArrayList<Project> getProjectList(String userEPPN, Integer limit, Integer offset) {
+    public ArrayList<Project> getProjectList(String userEPPN, Integer limit, Integer offset, String order) {
 
         final ArrayList<Project> projects = new ArrayList<Project>();
 
-        final String query = getSelectProjectQuery();
-        String groupIdList = "select * from (" + query + ") as project_info, (SELECT distinct pfo_role.home_group_id"
-                + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
-                + " pfo_role.home_group_id IS NOT NULL AND"
-                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
-                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
+        final String query = getSelectProjectQuery(order);
+        String groupIdList = "select * from (" + query + ") as project_info, " + "(SELECT distinct gjr.group_id " +
+                "FROM group_join_request gjr, users WHERE gjr.user_id = users.user_id and users.user_name = ? AND " +
+                "gjr.accept_date IS NOT NULL) as joined_projects where project_info.id = joined_projects.group_id and " +
+                "project_info.usewebdav = 1 ORDER BY id DESC";
+//                "(SELECT distinct pfo_role.home_group_id"
+//                + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
+//                + " pfo_role.home_group_id IS NOT NULL AND"
+//                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
+//                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
 
         if (limit != null && offset != null) {
             groupIdList += " LIMIT " + limit + " OFFSET " + offset;
@@ -142,11 +146,11 @@ public class ProjectDao {
 
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
     // Being refactored to use spring-data-jpa within next few sprints
-    public List<Project> getPublicProjects(Integer limit, Integer offset) {
+    public List<Project> getPublicProjects(Integer limit, Integer offset, String order) {
     	List<Project> projects = new ArrayList<Project>();
 
     	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time"
-    			+ " FROM (" + getSelectProjectQuery() + ") as project"
+    			+ " FROM (" + getSelectProjectQuery(order) + ") as project"
     			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1 ORDER BY id DESC";
 
     	if (limit != null && offset != null) {
@@ -183,8 +187,8 @@ public class ProjectDao {
     	return projects;
     }
 
-    protected String getSelectProjectQuery() {
-        final String query = "SELECT g.group_id AS id, g.group_name AS title, x.userName AS userName, "
+    protected String getSelectProjectQuery(String sortOrder) {
+        String query = "SELECT g.group_id AS id, g.group_name AS title, x.userName AS userName, "
                 + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.use_webdav as useWebdav, g.requires_approval as requires_approval, "
                 + "g.directory_id, g.register_time, "
                 + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, g.user_id as creatorUserId, "
@@ -201,7 +205,12 @@ public class ProjectDao {
                 + "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects "
                 + "GROUP BY group_id) AS c ON c.id = g.group_id LEFT JOIN "
                 + "(SELECT count(*) AS discussionsCount, project_id AS id FROM individual_discussions "
-                + "GROUP BY project_id) AS d ON d.id = g.group_id ORDER BY id DESC";
+                + "GROUP BY project_id) AS d ON d.id = g.group_id ";
+
+        if (sortOrder != null) {
+            query += "ORDER BY id " + sortOrder;
+        }
+
         return query;
     }
 
