@@ -170,6 +170,7 @@ public class UserService {
 			token = userTokenRepository.save(token);
 		}
 
+		emailToken(userId, token.getToken());
 		return mapper.mapToModel(token);
 	}
 
