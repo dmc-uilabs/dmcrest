@@ -323,9 +323,11 @@ public class DocumentService {
 
 	public ResponseEntity shareDocument(Integer documentId, Integer userId, Boolean dmdii) {
 		String documentUrl;
+		String documentName;
 
 		if (dmdii) {
 			documentUrl = getDMDIIDocumentUrl(documentId);
+			documentName = getDMDIIDocumentName(documentId);
 		} else {
 			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
@@ -337,6 +339,7 @@ public class DocumentService {
 			}
 
 			documentUrl = document.getDocumentUrl();
+			documentName = document.getDocumentName();
 		}
 
 		User userToShareWith = this.userRepository.findOne(userId);
@@ -346,6 +349,7 @@ public class DocumentService {
 
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("presignedUrl", presignedUrl);
+		params.put("documentName", documentName);
 
 		return this.emailService.sendEmail(userToShareWith, 2, params);
 	}
@@ -363,6 +367,21 @@ public class DocumentService {
 			}
 		}
 		return document.getDocumentUrl();
+	}
+
+	private String getDMDIIDocumentName(Integer documentId) {
+		DMDIIDocument document = this.dmdiiDocumentRepository.getOne(documentId);
+		if (document.getDmdiiProject() != null && document.getAccessLevel() != null) {
+			List<DMDIIMember> projectMembers = new ArrayList<>();
+			projectMembers.add(document.getDmdiiProject().getPrimeOrganization());
+			projectMembers.addAll(document.getDmdiiProject().getContributingCompanies());
+
+			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
+			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds)) {
+				throw new AccessDeniedException("User does not have permission to share document");
+			}
+		}
+		return document.getDocumentName();
 	}
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {

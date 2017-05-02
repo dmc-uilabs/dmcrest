@@ -41,9 +41,11 @@ public class EmailService {
 	public ResponseEntity sendEmail(User user, Integer template, HashMap params) {
 		if (user.getEmail() == null) return ResponseEntity.badRequest().body("User does not have an email!");
 
+		String jsonParams = "";
+
 		try {
 			ObjectMapper mapperObj = new ObjectMapper();
-			String jsonParams = mapperObj.writeValueAsString(params);
+			jsonParams = mapperObj.writeValueAsString(params);
 		} catch (IOException e) {
 			logger.warn("Failed to parse params to JSON");
 		}
@@ -55,7 +57,7 @@ public class EmailService {
 		emailModel.setName(String.format("%s %s", user.getFirstName(), user.getLastName()));
 		emailModel.setEmail(user.getEmail());
 		// emailModel.setToken(token);
-		// emailModel.setParams(jsonParams);
+		emailModel.setParams(jsonParams);
 		emailModel.setTemplate(template);
 		emailModel.setRequester(requester.getEmail());
 
