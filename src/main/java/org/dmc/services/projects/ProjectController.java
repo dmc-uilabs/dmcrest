@@ -1,16 +1,5 @@
 package org.dmc.services.projects;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.inject.Inject;
-import javax.xml.ws.http.HTTPException;
-
 import org.assertj.core.util.Lists;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
@@ -36,18 +25,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.inject.Inject;
+import javax.xml.ws.http.HTTPException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 public class ProjectController {
-	
+
 	@Inject
 	private ProjectDao projectDao;
-	
+
 	@Inject
 	private ProjectJoinApprovalRequestService projectJoinApprovalRequestSevice;
 
 	private final String logTag = ProjectController.class.getName();
 	private DiscussionListDao discussionListDao = new DiscussionListDao();
-	
+
 	@RequestMapping(value = "/projects/{projectID}", method = RequestMethod.GET)
 	public Project getProject(@PathVariable("projectID") int projectID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
@@ -56,7 +55,10 @@ public class ProjectController {
 	}
 
 	@RequestMapping(value = "/projects", method = RequestMethod.GET)
-	public List<Project> getProjectList(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+	public List<Project> getProjectList(
+			@RequestParam(value="_start", required=false) Integer start,
+			@RequestParam(value="_limit", required=false) Integer limit,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
 		return getAllPublicAndPrivateProjects(userEPPN);
 	}
@@ -72,25 +74,47 @@ public class ProjectController {
         // @TODO: expand to handle arguments and change return type to a ResponseEntity to match new approach for error handling
         return getAllPublicAndPrivateProjects(userEPPN);
 	}
-	
+
+	@RequestMapping(value = "projects/public", method = RequestMethod.GET)
+	public List<Project> getPublicProjectList(
+			@RequestParam(value="_order", required=false) String order,
+			@RequestParam(value="_sort", required=false) String sort,
+			@RequestParam(value="_start", required=false, defaultValue = "0") Integer start,
+			@RequestParam(value="_limit", required=false, defaultValue = "10") Integer limit,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
+		return projectDao.getPublicProjects(limit, start, order);
+	}
+
+	@RequestMapping(value = "projects/my-projects", method = RequestMethod.GET)
+	public List<Project> getMyProjectList(
+			@RequestParam(value="_order", required=false) String order,
+			@RequestParam(value="_sort", required=false) String sort,
+			@RequestParam(value="_start", required=false, defaultValue = "0") Integer start,
+			@RequestParam(value="_limit", required=false, defaultValue = "10") Integer limit,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
+		return projectDao.getProjectList(userEPPN, limit, start, order);
+	}
+
 	// Hack to add support for public projects, being rewritten to use JPA soon
-	private List<Project> getAllPublicAndPrivateProjects(String userEPPN) {		
-		List<Project> privateProjects = projectDao.getProjectList(userEPPN);
-		List<Project> publicProjects = projectDao.getPublicProjects();
-		
+	private List<Project> getAllPublicAndPrivateProjects(String userEPPN) {
+		List<Project> privateProjects = projectDao.getProjectList(userEPPN, null, null, null);
+		List<Project> publicProjects = projectDao.getPublicProjects(null, null, null);
+
 		Set<Project> projects = new TreeSet<Project>(new Comparator<Project>() {
 			@Override
 			public int compare(Project o1, Project o2) {
 				return Integer.compare(o1.getId(), o2.getId());
 			}
 		});
-		
+
 		projects.addAll(privateProjects);
 		projects.addAll(publicProjects);
-		
+
 		return Lists.newArrayList(projects);
 	}
-	
+
 	// leaving this as an example of how to work with parameters to URL
 	// instead of json, but json is probably preferable
 	@RequestMapping(value = "/projects/createWithParameter", method = RequestMethod.POST)
@@ -101,7 +125,8 @@ public class ProjectController {
 		ServiceLogger.log(logTag, "In createProject: " + projectname + ", " + unixname + " as user " + userEPPN);
 
 		long dueDate = 0;
-		return projectDao.createProject(projectname, unixname, projectname, Project.PRIVATE, "admin", userEPPN, dueDate);
+		int createdOn = 0;
+		return projectDao.createProject(projectname, unixname, projectname, Project.PRIVATE, "admin", userEPPN, dueDate, createdOn);
 	}
 
 	@RequestMapping(value = "/projects/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
@@ -113,18 +138,18 @@ public class ProjectController {
 
 	/*
 	 * @RequestMapping(value = "/role/update", method = RequestMethod.POST)
-	 * 
+	 *
 	 * @ResponseBody public String updateRole(@RequestParam(value="id",
 	 * defaultValue="-1") int id) { System.out.println("In createRole role: " +
 	 * id);
-	 * 
-	 * 
+	 *
+	 *
 	 * //RoleDao.createRole updates the Role in the database identified by id
 	 * using the provided POST params //it creates an instance of this role i.e
 	 * new Role(param.id, param.name, param.title.....) //this controller in
 	 * turn returns this updated Role instance to the reques using spring's
 	 * Jackson which //converts the response to JSON
-	 * 
+	 *
 	 * return RoleDao.updateRole(params); }
 	 */
 
@@ -188,7 +213,7 @@ public class ProjectController {
 			}
 		}
 	}
-	
+
 	/**
 	 * Return Project Discussions
 	 **/
@@ -242,7 +267,7 @@ public class ProjectController {
 		ServiceLogger.log(logTag, result.getMessage());
 		return result;
 	}
-	
+
 	@RequestMapping(value = "/projects/{projectID}/following_discussions", produces = {
 			"application/json" }, method = RequestMethod.GET)
 	public ResponseEntity<?> getFollowingDiscussionsFromProjectId(@PathVariable("projectID") Integer projectID,
@@ -276,7 +301,7 @@ public class ProjectController {
 
 		int httpStatusCode = HttpStatus.OK.value();
 		Id updatedId = null;
-		
+
 		try {
 			updatedId = projectDao.updateProject(id, project, userEPPN);
 		} catch (DMCServiceException e) {
@@ -286,24 +311,24 @@ public class ProjectController {
 
 		return new ResponseEntity<Id>(updatedId, HttpStatus.valueOf(httpStatusCode));
 	}
-	
+
 	@RequestMapping(value = "/projects/{id}/joinApprovalRequests", method = RequestMethod.GET)
 	public List<ProjectJoinApprovalRequestModel> getProjectJoinApprovalRequests(@PathVariable("id") Integer projectId) {
 		return projectJoinApprovalRequestSevice.getProjectJoinApprovalRequests(projectId);
 	}
-	
+
 	@RequestMapping(value = "/projects/{id}/joinApprovalRequests", method = RequestMethod.POST)
 	public ProjectJoinApprovalRequestModel createProjectJoinApprovalRequest(@PathVariable("id") Integer projectId) {
 		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return projectJoinApprovalRequestSevice.createProjectJoinApprovalRequest(projectId, userPrincipal.getUsername());
 	}
-	
+
 	@RequestMapping(value = "/projectJoinApprovalRequests/{id}", method = RequestMethod.PUT, params = "action=approve")
 	public ProjectJoinApprovalRequestModel approveProjectJoinApprovalRequest(@PathVariable("id") Integer id) throws Exception {
 		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return projectJoinApprovalRequestSevice.approveRequest(id, user.getId());
 	}
-	
+
 	@RequestMapping(value = "/projectJoinApprovalRequests/{id}", method = RequestMethod.PUT, params = "action=decline")
 	public ProjectJoinApprovalRequestModel declineProjectJoinApprovalRequest(@PathVariable("id") Integer id) throws ArgumentNotFoundException {
 		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
