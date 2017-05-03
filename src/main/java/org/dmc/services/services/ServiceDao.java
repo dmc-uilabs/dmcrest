@@ -26,23 +26,11 @@ import org.dmc.services.services.ServiceHistory.SectionEnum;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.solr.SolrUtils;
 
-// import javax.inject.Inject;
-// import org.dmc.services.UserService;
-// import org.dmc.services.data.models.UserModel;
-// import org.dmc.services.data.entities.User;
-// import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.security.UserPrincipal;
-// import org.dmc.services.data.entities.DMDIIProjectItemAccessLevel;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.dmc.services.security.SecurityRoles;
 
 public class ServiceDao {
-
-    // @Inject
-    // private UserRepository userRepository;
-    //
-    // @Inject
-    // private UserService userService;
 
     private final String logTag = ServiceDao.class.getName();
     private Connection connection = null;
