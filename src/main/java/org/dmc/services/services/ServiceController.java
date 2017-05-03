@@ -110,10 +110,15 @@ public class ServiceController {
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         try {
             ServiceLogger.log(LOGTAG, "In patchService, serviceID = " + serviceID);
-            if (service.getPublished()) {
-              documentService.makeDocsPublic(serviceID);
+
+            if (!serviceDao.userIsAuthorizedToUpdate(serviceID, userEPPN, service)) {
+              throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceID);
+            } else {
+              if (service.getPublished()) {
+                documentService.makeDocsPublic(serviceID);
+              }
+              return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
             }
-            return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
             ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();

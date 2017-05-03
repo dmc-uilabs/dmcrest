@@ -652,11 +652,14 @@ public class DocumentService {
 	}
 
 	public void makeDocsPublic(String parentId) {
-		List<Document> docs = documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, Integer.parseInt(parentId));
+		try {
+			List<Document> docs = documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, Integer.parseInt(parentId));
+			for(Document doc : docs){
+				doc.setIsPublic(true);
+				documentRepository.save(doc);
+			}
+		} catch (Exception e) {
 
-		for(Document doc : docs){
-			doc.setIsPublic(true);
-			documentRepository.save(doc);
 		}
 	}
 

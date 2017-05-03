@@ -130,12 +130,11 @@ public class ServiceDao {
     public Service patchService(String serviceIdText, Service requestedBody, String userEPPN)
             throws DMCServiceException {
 
-              if (!userIsAuthorizedToUpdate(serviceIdText, userEPPN, requestedBody)) {
-                throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceIdText);
-              }
+              // if (!userIsAuthorizedToUpdate(serviceIdText, userEPPN, requestedBody)) {
+              //   throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceIdText);
+              // }
 
             try {
-
 
             final int serviceId = Integer.parseInt(serviceIdText);
             if (serviceId != requestedBody.getId()) {
