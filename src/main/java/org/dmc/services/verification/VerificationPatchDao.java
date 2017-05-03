@@ -21,8 +21,8 @@ public class VerificationPatchDao {
 	public VerificationPatch verify(VerificationPatch payload) throws DMCServiceException {
 		logger.info("Request to verify payload: {}", payload);
 
-		String finalURL = "kadjasd";
-		// String finalURL = " ";
+
+		String finalURL = " ";
 
 		if (payload.isVerified()) {
 			AWSConnector AWS = new AWSConnector();
