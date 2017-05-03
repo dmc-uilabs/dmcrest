@@ -24,11 +24,11 @@ public class VerificationPatchDao {
 		String finalURL = "kadjasd";
 		// String finalURL = " ";
 
-		// if (payload.isVerified()) {
-		// 	AWSConnector AWS = new AWSConnector();
-		// 	finalURL = AWS
-		// 			.upload(payload.getUrl(), payload.getFolder(), payload.getUserEPPN(), payload.getResourceType());
-		// }
+		if (payload.isVerified()) {
+			AWSConnector AWS = new AWSConnector();
+			finalURL = AWS
+					.upload(payload.getUrl(), payload.getFolder(), payload.getUserEPPN(), payload.getResourceType());
+		}
 
 		payload.setUrl(finalURL);
 
