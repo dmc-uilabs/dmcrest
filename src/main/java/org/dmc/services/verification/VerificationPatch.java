@@ -16,6 +16,7 @@ public class VerificationPatch {
 	private String idColumn;
 	private String scanLog;
 	private String restIP;
+	private String sha256;
 
     @JsonProperty("id")
 	public int getId() {
@@ -104,6 +105,17 @@ public class VerificationPatch {
 		this.restIP = restIP;
 	}
 
+
+	@JsonProperty("sha256")
+	public String getSha256() {
+		return sha256;
+	}
+	public void setSha256(String sha256){
+		this.sha256 = sha256;
+	}
+
+
+
 	@Override
 	public String toString() {
 		return "VerificationPatch{" +
@@ -118,6 +130,7 @@ public class VerificationPatch {
 				", idColumn='" + idColumn + '\'' +
 				", scanLog='" + scanLog + '\'' +
 				", restIP='" + restIP + '\'' +
+				", sha256='" + sha256 + '\'' +
 				'}';
 	}
 }

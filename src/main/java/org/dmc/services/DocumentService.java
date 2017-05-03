@@ -94,7 +94,7 @@ public class DocumentService {
 
 	@Inject
 	private EmailService emailService;
-	
+
 	@Inject
 	private ResourceGroupService resourceGroupService;
 
@@ -135,9 +135,9 @@ public class DocumentService {
 		}
 
 		if (returnList.size() == 0) return null;
-		
+
 		List<DocumentModel> returnModels = mapper.mapToModel(pagify(returnList, pageNumber, pageSize));
-		
+
 		for (DocumentModel d : returnModels) {
 			if (hasVersions(d.getId())) {
 				d.setHasVersions(true);
@@ -184,9 +184,9 @@ public class DocumentService {
 		List<Document> docList = Collections.singletonList(documentRepository.findOne(documentId));
 
 		if (docList.size() == 0) return null;
-		
+
 		DocumentModel retModel =mapper.mapToModel(docList.get(0));
-		
+
 		if(hasVersions(retModel.getId())) {
 			retModel.setHasVersions(true);
 		} else {
@@ -219,9 +219,9 @@ public class DocumentService {
 		}
 
 		if (returnList.size() == 0) return null;
-		
+
 		List<DocumentModel> returnModels = documentMapper.mapToModel(returnList);
-		
+
 		for (DocumentModel d : returnModels) {
 			if (hasVersions(d.getId())) {
 				d.setHasVersions(true);
@@ -299,7 +299,7 @@ public class DocumentService {
 
 		docEntity.setExpires(oldEntity.getExpires());
 		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
-		
+
 		docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
 
 		docEntity = documentRepository.save(docEntity);
@@ -309,10 +309,12 @@ public class DocumentService {
 	}
 
 	@Transactional
-	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified) {
+	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified, String sha) {
 		Document document = this.documentRepository.findOne(documentId);
 		document.setDocumentUrl(verifiedUrl);
+		document.setSha256(sha);
 		document.setVerified(verified);
+
 
 		this.documentRepository.save(document);
 		this.parentDocumentService.updateParents(document);
@@ -641,13 +643,13 @@ public class DocumentService {
 			throw new IllegalAccessException("User does not have access to base document");
 		}
 	}
-	
+
 	private Boolean hasVersions(Integer docId) {
 		Predicate where = QDocument.document.baseDocId.eq(docId);
 		if(documentRepository.count(where) > 1L) {
 			return true;
 		}
-		
-		return false;		
+
+		return false;
 	}
 }
