@@ -354,7 +354,7 @@ public class DocumentService {
 	// 	return this.emailService.sendEmail(userToShareWith, 2, params);
 	// }
 
-	public ResponseEntity shareDocument(Integer documentId, String user, Boolean internal, Boolean dmdii) {
+	public ResponseEntity shareDocument(Integer documentId, String userIdentifier, Boolean internal, Boolean dmdii) {
 		String documentUrl;
 		String documentName;
 
@@ -375,13 +375,15 @@ public class DocumentService {
 			documentName = document.getDocumentName();
 		}
 
+		User userToShareWith;
+
 		if (internal) {
-			User userToShareWith = this.userRepository.findOne(userId);
+			userToShareWith = this.userRepository.findOne(Integer.parseInt(userIdentifier));
 		} else {
-			User userToShareWith = new User();
-			userToShareWith.setFirstName(user);
+			userToShareWith = new User();
+			userToShareWith.setFirstName(userIdentifier);
 			userToShareWith.setLastName("");
-			userToShareWith.setEmail(user);
+			userToShareWith.setEmail(userIdentifier);
 		}
 
 		String key = AWSConnector.createPath(documentUrl);
