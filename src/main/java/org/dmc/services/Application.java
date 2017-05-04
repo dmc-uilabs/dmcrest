@@ -42,11 +42,11 @@ public class Application extends SpringBootServletInitializer {
 	@Bean(destroyMethod = "close")
 	public DataSource getDataSource() {
 		PGPoolingDataSource ds = new PGPoolingDataSource();
-		ds.setUser(Config.DB_USER);
-		ds.setPassword(Config.DB_PASS);
-		ds.setServerName(Config.DB_IP);
-		ds.setPortNumber(Integer.parseInt(Config.DB_PORT));
-		ds.setDatabaseName(Config.DB_NAME);
+		ds.setUser(dbUser);
+		ds.setPassword(dbPass);
+		ds.setServerName(dbServerName);
+		ds.setPortNumber(dbPort);
+		ds.setDatabaseName(dbName);
 		return ds;
 	}
 }
