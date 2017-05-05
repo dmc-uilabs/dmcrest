@@ -19,7 +19,7 @@ public class ControllerExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ResponseEntity handleUncaughtException(Exception e) {
-		log(logTag, e.getMessage())
+		ServiceLogger.log(logTag, e.getMessage());
 		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder("REST Internal Error").build();
 		return new ResponseEntity<ErrorMessage>(error, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
