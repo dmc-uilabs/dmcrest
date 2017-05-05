@@ -51,6 +51,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
@@ -358,7 +359,7 @@ public class DocumentService {
 	// 	return this.emailService.sendEmail(userToShareWith, 2, params);
 	// }
 
-	public ResponseEntity shareDocument(Integer documentId, String userIdentifier, Boolean internal, Boolean dmdii) {
+	public ResponseEntity shareDocument(Integer documentId, String userIdentifier, Boolean internal, Boolean dmdii, Boolean email) {
 		String documentUrl;
 		String documentName;
 		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -398,7 +399,12 @@ public class DocumentService {
 			userToShareWith.setEmail(userIdentifier);
 		}
 
-		return this.emailService.sendEmail(userToShareWith, 2, params);
+		if (email) {
+			return this.emailService.sendEmail(userToShareWith, 2, params);
+		} else {
+			return new ResponseEntity<String>("Document shared", HttpStatus.OK);
+		}
+
 	}
 
 	private String getDMDIIDocumentUrl(Integer documentId) {
