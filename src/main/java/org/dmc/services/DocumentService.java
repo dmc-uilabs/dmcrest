@@ -317,10 +317,12 @@ public class DocumentService {
 	}
 
 	@Transactional
-	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified) {
+	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified, String sha) {
 		Document document = this.documentRepository.findOne(documentId);
 		document.setDocumentUrl(verifiedUrl);
+		document.setSha256(sha);
 		document.setVerified(verified);
+
 
 		this.documentRepository.save(document);
 		this.parentDocumentService.updateParents(document);
@@ -657,6 +659,7 @@ public class DocumentService {
 		}
 
 		return false;
+
 	}
 
 	public void makeDocsPublic(String parentId) {
@@ -669,6 +672,7 @@ public class DocumentService {
 		} catch (Exception e) {
 
 		}
+
 	}
 
 }
