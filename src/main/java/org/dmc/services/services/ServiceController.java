@@ -6,14 +6,19 @@ import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.DocumentService;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.security.SecurityRoles;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -31,6 +36,9 @@ public class ServiceController {
     private ServiceDao serviceDao = new ServiceDao();
     private ServiceTagsDao serviceTagsDao = new ServiceTagsDao();
     private ServiceSpecificationDao specificationDao = new ServiceSpecificationDao();
+
+    @Inject
+    private DocumentService documentService;
 
     @RequestMapping(value = "/services/{id}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getService(@PathVariable("id") int id,
@@ -102,10 +110,19 @@ public class ServiceController {
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         try {
             ServiceLogger.log(LOGTAG, "In patchService, serviceID = " + serviceID);
-            return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
+
+            if (!serviceDao.userIsAuthorizedToUpdate(serviceID, userEPPN, service)) {
+              throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceID);
+            } else {
+              if (service.getPublished()) {
+                documentService.makeDocsPublic(serviceID);
+              }
+              return new ResponseEntity<Service>(serviceDao.patchService(serviceID, service, userEPPN), HttpStatus.OK);
+            }
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
-            return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+            return new ResponseEntity<ErrorMessage>(error, e.getHttpStatusCode());
         }
     }
 
