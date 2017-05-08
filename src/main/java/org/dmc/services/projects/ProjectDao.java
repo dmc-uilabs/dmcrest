@@ -1,17 +1,6 @@
 package org.dmc.services.projects;
 
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
@@ -36,6 +25,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class ProjectDao {
@@ -69,7 +68,7 @@ public class ProjectDao {
             if (!isProjectPublic(projectId) && !hasProjectRole(projectId, userEPPN)) {
                 return null;
             }
-            String query = getSelectProjectQuery();
+            String query = getSelectProjectQuery(null);
             query += "WHERE g.group_id = ? AND g.use_webdav = 1";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setInt(1, projectId);
@@ -95,16 +94,24 @@ public class ProjectDao {
     }
 
     // get any project the user is a member of
-    public ArrayList<Project> getProjectList(String userEPPN) {
+    public ArrayList<Project> getProjectList(String userEPPN, Integer limit, Integer offset, String order) {
 
         final ArrayList<Project> projects = new ArrayList<Project>();
 
-        final String query = getSelectProjectQuery();
-        final String groupIdList = "select * from (" + query + ") as project_info, (SELECT distinct pfo_role.home_group_id"
-                + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
-                + " pfo_role.home_group_id IS NOT NULL AND"
-                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
-                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1";
+        final String query = getSelectProjectQuery(order);
+        String groupIdList = "select * from (" + query + ") as project_info, " + "(SELECT distinct gjr.group_id " +
+                "FROM group_join_request gjr, users WHERE gjr.user_id = users.user_id and users.user_name = ? AND " +
+                "gjr.accept_date IS NOT NULL) as joined_projects where project_info.id = joined_projects.group_id and " +
+                "project_info.usewebdav = 1 ORDER BY id DESC";
+//                "(SELECT distinct pfo_role.home_group_id"
+//                + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
+//                + " pfo_role.home_group_id IS NOT NULL AND"
+//                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
+//                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
+
+        if (limit != null && offset != null) {
+            groupIdList += " LIMIT " + limit + " OFFSET " + offset;
+        }
 
         ServiceLogger.log(LOGTAG, "groupIdList: " + groupIdList);
         ResultSet resultSet = null;
@@ -139,15 +146,19 @@ public class ProjectDao {
 
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
     // Being refactored to use spring-data-jpa within next few sprints
-    public List<Project> getPublicProjects() {
+    public List<Project> getPublicProjects(Integer limit, Integer offset, String order) {
     	List<Project> projects = new ArrayList<Project>();
 
-    	String query = "SELECT DISTINCT id, title, description, due_date, count, componentsCount, taskCount, servicesCount, firstname, lastname, isPublic, requires_approval, creatorUserId, directory_id"
-    			+ " FROM (" + getSelectProjectQuery() + ") as project"
-    			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1";
+    	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time"
+    			+ " FROM (" + getSelectProjectQuery(order) + ") as project"
+    			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1 ORDER BY id DESC";
+
+    	if (limit != null && offset != null) {
+    	    query += " LIMIT " + limit + " OFFSET " + offset;
+        }
 
     	ResultSet resultSet = null;
-    	try {       
+    	try {
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 
             resultSet = preparedStatement.executeQuery();
@@ -176,23 +187,30 @@ public class ProjectDao {
     	return projects;
     }
 
-    protected String getSelectProjectQuery() {
-        final String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, "
+    protected String getSelectProjectQuery(String sortOrder) {
+        String query = "SELECT g.group_id AS id, g.group_name AS title, x.userName AS userName, "
                 + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.use_webdav as useWebdav, g.requires_approval as requires_approval, "
-                + "g.directory_id, "
+                + "g.directory_id, g.register_time, "
                 + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, g.user_id as creatorUserId, "
-                + "c.componentsCount AS componentsCount " + "FROM groups g "
-                + "JOIN (SELECT u.firstname AS firstname, u.lastname AS lastname , r.home_group_id "
+                + "c.componentsCount AS componentsCount, d.discussionsCount AS discussionsCount " + "FROM groups g "
+                + "JOIN (SELECT u.realname AS userName, r.home_group_id "
                 + "FROM pfo_user_role ur " + "JOIN users u ON u.user_id = ur.user_id "
                 + "JOIN pfo_role r ON r.role_id = ur.role_id "
                 + "WHERE r.role_name = 'Admin') x on g.group_id = x.home_group_id "
                 + "LEFT JOIN stats_project s ON s.group_id = g.group_id LEFT JOIN "
                 + "(SELECT count(*) AS taskCount, group_project_id AS id FROM project_task "
                 + "GROUP BY group_project_id) AS pt ON pt.id = g.group_id LEFT JOIN "
-                + "(SELECT count(*) AS servicesCount, group_id AS id FROM service_subscriptions "
-                + "GROUP BY group_id) AS ss ON ss.id = g.group_id LEFT JOIN "
+                + "(SELECT count(*) AS servicesCount, project_id AS id FROM service "
+                + "GROUP BY project_id) AS ss ON ss.id = g.group_id LEFT JOIN "
                 + "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects "
-                + "GROUP BY group_id) AS c ON c.id = g.group_id ";
+                + "GROUP BY group_id) AS c ON c.id = g.group_id LEFT JOIN "
+                + "(SELECT count(*) AS discussionsCount, project_id AS id FROM individual_discussions "
+                + "GROUP BY project_id) AS d ON d.id = g.group_id ";
+
+        if (sortOrder != null) {
+            query += "ORDER BY id " + sortOrder;
+        }
+
         return query;
     }
 
@@ -207,6 +225,7 @@ public class ProjectDao {
         final String title = resultSet.getString("title");
         String description = resultSet.getString("description");
         final Timestamp t = resultSet.getTimestamp("due_date");
+        final int createdOn = resultSet.getInt("register_time");
         if (null == t) {
             due_date = 0;
         } else {
@@ -216,7 +235,7 @@ public class ProjectDao {
         if (description == null)
             description = "";
 
-        final int num_discussions = resultSet.getInt("count");
+        final int num_discussions = resultSet.getInt("discussionsCount");
         final int num_components = resultSet.getInt("componentsCount");
         final int num_tasks = resultSet.getInt("taskCount");
         final int num_services = resultSet.getInt("servicesCount");
@@ -230,7 +249,7 @@ public class ProjectDao {
         final ProjectDiscussion discussion = new ProjectDiscussion(num_discussions, projectId);
         final ProjectComponent component = new ProjectComponent(num_components, projectId);
 
-        final String projectManager = resultSet.getString("firstname") + " " + resultSet.getString("lastname");
+        final String projectManager = resultSet.getString("userName");
         ServiceLogger.log(LOGTAG,
                 "projectId: " + projectId + "num_discussions: " + num_discussions + "num_components: " + num_components
                         + "num_tasks: " + num_tasks + "num_services: " + num_services + "description: " + description);
@@ -250,6 +269,7 @@ public class ProjectDao {
         project.setIsPublic(isPublic);
         project.setDirectoryId(directoryId);
         project.setProjectManagerId(userId);
+        project.setCreatedOn(createdOn);
 
         ServiceLogger.log(LOGTAG, project.toString());
 
@@ -258,7 +278,7 @@ public class ProjectDao {
 
     @Transactional
     public Id createProject(String projectname, String unixname, String description, String projectType, String approvalOption,
-            String userEPPN, long dueDate) throws SQLException, JSONException, Exception {
+            String userEPPN, long dueDate, int createdOn) throws SQLException, JSONException, Exception {
         connection = DBConnector.connection();
         // let's start a transaction
         connection.setAutoCommit(false);
@@ -283,7 +303,7 @@ public class ProjectDao {
             }
 
             // create new project in groups table
-            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval, directory_id) values ( ?, ?, ?, ?, ?, ?, ?, ?, ? )";
+            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval, directory_id, register_time) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
             preparedStatement.setString(1, projectname);
             preparedStatement.setString(2, unixname);
@@ -294,6 +314,7 @@ public class ProjectDao {
             preparedStatement.setTimestamp(7, new Timestamp(dueDate));
             preparedStatement.setBoolean(8, requiresApproval);
             preparedStatement.setInt(9, directoryId);
+            preparedStatement.setInt(10, createdOn);
             preparedStatement.executeUpdate();
 
             // since no parameters can use execute query safely
@@ -411,7 +432,7 @@ public class ProjectDao {
         final String type = json.getString("type");
         final String approvalOption = json.getString("approvalOption");
 
-        return createProject(projectname, unixname, projectname, type, approvalOption, userEPPN, 0);
+        return createProject(projectname, unixname, projectname, type, approvalOption, userEPPN, 0, 0);
     }
 
     public Id createProject(ProjectCreateRequest project, String userEPPN)
@@ -421,10 +442,11 @@ public class ProjectDao {
         final String unixname = project.getTitle();
         final String description = project.getDescription();
         final long dueDate = project.getDueDate();
+        final int createdOn = project.getCreatedOn();
         final String type = project.getProjectType();
         final String approvalOption = project.getApprovalOption();
 
-        return createProject(projectname, unixname, description, type, approvalOption, userEPPN, dueDate);
+        return createProject(projectname, unixname, description, type, approvalOption, userEPPN, dueDate, createdOn);
     }
 
     public Id updateProject(int id, Project project, String userEPPN) throws DMCServiceException {

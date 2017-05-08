@@ -42,6 +42,7 @@ import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
+import org.dmc.services.services.ServiceDao;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,6 +260,13 @@ public class DocumentService {
 		}
 		docEntity.setModified(now);
 		docEntity.setVersion(0);
+
+		if (folder == "SERVICE") {
+			ServiceDao serviceDao = new ServiceDao();
+			if (serviceDao.getService(doc.getParentId(), "").getPublished()) {
+				docEntity.setIsPublic(true);
+			}
+		}
 
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
@@ -651,5 +659,21 @@ public class DocumentService {
 		}
 
 		return false;
+<<<<<<< HEAD
+=======
 	}
+
+	public void makeDocsPublic(String parentId) {
+		try {
+			List<Document> docs = documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, Integer.parseInt(parentId));
+			for(Document doc : docs){
+				doc.setIsPublic(true);
+				documentRepository.save(doc);
+			}
+		} catch (Exception e) {
+
+		}
+>>>>>>> master
+	}
+
 }

@@ -1,9 +1,8 @@
 package org.dmc.services.projects;
-import org.dmc.services.sharedattributes.FeatureImage;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dmc.services.sharedattributes.FeatureImage;
 
 public class Project {
 
@@ -23,6 +22,7 @@ public class Project {
 	private Boolean requiresAdminApprovalToJoin;
 	private Boolean isPublic;
 	private Integer directoryId;
+	private Integer createdOn;
 
 	private final String logTag = Project.class.getName();
 
@@ -43,6 +43,7 @@ public class Project {
 		this.service = new ProjectService(0, id);
 		this.component = new ProjectComponent(0, id);
 		this.requiresAdminApprovalToJoin = true;
+		this.createdOn = -1;
 	}
 
 	@JsonProperty("id")
@@ -175,6 +176,11 @@ public class Project {
 	public void setDirectoryId(Integer directoryId) {
 		this.directoryId = directoryId;
 	}
+
+	@JsonProperty("createdOn")
+	public Integer getCreatedOn() { return createdOn; }
+
+	public void setCreatedOn(Integer createdOn) { this.createdOn = createdOn; }
 
 	@Override
 	public String toString() {

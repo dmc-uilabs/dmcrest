@@ -25,11 +25,13 @@ public class DMCServiceException extends RuntimeException {
         HttpStatus status = HttpStatus.NOT_FOUND;
 
         switch (error) {
+        case NotAuthorizedToChange:
+            status = HttpStatus.FORBIDDEN;
+            break;
         case NotAdminUser:
         case UnknownUser:
             status = HttpStatus.FORBIDDEN;
             break;
-
         case UnauthorizedAccessAttempt:
         case InvalidAccountId:
             status = HttpStatus.UNAUTHORIZED;
