@@ -659,8 +659,7 @@ public class DocumentService {
 		}
 
 		return false;
-<<<<<<< HEAD
-=======
+
 	}
 
 	public void makeDocsPublic(String parentId) {
@@ -673,7 +672,7 @@ public class DocumentService {
 		} catch (Exception e) {
 
 		}
->>>>>>> master
+
 	}
 
 }
