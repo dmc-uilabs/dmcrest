@@ -134,9 +134,15 @@ public class UserService {
 		return mapper.mapToModel(userRepository.save(user));
 	}
 
-	public List<UserModel> findByOrganizationId(Integer organizationId) {
+	public List<UserModel> findByOrganizationId(Integer organizationId, String displayName) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
+		ServiceLogger.log("data no display name", userRepository.findByOrganizationUserOrganizationId(organizationId).toString());
+		ServiceLogger.log("data with display name", userRepository.findByOrganizationUserOrganizationIdLikeDisplayName(organizationId, displayName).toString());
+		if (displayName != null && displayName != "") {
+			return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationIdLikeDisplayName(organizationId, "%" + displayName + "%"));
+		} else {
+			return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
+		}
 	}
 
 	public List<UserModel> findByOrganizationIdAndRole(Integer organizaitonId, String role) {
