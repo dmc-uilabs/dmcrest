@@ -682,7 +682,7 @@ public class DocumentService {
 		}
 
 		return false;
-<<<<<<< HEAD
+
 
 	}
 
@@ -697,8 +697,7 @@ public class DocumentService {
 
 		}
 
-=======
->>>>>>> origin/maz-token-via-email
+
 	}
 
 }
