@@ -37,6 +37,10 @@ public class DMDIIDocument extends BaseEntity {
 	@Column(name = "url")
 	private String documentUrl;
 
+	@Column(name = "sha256")
+	private String sha256;
+
+
 	@ManyToOne
 	@JoinColumn(name = "dmdii_project_id")
 	private DMDIIProject dmdiiProject;
@@ -113,6 +117,19 @@ public class DMDIIDocument extends BaseEntity {
 	public void setOwner(User owner) {
 		this.owner = owner;
 	}
+
+
+	public String getSha256(){
+		return sha256;
+	}
+
+	public void setSha256(String sha256){
+		this.sha256 = sha256;
+	}
+
+
+
+
 
 	public List<DMDIIDocumentTag> getTags() {
 		return tags;
@@ -191,6 +208,7 @@ public class DMDIIDocument extends BaseEntity {
 		result = prime * result + ((modified == null) ? 0 : modified.hashCode());
 		result = prime * result + ((owner == null) ? 0 : owner.hashCode());
 		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
+		// result = prime * result + ((sha256 == null) ? 0 : sha256.hashCode());
 		return result;
 	}
 
@@ -235,6 +253,14 @@ public class DMDIIDocument extends BaseEntity {
 				return false;
 		} else if (!isDeleted.equals(other.isDeleted))
 			return false;
+
+		// if (sha256 ==null){
+		// 	if (other.sha256 !=null)
+		// 	return false;
+		// } else if (!sha256.equals(other.sha256))
+		// 	return false;
+
+
 		if (modified == null) {
 			if (other.modified != null)
 				return false;

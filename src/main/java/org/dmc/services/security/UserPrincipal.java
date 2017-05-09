@@ -6,11 +6,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserPrincipal implements UserDetails {
+
 
 	private Integer id;
 	private String username;
@@ -21,7 +23,7 @@ public class UserPrincipal implements UserDetails {
 
 	public UserPrincipal(Integer id, String username) {
 		this.id = id;
-		this.username = username;		
+		this.username = username;
 	}
 	public UserPrincipal(Integer id, String username, Integer myOrg) {
 		this.id = id;

@@ -26,6 +26,10 @@ import org.dmc.services.services.ServiceHistory.SectionEnum;
 import org.dmc.services.sharedattributes.FeatureImage;
 import org.dmc.solr.SolrUtils;
 
+import org.dmc.services.security.UserPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.dmc.services.security.SecurityRoles;
+
 public class ServiceDao {
 
     private final String logTag = ServiceDao.class.getName();
@@ -125,7 +129,13 @@ public class ServiceDao {
 
     public Service patchService(String serviceIdText, Service requestedBody, String userEPPN)
             throws DMCServiceException {
-        try {
+
+              // if (!userIsAuthorizedToUpdate(serviceIdText, userEPPN, requestedBody)) {
+              //   throw new DMCServiceException(DMCError.NotAuthorizedToChange, "User: " + userEPPN + " is not allowed to update service: " + serviceIdText);
+              // }
+
+            try {
+
             final int serviceId = Integer.parseInt(serviceIdText);
             if (serviceId != requestedBody.getId()) {
                 throw new DMCServiceException(DMCError.OtherSQLError,
@@ -150,8 +160,9 @@ public class ServiceDao {
             query += "parent=?, ";
             query += "published=? ";
             query += "where ";
-            query += "service_id=? and ";
-            query += "owner_id=?";
+            query += "service_id=?";
+            // removing the below to allow all superAdmins to modify services
+            // query += "owner_id=?";
 
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setObject(1, SqlTypeConverterUtility.getInt(requestedBody.getCompanyId()),
@@ -168,7 +179,7 @@ public class ServiceDao {
             preparedStatement.setString(9, requestedBody.getParent());
             preparedStatement.setBoolean(10, requestedBody.getPublished());
             preparedStatement.setInt(11, serviceId);
-            preparedStatement.setInt(12, userID);
+            // preparedStatement.setInt(12, userID);
             final int rowsAffected = preparedStatement.executeUpdate();
             if (1 != rowsAffected) {
                 throw new Exception("didn't correctly modify service " + requestedBody.getId());
@@ -659,6 +670,26 @@ public class ServiceDao {
             throw new DMCServiceException(DMCError.UnknownSQLError, e.getMessage());
         }
 
+    }
+
+    public Boolean userIsAuthorizedToUpdate(String serviceId, String userEPPN, Service requestedBody) {
+      Boolean isAuthorized = false;
+
+      try {
+        UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Service service = getService(Integer.parseInt(serviceId), userEPPN);
+
+        if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
+          isAuthorized = true;
+        } else if (Integer.parseInt(service.getOwner()) == user.getId() && !requestedBody.getPublished()) {
+          isAuthorized = true;
+        }
+
+      } catch (Exception e) {
+        System.out.println(e);
+      }
+
+      return isAuthorized;
     }
 
 }
