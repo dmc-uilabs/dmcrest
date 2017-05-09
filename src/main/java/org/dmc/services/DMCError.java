@@ -22,7 +22,7 @@ public enum DMCError {
 
 	//AWS
 	AWSError,
-	
+
 	// Project
 	NotProjectAdmin,
 	OnlyProjectAdmin,
@@ -35,7 +35,7 @@ public enum DMCError {
 	CanNotCloseActiveMQConnection,
 	CanNotDeleteQueue,
 	CanNotReadMessage,
-	
+
 	//DomeAPI
 	IncorrectType,
 	CanNotGetChildren,
@@ -45,28 +45,31 @@ public enum DMCError {
 	// Service queries
 	ServiceInterfaceNotMatch,
 	ServiceIDNotExist,
-	UnableToLogServiceHistory, 
-	
+	UnableToLogServiceHistory,
+
 	//account_server errors
-	CannotCreateDOMEServerEntry, 
+	CannotCreateDOMEServerEntry,
 	UnknownSQLError,
 	UnexpectedDOMEError,
-	UnexpectedDOMEConnectionError, 
+	UnexpectedDOMEConnectionError,
 	BadURL,
-	UnauthorizedAccessAttempt, 
+	UnauthorizedAccessAttempt,
 	CannotPatchDOMEServerEntry,
 	CannotDeleteDOMEServerEntry,
 	UnknownUser,
 	NoContentInQuery,
 	CannotChangeServerAccess,
-	
+
 	//Individual_Discussions
 	InvalidAccountId,
 	InvalidCommentId,
 	InvalidDiscussionId,
 	DiscussionFollowNotFound,
-	
+
 	//Date parsing
-	ParseError
+	ParseError,
+
+	//ownership
+	NotAuthorizedToChange
 
 }

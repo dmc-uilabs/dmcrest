@@ -44,6 +44,7 @@ import org.dmc.services.notification.NotificationService;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
+import org.dmc.services.services.ServiceDao;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,6 +267,13 @@ public class DocumentService {
 		docEntity.setModified(now);
 		docEntity.setVersion(0);
 
+		if (folder == "SERVICE") {
+			ServiceDao serviceDao = new ServiceDao();
+			if (serviceDao.getService(doc.getParentId(), "").getPublished()) {
+				docEntity.setIsPublic(true);
+			}
+		}
+
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
 
@@ -315,10 +323,12 @@ public class DocumentService {
 	}
 
 	@Transactional
-	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified) {
+	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified, String sha) {
 		Document document = this.documentRepository.findOne(documentId);
 		document.setDocumentUrl(verifiedUrl);
+		document.setSha256(sha);
 		document.setVerified(verified);
+
 
 		this.documentRepository.save(document);
 		this.parentDocumentService.updateParents(document);
@@ -725,5 +735,22 @@ public class DocumentService {
 		}
 
 		return false;
+
+
 	}
+
+	public void makeDocsPublic(String parentId) {
+		try {
+			List<Document> docs = documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, Integer.parseInt(parentId));
+			for(Document doc : docs){
+				doc.setIsPublic(true);
+				documentRepository.save(doc);
+			}
+		} catch (Exception e) {
+
+		}
+
+
+	}
+
 }
