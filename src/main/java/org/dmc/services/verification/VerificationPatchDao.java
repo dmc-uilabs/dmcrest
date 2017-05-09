@@ -33,18 +33,18 @@ public class VerificationPatchDao {
 		payload.setUrl(finalURL);
 
 		if ("document".equals(payload.getTable())) {
-			this.documentService.updateVerifiedDocument(payload.getId(), payload.getUrl(), payload.isVerified(), payload.getSha256());
+			this.documentService.updateVerifiedDocument(payload.getId(), payload.getUrl(), payload.isVerified(), payload.getSha256(),payload.getScanDate());
 		} else {
 			// update correct table entity return finalURL;
 
 
 			String query =
-					"UPDATE " + payload.getTable() + " SET " + payload.getUrlColumn() + " = ?, verified = ?, sha256 = ? " + "WHERE "
+					"UPDATE " + payload.getTable() + " SET " + payload.getUrlColumn() + " = ?, verified = ?, sha256 = ?, scanDate = ? " + "WHERE "
 							+ payload.getIdColumn() + " = ?";
 
 
-			String statement = String.format("UPDATE %s SET %s = '%s', verified = %s, sha256='%s' WHERE %s = %s", payload.getTable(),
-					payload.getUrlColumn(), finalURL, payload.isVerified(), payload.getSha256(), payload.getIdColumn(), payload.getId());
+			String statement = String.format("UPDATE %s SET %s = '%s', verified = %s, sha256='%s', scanDate=%s WHERE %s = %s", payload.getTable(),
+					payload.getUrlColumn(), finalURL, payload.isVerified(), payload.getSha256(),payload.getScanDate() ,payload.getIdColumn(), payload.getId());
 
 
 			DBConnector.jdbcTemplate().update(statement);

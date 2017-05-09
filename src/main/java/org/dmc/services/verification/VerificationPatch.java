@@ -2,6 +2,7 @@ package org.dmc.services.verification;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Date;
 
 public class VerificationPatch {
 
@@ -17,6 +18,7 @@ public class VerificationPatch {
 	private String scanLog;
 	private String restIP;
 	private String sha256;
+	private Date scanDate;
 
     @JsonProperty("id")
 	public int getId() {
@@ -33,6 +35,16 @@ public class VerificationPatch {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+
+		@JsonProperty("scanDate")
+	public Date getScanDate() {
+		return scanDate;
+	}
+
+	public void setScanDate(Date scanDate){
+		this.scanDate = scanDate;
+	}
+
 
 
     @JsonProperty("table")
