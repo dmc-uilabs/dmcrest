@@ -137,8 +137,6 @@ public class UserService {
 
 	public List<UserModel> findByOrganizationId(Integer organizationId, String displayName) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		ServiceLogger.log("data no display name", userRepository.findByOrganizationUserOrganizationId(organizationId).toString());
-		ServiceLogger.log("data with display name", userRepository.findByOrganizationUserOrganizationIdLikeDisplayName(organizationId, displayName).toString());
 		if (displayName != null && displayName != "") {
 			return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationIdLikeDisplayName(organizationId, "%" + displayName + "%"));
 		} else {
