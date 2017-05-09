@@ -8,6 +8,7 @@ public class EmailModel {
 	private String token;
 	private String requester;
 	private Integer template;
+	private String params;
 
 	public Integer getId() {
 		return id;
@@ -55,5 +56,13 @@ public class EmailModel {
 
 	public void setTemplate(Integer template) {
 		this.template = template;
+	}
+
+	public String getParams() {
+		return params;
+	}
+
+	public void setParams(String params) {
+		this.params = params;
 	}
 }

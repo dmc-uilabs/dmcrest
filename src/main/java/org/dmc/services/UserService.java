@@ -53,6 +53,7 @@ import org.springframework.util.Assert;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -169,12 +170,15 @@ public class UserService {
 			token = userTokenRepository.save(token);
 		}
 
+		emailToken(userId, token.getToken());
 		return mapper.mapToModel(token);
 	}
 
 	public ResponseEntity emailToken(Integer userId, String token) {
 		User user = this.userRepository.findOne(userId);
-		return this.emailService.sendEmail(user, 1, token);
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("token", token);
+		return this.emailService.sendEmail(user, 1, params);
 	}
 
 	@Transactional
