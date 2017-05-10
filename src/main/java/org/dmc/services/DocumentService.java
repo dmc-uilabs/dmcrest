@@ -391,6 +391,7 @@ public class DocumentService {
 
 		User userToShareWith;
 
+
 		String key = AWSConnector.createPath(documentUrl);
 		String presignedUrl = AWSConnector.generatePresignedUrl(key,
 		Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
@@ -399,9 +400,8 @@ public class DocumentService {
 		params.put("presignedUrl", presignedUrl);
 		params.put("documentName", documentName);
 
-		if (internal) {
+		if (internal && !email) {
 			userToShareWith = this.userRepository.findOne(Integer.parseInt(userIdentifier));
-			notificationService.createForSharedDocument(user, userToShareWith, presignedUrl);
 		} else {
 			userToShareWith = new User();
 			userToShareWith.setFirstName(userIdentifier);
@@ -412,7 +412,8 @@ public class DocumentService {
 		if (email) {
 			return this.emailService.sendEmail(userToShareWith, 2, params);
 		} else {
-			return new ResponseEntity<String>("Document shared", HttpStatus.OK);
+			notificationService.createForSharedDocument(user, userToShareWith, presignedUrl);
+			return new ResponseEntity<String>("{\"message\":\"Document shared\"}", HttpStatus.OK);
 		}
 
 	}
