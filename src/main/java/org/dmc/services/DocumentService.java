@@ -400,6 +400,7 @@ public class DocumentService {
 		params.put("presignedUrl", presignedUrl);
 		params.put("documentName", documentName);
 		params.put("sender", user.getRealname());
+		params.put("sha", document.getSha256());
 
 		if (internal && !email) {
 			userToShareWith = this.userRepository.findOne(Integer.parseInt(userIdentifier));
