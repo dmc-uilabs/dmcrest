@@ -1,20 +1,7 @@
 package org.dmc.services;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
+import com.mysema.query.types.ExpressionUtils;
+import com.mysema.query.types.Predicate;
 import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.data.entities.DMDIIDocument;
 import org.dmc.services.data.entities.DMDIIMember;
@@ -61,8 +48,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.mysema.query.types.ExpressionUtils;
-import com.mysema.query.types.Predicate;
+import javax.inject.Inject;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DocumentService {
@@ -406,22 +404,21 @@ public class DocumentService {
 		params.put("sender", user.getRealname());
 		params.put("sha", sha);
 
-		if (internal && !email) {
+		if (internal) {
 			userToShareWith = this.userRepository.findOne(Integer.parseInt(userIdentifier));
+			if (email) {
+				this.emailService.sendEmail(userToShareWith, 2, params);
+			}
+			notificationService.createForSharedDocument(user, userToShareWith, presignedUrl);
+			return new ResponseEntity<String>("{\"message\":\"Document shared\"}", HttpStatus.OK);
 		} else {
 			userToShareWith = new User();
 			userToShareWith.setFirstName(userIdentifier);
 			userToShareWith.setLastName("");
 			userToShareWith.setEmail(userIdentifier);
-		}
 
-		if (email) {
 			return this.emailService.sendEmail(userToShareWith, 2, params);
-		} else {
-			notificationService.createForSharedDocument(user, userToShareWith, presignedUrl);
-			return new ResponseEntity<String>("{\"message\":\"Document shared\"}", HttpStatus.OK);
 		}
-
 	}
 
 	private String getDMDIIDocumentUrl(Integer documentId) {
