@@ -27,7 +27,7 @@ public class AWSConnector {
 
     // The Perm Bucket where resource
     private static String destBucket = System.getenv("AWS_UPLOAD_BUCKET_FINAL");
-    private static String quarantineBucket = "dmcupquarantine";
+    private static String quarantineBucket = System.getenv("AWS_UPLOAD_BUCKET_QUARANTINE");
 
     private static String accessKey = System.getenv("AWS_UPLOAD_KEY");
     private static String secretKey = System.getenv("AWS_UPLOAD_SEC");
