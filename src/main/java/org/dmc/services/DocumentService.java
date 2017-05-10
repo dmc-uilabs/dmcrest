@@ -399,6 +399,7 @@ public class DocumentService {
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("presignedUrl", presignedUrl);
 		params.put("documentName", documentName);
+		params.put("sender", user.getRealname());
 
 		if (internal && !email) {
 			userToShareWith = this.userRepository.findOne(Integer.parseInt(userIdentifier));
