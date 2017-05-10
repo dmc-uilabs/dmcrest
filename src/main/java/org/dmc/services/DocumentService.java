@@ -372,19 +372,23 @@ public class DocumentService {
 	public ResponseEntity shareDocument(Integer documentId, String userIdentifier, Boolean internal, Boolean dmdii, Boolean email) {
 		String documentUrl;
 		String documentName;
+		Document document;
+		String sha;
 		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User user = this.userRepository.findByUsername(userPrincipal.getUsername());
 
 		if (dmdii) {
 			documentUrl = getDMDIIDocumentUrl(documentId);
 			documentName = getDMDIIDocumentName(documentId);
+			sha = getDMDIIDocumentSha(documentId);
 		} else {
 
-			Document document = this.documentRepository.findOne(documentId);
+			document = this.documentRepository.findOne(documentId);
 			if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
 				throw new AccessDeniedException("User does not have permission to share document");
 			}
 
+			sha = document.getSha256();
 			documentUrl = document.getDocumentUrl();
 			documentName = document.getDocumentName();
 		}
@@ -400,7 +404,7 @@ public class DocumentService {
 		params.put("presignedUrl", presignedUrl);
 		params.put("documentName", documentName);
 		params.put("sender", user.getRealname());
-		params.put("sha", document.getSha256());
+		params.put("sha", sha);
 
 		if (internal && !email) {
 			userToShareWith = this.userRepository.findOne(Integer.parseInt(userIdentifier));
@@ -421,21 +425,21 @@ public class DocumentService {
 	}
 
 	private String getDMDIIDocumentUrl(Integer documentId) {
-		DMDIIDocument document = this.dmdiiDocumentRepository.getOne(documentId);
-		if (document.getDmdiiProject() != null && document.getAccessLevel() != null) {
-			List<DMDIIMember> projectMembers = new ArrayList<>();
-			projectMembers.add(document.getDmdiiProject().getPrimeOrganization());
-			projectMembers.addAll(document.getDmdiiProject().getContributingCompanies());
-
-			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
-			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds)) {
-				throw new AccessDeniedException("User does not have permission to share document");
-			}
-		}
+		DMDIIDocument document = returnDMDIIDocIfAuth(documentId);
 		return document.getDocumentUrl();
 	}
 
 	private String getDMDIIDocumentName(Integer documentId) {
+		DMDIIDocument document = returnDMDIIDocIfAuth(documentId);
+		return document.getDocumentName();
+	}
+
+	private String getDMDIIDocumentSha(Integer documentId) {
+		DMDIIDocument document = returnDMDIIDocIfAuth(documentId);
+		return document.getSha256();
+	}
+
+	private DMDIIDocument returnDMDIIDocIfAuth(Integer documentId) {
 		DMDIIDocument document = this.dmdiiDocumentRepository.getOne(documentId);
 		if (document.getDmdiiProject() != null && document.getAccessLevel() != null) {
 			List<DMDIIMember> projectMembers = new ArrayList<>();
@@ -447,7 +451,7 @@ public class DocumentService {
 				throw new AccessDeniedException("User does not have permission to share document");
 			}
 		}
-		return document.getDocumentName();
+		return document;
 	}
 
 	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
