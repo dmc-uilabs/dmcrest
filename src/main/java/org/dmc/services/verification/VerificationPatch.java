@@ -143,6 +143,7 @@ public class VerificationPatch {
 				", scanLog='" + scanLog + '\'' +
 				", restIP='" + restIP + '\'' +
 				", sha256='" + sha256 + '\'' +
+				", scanDate='" + scanDate + '\'' +
 				'}';
 	}
 }
