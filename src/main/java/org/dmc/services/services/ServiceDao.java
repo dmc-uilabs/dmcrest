@@ -240,7 +240,7 @@ public class ServiceDao {
         ResultSet resultSet = null;
         try {
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM service");
+            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE (is_deleted IS NULL OR is_deleted = FALSE)");
 
             while (resultSet.next()) {
                 Service service = readServiceResultSet(resultSet);
@@ -267,7 +267,7 @@ public class ServiceDao {
     	ArrayList<Service> returnList = new ArrayList<Service>();
     	ResultSet resultSet = null;
     	try {
-    		String query = "SELECT * FROM service";
+    		String query = "SELECT * FROM service WHERE (is_deleted IS NULL OR is_deleted = FALSE)";
 
     		for(int i = 0; i < serviceIds.size(); i++) {
     			if(i == 0) {
@@ -432,7 +432,7 @@ public class ServiceDao {
 			String userEPPN,
 			Integer filterByCompany)
                 throws Exception {
-        String query = "SELECT * FROM service";
+        String query = "SELECT * FROM service WHERE (is_deleted IS NULL OR is_deleted = FALSE)";
 
         final ArrayList<String> whereClauses = new ArrayList<String>();
         final ArrayList<String> orderByClauses = new ArrayList<String>();
