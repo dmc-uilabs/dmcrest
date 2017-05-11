@@ -39,7 +39,7 @@ public class ServiceDao {
 
         try {
 
-            final String query = "SELECT * FROM service WHERE service_id = " + requestId;
+            final String query = "SELECT * FROM service WHERE (is_deleted IS NULL OR is_deleted = FALSE) AND service_id = " + requestId;
             Service service = null;
             final ResultSet resultSet = DBConnector.executeQuery(query);
 
@@ -304,7 +304,7 @@ public class ServiceDao {
         ResultSet resultSet = null;
         try {
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE project_id = " + projectId);
+            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE (is_deleted IS NULL OR is_deleted = FALSE) AND project_id = " + projectId);
 
             while (resultSet.next()) {
                 Service service = readServiceResultSet(resultSet);
@@ -333,7 +333,7 @@ public class ServiceDao {
         ResultSet resultSet = null;
         try {
             // ToDo need to determine component ID
-            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE project_id = " + componentId);
+            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE (is_deleted IS NULL OR is_deleted = FALSE) AND project_id = " + componentId);
 
             while (resultSet.next()) {
                 Service service = readServiceResultSet(resultSet);
@@ -577,7 +577,7 @@ public class ServiceDao {
 
         try {
             Integer serviceId = Integer.parseInt(serviceIdText);
-            final String permissionsQuery1 = "SELECT published, project_id FROM service WHERE service_id = ?";
+            final String permissionsQuery1 = "SELECT published, project_id FROM service WHERE (is_deleted IS NULL OR is_deleted = FALSE) AND service_id = ?";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(permissionsQuery1);
             preparedStatement.setInt(1, serviceId);
             ResultSet rs = preparedStatement.executeQuery();
