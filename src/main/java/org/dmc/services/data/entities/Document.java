@@ -18,6 +18,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.Date;
 
 import org.hibernate.annotations.Where;
 import org.hibernate.annotations.WhereJoinTable;
@@ -106,6 +107,18 @@ public class Document extends ResourceEntity {
 
 	@Column(name = "base_doc_id")
 	private Integer baseDocId;
+
+	@Column(name="scan_date")
+	private Date scanDate;
+
+	public Date getScanDate() {
+		return scanDate;
+	}
+
+	public void setScanDate(Date scanDate) {
+		this.scanDate = scanDate;
+	}
+
 
 	public Integer getId() {
 		return id;
