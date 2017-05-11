@@ -240,7 +240,7 @@ public class ServiceDao {
         ResultSet resultSet = null;
         try {
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE (is_deleted IS NULL OR is_deleted = FALSE)");
+            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE is_deleted IS NULL OR is_deleted = FALSE");
 
             while (resultSet.next()) {
                 Service service = readServiceResultSet(resultSet);
@@ -271,11 +271,14 @@ public class ServiceDao {
 
     		for(int i = 0; i < serviceIds.size(); i++) {
     			if(i == 0) {
-    				query += " WHERE service_id = " + serviceIds.get(i);
+    				query += "AND (service_id = " + serviceIds.get(i);
     			} else {
     				query += " OR service_id = " + serviceIds.get(i);
     			}
     		}
+        if(serviceIds.size() > 0){
+          query+=")";
+        }
 
     		resultSet = DBConnector.executeQuery(query);
 
@@ -432,10 +435,12 @@ public class ServiceDao {
 			String userEPPN,
 			Integer filterByCompany)
                 throws Exception {
-        String query = "SELECT * FROM service WHERE (is_deleted IS NULL OR is_deleted = FALSE)";
+        String query = "SELECT * FROM service";
 
         final ArrayList<String> whereClauses = new ArrayList<String>();
         final ArrayList<String> orderByClauses = new ArrayList<String>();
+        
+        whereClauses.add(" (is_deleted IS NULL OR is_deleted = FALSE)");
 
         if (null != fromLocations && fromLocations.size() > 0) {
             String fromClause = " from_location in (?";
