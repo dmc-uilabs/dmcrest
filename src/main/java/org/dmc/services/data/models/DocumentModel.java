@@ -42,8 +42,10 @@ public class DocumentModel extends BaseModel {
 	private Integer directoryId;
 
 	private Integer baseDocId;
-	
+
 	private Boolean hasVersions;
+
+	private String sha256;
 
 	public String getDocumentName() {
 		return documentName;
@@ -173,4 +175,11 @@ public class DocumentModel extends BaseModel {
 		this.hasVersions = hasVersions;
 	}
 
+	public String getSha256() {
+		return sha256;
+	}
+
+	public void setSha256(String sha256) {
+		this.sha256 = sha256;
+	}
 }

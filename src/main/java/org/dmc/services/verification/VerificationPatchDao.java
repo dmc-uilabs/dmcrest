@@ -23,28 +23,32 @@ public class VerificationPatchDao {
 
 
 		String finalURL = " ";
+		String quarantineUrl;
+		AWSConnector AWS = new AWSConnector();
 
 		if (payload.isVerified()) {
-			AWSConnector AWS = new AWSConnector();
 			finalURL = AWS
-					.upload(payload.getUrl(), payload.getFolder(), payload.getUserEPPN(), payload.getResourceType());
+					.upload(payload.getUrl(), payload.getFolder(), payload.getUserEPPN(), payload.getResourceType(), true);
+		} else {
+			quarantineUrl = AWS.upload(payload.getUrl(), payload.getFolder(), payload.getUserEPPN(), payload.getResourceType(), false);
+			finalURL = "/fileQuarantined.jpeg";
 		}
 
 		payload.setUrl(finalURL);
 
 		if ("document".equals(payload.getTable())) {
-			this.documentService.updateVerifiedDocument(payload.getId(), payload.getUrl(), payload.isVerified(), payload.getSha256());
+			this.documentService.updateVerifiedDocument(payload.getId(), payload.getUrl(), payload.isVerified(), payload.getSha256(),payload.getScanDate());
 		} else {
 			// update correct table entity return finalURL;
 
 
 			String query =
-					"UPDATE " + payload.getTable() + " SET " + payload.getUrlColumn() + " = ?, verified = ?, sha256 = ? " + "WHERE "
+					"UPDATE " + payload.getTable() + " SET " + payload.getUrlColumn() + " = ?, verified = ?, sha256 = ?, scan_date = ? " + "WHERE "
 							+ payload.getIdColumn() + " = ?";
 
 
-			String statement = String.format("UPDATE %s SET %s = '%s', verified = %s, sha256='%s' WHERE %s = %s", payload.getTable(),
-					payload.getUrlColumn(), finalURL, payload.isVerified(), payload.getSha256(), payload.getIdColumn(), payload.getId());
+			String statement = String.format("UPDATE %s SET %s = '%s', verified = %s, sha256='%s', scan_date='%s' WHERE %s = %s", payload.getTable(),
+					payload.getUrlColumn(), finalURL, payload.isVerified(), payload.getSha256(),payload.getScanDate() ,payload.getIdColumn(), payload.getId());
 
 
 			DBConnector.jdbcTemplate().update(statement);

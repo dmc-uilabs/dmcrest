@@ -123,8 +123,9 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/user/organization/{organizationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<UserModel> getUsersByOrganizationId(@PathVariable Integer organizationId) {
-		return userService.findByOrganizationId(organizationId);
+	public List<UserModel> getUsersByOrganizationId(@PathVariable Integer organizationId,
+													@RequestParam(value="displayName", required = false) String displayName) {
+		return userService.findByOrganizationId(organizationId, displayName);
 	}
 
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_ADMIN)

@@ -141,11 +141,11 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 				model.setAccessLevel(accessLevel);
 			}
 		}
-		
+
 		if (entity.getIsPublic()) {
 			model.setAccessLevel("PUBLIC");
 		}
-		
+
 		return model;
 	}
 
