@@ -116,7 +116,7 @@ public class AWSConnector {
             final int ResourcePathStart = URL.indexOf("com/") + 4;
             final int ResourcePathEnd = URL.indexOf("?A");
             final String ResourcePath = URL.substring(ResourcePathStart, ResourcePathEnd);
-            return ResourcePath;
+            return ResourcePath.replace("%40","@");
         } catch (Exception e) {
             throw new DMCServiceException(DMCError.AWSError,
                     "AWS create path from " + URL + "encountered internal error");

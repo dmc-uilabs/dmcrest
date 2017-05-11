@@ -135,9 +135,13 @@ public class UserService {
 		return mapper.mapToModel(userRepository.save(user));
 	}
 
-	public List<UserModel> findByOrganizationId(Integer organizationId) {
+	public List<UserModel> findByOrganizationId(Integer organizationId, String displayName) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
-		return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
+		if (displayName != null && displayName != "") {
+			return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationIdLikeDisplayName(organizationId, "%" + displayName + "%"));
+		} else {
+			return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
+		}
 	}
 
 	public List<UserModel> findByOrganizationIdAndRole(Integer organizaitonId, String role) {

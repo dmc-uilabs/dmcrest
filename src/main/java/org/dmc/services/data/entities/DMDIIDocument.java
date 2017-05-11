@@ -78,6 +78,19 @@ public class DMDIIDocument extends BaseEntity {
 	@Column(name = "version")
 	private Integer version;
 
+
+	@Column(name="scan_date")
+	private Date scanDate;
+
+	public Date getScanDate() {
+		return scanDate;
+	}
+
+	public void setScanDate(Date scanDate) {
+		this.scanDate = scanDate;
+	}
+
+
 	public Integer getId() {
 		return id;
 	}

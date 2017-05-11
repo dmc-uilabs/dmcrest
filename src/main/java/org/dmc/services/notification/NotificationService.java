@@ -20,6 +20,7 @@ import org.dmc.services.exceptions.InvalidOrganizationUserException;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Service;
 
+
 @Service
 public class NotificationService {
 
@@ -99,5 +100,16 @@ public class NotificationService {
 		}
 
 		notificationRepository.save(notifications);
+	}
+
+	public void createForSharedDocument(User sender, User recipient, String documentUrl) {
+
+		Notification notification = new Notification();
+		notification.setType(NotificationType.DOCUMENT_SHARED);
+		notification.setMessage(documentUrl);
+		notification.setCreatedBy(sender);
+		notification.setCreatedFor(recipient);
+
+		notificationRepository.save(notification);
 	}
 }

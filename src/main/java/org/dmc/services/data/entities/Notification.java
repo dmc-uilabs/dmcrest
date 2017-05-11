@@ -24,37 +24,38 @@ import org.hibernate.annotations.Where;
 @Where(clause = "is_deleted='FALSE'")
 @SQLDelete(sql="UPDATE notification SET is_deleted = 'TRUE' WHERE id = ?")
 public class Notification extends BaseEntity {
-	
+
 	public enum NotificationType {
 		NEW_USER_JOINED_ORGANIZATION,
-		USER_REQUESTS_VERIFICATION
+		USER_REQUESTS_VERIFICATION,
+		DOCUMENT_SHARED
 	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	
+
 	@Enumerated(EnumType.STRING)
 	private NotificationType type;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "created_by")
 	private User createdBy;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "created_for")
 	private User createdFor;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date created;
-	
+
 	private String message;
-	
+
 	private boolean unread = true;
-	
+
 	@Column(name = "is_deleted")
 	private boolean isDeleted = false;
-	
+
 	@PrePersist
 	protected void onCreate() {
 		this.created = new Date();

@@ -28,6 +28,21 @@ public interface UserRepository extends BaseRepository<User, Integer> {
 	List<User> findByOrganizationUserOrganizationId(@Param("organizationId") Integer organizationId);
 
 
+	@Query(value = "SELECT  u.user_id, u.user_name, u.accept_term_cond_time, u.user_pw, u.realname, u.title, u.firstname, u.lastname, u.email, u.address, u.phone, u.about_me, u.people_resume, u.add_date, u.timezone, u.user_contact_info_id, d.url as image"
+			+ " FROM organization_user AS ou"
+			+ " JOIN users u on u.user_id = ou.user_id"
+			+ " JOIN organization o on o.organization_id = ou.organization_id"
+			+ " LEFT JOIN"
+			+ " (select parent_id, max(id) as id"
+			+ " from document d"
+			+ " where parent_type = 'USER' and doc_class = 'IMAGE'"
+			+ " group by parent_id) maxdocs on maxdocs.parent_id = u.user_id"
+			+ " LEFT JOIN  document d on parent_type = 'USER'"
+			+ " and doc_class = 'IMAGE'"
+			+ " and maxdocs.id = d.id"
+			+ " WHERE o.organization_id = :organizationId AND u.realname ILIKE :displayName", nativeQuery = true)
+	List<User> findByOrganizationUserOrganizationIdLikeDisplayName(@Param("organizationId") Integer organizationId, @Param("displayName") String displayName);
+
 	@Query(value = "SELECT"
 			+ "   u.user_id, u.user_name, u.realname, u.title, u.phone, u.email, u.address, u.image, u.people_resume"
 			+ " FROM users AS u"
