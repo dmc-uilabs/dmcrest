@@ -159,6 +159,7 @@ public class ServiceDao {
             query += "type=?, ";
             query += "parent=?, ";
             query += "published=? ";
+            query += "is_deleted=? ";
             query += "where ";
             query += "service_id=?";
             // removing the below to allow all superAdmins to modify services
@@ -178,7 +179,8 @@ public class ServiceDao {
             preparedStatement.setString(8, requestedBody.getType());
             preparedStatement.setString(9, requestedBody.getParent());
             preparedStatement.setBoolean(10, requestedBody.getPublished());
-            preparedStatement.setInt(11, serviceId);
+            preparedStatement.setBoolean(11, requestedBody.getIsDeleted());
+            preparedStatement.setInt(12, serviceId);
             // preparedStatement.setInt(12, userID);
             final int rowsAffected = preparedStatement.executeUpdate();
             if (1 != rowsAffected) {
@@ -538,6 +540,7 @@ public class ServiceDao {
         service.setType(resultSet.getString("type"));
         service.setParent(resultSet.getString("parent"));
         service.setPublished(resultSet.getBoolean("published"));
+        service.setIsDeleted(Integer.toString(resultSet.getInt("is_deleted")));
 
         service.setAverageRun("");
         return service;

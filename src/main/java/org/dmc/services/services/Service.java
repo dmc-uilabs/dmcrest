@@ -33,6 +33,7 @@ public class Service  {
 	private String parent = null;
 	private Boolean published = null;
 	private String averageRun = null;
+  private int isDeleted = null;
 	
 	
 	/**
@@ -229,8 +230,18 @@ public class Service  {
 		this.averageRun = averageRun;
 	}
 	
+  
+  /**
+	 **/
+	@JsonProperty("isDeleted")
+	public int getIsDeleted() {
+		return isDeleted;
+	}
+	public void setIsDeleted(int isDeleted) {
+		this.isDeleted = isDeleted;
+	}
 	
-	
+  
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -257,12 +268,13 @@ public class Service  {
         Objects.equals(type, service.type) &&
         Objects.equals(parent, service.parent) &&
         Objects.equals(published, service.published) &&
-        Objects.equals(averageRun, service.averageRun);
+        Objects.equals(averageRun, service.averageRun) &&
+        Objects.equals(isDeleted, service.isDeleted);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, companyId, title, description, owner, profileId, releaseDate, serviceType, tags, specifications, featureImage, currentStatus, projectId, from, type, parent, published, averageRun);
+		return Objects.hash(id, companyId, title, description, owner, profileId, releaseDate, serviceType, tags, specifications, featureImage, currentStatus, projectId, from, type, parent, published, averageRun, isDeleted);
 	}
 	
 	@Override
@@ -288,6 +300,7 @@ public class Service  {
 		sb.append("  parent: ").append(parent).append("\n");
 		sb.append("  published: ").append(published).append("\n");
 		sb.append("  averageRun: ").append(averageRun).append("\n");
+    sb.append("  isDeleted: ").append(isDeleted).append("\n");
 		sb.append("}\n");
 		return sb.toString();
 	}
