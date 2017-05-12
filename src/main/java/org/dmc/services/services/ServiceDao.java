@@ -242,7 +242,7 @@ public class ServiceDao {
         ResultSet resultSet = null;
         try {
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE is_deleted IS NULL OR is_deleted = FALSE");
+            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE is_deleted = 0");
 
             while (resultSet.next()) {
                 Service service = readServiceResultSet(resultSet);
