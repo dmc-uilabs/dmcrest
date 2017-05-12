@@ -64,7 +64,17 @@ public class DocumentController {
 	public ResponseEntity createDocumentForUser(@PathVariable("id") Integer documentId,
 	                                            @PathVariable("userId") Integer userId,
 	                                            @RequestParam( value = "dmdii", defaultValue = "false") boolean dmdii){
-		return this.documentService.shareDocument(documentId, userId, dmdii);
+		return this.documentService.shareDocument(documentId, String.valueOf(userId), true, dmdii, false);
+	}
+
+	@RequestMapping(value = "/documents/{id}/share", method = RequestMethod.POST)
+	public ResponseEntity createDocumentForUser(@PathVariable("id") Integer documentId,
+	                                            @RequestParam( value = "dmdii", defaultValue = "false") boolean dmdii,
+																							@RequestParam( value = "user", defaultValue = "") String user,
+																							@RequestParam( value = "internal", defaultValue = "true") boolean internal,
+																							@RequestParam( value = "email", defaultValue = "false") boolean email
+																							){
+		return this.documentService.shareDocument(documentId, user, internal, dmdii, email);
 	}
 
 	@ResponseStatus(HttpStatus.OK)

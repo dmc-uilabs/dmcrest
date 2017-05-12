@@ -27,12 +27,13 @@ public class AWSConnector {
 
     // The Perm Bucket where resource
     private static String destBucket = System.getenv("AWS_UPLOAD_BUCKET_FINAL");
+    private static String quarantineBucket = System.getenv("AWS_UPLOAD_BUCKET_QUARANTINE");
 
     private static String accessKey = System.getenv("AWS_UPLOAD_KEY");
     private static String secretKey = System.getenv("AWS_UPLOAD_SEC");
 
     // Source is the path the the resource in the bucket
-    public static String upload(String tempURL, String Folder, String userEPPN, String ResourceType)
+    public static String upload(String tempURL, String Folder, String userEPPN, String ResourceType, boolean isVerified)
             throws DMCServiceException {
 
         if (null == tempURL) {
@@ -49,7 +50,13 @@ public class AWSConnector {
 
         try {
             // Copying object, AWS takes care of all implementation of this.
-            final CopyObjectRequest copyObjRequest = new CopyObjectRequest(sourceBucket, sourceKey, destBucket, destKey);
+            final CopyObjectRequest copyObjRequest;
+            if (isVerified) {
+              copyObjRequest = new CopyObjectRequest(sourceBucket, sourceKey, destBucket, destKey);
+            } else {
+              copyObjRequest = new CopyObjectRequest(sourceBucket, sourceKey, quarantineBucket, destKey);
+              ServiceLogger.log(LOGTAG, "User" + userEPPN + " - uploaded infected file. Can be found at: "+copyObjRequest.getDestinationKey());
+            }
             ServiceLogger.log(LOGTAG, "Copying object to s3 bucket.");
             s3client.copyObject(copyObjRequest);
             ServiceLogger.log(LOGTAG, "Generating pre-signed URL.");
@@ -109,7 +116,7 @@ public class AWSConnector {
             final int ResourcePathStart = URL.indexOf("com/") + 4;
             final int ResourcePathEnd = URL.indexOf("?A");
             final String ResourcePath = URL.substring(ResourcePathStart, ResourcePathEnd);
-            return ResourcePath;
+            return ResourcePath.replace("%40","@");
         } catch (Exception e) {
             throw new DMCServiceException(DMCError.AWSError,
                     "AWS create path from " + URL + "encountered internal error");

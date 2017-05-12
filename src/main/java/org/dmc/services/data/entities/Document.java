@@ -18,6 +18,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.Date;
 
 import org.hibernate.annotations.Where;
 import org.hibernate.annotations.WhereJoinTable;
@@ -77,6 +78,10 @@ public class Document extends ResourceEntity {
 	@Column(name = "verified")
 	private Boolean verified = false;
 
+	@Column(name = "sha256")
+	private String sha256;
+
+
 	@ManyToMany (fetch = FetchType.EAGER)
 	@JoinTable(name = "resource_in_resource_group",
 				joinColumns = @JoinColumn(name = "resource_id"),
@@ -99,9 +104,21 @@ public class Document extends ResourceEntity {
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "directory_id")
 	private Directory directory;
-	
+
 	@Column(name = "base_doc_id")
 	private Integer baseDocId;
+
+	@Column(name="scan_date")
+	private Date scanDate;
+
+	public Date getScanDate() {
+		return scanDate;
+	}
+
+	public void setScanDate(Date scanDate) {
+		this.scanDate = scanDate;
+	}
+
 
 	public Integer getId() {
 		return id;
@@ -206,6 +223,16 @@ public class Document extends ResourceEntity {
 	public void setVerified(Boolean verified) {
 		this.verified = verified;
 	}
+
+
+	public String getSha256(){
+		return sha256;
+	}
+
+	public void setSha256(String sha256){
+		this.sha256 = sha256;
+	}
+
 
 	public Directory getDirectory() {
 		return directory;

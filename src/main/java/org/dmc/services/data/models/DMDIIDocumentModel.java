@@ -20,14 +20,25 @@ public class DMDIIDocumentModel extends BaseModel {
 	private Date expires;
 
 	private Boolean isDeleted;
-	
+
 	private Integer fileType;
-	
+
 	private Boolean verified;
-	
+
 	private String accessLevel;
-	
+
 	private Integer version;
+
+	private String sha256;
+
+	public String getSha256(){
+		return sha256;
+	}
+
+	public void setSha256(String sha256){
+		this.sha256 = sha256;
+	}
+
 
 	public String getDocumentName() {
 		return documentName;
@@ -125,5 +136,5 @@ public class DMDIIDocumentModel extends BaseModel {
 		this.version = version;
 	}
 
-	
+
 }

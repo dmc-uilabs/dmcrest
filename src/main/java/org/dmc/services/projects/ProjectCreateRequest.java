@@ -17,36 +17,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ProjectCreateRequest {
 	private String title = null;
-	private String description = null; 
+	private String description = null;
 	private String projectType = null;
 	private long dueDate = 0;
+	private int createdOn = 0;
 	private String approvalOption = null;
-	
+
 //	@JsonCreator
 //	public ProjectCreateRequest(@JsonProperty("name") String name, @JsonProperty("description") String description)
 //	{
 //		this.name = name;
 //		this.description = description;
 //	}
-	
-	public ProjectCreateRequest() { 
+
+	public ProjectCreateRequest() {
 	}
 
 	@JsonProperty("title")
     public String getTitle(){
 		return title;
 	}
-	
+
 	@JsonProperty("title")
 	public void setTitle(String value){
 		title = value;
 	}
-	
+
 	@JsonProperty("description")
 	public String getDescription(){
 		return description;
 	}
-	
+
 	@JsonProperty("description")
 	public void setDescription(String value){
 		description = value;
@@ -61,6 +62,13 @@ public class ProjectCreateRequest {
 	public void setDueDate(long value){
 		dueDate = value;
 	}
+
+	@JsonProperty("createdOn")
+	public int getCreatedOn() { return createdOn; }
+
+	@JsonProperty("createdOn")
+	public void setCreatedOn(int createdOn) { this.createdOn = createdOn; }
+
 	@JsonProperty("type")
 	public String getProjectType(){
 		return projectType;
@@ -70,24 +78,24 @@ public class ProjectCreateRequest {
 	public void setProjectType(String value){
 		projectType = value;
 	}
-	
+
 	@JsonProperty("approvalOption")
 	public String getApprovalOption() {
 		return approvalOption;
 	}
-	
+
 	@JsonProperty("approvalOption")
 	public void setApprovalOption(String value) {
 		approvalOption = value;
 	}
-	
+
 	@Override
 	public String toString() {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			return mapper.writeValueAsString(this);
 		} catch (JsonProcessingException e) {}
-		
+
 		return null;
 	}
 }
