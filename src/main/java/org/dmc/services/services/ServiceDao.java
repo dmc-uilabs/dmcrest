@@ -179,7 +179,8 @@ public class ServiceDao {
             preparedStatement.setString(8, requestedBody.getType());
             preparedStatement.setString(9, requestedBody.getParent());
             preparedStatement.setBoolean(10, requestedBody.getPublished());
-            preparedStatement.setInt(11, requestedBody.getIsDeleted());
+            preparedStatement.setObject(11, SqlTypeConverterUtility.getInt(requestedBody.getIsDeleted()),
+                    java.sql.Types.BIGINT);
             preparedStatement.setInt(12, serviceId);
             // preparedStatement.setInt(12, userID);
             final int rowsAffected = preparedStatement.executeUpdate();
@@ -540,7 +541,7 @@ public class ServiceDao {
         service.setType(resultSet.getString("type"));
         service.setParent(resultSet.getString("parent"));
         service.setPublished(resultSet.getBoolean("published"));
-        service.setIsDeleted(resultSet.getInt("is_deleted"));
+        service.setIsDeleted(Integer.toString(resultSet.getInt("is_deleted")));
 
         service.setAverageRun("");
         return service;

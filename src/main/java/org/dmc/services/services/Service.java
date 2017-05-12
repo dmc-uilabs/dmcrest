@@ -33,7 +33,7 @@ public class Service  {
 	private String parent = null;
 	private Boolean published = null;
 	private String averageRun = null;
-  private int isDeleted = 0;
+  private String isDeleted = null;
 	
 	
 	/**
@@ -234,10 +234,10 @@ public class Service  {
   /**
 	 **/
 	@JsonProperty("isDeleted")
-	public int getIsDeleted() {
+	public String getIsDeleted() {
 		return isDeleted;
 	}
-	public void setIsDeleted(int isDeleted) {
+	public void setIsDeleted(String isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 	
