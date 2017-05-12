@@ -33,7 +33,7 @@ public class Service  {
 	private String parent = null;
 	private Boolean published = null;
 	private String averageRun = null;
-  private int isDeleted = null;
+  private int isDeleted = 0;
 	
 	
 	/**
