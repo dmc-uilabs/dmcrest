@@ -87,7 +87,7 @@ public class ServiceRunsDao {
 				modelInterface.setOutParams(outputParams);
 				serviceRun.setInterface(modelInterface);
 
-				String projectQuery = "SELECT groups.group_id, groups.group_name FROM service INNER JOIN groups ON service.project_id = groups.group_id WHERE (is_deleted IS NULL OR is_deleted = FALSE) AND service.service_id = ?";
+				String projectQuery = "SELECT groups.group_id, groups.group_name FROM service INNER JOIN groups ON service.project_id = groups.group_id WHERE is_deleted = 0 AND service.service_id = ?";
 				PreparedStatement preparedStatementProject = DBConnector.prepareStatement(projectQuery);
 				preparedStatementProject.setInt(1, resultSet.getInt("service_id"));
 				preparedStatementProject.execute();
@@ -270,7 +270,7 @@ public class ServiceRunsDao {
 					modelInterface.setOutParams(outputParams);
 					singleServiceRun.setInterface(modelInterface);
 
-					String projectQuery = "SELECT groups.group_id, groups.group_name FROM service INNER JOIN groups ON service.project_id = groups.group_id WHERE (is_deleted IS NULL OR is_deleted = FALSE) AND service.service_id = ?";
+					String projectQuery = "SELECT groups.group_id, groups.group_name FROM service INNER JOIN groups ON service.project_id = groups.group_id WHERE is_deleted = 0 AND service.service_id = ?";
 					PreparedStatement preparedStatementProject = DBConnector.prepareStatement(projectQuery);
 					preparedStatementProject.setInt(1, resultSet.getInt("service_id"));
 					preparedStatementProject.execute();
