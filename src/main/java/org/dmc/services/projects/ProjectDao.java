@@ -94,7 +94,7 @@ public class ProjectDao {
     }
 
     // get any project the user is a member of
-    public ArrayList<Project> getProjectList(String userEPPN, Integer limit, Integer offset, String order, String sort) {
+    public ArrayList<Project> getProjectList(String userEPPN, Integer limit, Integer offset, String order, String sort, String filter) {
 
         final ArrayList<Project> projects = new ArrayList<Project>();
 
@@ -108,6 +108,13 @@ public class ProjectDao {
 //                + " pfo_role.home_group_id IS NOT NULL AND"
 //                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
 //                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
+        if (filter != null) {
+            if (filter.equals("public")) {
+                groupIdList += " AND project_info.isPublic = 1";
+            } else if (filter.equals("private")) {
+                groupIdList += " AND project_info.isPublic = 0";
+            }
+        }
 
         if (sort != null) {
             groupIdList += " ORDER BY";
@@ -157,14 +164,20 @@ public class ProjectDao {
 
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
     // Being refactored to use spring-data-jpa within next few sprints
-    public List<Project> getPublicProjects(Integer limit, Integer offset, String order, String sort) {
+    public List<Project> getPublicProjects(Integer limit, Integer offset, String order, String sort, String filter) {
     	List<Project> projects = new ArrayList<Project>();
 
     	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time, LOWER(title) AS sortTitle"
     			+ " FROM (" + getSelectProjectQuery(order) + ") as project"
     			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1";
 
-        if (sort != null) {
+        if (filter != null) {
+            if (filter.equals("private")) {
+                query += " AND project.isPublic = 0";
+            }
+        }
+
+    	if (sort != null) {
             query += " ORDER BY";
             if (sort.equals("title")) {
                 query += " sortTitle ASC";
