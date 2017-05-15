@@ -158,7 +158,7 @@ public class ServiceDao {
             query += "from_location=?, ";
             query += "type=?, ";
             query += "parent=?, ";
-            query += "published=? ";
+            query += "published=?, ";
             query += "is_deleted=? ";
             query += "where ";
             query += "service_id=?";
@@ -182,6 +182,7 @@ public class ServiceDao {
             preparedStatement.setObject(11, SqlTypeConverterUtility.getInt(requestedBody.getIsDeleted()),
                     java.sql.Types.BIGINT);
             preparedStatement.setInt(12, serviceId);
+            
             // preparedStatement.setInt(12, userID);
             final int rowsAffected = preparedStatement.executeUpdate();
             if (1 != rowsAffected) {

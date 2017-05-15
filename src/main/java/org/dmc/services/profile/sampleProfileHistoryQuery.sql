@@ -30,16 +30,19 @@ select s.release_date + time '00:00' as event_date, concat('service \"', s.title
 from service s 
 where s.release_date is not null 
 and owner_id = 102 
+and s.is_deleted = 0 
 union
 select sr.start_date + time '00:00' as event_date, concat('service \"', s.title, '\" run started [r',sr.run_id,']') as message 
 from service s, service_run sr 
 where s.service_id = sr.service_id 
+and s.is_deleted = 0 
 and sr.start_date is not null 
 and run_by = 550
 union
 select sr.stop_date + time '00:00' as event_date, concat('service \"', s.title, '\" run stopped [r',sr.run_id,']') as message 
 from service s, service_run sr 
 where s.service_id = sr.service_id 
+and s.is_deleted = 0 
 and sr.stop_date is not null 
 and run_by = 555
 
