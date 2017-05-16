@@ -681,7 +681,7 @@ public class ServiceDao {
 
         if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
           isAuthorized = true;
-        } else if (Integer.parseInt(service.getOwner()) == user.getId() && !requestedBody.getPublished()) {
+        } else if (Integer.parseInt(service.getOwner()) == user.getId() && !requestedBody.getPublished() && requestedBody.getFrom() == 'project') {
           isAuthorized = true;
         }
 
