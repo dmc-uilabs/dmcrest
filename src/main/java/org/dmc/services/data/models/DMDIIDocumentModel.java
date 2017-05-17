@@ -31,12 +31,34 @@ public class DMDIIDocumentModel extends BaseModel {
 
 	private String sha256;
 
+	private String encryptionType;
+
+	private Long scanDate;
+
+	public Long getScanDate() {
+		return scanDate;
+	}
+
+	public void setScanDate(Long scanDate) {
+		this.scanDate = scanDate;
+	}
+
+
 	public String getSha256(){
 		return sha256;
 	}
 
 	public void setSha256(String sha256){
 		this.sha256 = sha256;
+	}
+
+
+	public String getEncryptionType() {
+		return encryptionType;
+	}
+
+	public void setEncryptionType(String encryptionType) {
+		this.encryptionType = encryptionType;
 	}
 
 

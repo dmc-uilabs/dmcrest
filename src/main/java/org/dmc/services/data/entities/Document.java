@@ -109,15 +109,28 @@ public class Document extends ResourceEntity {
 	private Integer baseDocId;
 
 	@Column(name="scan_date")
-	private Date scanDate;
+	private Long scanDate;
 
-	public Date getScanDate() {
+	public Long getScanDate() {
 		return scanDate;
 	}
 
-	public void setScanDate(Date scanDate) {
+	public void setScanDate(Long scanDate) {
 		this.scanDate = scanDate;
 	}
+
+
+	@Column(name="encryption_type")
+	private String encryptionType;
+
+	public String getEncryptionType() {
+		return encryptionType;
+	}
+
+	public void setEncryptionType(String encryptionType) {
+		this.encryptionType = encryptionType;
+	}
+
 
 
 	public Integer getId() {

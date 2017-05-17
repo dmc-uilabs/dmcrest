@@ -47,6 +47,19 @@ public class DocumentModel extends BaseModel {
 
 	private String sha256;
 
+	private String encryptionType;
+
+	private Long scanDate;
+
+	public Long getScanDate() {
+		return scanDate;
+	}
+
+	public void setScanDate(Long scanDate) {
+		this.scanDate = scanDate;
+	}
+
+
 	public String getDocumentName() {
 		return documentName;
 	}
@@ -73,6 +86,14 @@ public class DocumentModel extends BaseModel {
 
 	public String getDocumentUrl() {
 		return documentUrl;
+	}
+
+	public String getEncryptionType() {
+		return encryptionType;
+	}
+
+	public void setEncryptionType(String encryptionType) {
+		this.encryptionType = encryptionType;
 	}
 
 	public void setDocumentUrl(String documentUrl) {

@@ -321,12 +321,13 @@ public class DocumentService {
 	}
 
 	@Transactional
-	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified, String sha, Date scanDate) {
+	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified, String sha, Long scanDate, String encryptionType) {
 		Document document = this.documentRepository.findOne(documentId);
 		document.setDocumentUrl(verifiedUrl);
 		document.setSha256(sha);
 		document.setVerified(verified);
 		document.setScanDate(scanDate);
+		document.setEncryptionType(encryptionType);
 
 
 
