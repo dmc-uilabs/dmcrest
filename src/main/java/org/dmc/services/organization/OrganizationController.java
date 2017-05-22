@@ -1,9 +1,5 @@
 package org.dmc.services.organization;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.exceptions.MissingIdException;
 import org.dmc.services.security.PermissionEvaluationHelper;
@@ -18,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import java.util.List;
 
 @RestController
 public class OrganizationController {
@@ -37,7 +36,15 @@ public class OrganizationController {
 
 	@RequestMapping(value = "/organizations/{id}", method = RequestMethod.GET)
 	public OrganizationModel getOrganization(@PathVariable Integer id) {
-		return organizationService.findById(id);
+
+		OrganizationModel organizationModel = organizationService.findById(id);
+
+		if(!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, id) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.MEMBER, id) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, id)) {
+			organizationModel.setProductionCapabilities(null);
+		}
+
+		return organizationModel;
+
 	}
 
 	@RequestMapping(value = "/organizations", method = RequestMethod.POST)
