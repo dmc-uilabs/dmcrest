@@ -39,6 +39,7 @@ public class OrganizationController {
 
 		OrganizationModel organizationModel = organizationService.findById(id);
 
+		//Check to see if the user is a member, admin, or superadmin. If not then hide the values of the following fields.
 		if(!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, id) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.MEMBER, id) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, id)) {
 			organizationModel.setProductionCapabilities(null);
 			organizationModel.setOtherOrganizationTags(null);
