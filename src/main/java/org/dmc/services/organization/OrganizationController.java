@@ -41,6 +41,7 @@ public class OrganizationController {
 
 		if(!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, id) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.MEMBER, id) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, id)) {
 			organizationModel.setProductionCapabilities(null);
+			organizationModel.setOtherOrganizationTags(null);
 		}
 
 		return organizationModel;
