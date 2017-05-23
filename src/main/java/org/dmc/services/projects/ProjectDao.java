@@ -200,7 +200,7 @@ public class ProjectDao {
                 + "LEFT JOIN stats_project s ON s.group_id = g.group_id LEFT JOIN "
                 + "(SELECT count(*) AS taskCount, group_project_id AS id FROM project_task "
                 + "GROUP BY group_project_id) AS pt ON pt.id = g.group_id LEFT JOIN "
-                + "(SELECT count(*) AS servicesCount, project_id AS id FROM service "
+                + "(SELECT count(*) AS servicesCount, project_id AS id FROM service WHERE project_id != 0 "
                 + "GROUP BY project_id) AS ss ON ss.id = g.group_id LEFT JOIN "
                 + "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects "
                 + "GROUP BY group_id) AS c ON c.id = g.group_id LEFT JOIN "

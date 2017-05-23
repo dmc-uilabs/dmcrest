@@ -39,7 +39,7 @@ public class ServiceDao {
 
         try {
 
-            final String query = "SELECT * FROM service WHERE service_id = " + requestId;
+            final String query = "SELECT * FROM service WHERE service_id = " + requestId + " AND project_id != 0";
             Service service = null;
             final ResultSet resultSet = DBConnector.executeQuery(query);
 
@@ -240,7 +240,7 @@ public class ServiceDao {
         ResultSet resultSet = null;
         try {
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM service");
+            resultSet = DBConnector.executeQuery("SELECT * FROM service WHERE project_id != 0");
 
             while (resultSet.next()) {
                 Service service = readServiceResultSet(resultSet);
@@ -267,15 +267,18 @@ public class ServiceDao {
     	ArrayList<Service> returnList = new ArrayList<Service>();
     	ResultSet resultSet = null;
     	try {
-    		String query = "SELECT * FROM service";
+    		String query = "SELECT * FROM service WHERE project_id != 0";
 
     		for(int i = 0; i < serviceIds.size(); i++) {
     			if(i == 0) {
-    				query += " WHERE service_id = " + serviceIds.get(i);
+    				query += " AND (service_id = " + serviceIds.get(i);
     			} else {
     				query += " OR service_id = " + serviceIds.get(i);
     			}
     		}
+        if(serviceIds.size() > 0){
+          query += ")";
+        }
 
     		resultSet = DBConnector.executeQuery(query);
 
@@ -436,6 +439,8 @@ public class ServiceDao {
 
         final ArrayList<String> whereClauses = new ArrayList<String>();
         final ArrayList<String> orderByClauses = new ArrayList<String>();
+        
+        whereClauses.add(" project_id != 0");
 
         if (null != fromLocations && fromLocations.size() > 0) {
             String fromClause = " from_location in (?";
@@ -577,7 +582,7 @@ public class ServiceDao {
 
         try {
             Integer serviceId = Integer.parseInt(serviceIdText);
-            final String permissionsQuery1 = "SELECT published, project_id FROM service WHERE service_id = ?";
+            final String permissionsQuery1 = "SELECT published, project_id FROM service WHERE service_id = ? AND project_id != 0";
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(permissionsQuery1);
             preparedStatement.setInt(1, serviceId);
             ResultSet rs = preparedStatement.executeQuery();
