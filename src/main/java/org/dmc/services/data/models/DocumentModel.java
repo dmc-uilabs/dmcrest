@@ -46,7 +46,7 @@ public class DocumentModel extends BaseModel {
 
 	private String sha256;
 
-	private String isAccepted;
+	private Boolean isAccepted;
 
 	public String getDocumentName() {
 		return documentName;
@@ -184,7 +184,7 @@ public class DocumentModel extends BaseModel {
 		this.sha256 = sha256;
 	}
 
-	public String getIsAccepted() { return isAccepted; }
+	public Boolean getIsAccepted() { return isAccepted; }
 
-	public void setIsAccepted(String isAccepted) { this.isAccepted = isAccepted; }
+	public void setIsAccepted(Boolean isAccepted) { this.isAccepted = isAccepted; }
 }
