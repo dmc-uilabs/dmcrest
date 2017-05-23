@@ -113,7 +113,7 @@ public class DocumentController {
 	}
 
 	@RequestMapping(value = "/documents/{documentId}/accept", method = RequestMethod.PATCH)
-	public DocumentModel acceptDocumentIntoProject(@PathVariable("documentId") Integer documentId) {
+	public DocumentModel acceptDocumentIntoProject(@PathVariable("documentId") Integer documentId) throws IllegalAccessException {
 		return documentService.acceptDocument(documentId);
 	}
 

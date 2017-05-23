@@ -340,7 +340,7 @@ public class DocumentService {
 		return document;
 	}
 
-	public Document acceptDocument(Integer documentId) throws IllegalArgumentException {
+	public DocumentModel acceptDocument(Integer documentId) throws IllegalAccessException, IllegalArgumentException {
 
 		Assert.notNull(documentId);
 
@@ -353,9 +353,9 @@ public class DocumentService {
 
 		if (PermissionEvaluationHelper.userMeetsProjectAccessRequirement(SecurityRoles.ADMIN, docToAccept.getParentId())) {
 			docToAccept.setIsAccepted(true);
-
-			update(docToAccept);
-
+			return update(docToAccept);
+		} else {
+			throw new IllegalAccessException("User does not have permission to accept document.");
 		}
 	}
 
