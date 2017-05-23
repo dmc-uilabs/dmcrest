@@ -21,18 +21,17 @@ public class VerificationPatchDao {
 	public VerificationPatch verify(VerificationPatch payload) throws DMCServiceException {
 		logger.info("Request to verify payload: {}", payload);
 
-		String finalURL = "asas";
-		// String finalURL = " ";
-		// String quarantineUrl;
-		// AWSConnector AWS = new AWSConnector();
-		//
-		// if (payload.isVerified()) {
-		// 	finalURL = AWS
-		// 			.upload(payload.getUrl(), payload.getFolder(), payload.getUserEPPN(), payload.getResourceType(), true);
-		// } else {
-		// 	quarantineUrl = AWS.upload(payload.getUrl(), payload.getFolder(), payload.getUserEPPN(), payload.getResourceType(), false);
-		// 	finalURL = "/fileQuarantined.jpeg";
-		// }
+		String finalURL = " ";
+		String quarantineUrl;
+		AWSConnector AWS = new AWSConnector();
+
+		if (payload.isVerified()) {
+			finalURL = AWS
+					.upload(payload.getUrl(), payload.getFolder(), payload.getUserEPPN(), payload.getResourceType(), true);
+		} else {
+			quarantineUrl = AWS.upload(payload.getUrl(), payload.getFolder(), payload.getUserEPPN(), payload.getResourceType(), false);
+			finalURL = "/fileQuarantined.jpeg";
+		}
 
 		payload.setUrl(finalURL);
 
