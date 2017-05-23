@@ -213,13 +213,16 @@ public class DocumentService {
 		if(directory != null) {
 			Predicate baseDocsOnly = QDocument.document.version.eq(0);
 			Predicate byDirectory = QDocument.document.directory().eq(directory);
-			Predicate isAccepted = QDocument.document.isAccepted.isTrue();
-			Predicate where = ExpressionUtils.allOf(baseDocsOnly, byDirectory, isAccepted);
+			Predicate where = ExpressionUtils.allOf(baseDocsOnly, byDirectory);
 			results = documentRepository.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "modified")))).getContent();
 
 			for(Document doc : results) {
 				if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
-					returnList.add(doc);
+					if (PermissionEvaluationHelper.userMeetsProjectAccessRequirement(SecurityRoles.ADMIN, doc.getParentId())) {
+						returnList.add(doc);
+					} else if (doc.getIsAccepted()) {
+						returnList.add(doc);
+					}
 				}
 			}
 		}
