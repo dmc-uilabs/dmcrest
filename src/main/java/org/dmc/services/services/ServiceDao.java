@@ -611,7 +611,7 @@ public class ServiceDao {
 
             }
 
-            final StringBuilder serviceHistoryQuery = new StringBuilder("SELECT * FROM service_history WHERE service_id = ?");
+            final StringBuilder serviceHistoryQuery = new StringBuilder("SELECT service_history.* FROM service_history INNER JOIN service ON (service_history.service_id = service.service_id AND service.project_id != 0) WHERE service_history.service_id = ?");
             if (period != null)
                 serviceHistoryQuery.append(" AND period = ?");
 
