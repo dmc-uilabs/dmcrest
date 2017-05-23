@@ -218,7 +218,11 @@ public class DocumentService {
 
 			for(Document doc : results) {
 				if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
-					returnList.add(doc);
+					if (PermissionEvaluationHelper.userMeetsProjectAccessRequirement(SecurityRoles.ADMIN, doc.getParentId())) {
+						returnList.add(doc);
+					} else if (doc.getIsAccepted()) {
+						returnList.add(doc);
+					}
 				}
 			}
 		}

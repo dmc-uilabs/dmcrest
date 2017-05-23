@@ -1,13 +1,12 @@
 package org.dmc.services.data.models;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
 import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.web.validator.AWSLink;
+
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.List;
 
 public class DocumentModel extends BaseModel {
 
@@ -46,6 +45,8 @@ public class DocumentModel extends BaseModel {
 	private Boolean hasVersions;
 
 	private String sha256;
+
+	private String isAccepted;
 
 	public String getDocumentName() {
 		return documentName;
@@ -182,4 +183,8 @@ public class DocumentModel extends BaseModel {
 	public void setSha256(String sha256) {
 		this.sha256 = sha256;
 	}
+
+	public String getIsAccepted() { return isAccepted; }
+
+	public void setIsAccepted(String isAccepted) { this.isAccepted = isAccepted; }
 }
