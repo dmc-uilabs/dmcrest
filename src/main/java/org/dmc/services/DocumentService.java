@@ -341,12 +341,22 @@ public class DocumentService {
 	}
 
 	public Document acceptDocument(Integer documentId) throws IllegalArgumentException {
+
 		Assert.notNull(documentId);
 
-		Document docToAccept = documentRepository.findOne(documentId);
-		Assert.notNull(docToAccept);
+		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 
-		
+		Document docEntityToAccept = documentRepository.findOne(documentId);
+		Assert.notNull(docEntityToAccept);
+
+		DocumentModel docToAccept = mapper.mapToModel(docEntityToAccept);
+
+		if (PermissionEvaluationHelper.userMeetsProjectAccessRequirement(SecurityRoles.ADMIN, docToAccept.getParentId())) {
+			docToAccept.setIsAccepted(true);
+
+			update(docToAccept);
+
+		}
 	}
 
 	// public ResponseEntity shareDocument(Integer documentId, Integer userId, Boolean dmdii) {
