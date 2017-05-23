@@ -1,11 +1,5 @@
 package org.dmc.services.web.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
@@ -24,6 +18,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class DocumentController {
@@ -112,4 +111,11 @@ public class DocumentController {
 	                                           @RequestParam(value = "parentTypeId") Integer parentTypeId) {
 		return documentService.cloneDocuments(docIds, parentTypeId, userEPPN);
 	}
+
+	@RequestMapping(value = "/documents/{documentId}/accept", method = RequestMethod.PATCH)
+	public DocumentModel acceptDocumentIntoProject(@PathVariable("documentId") Integer documentId) {
+		return documentService.acceptDocument(documentId);
+	}
+
+
 }

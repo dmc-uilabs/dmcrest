@@ -336,6 +336,15 @@ public class DocumentService {
 		return document;
 	}
 
+	public Document acceptDocument(Integer documentId) throws IllegalArgumentException {
+		Assert.notNull(documentId);
+
+		Document docToAccept = documentRepository.findOne(documentId);
+		Assert.notNull(docToAccept);
+
+		
+	}
+
 	// public ResponseEntity shareDocument(Integer documentId, Integer userId, Boolean dmdii) {
 	// 	String documentUrl;
 	// 	String documentName;
