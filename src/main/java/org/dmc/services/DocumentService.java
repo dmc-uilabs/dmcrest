@@ -213,7 +213,8 @@ public class DocumentService {
 		if(directory != null) {
 			Predicate baseDocsOnly = QDocument.document.version.eq(0);
 			Predicate byDirectory = QDocument.document.directory().eq(directory);
-			Predicate where = ExpressionUtils.allOf(baseDocsOnly, byDirectory);
+			Predicate isAccepted = QDocument.document.isAccepted.isTrue();
+			Predicate where = ExpressionUtils.allOf(baseDocsOnly, byDirectory, isAccepted);
 			results = documentRepository.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "modified")))).getContent();
 
 			for(Document doc : results) {
