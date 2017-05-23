@@ -81,9 +81,10 @@ public class ProjectController {
 			@RequestParam(value="_sort", required=false) String sort,
 			@RequestParam(value="_start", required=false, defaultValue = "0") Integer start,
 			@RequestParam(value="_limit", required=false, defaultValue = "10") Integer limit,
+			@RequestParam(value="_filter", required=false) String filter,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
-		return projectDao.getPublicProjects(limit, start, order);
+		return projectDao.getPublicProjects(limit, start, order, sort, filter);
 	}
 
 	@RequestMapping(value = "projects/my-projects", method = RequestMethod.GET)
@@ -92,15 +93,16 @@ public class ProjectController {
 			@RequestParam(value="_sort", required=false) String sort,
 			@RequestParam(value="_start", required=false, defaultValue = "0") Integer start,
 			@RequestParam(value="_limit", required=false, defaultValue = "10") Integer limit,
+			@RequestParam(value="_filter", required=false) String filter,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
-		return projectDao.getProjectList(userEPPN, limit, start, order);
+		return projectDao.getProjectList(userEPPN, limit, start, order, sort, filter);
 	}
 
 	// Hack to add support for public projects, being rewritten to use JPA soon
 	private List<Project> getAllPublicAndPrivateProjects(String userEPPN) {
-		List<Project> privateProjects = projectDao.getProjectList(userEPPN, null, null, null);
-		List<Project> publicProjects = projectDao.getPublicProjects(null, null, null);
+		List<Project> privateProjects = projectDao.getProjectList(userEPPN, null, null, null, null, null);
+		List<Project> publicProjects = projectDao.getPublicProjects(null, null, null, null, null);
 
 		Set<Project> projects = new TreeSet<Project>(new Comparator<Project>() {
 			@Override

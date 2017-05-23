@@ -94,7 +94,7 @@ public class ProjectDao {
     }
 
     // get any project the user is a member of
-    public ArrayList<Project> getProjectList(String userEPPN, Integer limit, Integer offset, String order) {
+    public ArrayList<Project> getProjectList(String userEPPN, Integer limit, Integer offset, String order, String sort, String filter) {
 
         final ArrayList<Project> projects = new ArrayList<Project>();
 
@@ -102,16 +102,34 @@ public class ProjectDao {
         String groupIdList = "select * from (" + query + ") as project_info, " + "(SELECT distinct gjr.group_id " +
                 "FROM group_join_request gjr, users WHERE gjr.user_id = users.user_id and users.user_name = ? AND " +
                 "gjr.accept_date IS NOT NULL) as joined_projects where project_info.id = joined_projects.group_id and " +
-                "project_info.usewebdav = 1 ORDER BY id DESC";
+                "project_info.usewebdav = 1";
 //                "(SELECT distinct pfo_role.home_group_id"
 //                + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
 //                + " pfo_role.home_group_id IS NOT NULL AND"
 //                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
 //                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
+        if (filter != null) {
+            if (filter.equals("public")) {
+                groupIdList += " AND project_info.isPublic = 1";
+            } else if (filter.equals("private")) {
+                groupIdList += " AND project_info.isPublic = 0";
+            }
+        }
+
+        if (sort != null) {
+            groupIdList += " ORDER BY";
+            if (sort.equals("title")) {
+                groupIdList += " LOWER(title) ASC";
+            } else {
+                groupIdList += " id DESC";
+            }
+        }
 
         if (limit != null && offset != null) {
             groupIdList += " LIMIT " + limit + " OFFSET " + offset;
         }
+
+        ServiceLogger.log("Sort: ", sort);
 
         ServiceLogger.log(LOGTAG, "groupIdList: " + groupIdList);
         ResultSet resultSet = null;
@@ -146,16 +164,37 @@ public class ProjectDao {
 
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
     // Being refactored to use spring-data-jpa within next few sprints
-    public List<Project> getPublicProjects(Integer limit, Integer offset, String order) {
+    public List<Project> getPublicProjects(Integer limit, Integer offset, String order, String sort, String filter) {
     	List<Project> projects = new ArrayList<Project>();
 
-    	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time"
+    	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time, LOWER(title) AS sortTitle"
     			+ " FROM (" + getSelectProjectQuery(order) + ") as project"
-    			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1 ORDER BY id DESC";
+    			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1";
+
+        if (filter != null) {
+            if (filter.equals("private")) {
+                query += " AND project.isPublic = 0";
+            }
+        }
+
+    	if (sort != null) {
+            query += " ORDER BY";
+            if (sort.equals("title")) {
+                query += " sortTitle ASC";
+            } else {
+                query += " id DESC";
+            }
+        }
 
     	if (limit != null && offset != null) {
     	    query += " LIMIT " + limit + " OFFSET " + offset;
         }
+
+        ServiceLogger.log("Limit: ", limit.toString());
+
+        ServiceLogger.log("Sort: ", sort);
+
+        ServiceLogger.log("Query Log: ", query);
 
     	ResultSet resultSet = null;
     	try {
