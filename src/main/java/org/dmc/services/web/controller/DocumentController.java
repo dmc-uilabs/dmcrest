@@ -113,14 +113,12 @@ public class DocumentController {
 	                                           @RequestParam(value = "parentTypeId") Integer parentTypeId) {
 		return documentService.cloneDocuments(docIds, parentTypeId, userEPPN);
 	}
-<<<<<<< HEAD
 	
 	@ExceptionHandler(IllegalAccessException.class)
 	public ResponseEntity exceptionHandler(IllegalAccessException e) {
 		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
 		return new ResponseEntity<ErrorMessage>(error, HttpStatus.FORBIDDEN);
 	}
-=======
 
 	@RequestMapping(value = "/documents/{documentId}/accept", method = RequestMethod.PATCH)
 	public DocumentModel acceptDocumentIntoProject(@PathVariable("documentId") Integer documentId) throws IllegalAccessException {
@@ -128,5 +126,5 @@ public class DocumentController {
 	}
 
 
->>>>>>> origin/DMC2017-443-toggle-isAccepted-document
+
 }
