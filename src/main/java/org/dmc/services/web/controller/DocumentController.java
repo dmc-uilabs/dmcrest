@@ -1,11 +1,5 @@
 package org.dmc.services.web.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
@@ -26,6 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class DocumentController {
@@ -114,10 +113,20 @@ public class DocumentController {
 	                                           @RequestParam(value = "parentTypeId") Integer parentTypeId) {
 		return documentService.cloneDocuments(docIds, parentTypeId, userEPPN);
 	}
+<<<<<<< HEAD
 	
 	@ExceptionHandler(IllegalAccessException.class)
 	public ResponseEntity exceptionHandler(IllegalAccessException e) {
 		ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
 		return new ResponseEntity<ErrorMessage>(error, HttpStatus.FORBIDDEN);
 	}
+=======
+
+	@RequestMapping(value = "/documents/{documentId}/accept", method = RequestMethod.PATCH)
+	public DocumentModel acceptDocumentIntoProject(@PathVariable("documentId") Integer documentId) throws IllegalAccessException {
+		return documentService.acceptDocument(documentId);
+	}
+
+
+>>>>>>> origin/DMC2017-443-toggle-isAccepted-document
 }

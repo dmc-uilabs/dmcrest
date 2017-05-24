@@ -28,6 +28,8 @@ import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.notification.NotificationService;
+import org.dmc.services.projects.Project;
+import org.dmc.services.projects.ProjectDao;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
@@ -102,6 +104,9 @@ public class DocumentService {
 
 	@Inject
 	private NotificationService notificationService;
+
+	@Inject
+	private ProjectDao projectDao;
 
 	private final String logTag = DocumentService.class.getName();
 
@@ -218,7 +223,12 @@ public class DocumentService {
 
 			for(Document doc : results) {
 				if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
-					returnList.add(doc);
+					Project documentParentProject = projectDao.getProject(doc.getParentId(), currentUser.getUsername());
+					if (documentParentProject.getProjectManagerId().equals(currentUser.getId())) {
+						returnList.add(doc);
+					} else if (doc.getIsAccepted()) {
+						returnList.add(doc);
+					}
 				}
 			}
 		}
@@ -247,6 +257,9 @@ public class DocumentService {
 			folder = doc.getParentType().toString();
 		}
 
+		if (doc.getIsAccepted() == null || doc.getIsAccepted().equals("")) {
+			doc.setIsAccepted(true);
+		}
 
 		Document docEntity = docMapper.mapToEntity(doc);
 
@@ -264,6 +277,10 @@ public class DocumentService {
 		}
 		docEntity.setModified(now);
 		docEntity.setVersion(0);
+
+		if (docEntity.getIsAccepted()) {
+			docEntity.setIsAccepted(true);
+		}
 
 		if (folder == "SERVICE") {
 			ServiceDao serviceDao = new ServiceDao();
@@ -334,6 +351,28 @@ public class DocumentService {
 		this.parentDocumentService.updateParents(document);
 
 		return document;
+	}
+
+	public DocumentModel acceptDocument(Integer documentId) throws IllegalAccessException, IllegalArgumentException {
+
+		Assert.notNull(documentId);
+
+		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		User currentUser = userRepository.findOne(
+				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+
+		Document docEntityToAccept = documentRepository.findOne(documentId);
+		Assert.notNull(docEntityToAccept);
+
+		DocumentModel docToAccept = mapper.mapToModel(docEntityToAccept);
+
+		Project documentParentProject = projectDao.getProject(docToAccept.getParentId(), currentUser.getUsername());
+		if (documentParentProject.getProjectManagerId().equals(currentUser.getId())) {
+			docToAccept.setIsAccepted(true);
+			return update(docToAccept);
+		} else {
+			throw new IllegalAccessException("User does not have permission to accept document.");
+		}
 	}
 
 	// public ResponseEntity shareDocument(Integer documentId, Integer userId, Boolean dmdii) {
