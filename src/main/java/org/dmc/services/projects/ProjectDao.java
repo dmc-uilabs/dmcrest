@@ -60,6 +60,37 @@ public class ProjectDao {
     public ProjectDao() {
     }
 
+        // get project info by id
+        public Project getProjectById(int projectId) {
+            ResultSet resultSet = null;
+            // check if user has a role in project or project is public
+            try {
+                String query = getSelectProjectQuery(null);
+                query += "WHERE g.group_id = ? ";
+                final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+                preparedStatement.setInt(1, projectId);
+
+                ServiceLogger.log(LOGTAG, "getProject, id: " + projectId);
+                resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    return readProjectInfoFromResultSet(resultSet);
+                }
+
+            } catch (SQLException e) {
+                ServiceLogger.log(LOGTAG, e.getMessage());
+            } finally {
+                try {
+                    if (null != resultSet) {
+                        resultSet.close();
+                    }
+                } catch (Exception e2) {
+                    // don't really care now.
+                }
+            }
+            return null;
+        }
+
+
     // get project info if user has a role in the project or project is public
     public Project getProject(int projectId, String userEPPN) {
         ResultSet resultSet = null;

@@ -49,7 +49,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -408,6 +407,66 @@ public class DocumentService {
 	// 	return this.emailService.sendEmail(userToShareWith, 2, params);
 	// }
 
+
+	public ResponseEntity shareDocumentInWs(Integer documentId, Integer wsId) {
+			String documentUrl;
+			String documentName;
+			Document document;
+			String sha;
+			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+
+
+
+				document = this.documentRepository.findOne(documentId);
+				if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
+					throw new AccessDeniedException("User does not have permission to share document");
+				}
+
+				sha = document.getSha256();
+				documentUrl = document.getDocumentUrl();
+				documentName = document.getDocumentName();
+
+
+
+				List<Integer> docIds = new ArrayList<Integer>();
+				docIds.add(documentId);
+	  //
+				Project wss =  projectDao.getProjectById(wsId);
+				User shareWith = this.userRepository.findOne(wss.getProjectManagerId());
+				 cloneDocuments (docIds, wsId, shareWith.getUsername(), wss.getDirectoryId()  );
+			//
+			// String key = AWSConnector.createPath(documentUrl);
+			// String presignedUrl = AWSConnector.generatePresignedUrl(key,
+			// Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
+			//
+			// HashMap<String, String> params = new HashMap<String, String>();
+			// params.put("presignedUrl", presignedUrl);
+			// params.put("documentName", documentName);
+			// params.put("sender", user.getRealname());
+			// params.put("sha", sha);
+			//
+			// if (internal) {
+			// 	userToShareWith = this.userRepository.findOne(Integer.parseInt(userIdentifier));
+			// 	if (email) {
+			// 		this.emailService.sendEmail(userToShareWith, 2, params);
+			// 	}
+			// 	notificationService.createForSharedDocument(user, userToShareWith, presignedUrl);
+			return new ResponseEntity<String>("{\"message\":\"Document ddd "+documentName+"shared with workspace "+wss.getProjectManagerId()+" \"}", HttpStatus.OK);
+			// } else {
+			// 	userToShareWith = new User();
+			// 	userToShareWith.setFirstName(userIdentifier);
+			// 	userToShareWith.setLastName("");
+			// 	userToShareWith.setEmail(userIdentifier);
+			//
+			// 	return this.emailService.sendEmail(userToShareWith, 2, params);
+			// }
+		}
+
+
+
+
+
 	public ResponseEntity shareDocument(Integer documentId, String userIdentifier, Boolean internal, Boolean dmdii, Boolean email) {
 		String documentUrl;
 		String documentName;
@@ -664,45 +723,56 @@ public class DocumentService {
 		return documents;
 	}
 
-	public List<DocumentModel> cloneDocuments (List<Integer> docIds, Integer newParentId, String userEPPN) {
-		Assert.notNull(newParentId);
-		Assert.isTrue(CollectionUtils.isNotEmpty(docIds));
-		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+	public List<DocumentModel> cloneDocuments (List<Integer> docIds, Integer newParentId, String userEPPN, Integer directoryId) {
+			Assert.notNull(newParentId);
+			Assert.isTrue(CollectionUtils.isNotEmpty(docIds));
+			Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 
-		User newOwner = userRepository.findByUsername(userEPPN);
-		List<Document> newDocs = new ArrayList<>();
+			User newOwner = userRepository.findByUsername(userEPPN);
+			List<Document> newDocs = new ArrayList<>();
 
-		for (Integer docId : docIds) {
-			Document oldDoc = documentRepository.findOne(docId);
-			Document newDoc = new Document();
-			List<DocumentTag> newTags = new ArrayList<>();
+			for (Integer docId : docIds) {
+				Document oldDoc = documentRepository.findOne(docId);
+				Document newDoc = new Document();
+				List<DocumentTag> newTags = new ArrayList<>();
 
-			Timestamp now = new Timestamp(System.currentTimeMillis());
+				Timestamp now = new Timestamp(System.currentTimeMillis());
 
-			newDoc.setOwner(newOwner);
-			newDoc.setExpires(oldDoc.getExpires());
-			newDoc.setIsDeleted(false);
-			newDoc.setIsPublic(oldDoc.getIsPublic());
-			newDoc.setModified(now);
-			newDoc.setVersion(0);
-			newDoc.setDocClass(oldDoc.getDocClass());
-			newDoc.setDocumentName(oldDoc.getDocumentName());
-			newDoc.setDocumentUrl(oldDoc.getDocumentUrl());
-			newDoc.setParentType(oldDoc.getParentType());
-			newDoc.setResourceType(oldDoc.getResourceType());
-			for (DocumentTag tag : oldDoc.getTags()) {
-				newTags.add(tag);
+				newDoc.setOwner(newOwner);
+				newDoc.setExpires(oldDoc.getExpires());
+				newDoc.setSha256(oldDoc.getSha256());
+				newDoc.setIsDeleted(false);
+				if(directoryId==0){
+					newDoc.setDirectory(oldDoc.getDirectory());
+				}else{
+
+					Directory directory = directoryRepository.findOne(directoryId);
+					newDoc.setDirectory(directory);
+				}
+				newDoc.setBaseDocId(oldDoc.getBaseDocId());
+				newDoc.setVerified(oldDoc.getVerified());
+				newDoc.setSha256(oldDoc.getSha256());
+				newDoc.setIsPublic(oldDoc.getIsPublic());
+				newDoc.setModified(now);
+				newDoc.setVersion(0);
+				newDoc.setDocClass(oldDoc.getDocClass());
+				newDoc.setDocumentName(oldDoc.getDocumentName());
+				newDoc.setDocumentUrl(oldDoc.getDocumentUrl());
+				newDoc.setParentType(oldDoc.getParentType());
+				newDoc.setResourceType(oldDoc.getResourceType());
+				for (DocumentTag tag : oldDoc.getTags()) {
+					newTags.add(tag);
+				}
+				newDoc.setTags(newTags);
+
+				newDoc.setParentId(newParentId);
+
+				newDoc = documentRepository.save(newDoc);
+				newDocs.add(newDoc);
 			}
-			newDoc.setTags(newTags);
 
-			newDoc.setParentId(newParentId);
-
-			newDoc = documentRepository.save(newDoc);
-			newDocs.add(newDoc);
+			return mapper.mapToModel(newDocs);
 		}
-
-		return mapper.mapToModel(newDocs);
-	}
 
 	public List<DocumentModel> getVersions (Integer docId, String userEPPN) throws IllegalAccessException {
 		Assert.notNull(docId);

@@ -76,6 +76,12 @@ public class DocumentController {
 		return this.documentService.shareDocument(documentId, user, internal, dmdii, email);
 	}
 
+	@RequestMapping(value = "/documents/{id}/shareWs", method = RequestMethod.POST)
+	public ResponseEntity createDocumentForUser(@PathVariable("id") Integer documentId,
+																							@RequestParam( value = "ws") Integer wsId){
+		return this.documentService.shareDocumentInWs(documentId, wsId);
+	}
+
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = "/documents/{documentId}", method = RequestMethod.DELETE)
 	public void deleteDocument(@PathVariable("documentId") Integer documentId) {
@@ -111,7 +117,7 @@ public class DocumentController {
 	public List<DocumentModel> cloneDocuments (@RequestParam(value = "docIds") List<Integer> docIds,
 	                                           @RequestHeader(value = "AJP_eppn") String userEPPN,
 	                                           @RequestParam(value = "parentTypeId") Integer parentTypeId) {
-		return documentService.cloneDocuments(docIds, parentTypeId, userEPPN);
+		return documentService.cloneDocuments(docIds, parentTypeId, userEPPN,0);
 	}
 
 
