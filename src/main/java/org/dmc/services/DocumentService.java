@@ -326,12 +326,13 @@ public class DocumentService {
 		Assert.notNull(oldEntity);
 
 		docEntity.setExpires(oldEntity.getExpires());
-		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
 
-		docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
+		 docEntity.setModified(new Timestamp(System.currentTimeMillis()));
 
-		docEntity = documentRepository.save(docEntity);
-		this.parentDocumentService.updateParents(docEntity);
+		 if(doc.getAccessLevel()  != null && !doc.getAccessLevel().isEmpty()  ){
+			 docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
+			 this.parentDocumentService.updateParents(docEntity);
+		 }
 
 		return mapper.mapToModel(docEntity);
 	}
@@ -360,7 +361,7 @@ public class DocumentService {
 		User currentUser = userRepository.findOne(
 				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
 
-		Document docEntityToAccept = documentRepository.findOne(documentId);
+		Document docEntityToAccept = this.documentRepository.findOne(documentId);
 		Assert.notNull(docEntityToAccept);
 
 		DocumentModel docToAccept = mapper.mapToModel(docEntityToAccept);
