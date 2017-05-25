@@ -333,7 +333,7 @@ public class DocumentService {
 			 docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
 			 this.parentDocumentService.updateParents(docEntity);
 		 }
-
+		docEntity = documentRepository.save(docEntity);
 		return mapper.mapToModel(docEntity);
 	}
 
