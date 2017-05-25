@@ -82,6 +82,14 @@ public class DocumentController {
 		return this.documentService.shareDocumentInWs(documentId, wsId);
 	}
 
+
+	@RequestMapping(value = "/documents/{id}/saveSr", method = RequestMethod.POST)
+	public ResponseEntity createDocumentForUser(@PathVariable("id") Integer runtId,
+																							@RequestParam( value = "url", defaultValue = "") String url){
+		return this.documentService.saveDocumentToWs(runtId, url);
+	}
+
+
 	@ResponseStatus(HttpStatus.OK)
 	@RequestMapping(value = "/documents/{documentId}", method = RequestMethod.DELETE)
 	public void deleteDocument(@PathVariable("documentId") Integer documentId) {

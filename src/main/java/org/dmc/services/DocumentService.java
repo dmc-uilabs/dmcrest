@@ -409,6 +409,49 @@ public class DocumentService {
 	// }
 
 
+	public ResponseEntity saveDocumentToWs(Integer runId, String url) {
+			String documentUrl;
+			String documentName;
+
+			String sha;
+			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+			//get the wss given its id
+			Project wss =  projectDao.getProjectById(runId);
+			Directory projectDirectory = directoryRepository.findById(wss.getDirectoryId());
+			logger.info("The directory of this ws" + wss.getDirectoryId());
+
+			Document newDoc = new Document();
+			Timestamp now = new Timestamp(System.currentTimeMillis());
+
+			newDoc.setOwner(user);
+			newDoc.setIsDeleted(false);
+			newDoc.setModified(now);
+			newDoc.setExpires(now);
+			newDoc.setVersion(0);
+			newDoc.setDocumentName("Service Run Output");
+		 	newDoc.setDocumentUrl(url);
+			newDoc.setParentType(DocumentParentType.PROJECT);
+		  newDoc.setResourceType(ResourceType.DOCUMENT);
+			newDoc.setSha256("NO SHA EXISTS");
+			newDoc.setDirectory(projectDirectory);
+			newDoc.setParentId(runId);
+
+
+			newDoc.setDocClass(DocumentClass.SUPPORT);
+			newDoc.setVerified(true);
+			newDoc.setVersion(1);
+
+			newDoc = documentRepository.save(newDoc);
+
+
+			return new ResponseEntity<String>("{\"message\":\"Document was shared with workspace  \"}", HttpStatus.OK);
+
+		}
+
+
+
+
 	public ResponseEntity shareDocumentInWs(Integer documentId, Integer wsId) {
 			String documentUrl;
 			String documentName;
@@ -436,33 +479,8 @@ public class DocumentService {
 				Project wss =  projectDao.getProjectById(wsId);
 				User shareWith = this.userRepository.findOne(wss.getProjectManagerId());
 				 cloneDocuments (docIds, wsId, shareWith.getUsername(), wss.getDirectoryId()  );
-			//
-			// String key = AWSConnector.createPath(documentUrl);
-			// String presignedUrl = AWSConnector.generatePresignedUrl(key,
-			// Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
-			//
-			// HashMap<String, String> params = new HashMap<String, String>();
-			// params.put("presignedUrl", presignedUrl);
-			// params.put("documentName", documentName);
-			// params.put("sender", user.getRealname());
-			// params.put("sha", sha);
-			//
-			// if (internal) {
-			// 	userToShareWith = this.userRepository.findOne(Integer.parseInt(userIdentifier));
-			// 	if (email) {
-			// 		this.emailService.sendEmail(userToShareWith, 2, params);
-			// 	}
-			// 	notificationService.createForSharedDocument(user, userToShareWith, presignedUrl);
 			return new ResponseEntity<String>("{\"message\":\"Document ddd "+documentName+"shared with workspace "+wss.getProjectManagerId()+" \"}", HttpStatus.OK);
-			// } else {
-			// 	userToShareWith = new User();
-			// 	userToShareWith.setFirstName(userIdentifier);
-			// 	userToShareWith.setLastName("");
-			// 	userToShareWith.setEmail(userIdentifier);
-			//
-			// 	return this.emailService.sendEmail(userToShareWith, 2, params);
-			// }
-		}
+				}
 
 
 
