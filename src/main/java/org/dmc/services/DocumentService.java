@@ -375,39 +375,6 @@ public class DocumentService {
 		}
 	}
 
-	// public ResponseEntity shareDocument(Integer documentId, Integer userId, Boolean dmdii) {
-	// 	String documentUrl;
-	// 	String documentName;
-	//
-	// 	if (dmdii) {
-	// 		documentUrl = getDMDIIDocumentUrl(documentId);
-	// 		documentName = getDMDIIDocumentName(documentId);
-	// 	} else {
-	// 		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-	// 		User user = this.userRepository.findByUsername(userPrincipal.getUsername());
-	//
-	// 		Document document = this.documentRepository.findOne(documentId);
-	//
-	// 		if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
-	// 			throw new AccessDeniedException("User does not have permission to share document");
-	// 		}
-	//
-	// 		documentUrl = document.getDocumentUrl();
-	// 		documentName = document.getDocumentName();
-	// 	}
-	//
-	// 	User userToShareWith = this.userRepository.findOne(userId);
-	// 	String key = AWSConnector.createPath(documentUrl);
-	// 	String presignedUrl = AWSConnector.generatePresignedUrl(key,
-	// 			Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
-	//
-	// 	HashMap<String, String> params = new HashMap<String, String>();
-	// 	params.put("presignedUrl", presignedUrl);
-	// 	params.put("documentName", documentName);
-	//
-	// 	return this.emailService.sendEmail(userToShareWith, 2, params);
-	// }
-
 
 	public ResponseEntity saveDocumentToWs(Integer runId, String url) {
 			String documentUrl;

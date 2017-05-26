@@ -20,11 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.dmc.services.ServiceLogger;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 public class DocumentController {
@@ -84,9 +86,9 @@ public class DocumentController {
 
 
 	@RequestMapping(value = "/documents/{id}/saveSr", method = RequestMethod.POST)
-	public ResponseEntity createDocumentForUser(@PathVariable("id") Integer runtId,
-																							@RequestParam( value = "url", defaultValue = "") String url){
-		return this.documentService.saveDocumentToWs(runtId, url);
+	public ResponseEntity createDocumentForUser(@PathVariable("id") Integer runId,
+																							@RequestBody HashMap<String, String> url){
+		return this.documentService.saveDocumentToWs(runId, url.get("url"));
 	}
 
 
