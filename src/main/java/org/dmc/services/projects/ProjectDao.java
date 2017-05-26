@@ -75,7 +75,7 @@ public class ProjectDao {
               final ArrayList<Project> projects = new ArrayList<Project>();
 
               try {
-                  String query = "SELECT g.group_id AS id, g.group_name AS title FROM groups g WHERE g.group_name LIKE '%"+title+"%' ;";
+                  String query = "SELECT g.group_id AS id, g.group_name AS title FROM groups g WHERE LOWER(g.group_name) LIKE LOWER('%"+title+"%') ;";
                   final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
                   resultSet = preparedStatement.executeQuery();
                   while (resultSet.next()) {
