@@ -60,6 +60,46 @@ public class ProjectDao {
     public ProjectDao() {
     }
 
+    protected Project readProjectIdandTitleFromResultSet(ResultSet resultSet) throws SQLException {
+        final Project project = new Project();
+        project.setId(resultSet.getInt("id"));
+        project.setTitle(resultSet.getString("title"));
+        ServiceLogger.log(LOGTAG, project.toString());
+        return project;
+    }
+
+
+          //get workspace by name
+          public ArrayList<Project> getWorkspaceByTitle(String title, String userEPPN) {
+              ResultSet resultSet = null;
+              final ArrayList<Project> projects = new ArrayList<Project>();
+
+              try {
+                  String query = "SELECT g.group_id AS id, g.group_name AS title FROM groups g WHERE g.group_name LIKE '%"+title+"%' ;";
+                  final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+                  resultSet = preparedStatement.executeQuery();
+                  while (resultSet.next()) {
+                      Project project = readProjectIdandTitleFromResultSet(resultSet);
+                      ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
+                      projects.add(project);
+                  }
+
+              } catch (SQLException e) {
+                  ServiceLogger.log(LOGTAG, e.getMessage());
+              } finally {
+                  try {
+                      if (null != resultSet) {
+                          resultSet.close();
+                      }
+                  } catch (Exception e2) {
+                      // don't really care now.
+                  }
+              }
+              return projects;
+          }
+
+
+
         // get project info by id
         public Project getProjectById(int projectId) {
             ResultSet resultSet = null;

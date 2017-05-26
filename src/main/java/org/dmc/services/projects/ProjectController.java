@@ -54,6 +54,14 @@ public class ProjectController {
 		return projectDao.getProject(projectID, userEPPN);
 	}
 
+	@RequestMapping(value = "/searchworkspace/{title}", method = RequestMethod.GET)
+	public List<Project> getWorkspaceByTitle(@PathVariable("title") String title, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+		ServiceLogger.log(logTag, "In searchworkspace, title: " + title + " as user " + userEPPN);
+		return projectDao.getWorkspaceByTitle(title, userEPPN);
+	}
+
+
 	@RequestMapping(value = "/projects", method = RequestMethod.GET)
 	public List<Project> getProjectList(
 			@RequestParam(value="_start", required=false) Integer start,
@@ -74,6 +82,9 @@ public class ProjectController {
         // @TODO: expand to handle arguments and change return type to a ResponseEntity to match new approach for error handling
         return getAllPublicAndPrivateProjects(userEPPN);
 	}
+
+
+
 
 	@RequestMapping(value = "projects/public", method = RequestMethod.GET)
 	public List<Project> getPublicProjectList(
