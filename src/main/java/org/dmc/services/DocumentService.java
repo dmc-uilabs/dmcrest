@@ -436,8 +436,6 @@ public class DocumentService {
 			newDoc.setSha256("NO SHA EXISTS");
 			newDoc.setDirectory(projectDirectory);
 			newDoc.setParentId(runId);
-			newDoc.setBaseDocId();
-
 
 			newDoc.setDocClass(DocumentClass.SUPPORT);
 			newDoc.setVerified(true);
