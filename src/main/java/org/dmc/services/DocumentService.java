@@ -440,7 +440,6 @@ public class DocumentService {
 
 			newDoc.setDocClass(DocumentClass.SUPPORT);
 			newDoc.setVerified(true);
-			newDoc.setVersion(1);
 
 			newDoc = documentRepository.save(newDoc);
 
