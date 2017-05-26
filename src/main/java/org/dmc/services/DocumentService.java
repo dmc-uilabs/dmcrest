@@ -437,12 +437,14 @@ public class DocumentService {
 			newDoc.setDirectory(projectDirectory);
 			newDoc.setParentId(runId);
 
-
 			newDoc.setDocClass(DocumentClass.SUPPORT);
 			newDoc.setVerified(true);
 
 			newDoc = documentRepository.save(newDoc);
 
+			newDoc.setBaseDocId(newDoc.getId());
+
+			newDoc = documentRepository.save(newDoc);
 
 			return new ResponseEntity<String>("{\"message\":\"Document was shared with workspace  \"}", HttpStatus.OK);
 
