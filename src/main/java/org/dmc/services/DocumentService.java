@@ -736,7 +736,7 @@ public class DocumentService {
 					Directory directory = directoryRepository.findOne(directoryId);
 					newDoc.setDirectory(directory);
 				}
-				newDoc.setBaseDocId(oldDoc.getBaseDocId());
+				
 				newDoc.setVerified(oldDoc.getVerified());
 				newDoc.setSha256(oldDoc.getSha256());
 				newDoc.setIsPublic(oldDoc.getIsPublic());
@@ -755,6 +755,9 @@ public class DocumentService {
 				newDoc.setParentId(newParentId);
 
 				newDoc = documentRepository.save(newDoc);
+				newDoc.setBaseDocId(newDoc.getId());
+				newDoc = documentRepository.save(newDoc);
+
 				newDocs.add(newDoc);
 			}
 
