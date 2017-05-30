@@ -1,7 +1,7 @@
 package org.dmc.services.data.entities;
 
-import java.sql.Timestamp;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,12 +18,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.sql.Timestamp;
 import java.util.Date;
-
-import org.hibernate.annotations.Where;
-import org.hibernate.annotations.WhereJoinTable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 
 @Entity
 @Table(name = "document")
@@ -110,6 +107,9 @@ public class Document extends ResourceEntity {
 
 	@Column(name="scan_date")
 	private Date scanDate;
+
+	@Column(name="is_accepted")
+	private Boolean isAccepted = false;
 
 	public Date getScanDate() {
 		return scanDate;
@@ -281,6 +281,10 @@ public class Document extends ResourceEntity {
 	public void setBaseDocId(Integer baseDocId) {
 		this.baseDocId = baseDocId;
 	}
+
+	public Boolean getIsAccepted() { return isAccepted; }
+
+	public void setIsAccepted(Boolean accepted) { isAccepted = accepted; }
 
 	@Override
 	public int hashCode() {

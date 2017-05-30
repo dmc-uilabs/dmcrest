@@ -54,6 +54,14 @@ public class ProjectController {
 		return projectDao.getProject(projectID, userEPPN);
 	}
 
+	@RequestMapping(value = "/searchworkspace/{title}", method = RequestMethod.GET)
+	public List<Project> getWorkspaceByTitle(@PathVariable("title") String title, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+		ServiceLogger.log(logTag, "In searchworkspace, title: " + title + " as user " + userEPPN);
+		return projectDao.getWorkspaceByTitle(title, userEPPN);
+	}
+
+
 	@RequestMapping(value = "/projects", method = RequestMethod.GET)
 	public List<Project> getProjectList(
 			@RequestParam(value="_start", required=false) Integer start,
@@ -75,12 +83,16 @@ public class ProjectController {
         return getAllPublicAndPrivateProjects(userEPPN);
 	}
 
+
+
+
 	@RequestMapping(value = "projects/public", method = RequestMethod.GET)
 	public List<Project> getPublicProjectList(
 			@RequestParam(value="_order", required=false) String order,
 			@RequestParam(value="_sort", required=false) String sort,
 			@RequestParam(value="_start", required=false, defaultValue = "0") Integer start,
 			@RequestParam(value="_limit", required=false, defaultValue = "10") Integer limit,
+			@RequestParam(value="_filter", required=false) String filter,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
 		return projectDao.getPublicProjects(limit, start, order);
