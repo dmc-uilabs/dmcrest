@@ -129,7 +129,6 @@ public class ProjectDao {
             groupIdList += " LIMIT " + limit + " OFFSET " + offset;
         }
 
-        ServiceLogger.log("Sort: ", sort);
 
         ServiceLogger.log(LOGTAG, "groupIdList: " + groupIdList);
         ResultSet resultSet = null;
@@ -189,12 +188,6 @@ public class ProjectDao {
     	if (limit != null && offset != null) {
     	    query += " LIMIT " + limit + " OFFSET " + offset;
         }
-
-        ServiceLogger.log("Limit: ", limit.toString());
-
-        ServiceLogger.log("Sort: ", sort);
-
-        ServiceLogger.log("Query Log: ", query);
 
     	ResultSet resultSet = null;
     	try {
