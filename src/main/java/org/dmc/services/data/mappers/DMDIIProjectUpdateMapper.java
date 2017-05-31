@@ -71,6 +71,7 @@ public class DMDIIProjectUpdateMapper extends AbstractMapper<DMDIIProjectUpdate,
 
 		DMDIIProjectUpdateModel model = copyProperties(entity, new DMDIIProjectUpdateModel());
 
+		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<DMDIIProject, DMDIIProjectModel> projectMapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 
 		Format formatter = new SimpleDateFormat("yyyy-MM-dd");
