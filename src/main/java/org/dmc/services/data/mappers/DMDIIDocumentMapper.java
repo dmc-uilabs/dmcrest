@@ -103,9 +103,6 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 
 			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
 
-			ServiceLogger.log("public DMDIIDocumentModel mapToModel(DMDIIDocument entity) {", "");
-			ServiceLogger.log("doc name", entity.getDocumentName());
-
 			Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 			User currentUser = userRepository.findOne(
 					((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
