@@ -22,7 +22,7 @@ public class PermissionEvaluationHelper {
 	public static boolean userMeetsProjectAccessRequirement(String accessLevel, List<Integer> projectOrganizations, User currentUser) {
 		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-		ServiceLogger.log("THE USER IS", currentUser.getFirstName());
+		user.setmyOrg(currentUser.getOrganizationUser().getOrganization().getId());
 
 		if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
 			return true;
