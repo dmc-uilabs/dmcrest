@@ -14,6 +14,8 @@ import org.dmc.services.data.entities.DMDIIProjectContact;
 import org.dmc.services.data.entities.DMDIIProjectFocusArea;
 import org.dmc.services.data.entities.DMDIIProjectStatus;
 import org.dmc.services.data.entities.DMDIIProjectThrust;
+import org.dmc.services.data.entities.User;
+
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIPrimeOrganizationModel;
 import org.dmc.services.data.models.DMDIIProjectContactModel;
@@ -21,7 +23,10 @@ import org.dmc.services.data.models.DMDIIProjectFocusAreaModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.DMDIIProjectStatusModel;
 import org.dmc.services.data.models.DMDIIProjectThrustModel;
+import org.dmc.services.data.models.UserModel;
+
 import org.dmc.services.dmdiimember.DMDIIMemberService;
+import org.dmc.services.UserService;
 import org.springframework.stereotype.Component;
 
 
@@ -31,12 +36,15 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
 
+	@Inject
+	private UserService userService;
+
 	@Override
 	public DMDIIProject mapToEntity(DMDIIProjectModel model) {
 		if (model == null) return null;
 
 		DMDIIProject entity = copyProperties(model, new DMDIIProject());
-		
+
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
@@ -45,18 +53,21 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		Mapper<DMDIIProjectFocusArea, DMDIIProjectFocusAreaModel> focusMapper = mapperFactory.mapperFor(DMDIIProjectFocusArea.class, DMDIIProjectFocusAreaModel.class);
 		Mapper<DMDIIProjectThrust, DMDIIProjectThrustModel> thrustMapper = mapperFactory.mapperFor(DMDIIProjectThrust.class, DMDIIProjectThrustModel.class);
 
+		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+
 		List<DMDIIMemberModel> contributingCompanyModels = model.getContributingCompanyIds()
 				.stream()
 				.map(e -> dmdiiMemberService.findOne(e))
 				.collect(Collectors.toList());
 		entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
 		entity.setPrincipalInvestigator(contactMapper.mapToEntity(model.getPrincipalInvestigator()));
-		entity.setPrincipalPointOfContact(contactMapper.mapToEntity(model.getPrincipalPointOfContact()));
+		// entity.setPrincipalPointOfContact(contactMapper.mapToEntity(model.getPrincipalPointOfContact()));
+		entity.setPrincipalPointOfContact(userMapper.mapToEntity(userService.findOne(2)));
 		entity.setProjectStatus(statusMapper.mapToEntity(model.getProjectStatus()));
 		entity.setProjectFocusArea(focusMapper.mapToEntity(model.getProjectFocusArea()));
 		entity.setProjectThrust(thrustMapper.mapToEntity(model.getProjectThrust()));
 		entity.setContributingCompanies(memberMapper.mapToEntity(contributingCompanyModels));
-		
+
 		try{
 			entity.setAwardedDate(format.parse(model.getAwardedDate()));
 			entity.setEndDate(format.parse(model.getEndDate()));
@@ -72,7 +83,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		if (entity == null) return null;
 
 		DMDIIProjectModel model = copyProperties(entity, new DMDIIProjectModel());
-		
+
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
@@ -81,13 +92,17 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		Mapper<DMDIIProjectFocusArea, DMDIIProjectFocusAreaModel> focusMapper = mapperFactory.mapperFor(DMDIIProjectFocusArea.class, DMDIIProjectFocusAreaModel.class);
 		Mapper<DMDIIProjectThrust, DMDIIProjectThrustModel> thrustMapper = mapperFactory.mapperFor(DMDIIProjectThrust.class, DMDIIProjectThrustModel.class);
 
+		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+
 		List<Integer> contributingCompanyIds = entity.getContributingCompanies()
 				.stream()
 				.map(e -> e.getId())
 				.collect(Collectors.toList());
 		model.setPrimeOrganization(new DMDIIPrimeOrganizationModel(entity.getPrimeOrganization().getId(), entity.getPrimeOrganization().getOrganization().getName()));
 		model.setPrincipalInvestigator(contactMapper.mapToModel(entity.getPrincipalInvestigator()));
-		model.setPrincipalPointOfContact(contactMapper.mapToModel(entity.getPrincipalPointOfContact()));
+		// model.setPrincipalPointOfContact(contactMapper.mapToModel(entity.getPrincipalPointOfContact()));
+		// model.setPrincipalPointOfContact(userMapper.mapToModel(userService.findOne(2)));
+		model.setPrincipalPointOfContact(userService.findOne(2));
 		model.setProjectStatus(statusMapper.mapToModel(entity.getProjectStatus()));
 		model.setProjectFocusArea(focusMapper.mapToModel(entity.getProjectFocusArea()));
 		model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));

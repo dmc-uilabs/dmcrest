@@ -59,9 +59,13 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "project_summary")
 	private String projectSummary;
 
-	@OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+	// @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+	// @JoinColumn(name = "principal_point_of_contact_id")
+	// private DMDIIProjectContact principalPointOfContact;
+
+	@ManyToOne
 	@JoinColumn(name = "principal_point_of_contact_id")
-	private DMDIIProjectContact principalPointOfContact;
+	private User principalPointOfContact;
 
 	@ManyToOne
 	@JoinColumn(name = "focus_area_id")
@@ -86,13 +90,13 @@ public class DMDIIProject extends BaseEntity {
 
 	@Column(name = "project_number")
 	private Integer projectNumber;
-	
+
 	@Column(name = "cost_share")
 	private BigDecimal costShare;
-	
+
 	@Column(name = "dmdii_funding")
 	private BigDecimal dmdiiFunding;
-	
+
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
 
@@ -156,11 +160,19 @@ public class DMDIIProject extends BaseEntity {
 		this.projectSummary = projectSummary;
 	}
 
-	public DMDIIProjectContact getPrincipalPointOfContact() {
+	// public DMDIIProjectContact getPrincipalPointOfContact() {
+	// 	return principalPointOfContact;
+	// }
+	//
+	// public void setPrincipalPointOfContact(DMDIIProjectContact principalPointOfContact) {
+	// 	this.principalPointOfContact = principalPointOfContact;
+	// }
+
+	public User getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(DMDIIProjectContact principalPointOfContact) {
+	public void setPrincipalPointOfContact(User principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 
