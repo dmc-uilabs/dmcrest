@@ -113,6 +113,7 @@ public class AWSConnector {
     public static String createPath(String URL) throws DMCServiceException {
         // Parse URL to get Path
         try {
+            URL = URL.replace(":443","");
             final int ResourcePathStart = URL.indexOf("com/") + 4;
             // final int ResourcePathEnd = URL.indexOf("?A");
             final int ResourcePathEnd;
