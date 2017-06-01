@@ -61,9 +61,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 				.collect(Collectors.toList());
 		entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
 		entity.setPrincipalInvestigator(contactMapper.mapToEntity(model.getPrincipalInvestigator()));
-		// entity.setPrincipalPointOfContact(contactMapper.mapToEntity(model.getPrincipalPointOfContact()));
 		entity.setPrincipalPointOfContact(userMapper.mapToEntity(model.getPrincipalPointOfContact()));
-		// entity.setPrincipalPointOfContact(userMapper.mapToEntity(userService.findOne(2)));
 		entity.setProjectStatus(statusMapper.mapToEntity(model.getProjectStatus()));
 		entity.setProjectFocusArea(focusMapper.mapToEntity(model.getProjectFocusArea()));
 		entity.setProjectThrust(thrustMapper.mapToEntity(model.getProjectThrust()));
@@ -101,9 +99,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 				.collect(Collectors.toList());
 		model.setPrimeOrganization(new DMDIIPrimeOrganizationModel(entity.getPrimeOrganization().getId(), entity.getPrimeOrganization().getOrganization().getName()));
 		model.setPrincipalInvestigator(contactMapper.mapToModel(entity.getPrincipalInvestigator()));
-		// model.setPrincipalPointOfContact(contactMapper.mapToModel(entity.getPrincipalPointOfContact()));
 		model.setPrincipalPointOfContact(userMapper.mapToModel(entity.getPrincipalPointOfContact()));
-		// model.setPrincipalPointOfContact(userService.findOne(2));
 		model.setProjectStatus(statusMapper.mapToModel(entity.getProjectStatus()));
 		model.setProjectFocusArea(focusMapper.mapToModel(entity.getProjectFocusArea()));
 		model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));

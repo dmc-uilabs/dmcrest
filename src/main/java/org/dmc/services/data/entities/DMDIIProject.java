@@ -59,10 +59,6 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "project_summary")
 	private String projectSummary;
 
-	// @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-	// @JoinColumn(name = "principal_point_of_contact_id")
-	// private DMDIIProjectContact principalPointOfContact;
-
 	@ManyToOne
 	@JoinColumn(name = "principal_point_of_contact_id")
 	private User principalPointOfContact;
@@ -159,14 +155,6 @@ public class DMDIIProject extends BaseEntity {
 	public void setProjectSummary(String projectSummary) {
 		this.projectSummary = projectSummary;
 	}
-
-	// public DMDIIProjectContact getPrincipalPointOfContact() {
-	// 	return principalPointOfContact;
-	// }
-	//
-	// public void setPrincipalPointOfContact(DMDIIProjectContact principalPointOfContact) {
-	// 	this.principalPointOfContact = principalPointOfContact;
-	// }
 
 	public User getPrincipalPointOfContact() {
 		return principalPointOfContact;
