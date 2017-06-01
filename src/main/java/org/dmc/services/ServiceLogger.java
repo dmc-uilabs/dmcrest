@@ -66,8 +66,8 @@ public class ServiceLogger {
 	    logger.setUseParentHandlers(false);
 	    
 	    //Use the Simple file formatter
-        logFileFormatter = new SimpleFormatter();  
-        logFileHandler.setFormatter(logFileFormatter); 
+        //logFileFormatter = new SimpleFormatter();  
+        //logFileHandler.setFormatter(logFileFormatter); 
 
         //Log to console if enabled in config
         if (Config.CONSOLE_LOGGING) {
