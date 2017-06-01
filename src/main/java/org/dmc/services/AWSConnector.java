@@ -114,7 +114,13 @@ public class AWSConnector {
         // Parse URL to get Path
         try {
             final int ResourcePathStart = URL.indexOf("com/") + 4;
-            final int ResourcePathEnd = URL.indexOf("?A");
+            // final int ResourcePathEnd = URL.indexOf("?A");
+            final int ResourcePathEnd;           
+            if (URL.indexOf("?A") == -1) {
+             ResourcePathEnd = URL.indexOf("?S");
+            } else {
+             ResourcePathEnd = URL.indexOf("?A");
+            }
             final String ResourcePath = URL.substring(ResourcePathStart, ResourcePathEnd);
             return ResourcePath.replace("%40","@");
         } catch (Exception e) {
@@ -129,6 +135,9 @@ public class AWSConnector {
     }
 
     public static String generatePresignedUrl(String key, Date expiration){
+      if (key.startsWith("http")){
+        key = createPath(key);
+      }
         final AmazonS3 s3client = getAmazonS3Client();
         return s3client.generatePresignedUrl(destBucket, key, expiration).toString();
     }
