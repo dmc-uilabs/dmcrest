@@ -147,14 +147,13 @@ public class AWSConnector {
     }
 
     public static String generatePresignedUrl(String key, Date expiration){
-      String currentBucket = destBucket;
       String finalBucket = destBucket;
       if (key.startsWith("http")){
-        currentBucket = returnBucketFromURL(key);
+        String currentBucket = returnBucketFromURL(key);
+        if (!currentBucket.equals(destBucket)) {
+          finalBucket = currentBucket;
+        }
         key = createPath(key);
-      }
-      if (!currentBucket.equals(destBucket)) {
-        finalBucket = currentBucket;
       }
         final AmazonS3 s3client = getAmazonS3Client();
         return s3client.generatePresignedUrl(finalBucket, key, expiration).toString();
