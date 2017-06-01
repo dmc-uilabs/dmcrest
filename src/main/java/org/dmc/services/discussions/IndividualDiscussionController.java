@@ -4,6 +4,7 @@ import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.services.GetDomeInterface;
 import org.dmc.services.services.ServiceController;
+import org.dmc.services.data.dao.user.UserDao;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -40,7 +41,7 @@ public class IndividualDiscussionController {
 	public ResponseEntity postIndividualDiscussion(@RequestBody IndividualDiscussion discussion) {
 		final IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
-			ServiceLogger.log(LOGTAG, "In postIndividualDiscussion");
+			ServiceLogger.log(LOGTAG, "In postIndividualDiscussion as user " + UserDao.getUserName(discussion.getAccountId()) + " in projectId: " discussion.getProjectId().toString());
 			return new ResponseEntity<IndividualDiscussion>(individualDiscussionDao.createIndividualDiscussion(discussion), HttpStatus.CREATED);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(LOGTAG, e);

@@ -22,6 +22,8 @@ import java.util.Map;
 public class ServiceRunController {
 
 	private final String logTag = ServiceRunController.class.getName();
+	
+	private ServiceDao serviceDao = new ServiceDao();
 
 	@RequestMapping(value = "/model_run_file1", method = RequestMethod.POST)
 	public ResponseEntity<?> handleFormUploadTest(@RequestParam("file") MultipartFile uploadfile,@RequestParam("service")String serviceID,
@@ -173,7 +175,7 @@ public class ServiceRunController {
     		}*/
     		int serviceId = new Integer(sId);
     		runId = serviceRunInstance.runModel(serviceId,paras,userId);
-    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " called by user " + userEPPN + " with params: " + paras.toString());
+    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " serviceTitle: " + serviceDao.getService(serviceInput.getServiceId(), userEPPN).getTitle() + " called by user " + userEPPN + " with params: " + paras.toString());
     		response.setRunId(runId);
         }
         catch (Exception e)
