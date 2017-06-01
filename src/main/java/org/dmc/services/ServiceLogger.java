@@ -6,6 +6,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import java.util.Map;
+import org.json.JSONObject;
 
 
 public class ServiceLogger {
@@ -32,26 +34,58 @@ public class ServiceLogger {
 	    logger.info(logTag + ": " + message);	
 	}
 	
+	public static void log (Map logMap) {
+		if (serviceLoggerInstance == null) {
+			serviceLoggerInstance = new ServiceLogger();
+		}
+		
+		JSONObject json = new JSONObject(logMap);
+		logger.info("\n"+json.toString()+"\n");
+	}
+	
+	// /**
+	//  * Exception Logging
+	//  * @param logTag
+	//  * @param e
+	//  */
+	// public static void logException (String logTag, DMCServiceException e) {
+	// 	String logMessage  = null;
+	// 	if (serviceLoggerInstance == null) {
+	// 		serviceLoggerInstance = new ServiceLogger();
+	// 	}
+	// 	
+	// 	logMessage += "\n---------------------------------------------------------------------------------------------------------------\n";
+	// 	logMessage +="EXCEPTION\n";
+	// 	logMessage +="Class: " + logTag + "\n";
+	// 	logMessage +="Error: " + e.getError() + "\n";
+	// 	logMessage +="HttpStatus Code: " + e.getHttpStatusCode() + "\n";
+	// 	logMessage +="Message: " + e.getMessage() + "\n";
+	// 	logMessage += "---------------------------------------------------------------------------------------------------------------\n";
+	// 	
+	//     logger.info(logMessage);	
+	// }
+	
 	/**
 	 * Exception Logging
 	 * @param logTag
 	 * @param e
 	 */
-	public static void logException (String logTag, DMCServiceException e) {
-		String logMessage  = null;
+	public static void logException (String logTag, Exception e) {
 		if (serviceLoggerInstance == null) {
 			serviceLoggerInstance = new ServiceLogger();
 		}
 		
-		logMessage += "\n---------------------------------------------------------------------------------------------------------------\n";
-		logMessage +="EXCEPTION\n";
-		logMessage +="Class: " + logTag + "\n";
-		logMessage +="Error: " + e.getError() + "\n";
-		logMessage +="HttpStatus Code: " + e.getHttpStatusCode() + "\n";
-		logMessage +="Message: " + e.getMessage() + "\n";
-		logMessage += "---------------------------------------------------------------------------------------------------------------\n";
+		JSONObject json = new JSONObject();
+		json.put("Class", logTag);
+		json.put("Message", e.getMessage());
 		
-	    logger.info(logMessage);	
+		if(e instanceof DMCServiceException){
+			DMCServiceException dmc_e = (DMCServiceException) e;
+			json.put("Error", dmc_e.getError());
+			json.put("HttpStatusCode", dmc_e.getHttpStatusCode());
+		}
+		
+	  logger.info("\nREST EXCEPTION: " + json.toString() + "\n");	
 	}
 	
 	private void setup() throws IOException {
