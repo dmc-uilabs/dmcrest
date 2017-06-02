@@ -480,9 +480,7 @@ public class DocumentService {
 
 		User userToShareWith;
 
-
-		String key = AWSConnector.createPath(documentUrl);
-		String presignedUrl = AWSConnector.generatePresignedUrl(key,
+		String presignedUrl = AWSConnector.generatePresignedUrl(documentUrl,
 		Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
 
 		HashMap<String, String> params = new HashMap<String, String>();
