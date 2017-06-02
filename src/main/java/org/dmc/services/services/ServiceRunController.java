@@ -175,7 +175,7 @@ public class ServiceRunController {
     		}*/
     		int serviceId = new Integer(sId);
     		runId = serviceRunInstance.runModel(serviceId,paras,userId);
-    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " serviceTitle: " + serviceDao.getService(serviceInput.getServiceId(), userEPPN).getTitle() + " called by user " + userEPPN + " with params: " + paras.toString());
+    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " serviceTitle: " + serviceDao.getService(Integer.parseInt(serviceInput.getServiceId()), userEPPN).getTitle() + " called by user " + userEPPN + " with params: " + paras.toString());
     		response.setRunId(runId);
         }
         catch (Exception e)

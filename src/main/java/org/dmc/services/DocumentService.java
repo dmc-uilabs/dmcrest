@@ -109,8 +109,6 @@ public class DocumentService {
 	@Inject
 	private ProjectDao projectDao;
 
-	private final String logTag = DocumentService.class.getName();
-
 	private Verification verify = new Verification();
 
 	public List<DocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {

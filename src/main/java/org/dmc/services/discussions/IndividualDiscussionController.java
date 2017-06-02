@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
+import java.sql.SQLException;
 
 import static org.springframework.http.MediaType.*;
 
@@ -41,11 +42,13 @@ public class IndividualDiscussionController {
 	public ResponseEntity postIndividualDiscussion(@RequestBody IndividualDiscussion discussion) {
 		final IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
-			ServiceLogger.log(LOGTAG, "In postIndividualDiscussion as user " + UserDao.getUserName(discussion.getAccountId()) + " in projectId: " discussion.getProjectId().toString());
+			ServiceLogger.log(LOGTAG, "In postIndividualDiscussion as user " + UserDao.getUserName(discussion.getAccountId().intValue()) + " in projectId: " + discussion.getProjectId());
 			return new ResponseEntity<IndividualDiscussion>(individualDiscussionDao.createIndividualDiscussion(discussion), HttpStatus.CREATED);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(LOGTAG, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		} catch (SQLException e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

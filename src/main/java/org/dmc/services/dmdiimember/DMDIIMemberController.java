@@ -2,6 +2,7 @@ package org.dmc.services.dmdiimember;
 
 import org.dmc.services.DMDIIMemberEventService;
 import org.dmc.services.DMDIIMemberNewsService;
+import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DMDIIMemberAutocompleteModel;
 import org.dmc.services.data.models.DMDIIMemberEventModel;
