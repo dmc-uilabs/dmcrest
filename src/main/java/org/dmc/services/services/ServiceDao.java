@@ -439,7 +439,7 @@ public class ServiceDao {
 
         final ArrayList<String> whereClauses = new ArrayList<String>();
         final ArrayList<String> orderByClauses = new ArrayList<String>();
-        
+
         whereClauses.add(" project_id != 0");
 
         if (null != fromLocations && fromLocations.size() > 0) {
@@ -686,7 +686,7 @@ public class ServiceDao {
 
         if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
           isAuthorized = true;
-        } else if (Integer.parseInt(service.getOwner()) == user.getId() && !requestedBody.getPublished() && requestedBody.getFrom().equals("project")) {
+        } else if (Integer.parseInt(service.getOwner()) == user.getId() && !requestedBody.getPublished()) {
           isAuthorized = true;
         }
 
