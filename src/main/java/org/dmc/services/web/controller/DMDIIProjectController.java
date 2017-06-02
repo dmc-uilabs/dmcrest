@@ -144,6 +144,7 @@ public class DMDIIProjectController {
 
 	@RequestMapping(value = "/dmdiiProject/events", params = "limit", method = RequestMethod.GET)
 	public List<DMDIIProjectEventModel> getDmdiiProjectEvents(@RequestParam("limit") Integer limit) {
+		ServiceLogger.log(logTag, "In getDmdiiProjectEvents");
 		return dmdiiProjectService.getDmdiiProjectEvents(limit);
 	}
 

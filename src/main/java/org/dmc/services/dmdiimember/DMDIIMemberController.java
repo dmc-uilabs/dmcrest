@@ -30,6 +30,8 @@ import java.util.Map;
 @RestController
 @PreAuthorize(SecurityRoles.REQUIRED_ROLE_DMDII_MEMBER)
 public class DMDIIMemberController {
+	
+	private final String logTag = DMDIIMemberController.class.getName();
 
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
@@ -49,6 +51,7 @@ public class DMDIIMemberController {
 
 	@RequestMapping(value = "/dmdiiMember/mapEntry", method = RequestMethod.GET)
 	public List<DMDIIMemberMapEntryModel> getMapEntries() {
+		ServiceLogger.log(logTag, "In getMapEntries");
 		return dmdiiMemberService.getMapEntries();
 	}
 
@@ -87,6 +90,7 @@ public class DMDIIMemberController {
 	public PagedResponse findMembersByName(@RequestParam("page") Integer page,
 																@RequestParam("pageSize") Integer pageSize,
 																@RequestParam("name") String name) {
+		ServiceLogger.log(logTag, "In findMembersByName: " + name);
 		List<? extends BaseModel> results = dmdiiMemberService.findByName(name, page, pageSize);
 		Long count = dmdiiMemberService.countByName(name);
 		return new PagedResponse(count, results);
