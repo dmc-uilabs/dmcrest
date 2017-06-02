@@ -115,8 +115,8 @@ public class AWSConnector {
         try {
             URL = URL.replace(":443","");
             final int ResourcePathStart = URL.indexOf("com/") + 4;
-            // final int ResourcePathEnd = URL.indexOf("?A");
             final int ResourcePathEnd;
+            // Below deals with different formatting of AWS links
             if (URL.indexOf("?A") == -1) {
              ResourcePathEnd = URL.indexOf("?S");
             } else {
