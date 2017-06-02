@@ -531,7 +531,11 @@ public class DocumentService {
 			projectMembers.addAll(document.getDmdiiProject().getContributingCompanies());
 
 			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
-			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds)) {
+
+			User currentUser = userRepository.findOne(
+					((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+
+			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds, currentUser)) {
 				throw new AccessDeniedException("User does not have permission to share document");
 			}
 		}
@@ -736,7 +740,7 @@ public class DocumentService {
 					Directory directory = directoryRepository.findOne(directoryId);
 					newDoc.setDirectory(directory);
 				}
-				
+
 				newDoc.setVerified(oldDoc.getVerified());
 				newDoc.setSha256(oldDoc.getSha256());
 				newDoc.setIsPublic(oldDoc.getIsPublic());

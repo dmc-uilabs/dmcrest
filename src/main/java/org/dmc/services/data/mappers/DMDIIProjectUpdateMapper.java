@@ -19,6 +19,10 @@ import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.dmc.services.security.UserPrincipal;
+import org.dmc.services.data.repositories.UserRepository;
+
 @Component
 public class DMDIIProjectUpdateMapper extends AbstractMapper<DMDIIProjectUpdate, DMDIIProjectUpdateModel> {
 
@@ -27,6 +31,9 @@ public class DMDIIProjectUpdateMapper extends AbstractMapper<DMDIIProjectUpdate,
 
 	@Inject
 	private UserService userService;
+
+	@Inject
+	private UserRepository userRepository;
 
 	@Override
 	public DMDIIProjectUpdate mapToEntity(DMDIIProjectUpdateModel model) {
@@ -51,8 +58,11 @@ public class DMDIIProjectUpdateMapper extends AbstractMapper<DMDIIProjectUpdate,
 	public DMDIIProjectUpdateModel mapToModel(DMDIIProjectUpdate entity) {
 		Assert.notNull(entity);
 
+		User currentUser = userRepository.findOne(
+				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+
 		if (entity.getAccessLevel() != null) {
-			Boolean isAuthorized = PermissionEvaluationHelper.userMeetsProjectAccessRequirement(entity.getAccessLevel(), entity.getProject().getId());
+			Boolean isAuthorized = PermissionEvaluationHelper.userMeetsProjectAccessRequirement(entity.getAccessLevel(), entity.getProject().getId(), currentUser);
 
 			if (!isAuthorized) {
 				return null;
