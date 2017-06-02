@@ -113,8 +113,15 @@ public class AWSConnector {
     public static String createPath(String URL) throws DMCServiceException {
         // Parse URL to get Path
         try {
+            URL = URL.replace(":443","");
             final int ResourcePathStart = URL.indexOf("com/") + 4;
-            final int ResourcePathEnd = URL.indexOf("?A");
+            // final int ResourcePathEnd = URL.indexOf("?A");
+            final int ResourcePathEnd;
+            if (URL.indexOf("?A") == -1) {
+             ResourcePathEnd = URL.indexOf("?S");
+            } else {
+             ResourcePathEnd = URL.indexOf("?A");
+            }
             final String ResourcePath = URL.substring(ResourcePathStart, ResourcePathEnd);
             return ResourcePath.replace("%40","@");
         } catch (Exception e) {
@@ -123,14 +130,34 @@ public class AWSConnector {
         }
     }// createPath
 
+    public static String returnBucketFromURL(String URL) throws DMCServiceException {
+        try {
+          final int bucketStart = URL.indexOf("//")+2;
+          final int bucketEnd = URL.indexOf(".s3");
+
+          return URL.substring(bucketStart, bucketEnd);
+        } catch (Exception e) {
+            throw new DMCServiceException(DMCError.AWSError,
+                    "Extracting bucket from " + URL + "encountered internal error");
+        }
+    }
+
     public static String refreshURL(String path) throws DMCServiceException {
         ServiceLogger.log(LOGTAG, "Refreshing pre-signed URL.");
         return generatePresignedUrl(path, DateUtils.addMonths(new Date(), 1));
     }
 
     public static String generatePresignedUrl(String key, Date expiration){
+      String finalBucket = destBucket;
+      if (key.startsWith("http")){
+        String currentBucket = returnBucketFromURL(key);
+        if (!currentBucket.equals(destBucket)) {
+          finalBucket = currentBucket;
+        }
+        key = createPath(key);
+      }
         final AmazonS3 s3client = getAmazonS3Client();
-        return s3client.generatePresignedUrl(destBucket, key, expiration).toString();
+        return s3client.generatePresignedUrl(finalBucket, key, expiration).toString();
     }
 
     private static AmazonS3 getAmazonS3Client() {
