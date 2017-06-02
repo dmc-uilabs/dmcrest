@@ -1,6 +1,7 @@
 package org.dmc.services.data.entities;
 
-import java.util.Date;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,9 +16,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import java.util.Date;
 
 @Entity
 @Table(name = "notification")
@@ -28,7 +27,8 @@ public class Notification extends BaseEntity {
 	public enum NotificationType {
 		NEW_USER_JOINED_ORGANIZATION,
 		USER_REQUESTS_VERIFICATION,
-		DOCUMENT_SHARED
+		DOCUMENT_SHARED,
+		DOCUMENT_SHARED_WITH_WORKSPACE
 	}
 
 	@Id
