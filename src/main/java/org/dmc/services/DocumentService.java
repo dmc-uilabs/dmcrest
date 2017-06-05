@@ -777,7 +777,7 @@ public class DocumentService {
 					.getContent();
 
 			if(!CollectionUtils.isEmpty(documents)) {
-				ServiceLogger.log(logTag, "Getting baseDocId: " + Integer.toString(baseDocId) + ", docName: " + docEntity.getDocumentName() + " as user " + userEPPN);
+				ServiceLogger.log(logTag, "Getting baseDocId: " + Integer.toString(baseDocId) + ", documentName: " + docEntity.getDocumentName() + " as user " + userEPPN);
 				return mapper.mapToModel(documents);
 			}
 		} else {
