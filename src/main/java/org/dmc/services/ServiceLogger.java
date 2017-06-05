@@ -7,6 +7,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.json.JSONObject;
+
 
 public class ServiceLogger {
 
@@ -43,13 +45,16 @@ public class ServiceLogger {
 			serviceLoggerInstance = new ServiceLogger();
 		}
 
+		JSONObject logJson = new JSONObject();
+		logJson.put("Class", logTag);
+		logJson.put("Error", e.getError());
+		logJson.put("HttpStatus Code", e.getHttpStatusCode());
+		logJson.put("Message", e.getMessage());
+
 		logMessage += "\n---------------------------------------------------------------------------------------------------------------\n";
-		logMessage +="EXCEPTION\n";
-		logMessage +="Class: " + logTag + "\n";
-		logMessage +="Error: " + e.getError() + "\n";
-		logMessage +="HttpStatus Code: " + e.getHttpStatusCode() + "\n";
-		logMessage +="Message: " + e.getMessage() + "\n";
-		logMessage += "---------------------------------------------------------------------------------------------------------------\n";
+		logMessage +="DMC EXCEPTION: ";
+		logMessage +=logJson.toString();
+		logMessage += "\n---------------------------------------------------------------------------------------------------------------\n";
 
 	    logger.info(logMessage);
 	}
@@ -67,7 +72,7 @@ public class ServiceLogger {
 
 	    //Use the Simple file formatter
         logFileFormatter = new SimpleFormatter();
-				logFileHandler.setFormatter(logFileFormatter);
+        logFileHandler.setFormatter(logFileFormatter);
 
         //Log to console if enabled in config
         if (Config.CONSOLE_LOGGING) {
