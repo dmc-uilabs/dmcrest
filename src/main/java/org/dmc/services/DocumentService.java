@@ -497,14 +497,14 @@ public class DocumentService {
 				this.emailService.sendEmail(userToShareWith, 2, params);
 			}
 			notificationService.createForSharedDocument(user, userToShareWith, presignedUrl);
-			ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", name: " + documentName + " as user " + user.getUsername() + " with " + userToShareWith.getRealname());
+			ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", documentName: " + documentName + " as user " + user.getUsername() + " with " + userToShareWith.getRealname());
 			return new ResponseEntity<String>("{\"message\":\"Document shared\"}", HttpStatus.OK);
 		} else {
 			userToShareWith = new User();
 			userToShareWith.setFirstName(userIdentifier);
 			userToShareWith.setLastName("");
 			userToShareWith.setEmail(userIdentifier);
-			ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", name: " + documentName + " as user " + user.getUsername() + " with " + userIdentifier);
+			ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", documentName: " + documentName + " as user " + user.getUsername() + " with " + userIdentifier);
 			return this.emailService.sendEmail(userToShareWith, 2, params);
 		}
 	}
