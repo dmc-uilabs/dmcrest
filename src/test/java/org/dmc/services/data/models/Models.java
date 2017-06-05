@@ -51,7 +51,7 @@ public class Models {
 		dmdiiProjectModel.setEndDate("2017/01/01");
 		dmdiiProjectModel.setProjectTitle(PROJECT_TITLE);
 		dmdiiProjectModel.setProjectSummary(PROJECT_SUMMARY);
-		dmdiiProjectModel.setPrincipalPointOfContact(dmdiiProjectContact2());
+		dmdiiProjectModel.setPrincipalPointOfContact(user());
 		dmdiiProjectModel.setProjectFocusArea(projectFocusArea());
 		dmdiiProjectModel.setProjectThrust(projectThrust());
 		dmdiiProjectModel.setContributingCompanies(contributingCompanyIds);
@@ -293,20 +293,20 @@ public class Models {
 		contact.setEmail(EMAIL + "2");
 		return contact;
 	}
-	
+
 	public static DMDIIDocumentTagModel dmdiiDocumentTagModel() {
 		DMDIIDocumentTagModel dmdiiDocumentTagModel = new DMDIIDocumentTagModel();
 		dmdiiDocumentTagModel.setId(1000);
 		dmdiiDocumentTagModel.setTagName(TAG_NAME);
 		return dmdiiDocumentTagModel;
 	}
-	
+
 	public static DMDIIDocumentModel dmdiiDocumentModel() {
 		DMDIIDocumentModel dmdiiDocumentModel = new DMDIIDocumentModel();
-		
+
 		List<DMDIIDocumentTagModel> tags = new ArrayList<>();
 		tags.add(dmdiiDocumentTagModel());
-		
+
 		dmdiiDocumentModel.setId(1000);
 		dmdiiDocumentModel.setDocumentName(DOCUMENT_NAME);
 		dmdiiDocumentModel.setDocumentUrl(DOCUMENT_URL);
@@ -318,23 +318,23 @@ public class Models {
 		dmdiiDocumentModel.setAccessLevel(ACCESS_LEVEL);
 		dmdiiDocumentModel.setFileType(2);
 		dmdiiDocumentModel.setVerified(true);
-		
+
 		return dmdiiDocumentModel;
 	}
-	
+
 	public static DocumentTagModel documentTagModel() {
 		DocumentTagModel documentTagModel = new DocumentTagModel();
 		documentTagModel.setId(1000);
 		documentTagModel.setTagName(TAG_NAME);
 		return documentTagModel;
 	}
-	
+
 	public static DocumentModel documentModel() {
 		DocumentModel documentModel = new DocumentModel();
-		
+
 		List<DocumentTagModel> tags = new ArrayList<>();
 		tags.add(documentTagModel());
-		
+
 		documentModel.setId(1000);
 		documentModel.setDocumentName(DOCUMENT_NAME);
 		documentModel.setDocumentUrl(DOCUMENT_URL);
@@ -345,7 +345,7 @@ public class Models {
 		documentModel.setModified(new Date());
 		documentModel.setExpires(new Date());
 		documentModel.setDocClass(DocumentClass.LOGO);
-		
+
 		return documentModel;
 	}
 }
