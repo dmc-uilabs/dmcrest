@@ -1,11 +1,5 @@
 package org.dmc.services.notification;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.UserService;
 import org.dmc.services.data.entities.Notification;
@@ -19,6 +13,11 @@ import org.dmc.services.data.repositories.NotificationRepository;
 import org.dmc.services.exceptions.InvalidOrganizationUserException;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -106,6 +105,17 @@ public class NotificationService {
 
 		Notification notification = new Notification();
 		notification.setType(NotificationType.DOCUMENT_SHARED);
+		notification.setMessage(documentUrl);
+		notification.setCreatedBy(sender);
+		notification.setCreatedFor(recipient);
+
+		notificationRepository.save(notification);
+	}
+
+	public void createForSharedDocumentWithWorkspace(User sender, User recipient, String documentUrl) {
+		Notification notification = new Notification();
+
+		notification.setType(NotificationType.DOCUMENT_SHARED_WITH_WORKSPACE);
 		notification.setMessage(documentUrl);
 		notification.setCreatedBy(sender);
 		notification.setCreatedFor(recipient);

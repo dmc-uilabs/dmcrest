@@ -1,15 +1,13 @@
 package org.dmc.services.organization;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.exceptions.MissingIdException;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class OrganizationController {
@@ -37,7 +40,30 @@ public class OrganizationController {
 
 	@RequestMapping(value = "/organizations/{id}", method = RequestMethod.GET)
 	public OrganizationModel getOrganization(@PathVariable Integer id) {
-		return organizationService.findById(id);
+
+		OrganizationModel organizationModel = organizationService.findById(id);
+
+		if(!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, id) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.MEMBER, id) && !PermissionEvaluationHelper.userHasRole(SecurityRoles.SUPERADMIN, id)) {
+			organizationModel.setProductionCapabilities(null);
+		}
+
+		return organizationModel;
+
+	}
+
+	@RequestMapping(value = "/organizations/myVPC", method = RequestMethod.GET)
+	public ResponseEntity<Map<String, String>> getMyOrganizationVPC() {
+		String myVPC = organizationService.findMyVPC();
+
+		Map<String, String> hm = new HashMap<>();
+		if (myVPC == null) {
+			hm.put("errorMessage", "VPC not found." );
+			return new ResponseEntity<>(hm, HttpStatus.NOT_FOUND);
+		} else {
+			hm.put("myVPC", myVPC);
+			return ResponseEntity.ok(hm);
+		}
+
 	}
 
 	@RequestMapping(value = "/organizations", method = RequestMethod.POST)

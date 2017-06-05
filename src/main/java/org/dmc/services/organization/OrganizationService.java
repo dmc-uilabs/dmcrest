@@ -1,15 +1,8 @@
 package org.dmc.services.organization;
 
-import static org.dmc.services.predicates.OrganizationPredicates.likeAreasOfExpertise;
-import static org.dmc.services.predicates.OrganizationPredicates.likeDesiredAreasOfExpertise;
-import static org.dmc.services.predicates.OrganizationPredicates.likeOrganizationName;
-import static org.dmc.services.predicates.Predicates.buildPredicate;
-
-import java.util.Iterator;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import com.mysema.query.jpa.JPASubQuery;
+import com.mysema.query.types.Predicate;
+import com.mysema.query.types.query.ListSubQuery;
 import org.dmc.services.DMDIIDocumentService;
 import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.OrganizationUserService;
@@ -27,6 +20,7 @@ import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.OrganizationModel;
+import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
@@ -40,9 +34,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.mysema.query.jpa.JPASubQuery;
-import com.mysema.query.types.Predicate;
-import com.mysema.query.types.query.ListSubQuery;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.dmc.services.predicates.OrganizationPredicates.likeAreasOfExpertise;
+import static org.dmc.services.predicates.OrganizationPredicates.likeDesiredAreasOfExpertise;
+import static org.dmc.services.predicates.OrganizationPredicates.likeOrganizationName;
+import static org.dmc.services.predicates.Predicates.buildPredicate;
 
 @Service
 public class OrganizationService {
@@ -148,6 +148,17 @@ public class OrganizationService {
 
 	public Organization save(Organization organization) {
 		return organizationRepository.save(organization);
+	}
+
+	public String findMyVPC() {
+
+		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
+
+		User currentUser = userRepository.findOne(
+				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+
+		UserModel currentUserModel = mapper.mapToModel(currentUser);
+		return findById(currentUserModel.getCompanyId()).getProductionCapabilities();
 	}
 
 	public OrganizationModel findById(Integer id) {

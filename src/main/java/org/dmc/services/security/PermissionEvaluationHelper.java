@@ -13,14 +13,17 @@ import org.dmc.services.ServiceLogger;
 
 public class PermissionEvaluationHelper {
 
-	public static boolean userMeetsProjectAccessRequirement(String accessLevel, Integer projectOrganization) {
+	public static boolean userMeetsProjectAccessRequirement(String accessLevel, Integer projectOrganization, User currentUser) {
 		List<Integer> wrapper = new ArrayList<Integer>();
 		wrapper.add(projectOrganization);
-		return userMeetsProjectAccessRequirement(accessLevel, wrapper);
+		return userMeetsProjectAccessRequirement(accessLevel, wrapper, currentUser);
 	}
 
-	public static boolean userMeetsProjectAccessRequirement(String accessLevel, List<Integer> projectOrganizations) {
+	public static boolean userMeetsProjectAccessRequirement(String accessLevel, List<Integer> projectOrganizations, User currentUser) {
 		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		user.setmyOrg(currentUser.getOrganizationUser().getOrganization().getId());
+
 		if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
 			return true;
 		}
