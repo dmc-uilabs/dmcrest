@@ -445,7 +445,7 @@ public class DocumentService {
 
 		String url = "/project.php#/" + wsId + "/documents";
 
-		notificationService.createForSharedDocumentWithWorkspace(user, shareWith, presignedUrl);
+		notificationService.createForSharedDocumentWithWorkspace(user, shareWith, url);
 
 		return new ResponseEntity<String>("{\"message\":\"Document ddd " + documentName + "shared with workspace " + wss.getProjectManagerId() + " \"}", HttpStatus.OK);
 	}
