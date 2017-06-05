@@ -14,8 +14,10 @@ import org.dmc.services.data.models.DMDIIProjectUpdateModel;
 import org.dmc.services.data.models.PagedResponse;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -101,7 +103,7 @@ public class DMDIIProjectController {
 	public PagedResponse getDmdiiProjectsByTitle(@RequestParam("title") String title,
 															@RequestParam("page") Integer page,
 															@RequestParam("pageSize") Integer pageSize) {
-		ServiceLogger.log(logTag, "In getDmdiiProjectsByTitle: " + title);
+		ServiceLogger.log(logTag, "In getDmdiiProjectsByTitle: " + title + " as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 
 		List<? extends BaseModel> results = dmdiiProjectService.findByTitle(title, page, pageSize);
 		Long count = dmdiiProjectService.countByTitle(title);
@@ -144,7 +146,7 @@ public class DMDIIProjectController {
 
 	@RequestMapping(value = "/dmdiiProject/events", params = "limit", method = RequestMethod.GET)
 	public List<DMDIIProjectEventModel> getDmdiiProjectEvents(@RequestParam("limit") Integer limit) {
-		ServiceLogger.log(logTag, "In getDmdiiProjectEvents");
+		ServiceLogger.log(logTag, "In getDmdiiProjectEvents as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 		return dmdiiProjectService.getDmdiiProjectEvents(limit);
 	}
 

@@ -14,9 +14,11 @@ import org.dmc.services.dmdiimember.DMDIIMemberService.DuplicateDMDIIMemberExcep
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +33,7 @@ import java.util.Map;
 @RestController
 @PreAuthorize(SecurityRoles.REQUIRED_ROLE_DMDII_MEMBER)
 public class DMDIIMemberController {
-	
+
 	private final String logTag = DMDIIMemberController.class.getName();
 
 	@Inject
@@ -52,7 +54,7 @@ public class DMDIIMemberController {
 
 	@RequestMapping(value = "/dmdiiMember/mapEntry", method = RequestMethod.GET)
 	public List<DMDIIMemberMapEntryModel> getMapEntries() {
-		ServiceLogger.log(logTag, "In getMapEntries");
+		ServiceLogger.log(logTag, "In getMapEntries as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 		return dmdiiMemberService.getMapEntries();
 	}
 
@@ -91,7 +93,7 @@ public class DMDIIMemberController {
 	public PagedResponse findMembersByName(@RequestParam("page") Integer page,
 																@RequestParam("pageSize") Integer pageSize,
 																@RequestParam("name") String name) {
-		ServiceLogger.log(logTag, "In findMembersByName: " + name);
+		ServiceLogger.log(logTag, "In findMembersByName: " + name + " as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 		List<? extends BaseModel> results = dmdiiMemberService.findByName(name, page, pageSize);
 		Long count = dmdiiMemberService.countByName(name);
 		return new PagedResponse(count, results);
@@ -118,13 +120,13 @@ public class DMDIIMemberController {
 	public DMDIIMemberNewsModel saveDMDIIMemberNews (@RequestBody DMDIIMemberNewsModel memberNews) {
 		return dmdiiMemberNewsService.save(memberNews);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/events/{eventId}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public void deleteEvent(@PathVariable("eventId") Integer eventId) {
 		dmdiiMemberEventService.delete(eventId);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/news/{newsId}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public void deleteNews(@PathVariable("newsId") Integer newsId) {
