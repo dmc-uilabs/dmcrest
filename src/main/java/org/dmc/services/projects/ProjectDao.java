@@ -165,7 +165,7 @@ public class ProjectDao {
     }
 
     // get any project the user is a member of
-    public ArrayList<Project> getProjectList(String userEPPN, Integer limit, Integer offset, String order, String sort, String filter) {
+    public ArrayList<Project> getProjectList(String userEPPN, String order, String sort, String filter) {
 
         final ArrayList<Project> projects = new ArrayList<Project>();
 
@@ -194,10 +194,6 @@ public class ProjectDao {
             } else {
                 groupIdList += " id DESC";
             }
-        }
-
-        if (limit != null && offset != null) {
-            groupIdList += " LIMIT " + limit + " OFFSET " + offset;
         }
 
         ServiceLogger.log(LOGTAG, "groupIdList: " + groupIdList);
@@ -233,7 +229,7 @@ public class ProjectDao {
 
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
     // Being refactored to use spring-data-jpa within next few sprints
-    public List<Project> getPublicProjects(Integer limit, Integer offset, String order, String sort, String filter) {
+    public List<Project> getPublicProjects(String order, String sort, String filter) {
         List<Project> projects = new ArrayList<Project>();
 
         String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time, LOWER(title) AS sortTitle"
@@ -255,14 +251,10 @@ public class ProjectDao {
             }
         }
 
-        if (limit != null && offset != null) {
-            query += " LIMIT " + limit + " OFFSET " + offset;
-        }
-
     	ResultSet resultSet = null;
+
     	try {
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Project project = readProjectInfoFromResultSet(resultSet);
