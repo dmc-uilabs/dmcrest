@@ -83,6 +83,7 @@ public class ProjectController {
         return getAllPublicAndPrivateProjects(userEPPN);
 	}
 
+<<<<<<< Updated upstream
 
 
 
@@ -113,6 +114,12 @@ public class ProjectController {
 	private List<Project> getAllPublicAndPrivateProjects(String userEPPN) {
 		List<Project> privateProjects = projectDao.getProjectList(userEPPN, null, null, null);
 		List<Project> publicProjects = projectDao.getPublicProjects(null, null, null);
+=======
+	// Hack to add support for public projects, being rewritten to use JPA soon
+	private List<Project> getAllPublicAndPrivateProjects(String userEPPN) {
+		List<Project> privateProjects = projectDao.getProjectList(userEPPN);
+		List<Project> publicProjects = projectDao.getPublicProjects();
+>>>>>>> Stashed changes
 
 		Set<Project> projects = new TreeSet<Project>(new Comparator<Project>() {
 			@Override
@@ -226,6 +233,46 @@ public class ProjectController {
 		}
 	}
 
+<<<<<<< Updated upstream
+=======
+
+
+	@RequestMapping(value = "/projects/{id}", method = RequestMethod.DELETE, produces = "application/json")
+	public ResponseEntity deleteProject(@PathVariable("id") String id, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws Exception {
+		ServiceLogger.log(logTag, "In deleteProject: for id " + id + " as user " + userEPPN);
+		int statusOKCode = HttpStatus.OK.value();
+		int statusFORCode = HttpStatus.UNAUTHORIZED.value();
+
+		try {
+			 ServiceLogger.log(logTag, "In deleteProject try: for id " + id + " as user " + userEPPN);
+
+			boolean ok = projectDao.deleteProject(Integer.parseInt(id), userEPPN);
+
+			ServiceLogger.log(logTag, "value of ok  " + ok + " form delete Project " + userEPPN);
+
+			if (ok) {
+				Id returnId = new Id.IdBuilder(Integer.parseInt(id)).build();
+				return new ResponseEntity<Id>(returnId, HttpStatus.valueOf(statusOKCode));
+
+			} else {
+				Id returnId = new Id.IdBuilder(Integer.parseInt("-1")).build();
+				return new ResponseEntity<Id>(returnId, HttpStatus.valueOf(statusFORCode));
+			}
+		} catch (Exception e) {
+			ServiceLogger.log(logTag, "caught exception: for id " + id + " as user " + userEPPN + " " + e.getMessage());
+
+			if (e.getMessage().equals("you are not allowed to delete this project")) {
+				return new ResponseEntity<String>(e.getMessage(),	HttpStatus.UNAUTHORIZED);
+
+			} else if (e.getMessage().equals("invalid id")) {
+				return new ResponseEntity<String>(e.getMessage(),	HttpStatus.FORBIDDEN);
+			} else {
+				throw e;
+			}
+		}
+	}
+
+>>>>>>> Stashed changes
 	/**
 	 * Return Project Discussions
 	 **/
