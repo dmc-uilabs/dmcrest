@@ -470,7 +470,7 @@ public class ProjectDao {
             preparedStatement.setBoolean(8, requiresApproval);
             preparedStatement.setInt(9, directoryId);
             preparedStatement.setInt(10, createdOn);
-            preparedStatement.setBoolean(10, false);
+            preparedStatement.setBoolean(11, false);
             preparedStatement.executeUpdate();
 
             // since no parameters can use execute query safely
