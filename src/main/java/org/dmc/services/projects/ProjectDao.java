@@ -60,6 +60,77 @@ public class ProjectDao {
     public ProjectDao() {
     }
 
+    protected Project readProjectIdandTitleFromResultSet(ResultSet resultSet) throws SQLException {
+        final Project project = new Project();
+        project.setId(resultSet.getInt("id"));
+        project.setTitle(resultSet.getString("title"));
+        ServiceLogger.log(LOGTAG, project.toString());
+        return project;
+    }
+
+
+          //get workspace by name
+          public ArrayList<Project> getWorkspaceByTitle(String title, String userEPPN) {
+              ResultSet resultSet = null;
+              final ArrayList<Project> projects = new ArrayList<Project>();
+
+              try {
+                  String query = "SELECT g.group_id AS id, g.group_name AS title FROM groups g WHERE LOWER(g.group_name) LIKE LOWER('%"+title+"%') ;";
+                  final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+                  resultSet = preparedStatement.executeQuery();
+                  while (resultSet.next()) {
+                      Project project = readProjectIdandTitleFromResultSet(resultSet);
+                      ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
+                      projects.add(project);
+                  }
+
+              } catch (SQLException e) {
+                  ServiceLogger.log(LOGTAG, e.getMessage());
+              } finally {
+                  try {
+                      if (null != resultSet) {
+                          resultSet.close();
+                      }
+                  } catch (Exception e2) {
+                      // don't really care now.
+                  }
+              }
+              return projects;
+          }
+
+
+
+        // get project info by id
+        public Project getProjectById(int projectId) {
+            ResultSet resultSet = null;
+            // check if user has a role in project or project is public
+            try {
+                String query = getSelectProjectQuery(null);
+                query += "WHERE g.group_id = ? ";
+                final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+                preparedStatement.setInt(1, projectId);
+
+                ServiceLogger.log(LOGTAG, "getProject, id: " + projectId);
+                resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    return readProjectInfoFromResultSet(resultSet);
+                }
+
+            } catch (SQLException e) {
+                ServiceLogger.log(LOGTAG, e.getMessage());
+            } finally {
+                try {
+                    if (null != resultSet) {
+                        resultSet.close();
+                    }
+                } catch (Exception e2) {
+                    // don't really care now.
+                }
+            }
+            return null;
+        }
+
+
     // get project info if user has a role in the project or project is public
     public Project getProject(int projectId, String userEPPN) {
         ResultSet resultSet = null;
@@ -109,9 +180,12 @@ public class ProjectDao {
 //                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
 //                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
 
+
         if (limit != null && offset != null) {
             groupIdList += " LIMIT " + limit + " OFFSET " + offset;
         }
+
+
 
         ServiceLogger.log(LOGTAG, "groupIdList: " + groupIdList);
         ResultSet resultSet = null;
@@ -153,9 +227,12 @@ public class ProjectDao {
     			+ " FROM (" + getSelectProjectQuery(order) + ") as project"
     			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1 ORDER BY id DESC";
 
+
+
     	if (limit != null && offset != null) {
     	    query += " LIMIT " + limit + " OFFSET " + offset;
         }
+
 
     	ResultSet resultSet = null;
     	try {
@@ -200,7 +277,7 @@ public class ProjectDao {
                 + "LEFT JOIN stats_project s ON s.group_id = g.group_id LEFT JOIN "
                 + "(SELECT count(*) AS taskCount, group_project_id AS id FROM project_task "
                 + "GROUP BY group_project_id) AS pt ON pt.id = g.group_id LEFT JOIN "
-                + "(SELECT count(*) AS servicesCount, project_id AS id FROM service "
+                + "(SELECT count(*) AS servicesCount, project_id AS id FROM service WHERE project_id != 0 "
                 + "GROUP BY project_id) AS ss ON ss.id = g.group_id LEFT JOIN "
                 + "(SELECT count(*) AS componentsCount, group_id AS id FROM cem_objects "
                 + "GROUP BY group_id) AS c ON c.id = g.group_id LEFT JOIN "
