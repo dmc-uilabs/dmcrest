@@ -139,13 +139,10 @@ public class ProjectDao {
             if (!isProjectPublic(projectId) && !hasProjectRole(projectId, userEPPN)) {
                 return null;
             }
-<<<<<<< Updated upstream
+
             String query = getSelectProjectQuery(null);
-            query += "WHERE g.group_id = ? AND g.use_webdav = 1";
-=======
-            String query = getSelectProjectQuery();
             query += "WHERE g.group_id = ? AND g.isdeleted = FALSE";
->>>>>>> Stashed changes
+
             final PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setInt(1, projectId);
 
@@ -179,7 +176,7 @@ public class ProjectDao {
             int userID = UserDao.getUserID(userEPPN);
             boolean isSuperAdmin = UserDao.isSuperAdmin(userID);
 
-            String query = getSelectProjectQuery();
+            String query = getSelectProjectQuery(null);
             query += "WHERE g.group_id = ? AND g.isdeleted = FALSE";
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
             preparedStatement.setInt(1, projectId);
@@ -247,12 +244,12 @@ public class ProjectDao {
 
         final ArrayList<Project> projects = new ArrayList<Project>();
 
-<<<<<<< Updated upstream
+
         final String query = getSelectProjectQuery(order);
         String groupIdList = "select * from (" + query + ") as project_info, " + "(SELECT distinct gjr.group_id " +
                 "FROM group_join_request gjr, users WHERE gjr.user_id = users.user_id and users.user_name = ? AND " +
                 "gjr.accept_date IS NOT NULL) as joined_projects where project_info.id = joined_projects.group_id and " +
-                "project_info.usewebdav = 1 ORDER BY id DESC";
+                "project_info.isdeleted = FALSE ORDER BY id DESC";
 //                "(SELECT distinct pfo_role.home_group_id"
 //                + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
 //                + " pfo_role.home_group_id IS NOT NULL AND"
@@ -264,22 +261,12 @@ public class ProjectDao {
             groupIdList += " LIMIT " + limit + " OFFSET " + offset;
         }
 
-
-=======
-        final String query = getSelectProjectQuery();
-        final String groupIdList = "select * from (" + query + ") as project_info, (SELECT distinct pfo_role.home_group_id"
-                + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
-                + " pfo_role.home_group_id IS NOT NULL AND"
-                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
-                + " where project_info.id = project_id.home_group_id and project_info.isdeleted = FALSE";
->>>>>>> Stashed changes
-
-        ServiceLogger.log(LOGTAG, "groupIdList: " + groupIdList);
+        ServiceLogger.log(LOGTAG, "query is <<<<<<<<<<<<<<<<<: " + query);
         ResultSet resultSet = null;
         try {
             PreparedStatement preparedStatement = DBConnector.prepareStatement(groupIdList);
             preparedStatement.setString(1, userEPPN);
-
+  ServiceLogger.log(LOGTAG, "groupIdList  >>>>>>: " + groupIdList);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Project project = readProjectInfoFromResultSet(resultSet);
@@ -310,10 +297,9 @@ public class ProjectDao {
     public List<Project> getPublicProjects(Integer limit, Integer offset, String order) {
     	List<Project> projects = new ArrayList<Project>();
 
-<<<<<<< Updated upstream
     	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time"
     			+ " FROM (" + getSelectProjectQuery(order) + ") as project"
-    			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1 ORDER BY id DESC";
+    			+ " WHERE project.isPublic = 1 AND project.isdeleted = FALSE ORDER BY id DESC";
 
 
 
@@ -321,11 +307,6 @@ public class ProjectDao {
     	    query += " LIMIT " + limit + " OFFSET " + offset;
         }
 
-=======
-    	String query = "SELECT DISTINCT id, title, description, due_date, count, componentsCount, taskCount, servicesCount, firstname, lastname, isPublic, requires_approval, creatorUserId, directory_id"
-    			+ " FROM (" + getSelectProjectQuery() + ") as project"
-    			+ " WHERE project.isPublic = 1 AND project.isdeleted = FALSE";
->>>>>>> Stashed changes
 
     	ResultSet resultSet = null;
     	try {
@@ -357,17 +338,11 @@ public class ProjectDao {
     	return projects;
     }
 
-<<<<<<< Updated upstream
+
     protected String getSelectProjectQuery(String sortOrder) {
         String query = "SELECT g.group_id AS id, g.group_name AS title, x.userName AS userName, "
-                + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.use_webdav as useWebdav, g.requires_approval as requires_approval, "
-                + "g.directory_id, g.register_time, "
-=======
-    protected String getSelectProjectQuery() {
-        final String query = "SELECT g.group_id AS id, g.group_name AS title, x.firstname AS firstname, x.lastname AS lastname, "
                 + "g.short_description AS description, g.due_date, s.msg_posted AS count, g.is_public as isPublic, g.isdeleted as isdeleted, g.requires_approval as requires_approval, "
-                + "g.directory_id, "
->>>>>>> Stashed changes
+                + "g.directory_id, g.register_time, "
                 + "pt.taskCount AS taskCount, " + "ss.servicesCount AS servicesCount, g.user_id as creatorUserId, "
                 + "c.componentsCount AS componentsCount, d.discussionsCount AS discussionsCount " + "FROM groups g "
                 + "JOIN (SELECT u.realname AS userName, r.home_group_id "
@@ -481,11 +456,9 @@ public class ProjectDao {
             }
 
             // create new project in groups table
-<<<<<<< Updated upstream
-            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval, directory_id, register_time) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
-=======
-            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval, directory_id, isdeleted) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )";
->>>>>>> Stashed changes
+
+            String createProjectQuery = "insert into groups(group_name, unix_group_name, short_description, register_purpose, is_public, user_id, due_date, requires_approval, directory_id, register_time,isdeleted) values ( ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ? )";
+
             PreparedStatement preparedStatement = DBConnector.prepareStatement(createProjectQuery);
             preparedStatement.setString(1, projectname);
             preparedStatement.setString(2, unixname);
@@ -496,11 +469,8 @@ public class ProjectDao {
             preparedStatement.setTimestamp(7, new Timestamp(dueDate));
             preparedStatement.setBoolean(8, requiresApproval);
             preparedStatement.setInt(9, directoryId);
-<<<<<<< Updated upstream
             preparedStatement.setInt(10, createdOn);
-=======
             preparedStatement.setBoolean(10, false);
->>>>>>> Stashed changes
             preparedStatement.executeUpdate();
 
             // since no parameters can use execute query safely

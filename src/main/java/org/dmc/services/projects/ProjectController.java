@@ -83,7 +83,7 @@ public class ProjectController {
         return getAllPublicAndPrivateProjects(userEPPN);
 	}
 
-<<<<<<< Updated upstream
+
 
 
 
@@ -114,12 +114,7 @@ public class ProjectController {
 	private List<Project> getAllPublicAndPrivateProjects(String userEPPN) {
 		List<Project> privateProjects = projectDao.getProjectList(userEPPN, null, null, null);
 		List<Project> publicProjects = projectDao.getPublicProjects(null, null, null);
-=======
-	// Hack to add support for public projects, being rewritten to use JPA soon
-	private List<Project> getAllPublicAndPrivateProjects(String userEPPN) {
-		List<Project> privateProjects = projectDao.getProjectList(userEPPN);
-		List<Project> publicProjects = projectDao.getPublicProjects();
->>>>>>> Stashed changes
+
 
 		Set<Project> projects = new TreeSet<Project>(new Comparator<Project>() {
 			@Override
@@ -233,8 +228,6 @@ public class ProjectController {
 		}
 	}
 
-<<<<<<< Updated upstream
-=======
 
 
 	@RequestMapping(value = "/projects/{id}", method = RequestMethod.DELETE, produces = "application/json")
@@ -272,7 +265,7 @@ public class ProjectController {
 		}
 	}
 
->>>>>>> Stashed changes
+
 	/**
 	 * Return Project Discussions
 	 **/
