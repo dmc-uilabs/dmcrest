@@ -18,6 +18,10 @@ import org.dmc.services.data.repositories.DMDIIDocumentTagRepository;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.springframework.stereotype.Component;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.security.UserPrincipal;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +43,9 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 
 	@Inject
 	private DMDIIDocumentTagRepository tagRepository;
+
+	@Inject
+	private UserRepository userRepository;
 
 
 	@Override
@@ -95,7 +102,12 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 			projectMembers.addAll(entity.getDmdiiProject().getContributingCompanies());
 
 			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
-			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(entity.getAccessLevel(), projectMemberIds)) {
+
+			Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+			User currentUser = userRepository.findOne(
+					((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+
+			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(entity.getAccessLevel(), projectMemberIds, currentUser)) {
 				return null;
 			}
 		}
