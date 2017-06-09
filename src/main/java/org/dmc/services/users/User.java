@@ -43,7 +43,7 @@ public class User {
 	//    }
 
 	public User (int id, String userName, String realName, boolean termsConditions) {
-        ServiceLogger.log(logTag, "In User with id " + id + " userName " + userName);
+        //ServiceLogger.log(logTag, "In User with id " + id + " userName " + userName);
         this.displayName = realName;
         this.accountId = id;
         this.profileId = id;
