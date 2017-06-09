@@ -165,7 +165,7 @@ public class ProjectDao {
     }
 
     // get any project the user is a member of
-    public ArrayList<Project> getProjectList(String userEPPN, String order, String sort, String filter) {
+    public ArrayList<Project> getProjectList(String userEPPN, String order, String sort, String filter, String searchTerm) {
 
         final ArrayList<Project> projects = new ArrayList<Project>();
 
@@ -179,6 +179,10 @@ public class ProjectDao {
 //                + " pfo_role.home_group_id IS NOT NULL AND"
 //                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
 //                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
+        if (searchTerm != null) {
+            groupIdList += " AND project_info.title ILIKE '%" + searchTerm + "%'";
+        }
+
         if (filter != null) {
             if (filter.equals("public")) {
                 groupIdList += " AND project_info.isPublic = 1";
@@ -229,12 +233,16 @@ public class ProjectDao {
 
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
     // Being refactored to use spring-data-jpa within next few sprints
-    public List<Project> getPublicProjects(String order, String sort, String filter) {
+    public List<Project> getPublicProjects(String order, String sort, String filter, String searchTerm) {
         List<Project> projects = new ArrayList<Project>();
 
         String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time, LOWER(title) AS sortTitle"
                 + " FROM (" + getSelectProjectQuery(order) + ") as project"
                 + " WHERE project.isPublic = 1 AND project.useWebdav = 1";
+
+        if (searchTerm != null) {
+            query += " AND project.title ILIKE '%" + searchTerm + "%'";
+        }
 
         if (filter != null) {
             if (filter.equals("private")) {

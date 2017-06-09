@@ -94,10 +94,11 @@ public class ProjectController {
 			@RequestParam(value="_limit", required=false, defaultValue = "10") Integer limit,
 			@RequestParam(value="_page", required=false, defaultValue = "10") Integer pageNumber,
 			@RequestParam(value="_filter", required=false) String filter,
+			@RequestParam(value="_search", required=false) String searchTerm,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
 		PageRequest pageRequest = new PageRequest(pageNumber, limit);
-		List<Project> projectList = projectDao.getPublicProjects(order, sort, filter);
+		List<Project> projectList = projectDao.getPublicProjects(order, sort, filter, searchTerm);
 		Integer end = start + limit;
 		if (end > projectList.size()) {
 			end = projectList.size();
@@ -113,10 +114,11 @@ public class ProjectController {
 			@RequestParam(value="_limit", required=false, defaultValue = "10") Integer limit,
 			@RequestParam(value="_page", required=false, defaultValue = "10") Integer pageNumber,
 			@RequestParam(value="_filter", required=false) String filter,
+			@RequestParam(value="_search", required=false) String searchTerm,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "In getProjectList as user " + userEPPN);
 		PageRequest pageRequest = new PageRequest(pageNumber, limit);
-		List<Project> projectList = projectDao.getProjectList(userEPPN, order, sort, filter);
+		List<Project> projectList = projectDao.getProjectList(userEPPN, order, sort, filter, searchTerm);
 		Integer end = start + limit;
 		if (end > projectList.size()) {
 			end = projectList.size();
@@ -126,8 +128,8 @@ public class ProjectController {
 
 	// Hack to add support for public projects, being rewritten to use JPA soon
 	private List<Project> getAllPublicAndPrivateProjects(String userEPPN) {
-		List<Project> privateProjects = projectDao.getProjectList(userEPPN, null, null, null);
-		List<Project> publicProjects = projectDao.getPublicProjects(null, null, null);
+		List<Project> privateProjects = projectDao.getProjectList(userEPPN, null, null, null, null);
+		List<Project> publicProjects = projectDao.getPublicProjects(null, null, null, null);
 
 		Set<Project> projects = new TreeSet<Project>(new Comparator<Project>() {
 			@Override
