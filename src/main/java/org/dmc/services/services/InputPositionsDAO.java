@@ -146,7 +146,7 @@ public class InputPositionsDAO {
 	public int getInterfaceId(int serviceId) throws SQLException {
 		int result = -9;
 
-		String query = "select interface_id from service_interface where service_id = ?";
+		String query = "select interface_id from service_interface INNER JOIN service ON (service_interface.service_id = service.service_id AND service.project_id != 0) where service_interface.service_id = ?";
 		PreparedStatement preparedStatement = DBConnector
 				.prepareStatement(query);
 		preparedStatement.setInt(1, serviceId);

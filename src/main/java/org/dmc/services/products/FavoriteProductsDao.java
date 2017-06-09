@@ -124,7 +124,7 @@ public class FavoriteProductsDao {
             final String orderClause = SQLUtils.buildOrderByClause(order, sort, validFieldsForSort);
   */
 //            String sqlSelectFavoriteProduct = "SELECT * FROM favorite_products WHERE " + column + " = ? "+orderClause+" LIMIT ? OFFSET ?";
-            String sqlSelectFavoriteProduct = "SELECT * FROM favorite_products WHERE " + column + " = ? LIMIT ? OFFSET ?";
+            String sqlSelectFavoriteProduct = "SELECT favorite_products.* FROM favorite_products INNER JOIN service ON (favorite_products.service_id = service.service_id AND service.project_id != 0) WHERE favorite_products." + column + " = ? LIMIT ? OFFSET ?";
 
             ServiceLogger.log(logTag, sqlSelectFavoriteProduct);
             
@@ -161,7 +161,7 @@ public class FavoriteProductsDao {
         validFieldsForSort.add("id");
         final String orderClause = SQLUtils.buildOrderByClause(order, sort, validFieldsForSort);
   */
-        String sqlSelectFavoriteProduct = "select service_id, count(service_id) AS thecount FROM favorite_products GROUP BY service_id ORDER BY thecount LIMIT ? OFFSET ?";
+        String sqlSelectFavoriteProduct = "select favorite_products.service_id, count(favorite_products.service_id) AS thecount FROM favorite_products INNER JOIN service ON (favorite_products.service_id = service.service_id AND service.project_id != 0) GROUP BY favorite_products.service_id ORDER BY thecount LIMIT ? OFFSET ?";
         ServiceLogger.log(logTag, sqlSelectFavoriteProduct);
 
         PreparedStatement preparedStatement = DBConnector.prepareStatement(sqlSelectFavoriteProduct);
