@@ -157,6 +157,9 @@ public class Organization extends BaseEntity {
 	@Column(name="production_capabilities")
 	private String productionCapabilities;
 
+	@Column(name="other_organization_tags")
+	private String otherOrganizationTags;
+
 	public Integer getId() {
 		return id;
 	}
@@ -483,6 +486,10 @@ public class Organization extends BaseEntity {
 
 	public void setProductionCapabilities(String productionCapabilities) { this.productionCapabilities = productionCapabilities; }
 
+	public String getOtherOrganizationTags() { return otherOrganizationTags; }
+
+	public void setOtherOrganizationTags(String otherOrganizationTags) { this.otherOrganizationTags = otherOrganizationTags; }
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -525,6 +532,7 @@ public class Organization extends BaseEntity {
 		result = prime * result + ((upcomingProjectInterests == null) ? 0 : upcomingProjectInterests.hashCode());
 		result = prime * result + ((website == null) ? 0 : website.hashCode());
 		result = prime * result + ((productionCapabilities == null) ? 0 : productionCapabilities.hashCode());
+		result = prime * result + ((otherOrganizationTags == null) ? 0 : otherOrganizationTags.hashCode());
 		return result;
 	}
 
@@ -741,6 +749,11 @@ public class Organization extends BaseEntity {
 			if (other.productionCapabilities != null)
 				return false;
 		} else if (!productionCapabilities.equals(other.productionCapabilities))
+			return false;
+		if (otherOrganizationTags == null) {
+			if (other.otherOrganizationTags != null)
+				return false;
+		} else if (!otherOrganizationTags.equals(other.otherOrganizationTags))
 			return false;
 		return true;
 	}

@@ -57,6 +57,8 @@ public class OrganizationModel extends BaseModel {
 
 	private String productionCapabilities;
 
+	private String otherOrganizationTags;
+
 	public String getName() {
 		return name;
 	}
@@ -260,5 +262,13 @@ public class OrganizationModel extends BaseModel {
 	public String getProductionCapabilities() { return productionCapabilities; }
 
 	public void setProductionCapabilities(String productionCapabilities) { this.productionCapabilities = productionCapabilities; }
+
+	public String getOtherOrganizationTags() {
+		return otherOrganizationTags;
+	}
+
+	public void setOtherOrganizationTags(String otherOrganizationTags) {
+		this.otherOrganizationTags = otherOrganizationTags;
+	}
 
 }
