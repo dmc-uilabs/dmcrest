@@ -447,6 +447,7 @@ public class DocumentService {
 				Project wss =  projectDao.getProjectById(wsId);
 				User shareWith = this.userRepository.findOne(wss.getProjectManagerId());
 				 cloneDocuments (docIds, wsId, shareWith.getUsername(), wss.getDirectoryId()  );
+				 ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", documentName: " + documentName + " as user " + userPrincipal.getUsername() + " with workspaceId: " + wsId);
 			return new ResponseEntity<String>("{\"message\":\"Document ddd "+documentName+"shared with workspace "+wss.getProjectManagerId()+" \"}", HttpStatus.OK);
 				}
 
