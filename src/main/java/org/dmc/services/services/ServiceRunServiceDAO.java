@@ -65,7 +65,7 @@ public class ServiceRunServiceDAO {
 		this.run_id = run_id;
 		ResultSet rs = null;
 		try{
-			String query = "select * from service_run where run_id=?";
+			String query = "select service_run.* from service_run INNER JOIN service ON (service_run.service_id = service.service_id AND service.project_id != 0) where run_id=?";
 			PreparedStatement preparedStatement = DBConnector
 				.prepareStatement(query);
 			preparedStatement.setInt(1,run_id);
@@ -108,7 +108,7 @@ public class ServiceRunServiceDAO {
 			// Assume that if status=0 -- created and running, status=1, the run finished
 			// When a service is created, the status is always 0
 			// Need to get service_id based on service_interface if given interface_id
-			String queryIntID = "select service_id from service_interface where interface_id=?";
+			String queryIntID = "select service_interface.service_id from service_interface INNER JOIN service ON (service_interface.service_id = service.service_id AND service.project_id != 0) where interface_id=?";
 			PreparedStatement preparedQueryIntID = DBConnector.prepareStatement(queryIntID);
 			preparedQueryIntID.setInt(1, interface_id);
 			ResultSet intID = preparedQueryIntID.executeQuery();
