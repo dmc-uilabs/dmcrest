@@ -23,6 +23,8 @@ public class Project {
 	private Boolean isPublic;
 	private Integer directoryId;
 	private Integer createdOn;
+  private Boolean isdeleted;
+
 
 	private final String logTag = Project.class.getName();
 
@@ -44,6 +46,8 @@ public class Project {
 		this.component = new ProjectComponent(0, id);
 		this.requiresAdminApprovalToJoin = true;
 		this.createdOn = -1;
+		this.isdeleted = false;
+
 	}
 
 	@JsonProperty("id")
