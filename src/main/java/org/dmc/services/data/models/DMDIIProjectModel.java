@@ -20,7 +20,7 @@ public class DMDIIProjectModel extends BaseModel {
 
 	private String projectSummary;
 
-	private DMDIIProjectContactModel principalPointOfContact;
+	private UserModel principalPointOfContact;
 
 	private DMDIIProjectFocusAreaModel projectFocusArea;
 
@@ -87,11 +87,11 @@ public class DMDIIProjectModel extends BaseModel {
 		this.projectSummary = projectSummary;
 	}
 
-	public DMDIIProjectContactModel getPrincipalPointOfContact() {
+	public UserModel getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(DMDIIProjectContactModel principalPointOfContact) {
+	public void setPrincipalPointOfContact(UserModel principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 
