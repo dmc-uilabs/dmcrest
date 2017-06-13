@@ -1,19 +1,23 @@
 package org.dmc.services.company;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.Objects;
 import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.utils.RestViews;
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-05-03T15:13:20.207Z")
 
 public class Company {
 
     private final String logTag = Company.class.getName();
-    
-	
+
+	@JsonView(RestViews.CompaniesShortView.class)
 	private String id;
+  @JsonView(RestViews.CompaniesShortView.class)
 	private String accountId;
+  @JsonView(RestViews.CompaniesShortView.class)
 	private String name;
 	private String location;
 	private String description;
@@ -48,8 +52,8 @@ public class Company {
 	private int favoritesCount;
 	private boolean isOwner;
 	private String owner;
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("id")
@@ -59,8 +63,8 @@ public class Company {
 	public void setId(String id) {
 		this.id = id;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("accountId")
@@ -70,8 +74,8 @@ public class Company {
 	public void setAccountId(String accountId) {
 		this.accountId = accountId;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("name")
@@ -81,8 +85,8 @@ public class Company {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("location")
@@ -92,8 +96,8 @@ public class Company {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("description")
@@ -103,8 +107,8 @@ public class Company {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("division")
@@ -114,8 +118,8 @@ public class Company {
 	public void setDivision(String division) {
 		this.division = division;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("industry")
@@ -125,8 +129,8 @@ public class Company {
 	public void setIndustry(String industry) {
 		this.industry = industry;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("NAICSCode")
@@ -136,8 +140,8 @@ public class Company {
 	public void setNAICSCode(String nAICSCode) {
 		this.nAICSCode = nAICSCode;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("RDFocus")
@@ -147,8 +151,8 @@ public class Company {
 	public void setRDFocus(String rDFocus) {
 		this.rDFocus = rDFocus;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("customers")
@@ -158,8 +162,8 @@ public class Company {
 	public void setCustomers(String customers) {
 		this.customers = customers;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("awardsReceived")
@@ -169,8 +173,8 @@ public class Company {
 	public void setAwardsReceived(String awardsReceived) {
 		this.awardsReceived = awardsReceived;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("technicalExpertise")
@@ -180,8 +184,8 @@ public class Company {
 	public void setTechnicalExpertise(String technicalExpertise) {
 		this.technicalExpertise = technicalExpertise;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("toolsSoftwareEquipmentMachines")
@@ -191,8 +195,8 @@ public class Company {
 	public void setToolsSoftwareEquipmentMachines(String toolsSoftwareEquipmentMachines) {
 		this.toolsSoftwareEquipmentMachines = toolsSoftwareEquipmentMachines;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("pastCollaborations")
@@ -202,8 +206,8 @@ public class Company {
 	public void setPastCollaborations(String pastCollaborations) {
 		this.pastCollaborations = pastCollaborations;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("collaborationInterests")
@@ -213,8 +217,8 @@ public class Company {
 	public void setCollaborationInterests(String collaborationInterests) {
 		this.collaborationInterests = collaborationInterests;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("pastProjects")
@@ -224,8 +228,8 @@ public class Company {
 	public void setPastProjects(String pastProjects) {
 		this.pastProjects = pastProjects;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("upcomingProjectInterests")
@@ -235,8 +239,8 @@ public class Company {
 	public void setUpcomingProjectInterests(String upcomingProjectInterests) {
 		this.upcomingProjectInterests = upcomingProjectInterests;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("address")
@@ -246,8 +250,8 @@ public class Company {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("city")
@@ -257,8 +261,8 @@ public class Company {
 	public void setCity(String city) {
 		this.city = city;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("state")
@@ -268,8 +272,8 @@ public class Company {
 	public void setState(int state) {
 		this.state = state;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("zipCode")
@@ -279,8 +283,8 @@ public class Company {
 	public void setZipCode(String zipCode) {
 		this.zipCode = zipCode;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("twitter")
@@ -290,8 +294,8 @@ public class Company {
 	public void setTwitter(String twitter) {
 		this.twitter = twitter;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("linkedIn")
@@ -301,8 +305,8 @@ public class Company {
 	public void setLinkedIn(String linkedIn) {
 		this.linkedIn = linkedIn;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("website")
@@ -312,8 +316,8 @@ public class Company {
 	public void setWebsite(String website) {
 		this.website = website;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("methodCommunication")
@@ -323,8 +327,8 @@ public class Company {
 	public void setMethodCommunication(String methodCommunication) {
 		this.methodCommunication = methodCommunication;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("email")
@@ -334,8 +338,8 @@ public class Company {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("phone")
@@ -345,8 +349,8 @@ public class Company {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("categoryTier")
@@ -356,8 +360,8 @@ public class Company {
 	public void setCategoryTier(int categoryTier) {
 		this.categoryTier = categoryTier;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("dateJoined")
@@ -367,8 +371,8 @@ public class Company {
 	public void setDateJoined(String dateJoined) {
 		this.dateJoined = dateJoined;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("reasonJoining")
@@ -378,8 +382,8 @@ public class Company {
 	public void setReasonJoining(String reasonJoining) {
 		this.reasonJoining = reasonJoining;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("featureImage")
@@ -389,8 +393,8 @@ public class Company {
 	public void setFeatureImage(FeatureImage featureImage) {
 		this.featureImage = featureImage;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("logoImage")
@@ -400,8 +404,8 @@ public class Company {
 	public void setLogoImage(String logoImage) {
 		this.logoImage = logoImage;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("follow")
@@ -411,8 +415,8 @@ public class Company {
 	public void setFollow(boolean follow) {
 		this.follow = follow;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("favoritesCount")
@@ -422,8 +426,8 @@ public class Company {
 	public void setFavoritesCount(int favoritesCount) {
 		this.favoritesCount = favoritesCount;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("isOwner")
@@ -433,8 +437,8 @@ public class Company {
 	public void setIsOwner(boolean isOwner) {
 		this.isOwner = isOwner;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("owner")
@@ -444,9 +448,9 @@ public class Company {
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
-	
-	
-	
+
+
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -493,17 +497,17 @@ public class Company {
         Objects.equals(isOwner, company.isOwner) &&
         Objects.equals(owner, company.owner);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, accountId, name, location, description, division, industry, nAICSCode, rDFocus, customers, awardsReceived, technicalExpertise, toolsSoftwareEquipmentMachines, pastCollaborations, collaborationInterests, pastProjects, upcomingProjectInterests, address, city, state, zipCode, twitter, linkedIn, website, methodCommunication, email, phone, categoryTier, dateJoined, reasonJoining, featureImage, logoImage, follow, favoritesCount, isOwner, owner);
 	}
-	
+
 	@Override
 	public String toString()  {
 		StringBuilder sb = new StringBuilder();
 		sb.append("class Company {\n");
-		
+
 		sb.append("  id: ").append(id).append("\n");
 		sb.append("  accountId: ").append(accountId).append("\n");
 		sb.append("  name: ").append(name).append("\n");
@@ -546,7 +550,7 @@ public class Company {
 /*
     //company Builder
     public static class CompanyBuilder {
-    	
+
         private final int id;
         private final int accountId;
         private final String name;
@@ -583,178 +587,178 @@ public class Company {
         private int favoratesCount;
         private boolean isOwner;
         private String owner;
-   
+
     	public CompanyBuilder(int id, int accountId, String name) {
     		this.id = id;
     		this.accountId = accountId;
     		this.name = name;
     	}
-        
+
         public CompanyBuilder location(String location) {
         	this.location = location;
         	return this;
         }
-        
+
         public CompanyBuilder description(String description) {
         	this.description = description;
         	return this;
         }
-        
+
         public CompanyBuilder division(String division) {
         	this.division = division;
         	return this;
         }
-        
+
         public CompanyBuilder industry(String industry) {
         	this.industry = industry;
         	return this;
         }
-        
+
         public CompanyBuilder NAICSCode(String NAICSCode) {
         	this.NAICSCode = NAICSCode;
         	return this;
         }
-        
+
         public CompanyBuilder RDFocus(String RDFocus) {
         	this.RDFocus = RDFocus;
         	return this;
         }
-        
+
         public CompanyBuilder customers(String customers) {
         	this.customers = customers;
             return this;
         }
-        
+
         public CompanyBuilder awardsReceived(String awardsReceived) {
         	this.awardsReceived = awardsReceived;
         	return this;
         }
-        
+
         public CompanyBuilder technicalExpertise(String technicalExpertise) {
         	this.technicalExpertise = technicalExpertise;
         	return this;
         }
-        
+
         public CompanyBuilder toolsSoftwareEquipmentMachines(String toolsSoftwareEquipmentMachines) {
         	this.toolsSoftwareEquipmentMachines = toolsSoftwareEquipmentMachines;
         	return this;
         }
-        
+
         public CompanyBuilder postCollaborations(String postCollaborations) {
         	this.postCollaborations = postCollaborations;
         	return this;
         }
-        
+
         public CompanyBuilder collaborationInterests(String collaborationInterests) {
         	this.collaborationInterests = collaborationInterests;
         	return this;
         }
-        
+
         public CompanyBuilder pastProjects(String pastProjects) {
         	this.pastProjects = pastProjects;
         	return this;
         }
-        
+
         public CompanyBuilder upcomingProjectInterests(String upcomingProjectInterests) {
         	this.upcomingProjectInterests = upcomingProjectInterests;
         	return this;
         }
-        
+
         public CompanyBuilder address(String address) {
         	this.address = address;
         	return this;
         }
-        
+
         public CompanyBuilder city(String city) {
         	this.city = city;
         	return this;
         }
-        
+
         public CompanyBuilder state(String state) {
         	this.state = state;
         	return this;
         }
-        
+
         public CompanyBuilder zipCode(String zipCode) {
         	this.zipCode = zipCode;
         	return this;
         }
-        
+
         public CompanyBuilder twitter(String twitter) {
         	this.twitter = twitter;
         	return this;
         }
-        
+
         public CompanyBuilder linkedIn(String linkedIn) {
         	this.linkedIn = linkedIn;
         	return this;
         }
-        
+
         public CompanyBuilder website(String website) {
         	this.website = website;
         	return this;
         }
-        
+
         public CompanyBuilder methodCommunication(String methodCommunication) {
         	this.methodCommunication = methodCommunication;
         	return this;
         }
-        
+
         public CompanyBuilder email(String email) {
         	this.email = email;
         	return this;
         }
-        
+
         public CompanyBuilder phone(String phone) {
         	this.phone = phone;
         	return this;
         }
-        
+
         public CompanyBuilder categoryTier(int categoryTier) {
         	this.categoryTier = categoryTier;
         	return this;
         }
-        
+
         public CompanyBuilder dateJoined(String dateJoined) {
         	this.dateJoined = dateJoined;
         	return this;
         }
-        
+
         public CompanyBuilder reasonJoining(String reasonJoining) {
         	this.reasonJoining = reasonJoining;
         	return this;
         }
-        
+
         public CompanyBuilder featureImage(FeatureImage featureImage) {
         	this.featureImage = featureImage;
         	return this;
         }
-        
+
         public CompanyBuilder logoImage(String logoImage) {
         	this.logoImage = logoImage;
         	return this;
         }
-        
+
         public CompanyBuilder follow(boolean follow) {
         	this.follow = follow;
         	return this;
         }
-        
+
         public CompanyBuilder favoratesCount(int favoratesCount) {
         	this.favoratesCount = favoratesCount;
         	return this;
         }
-        
+
         public CompanyBuilder isOwner(boolean isOwner) {
         	this.isOwner = isOwner;
         	return this;
         }
-        
+
         public CompanyBuilder owner(String owner) {
         	this.owner = owner;
         	return this;
         }
-        
+
         public Company build() {
         	return new Company(this);
         }
