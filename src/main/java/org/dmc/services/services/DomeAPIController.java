@@ -3,6 +3,7 @@ package org.dmc.services.services;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.DomeServerService;
 
 import static org.springframework.http.MediaType.*;
 
@@ -25,6 +27,9 @@ public class DomeAPIController {
 
 	private final String logTag = DomeAPIController.class.getName();
 	private DomeAPIDao domeAPIDao = new DomeAPIDao();
+	
+	@Autowired
+    DomeServerService serverService;
 
 	@RequestMapping(value = "/getChildren", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity getChildrenFromDome(
@@ -45,7 +50,7 @@ public class DomeAPIController {
 			DomeEntity domeEntity = new DomeEntity();
 			domeEntity.setDateModified(dateModified);
 			domeEntity.setDescription(description);
-			domeEntity.setDomeServer(domeServer);
+			domeEntity.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
 			domeEntity.setModelId(modelId);
 			domeEntity.setName(name);
 			domeEntity.setPath(path);

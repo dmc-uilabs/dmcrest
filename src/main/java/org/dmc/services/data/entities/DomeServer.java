@@ -28,7 +28,7 @@ public class DomeServer extends BaseEntity {
 	private Integer id;
 	
 	@Column(name="url")
-	@JsonProperty("ip")
+	@JsonIgnore
 	private String serverURL;
 	
 	@Column(name="alias")
