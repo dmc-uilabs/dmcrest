@@ -15,9 +15,9 @@ public class Company {
 
 	@JsonView(RestViews.CompaniesShortView.class)
 	private String id;
-  @JsonView(RestViews.CompaniesShortView.class)
+	@JsonView(RestViews.CompaniesShortView.class)
 	private String accountId;
-  @JsonView(RestViews.CompaniesShortView.class)
+	@JsonView(RestViews.CompaniesShortView.class)
 	private String name;
 	private String location;
 	private String description;
