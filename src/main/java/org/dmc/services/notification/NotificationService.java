@@ -65,7 +65,7 @@ public class NotificationService {
 		for (UserModel admin : orgAdmins) {
 			Notification notification = new Notification();
 			notification.setType(NotificationType.NEW_USER_JOINED_ORGANIZATION);
-			notification.setMessage(user.getRealname() + " has requested to join your organization");
+			notification.setMessage("Requested to join your organization.");
 			notification.setCreatedBy(user);
 			notification.setCreatedFor(userMapper.mapToEntity(admin));
 			notifications.add(notification);
@@ -97,7 +97,7 @@ public class NotificationService {
 		for (UserModel admin : orgAdmins) {
 			Notification notification = new Notification();
 			notification.setType(NotificationType.USER_REQUESTS_VERIFICATION);
-			notification.setMessage(user.getRealname() + " has requested to be verified as a member of your organization");
+			notification.setMessage("Requested to be verified.");
 			notification.setCreatedBy(user);
 			notification.setCreatedFor(userMapper.mapToEntity(admin));
 			notifications.add(notification);
@@ -117,10 +117,10 @@ public class NotificationService {
 		notificationRepository.save(notification);
 	}
 
-	public void notifyInviteToWorkspace(User sender, User recipient, Integer projectId){
+	public void notifyInviteToWorkspace(User sender, User recipient, String projectId){
 		Notification notification = new Notification();
 		notification.setType(NotificationType.INVITATION_TO_WORKSPACE);
-		notification.setMessage(sender.getRealname() + " has invited you to " + projectDao.getProjectById(projectId).getTitle());
+		notification.setMessage("project.php#/preview/"+projectId);
 		notification.setCreatedBy(sender);
 		notification.setCreatedFor(recipient);
 

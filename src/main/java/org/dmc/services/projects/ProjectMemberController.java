@@ -92,7 +92,7 @@ public class ProjectMemberController {
 						if (member.getAccept() == false){
 							User sender = userRepository.findOne(Integer.parseInt(member.getFromProfileId()));
 							User recipient = userRepository.findOne(Integer.parseInt(member.getProfileId()));
-							notificationService.notifyInviteToWorkspace(sender, recipient, Integer.parseInt(member.getProjectId()));
+							notificationService.notifyInviteToWorkspace(sender, recipient, member.getProjectId());
 						}
             return new ResponseEntity<ProjectMember>(createdMember, HttpStatus.valueOf(HttpStatus.OK.value()));
 
