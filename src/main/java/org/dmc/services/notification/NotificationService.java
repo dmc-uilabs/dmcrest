@@ -17,6 +17,7 @@ import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.NotificationRepository;
 import org.dmc.services.exceptions.InvalidOrganizationUserException;
+import org.dmc.services.projects.ProjectDao;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,9 @@ public class NotificationService {
 
 	@Inject
 	private MapperFactory mapperFactory;
+
+	@Inject
+	private ProjectDao projectDao;
 
 	@Transactional
 	public void markAllNotificationsReadForUser(Integer userId) {
@@ -107,6 +111,16 @@ public class NotificationService {
 		Notification notification = new Notification();
 		notification.setType(NotificationType.DOCUMENT_SHARED);
 		notification.setMessage(documentUrl);
+		notification.setCreatedBy(sender);
+		notification.setCreatedFor(recipient);
+
+		notificationRepository.save(notification);
+	}
+
+	public void notifyInviteToWorkspace(User sender, User recipient, Integer projectId){
+		Notification notification = new Notification();
+		notification.setType(NotificationType.INVITATION_TO_WORKSPACE);
+		notification.setMessage(sender.getRealname() + " has invited you to " + projectDao.getProjectById(projectId).getTitle());
 		notification.setCreatedBy(sender);
 		notification.setCreatedFor(recipient);
 

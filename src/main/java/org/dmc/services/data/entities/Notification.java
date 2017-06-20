@@ -28,7 +28,8 @@ public class Notification extends BaseEntity {
 	public enum NotificationType {
 		NEW_USER_JOINED_ORGANIZATION,
 		USER_REQUESTS_VERIFICATION,
-		DOCUMENT_SHARED
+		DOCUMENT_SHARED,
+		INVITATION_TO_WORKSPACE
 	}
 
 	@Id
