@@ -169,6 +169,8 @@ public class ProjectDao {
 
         final ArrayList<Project> projects = new ArrayList<Project>();
 
+        ServiceLogger.log("searchTerm", searchTerm);
+
         final String query = getSelectProjectQuery(order);
         String groupIdList = "select * from (" + query + ") as project_info, " + "(SELECT distinct gjr.group_id " +
                 "FROM group_join_request gjr, users WHERE gjr.user_id = users.user_id and users.user_name = ? AND " +
@@ -180,7 +182,10 @@ public class ProjectDao {
 //                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
 //                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
         if (searchTerm != null) {
-            groupIdList += " AND project_info.title ILIKE '%" + searchTerm + "%'";
+            groupIdList += " AND (project_info.title ILIKE '%" + searchTerm + "%'"
+                    + " OR project_info.id IN (SELECT project_tags.project_id FROM project_tags WHERE project_tags.tag_name ILIKE '%" + searchTerm + "%')"
+                    + " OR project_info.userName ILIKE '%" + searchTerm + "%')";
+            ServiceLogger.log(LOGTAG, "THIS IS HAPPENING: " + groupIdList);
         }
 
         if (filter != null) {
@@ -241,7 +246,9 @@ public class ProjectDao {
                 + " WHERE project.isPublic = 1 AND project.useWebdav = 1";
 
         if (searchTerm != null) {
-            query += " AND project.title ILIKE '%" + searchTerm + "%'";
+            query += " AND (project.title ILIKE '%" + searchTerm + "%'"
+                    + " OR project.id IN (SELECT project_tags.project_id FROM project_tags WHERE project_tags.tag_name ILIKE '%" + searchTerm + "%')"
+                    + " OR project.userName ILIKE '%" + searchTerm + "%')";
         }
 
         if (filter != null) {
@@ -258,6 +265,8 @@ public class ProjectDao {
                 query += " id DESC";
             }
         }
+
+        ServiceLogger.log(LOGTAG, query);
 
     	ResultSet resultSet = null;
 
