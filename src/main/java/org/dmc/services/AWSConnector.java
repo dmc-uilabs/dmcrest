@@ -124,13 +124,12 @@ public class AWSConnector {
     	return s3Client.getObject(new GetObjectRequest(bucket, keyName));
     }
     
-    public static S3Object getS3Document(String documentUrl, String parentType, String documentName) {
-		return getS3Document(returnBucketFromURL(documentUrl), returnKeyNameFromURL(documentUrl, parentType, documentName));
+    public static S3Object getS3Document(String documentUrl) {
+		return getS3Document(returnBucketFromURL(documentUrl), returnKeyNameFromURL(documentUrl));
 	}
     
-    // Function to create a path to resource in S3 to store in DB for easy
-    // future references
-    public static String createPath(String URL) throws DMCServiceException {
+    // Gets Amazon key name from S3 URL
+    public static String returnKeyNameFromURL(String URL) throws DMCServiceException {
         // Parse URL to get Path
         try {
             URL = URL.replace(":443","");
@@ -148,7 +147,7 @@ public class AWSConnector {
             throw new DMCServiceException(DMCError.AWSError,
                     "AWS create path from " + URL + "encountered internal error");
         }
-    }// createPath
+    }
 
     public static String returnBucketFromURL(String URL) throws DMCServiceException {
         try {
@@ -162,18 +161,6 @@ public class AWSConnector {
         }
     }
     
-    public static String returnKeyNameFromURL(String URL, String nameRoot, String DBFileName) throws DMCServiceException {
-    	try {
-            final int nameStart = URL.indexOf(nameRoot);
-            final int nameEnd = URL.indexOf(DBFileName);
-
-            return URL.substring(nameStart, nameEnd);
-          } catch (Exception e) {
-              throw new DMCServiceException(DMCError.AWSError,
-                      "Extracting name from " + URL + "encountered internal error");
-          }
-    }
-
     public static String refreshURL(String path) throws DMCServiceException {
         ServiceLogger.log(LOGTAG, "Refreshing pre-signed URL.");
         return generatePresignedUrl(path, DateUtils.addMonths(new Date(), 1));
@@ -186,7 +173,7 @@ public class AWSConnector {
         if (!currentBucket.equals(destBucket)) {
           finalBucket = currentBucket;
         }
-        key = createPath(key);
+        key = returnKeyNameFromURL(key);
       }
         final AmazonS3 s3client = getAmazonS3Client();
         return s3client.generatePresignedUrl(finalBucket, key, expiration).toString();

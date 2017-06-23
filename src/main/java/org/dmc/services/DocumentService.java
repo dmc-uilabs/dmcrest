@@ -223,7 +223,7 @@ public class DocumentService {
 		Document doc = documentRepository.findOne(docId);
 		
 		if (doc != null) {
-			S3Object s3Document = AWSConnector.getS3Document(doc.getDocumentUrl(), doc.getParentType().toString(), doc.getDocumentName());
+			S3Object s3Document = AWSConnector.getS3Document(doc.getDocumentUrl());
 			InputStreamResource in = new InputStreamResource(s3Document.getObjectContent());
 		
 			HttpHeaders headers = new HttpHeaders();
@@ -717,7 +717,7 @@ public class DocumentService {
 
 		for (Document document : documents) {
 			try {
-				String path = AWSConnector.createPath(document.getDocumentUrl());
+				String path = AWSConnector.returnKeyNameFromURL(document.getDocumentUrl());
 				String newURL = AWSConnector.refreshURL(path);
 
 				LocalDateTime nextMonth = LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1);
