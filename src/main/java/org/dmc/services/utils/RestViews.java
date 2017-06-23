@@ -15,4 +15,12 @@ public static class CompaniesShortView {}
  */
 public static class SecureServerView {}
 
+/**
+ * @author emiliano
+ * Returns Document entity without S3 URL
+ */
+public static class SDocumentsView {}
+
 }
+
+

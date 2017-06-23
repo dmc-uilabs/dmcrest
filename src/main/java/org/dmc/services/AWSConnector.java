@@ -2,13 +2,24 @@ package org.dmc.services;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import org.apache.commons.lang3.time.DateUtils;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,7 +43,7 @@ public class AWSConnector {
     private static String accessKey = System.getenv("AWS_UPLOAD_KEY");
     private static String secretKey = System.getenv("AWS_UPLOAD_SEC");
 
-    // Source is the path the the resource in the bucket
+    // Source is the path to the resource in the bucket
     public static String upload(String tempURL, String Folder, String userEPPN, String ResourceType, boolean isVerified)
             throws DMCServiceException {
 
@@ -64,7 +75,7 @@ public class AWSConnector {
             return preSignedURL;
 
         } catch (AmazonServiceException ase) {
-            logDetailsOfAmazonServiceException("Caught an AmazonServiceException, which means your request made it "
+            logAmazonServiceException("Caught an AmazonServiceException, which means your request made it "
                     + "to Amazon S3, but was rejected with an error response for some reason.", ase);
             throw new DMCServiceException(DMCError.AWSError,
                     "AWS Upload Request from " + userEPPN + " made it, rejected do to: " + ase.getMessage());
@@ -94,7 +105,7 @@ public class AWSConnector {
             // Deleting object, AWS takes care of all implementation of this.
             s3client.deleteObject(new DeleteObjectRequest(destBucket, ResourcePath));
         } catch (AmazonServiceException ase) {
-            logDetailsOfAmazonServiceException("Caught an AmazonServiceException, " + "which means your request made it "
+            logAmazonServiceException("Caught an AmazonServiceException, " + "which means your request made it "
                     + "to Amazon S3, but was rejected with an error " + "response for some reason.", ase);
             throw new DMCServiceException(DMCError.AWSError,
                     "AWS Delete Request from " + userEPPN + " made it, but rejected do to: " + ase.getMessage());
@@ -107,7 +118,16 @@ public class AWSConnector {
         return ResourcePath;
 
     }// Remove
-
+    
+    public static S3Object getS3Document(String bucket, String keyName) {
+    	AmazonS3 s3Client = getAmazonS3Client();
+    	return s3Client.getObject(new GetObjectRequest(bucket, keyName));
+    }
+    
+    public static S3Object getS3Document(String documentUrl, String parentType, String documentName) {
+		return getS3Document(returnBucketFromURL(documentUrl), returnKeyNameFromURL(documentUrl, parentType, documentName));
+	}
+    
     // Function to create a path to resource in S3 to store in DB for easy
     // future references
     public static String createPath(String URL) throws DMCServiceException {
@@ -140,6 +160,18 @@ public class AWSConnector {
             throw new DMCServiceException(DMCError.AWSError,
                     "Extracting bucket from " + URL + "encountered internal error");
         }
+    }
+    
+    public static String returnKeyNameFromURL(String URL, String nameRoot, String DBFileName) throws DMCServiceException {
+    	try {
+            final int nameStart = URL.indexOf(nameRoot);
+            final int nameEnd = URL.indexOf(DBFileName);
+
+            return URL.substring(nameStart, nameEnd);
+          } catch (Exception e) {
+              throw new DMCServiceException(DMCError.AWSError,
+                      "Extracting name from " + URL + "encountered internal error");
+          }
     }
 
     public static String refreshURL(String path) throws DMCServiceException {
@@ -242,7 +274,7 @@ public class AWSConnector {
         ServiceLogger.log(LOGTAG, "Error Message: " + ace.getMessage());
     }
 
-    private static void logDetailsOfAmazonServiceException(String msg, AmazonServiceException ase) {
+    private static void logAmazonServiceException(String msg, AmazonServiceException ase) {
         ServiceLogger.log(LOGTAG, msg);
         // Detailed Error Logging
         ServiceLogger.log(LOGTAG, "Error Message:    " + ase.getMessage());
