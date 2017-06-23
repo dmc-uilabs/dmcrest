@@ -418,37 +418,37 @@ public class DocumentService {
 		}
 
 
-
-
 	public ResponseEntity shareDocumentInWs(Integer documentId, Integer wsId) {
-			String documentUrl;
-			String documentName;
-			Document document;
-			String sha;
-			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+		String documentUrl;
+		String documentName;
+		Document document;
+		String sha;
+		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User user = this.userRepository.findByUsername(userPrincipal.getUsername());
 
 
+		document = this.documentRepository.findOne(documentId);
+		if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
+			throw new AccessDeniedException("User does not have permission to share document");
+		}
 
-				document = this.documentRepository.findOne(documentId);
-				if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
-					throw new AccessDeniedException("User does not have permission to share document");
-				}
+		sha = document.getSha256();
+		documentUrl = document.getDocumentUrl();
+		documentName = document.getDocumentName();
 
-				sha = document.getSha256();
-				documentUrl = document.getDocumentUrl();
-				documentName = document.getDocumentName();
+		List<Integer> docIds = new ArrayList<Integer>();
+		docIds.add(documentId);
+		//
+		Project wss = projectDao.getProjectById(wsId);
+		User shareWith = this.userRepository.findOne(wss.getProjectManagerId());
+		cloneDocuments(docIds, wsId, shareWith.getUsername(), wss.getDirectoryId());
 
+		String url = "/project.php#/" + wsId + "/documents";
 
+		notificationService.createForSharedDocumentWithWorkspace(user, shareWith, url);
 
-				List<Integer> docIds = new ArrayList<Integer>();
-				docIds.add(documentId);
-	  //
-				Project wss =  projectDao.getProjectById(wsId);
-				User shareWith = this.userRepository.findOne(wss.getProjectManagerId());
-				 cloneDocuments (docIds, wsId, shareWith.getUsername(), wss.getDirectoryId()  );
-			return new ResponseEntity<String>("{\"message\":\"Document ddd "+documentName+"shared with workspace "+wss.getProjectManagerId()+" \"}", HttpStatus.OK);
-				}
+		return new ResponseEntity<String>("{\"message\":\"Document ddd " + documentName + "shared with workspace " + wss.getProjectManagerId() + " \"}", HttpStatus.OK);
+	}
 
 
 
