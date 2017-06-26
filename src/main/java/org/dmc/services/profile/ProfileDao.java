@@ -353,7 +353,7 @@ public class ProfileDao {
         }
 
         List<GetCompareService> compareServices = new ArrayList<GetCompareService>();
-        final String query = "SELECT service_compare_id, service_id, profile_id FROM service_compare WHERE profile_id = ?";
+        final String query = "SELECT service_compare_id, service_compare.service_id, profile_id FROM service_compare INNER JOIN service ON (service_compare.service_id = service.service_id AND service.project_id != 0) WHERE profile_id = ?";
         PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
         try {
             preparedStatement.setInt(1, Integer.parseInt(profileID));

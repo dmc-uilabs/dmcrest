@@ -24,7 +24,7 @@ public class SharedServicesDao {
         try {
 
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM shared_service");
+            resultSet = DBConnector.executeQuery("SELECT shared_service.* FROM shared_service INNER JOIN service ON (shared_service.service_id = service.service_id AND service.project_id != 0)");
 
             while (resultSet.next()) {
 
@@ -53,7 +53,7 @@ public class SharedServicesDao {
         try {
 
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM shared_service WHERE id = " + id);
+            resultSet = DBConnector.executeQuery("SELECT shared_service.* FROM shared_service INNER JOIN service ON (shared_service.service_id = service.service_id AND service.project_id != 0) WHERE id = " + id);
 
             while (resultSet.next()) {
 
@@ -95,7 +95,7 @@ public class SharedServicesDao {
 
             int rCreate = preparedStatement.executeUpdate();
 
-            String queryId = "select max(id) max_id from shared_service";
+            String queryId = "select max(id) max_id from shared_service INNER JOIN service ON (shared_service.service_id = service.service_id AND service.project_id != 0)";
             PreparedStatement preparedStatement1 = DBConnector
                     .prepareStatement(queryId);
             ResultSet r=preparedStatement1.executeQuery();

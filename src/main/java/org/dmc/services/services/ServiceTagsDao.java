@@ -24,7 +24,7 @@ public class ServiceTagsDao {
         try {
 
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM service_tag");
+            resultSet = DBConnector.executeQuery("SELECT service_tag.* FROM service_tag INNER JOIN service ON (service_tag.service_id = service.service_id AND service.project_id != 0)");
 
             while (resultSet.next()) {
 
@@ -51,7 +51,7 @@ public class ServiceTagsDao {
         ArrayList<ServiceTag> tags = new ArrayList<ServiceTag>();
         try {
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM service_tag WHERE id = " + id);
+            resultSet = DBConnector.executeQuery("SELECT service_tag.* FROM service_tag INNER JOIN service ON (service_tag.service_id = service.service_id AND service.project_id != 0) WHERE id = " + id);
 
             while (resultSet.next()) {
 
@@ -79,7 +79,7 @@ public class ServiceTagsDao {
         ArrayList<ServiceTag> tags = new ArrayList<ServiceTag>();
         try {
 
-            resultSet = DBConnector.executeQuery("SELECT * FROM service_tag WHERE service_id = " + id);
+            resultSet = DBConnector.executeQuery("SELECT service_tag.* FROM service_tag INNER JOIN service ON (service_tag.service_id = service.service_id AND service.project_id != 0) WHERE service_tag.service_id = " + id);
 
             while (resultSet.next()) {
 
@@ -120,7 +120,7 @@ public class ServiceTagsDao {
 
             int rCreate = preparedStatement.executeUpdate();
 
-            String queryId = "select max(id) max_id from service_tag";
+            String queryId = "select max(id) max_id from service_tag INNER JOIN service ON (service_tag.service_id = service.service_id AND service.project_id != 0)";
             PreparedStatement preparedStatement1 = DBConnector
                     .prepareStatement(queryId);
             ResultSet r=preparedStatement1.executeQuery();

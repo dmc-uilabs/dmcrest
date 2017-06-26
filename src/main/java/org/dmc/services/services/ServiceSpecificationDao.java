@@ -194,7 +194,7 @@ public class ServiceSpecificationDao {
 			columnsInSpecificationsTable.add("usage_stats");
 			columnsInSpecificationsTable.add("run_stats");
 			
-			String query = "SELECT * FROM service_specifications";
+			String query = "SELECT service_specifications.* FROM service_specifications INNER JOIN service ON (service_specifications.service_id = service.service_id AND service.project_id != 0)";
 			if (serviceId != -1) {
 				query += " WHERE service_id = " + serviceId;
 			}
