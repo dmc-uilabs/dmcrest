@@ -23,7 +23,7 @@ public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Int
 
 	Page<DMDIIProject> findByProjectTitleLikeIgnoreCase(Pageable pageable, String title);
 
-	@Query("SELECT p FROM DMDIIProject p WHERE UPPER(p.projectTitle) LIKE UPPER(:searchTerm) OR CONCAT(LPAD(p.rootNumber::text, 2, '0'), '-', LPAD(p.callNumber::text, 2, '0'), '-', LPAD(p.projectNumber::text, 2, '0') LIKE :searchTerm")
+	@Query("SELECT p FROM DMDIIProject p WHERE UPPER(p.projectTitle) LIKE UPPER(:searchTerm) OR CONCAT(p.rootNumber, '-', p.callNumber, '-', p.projectNumber) LIKE :searchTerm")
 	Page<DMDIIProject> findByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase(Pageable pageable, @Param("searchTerm") String searchTerm);
 
 	@Query("SELECT COUNT(p) FROM DMDIIProject p WHERE UPPER(p.projectTitle) LIKE UPPER(:searchTerm) OR CONCAT(p.rootNumber, '-', p.callNumber, '-', p.projectNumber) LIKE :searchTerm")

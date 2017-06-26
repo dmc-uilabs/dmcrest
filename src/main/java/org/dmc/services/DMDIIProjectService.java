@@ -30,10 +30,12 @@ import org.springframework.util.Assert;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -213,12 +215,39 @@ public class DMDIIProjectService {
 	public List<DMDIIProjectModel> findByTitleOrProjectNumber(String searchTerm, Integer pageNumber, Integer pageSize) {
 		Assert.notNull(searchTerm);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-		return mapper.mapToModel(dmdiiProjectRepository.findByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+searchTerm+"%").getContent());
+		return mapper.mapToModel(dmdiiProjectRepository.findByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+parseProjectNumberSearchString(searchTerm)+"%").getContent());
 	}
 
-	public Long countByTitleOrProjectNumber(String title) {
-		Assert.notNull(title);
-		return dmdiiProjectRepository.countByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase("%"+title+"%");
+	public Long countByTitleOrProjectNumber(String searchTerm) {
+		Assert.notNull(searchTerm);
+		return dmdiiProjectRepository.countByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase("%"+parseProjectNumberSearchString(searchTerm)+"%");
+	}
+
+	private String parseProjectNumberSearchString(String searchTerm) {
+
+		String brokenString[] = searchTerm.split("-");
+
+		for(int i = 0; i < brokenString.length; i++) {
+			if (isNumeric(brokenString[i]) && brokenString[i].length() > 1 && Integer.parseInt(brokenString[i].substring(0,1)) == 0) {
+				brokenString[i] = brokenString[i].substring(1);
+			}
+		}
+
+		return Arrays.stream(brokenString).collect(
+				Collectors.joining("-"));
+	}
+
+	private static boolean isNumeric(String str)
+	{
+		try
+		{
+			double d = Double.parseDouble(str);
+		}
+		catch(NumberFormatException nfe)
+		{
+			return false;
+		}
+		return true;
 	}
 
 	public DMDIIProjectModel findOne(Integer id) {
