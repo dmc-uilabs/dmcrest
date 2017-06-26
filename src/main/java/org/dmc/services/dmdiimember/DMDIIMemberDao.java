@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface DMDIIMemberDao extends BaseRepository<DMDIIMember, Integer> {
-	
+
 	@Query("SELECT m.organization.id FROM DMDIIMember m "
 			+ "WHERE m.dmdiiType.tier in (1,2) "
 			+ "AND m.dmdiiType.dmdiiTypeCategory.category in ('Industry','Academic')")
@@ -20,15 +20,17 @@ public interface DMDIIMemberDao extends BaseRepository<DMDIIMember, Integer> {
 	@Query("SELECT m FROM DMDIIProject p JOIN p.primeOrganization m "
 			+ "WHERE CURRENT_TIMESTAMP() BETWEEN p.awardedDate AND p.endDate")
 	Page<DMDIIMember> findByHasActiveProjects(Pageable pageable);
-	
+
 	Page<DMDIIMember> findByOrganizationNameLikeIgnoreCase(Pageable pageable, String name);
-	
+
+	Page<DMDIIMember> findByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase(Pageable pageable, String name, String areaOfExpertiseName, String desiredAreaOfExpertisename);
+
 	Long countByOrganizationNameLikeIgnoreCase(String name);
 
 	@Query(value = "SELECT * FROM organization_dmdii_member dm JOIN dmdii_project_contributing_company dpcc on " +
 					"dm.id=dpcc.contributing_company_id WHERE dpcc.dmdii_project_id = :projectId", nativeQuery = true)
 	List<DMDIIMember> findByDMDIIProjectContributingCompanyDMDIIProject(@Param("projectId") Integer projectId);
-	
+
 	@Query("SELECT CASE WHEN COUNT(d) > 0 THEN 'true' ELSE 'false' END FROM DMDIIMember d where d.organization.id = :organizationId")
 	Boolean existsByOrganizationId(@Param("organizationId") Integer organizationId);
 
