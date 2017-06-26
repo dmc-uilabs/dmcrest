@@ -12,17 +12,23 @@ import java.util.List;
 public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Integer> {
 
 	Page<DMDIIProject> findByPrimeOrganizationId(Pageable pageable, Integer primeOrganizationId);
-	
+
 	Long countByPrimeOrganizationId(Integer primeOrganizationId);
 
 	Page<DMDIIProject> findByAwardedDate(Pageable pageable, Date startDate);
-	
+
 	Long countByAwardedDate(Date startDate);
 
 	Page<DMDIIProject> findByProjectStatusId(Pageable pageable, Integer statusId);
-	
+
 	Page<DMDIIProject> findByProjectTitleLikeIgnoreCase(Pageable pageable, String title);
-	
+
+	@Query("SELECT p FROM DMDIIProject p WHERE UPPER(p.projectTitle) LIKE UPPER(:searchTerm) OR CONCAT(LPAD(p.rootNumber::text, 2, '0'), '-', LPAD(p.callNumber::text, 2, '0'), '-', LPAD(p.projectNumber::text, 2, '0') LIKE :searchTerm")
+	Page<DMDIIProject> findByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase(Pageable pageable, @Param("searchTerm") String searchTerm);
+
+	@Query("SELECT COUNT(p) FROM DMDIIProject p WHERE UPPER(p.projectTitle) LIKE UPPER(:searchTerm) OR CONCAT(p.rootNumber, '-', p.callNumber, '-', p.projectNumber) LIKE :searchTerm")
+	Long countByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase(@Param("searchTerm") String searchTerm);
+
 	Long countByProjectTitleLikeIgnoreCase(String title);
 
 	@Query("SELECT p FROM DMDIIProject p WHERE p.primeOrganization.id = :dmdiiMemberId AND " +

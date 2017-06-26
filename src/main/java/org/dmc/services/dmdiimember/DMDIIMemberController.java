@@ -87,8 +87,8 @@ public class DMDIIMemberController {
 	public PagedResponse findMembersByName(@RequestParam("page") Integer page,
 																@RequestParam("pageSize") Integer pageSize,
 																@RequestParam("name") String name) {
-		List<? extends BaseModel> results = dmdiiMemberService.findByName(name, page, pageSize);
-		Long count = dmdiiMemberService.countByName(name);
+		List<? extends BaseModel> results = dmdiiMemberService.findByNameOrTags(name, page, pageSize);
+		Long count = dmdiiMemberService.countByNameOrTags(name);
 		return new PagedResponse(count, results);
 	}
 
@@ -113,13 +113,13 @@ public class DMDIIMemberController {
 	public DMDIIMemberNewsModel saveDMDIIMemberNews (@RequestBody DMDIIMemberNewsModel memberNews) {
 		return dmdiiMemberNewsService.save(memberNews);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/events/{eventId}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public void deleteEvent(@PathVariable("eventId") Integer eventId) {
 		dmdiiMemberEventService.delete(eventId);
 	}
-	
+
 	@RequestMapping(value = "/dmdiiMember/news/{newsId}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
 	public void deleteNews(@PathVariable("newsId") Integer newsId) {

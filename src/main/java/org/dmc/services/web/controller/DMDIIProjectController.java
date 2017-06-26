@@ -103,8 +103,8 @@ public class DMDIIProjectController {
 															@RequestParam("pageSize") Integer pageSize) {
 		ServiceLogger.log(logTag, "In getDmdiiProjectsByTitle: " + title);
 
-		List<? extends BaseModel> results = dmdiiProjectService.findByTitle(title, page, pageSize);
-		Long count = dmdiiProjectService.countByTitle(title);
+		List<? extends BaseModel> results = dmdiiProjectService.findByTitleOrProjectNumber(title, page, pageSize);
+		Long count = dmdiiProjectService.countByTitleOrProjectNumber(title);
 		return new PagedResponse(count, results);
 	}
 

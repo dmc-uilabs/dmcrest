@@ -25,6 +25,8 @@ public interface DMDIIMemberDao extends BaseRepository<DMDIIMember, Integer> {
 
 	Page<DMDIIMember> findByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase(Pageable pageable, String name, String areaOfExpertiseName, String desiredAreaOfExpertisename);
 
+	Long countByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase(String name, String areaOfExpertiseName, String desiredAreaOfExpertisename);
+
 	Long countByOrganizationNameLikeIgnoreCase(String name);
 
 	@Query(value = "SELECT * FROM organization_dmdii_member dm JOIN dmdii_project_contributing_company dpcc on " +

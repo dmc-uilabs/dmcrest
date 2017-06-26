@@ -64,13 +64,13 @@ public class DMDIIMemberService {
 		return mapper.mapToModel(dmdiiMemberDao.findAll());
 	}
 
-	public List<DMDIIMemberModel> findByName(String name, Integer pageNumber, Integer pageSize) {
+	public List<DMDIIMemberModel> findByNameOrTags(String name, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		return mapper.mapToModel(dmdiiMemberDao.findByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%", name, name).getContent());
 	}
 
-	public Long countByName(String name) {
-		return dmdiiMemberDao.countByOrganizationNameLikeIgnoreCase("%"+name+"%");
+	public Long countByNameOrTags(String name) {
+		return dmdiiMemberDao.countByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase("%"+name+"%", name, name);
 	}
 
 	@Transactional

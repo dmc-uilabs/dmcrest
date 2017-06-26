@@ -1,14 +1,7 @@
 package org.dmc.services;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
+import com.mysema.query.types.ExpressionUtils;
+import com.mysema.query.types.Predicate;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIProject;
 import org.dmc.services.data.entities.DMDIIProjectEvent;
@@ -34,8 +27,13 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.mysema.query.types.ExpressionUtils;
-import com.mysema.query.types.Predicate;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -210,6 +208,17 @@ public class DMDIIProjectService {
 	public Long countByTitle(String title) {
 		Assert.notNull(title);
 		return dmdiiProjectRepository.countByProjectTitleLikeIgnoreCase("%"+title+"%");
+	}
+
+	public List<DMDIIProjectModel> findByTitleOrProjectNumber(String searchTerm, Integer pageNumber, Integer pageSize) {
+		Assert.notNull(searchTerm);
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+searchTerm+"%").getContent());
+	}
+
+	public Long countByTitleOrProjectNumber(String title) {
+		Assert.notNull(title);
+		return dmdiiProjectRepository.countByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase("%"+title+"%");
 	}
 
 	public DMDIIProjectModel findOne(Integer id) {
