@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
 import org.apache.commons.collections.CollectionUtils;
@@ -37,11 +38,14 @@ import org.dmc.services.services.ServiceDao;
 import org.dmc.services.verification.Verification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
@@ -49,7 +53,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.inject.Inject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -203,6 +214,30 @@ public class DocumentService {
 		}
 
 		return retModel;
+	}
+	
+	public ResponseEntity downloadFile(Integer docId) throws DMCServiceException {
+		Assert.notNull(docId);
+		ResponseEntity response = null;
+		
+		Document doc = documentRepository.findOne(docId);
+		
+		if (doc != null) {
+			S3Object s3Document = AWSConnector.getS3Document(doc.getDocumentUrl());
+			InputStreamResource in = new InputStreamResource(s3Document.getObjectContent());
+		
+			HttpHeaders headers = new HttpHeaders();
+			headers.add("Content-Disposition", "attachment; filename=" + doc.getDocumentName());
+			headers.add("Content-Type", (s3Document.getObjectMetadata().getContentType()));
+			headers.setContentLength(s3Document.getObjectMetadata().getContentLength());
+			
+			return new ResponseEntity<InputStreamResource>(in, headers, HttpStatus.OK);
+		} else {
+			logger.warn("Document not found.");
+			response = new ResponseEntity<String>("Document not found.", HttpStatus.NO_CONTENT);
+		}
+		
+		return response;
 	}
 
 	public List<DocumentModel> findByDirectory(Integer directoryId) {
@@ -399,7 +434,7 @@ public class DocumentService {
 			newDoc.setDocumentName("Service Run Output");
 		 	newDoc.setDocumentUrl(url);
 			newDoc.setParentType(DocumentParentType.PROJECT);
-		  newDoc.setResourceType(ResourceType.DOCUMENT);
+			newDoc.setResourceType(ResourceType.DOCUMENT);
 			newDoc.setSha256("NO SHA EXISTS");
 			newDoc.setDirectory(projectDirectory);
 			newDoc.setParentId(runId);
@@ -682,7 +717,7 @@ public class DocumentService {
 
 		for (Document document : documents) {
 			try {
-				String path = AWSConnector.createPath(document.getDocumentUrl());
+				String path = AWSConnector.returnKeyNameFromURL(document.getDocumentUrl());
 				String newURL = AWSConnector.refreshURL(path);
 
 				LocalDateTime nextMonth = LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1);

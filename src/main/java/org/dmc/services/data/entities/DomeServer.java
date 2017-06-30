@@ -2,6 +2,7 @@ package org.dmc.services.data.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +19,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.dmc.services.utils.RestViews;
+
 @Entity
 @Table(name="servers")
 public class DomeServer extends BaseEntity {
@@ -25,6 +28,7 @@ public class DomeServer extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="server_id")
+	@JsonView(RestViews.SecureServerView.class)
 	private Integer id;
 	
 	@Column(name="url")
@@ -32,12 +36,15 @@ public class DomeServer extends BaseEntity {
 	private String serverURL;
 	
 	@Column(name="alias")
+	@JsonView(RestViews.SecureServerView.class)
 	private String name;
 	
 	@Column(name="user_id")
 	@JsonProperty("accountId")
+	@JsonView(RestViews.SecureServerView.class)
 	private Integer userId;
 	
+	@JsonView(RestViews.SecureServerView.class)
 	private Integer port;
 	
 	@Column(name="local_dome_user")
@@ -52,6 +59,7 @@ public class DomeServer extends BaseEntity {
 	@JsonIgnore
 	private String userPass;
 	
+	@JsonView(RestViews.SecureServerView.class)
 	private String status;
 
 	@ManyToMany
@@ -63,6 +71,7 @@ public class DomeServer extends BaseEntity {
 	
 	//helper json property to denote pub/private status
 	@JsonProperty("public")
+	@JsonView(RestViews.SecureServerView.class)
 	private Boolean isPublic(){
 		return accessList.stream().anyMatch(g->"global".equals(g.getName()));
 	}
