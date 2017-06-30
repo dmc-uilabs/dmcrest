@@ -86,7 +86,7 @@ public class DomeAPIController {
 			DomeModel domeModel = new DomeModel();
 			domeModel.setProjectId(projectId);
 			domeModel.setInterfaceId(interfaceId);
-			domeModel.setDomeServer(domeServer);
+			domeModel.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
 			domeModel.setModelId(modelId);
 			domeModel.setName(name);
 			domeModel.setPath(path);
