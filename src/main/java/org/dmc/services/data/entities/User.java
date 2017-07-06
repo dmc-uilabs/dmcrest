@@ -112,11 +112,21 @@ public class User extends BaseEntity {
 	@JsonIgnore
 	private List<ServerAccess> accessList;
 
+	@OneToMany(mappedBy = "principalPointOfContact", cascade = {CascadeType.DETACH, CascadeType.REMOVE})
+	private List<DMDIIProject> dmdiiProjects;
+
 	public List<ServerAccess> getAccessList(){
 		return accessList;
 	}
 	public void setAccessList(List<ServerAccess> list){
 		accessList=list;
+	}
+
+	public List<DMDIIProject> getDmdiiProjects(){
+		return dmdiiProjects;
+	}
+	public void setDmdiiProjects(List<DMDIIProject> list){
+		dmdiiProjects=list;
 	}
 
 	public Integer getId() {
