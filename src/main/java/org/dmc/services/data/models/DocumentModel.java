@@ -46,7 +46,6 @@ public class DocumentModel extends BaseModel {
 
 	private String sha256;
 
-<<<<<<< HEAD
 	private String encryptionType;
 
 	private Long scanDate;
@@ -58,10 +57,8 @@ public class DocumentModel extends BaseModel {
 	public void setScanDate(Long scanDate) {
 		this.scanDate = scanDate;
 	}
-
-=======
 	private Boolean isAccepted;
->>>>>>> origin/tabbyStar
+
 
 	public String getDocumentName() {
 		return documentName;
