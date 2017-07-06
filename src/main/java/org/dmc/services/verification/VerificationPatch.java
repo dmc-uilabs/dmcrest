@@ -18,7 +18,9 @@ public class VerificationPatch {
 	private String scanLog;
 	private String restIP;
 	private String sha256;
-	private Date scanDate;
+	private Long scanDate;
+	private String encryptionType;
+
 
     @JsonProperty("id")
 	public int getId() {
@@ -37,14 +39,23 @@ public class VerificationPatch {
 	}
 
 		@JsonProperty("scanDate")
-	public Date getScanDate() {
+	public Long getScanDate() {
 		return scanDate;
 	}
 
-	public void setScanDate(Date scanDate){
+	public void setScanDate(Long scanDate){
 		this.scanDate = scanDate;
 	}
 
+
+	@JsonProperty("encryptionType")
+public String getEncryptionType() {
+	return encryptionType;
+}
+
+public void setEncryptionType(String encryptionType){
+	this.encryptionType = encryptionType;
+}
 
 
     @JsonProperty("table")
@@ -144,6 +155,7 @@ public class VerificationPatch {
 				", restIP='" + restIP + '\'' +
 				", sha256='" + sha256 + '\'' +
 				", scanDate='" + scanDate + '\'' +
+				", encryptionType='" + encryptionType + '\'' +
 				'}';
 	}
 }

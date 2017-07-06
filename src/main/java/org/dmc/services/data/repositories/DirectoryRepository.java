@@ -10,4 +10,5 @@ public interface DirectoryRepository extends BaseRepository<Directory, Integer> 
 
 	List<Directory> findByParent(Directory parent);
 
+  Directory findById(Integer id);
 }

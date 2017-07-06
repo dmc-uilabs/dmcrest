@@ -21,7 +21,6 @@ public class VerificationPatchDao {
 	public VerificationPatch verify(VerificationPatch payload) throws DMCServiceException {
 		logger.info("Request to verify payload: {}", payload);
 
-
 		String finalURL = " ";
 		String quarantineUrl;
 		AWSConnector AWS = new AWSConnector();
@@ -37,18 +36,18 @@ public class VerificationPatchDao {
 		payload.setUrl(finalURL);
 
 		if ("document".equals(payload.getTable())) {
-			this.documentService.updateVerifiedDocument(payload.getId(), payload.getUrl(), payload.isVerified(), payload.getSha256(),payload.getScanDate());
+			this.documentService.updateVerifiedDocument(payload.getId(), payload.getUrl(), payload.isVerified(), payload.getSha256(),payload.getScanDate(),payload.getEncryptionType());
 		} else {
 			// update correct table entity return finalURL;
 
 
 			String query =
-					"UPDATE " + payload.getTable() + " SET " + payload.getUrlColumn() + " = ?, verified = ?, sha256 = ?, scan_date = ? " + "WHERE "
+					"UPDATE " + payload.getTable() + " SET " + payload.getUrlColumn() + " = ?, verified = ?, sha256 = ?, scan_date = ?, encryption_type = ? " + "WHERE "
 							+ payload.getIdColumn() + " = ?";
 
 
-			String statement = String.format("UPDATE %s SET %s = '%s', verified = %s, sha256='%s', scan_date='%s' WHERE %s = %s", payload.getTable(),
-					payload.getUrlColumn(), finalURL, payload.isVerified(), payload.getSha256(),payload.getScanDate() ,payload.getIdColumn(), payload.getId());
+			String statement = String.format("UPDATE %s SET %s = '%s', verified = %s, sha256='%s', scan_date=%s, encryption_type='%s' WHERE %s = %s", payload.getTable(),
+					payload.getUrlColumn(), finalURL, payload.isVerified(), payload.getSha256(),payload.getScanDate() ,payload.getEncryptionType(),payload.getIdColumn(), payload.getId());
 
 
 			DBConnector.jdbcTemplate().update(statement);

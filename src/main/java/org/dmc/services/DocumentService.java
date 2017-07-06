@@ -28,6 +28,8 @@ import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.notification.NotificationService;
+import org.dmc.services.projects.Project;
+import org.dmc.services.projects.ProjectDao;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
@@ -47,7 +49,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
 import javax.inject.Inject;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -102,6 +103,9 @@ public class DocumentService {
 
 	@Inject
 	private NotificationService notificationService;
+
+	@Inject
+	private ProjectDao projectDao;
 
 	private final String logTag = DocumentService.class.getName();
 
@@ -218,7 +222,12 @@ public class DocumentService {
 
 			for(Document doc : results) {
 				if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
-					returnList.add(doc);
+					Project documentParentProject = projectDao.getProject(doc.getParentId(), currentUser.getUsername());
+					if (documentParentProject.getProjectManagerId().equals(currentUser.getId())) {
+						returnList.add(doc);
+					} else if (doc.getIsAccepted()) {
+						returnList.add(doc);
+					}
 				}
 			}
 		}
@@ -247,6 +256,9 @@ public class DocumentService {
 			folder = doc.getParentType().toString();
 		}
 
+		if (doc.getIsAccepted() == null || doc.getIsAccepted().equals("")) {
+			doc.setIsAccepted(true);
+		}
 
 		Document docEntity = docMapper.mapToEntity(doc);
 
@@ -264,6 +276,10 @@ public class DocumentService {
 		}
 		docEntity.setModified(now);
 		docEntity.setVersion(0);
+
+		if (docEntity.getIsAccepted()) {
+			docEntity.setIsAccepted(true);
+		}
 
 		if (folder == "SERVICE") {
 			ServiceDao serviceDao = new ServiceDao();
@@ -310,23 +326,25 @@ public class DocumentService {
 		Assert.notNull(oldEntity);
 
 		docEntity.setExpires(oldEntity.getExpires());
-		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
 
-		docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
+		 docEntity.setModified(new Timestamp(System.currentTimeMillis()));
 
+		 if(doc.getAccessLevel()  != null && !doc.getAccessLevel().isEmpty()  ){
+			 docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
+			 this.parentDocumentService.updateParents(docEntity);
+		 }
 		docEntity = documentRepository.save(docEntity);
-		this.parentDocumentService.updateParents(docEntity);
-
 		return mapper.mapToModel(docEntity);
 	}
 
 	@Transactional
-	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified, String sha, Date scanDate) {
+	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified, String sha, Long scanDate, String encryptionType) {
 		Document document = this.documentRepository.findOne(documentId);
 		document.setDocumentUrl(verifiedUrl);
 		document.setSha256(sha);
 		document.setVerified(verified);
 		document.setScanDate(scanDate);
+		document.setEncryptionType(encryptionType);
 
 
 
@@ -336,38 +354,106 @@ public class DocumentService {
 		return document;
 	}
 
-	// public ResponseEntity shareDocument(Integer documentId, Integer userId, Boolean dmdii) {
-	// 	String documentUrl;
-	// 	String documentName;
-	//
-	// 	if (dmdii) {
-	// 		documentUrl = getDMDIIDocumentUrl(documentId);
-	// 		documentName = getDMDIIDocumentName(documentId);
-	// 	} else {
-	// 		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-	// 		User user = this.userRepository.findByUsername(userPrincipal.getUsername());
-	//
-	// 		Document document = this.documentRepository.findOne(documentId);
-	//
-	// 		if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
-	// 			throw new AccessDeniedException("User does not have permission to share document");
-	// 		}
-	//
-	// 		documentUrl = document.getDocumentUrl();
-	// 		documentName = document.getDocumentName();
-	// 	}
-	//
-	// 	User userToShareWith = this.userRepository.findOne(userId);
-	// 	String key = AWSConnector.createPath(documentUrl);
-	// 	String presignedUrl = AWSConnector.generatePresignedUrl(key,
-	// 			Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
-	//
-	// 	HashMap<String, String> params = new HashMap<String, String>();
-	// 	params.put("presignedUrl", presignedUrl);
-	// 	params.put("documentName", documentName);
-	//
-	// 	return this.emailService.sendEmail(userToShareWith, 2, params);
-	// }
+	public DocumentModel acceptDocument(Integer documentId) throws IllegalAccessException, IllegalArgumentException {
+
+		Assert.notNull(documentId);
+
+		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+		User currentUser = userRepository.findOne(
+				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+
+		Document docEntityToAccept = this.documentRepository.findOne(documentId);
+		Assert.notNull(docEntityToAccept);
+
+		DocumentModel docToAccept = mapper.mapToModel(docEntityToAccept);
+
+		Project documentParentProject = projectDao.getProject(docToAccept.getParentId(), currentUser.getUsername());
+		if (documentParentProject.getProjectManagerId().equals(currentUser.getId())) {
+			docToAccept.setIsAccepted(true);
+			return update(docToAccept);
+		} else {
+			throw new IllegalAccessException("User does not have permission to accept document.");
+		}
+	}
+
+
+	public ResponseEntity saveDocumentToWs(Integer runId, String url) {
+			String documentUrl;
+			String documentName;
+
+			String sha;
+			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+			//get the wss given its id
+			Project wss =  projectDao.getProjectById(runId);
+			Directory projectDirectory = directoryRepository.findById(wss.getDirectoryId());
+			logger.info("The directory of this ws" + wss.getDirectoryId());
+
+			Document newDoc = new Document();
+			Timestamp now = new Timestamp(System.currentTimeMillis());
+
+			newDoc.setOwner(user);
+			newDoc.setIsDeleted(false);
+			newDoc.setModified(now);
+			newDoc.setExpires(now);
+			newDoc.setVersion(0);
+			newDoc.setDocumentName("Service Run Output");
+		 	newDoc.setDocumentUrl(url);
+			newDoc.setParentType(DocumentParentType.PROJECT);
+		  newDoc.setResourceType(ResourceType.DOCUMENT);
+			newDoc.setSha256("NO SHA EXISTS");
+			newDoc.setDirectory(projectDirectory);
+			newDoc.setParentId(runId);
+
+			newDoc.setDocClass(DocumentClass.SUPPORT);
+			newDoc.setVerified(true);
+
+			newDoc = documentRepository.save(newDoc);
+
+			newDoc.setBaseDocId(newDoc.getId());
+
+			newDoc = documentRepository.save(newDoc);
+
+			return new ResponseEntity<String>("{\"message\":\"Document was shared with workspace  \"}", HttpStatus.OK);
+
+		}
+
+
+
+
+	public ResponseEntity shareDocumentInWs(Integer documentId, Integer wsId) {
+			String documentUrl;
+			String documentName;
+			Document document;
+			String sha;
+			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+
+
+
+				document = this.documentRepository.findOne(documentId);
+				if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
+					throw new AccessDeniedException("User does not have permission to share document");
+				}
+
+				sha = document.getSha256();
+				documentUrl = document.getDocumentUrl();
+				documentName = document.getDocumentName();
+
+
+
+				List<Integer> docIds = new ArrayList<Integer>();
+				docIds.add(documentId);
+	  //
+				Project wss =  projectDao.getProjectById(wsId);
+				User shareWith = this.userRepository.findOne(wss.getProjectManagerId());
+				 cloneDocuments (docIds, wsId, shareWith.getUsername(), wss.getDirectoryId()  );
+			return new ResponseEntity<String>("{\"message\":\"Document ddd "+documentName+"shared with workspace "+wss.getProjectManagerId()+" \"}", HttpStatus.OK);
+				}
+
+
+
+
 
 	public ResponseEntity shareDocument(Integer documentId, String userIdentifier, Boolean internal, Boolean dmdii, Boolean email) {
 		String documentUrl;
@@ -395,9 +481,7 @@ public class DocumentService {
 
 		User userToShareWith;
 
-
-		String key = AWSConnector.createPath(documentUrl);
-		String presignedUrl = AWSConnector.generatePresignedUrl(key,
+		String presignedUrl = AWSConnector.generatePresignedUrl(documentUrl,
 		Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
 
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -446,7 +530,11 @@ public class DocumentService {
 			projectMembers.addAll(document.getDmdiiProject().getContributingCompanies());
 
 			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
-			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds)) {
+
+			User currentUser = userRepository.findOne(
+					((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+
+			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds, currentUser)) {
 				throw new AccessDeniedException("User does not have permission to share document");
 			}
 		}
@@ -625,45 +713,59 @@ public class DocumentService {
 		return documents;
 	}
 
-	public List<DocumentModel> cloneDocuments (List<Integer> docIds, Integer newParentId, String userEPPN) {
-		Assert.notNull(newParentId);
-		Assert.isTrue(CollectionUtils.isNotEmpty(docIds));
-		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+	public List<DocumentModel> cloneDocuments (List<Integer> docIds, Integer newParentId, String userEPPN, Integer directoryId) {
+			Assert.notNull(newParentId);
+			Assert.isTrue(CollectionUtils.isNotEmpty(docIds));
+			Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 
-		User newOwner = userRepository.findByUsername(userEPPN);
-		List<Document> newDocs = new ArrayList<>();
+			User newOwner = userRepository.findByUsername(userEPPN);
+			List<Document> newDocs = new ArrayList<>();
 
-		for (Integer docId : docIds) {
-			Document oldDoc = documentRepository.findOne(docId);
-			Document newDoc = new Document();
-			List<DocumentTag> newTags = new ArrayList<>();
+			for (Integer docId : docIds) {
+				Document oldDoc = documentRepository.findOne(docId);
+				Document newDoc = new Document();
+				List<DocumentTag> newTags = new ArrayList<>();
 
-			Timestamp now = new Timestamp(System.currentTimeMillis());
+				Timestamp now = new Timestamp(System.currentTimeMillis());
 
-			newDoc.setOwner(newOwner);
-			newDoc.setExpires(oldDoc.getExpires());
-			newDoc.setIsDeleted(false);
-			newDoc.setIsPublic(oldDoc.getIsPublic());
-			newDoc.setModified(now);
-			newDoc.setVersion(0);
-			newDoc.setDocClass(oldDoc.getDocClass());
-			newDoc.setDocumentName(oldDoc.getDocumentName());
-			newDoc.setDocumentUrl(oldDoc.getDocumentUrl());
-			newDoc.setParentType(oldDoc.getParentType());
-			newDoc.setResourceType(oldDoc.getResourceType());
-			for (DocumentTag tag : oldDoc.getTags()) {
-				newTags.add(tag);
+				newDoc.setOwner(newOwner);
+				newDoc.setExpires(oldDoc.getExpires());
+				newDoc.setSha256(oldDoc.getSha256());
+				newDoc.setIsDeleted(false);
+				if(directoryId==0){
+					newDoc.setDirectory(oldDoc.getDirectory());
+				}else{
+
+					Directory directory = directoryRepository.findOne(directoryId);
+					newDoc.setDirectory(directory);
+				}
+
+				newDoc.setVerified(oldDoc.getVerified());
+				newDoc.setSha256(oldDoc.getSha256());
+				newDoc.setIsPublic(oldDoc.getIsPublic());
+				newDoc.setModified(now);
+				newDoc.setVersion(0);
+				newDoc.setDocClass(oldDoc.getDocClass());
+				newDoc.setDocumentName(oldDoc.getDocumentName());
+				newDoc.setDocumentUrl(oldDoc.getDocumentUrl());
+				newDoc.setParentType(oldDoc.getParentType());
+				newDoc.setResourceType(oldDoc.getResourceType());
+				for (DocumentTag tag : oldDoc.getTags()) {
+					newTags.add(tag);
+				}
+				newDoc.setTags(newTags);
+
+				newDoc.setParentId(newParentId);
+
+				newDoc = documentRepository.save(newDoc);
+				newDoc.setBaseDocId(newDoc.getId());
+				newDoc = documentRepository.save(newDoc);
+
+				newDocs.add(newDoc);
 			}
-			newDoc.setTags(newTags);
 
-			newDoc.setParentId(newParentId);
-
-			newDoc = documentRepository.save(newDoc);
-			newDocs.add(newDoc);
+			return mapper.mapToModel(newDocs);
 		}
-
-		return mapper.mapToModel(newDocs);
-	}
 
 	public List<DocumentModel> getVersions (Integer docId, String userEPPN) throws IllegalAccessException {
 		Assert.notNull(docId);
