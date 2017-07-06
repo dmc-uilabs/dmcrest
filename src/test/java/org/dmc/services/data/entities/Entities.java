@@ -54,7 +54,7 @@ public class Entities {
 		dmdiiProject.setEndDate(format.parse("2017/01/01"));
 		dmdiiProject.setProjectTitle(PROJECT_TITLE);
 		dmdiiProject.setProjectSummary(PROJECT_SUMMARY);
-		dmdiiProject.setPrincipalPointOfContact(dmdiiProjectContact2());
+		dmdiiProject.setPrincipalPointOfContact(user());
 		dmdiiProject.setProjectFocusArea(projectFocusArea());
 		dmdiiProject.setProjectThrust(projectThrust());
 		dmdiiProject.setContributingCompanies(contributingCompanies);
@@ -81,7 +81,7 @@ public class Entities {
 		dmdiiProject.setEndDate(format.parse("2016/01/01"));
 		dmdiiProject.setProjectTitle(PROJECT_TITLE);
 		dmdiiProject.setProjectSummary(PROJECT_SUMMARY);
-		dmdiiProject.setPrincipalPointOfContact(dmdiiProjectContact2());
+		dmdiiProject.setPrincipalPointOfContact(user());
 		dmdiiProject.setProjectFocusArea(projectFocusArea());
 		dmdiiProject.setProjectThrust(projectThrust());
 		dmdiiProject.setContributingCompanies(contributingCompanies);
@@ -108,7 +108,7 @@ public class Entities {
 		dmdiiProject.setEndDate(format.parse("2017/01/01"));
 		dmdiiProject.setProjectTitle(PROJECT_TITLE);
 		dmdiiProject.setProjectSummary(PROJECT_SUMMARY);
-		dmdiiProject.setPrincipalPointOfContact(dmdiiProjectContact2());
+		dmdiiProject.setPrincipalPointOfContact(user());
 		dmdiiProject.setProjectFocusArea(projectFocusArea());
 		dmdiiProject.setProjectThrust(projectThrust());
 		dmdiiProject.setContributingCompanies(contributingCompanies);

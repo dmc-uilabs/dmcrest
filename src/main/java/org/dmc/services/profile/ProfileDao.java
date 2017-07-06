@@ -562,6 +562,7 @@ public class ProfileDao {
                 + "concat('project.php#/',s.project_id, '/services/', s.service_id,'/detail') as link "
                 + "from service s "
                 + "where s.release_date is not null "
+                + "and s.project_id != 0 "
                 + "and owner_id = " + userid + " ";
         return query;
     }
@@ -573,6 +574,7 @@ public class ProfileDao {
                 + "concat('project.php#/',s.project_id, '/services/', s.service_id,'/detail') as link "
                 + "from service s, service_run sr "
                 + "where s.service_id = sr.service_id "
+                + "and s.project_id != 0 "
                 + "and sr.start_date is not null "
                 + "and run_by = " + userid + " ";
         return query;
@@ -585,6 +587,7 @@ public class ProfileDao {
                 + "concat('project.php#/',s.project_id, '/services/', s.service_id,'/detail') as link "
                 + "from service s, service_run sr "
                 + "where s.service_id = sr.service_id "
+                + "and s.project_id != 0 "
                 + "and sr.stop_date is not null "
                 + "and run_by = " + userid + " ";
         return query;
