@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 public interface NotificationRepository extends BaseRepository<Notification, Integer> {
 
 	@Modifying
-	@Query("update Notification n set n.unread = 'false' where n.createdFor.id = :userId")
+	@Query("update Notification n set n.unread = 'false', is_deleted = 'true' where n.createdFor.id = :userId")
 	void markAllNotificationsReadForUser(@Param("userId") Integer userId);
 
 	@Modifying
