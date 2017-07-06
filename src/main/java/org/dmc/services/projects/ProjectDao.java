@@ -80,7 +80,7 @@ public class ProjectDao {
                   resultSet = preparedStatement.executeQuery();
                   while (resultSet.next()) {
                       Project project = readProjectIdandTitleFromResultSet(resultSet);
-                      ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
+                      //ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                       projects.add(project);
                   }
 
@@ -214,7 +214,7 @@ public class ProjectDao {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Project project = readProjectInfoFromResultSet(resultSet);
-                ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
+                //ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                 projects.add(project);
             }
         }
@@ -275,7 +275,7 @@ public class ProjectDao {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Project project = readProjectInfoFromResultSet(resultSet);
-                ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
+                //ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                 projects.add(project);
             }
         }
