@@ -1,11 +1,5 @@
 package org.dmc.services.notification;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.UserService;
 import org.dmc.services.data.entities.Notification;
@@ -17,8 +11,14 @@ import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.NotificationRepository;
 import org.dmc.services.exceptions.InvalidOrganizationUserException;
+import org.dmc.services.projects.ProjectDao;
 import org.dmc.services.security.SecurityRoles;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -35,6 +35,9 @@ public class NotificationService {
 
 	@Inject
 	private MapperFactory mapperFactory;
+
+	@Inject
+	private ProjectDao projectDao;
 
 	@Transactional
 	public void markAllNotificationsReadForUser(Integer userId) {
@@ -61,7 +64,7 @@ public class NotificationService {
 		for (UserModel admin : orgAdmins) {
 			Notification notification = new Notification();
 			notification.setType(NotificationType.NEW_USER_JOINED_ORGANIZATION);
-			notification.setMessage(user.getRealname() + " has requested to join your organization");
+			notification.setMessage("Requested to join your organization.");
 			notification.setCreatedBy(user);
 			notification.setCreatedFor(userMapper.mapToEntity(admin));
 			notifications.add(notification);
@@ -93,7 +96,7 @@ public class NotificationService {
 		for (UserModel admin : orgAdmins) {
 			Notification notification = new Notification();
 			notification.setType(NotificationType.USER_REQUESTS_VERIFICATION);
-			notification.setMessage(user.getRealname() + " has requested to be verified as a member of your organization");
+			notification.setMessage("Requested to be verified.");
 			notification.setCreatedBy(user);
 			notification.setCreatedFor(userMapper.mapToEntity(admin));
 			notifications.add(notification);
@@ -106,6 +109,27 @@ public class NotificationService {
 
 		Notification notification = new Notification();
 		notification.setType(NotificationType.DOCUMENT_SHARED);
+		notification.setMessage(documentUrl);
+		notification.setCreatedBy(sender);
+		notification.setCreatedFor(recipient);
+
+		notificationRepository.save(notification);
+	}
+
+
+	public void notifyInviteToWorkspace(User sender, User recipient, String projectId){
+		Notification notification = new Notification();
+		notification.setType(NotificationType.INVITATION_TO_WORKSPACE);
+		notification.setMessage("project.php#/preview/"+projectId);
+		notification.setCreatedBy(sender);
+		notification.setCreatedFor(recipient);
+		notificationRepository.save(notification);
+	}
+
+	public void createForSharedDocumentWithWorkspace(User sender, User recipient, String documentUrl) {
+		Notification notification = new Notification();
+
+		notification.setType(NotificationType.DOCUMENT_SHARED_WITH_WORKSPACE);
 		notification.setMessage(documentUrl);
 		notification.setCreatedBy(sender);
 		notification.setCreatedFor(recipient);
