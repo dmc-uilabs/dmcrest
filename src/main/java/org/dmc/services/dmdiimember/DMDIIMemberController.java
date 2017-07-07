@@ -94,8 +94,8 @@ public class DMDIIMemberController {
 																@RequestParam("pageSize") Integer pageSize,
 																@RequestParam("name") String name) {
 		ServiceLogger.log(logTag, "In findMembersByName: " + name + " as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-		List<? extends BaseModel> results = dmdiiMemberService.findByName(name, page, pageSize);
-		Long count = dmdiiMemberService.countByName(name);
+		List<? extends BaseModel> results = dmdiiMemberService.findByNameOrTags(name, page, pageSize);
+		Long count = dmdiiMemberService.countByNameOrTags(name);
 		return new PagedResponse(count, results);
 	}
 

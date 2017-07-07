@@ -1,15 +1,10 @@
 package org.dmc.services.dmdiimember;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
+import com.mysema.query.BooleanBuilder;
+import com.mysema.query.jpa.JPASubQuery;
+import com.mysema.query.types.ExpressionUtils;
+import com.mysema.query.types.Predicate;
+import com.mysema.query.types.query.ListSubQuery;
 import org.apache.commons.lang3.BooleanUtils;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIMemberEvent;
@@ -32,11 +27,14 @@ import org.dmc.services.recentupdates.RecentUpdateController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.mysema.query.BooleanBuilder;
-import com.mysema.query.jpa.JPASubQuery;
-import com.mysema.query.types.ExpressionUtils;
-import com.mysema.query.types.Predicate;
-import com.mysema.query.types.query.ListSubQuery;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class DMDIIMemberService {
@@ -66,13 +64,13 @@ public class DMDIIMemberService {
 		return mapper.mapToModel(dmdiiMemberDao.findAll());
 	}
 
-	public List<DMDIIMemberModel> findByName(String name, Integer pageNumber, Integer pageSize) {
+	public List<DMDIIMemberModel> findByNameOrTags(String name, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		return mapper.mapToModel(dmdiiMemberDao.findByOrganizationNameLikeIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%").getContent());
+		return mapper.mapToModel(dmdiiMemberDao.findDistinctByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%", name, name).getContent());
 	}
 
-	public Long countByName(String name) {
-		return dmdiiMemberDao.countByOrganizationNameLikeIgnoreCase("%"+name+"%");
+	public Long countByNameOrTags(String name) {
+		return dmdiiMemberDao.countDistinctByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase("%"+name+"%", name, name);
 	}
 
 	@Transactional
