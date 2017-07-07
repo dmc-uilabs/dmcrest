@@ -66,11 +66,11 @@ public class DMDIIMemberService {
 
 	public List<DMDIIMemberModel> findByNameOrTags(String name, Integer pageNumber, Integer pageSize) {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		return mapper.mapToModel(dmdiiMemberDao.findByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%", name, name).getContent());
+		return mapper.mapToModel(dmdiiMemberDao.findDistinctByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%", name, name).getContent());
 	}
 
 	public Long countByNameOrTags(String name) {
-		return dmdiiMemberDao.countByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase("%"+name+"%", name, name);
+		return dmdiiMemberDao.countDistinctByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase("%"+name+"%", name, name);
 	}
 
 	@Transactional
