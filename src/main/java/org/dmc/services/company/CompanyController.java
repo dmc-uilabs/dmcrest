@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.xml.ws.http.HTTPException;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
@@ -18,6 +20,7 @@ import org.dmc.services.reviews.ReviewType;
 import org.dmc.services.services.Service;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.users.User;
+import org.dmc.services.utils.RestViews;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,7 +46,28 @@ public class CompanyController {
      **/
     @RequestMapping(value = "/companies", method = RequestMethod.GET, produces = {APPLICATION_JSON_VALUE})
     public ResponseEntity getCompanies(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
-        ServiceLogger.log(logTag, "getCompanys, userEPPN: " + userEPPN);
+        ServiceLogger.log(logTag, "getCompanies, userEPPN: " + userEPPN);
+        int statusCode = HttpStatus.OK.value();
+        ArrayList<Company> companies = null;
+
+        try {
+            companies = companyDao.getCompanies(userEPPN);
+            return new ResponseEntity<ArrayList<Company>>(companies, HttpStatus.valueOf(statusCode));
+        } catch (HTTPException e) {
+            ServiceLogger.log(logTag, e.getMessage());
+            statusCode = e.getStatusCode();
+            ErrorMessage error = new ErrorMessage.ErrorMessageBuilder(e.getMessage()).build();
+            return new ResponseEntity<ErrorMessage>(error, HttpStatus.valueOf(statusCode));
+        }
+    }
+
+    /**
+     Return a list of companies (only id, accountId, & name)
+     **/
+    @JsonView(RestViews.CompaniesShortView.class)
+    @RequestMapping(value = "/companies/short", method = RequestMethod.GET, produces = {APPLICATION_JSON_VALUE})
+    public ResponseEntity getCompaniesShort(@RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) {
+        ServiceLogger.log(logTag, "getCompaniesShort, userEPPN: " + userEPPN);
         int statusCode = HttpStatus.OK.value();
         ArrayList<Company> companies = null;
 
