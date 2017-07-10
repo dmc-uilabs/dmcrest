@@ -4,6 +4,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
 import org.dmc.services.ErrorMessage;
+import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
@@ -135,9 +136,9 @@ public class DocumentController {
 	
 	@JsonView(RestViews.SDocumentsView.class)
 	@RequestMapping(value = "/documents/s_versions/{baseDocId}", method = RequestMethod.GET)
-	public List<DocumentModel> getVersionsS(@PathVariable("baseDocId") Integer baseDocId,
+	public List<Document> getVersionsS(@PathVariable("baseDocId") Integer baseDocId,
 			@RequestHeader(value = "AJP_eppn") String userEPPN) throws IllegalAccessException {
-		return this.documentService.getVersions(baseDocId, userEPPN);
+		return this.documentService.getS_Versions(baseDocId, userEPPN);
 	}
 
 	@RequestMapping(value = "/documents", method = RequestMethod.PUT)
