@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import org.dmc.services.ServiceLogger;
+import org.apache.commons.lang3.StringUtils;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DomeServerService;
@@ -50,7 +51,12 @@ public class DomeAPIController {
 			DomeEntity domeEntity = new DomeEntity();
 			domeEntity.setDateModified(dateModified);
 			domeEntity.setDescription(description);
-			domeEntity.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
+			//If it's the ID instead of the URL
+			if(StringUtils.isNumeric(domeServer)) {
+				domeEntity.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
+			} else {
+				domeEntity.setDomeServer(domeServer);
+			}
 			domeEntity.setModelId(modelId);
 			domeEntity.setName(name);
 			domeEntity.setPath(path);
@@ -86,7 +92,12 @@ public class DomeAPIController {
 			DomeModel domeModel = new DomeModel();
 			domeModel.setProjectId(projectId);
 			domeModel.setInterfaceId(interfaceId);
-			domeModel.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
+			//If it's the ID instead of the URL
+			if(StringUtils.isNumeric(domeServer)) {
+				domeModel.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
+			} else {
+				domeModel.setDomeServer(domeServer);
+			}
 			domeModel.setModelId(modelId);
 			domeModel.setName(name);
 			domeModel.setPath(path);
