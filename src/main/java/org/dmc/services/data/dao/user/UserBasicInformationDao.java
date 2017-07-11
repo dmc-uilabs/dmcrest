@@ -74,7 +74,7 @@ public class UserBasicInformationDao {
 			query += " WHERE user_name = ?";
 
 			//ServiceLogger.log(logTag, "update user query: " + query);
-			
+
 			statement = DBConnector.prepareStatement(query, statement.RETURN_GENERATED_KEYS);
 			for (int i = 0; i < setKeys.size(); i++) {
 				statement.setString(i + 1, json.getString(setKeys.get(i)));
@@ -92,7 +92,7 @@ public class UserBasicInformationDao {
 			}
 
 			return new Id.IdBuilder(id).build();
-			
+
 		} /*catch (IOException e) {
 			ServiceLogger.log(logTag, e.getMessage());
 			return new Id.IdBuilder(id).build();
@@ -130,4 +130,30 @@ public class UserBasicInformationDao {
 			}
 		}
 	}
+
+	public Id userAcceptTermsAndConditions(String userEPPN) {
+		int id = -99999;
+		Connection connection = DBConnector.connection();
+
+		try {
+			String query = "UPDATE users SET accept_term_cond_time = now() WHERE user_name = ?";
+			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
+			preparedStatement.setString(1, userEPPN);
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			ServiceLogger.log(logTag, e.getMessage());
+			if (connection != null) {
+				try {
+					ServiceLogger.log(logTag, "Accept terms and conditions update rolled back");
+					connection.rollback();
+				} catch (SQLException ex) {
+					ServiceLogger.log(logTag, ex.getMessage());
+				}
+			}
+		}
+
+		return new Id.IdBuilder(id).build();
+
+	}
+
 }
