@@ -284,7 +284,7 @@ public class DMDIIDocumentService {
 
 		for (DMDIIDocument document : documents) {
 			try {
-				String path = AWSConnector.createPath(document.getDocumentUrl());
+				String path = AWSConnector.returnKeyNameFromURL(document.getDocumentUrl());
 				String newURL = AWSConnector.refreshURL(path);
 
 				LocalDateTime nextMonth = LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1);

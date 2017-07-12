@@ -1,5 +1,6 @@
 package org.dmc.services;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,13 +36,17 @@ import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.verification.Verification;
+import org.dmc.services.ServiceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
@@ -49,7 +54,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.inject.Inject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -67,6 +79,7 @@ import java.util.stream.Collectors;
 public class DocumentService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
+	private final String logTag = DocumentService.class.getName();
 
 	@Inject
 	private DocumentRepository documentRepository;
@@ -107,11 +120,10 @@ public class DocumentService {
 	@Inject
 	private ProjectDao projectDao;
 
-	private final String logTag = DocumentService.class.getName();
-
 	private Verification verify = new Verification();
 
-	public List<DocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize, String userEPPN) throws InvalidFilterParameterException, DMCServiceException {
+	public List<DocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize, String userEPPN)
+			throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User owner = userRepository.findByUsername(userEPPN);
 
@@ -119,12 +131,15 @@ public class DocumentService {
 		List<Document> results;
 		List<Document> returnList = new ArrayList<>();
 
-		results = documentRepository.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "modified")))).getContent();
+		results = documentRepository
+				.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "modified"))))
+				.getContent();
 
-		if (results.size() == 0) return null;
-		//check for access
-		//superadmin's see everything
-		if(owner.getRoles().stream().anyMatch(r->r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
+		if (results.size() == 0)
+			return null;
+		// check for access
+		// superadmin's see everything
+		if (owner.getRoles().stream().anyMatch(r -> r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
 			List<DocumentModel> returnModels = mapper.mapToModel(pagify(results, pageNumber, pageSize));
 			for (DocumentModel d : returnModels) {
 				if (hasVersions(d.getId())) {
@@ -136,14 +151,15 @@ public class DocumentService {
 			return returnModels;
 		}
 
-		for(Document doc : results) {
-			//check for access
+		for (Document doc : results) {
+			// check for access
 			if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, owner)) {
 				returnList.add(doc);
 			}
 		}
 
-		if (returnList.size() == 0) return null;
+		if (returnList.size() == 0)
+			return null;
 
 		List<DocumentModel> returnModels = mapper.mapToModel(pagify(returnList, pageNumber, pageSize));
 
@@ -169,12 +185,12 @@ public class DocumentService {
 
 		List<Document> returnList = new ArrayList<Document>(docs);
 		if (lowerUpperBound != 0) {
-			//clear the low end
+			// clear the low end
 			returnList.subList(0, lowerUpperBound).clear();
 		}
 
 		if (upperLowerBound < returnList.size()) {
-			//clear the upper end
+			// clear the upper end
 			returnList.subList(upperLowerBound, returnList.size()).clear();
 		}
 
@@ -192,17 +208,42 @@ public class DocumentService {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		List<Document> docList = Collections.singletonList(documentRepository.findOne(documentId));
 
-		if (docList.size() == 0) return null;
+		if (docList.size() == 0)
+			return null;
 
-		DocumentModel retModel =mapper.mapToModel(docList.get(0));
+		DocumentModel retModel = mapper.mapToModel(docList.get(0));
 
-		if(hasVersions(retModel.getId())) {
+		if (hasVersions(retModel.getId())) {
 			retModel.setHasVersions(true);
 		} else {
 			retModel.setHasVersions(false);
 		}
 
 		return retModel;
+	}
+
+	public ResponseEntity downloadFile(Integer docId) throws DMCServiceException {
+		Assert.notNull(docId);
+		ResponseEntity response = null;
+
+		Document doc = documentRepository.findOne(docId);
+
+		if (doc != null) {
+			S3Object s3Document = AWSConnector.getS3Document(doc.getDocumentUrl());
+			InputStreamResource in = new InputStreamResource(s3Document.getObjectContent());
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.add("Content-Disposition", "attachment; filename=" + doc.getDocumentName());
+			headers.add("Content-Type", (s3Document.getObjectMetadata().getContentType()));
+			headers.setContentLength(s3Document.getObjectMetadata().getContentLength());
+
+			return new ResponseEntity<InputStreamResource>(in, headers, HttpStatus.OK);
+		} else {
+			logger.warn("Document not found.");
+			response = new ResponseEntity<String>("Document not found.", HttpStatus.NO_CONTENT);
+		}
+
+		return response;
 	}
 
 	public List<DocumentModel> findByDirectory(Integer directoryId) {
@@ -214,14 +255,17 @@ public class DocumentService {
 		List<Document> returnList = new ArrayList<>();
 
 		Directory directory = directoryRepository.findOne(directoryId);
-		if(directory != null) {
+		if (directory != null) {
 			Predicate baseDocsOnly = QDocument.document.version.eq(0);
 			Predicate byDirectory = QDocument.document.directory().eq(directory);
 			Predicate where = ExpressionUtils.allOf(baseDocsOnly, byDirectory);
-			results = documentRepository.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "modified")))).getContent();
+			results = documentRepository
+					.findAll(where,
+							new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "modified"))))
+					.getContent();
 
-			for(Document doc : results) {
-				if(resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
+			for (Document doc : results) {
+				if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
 					Project documentParentProject = projectDao.getProject(doc.getParentId(), currentUser.getUsername());
 					if (documentParentProject.getProjectManagerId().equals(currentUser.getId())) {
 						returnList.add(doc);
@@ -232,7 +276,8 @@ public class DocumentService {
 			}
 		}
 
-		if (returnList.size() == 0) return null;
+		if (returnList.size() == 0)
+			return null;
 
 		List<DocumentModel> returnModels = documentMapper.mapToModel(returnList);
 
@@ -262,7 +307,7 @@ public class DocumentService {
 
 		Document docEntity = docMapper.mapToEntity(doc);
 
-		//thirty days in milliseconds
+		// thirty days in milliseconds
 		Long duration = 1000L * 60L * 60L * 24L * 30L;
 
 		Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -295,8 +340,9 @@ public class DocumentService {
 		docEntity = documentRepository.save(docEntity);
 
 		logger.debug("Attempting to verify document");
-		//Verify the document
-		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document", docEntity.getOwner().getUsername(), folder, "Documents", "id", "url");
+		// Verify the document
+		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document",
+				docEntity.getOwner().getUsername(), folder, "Documents", "id", "url");
 		logger.debug("Verification Machine Response: " + temp);
 
 		return docMapper.mapToModel(docEntity);
@@ -327,25 +373,24 @@ public class DocumentService {
 
 		docEntity.setExpires(oldEntity.getExpires());
 
-		 docEntity.setModified(new Timestamp(System.currentTimeMillis()));
+		docEntity.setModified(new Timestamp(System.currentTimeMillis()));
 
-		 if(doc.getAccessLevel()  != null && !doc.getAccessLevel().isEmpty()  ){
-			 docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
-			 this.parentDocumentService.updateParents(docEntity);
-		 }
+		if (doc.getAccessLevel() != null && !doc.getAccessLevel().isEmpty()) {
+			docEntity = resourceGroupService.updateDocumentResourceGroups(docEntity, doc.getAccessLevel());
+			this.parentDocumentService.updateParents(docEntity);
+		}
 		docEntity = documentRepository.save(docEntity);
 		return mapper.mapToModel(docEntity);
 	}
 
 	@Transactional
-	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified, String sha, Date scanDate) {
+	public Document updateVerifiedDocument(Integer documentId, String verifiedUrl, boolean verified, String sha,
+			Date scanDate) {
 		Document document = this.documentRepository.findOne(documentId);
 		document.setDocumentUrl(verifiedUrl);
 		document.setSha256(sha);
 		document.setVerified(verified);
 		document.setScanDate(scanDate);
-
-
 
 		this.documentRepository.save(document);
 		this.parentDocumentService.updateParents(document);
@@ -375,91 +420,91 @@ public class DocumentService {
 		}
 	}
 
-
 	public ResponseEntity saveDocumentToWs(Integer runId, String url) {
-			String documentUrl;
-			String documentName;
+		String documentUrl;
+		String documentName;
 
-			String sha;
-			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
-			//get the wss given its id
-			Project wss =  projectDao.getProjectById(runId);
-			Directory projectDirectory = directoryRepository.findById(wss.getDirectoryId());
-			logger.info("The directory of this ws" + wss.getDirectoryId());
+		String sha;
+		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+		// get the wss given its id
+		Project wss = projectDao.getProjectById(runId);
+		Directory projectDirectory = directoryRepository.findById(wss.getDirectoryId());
+		logger.info("The directory of this ws" + wss.getDirectoryId());
 
-			Document newDoc = new Document();
-			Timestamp now = new Timestamp(System.currentTimeMillis());
+		Document newDoc = new Document();
+		Timestamp now = new Timestamp(System.currentTimeMillis());
 
-			newDoc.setOwner(user);
-			newDoc.setIsDeleted(false);
-			newDoc.setModified(now);
-			newDoc.setExpires(now);
-			newDoc.setVersion(0);
-			newDoc.setDocumentName("Service Run Output");
-		 	newDoc.setDocumentUrl(url);
-			newDoc.setParentType(DocumentParentType.PROJECT);
-		  newDoc.setResourceType(ResourceType.DOCUMENT);
-			newDoc.setSha256("NO SHA EXISTS");
-			newDoc.setDirectory(projectDirectory);
-			newDoc.setParentId(runId);
+		newDoc.setOwner(user);
+		newDoc.setIsDeleted(false);
+		newDoc.setModified(now);
+		newDoc.setExpires(now);
+		newDoc.setVersion(0);
+		newDoc.setDocumentName("Service Run Output");
+		newDoc.setDocumentUrl(url);
+		newDoc.setParentType(DocumentParentType.PROJECT);
+		newDoc.setResourceType(ResourceType.DOCUMENT);
+		newDoc.setSha256("NO SHA EXISTS");
+		newDoc.setDirectory(projectDirectory);
+		newDoc.setParentId(runId);
 
-			newDoc.setDocClass(DocumentClass.SUPPORT);
-			newDoc.setVerified(true);
+		newDoc.setDocClass(DocumentClass.SUPPORT);
+		newDoc.setVerified(true);
 
-			newDoc = documentRepository.save(newDoc);
+		newDoc = documentRepository.save(newDoc);
 
-			newDoc.setBaseDocId(newDoc.getId());
+		newDoc.setBaseDocId(newDoc.getId());
 
-			newDoc = documentRepository.save(newDoc);
+		newDoc = documentRepository.save(newDoc);
 
-			return new ResponseEntity<String>("{\"message\":\"Document was shared with workspace  \"}", HttpStatus.OK);
+		return new ResponseEntity<String>("{\"message\":\"Document was shared with workspace  \"}", HttpStatus.OK);
 
-		}
-
-
+	}
 
 
 	public ResponseEntity shareDocumentInWs(Integer documentId, Integer wsId) {
-			String documentUrl;
-			String documentName;
-			Document document;
-			String sha;
-			UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			User user = this.userRepository.findByUsername(userPrincipal.getUsername());
-
-
-
-				document = this.documentRepository.findOne(documentId);
-				if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
-					throw new AccessDeniedException("User does not have permission to share document");
-				}
-
-				sha = document.getSha256();
-				documentUrl = document.getDocumentUrl();
-				documentName = document.getDocumentName();
-
-
-
-				List<Integer> docIds = new ArrayList<Integer>();
-				docIds.add(documentId);
-	  //
-				Project wss =  projectDao.getProjectById(wsId);
-				User shareWith = this.userRepository.findOne(wss.getProjectManagerId());
-				 cloneDocuments (docIds, wsId, shareWith.getUsername(), wss.getDirectoryId()  );
-			return new ResponseEntity<String>("{\"message\":\"Document ddd "+documentName+"shared with workspace "+wss.getProjectManagerId()+" \"}", HttpStatus.OK);
-				}
-
-
-
-
-
-	public ResponseEntity shareDocument(Integer documentId, String userIdentifier, Boolean internal, Boolean dmdii, Boolean email) {
 		String documentUrl;
 		String documentName;
 		Document document;
 		String sha;
+
 		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+
+
+		document = this.documentRepository.findOne(documentId);
+		if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
+			throw new AccessDeniedException("User does not have permission to share document");
+		}
+
+		sha = document.getSha256();
+		documentUrl = document.getDocumentUrl();
+		documentName = document.getDocumentName();
+
+		List<Integer> docIds = new ArrayList<Integer>();
+		docIds.add(documentId);
+		//
+		Project wss = projectDao.getProjectById(wsId);
+		User shareWith = this.userRepository.findOne(wss.getProjectManagerId());
+		cloneDocuments(docIds, wsId, shareWith.getUsername(), wss.getDirectoryId());
+
+		String url = "/project.php#/" + wsId + "/documents";
+
+		notificationService.createForSharedDocumentWithWorkspace(user, shareWith, url);
+
+		ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", documentName: " + documentName + " as user " + userPrincipal.getUsername() + " with workspaceId: " + wsId);
+		return new ResponseEntity<String>("{\"message\":\"Document ddd "+documentName+"shared with workspace "+wss.getProjectManagerId()+" \"}", HttpStatus.OK);
+	}
+
+	public ResponseEntity shareDocument(Integer documentId, String userIdentifier, Boolean internal, Boolean dmdii,
+			Boolean email) {
+		String documentUrl;
+		String documentName;
+		Document document;
+		String sha;
+		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
 		User user = this.userRepository.findByUsername(userPrincipal.getUsername());
 
 		if (dmdii) {
@@ -481,7 +526,7 @@ public class DocumentService {
 		User userToShareWith;
 
 		String presignedUrl = AWSConnector.generatePresignedUrl(documentUrl,
-		Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
+				Date.from(LocalDate.now().plusDays(7).atStartOfDay().toInstant(ZoneOffset.UTC)));
 
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("presignedUrl", presignedUrl);
@@ -495,13 +540,14 @@ public class DocumentService {
 				this.emailService.sendEmail(userToShareWith, 2, params);
 			}
 			notificationService.createForSharedDocument(user, userToShareWith, presignedUrl);
+			ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", documentName: " + documentName + " as user " + user.getUsername() + " with " + userToShareWith.getRealname());
 			return new ResponseEntity<String>("{\"message\":\"Document shared\"}", HttpStatus.OK);
 		} else {
 			userToShareWith = new User();
 			userToShareWith.setFirstName(userIdentifier);
 			userToShareWith.setLastName("");
 			userToShareWith.setEmail(userIdentifier);
-
+			ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", documentName: " + documentName + " as user " + user.getUsername() + " with " + userIdentifier);
 			return this.emailService.sendEmail(userToShareWith, 2, params);
 		}
 	}
@@ -528,19 +574,22 @@ public class DocumentService {
 			projectMembers.add(document.getDmdiiProject().getPrimeOrganization());
 			projectMembers.addAll(document.getDmdiiProject().getContributingCompanies());
 
-			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
+			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId())
+					.collect(Collectors.toList());
 
 			User currentUser = userRepository.findOne(
 					((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
 
-			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(), projectMemberIds, currentUser)) {
+			if (!PermissionEvaluationHelper.userMeetsProjectAccessRequirement(document.getAccessLevel(),
+					projectMemberIds, currentUser)) {
 				throw new AccessDeniedException("User does not have permission to share document");
 			}
 		}
 		return document;
 	}
 
-	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner) throws InvalidFilterParameterException {
+	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams, User owner)
+			throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<>();
 
 		Predicate baseDocsOnly = QDocument.document.version.eq(0);
@@ -555,7 +604,8 @@ public class DocumentService {
 	}
 
 	public List<DocumentTagModel> getAllTags() {
-		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class, DocumentTagModel.class);
+		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class,
+				DocumentTagModel.class);
 		return tagMapper.mapToModel(documentTagRepository.findAll());
 	}
 
@@ -595,7 +645,8 @@ public class DocumentService {
 	}
 
 	private Predicate parentTypeFilter(String parentType) throws InvalidFilterParameterException {
-		if (parentType == null) return null;
+		if (parentType == null)
+			return null;
 
 		DocumentParentType eType;
 
@@ -609,7 +660,8 @@ public class DocumentService {
 	}
 
 	private Predicate parentIdFilter(String parentId) throws InvalidFilterParameterException {
-		if (parentId == null) return null;
+		if (parentId == null)
+			return null;
 		Integer parentIdInt;
 
 		try {
@@ -622,7 +674,8 @@ public class DocumentService {
 	}
 
 	private Predicate docClassFilter(String docClass) throws InvalidFilterParameterException {
-		if (docClass == null) return null;
+		if (docClass == null)
+			return null;
 
 		DocumentClass eType;
 
@@ -638,8 +691,9 @@ public class DocumentService {
 	/**
 	 * Removes all unverified document records that are a week old.
 	 * <p>
-	 * This is scheduled to run every day at 1:01 AM.
-	 * The pattern is a list of six single space-separated fields: representing second, minute, hour, day, month, weekday.
+	 * This is scheduled to run every day at 1:01 AM. The pattern is a list of
+	 * six single space-separated fields: representing second, minute, hour,
+	 * day, month, weekday.
 	 */
 	@Scheduled(cron = "0 1 1 * * ?")
 	@Transactional(rollbackFor = DMCServiceException.class)
@@ -655,7 +709,8 @@ public class DocumentService {
 				document.setIsDeleted(true);
 				this.parentDocumentService.updateParents(document);
 
-				logger.info("Removing old unverified document with owner id: {} and url: {}", document.getOwner().getId(), document.getDocumentUrl());
+				logger.info("Removing old unverified document with owner id: {} and url: {}",
+						document.getOwner().getId(), document.getDocumentUrl());
 
 				this.documentRepository.delete(document);
 			} catch (DMCServiceException ex) {
@@ -666,11 +721,13 @@ public class DocumentService {
 	}
 
 	/**
-	 * Refreshes all documents that are about to expire.
-	 * Documents that are active and have less than or equal to 1 day left for expiration are refreshed.
+	 * Refreshes all documents that are about to expire. Documents that are
+	 * active and have less than or equal to 1 day left for expiration are
+	 * refreshed.
 	 * <p>
-	 * This is scheduled to run every day at 1:01 AM.
-	 * The pattern is a list of six single space-separated fields: representing second, minute, hour, day, month, weekday.
+	 * This is scheduled to run every day at 1:01 AM. The pattern is a list of
+	 * six single space-separated fields: representing second, minute, hour,
+	 * day, month, weekday.
 	 */
 	@Scheduled(cron = "0 1 1 * * ?")
 	@Transactional(rollbackFor = DMCServiceException.class)
@@ -682,7 +739,7 @@ public class DocumentService {
 
 		for (Document document : documents) {
 			try {
-				String path = AWSConnector.createPath(document.getDocumentUrl());
+				String path = AWSConnector.returnKeyNameFromURL(document.getDocumentUrl());
 				String newURL = AWSConnector.refreshURL(path);
 
 				LocalDateTime nextMonth = LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1);
@@ -690,7 +747,8 @@ public class DocumentService {
 				document.setDocumentUrl(newURL);
 				document.setExpires(Timestamp.valueOf(nextMonth));
 
-				logger.info("Refreshing document with owner id: {} and new url: {}", document.getOwner().getId(), document.getDocumentUrl());
+				logger.info("Refreshing document with owner id: {} and new url: {}", document.getOwner().getId(),
+						document.getDocumentUrl());
 
 				this.documentRepository.save(document);
 				this.parentDocumentService.updateParents(document);
@@ -701,72 +759,74 @@ public class DocumentService {
 		}
 	}
 
-	public List<Document> findServiceDocumentsByProjectId (Integer projectId) {
+	public List<Document> findServiceDocumentsByProjectId(Integer projectId) {
 		List<ServiceEntity> services = serviceRepository.findByProjectId(projectId);
 		List<Document> documents = new ArrayList<>();
 
-		for(ServiceEntity service : services) {
-			documents.addAll(documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, service.getId()));
+		for (ServiceEntity service : services) {
+			documents.addAll(
+					documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, service.getId()));
 		}
 
 		return documents;
 	}
 
-	public List<DocumentModel> cloneDocuments (List<Integer> docIds, Integer newParentId, String userEPPN, Integer directoryId) {
-			Assert.notNull(newParentId);
-			Assert.isTrue(CollectionUtils.isNotEmpty(docIds));
-			Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+	public List<DocumentModel> cloneDocuments(List<Integer> docIds, Integer newParentId, String userEPPN,
+			Integer directoryId) {
+		Assert.notNull(newParentId);
+		Assert.isTrue(CollectionUtils.isNotEmpty(docIds));
+		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 
-			User newOwner = userRepository.findByUsername(userEPPN);
-			List<Document> newDocs = new ArrayList<>();
+		User newOwner = userRepository.findByUsername(userEPPN);
+		List<Document> newDocs = new ArrayList<>();
 
-			for (Integer docId : docIds) {
-				Document oldDoc = documentRepository.findOne(docId);
-				Document newDoc = new Document();
-				List<DocumentTag> newTags = new ArrayList<>();
+		for (Integer docId : docIds) {
+			Document oldDoc = documentRepository.findOne(docId);
+			Document newDoc = new Document();
+			List<DocumentTag> newTags = new ArrayList<>();
 
-				Timestamp now = new Timestamp(System.currentTimeMillis());
+			Timestamp now = new Timestamp(System.currentTimeMillis());
 
-				newDoc.setOwner(newOwner);
-				newDoc.setExpires(oldDoc.getExpires());
-				newDoc.setSha256(oldDoc.getSha256());
-				newDoc.setIsDeleted(false);
-				if(directoryId==0){
-					newDoc.setDirectory(oldDoc.getDirectory());
-				}else{
+			newDoc.setOwner(newOwner);
+			newDoc.setExpires(oldDoc.getExpires());
+			newDoc.setSha256(oldDoc.getSha256());
+			newDoc.setIsDeleted(false);
+			if (directoryId == 0) {
+				newDoc.setDirectory(oldDoc.getDirectory());
+			} else {
 
-					Directory directory = directoryRepository.findOne(directoryId);
-					newDoc.setDirectory(directory);
-				}
-
-				newDoc.setVerified(oldDoc.getVerified());
-				newDoc.setSha256(oldDoc.getSha256());
-				newDoc.setIsPublic(oldDoc.getIsPublic());
-				newDoc.setModified(now);
-				newDoc.setVersion(0);
-				newDoc.setDocClass(oldDoc.getDocClass());
-				newDoc.setDocumentName(oldDoc.getDocumentName());
-				newDoc.setDocumentUrl(oldDoc.getDocumentUrl());
-				newDoc.setParentType(oldDoc.getParentType());
-				newDoc.setResourceType(oldDoc.getResourceType());
-				for (DocumentTag tag : oldDoc.getTags()) {
-					newTags.add(tag);
-				}
-				newDoc.setTags(newTags);
-
-				newDoc.setParentId(newParentId);
-
-				newDoc = documentRepository.save(newDoc);
-				newDoc.setBaseDocId(newDoc.getId());
-				newDoc = documentRepository.save(newDoc);
-
-				newDocs.add(newDoc);
+				Directory directory = directoryRepository.findOne(directoryId);
+				newDoc.setDirectory(directory);
 			}
 
-			return mapper.mapToModel(newDocs);
+			newDoc.setVerified(oldDoc.getVerified());
+			newDoc.setSha256(oldDoc.getSha256());
+			newDoc.setIsPublic(oldDoc.getIsPublic());
+			newDoc.setModified(now);
+			newDoc.setVersion(0);
+			newDoc.setDocClass(oldDoc.getDocClass());
+			newDoc.setDocumentName(oldDoc.getDocumentName());
+			newDoc.setDocumentUrl(oldDoc.getDocumentUrl());
+			newDoc.setParentType(oldDoc.getParentType());
+			newDoc.setResourceType(oldDoc.getResourceType());
+			for (DocumentTag tag : oldDoc.getTags()) {
+				newTags.add(tag);
+			}
+			newDoc.setTags(newTags);
+
+			newDoc.setParentId(newParentId);
+
+			newDoc = documentRepository.save(newDoc);
+			newDoc.setBaseDocId(newDoc.getId());
+			newDoc = documentRepository.save(newDoc);
+
+			newDocs.add(newDoc);
 		}
 
-	public List<DocumentModel> getVersions (Integer docId, String userEPPN) throws IllegalAccessException {
+		return mapper.mapToModel(newDocs);
+	}
+
+	public List<DocumentModel> getVersions(Integer docId, String userEPPN) throws IllegalAccessException {
 		Assert.notNull(docId);
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User requester = userRepository.findByUsername(userEPPN);
@@ -781,6 +841,7 @@ public class DocumentService {
 					.getContent();
 
 			if(!CollectionUtils.isEmpty(documents)) {
+				ServiceLogger.log(logTag, "Getting baseDocId: " + Integer.toString(baseDocId) + ", documentName: " + docEntity.getDocumentName() + " as user " + userEPPN);
 				return mapper.mapToModel(documents);
 			}
 		} else {
@@ -790,14 +851,40 @@ public class DocumentService {
 		return null;
 	}
 
-	private Integer nextVersion (Integer baseDocId) {
+	public List<Document> getS_Versions(Integer docId, String userEPPN) throws IllegalAccessException {
+		Assert.notNull(docId);
+
+		User requester = userRepository.findByUsername(userEPPN);
+		Document docEntity = documentRepository.findOne(docId);
+		Integer baseDocId = docEntity.getBaseDocId();
+
+		if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, docEntity, requester)) {
+			Predicate where = QDocument.document.baseDocId.eq(baseDocId);
+			List<Document> documents = this.documentRepository
+					.findAll(where,
+							new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.ASC, "version"))))
+					.getContent();
+
+			if (!CollectionUtils.isEmpty(documents)) {
+				return documents;
+			}
+		} else {
+			throw new IllegalAccessException("User does not have access to base document");
+		}
+
+		return null;
+	}
+
+	private Integer nextVersion(Integer baseDocId) {
 		Predicate where = QDocument.document.baseDocId.eq(baseDocId);
-		List<Document> documents = this.documentRepository.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "version")))).getContent();
+		List<Document> documents = this.documentRepository
+				.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "version"))))
+				.getContent();
 
 		return documents.get(0).getVersion() + 1;
 	}
 
-	public DocumentModel createNewVersion (DocumentModel doc, String userEPPN) throws IllegalAccessException {
+	public DocumentModel createNewVersion(DocumentModel doc, String userEPPN) throws IllegalAccessException {
 		Assert.notNull(doc);
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User requester = userRepository.findByUsername(userEPPN);
@@ -809,7 +896,7 @@ public class DocumentService {
 			folder = doc.getParentType().toString();
 		}
 
-		//thirty days in milliseconds
+		// thirty days in milliseconds
 		Long duration = 1000L * 60L * 60L * 24L * 30L;
 
 		Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -826,8 +913,9 @@ public class DocumentService {
 			docEntity = documentRepository.save(docEntity);
 
 			logger.debug("Attempting to verify document");
-			//Verify the document
-			String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document", docEntity.getOwner().getUsername(), folder, "Documents", "id", "url");
+			// Verify the document
+			String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document",
+					docEntity.getOwner().getUsername(), folder, "Documents", "id", "url");
 			logger.debug("Verification Machine Response: " + temp);
 			return mapper.mapToModel(docEntity);
 		} else {
@@ -837,26 +925,25 @@ public class DocumentService {
 
 	private Boolean hasVersions(Integer docId) {
 		Predicate where = QDocument.document.baseDocId.eq(docId);
-		if(documentRepository.count(where) > 1L) {
+		if (documentRepository.count(where) > 1L) {
 			return true;
 		}
 
 		return false;
 
-
 	}
 
 	public void makeDocsPublic(String parentId) {
 		try {
-			List<Document> docs = documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE, Integer.parseInt(parentId));
-			for(Document doc : docs){
+			List<Document> docs = documentRepository.findByParentTypeAndParentId(DocumentParentType.SERVICE,
+					Integer.parseInt(parentId));
+			for (Document doc : docs) {
 				doc.setIsPublic(true);
 				documentRepository.save(doc);
 			}
 		} catch (Exception e) {
 
 		}
-
 
 	}
 

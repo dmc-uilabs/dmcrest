@@ -23,18 +23,20 @@ public class ServiceRunController {
 
 	private final String logTag = ServiceRunController.class.getName();
 
+	private ServiceDao serviceDao = new ServiceDao();
+
 	@RequestMapping(value = "/model_run_file1", method = RequestMethod.POST)
 	public ResponseEntity<?> handleFormUploadTest(@RequestParam("file") MultipartFile uploadfile,@RequestParam("service")String serviceID,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws IOException {
 		ServiceLogger.log(logTag, "Test121 : The file name is : ");
-		
-		
+
+
 		 try {
 		      // Get the filename and build the local file path
 		      String filename = uploadfile.getOriginalFilename();
 		      String directory = "/tmp/";
 		      String filepath = Paths.get(directory, filename).toString();
-		      
+
 		      // Save the file locally
 		      BufferedOutputStream stream =
 		          new BufferedOutputStream(new FileOutputStream(new File(filepath)));
@@ -44,8 +46,8 @@ public class ServiceRunController {
 		    catch (Exception e) {
 		      System.out.println(e.getMessage());
 		      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		    }		    
-		    return new ResponseEntity<String>(serviceID, HttpStatus.OK);	
+		    }
+		    return new ResponseEntity<String>(serviceID, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/model_run_file", method = RequestMethod.POST)
@@ -54,15 +56,15 @@ public class ServiceRunController {
 		ServiceLogger.log(logTag, "serviceInput :" + serviceInput.toString());
 		ServiceLogger.log(logTag, "fileName :" + uploadfile.getName());
 		ServiceLogger.log(logTag, "content type :" + uploadfile.getContentType());
-		
+
     	int runId;
-    	
+
     	JSONObject inputs = new JSONObject(serviceInput);
     	String sId = inputs.getString("serviceId");
-    	JSONObject inpars = inputs.getJSONObject("inParams");			
-    	
+    	JSONObject inpars = inputs.getJSONObject("inParams");
+
     	RunDomeModelResponse response = new RunDomeModelResponse();
-    	try {      
+    	try {
     		int userId = CompanyUserUtil.getUserId(userEPPN);
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
     		HashMap paras = new HashMap<String, DomeModelParam>();
@@ -72,7 +74,7 @@ public class ServiceRunController {
     			String variableName = (String)it.next();
     			JSONObject variableValue = (JSONObject) inpars.getJSONObject(variableName);
     			DomeModelParam parValue = new DomeModelParam();
-    			
+
     			try {
     				parValue.setType(variableValue.getString("type"));
     				}
@@ -125,12 +127,12 @@ public class ServiceRunController {
     						parValue.setInstancename(null);
     					}
     				try {
-    					parValue.setInstancename(variableValue.getString("defaultValue"));	
+    					parValue.setInstancename(variableValue.getString("defaultValue"));
     					}
     					catch (Exception e)
     					{
-    						parValue.setInstancename(null);	
-    					}					
+    						parValue.setInstancename(null);
+    					}
     			// Need a type change here.
     				paras.put(variableName, parValue);
     		}
@@ -151,11 +153,11 @@ public class ServiceRunController {
 
 	@RequestMapping(value = "/model_run", method = RequestMethod.POST)
     public ResponseEntity<RunDomeModelResponse> serviceRun (@RequestBody RunDomeModelInput serviceInput, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-    	
+
     	int runId;
     	String sId = serviceInput.getServiceId();
     	RunDomeModelResponse response = new RunDomeModelResponse();
-    	try {      
+    	try {
     		int userId = CompanyUserUtil.getUserId(userEPPN);
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
     		HashMap paras = new HashMap();
@@ -173,7 +175,8 @@ public class ServiceRunController {
     		}*/
     		int serviceId = new Integer(sId);
     		runId = serviceRunInstance.runModel(serviceId,paras,userId);
-    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " called by user " + userEPPN + " with params: " + paras.toString());
+				JSONObject jsonParams = new JSONObject(paras);
+    		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " serviceTitle: " + serviceDao.getService(Integer.parseInt(serviceInput.getServiceId()), userEPPN).getTitle() + " called by user " + userEPPN + " with params: " + jsonParams.toString());
     		response.setRunId(runId);
         }
         catch (Exception e)
@@ -183,7 +186,7 @@ public class ServiceRunController {
         }
         return new ResponseEntity<RunDomeModelResponse>(response, HttpStatus.OK);
     }
-    
+
     @RequestMapping(value = "/model_poll/{serviceRunID}", method = RequestMethod.GET, produces = { "application/json"})
     public ResponseEntity<ServiceRunResult> servicePoll (@PathVariable("serviceRunID") int serviceRunID, @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
         ServiceLogger.log(logTag, "In servicePoll, runId: " + serviceRunID + " by user " + userEPPN);
@@ -200,10 +203,10 @@ public class ServiceRunController {
         }
         return new ResponseEntity<ServiceRunResult>(result, HttpStatus.OK);
     }
-    
+
 /*    public static void main(String[] args)
     {
-    	String input = 
+    	String input =
     			"{\"interFace\":{\"version\":1,\"modelId\":\"aff647da-d82f-1004-8e7b-5de38b2eeb0f\"," +
     			"\"interfaceId\":\"aff647db-d82f-1004-8e7b-5de38b2eeb0f\",\"type\":\"interface\"," +
     			"\"name\":\"Default Interface\",\"path\":[30]},\"inParams\":{\"SpecimenWidth\":{" +
@@ -215,8 +218,8 @@ public class ServiceRunController {
     			"\"d9f30f3d-d800-1004-8f53-704dbfababa8\",\"instancename\":\"Alpha\"}},\"modelName\":\"Default Interface\"," +
     			"\"modelDescription\":\"\",\"server\":{\"name\":\"52.33.38.232\",\"port\":\"7795\",\"user\":\"ceed\",\"pw\":\"ceed" +
     			"\",\"space\":\"USER\"}}";
-    	
-    	
+
+
     	RunDomeModelInput inputs = new RunDomeModelInput();
     	inputs.setServiceId("3");
     	HashMap<String, DomeModelParam> pars = new HashMap<String, DomeModelParam>();
@@ -237,10 +240,10 @@ public class ServiceRunController {
     	par2.setParameterid("d9f30f37-d800-1004-8f53-704dbfababa8");
     	pars.put("CrackLength", par2);
     	inputs.setInParams(pars);
-    	
+
     	// Run service
     	ServiceRunController c = new ServiceRunController();
-   	    ResponseEntity<RunDomeModelResponse> result = c.serviceRun(inputs,"testUser"); 
+   	    ResponseEntity<RunDomeModelResponse> result = c.serviceRun(inputs,"testUser");
 //    	ResponseEntity<ServiceRunResult> result = c.servicePoll(9,"testUser");
     	System.out.println("result: " + result.getBody().getRunId());
     }*/

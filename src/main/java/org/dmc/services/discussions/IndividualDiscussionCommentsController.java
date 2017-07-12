@@ -14,9 +14,11 @@ import static org.springframework.http.MediaType.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.SQLException;
 
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.data.dao.user.UserDao;
 
 @Controller
 @RequestMapping(value = "/individual-discussion-comments", produces = { APPLICATION_JSON_VALUE })
@@ -29,11 +31,13 @@ public class IndividualDiscussionCommentsController {
 	public ResponseEntity postIndividualDiscussionComments(@RequestBody IndividualDiscussionComment discussionComment) {
 		IndividualDiscussionDao individualDiscussionDao = new IndividualDiscussionDao();
 		try {
-			ServiceLogger.log(logTag, "In postIndividualDiscussionComments");
+			ServiceLogger.log(logTag, "In postIndividualDiscussionComments as user " + UserDao.getUserName(discussionComment.getAccountId().intValue()) + " in discussionId: " + discussionComment.getIndividualDiscussionId());
 			return new ResponseEntity<IndividualDiscussionComment>(individualDiscussionDao.createIndividualDiscussionComment(discussionComment), HttpStatus.OK);
 		} catch (DMCServiceException e) {
 			ServiceLogger.logException(logTag, e);
 			return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+		} catch (SQLException e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

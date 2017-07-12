@@ -2,7 +2,10 @@ package org.dmc.services.data.models;
 
 import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
+import org.dmc.services.utils.RestViews;
 import org.dmc.services.web.validator.AWSLink;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -10,42 +13,59 @@ import java.util.List;
 
 public class DocumentModel extends BaseModel {
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private String documentName;
 
 	@AWSLink
 	private String documentUrl;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private DocumentParentType parentType;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private Integer parentId;
 
 	@NotNull
+	@JsonView(RestViews.SDocumentsView.class)
 	private Integer ownerId;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private String ownerDisplayName;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private List<DocumentTagModel> tags;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private Date modified;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private Date expires;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private DocumentClass docClass;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private String accessLevel;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private List<SimpleUserModel> vips;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private Integer version;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private Integer directoryId;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private Integer baseDocId;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private Boolean hasVersions;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private String sha256;
 
+	@JsonView(RestViews.SDocumentsView.class)
 	private Boolean isAccepted;
 
 	public String getDocumentName() {
