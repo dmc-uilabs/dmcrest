@@ -57,6 +57,8 @@ public class OrganizationModel extends BaseModel {
 
 	private String productionCapabilities;
 
+	private String dmdiiMembershipInfo;
+	
 	public String getName() {
 		return name;
 	}
@@ -257,8 +259,20 @@ public class OrganizationModel extends BaseModel {
 		this.pastProjects = pastProjects;
 	}
 
-	public String getProductionCapabilities() { return productionCapabilities; }
+	public String getProductionCapabilities() {
+		return productionCapabilities;
+	}
 
-	public void setProductionCapabilities(String productionCapabilities) { this.productionCapabilities = productionCapabilities; }
+	public void setProductionCapabilities(String productionCapabilities) {
+		this.productionCapabilities = productionCapabilities;
+	}
+
+	public String getDmdiiMembershipInfo() {
+		return dmdiiMembershipInfo;
+	}
+
+	public void setDmdiiMembershipInfo(String dmdiiMembershipInfo) {
+		this.dmdiiMembershipInfo = dmdiiMembershipInfo;
+	}
 
 }

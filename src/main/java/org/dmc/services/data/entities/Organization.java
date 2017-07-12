@@ -156,6 +156,12 @@ public class Organization extends BaseEntity {
 
 	@Column(name="production_capabilities")
 	private String productionCapabilities;
+	
+	@Column(name="dmdii_membership_info")
+	private String dmdiiMembershipInfo;
+	
+	@Column(name="is_paid")
+	private Boolean isPaid = false;
 
 	public Integer getId() {
 		return id;
@@ -479,9 +485,29 @@ public class Organization extends BaseEntity {
 		this.organizationUsers = organizationUsers;
 	}
 
-	public String getProductionCapabilities() { return productionCapabilities; }
+	public String getProductionCapabilities() { 
+		return productionCapabilities; 
+	}
 
-	public void setProductionCapabilities(String productionCapabilities) { this.productionCapabilities = productionCapabilities; }
+	public void setProductionCapabilities(String productionCapabilities) { 
+		this.productionCapabilities = productionCapabilities; 
+	}
+	
+	public String getDmdiiMembershipInfo() {
+		return dmdiiMembershipInfo;
+	}
+	
+	public void setDmdiiMembershipInfo(String dmdiiMembershipInfo) {
+		this.dmdiiMembershipInfo = dmdiiMembershipInfo;
+	}
+	
+	public Boolean getIsPaid() {
+		return isPaid;
+	}
+	
+	public void setIsPaid(Boolean isPaid) {
+		this.isPaid = isPaid;
+	}
 
 	@Override
 	public int hashCode() {
@@ -525,6 +551,8 @@ public class Organization extends BaseEntity {
 		result = prime * result + ((upcomingProjectInterests == null) ? 0 : upcomingProjectInterests.hashCode());
 		result = prime * result + ((website == null) ? 0 : website.hashCode());
 		result = prime * result + ((productionCapabilities == null) ? 0 : productionCapabilities.hashCode());
+		result = prime * result + ((dmdiiMembershipInfo == null) ? 0 : dmdiiMembershipInfo.hashCode());
+		result = prime * result + ((isPaid == null) ? 0 : isPaid.hashCode());
 		return result;
 	}
 
@@ -741,6 +769,16 @@ public class Organization extends BaseEntity {
 			if (other.productionCapabilities != null)
 				return false;
 		} else if (!productionCapabilities.equals(other.productionCapabilities))
+			return false;
+		if (dmdiiMembershipInfo == null) {
+			if (other.dmdiiMembershipInfo != null)
+				return false;
+		} else if (!dmdiiMembershipInfo.equals(other.dmdiiMembershipInfo))
+			return false;
+		if (isPaid == null) {
+			if (other.isPaid != null)
+				return false;
+		} else if (!isPaid.equals(other.isPaid))
 			return false;
 		return true;
 	}
