@@ -52,7 +52,10 @@ public class PaymentsController {
 			try {
 				//Will throw an exception if payment fails
 				Charge charge = paymentsService.createCharge(params);
-				organizationService.updatePayment(orgModel, true);
+				//Should be true if payment was successful
+				if(charge.getPaid()) {
+					organizationService.updatePayment(orgModel, true);
+				}
 				return new ResponseEntity<String>(charge.getStatus(), HttpStatus.OK);
 			} catch (StripeException e) {
 				organizationService.delete(orgModel.getId());
