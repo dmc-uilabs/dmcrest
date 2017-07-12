@@ -40,8 +40,8 @@ public class MapperFactory<T extends BaseEntity, S extends BaseModel> {
 		}
 
 		if (mapper == null) {
-			LOGGER.info("No mapper found for entity " + entityClass.getName() + " and model " + modelClass.getName()
-					+ ". Returning default mapper.");
+			//LOGGER.info("No mapper found for entity " + entityClass.getName() + " and model " + modelClass.getName()
+			//		+ ". Returning default mapper.");
 			mapper = new DefaultMapper<>(entityClass, modelClass);
 		}
 

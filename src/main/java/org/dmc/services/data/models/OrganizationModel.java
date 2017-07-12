@@ -59,6 +59,8 @@ public class OrganizationModel extends BaseModel {
 
 	private String dmdiiMembershipInfo;
 	
+	private String otherOrganizationTags;
+
 	public String getName() {
 		return name;
 	}
@@ -273,6 +275,14 @@ public class OrganizationModel extends BaseModel {
 
 	public void setDmdiiMembershipInfo(String dmdiiMembershipInfo) {
 		this.dmdiiMembershipInfo = dmdiiMembershipInfo;
+	}
+
+	public String getOtherOrganizationTags() {
+		return otherOrganizationTags;
+	}
+
+	public void setOtherOrganizationTags(String otherOrganizationTags) {
+		this.otherOrganizationTags = otherOrganizationTags;
 	}
 
 }

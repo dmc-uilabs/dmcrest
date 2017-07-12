@@ -163,6 +163,9 @@ public class Organization extends BaseEntity {
 	@Column(name="is_paid")
 	private Boolean isPaid = false;
 
+	@Column(name="other_organization_tags")
+	private String otherOrganizationTags;
+
 	public Integer getId() {
 		return id;
 	}
@@ -509,6 +512,10 @@ public class Organization extends BaseEntity {
 		this.isPaid = isPaid;
 	}
 
+	public String getOtherOrganizationTags() { return otherOrganizationTags; }
+
+	public void setOtherOrganizationTags(String otherOrganizationTags) { this.otherOrganizationTags = otherOrganizationTags; }
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -553,6 +560,7 @@ public class Organization extends BaseEntity {
 		result = prime * result + ((productionCapabilities == null) ? 0 : productionCapabilities.hashCode());
 		result = prime * result + ((dmdiiMembershipInfo == null) ? 0 : dmdiiMembershipInfo.hashCode());
 		result = prime * result + ((isPaid == null) ? 0 : isPaid.hashCode());
+		result = prime * result + ((otherOrganizationTags == null) ? 0 : otherOrganizationTags.hashCode());
 		return result;
 	}
 
@@ -779,6 +787,10 @@ public class Organization extends BaseEntity {
 			if (other.isPaid != null)
 				return false;
 		} else if (!isPaid.equals(other.isPaid))
+		if (otherOrganizationTags == null) {
+			if (other.otherOrganizationTags != null)
+				return false;
+		} else if (!otherOrganizationTags.equals(other.otherOrganizationTags))
 			return false;
 		return true;
 	}

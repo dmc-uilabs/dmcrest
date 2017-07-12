@@ -80,7 +80,7 @@ public class ProjectDao {
                   resultSet = preparedStatement.executeQuery();
                   while (resultSet.next()) {
                       Project project = readProjectIdandTitleFromResultSet(resultSet);
-                      ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
+                      //ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                       projects.add(project);
                   }
 
@@ -165,27 +165,45 @@ public class ProjectDao {
     }
 
     // get any project the user is a member of
-    public ArrayList<Project> getProjectList(String userEPPN, Integer limit, Integer offset, String order) {
+    public ArrayList<Project> getProjectList(String userEPPN, String order, String sort, String filter, String searchTerm) {
 
         final ArrayList<Project> projects = new ArrayList<Project>();
+
+        ServiceLogger.log("searchTerm", searchTerm);
 
         final String query = getSelectProjectQuery(order);
         String groupIdList = "select * from (" + query + ") as project_info, " + "(SELECT distinct gjr.group_id " +
                 "FROM group_join_request gjr, users WHERE gjr.user_id = users.user_id and users.user_name = ? AND " +
                 "gjr.accept_date IS NOT NULL) as joined_projects where project_info.id = joined_projects.group_id and " +
-                "project_info.usewebdav = 1 ORDER BY id DESC";
+                "project_info.usewebdav = 1";
 //                "(SELECT distinct pfo_role.home_group_id"
 //                + " FROM  pfo_role,  pfo_user_role, users" + " WHERE  pfo_role.role_id = pfo_user_role.role_id AND"
 //                + " pfo_role.home_group_id IS NOT NULL AND"
 //                + " pfo_user_role.user_id =users.user_id AND users.user_name = ?) as project_id"
 //                + " where project_info.id = project_id.home_group_id and project_info.usewebdav = 1 ORDER BY id DESC";
-
-
-        if (limit != null && offset != null) {
-            groupIdList += " LIMIT " + limit + " OFFSET " + offset;
+        if (searchTerm != null) {
+            groupIdList += " AND (project_info.title ILIKE '%" + searchTerm + "%'"
+                    + " OR project_info.id IN (SELECT project_tags.project_id FROM project_tags WHERE project_tags.tag_name ILIKE '%" + searchTerm + "%')"
+                    + " OR project_info.userName ILIKE '%" + searchTerm + "%')";
+            ServiceLogger.log(LOGTAG, "THIS IS HAPPENING: " + groupIdList);
         }
 
+        if (filter != null) {
+            if (filter.equals("public")) {
+                groupIdList += " AND project_info.isPublic = 1";
+            } else if (filter.equals("private")) {
+                groupIdList += " AND project_info.isPublic = 0";
+            }
+        }
 
+        if (sort != null) {
+            groupIdList += " ORDER BY";
+            if (sort.equals("title")) {
+                groupIdList += " LOWER(title) ASC";
+            } else {
+                groupIdList += " id DESC";
+            }
+        }
 
         ServiceLogger.log(LOGTAG, "groupIdList: " + groupIdList);
         ResultSet resultSet = null;
@@ -196,7 +214,7 @@ public class ProjectDao {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Project project = readProjectInfoFromResultSet(resultSet);
-                ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
+                //ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                 projects.add(project);
             }
         }
@@ -220,28 +238,44 @@ public class ProjectDao {
 
     // Hack to get around having to unravel and re-write the SQL in getAllProjects
     // Being refactored to use spring-data-jpa within next few sprints
-    public List<Project> getPublicProjects(Integer limit, Integer offset, String order) {
-    	List<Project> projects = new ArrayList<Project>();
+    public List<Project> getPublicProjects(String order, String sort, String filter, String searchTerm) {
+        List<Project> projects = new ArrayList<Project>();
 
-    	String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time"
-    			+ " FROM (" + getSelectProjectQuery(order) + ") as project"
-    			+ " WHERE project.isPublic = 1 AND project.useWebdav = 1 ORDER BY id DESC";
+        String query = "SELECT DISTINCT id, title, description, due_date, discussionsCount, componentsCount, taskCount, servicesCount, userName, isPublic, requires_approval, creatorUserId, directory_id, register_time, LOWER(title) AS sortTitle"
+                + " FROM (" + getSelectProjectQuery(order) + ") as project"
+                + " WHERE project.isPublic = 1 AND project.useWebdav = 1";
 
-
-
-    	if (limit != null && offset != null) {
-    	    query += " LIMIT " + limit + " OFFSET " + offset;
+        if (searchTerm != null) {
+            query += " AND (project.title ILIKE '%" + searchTerm + "%'"
+                    + " OR project.id IN (SELECT project_tags.project_id FROM project_tags WHERE project_tags.tag_name ILIKE '%" + searchTerm + "%')"
+                    + " OR project.userName ILIKE '%" + searchTerm + "%')";
         }
 
+        if (filter != null) {
+            if (filter.equals("private")) {
+                query += " AND project.isPublic = 0";
+            }
+        }
+
+        if (sort != null) {
+            query += " ORDER BY";
+            if (sort.equals("title")) {
+                query += " sortTitle ASC";
+            } else {
+                query += " id DESC";
+            }
+        }
+
+        ServiceLogger.log(LOGTAG, query);
 
     	ResultSet resultSet = null;
+
     	try {
             PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
-
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 Project project = readProjectInfoFromResultSet(resultSet);
-                ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
+                //ServiceLogger.log(LOGTAG, "adding project : " + project.getId());
                 projects.add(project);
             }
         }
