@@ -36,6 +36,7 @@ import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.verification.Verification;
+import org.dmc.services.ServiceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -78,6 +79,7 @@ import java.util.stream.Collectors;
 public class DocumentService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
+	private final String logTag = DocumentService.class.getName();
 
 	@Inject
 	private DocumentRepository documentRepository;
@@ -117,8 +119,6 @@ public class DocumentService {
 
 	@Inject
 	private ProjectDao projectDao;
-
-	private final String logTag = DocumentService.class.getName();
 
 	private Verification verify = new Verification();
 
@@ -462,14 +462,16 @@ public class DocumentService {
 
 	}
 
+
 	public ResponseEntity shareDocumentInWs(Integer documentId, Integer wsId) {
 		String documentUrl;
 		String documentName;
 		Document document;
 		String sha;
-		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
-				.getPrincipal();
+
+		UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		User user = this.userRepository.findByUsername(userPrincipal.getUsername());
+
 
 		document = this.documentRepository.findOne(documentId);
 		if (!this.resourceAccessService.hasAccess(ResourceType.DOCUMENT, document, user)) {
@@ -486,8 +488,13 @@ public class DocumentService {
 		Project wss = projectDao.getProjectById(wsId);
 		User shareWith = this.userRepository.findOne(wss.getProjectManagerId());
 		cloneDocuments(docIds, wsId, shareWith.getUsername(), wss.getDirectoryId());
-		return new ResponseEntity<String>("{\"message\":\"Document ddd " + documentName + "shared with workspace "
-				+ wss.getProjectManagerId() + " \"}", HttpStatus.OK);
+
+		String url = "/project.php#/" + wsId + "/documents";
+
+		notificationService.createForSharedDocumentWithWorkspace(user, shareWith, url);
+
+		ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", documentName: " + documentName + " as user " + userPrincipal.getUsername() + " with workspaceId: " + wsId);
+		return new ResponseEntity<String>("{\"message\":\"Document ddd "+documentName+"shared with workspace "+wss.getProjectManagerId()+" \"}", HttpStatus.OK);
 	}
 
 	public ResponseEntity shareDocument(Integer documentId, String userIdentifier, Boolean internal, Boolean dmdii,
@@ -533,13 +540,14 @@ public class DocumentService {
 				this.emailService.sendEmail(userToShareWith, 2, params);
 			}
 			notificationService.createForSharedDocument(user, userToShareWith, presignedUrl);
+			ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", documentName: " + documentName + " as user " + user.getUsername() + " with " + userToShareWith.getRealname());
 			return new ResponseEntity<String>("{\"message\":\"Document shared\"}", HttpStatus.OK);
 		} else {
 			userToShareWith = new User();
 			userToShareWith.setFirstName(userIdentifier);
 			userToShareWith.setLastName("");
 			userToShareWith.setEmail(userIdentifier);
-
+			ServiceLogger.log(logTag, "Sharing documentId: " + documentId + ", documentName: " + documentName + " as user " + user.getUsername() + " with " + userIdentifier);
 			return this.emailService.sendEmail(userToShareWith, 2, params);
 		}
 	}
@@ -832,7 +840,8 @@ public class DocumentService {
 							new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.ASC, "version"))))
 					.getContent();
 
-			if (!CollectionUtils.isEmpty(documents)) {
+			if(!CollectionUtils.isEmpty(documents)) {
+				ServiceLogger.log(logTag, "Getting baseDocId: " + Integer.toString(baseDocId) + ", documentName: " + docEntity.getDocumentName() + " as user " + userEPPN);
 				return mapper.mapToModel(documents);
 			}
 		} else {
