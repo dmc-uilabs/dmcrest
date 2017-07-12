@@ -28,7 +28,7 @@ public class DomeAPIController {
 
 	private final String logTag = DomeAPIController.class.getName();
 	private DomeAPIDao domeAPIDao = new DomeAPIDao();
-	
+
 	@Autowired
     DomeServerService serverService;
 
@@ -46,12 +46,12 @@ public class DomeAPIController {
 
 		ServiceLogger.log(logTag, "In childrenGet: as user " + userEPPN);
 		String children = "";
-		
+
 		try {
 			DomeEntity domeEntity = new DomeEntity();
 			domeEntity.setDateModified(dateModified);
 			domeEntity.setDescription(description);
-			//If it's the ID instead of the URL
+			//True if it's the ID instead of the URL
 			if(StringUtils.isNumeric(domeServer)) {
 				domeEntity.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
 			} else {
@@ -72,7 +72,7 @@ public class DomeAPIController {
 		}
 
 	}
-	
+
 	@RequestMapping(value = "/getModel", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity getModelFromDome(
 			@RequestParam(value = "domeServer", required = true) String domeServer,
@@ -87,12 +87,12 @@ public class DomeAPIController {
 
 		ServiceLogger.log(logTag, "In modelGet: as user " + userEPPN);
 		String model = "";
-		
+
 		try {
 			DomeModel domeModel = new DomeModel();
 			domeModel.setProjectId(projectId);
 			domeModel.setInterfaceId(interfaceId);
-			//If it's the ID instead of the URL
+			//True if it's the ID instead of the URL
 			if(StringUtils.isNumeric(domeServer)) {
 				domeModel.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
 			} else {
@@ -113,5 +113,5 @@ public class DomeAPIController {
 		}
 
 	}
-	
+
 }
