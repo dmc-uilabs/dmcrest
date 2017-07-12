@@ -15,5 +15,9 @@ public interface DomeServerRepository extends BaseRepository<DomeServer, Integer
 			+ " 	Left Join sal.users u" 
 			+ " where u.id = :id or s.userId = :id")
 	public Page<DomeServer> findAllServers(@Param("id") Integer id, Pageable page);
+	
+	@Query("SELECT serverURL FROM DomeServer s"
+			+ " WHERE s.id = :id")
+	public String getServerURLById(@Param("id") Integer id);
 
 }
