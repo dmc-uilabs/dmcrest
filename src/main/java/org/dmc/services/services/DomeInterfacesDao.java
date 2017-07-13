@@ -47,7 +47,7 @@ public class DomeInterfacesDao {
 
 			preparedStatementDomeInterfaceQuery.setInt(6, postUpdateDomeInterface.getServiceId());
 
-			preparedStatementDomeInterfaceQuery.setInt(7, Integer.parseInt(postUpdateDomeInterface.getInterfaceId()));
+			preparedStatementDomeInterfaceQuery.setInt(7, Integer.parseInt(postUpdateDomeInterface.getDomeServer()));
 
 			int rowsAffected_interface = preparedStatementDomeInterfaceQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
