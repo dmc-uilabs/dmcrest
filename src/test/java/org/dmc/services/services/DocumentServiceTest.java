@@ -186,7 +186,7 @@ public class DocumentServiceTest {
 		.thenReturn(this.document);
 		when(AWSConnector.isTimeStampExpired(any(Timestamp.class)))
 		.thenReturn(true);
-		when(AWSConnector.createPath(any(String.class)))
+		when(AWSConnector.returnKeyNameFromURL(any(String.class)))
 		.thenReturn(pathString);
 		when(AWSConnector.refreshURL(any(String.class)))
 		.thenReturn(urlString);
