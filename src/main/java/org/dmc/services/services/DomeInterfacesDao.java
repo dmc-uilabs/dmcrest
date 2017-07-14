@@ -32,19 +32,9 @@ public class DomeInterfacesDao {
 		Connection connection = DBConnector.connection();
 		Util util = Util.getInstance();
 		GetDomeInterface retObj = new GetDomeInterface();
-		Integer domeServer = new Integer(0);
 
 		try {
 			connection.setAutoCommit(false);
-
-			String getServerQuery = "SELECT server_id FROM servers WHERE url = ?";
-			PreparedStatement preparedStatementGetServer = DBConnector.prepareStatement(getServerQuery);
-			preparedStatementGetServer.setString(1, postUpdateDomeInterface.getDomeServer());
-			preparedStatementGetServer.execute();
-			ResultSet resultSet = preparedStatementGetServer.getResultSet();
-			if (resultSet.next()) {
-				domeServer = resultSet.getInt("server_id");
-			}
 
 			String addDomeInterfaceQuery = "INSERT into service_interface (version, model_id, interface_id_str, type, name, service_id, server_id) values ( ?, ?, ?, ?, ?, ?, ? )";
 
@@ -57,7 +47,7 @@ public class DomeInterfacesDao {
 
 			preparedStatementDomeInterfaceQuery.setInt(6, postUpdateDomeInterface.getServiceId());
 
-			preparedStatementDomeInterfaceQuery.setInt(7, domeServer);
+			preparedStatementDomeInterfaceQuery.setInt(7, Integer.parseInt(postUpdateDomeInterface.getDomeServer()));
 
 			int rowsAffected_interface = preparedStatementDomeInterfaceQuery.executeUpdate();
 			if (rowsAffected_interface != 1) {
