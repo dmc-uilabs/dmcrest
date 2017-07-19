@@ -11,6 +11,6 @@ public interface OrganizationRepository extends BaseRepository<Organization, Int
 
 	List<Organization> findAll(Predicate predicate);
 	
-	@Query(value = "SELECT * FROM organization WHERE organization_id = ?1 AND is_deleted='TRUE'", nativeQuery = true)
+	@Query(value = "SELECT * FROM organization WHERE organization_id = ?1", nativeQuery = true)
 	Organization findDeleted(Integer id);
 }

@@ -140,12 +140,17 @@ public class OrganizationService {
 			resourceGroupService.addUserResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), "ADMIN");
 
 		} else {
-			Organization existingOrg = this.organizationRepository.findOne(organizationEntity.getId());
+			Organization existingOrg = organizationRepository.findOne(organizationEntity.getId());
+			if(existingOrg == null) {
+				existingOrg = organizationRepository.findDeleted(organizationEntity.getId());
+			}
 			organizationEntity.setLogoImage(existingOrg.getLogoImage());
 
 			RecentUpdateController recentUpdateController = new RecentUpdateController();
 			recentUpdateController.addRecentUpdate(organizationEntity, existingOrg);
 
+			//Use isPaid value from existing org
+			organizationEntity.setIsPaid(existingOrg.getIsPaid());
 			organizationEntity = organizationRepository.save(organizationEntity);
 		}
 
