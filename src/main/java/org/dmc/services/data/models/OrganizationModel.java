@@ -65,7 +65,7 @@ public class OrganizationModel extends BaseModel {
 	private String otherOrganizationTags;
 	
 	@JsonIgnore
-	private Boolean isPaid;
+	private Boolean isPaid = false;
 
 	public String getName() {
 		return name;

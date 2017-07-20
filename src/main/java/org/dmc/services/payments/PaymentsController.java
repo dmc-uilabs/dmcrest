@@ -1,8 +1,5 @@
 package org.dmc.services.payments;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.dmc.services.data.models.OrgCreation;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.PaymentsStatus;
@@ -38,7 +35,7 @@ public class PaymentsController {
 			String token = orgCreation.getStripeToken();
 			try {
 				//Will throw an exception if payment fails
-				charge = paymentsService.createCharge(token);
+				charge = paymentsService.createCharge(token, orgModel.getName());
 				//Should be true if payment was successful
 				if(charge.getPaid()) {
 					organizationService.updatePayment(orgModel, true);

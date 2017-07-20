@@ -30,11 +30,13 @@ import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserRoleAssignmentRepository;
 import org.dmc.services.recentupdates.RecentUpdateController;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
+import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -140,10 +142,15 @@ public class OrganizationService {
 			resourceGroupService.addUserResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), "ADMIN");
 
 		} else {
+			if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationEntity.getId())) {
+				throw new AccessDeniedException("403 Access denied");
+			}
 			Organization existingOrg = organizationRepository.findOne(organizationEntity.getId());
+			
 			if(existingOrg == null) {
 				existingOrg = organizationRepository.findDeleted(organizationEntity.getId());
 			}
+			
 			organizationEntity.setLogoImage(existingOrg.getLogoImage());
 
 			RecentUpdateController recentUpdateController = new RecentUpdateController();
