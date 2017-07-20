@@ -151,6 +151,9 @@ public class OrganizationService {
 				existingOrg = organizationRepository.findDeleted(organizationEntity.getId());
 			}
 			
+			if(organizationEntity.getAddress().getId() == null) {
+				organizationEntity.getAddress().setId(existingOrg.getAddress().getId());
+			}
 			organizationEntity.setLogoImage(existingOrg.getLogoImage());
 
 			RecentUpdateController recentUpdateController = new RecentUpdateController();
