@@ -145,6 +145,17 @@ public class OrganizationService {
 		return mapper.mapToModel(organizationEntity);
 
 	}
+	
+	@Transactional
+	public Organization updatePayment(OrganizationModel orgModel, Boolean paid) {
+		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
+
+		Organization orgEntity = mapper.mapToEntity(orgModel);
+		
+		orgEntity.setIsPaid(paid);
+		
+		return save(orgEntity);
+	}
 
 	public Organization save(Organization organization) {
 		return organizationRepository.save(organization);
