@@ -11,6 +11,7 @@ import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.Organization;
+import org.dmc.services.data.entities.OrganizationPayment;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDocument;
 import org.dmc.services.data.entities.QOrganization;
@@ -25,6 +26,7 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
+import org.dmc.services.data.repositories.OrganizationPaymentRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserRoleAssignmentRepository;
@@ -55,6 +57,9 @@ public class OrganizationService {
 
 	@Inject
 	private OrganizationRepository organizationRepository;
+	
+	@Inject
+	private OrganizationPaymentRepository organizationPaymentRepository;
 
 	@Inject
 	private AreaOfExpertiseRepository areaOfExpertiseRepository;
@@ -169,7 +174,9 @@ public class OrganizationService {
 	}
 	
 	@Transactional
-	public Organization updatePayment(OrganizationModel orgModel, Boolean paid) {
+	public Organization updatePayment(OrganizationModel orgModel, String chargeId, Boolean paid) {
+		organizationPaymentRepository.save(new OrganizationPayment(chargeId, orgModel.getId()));
+		
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
 		Organization orgEntity = mapper.mapToEntity(orgModel);
