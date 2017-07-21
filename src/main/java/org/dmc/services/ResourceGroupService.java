@@ -55,7 +55,9 @@ public class ResourceGroupService {
 
 		for(String role: roles) {
 			ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
-			resourceGroupRepository.delete(group);
+			if(group != null) {
+				resourceGroupRepository.delete(group);
+			}
 		}
 	}
 	
