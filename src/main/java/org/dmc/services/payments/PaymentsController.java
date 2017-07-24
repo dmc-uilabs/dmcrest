@@ -38,7 +38,7 @@ public class PaymentsController {
 				charge = paymentsService.createCharge(token, orgModel.getName());
 				//Should be true if payment was successful
 				if(charge.getPaid()) {
-					organizationService.updatePayment(orgModel, true);
+					organizationService.updatePayment(orgModel, charge.getId(), true);
 				}
 				return new ResponseEntity<PaymentsStatus>(new PaymentsStatus(charge.getStatus(), "Payment Successful!"), HttpStatus.OK);
 			} catch (StripeException e) {
