@@ -3,6 +3,9 @@ package org.dmc.services.data.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class OrganizationModel extends BaseModel {
 
 	private String name;
@@ -60,6 +63,9 @@ public class OrganizationModel extends BaseModel {
 	private String dmdiiMembershipInfo;
 	
 	private String otherOrganizationTags;
+	
+	@JsonIgnore
+	private Boolean isPaid = false;
 
 	public String getName() {
 		return name;
@@ -283,6 +289,16 @@ public class OrganizationModel extends BaseModel {
 
 	public void setOtherOrganizationTags(String otherOrganizationTags) {
 		this.otherOrganizationTags = otherOrganizationTags;
+	}
+	
+	@JsonProperty
+	public Boolean getIsPaid() {
+		return isPaid;
+	}
+	
+	@JsonIgnore
+	public void setIsPaid(Boolean isPaid) {
+		this.isPaid = isPaid;
 	}
 
 }

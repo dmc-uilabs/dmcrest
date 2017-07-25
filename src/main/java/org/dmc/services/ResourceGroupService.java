@@ -42,7 +42,10 @@ public class ResourceGroupService {
     	List<String> roles = Arrays.asList(SecurityRoles.ADMIN, SecurityRoles.MEMBER);
 
 		for(String role: roles) {
-			ResourceGroup group = new ResourceGroup(parentType, parentId, role);
+			ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
+			if(group == null) {
+				group = new ResourceGroup(parentType, parentId, role);
+			}
 			resourceGroupRepository.save(group);
 		}
 	}
@@ -55,7 +58,9 @@ public class ResourceGroupService {
 
 		for(String role: roles) {
 			ResourceGroup group = resourceGroupRepository.findByParentTypeAndParentIdAndRole(parentType, parentId, role);
-			resourceGroupRepository.delete(group);
+			if(group != null) {
+				resourceGroupRepository.delete(group);
+			}
 		}
 	}
 	

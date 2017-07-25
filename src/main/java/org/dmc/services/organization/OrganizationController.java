@@ -1,15 +1,18 @@
 package org.dmc.services.organization;
 
+import org.dmc.services.data.models.BaseModel;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.exceptions.MissingIdException;
 import org.dmc.services.security.PermissionEvaluationHelper;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,6 +54,11 @@ public class OrganizationController {
 
 		return organizationModel;
 
+	}
+	
+	@RequestMapping(value = "/organizations/user", method = RequestMethod.GET)
+	public OrganizationModel getOrganizationByUser() {
+		return organizationService.findByUser();
 	}
 
 	@RequestMapping(value = "/organizations/myVPC", method = RequestMethod.GET)

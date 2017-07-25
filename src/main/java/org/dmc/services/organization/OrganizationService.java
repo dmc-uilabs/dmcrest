@@ -16,6 +16,8 @@ import org.dmc.services.data.entities.QDocument;
 import org.dmc.services.data.entities.QOrganization;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.entities.UserRoleAssignment;
+import org.dmc.services.data.entities.UserRoleAssignmentRO;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.DMDIIProjectModel;
@@ -25,12 +27,16 @@ import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.data.repositories.UserRoleAssignmentRepository;
 import org.dmc.services.recentupdates.RecentUpdateController;
 import org.dmc.services.roleassignment.UserRoleAssignmentService;
+import org.dmc.services.security.PermissionEvaluationHelper;
+import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +58,9 @@ public class OrganizationService {
 
 	@Inject
 	private AreaOfExpertiseRepository areaOfExpertiseRepository;
+	
+	@Inject
+	private UserRoleAssignmentRepository userRoleAssignmentRepository;
 
 	@Inject
 	private MapperFactory mapperFactory;
@@ -133,12 +142,34 @@ public class OrganizationService {
 			resourceGroupService.addUserResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), "ADMIN");
 
 		} else {
-			Organization existingOrg = this.organizationRepository.findOne(organizationEntity.getId());
+			if (!PermissionEvaluationHelper.userHasRole(SecurityRoles.ADMIN, organizationEntity.getId())) {
+				throw new AccessDeniedException("403 Access denied");
+			}
+			Organization existingOrg = organizationRepository.findOne(organizationEntity.getId());
+			
+			if(existingOrg == null) {
+				existingOrg = organizationRepository.findDeleted(organizationEntity.getId());
+			}
+			
+			if(organizationEntity.getAddress().getId() == null) {
+				organizationEntity.getAddress().setId(existingOrg.getAddress().getId());
+			}
+			
+			User userEntity = userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+			
+			//Update ResourceGroups for Organization
+			resourceGroupService.newCreate(DocumentParentType.ORGANIZATION, organizationEntity.getId());
+
+			//add user to admin resource group
+			resourceGroupService.addUserResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), "ADMIN");
+			
 			organizationEntity.setLogoImage(existingOrg.getLogoImage());
 
 			RecentUpdateController recentUpdateController = new RecentUpdateController();
 			recentUpdateController.addRecentUpdate(organizationEntity, existingOrg);
 
+			//Use isPaid value from existing org
+			organizationEntity.setIsPaid(existingOrg.getIsPaid());
 			organizationEntity = organizationRepository.save(organizationEntity);
 		}
 
@@ -170,6 +201,19 @@ public class OrganizationService {
 
 		UserModel currentUserModel = mapper.mapToModel(currentUser);
 		return findById(currentUserModel.getCompanyId()).getProductionCapabilities();
+	}
+	
+	public OrganizationModel findByUser() {
+		OrganizationModel model = new OrganizationModel();
+		Integer id = (Integer) ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+		UserRoleAssignmentRO ura = userRoleAssignmentRepository.findByUserId(id);
+		if(ura != null) {
+			if(SecurityRoles.ADMIN.equalsIgnoreCase(ura.getRole().getRole())) {
+				Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
+				model = mapper.mapToModel(organizationRepository.findDeleted(ura.getOrgId()));
+			}
+		}
+		return model;
 	}
 
 	public OrganizationModel findById(Integer id) {
@@ -203,7 +247,7 @@ public class OrganizationService {
 				Iterator<ResourceGroup> iterator = user.getResourceGroups().iterator();
 				while(iterator.hasNext()) {
 					ResourceGroup group = iterator.next();
-					if(DocumentParentType.ORGANIZATION.equals(group.getParentType()) && organizationId.equals(group.getParentId())) {
+					if(group != null && DocumentParentType.ORGANIZATION.equals(group.getParentType()) && organizationId.equals(group.getParentId())) {
 						iterator.remove();
 					}
 				}
@@ -225,4 +269,5 @@ public class OrganizationService {
 		//remove associated resource groups
 		resourceGroupService.removeAll(DocumentParentType.ORGANIZATION, organizationId);
 	}
+
 }

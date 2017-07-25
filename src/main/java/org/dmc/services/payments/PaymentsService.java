@@ -1,5 +1,6 @@
 package org.dmc.services.payments;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -18,18 +19,32 @@ import com.stripe.model.Charge;
 @Service
 public class PaymentsService {
 
-	@Value("${STRIPE_SKEY}")
+	@Value("${STRIPE_SKEY:empty}")
 	private String stripeSKey;
+	
+	@Value("${STRIPE_T_SKEY}")
+	private String stripeTSKey;
 
 	@PostConstruct
 	public void init() {
-		Stripe.apiKey = stripeSKey;
+		if("empty".equals(stripeSKey)) {
+			Stripe.apiKey = stripeTSKey;
+		} else {
+			Stripe.apiKey = stripeSKey;
+		}
 	}
 
-	public Charge createCharge(Map<String, Object> chargeParams) throws AuthenticationException,
+	public Charge createCharge(String token, String name) throws AuthenticationException,
 			InvalidRequestException, APIConnectionException, CardException, APIException {
 		
-		return Charge.create(chargeParams);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("amount", 50000);
+		params.put("currency", "usd");
+		params.put("description", "Example charge for " + name);
+		params.put("source", token);
+		//Will throw an exception if payment fails
+		return Charge.create(params);
 		
 	}
+	
 }
