@@ -24,7 +24,7 @@ public class SolrUtils {
 	private static final String logTag = SolrUtils.class.getName();
 
 
-    //public static String BASE_URL = "http://52.24.49.48:8983/solr/";
+    public static String SOLR_BASE_URL = "http://10.0.9.9:8983/solr/";
     public static String FULL_IMPORT = "dataimport?command=full-import&clean=true";
 
     public static final String CORE_GFORGE_COMPANIES  = "gforge_companies";
@@ -41,7 +41,8 @@ public class SolrUtils {
     private static String baseUrl;
     static
     {
-        baseUrl = System.getenv("SOLR_BASE_URL");
+        //baseUrl = System.getenv("SOLR_BASE_URL");
+				baseUrl = SOLR_BASE_URL;
     }
 
 

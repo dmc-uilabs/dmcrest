@@ -49,6 +49,12 @@ public class SearchController implements SearchInterface {
     }
 
     @Override
+    @RequestMapping(value = "/searchMarketplace/{query}", method = RequestMethod.GET)
+    public List<Service> searchMarketplace(@PathVariable("query") String query, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
+        return searchImpl.searchMarketplace(query, userEPPN);
+    }
+
+    @Override
     @RequestMapping(value = "/searchProjects/{query}", method = RequestMethod.GET)
     public List<Project> searchProjects(@PathVariable("query") String query, @RequestHeader(value="AJP_eppn", defaultValue="testUser") String userEPPN) throws SearchException {
         return searchImpl.searchProjects(query, userEPPN);
