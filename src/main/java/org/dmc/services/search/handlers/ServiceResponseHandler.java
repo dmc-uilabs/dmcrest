@@ -10,6 +10,8 @@ import org.dmc.services.services.Service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 /**
  * Created by 200005921 on 2/2/2016.
@@ -86,7 +88,7 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
                     String release_date = (String) doc.getFieldValue(FIELD_RELEASE_DATE);
                     String from_location = (String) doc.getFieldValue(FIELD_FROM_LOCATION);
                     String service_type = (String) doc.getFieldValue(FIELD_SERVICE_TYPE);
-                    //String tags = (String) doc.getFieldValue(FIELD_TAGS);
+                    List<String> tags = (List<String>) doc.getFieldValue(FIELD_TAGS);
 
                     Service service =  new Service();
           					service.setId(id);
@@ -98,11 +100,17 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
                     service.setProfileId(ownerIdStr);
                     service.setProjectId(projectIdStr);
                     service.setPublished(Boolean.valueOf(published));
-                    //service.setReleaseDate(release_date);
+                    try {
+                      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                      service.setReleaseDate(format.parse(release_date));
+                    }
+                    catch (Exception e) {
+                      // Date could not be formatted
+                    }
                     service.setFrom(from_location);
                     service.setServiceType(service_type);
                     service.setSpecifications(specifications);
-                    //service.setTags(type);
+                    service.setTags(tags);
 
                     if (l == null) {
                         l = new ArrayList<Service>();
