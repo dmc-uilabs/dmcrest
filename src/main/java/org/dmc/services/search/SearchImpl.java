@@ -310,7 +310,10 @@ public class SearchImpl implements SearchInterface {
         solrParams.set("defType", "edismax");
         solrParams.set("fq", "published:true");   // All published services
         solrParams.add("fq", "!project_id:0");    // that are not deleted
-        solrParams.set("qf", "title^1+description^1");
+        //solrParams.set("qf", "title^1+description^1+tags^1");
+        solrParams.set("qf", "title^1");
+        solrParams.add("qf", "description^1");
+        solrParams.add("qf", "tags^1");
         solrParams.set("rows", "10000");
 
 
