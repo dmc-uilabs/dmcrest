@@ -22,10 +22,10 @@ public class UserBasicInformationController {
 
 	private final String logTag = UserBasicInformationController.class.getName();
 	private UserBasicInformationDao info = new UserBasicInformationDao();
-	
+
 	@Inject
 	private NotificationService notificationService;
-    
+
 	@Transactional
 	// Usually we wouldn't make a controller method transactional, but we need to work around this difficult to deal with code
 	@RequestMapping(value = "/user-basic-information", method = RequestMethod.POST, headers = {"Content-type=application/json"})
@@ -43,12 +43,18 @@ public class UserBasicInformationController {
 	    }
 
     }
-    
+
+		@RequestMapping(value = "/user-accept-terms-and-conditions", method = RequestMethod.POST, headers = {"Content-type=application/json"})
+		public Id userAcceptTermsAndConditions(@RequestHeader(value="AJP_eppn", required=true) String userEPPN)
+		{
+			return info.userAcceptTermsAndConditions(userEPPN);
+		}
+
     // Exception handler - all exceptions not caught elsewhere will bubble to the controller
     // and can be returned to the client. We can also catch the exception elsewhere, then throw it again
     // so that it will be available to the client in a uniform fashion  via this method
-	
-	
+
+
     @ExceptionHandler(Exception.class)
     public ErrorMessage handleException(Exception ex) {
     	ErrorMessage result = new ErrorMessage.ErrorMessageBuilder(ex.getMessage())
@@ -56,4 +62,8 @@ public class UserBasicInformationController {
         ServiceLogger.log(logTag, "UserBasicInformation Exception: " + ex.getMessage());
     	return result;
     }
+
+
+
+
 }
