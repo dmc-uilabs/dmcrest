@@ -11,13 +11,13 @@ import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.Organization;
-import org.dmc.services.data.entities.OrganizationPayment;
+import org.dmc.services.data.entities.Payment;
+import org.dmc.services.data.entities.PaymentParentType;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDocument;
 import org.dmc.services.data.entities.QOrganization;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.User;
-import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.entities.UserRoleAssignmentRO;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
@@ -26,7 +26,7 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
-import org.dmc.services.data.repositories.OrganizationPaymentRepository;
+import org.dmc.services.data.repositories.PaymentRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserRoleAssignmentRepository;
@@ -44,6 +44,8 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -58,9 +60,6 @@ public class OrganizationService {
 	@Inject
 	private OrganizationRepository organizationRepository;
 	
-	@Inject
-	private OrganizationPaymentRepository organizationPaymentRepository;
-
 	@Inject
 	private AreaOfExpertiseRepository areaOfExpertiseRepository;
 	
@@ -94,7 +93,6 @@ public class OrganizationService {
 	public Page<OrganizationModel> filter(PageRequest pageRequest, List<String> names, List<Integer> areasOfExpertise,
 	                                      List<Integer> desiredAreasOfExpertise) {
 
-		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
 		Predicate where = buildPredicate(
 				likeOrganizationName(names),
@@ -103,16 +101,15 @@ public class OrganizationService {
 		);
 
 		Page<Organization> organizations = organizationRepository.findAll(where, pageRequest);
-		List<OrganizationModel> organizationModels = mapper.mapToModel(organizations.getContent());
+		List<OrganizationModel> organizationModels = getOrgMapper().mapToModel(organizations.getContent());
 
 		return new PageImpl<>(organizationModels, pageRequest, organizations.getTotalElements());
 	}
 
 	@Transactional
 	public OrganizationModel save(OrganizationModel organizationModel) {
-		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
-		Organization organizationEntity = mapper.mapToEntity(organizationModel);
+		Organization organizationEntity = getOrgMapper().mapToEntity(organizationModel);
 
 		// Check each of the tags to see if they're new or not. If new, they're saved separately through their own repository.
 		List<AreaOfExpertise> aTags = organizationEntity.getAreasOfExpertise();
@@ -136,7 +133,7 @@ public class OrganizationService {
 		// if organization is being created, save it and set the user saving as company admin
 		if (organizationEntity.getId() == null) {
 			organizationEntity = organizationRepository.save(organizationEntity);
-			User userEntity = userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+			User userEntity = getCurrentUser();
 			organizationUserService.createVerifiedOrganizationUser(userEntity, organizationEntity);
 			userRoleAssignmentService.assignInitialCompanyAdmin(userEntity, organizationEntity);
 
@@ -169,20 +166,15 @@ public class OrganizationService {
 			organizationEntity = organizationRepository.save(organizationEntity);
 		}
 
-		return mapper.mapToModel(organizationEntity);
+		return getOrgMapper().mapToModel(organizationEntity);
 
 	}
 	
 	@Transactional
-	public Organization updatePayment(OrganizationModel orgModel, String chargeId, Boolean paid) {
-		organizationPaymentRepository.save(new OrganizationPayment(chargeId, orgModel.getId()));
-		
-		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-
-		Organization orgEntity = mapper.mapToEntity(orgModel);
+	public Organization updatePaymentStatus(OrganizationModel orgModel, Boolean paid) {
+		Organization orgEntity = getOrgMapper().mapToEntity(orgModel);
 		
 		orgEntity.setIsPaid(paid);
-		
 		return save(orgEntity);
 	}
 
@@ -207,29 +199,25 @@ public class OrganizationService {
 		UserRoleAssignmentRO ura = userRoleAssignmentRepository.findByUserId(id);
 		if(ura != null) {
 			if(SecurityRoles.ADMIN.equalsIgnoreCase(ura.getRole().getRole())) {
-				Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-				model = mapper.mapToModel(organizationRepository.findDeleted(ura.getOrgId()));
+				model = getOrgMapper().mapToModel(organizationRepository.findDeleted(ura.getOrgId()));
 			}
 		}
 		return model;
 	}
 
 	public OrganizationModel findById(Integer id) {
-		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-		return mapper.mapToModel(organizationRepository.findOne(id));
+		return getOrgMapper().mapToModel(organizationRepository.findOne(id));
 	}
 
 	public List<OrganizationModel> findAll() {
-		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-		return mapper.mapToModel(organizationRepository.findAll());
+		return getOrgMapper().mapToModel(organizationRepository.findAll());
 	}
 
 	public List<OrganizationModel> findNonDmdiiMembers() {
 		ListSubQuery<Integer> subQuery = new JPASubQuery().from(QDMDIIMember.dMDIIMember).list(QDMDIIMember.dMDIIMember.organization().id);
 		Predicate predicate = QOrganization.organization.id.notIn(subQuery);
 
-		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
-		return mapper.mapToModel(organizationRepository.findAll(predicate));
+		return getOrgMapper().mapToModel(organizationRepository.findAll(predicate));
 	}
 
 	@Transactional
@@ -266,6 +254,14 @@ public class OrganizationService {
 
 		//remove associated resource groups
 		resourceGroupService.removeAll(DocumentParentType.ORGANIZATION, organizationId);
+	}
+	
+	private User getCurrentUser() {
+		return userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+	}
+	
+	private Mapper<Organization, OrganizationModel> getOrgMapper() {
+		return mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 	}
 
 }
