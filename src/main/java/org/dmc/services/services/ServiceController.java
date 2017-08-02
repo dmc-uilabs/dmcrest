@@ -94,6 +94,13 @@ public class ServiceController {
     @RequestMapping(value = "/services", produces = { APPLICATION_JSON_VALUE, "text/html" }, method = RequestMethod.POST)
     public ResponseEntity<?> postService(@RequestBody Service body,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+        if (body.getProjectId() == null) {
+          System.out.println("no project id!!!!!!!!!!!!");
+        } else {
+          System.out.println("found project Id!!!!!!!!!!!!");
+        }
+
         try {
             ServiceLogger.log(LOGTAG, "In createService");
             return new ResponseEntity<Service>(serviceDao.createService(body, userEPPN), HttpStatus.OK);
