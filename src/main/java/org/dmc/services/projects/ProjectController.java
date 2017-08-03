@@ -365,8 +365,10 @@ public class ProjectController {
 		return projectJoinApprovalRequestSevice.declineRequest(id, user.getId());
 	}
 
+	String defaultWorkspaceTitle = "Default Workspace";
+
 	public Integer findOrCreateDefaultProject(String userEPPN) throws DMCServiceException {
-		List<Project> userProjects = projectDao.getProjectList(userEPPN, null, null, null, null);
+		List<Project> userProjects = projectDao.getProjectList(userEPPN, null, null, null, defaultWorkspaceTitle);
 		if (userProjects.isEmpty()) {
 			// return projectDao.createProject(returnDefaultProjectRequest(), userEPPN).getId();
 			try {
@@ -382,8 +384,8 @@ public class ProjectController {
 
 	private ProjectCreateRequest returnDefaultProjectRequest() {
 		ProjectCreateRequest projectCreateRequest = new ProjectCreateRequest();
-		projectCreateRequest.setTitle("Default Workspace");
-		projectCreateRequest.setDescription("Default Workspace");
+		projectCreateRequest.setTitle(defaultWorkspaceTitle);
+		projectCreateRequest.setDescription(defaultWorkspaceTitle);
 		int currentDate = (int) (new Date().getTime()/1000);
 		projectCreateRequest.setCreatedOn(currentDate);
 		projectCreateRequest.setProjectType("private");
