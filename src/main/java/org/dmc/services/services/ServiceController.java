@@ -100,8 +100,13 @@ public class ServiceController {
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
         if (body.getProjectId() == null) {
-          String defaultProjectId = Integer.toString(projectController.findOrCreateDefaultProject(userEPPN));
-          body.setProjectId(defaultProjectId);
+          try {
+              String defaultProjectId = Integer.toString(projectController.findOrCreateDefaultProject(userEPPN));
+              body.setProjectId(defaultProjectId);
+          } catch (DMCServiceException e) {
+              ServiceLogger.logException(LOGTAG, e);
+              return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+          }
         }
 
         try {
