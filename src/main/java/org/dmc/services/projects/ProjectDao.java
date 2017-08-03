@@ -387,6 +387,10 @@ public class ProjectDao {
         return project;
     }
 
+    public void createProjectTest(String testVar) {
+      System.out.println("createProjectTest called!!!!!");
+    }
+
     @Transactional
     public Id createProject(String projectname, String unixname, String description, String projectType, String approvalOption,
             String userEPPN, long dueDate, int createdOn) throws SQLException, JSONException, Exception {
