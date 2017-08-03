@@ -364,4 +364,9 @@ public class ProjectController {
 		return projectJoinApprovalRequestSevice.declineRequest(id, user.getId());
 	}
 
+	public Integer findOrCreateDefaultProject(String userEPPN) {
+		List<Project> userProjects = projectDao.getProjectList(userEPPN, null, null, null, null);
+		return userProjects.isEmpty() ? 99999 : userProjects.get(0).getId();
+	}
+
 }

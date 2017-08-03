@@ -15,7 +15,7 @@ import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.security.SecurityRoles;
-import org.dmc.services.projects.ProjectDao;
+import org.dmc.services.projects.ProjectController;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +42,7 @@ public class ServiceController {
     private DocumentService documentService;
 
     @Inject
-    private ProjectDao projectDao;
+    private ProjectController projectController;
 
     @RequestMapping(value = "/services/{id}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getService(@PathVariable("id") int id,
@@ -100,8 +100,8 @@ public class ServiceController {
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
         if (body.getProjectId() == null) {
-          // createProject(projectname, unixname, description, type, approvalOption, userEPPN, dueDate, createdOn);
-          projectDao.createProjectTest("test string");
+          String defaultProjectId = Integer.toString(projectController.findOrCreateDefaultProject(userEPPN));
+          body.setProjectId(defaultProjectId);
         }
 
         try {
