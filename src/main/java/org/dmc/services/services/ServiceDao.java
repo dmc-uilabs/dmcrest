@@ -44,7 +44,7 @@ public class ServiceDao {
             final ResultSet resultSet = DBConnector.executeQuery(query);
 
             if (resultSet.next()) {
-                service = readServiceResultSet(resultSet);
+                        service = readServiceResultSet(resultSet);
                 return service;
             }
             return null;
@@ -523,6 +523,7 @@ public class ServiceDao {
         if (resultSet.wasNull())
             service.setReleaseDate(null);
         service.setServiceType(resultSet.getString("service_type"));
+        service.setSupport(resultSet.getString("support"));
         service.setType(resultSet.getString("service_type"));
         service.setTags(new ArrayList<String>()); // ToDo: up date
         service.setSpecifications(resultSet.getString("specifications"));
@@ -538,6 +539,7 @@ public class ServiceDao {
         service.setType(resultSet.getString("type"));
         service.setParent(resultSet.getString("parent"));
         service.setPublished(resultSet.getBoolean("published"));
+
 
         service.setAverageRun("");
         return service;
