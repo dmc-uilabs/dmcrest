@@ -29,7 +29,7 @@ public class esignController {
 	private ESignService eSignService;
 
 	@RequestMapping(value = "/esignDoc", method = RequestMethod.POST)
-	public void signDocument(@RequestBody String CompanyInfo) {
+	public ResponseEntity<eSignStatus> signDocument(@RequestBody String CompanyInfo) {
 
       try {
 
