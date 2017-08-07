@@ -31,10 +31,12 @@ public class esignController {
 	@RequestMapping(value = "/esignDoc", method = RequestMethod.POST)
 	public ResponseEntity<eSignStatus> signDocument(@RequestBody String CompanyInfo) {
 
+			String response;
+
       try {
 
   				//Will throw an exception if esign fails
-  				String response = eSignService.eSignField(CompanyInfo);
+  				response = eSignService.eSignField(CompanyInfo);
 					System.out.println("response" + response);
 					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "eSignature Successful!"), HttpStatus.OK);
   				//Should be true if payment was successful
