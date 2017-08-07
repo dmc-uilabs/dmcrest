@@ -31,7 +31,7 @@ public class esignController {
 	@RequestMapping(value = "/esignDoc", method = RequestMethod.POST)
 	public ResponseEntity<eSignStatus> signDocument(@RequestBody String CompanyInfo) {
 
-			String response;
+			String response = "";
 
       try {
 
