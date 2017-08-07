@@ -99,7 +99,10 @@ public class ServiceController {
     public ResponseEntity<?> postService(@RequestBody Service body,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 
+        ServiceLogger.log(LOGTAG, "In createService");
+
         if (body.getProjectId() == null) {
+          ServiceLogger.log(LOGTAG, "no projectId included for service create, userEPPN: " + userEPPN);
           try {
               String defaultProjectId = Integer.toString(projectController.findOrCreateDefaultProject(userEPPN));
               body.setProjectId(defaultProjectId);
@@ -107,10 +110,16 @@ public class ServiceController {
               ServiceLogger.logException(LOGTAG, e);
               return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
           }
+
+          Integer existingServiceId = checkForExistingServiceInDefaultSpace(body.getProjectId(), body.getParent());
+          if (!existingServiceId.equals(0)) {
+            ServiceLogger.log(LOGTAG, "service already exists in default space, returning existing service, userEPPN: " + userEPPN);
+            return new ResponseEntity<Service>(serviceDao.getService(existingServiceId, userEPPN), HttpStatus.OK);
+          }
         }
 
+
         try {
-            ServiceLogger.log(LOGTAG, "In createService");
             return new ResponseEntity<Service>(serviceDao.createService(body, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
@@ -371,6 +380,23 @@ public class ServiceController {
             ServiceLogger.logException(LOGTAG, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
+    }
+
+    private Integer checkForExistingServiceInDefaultSpace(String defaultWorkspaceId, String parentServiceId) {
+
+      Integer workspaceId = Integer.parseInt(defaultWorkspaceId);
+      ArrayList<Service> servicesInWorkspace = serviceDao.getServiceList(workspaceId);
+
+      int count = 0;
+      while (servicesInWorkspace.size() > count) {
+         Service currentService = servicesInWorkspace.get(count);
+         if (currentService.getParent().equals(parentServiceId)) {
+           return currentService.getId();
+         }
+         count++;
+      }
+
+      return 0;
     }
 
 }
