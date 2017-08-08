@@ -10,6 +10,7 @@ import org.dmc.services.discussions.Discussion;
 import org.dmc.services.discussions.DiscussionListDao;
 import org.dmc.services.discussions.IndividualDiscussion;
 import org.dmc.services.discussions.IndividualDiscussionDao;
+import org.dmc.services.DMCError;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.security.UserPrincipal;
 import org.springframework.data.domain.Page;
@@ -27,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.inject.Inject;
 import javax.xml.ws.http.HTTPException;
 import java.util.ArrayList;
@@ -35,6 +35,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Date;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -362,6 +363,34 @@ public class ProjectController {
 	public ProjectJoinApprovalRequestModel declineProjectJoinApprovalRequest(@PathVariable("id") Integer id) throws ArgumentNotFoundException {
 		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return projectJoinApprovalRequestSevice.declineRequest(id, user.getId());
+	}
+
+	String defaultWorkspaceTitle = "Default Workspace";
+
+	public Integer findOrCreateDefaultProject(String userEPPN) throws DMCServiceException {
+		List<Project> userProjects = projectDao.getProjectList(userEPPN, null, null, null, defaultWorkspaceTitle);
+		if (userProjects.isEmpty()) {
+			// return projectDao.createProject(returnDefaultProjectRequest(), userEPPN).getId();
+			try {
+				return projectDao.createProject(returnDefaultProjectRequest(), userEPPN).getId();
+			} catch (Exception e) {
+				ServiceLogger.log(logTag, "caught exception: for user " + userEPPN + " " + e.getMessage());
+				throw new DMCServiceException(DMCError.OtherSQLError, e.getMessage());
+			}
+		} else {
+			return userProjects.get(0).getId();
+		}
+	}
+
+	private ProjectCreateRequest returnDefaultProjectRequest() {
+		ProjectCreateRequest projectCreateRequest = new ProjectCreateRequest();
+		projectCreateRequest.setTitle(defaultWorkspaceTitle);
+		projectCreateRequest.setDescription(defaultWorkspaceTitle);
+		int currentDate = (int) (new Date().getTime()/1000);
+		projectCreateRequest.setCreatedOn(currentDate);
+		projectCreateRequest.setProjectType("private");
+		// projectCreateRequest.setApprovalOption();
+		return projectCreateRequest;
 	}
 
 }
