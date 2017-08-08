@@ -156,6 +156,15 @@ public class OrganizationService {
 			if(organizationEntity.getAddress().getId() == null) {
 				organizationEntity.getAddress().setId(existingOrg.getAddress().getId());
 			}
+			
+			User userEntity = userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+			
+			//Update ResourceGroups for Organization
+			resourceGroupService.newCreate(DocumentParentType.ORGANIZATION, organizationEntity.getId());
+
+			//add user to admin resource group
+			resourceGroupService.addUserResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), "ADMIN");
+			
 			organizationEntity.setLogoImage(existingOrg.getLogoImage());
 
 			RecentUpdateController recentUpdateController = new RecentUpdateController();
