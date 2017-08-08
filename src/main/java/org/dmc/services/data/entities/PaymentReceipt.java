@@ -16,16 +16,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "payment")
-public class Payment extends BaseEntity {
+@Table(name = "payment_receipt")
+public class PaymentReceipt extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Integer id;
 	
-	@JoinColumn(name = "user_id")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@Column(name = "user_id")
 	private User user;
 	
 	@Column(name = "parent_id")
@@ -50,7 +49,11 @@ public class Payment extends BaseEntity {
 	@Column(name = "description")
 	private String description;
 	
-	public Payment(User user, Integer parentId, PaymentParentType type, String status, BigDecimal amount, String chargeId, Date date) {
+	@JoinColumn(name = "payment_plan_id", referencedColumnName="id")
+	@ManyToOne
+	private PaymentPlan paymentPlan;
+	
+	public PaymentReceipt(User user, Integer parentId, PaymentParentType type, String status, BigDecimal amount, String chargeId, Date date) {
 		this.user = user;
 		this.parentId = parentId;
 		this.type = type;
@@ -130,6 +133,14 @@ public class Payment extends BaseEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public PaymentPlan getPaymentPlan() {
+		return paymentPlan;
+	}
+
+	public void setPaymentPlan(PaymentPlan paymentPlan) {
+		this.paymentPlan = paymentPlan;
 	}
 
 }

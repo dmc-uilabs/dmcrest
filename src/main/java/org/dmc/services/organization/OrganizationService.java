@@ -11,7 +11,7 @@ import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.Organization;
-import org.dmc.services.data.entities.Payment;
+import org.dmc.services.data.entities.PaymentReceipt;
 import org.dmc.services.data.entities.PaymentParentType;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDocument;
