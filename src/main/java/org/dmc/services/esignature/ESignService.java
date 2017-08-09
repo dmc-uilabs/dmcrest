@@ -1,24 +1,49 @@
 package org.dmc.services.esignature;
 
-import java.util.HashMap;
-import java.util.Map;
+// import java.util.HashMap;
+// import java.util.Map;
+// import java.util.LinkedHashMap;
 
-import javax.annotation.PostConstruct;
+// import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.net.HttpURLConnection;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.Proxy;
-import java.net.InetSocketAddress;
-import java.io.DataOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+// import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+// import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+// import java.net.URL;
+// import java.net.URLEncoder;
+// import java.net.HttpURLConnection;
+// import java.io.BufferedReader;
+// import java.io.InputStreamReader;
+// import java.net.Proxy;
+// import java.net.InetSocketAddress;
+// import java.io.DataOutputStream;
 import java.io.InputStream;
-import java.net.MalformedURLException;
+import java.io.StringWriter;
+
+// import com.mysema.query.jpa.JPASubQuery;
+// import com.mysema.query.types.Predicate;
+// import com.mysema.query.types.query.ListSubQuery;
+//
+// import org.dmc.services.data.entities.ESignDocument;
+// import org.dmc.services.data.mappers.Mapper;
+// import org.dmc.services.data.mappers.MapperFactory;
+// import org.dmc.services.data.models.ESignModel;
+// import org.dmc.services.data.repositories.ESignRepository;
+// import javax.inject.Inject;
+// import javax.transaction.Transactional;
 
 @Service
 public class ESignService {
@@ -31,96 +56,98 @@ public class ESignService {
   @Value("${DOCUMENT_ID}")
 	private String eDocuID;
 
+	// @Inject
+	// private ESignRepository esignRepository;
 
-
-  // private JSONObject formatSignBodyRequest(String CompanyInfo){
+	// @Transactional
+	// public ESignModel save(ESignModel esignModel) {
+	// 		Mapper<ESignDocument, ESignModel> mapper = mapperFactory.mapperFor(ESignDocument.class, ESignModel.class);
 	//
-  //     JSONObject bodyRequest = new JSONObject();
-	// 		JSONParser parser = new JSONParser();
-	// 		JSONObject CompanyJson = new JSONObject();
-	// 		if (CompanyInfo != "")
-	// 			CompanyJson = (JSONObject) parser.parse(CompanyInfo);
-	// 		else
-	// 			CompanyJson = null;
 	//
-  //     bodyRequest.put("document_id", eDocuID);
-  //     bodyRequest.put("access", "full");
-  //     bodyRequest.put("status", "public");
-  //     bodyRequest.put("name_required", false);
-  //     bodyRequest.put("email_required", true);
-	// 		bodyRequest.put("allow_downloads", true);
-	// 		bodyRequest.put("redirect_url", "https://dev-web2.opendmc.org/company-onboarding.php/pay");
-	// 		bodyRequest.put("callback_url", "https://requestb.in/utv7drut");
-	// 		bodyRequest.put("reusable", true);
-	// 		bodyRequest.put("required_fields", true);
-	// 		bodyRequest.put("fillable_fields", CompanyJson);
-	//
-	// 		return bodyRequest;
 	// }
 
   public String eSignField(String CompanyInfo){
 
+		CloseableHttpResponse response = null;
+		InputStream is = null;
+		String results = null;
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+		LocalDate localDate = LocalDate.now();
+
 		try{
-			 	URL obj = new URL(eSignURL);
-			  HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
-				conn.setRequestProperty("content-type", "application/json");
-		    conn.setRequestProperty("authorization", eSignKey);
-		    conn.setDoOutput(true);
+				HttpPost httppost = new HttpPost(eSignURL);
+				httppost.addHeader("content-type", "application/json");
+				httppost.addHeader("authorization", "Bearer " + eSignKey);
 
-		    conn.setRequestMethod("POST");
-				conn.setDoInput(true);
-				conn.setDoOutput(true);
+				String json =
+				"{\"document_id\": \""+ eDocuID+ "\", " +
+				"\"access\": \"full\", " +
+				"\"name\": \"Membership Agreement Clean Version 3.4_"+ dtf.format(localDate) + "\", " +
+				"\"status\": \"public\", "+
+				"\"name_required\": false, "+
+				"\"email_required\": true, "+
+				"\"allow_downloads\": true, "+
+				// "\"custom_logo_id\": 44947, "+
+				"\"redirect_url\": \"https://dev-web2.opendmc.org/company-onboarding.php/pay\", "+
+				"\"callback_url\": \"https://requestb.in/y82ufvy8\", "+
+				"\"reusable\": false, "+
+				"\"required_fields\": true, "+
+				"\"signature_stamp\": false, "+
+				"\"fillable_fields\":"  + CompanyInfo + "}";
 
-				String urlParameters =
-        "document_id=" + URLEncoder.encode(eDocuID, "UTF-8") +
-        "&access=" + URLEncoder.encode("full", "UTF-8") +
-				"&status=" + URLEncoder.encode("public", "UTF-8") +
-				"&name_required=" + URLEncoder.encode("false", "UTF-8") +
-				"&email_required=" + URLEncoder.encode("true", "UTF-8") +
-				"&allow_downloads=" + URLEncoder.encode("true", "UTF-8") +
-				"&redirect_url=" + URLEncoder.encode("https://dev-web2.opendmc.org/company-onboarding.php/pay", "UTF-8") +
-				"&callback_url=" + URLEncoder.encode("https://requestb.in/utv7drut", "UTF-8") +
-				"&reusable=" + URLEncoder.encode("true", "UTF-8") +
-				"&required_fields=" + URLEncoder.encode("true", "UTF-8") +
-				"&fillable_fields=" + URLEncoder.encode(CompanyInfo, "UTF-8");
+				StringEntity reqEntity = new StringEntity(json);
 
-				// JSONObject json = formatSignBodyRequest(CompanyInfo);
+				httppost.setEntity(reqEntity);
+				// System.out.println("httppost " + httppost);
+				System.out.println("json " + json);
+				// System.out.println("reqEntity " + reqEntity.getContent());
 
-		    // String data =  "{\"format\":\"json\",\"pattern\":\"#\"}";
-				//Send request
-		    DataOutputStream wr = new DataOutputStream (conn.getOutputStream ());
-		    wr.writeBytes (urlParameters);
-		    wr.flush ();
-		    wr.close ();
+				response = httpclient.execute(httppost);
 
-		    //Get Response
-		    InputStream is = conn.getInputStream();
-		    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-		    String line;
-		    StringBuffer response = new StringBuffer();
-		    while((line = rd.readLine()) != null) {
-		        response.append(line);
-		        response.append('\r');
-		    }
-		    rd.close();
-				conn.disconnect();
-		    return response.toString();
+				HttpEntity entity = response.getEntity();
+				if (entity != null) {
+						is = entity.getContent();
+						StringWriter writer = new StringWriter();
+						IOUtils.copy(is, writer, "UTF-8");
+						results = writer.toString();
+				}
+
+				try {
+						if (is != null) {
+								is.close();
+						}
+				} catch (Exception e) {
+						// No-op
+						e.printStackTrace();
+			      return null;
+				}
+
+				try {
+						if (response != null) {
+								response.close();
+						}
+				} catch (Exception e) {
+						// No-op
+						e.printStackTrace();
+			      return null;
+				}
+
+				httpclient.close();
+				return results;
 		}catch (Exception e) {
+				// No-op
 				e.printStackTrace();
-	      return null;
-	  }
+				return null;
+		}
   }
 
-	// public Charge createCharge(String token, String name) throws AuthenticationException,
-	// 		InvalidRequestException, APIConnectionException, CardException, APIException {
-  //
-	// 	Map<String, Object> params = new HashMap<String, Object>();
-	// 	params.put("amount", 50000);
-	// 	params.put("currency", "usd");
-	// 	params.put("description", "Example charge for " + name);
-	// 	params.put("source", token);
-	// 	//Will throw an exception if payment fails
-	// 	return Charge.create(params);
-  //
-	// }
+	public String eSignCheck(String DocumentID){
+			return "";
+	}
+
+	public String eSignCallback(String DocumentID){
+			return "";
+	}
 }

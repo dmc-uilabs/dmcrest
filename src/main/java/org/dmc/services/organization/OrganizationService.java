@@ -58,7 +58,7 @@ public class OrganizationService {
 
 	@Inject
 	private AreaOfExpertiseRepository areaOfExpertiseRepository;
-	
+
 	@Inject
 	private UserRoleAssignmentRepository userRoleAssignmentRepository;
 
@@ -146,23 +146,23 @@ public class OrganizationService {
 				throw new AccessDeniedException("403 Access denied");
 			}
 			Organization existingOrg = organizationRepository.findOne(organizationEntity.getId());
-			
+
 			if(existingOrg == null) {
 				existingOrg = organizationRepository.findDeleted(organizationEntity.getId());
 			}
-			
+
 			if(organizationEntity.getAddress().getId() == null) {
 				organizationEntity.getAddress().setId(existingOrg.getAddress().getId());
 			}
-			
+
 			User userEntity = userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
-			
+
 			//Update ResourceGroups for Organization
 			resourceGroupService.newCreate(DocumentParentType.ORGANIZATION, organizationEntity.getId());
 
 			//add user to admin resource group
 			resourceGroupService.addUserResourceGroup(userEntity, DocumentParentType.ORGANIZATION, organizationEntity.getId(), "ADMIN");
-			
+
 			organizationEntity.setLogoImage(existingOrg.getLogoImage());
 
 			RecentUpdateController recentUpdateController = new RecentUpdateController();
@@ -176,15 +176,15 @@ public class OrganizationService {
 		return mapper.mapToModel(organizationEntity);
 
 	}
-	
+
 	@Transactional
 	public Organization updatePayment(OrganizationModel orgModel, Boolean paid) {
 		Mapper<Organization, OrganizationModel> mapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 
 		Organization orgEntity = mapper.mapToEntity(orgModel);
-		
+
 		orgEntity.setIsPaid(paid);
-		
+
 		return save(orgEntity);
 	}
 
@@ -202,7 +202,7 @@ public class OrganizationService {
 		UserModel currentUserModel = mapper.mapToModel(currentUser);
 		return findById(currentUserModel.getCompanyId()).getProductionCapabilities();
 	}
-	
+
 	public OrganizationModel findByUser() {
 		OrganizationModel model = new OrganizationModel();
 		Integer id = (Integer) ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
