@@ -7,62 +7,107 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.stripe.model.Charge;
 
 @Entity
 @Table(name = "payment_receipt")
 public class PaymentReceipt extends BaseEntity {
+	
+	@Transient
+	private final String DEFAULT_DESC = "Payment for ";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Integer id;
-	
+
 	@Column(name = "user_id")
-	private User user;
-	
+	private Integer userId;
+
 	@Column(name = "parent_id")
 	private Integer parentId;
-	
+
 	@Column(name = "parent_type")
 	@Enumerated(EnumType.STRING)
 	private PaymentParentType type;
-	
+
 	@Column(name = "payment_status")
 	private String status;
-	
+
 	@Column(name = "amount")
 	private BigDecimal amount;
-	
+
 	@Column(name = "charge_id")
 	private String chargeId;
-	
+
 	@Column(name = "charge_dt")
 	private Date date;
-	
+
 	@Column(name = "description")
 	private String description;
-	
-	@JoinColumn(name = "payment_plan_id", referencedColumnName="id")
+
+	@JoinColumn(name = "payment_plan_id", referencedColumnName = "id")
 	@ManyToOne
 	private PaymentPlan paymentPlan;
 	
-	public PaymentReceipt(User user, Integer parentId, PaymentParentType type, String status, BigDecimal amount, String chargeId, Date date) {
-		this.user = user;
+	public PaymentReceipt() {}
+
+	public PaymentReceipt(Integer userId, Integer parentId, PaymentParentType type, String status, BigDecimal amount,
+			String chargeId, String description, PaymentPlan plan) {
+		this.userId = userId;
 		this.parentId = parentId;
 		this.type = type;
 		this.status = status;
 		this.amount = amount;
 		this.chargeId = chargeId;
-		this.date = date;
+		this.date = new Date();
+		this.description = description;
+		this.paymentPlan = plan;
 	}
-
+	
+	public PaymentReceipt(Integer userId, PaymentParentType type, String status, String description, PaymentPlan plan) {
+		this.userId = userId;
+		this.parentId = plan.getServiceId();
+		this.type = type;
+		this.status = status;
+		this.amount = BigDecimal.valueOf(plan.getPrice(), 2);
+		this.date = new Date();
+		this.description = description;
+		this.paymentPlan = plan;
+	}
+	
+	public PaymentReceipt(Integer userId, Integer parentId, PaymentParentType type, Charge charge) {
+		this.userId = userId;
+		this.parentId = parentId;
+		this.type = type;
+		this.status = charge.getStatus();
+		this.amount = BigDecimal.valueOf(charge.getAmount(), 2);
+		this.chargeId = charge.getId();
+		this.date = new Date();
+		this.description = DEFAULT_DESC + type.toString() + " with Id: " + parentId;
+		this.paymentPlan = null;
+	}
+	
+	public PaymentReceipt(Integer userId, PaymentParentType type, Charge charge, PaymentPlan plan) {
+		this.userId = userId;
+		this.parentId = plan.getServiceId();
+		this.type = type;
+		this.status = charge.getStatus();
+		this.amount = BigDecimal.valueOf(charge.getAmount(), 2);
+		this.chargeId = charge.getId();
+		this.date = new Date();
+		this.description = DEFAULT_DESC + type.toString() + " with Id: " + parentId;
+		this.paymentPlan = plan;
+	}
+	
 	public Integer getId() {
 		return id;
 	}
@@ -71,12 +116,12 @@ public class PaymentReceipt extends BaseEntity {
 		this.id = id;
 	}
 
-	public User getUser() {
-		return user;
+	public Integer getUserId() {
+		return userId;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 
 	public Integer getParentId() {
@@ -102,11 +147,11 @@ public class PaymentReceipt extends BaseEntity {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
+
 	public BigDecimal getAmount() {
 		return amount;
 	}
-	
+
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
@@ -126,7 +171,7 @@ public class PaymentReceipt extends BaseEntity {
 	public void setDate(Date date) {
 		this.date = date;
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}

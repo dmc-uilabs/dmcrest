@@ -1,16 +1,20 @@
 package org.dmc.services.payments;
 
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.entities.PaymentParentType;
 import org.dmc.services.data.models.OrgCreation;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.PaymentStatus;
 import org.dmc.services.data.models.ServicePayment;
+import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.organization.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,22 +57,36 @@ public class PaymentsController {
 			charge = paymentsService.createOrgCharge(token, "Registration charge for " + orgModel.getName());
 			organizationService.updatePaymentStatus(orgModel, charge.getPaid());
 			paymentsService.savePaymentReceipt(charge, orgModel.getId(), PaymentParentType.ORGANIZATION);
-			return new ResponseEntity<PaymentStatus>(new PaymentStatus(charge.getStatus(), "Payment Successful!"), HttpStatus.OK);
 		} catch (StripeException e) {
-			ServiceLogger.log(logTag, "Stripe Exception Occurred: " + e.getMessage());
 			organizationService.delete(orgModel.getId());
-			return new ResponseEntity<PaymentStatus>(new PaymentStatus(charge.getStatus(), e.getMessage()), HttpStatus.OK);
 		} catch (DataAccessException dae) {
 			ServiceLogger.log(logTag, "Database Exception Occurred: " + dae.getMessage());
 			return new ResponseEntity<PaymentStatus>(new PaymentStatus(charge.getStatus(),
 					"There was a problem in the database, please contact support."), HttpStatus.OK);
 		}
+		return new ResponseEntity<PaymentStatus>(new PaymentStatus(charge.getStatus(), "Payment Successful!"), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/payment/service", method = RequestMethod.POST)
 	public ResponseEntity<PaymentStatus> makeServicePayment(@RequestBody ServicePayment sp,
-			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
+					throws StripeException, ArgumentNotFoundException {
 		ServiceLogger.log(logTag, "servicePaymentPOST, userEPPN: " + userEPPN);
 		return new ResponseEntity<PaymentStatus>(paymentsService.processServicePayment(sp), HttpStatus.OK);
 	}
+	
+	@ExceptionHandler(StripeException.class)
+	public ResponseEntity<?> handleStripeException(StripeException e) {
+		ServiceLogger.logException(logTag, new DMCServiceException(DMCError.PaymentError, e.getMessage()));
+		PaymentStatus status = new PaymentStatus("failed", e.getMessage());
+		return new ResponseEntity<PaymentStatus>(status, HttpStatus.OK);
+	}
+	
+	@ExceptionHandler(ArgumentNotFoundException.class)
+	public ResponseEntity<?> handleException(ArgumentNotFoundException e) {
+		ServiceLogger.logException(logTag, new DMCServiceException(DMCError.NotFound, e.getMessage()));
+		PaymentStatus status = new PaymentStatus("failed", e.getMessage());
+		return new ResponseEntity<PaymentStatus>(status, HttpStatus.OK);
+	}
+	
 }

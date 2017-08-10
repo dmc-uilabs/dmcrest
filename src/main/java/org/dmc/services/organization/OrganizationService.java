@@ -26,7 +26,7 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
-import org.dmc.services.data.repositories.PaymentRepository;
+import org.dmc.services.data.repositories.PaymentReceiptRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserRoleAssignmentRepository;

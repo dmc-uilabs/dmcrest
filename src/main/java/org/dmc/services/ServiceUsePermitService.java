@@ -7,7 +7,6 @@ import javax.inject.Inject;
 
 import org.dmc.services.data.entities.PaymentPlan;
 import org.dmc.services.data.entities.ServiceUsePermit;
-import org.dmc.services.data.entities.User;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.PaymentPlanRepository;
 import org.dmc.services.data.repositories.ServiceUsePermitRepository;

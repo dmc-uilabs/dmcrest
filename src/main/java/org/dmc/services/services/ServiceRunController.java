@@ -1,11 +1,8 @@
 package org.dmc.services.services;
 
-import org.dmc.services.ErrorMessage;
-import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.ServiceUsePermitService;
 import org.dmc.services.company.CompanyUserUtil;
-import org.dmc.services.data.entities.ServiceUsePermit;
 import org.dmc.services.exceptions.ServiceUseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
