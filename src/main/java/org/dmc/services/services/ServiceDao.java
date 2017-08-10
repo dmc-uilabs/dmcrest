@@ -44,7 +44,7 @@ public class ServiceDao {
             final ResultSet resultSet = DBConnector.executeQuery(query);
 
             if (resultSet.next()) {
-                service = readServiceResultSet(resultSet);
+                        service = readServiceResultSet(resultSet);
                 return service;
             }
             return null;
@@ -158,7 +158,8 @@ public class ServiceDao {
             query += "from_location=?, ";
             query += "type=?, ";
             query += "parent=?, ";
-            query += "published=? ";
+            query += "published=?, ";
+            query += "support=? ";
             query += "where ";
             query += "service_id=?";
             // removing the below to allow all superAdmins to modify services
@@ -178,7 +179,8 @@ public class ServiceDao {
             preparedStatement.setString(8, requestedBody.getType());
             preparedStatement.setString(9, requestedBody.getParent());
             preparedStatement.setBoolean(10, requestedBody.getPublished());
-            preparedStatement.setInt(11, serviceId);
+            preparedStatement.setString(11,requestedBody.getSupport());
+            preparedStatement.setInt(12, serviceId);
             // preparedStatement.setInt(12, userID);
             final int rowsAffected = preparedStatement.executeUpdate();
             if (1 != rowsAffected) {
@@ -523,6 +525,7 @@ public class ServiceDao {
         if (resultSet.wasNull())
             service.setReleaseDate(null);
         service.setServiceType(resultSet.getString("service_type"));
+        service.setSupport(resultSet.getString("support"));
         service.setType(resultSet.getString("service_type"));
         service.setTags(new ArrayList<String>()); // ToDo: up date
         service.setSpecifications(resultSet.getString("specifications"));
@@ -538,6 +541,7 @@ public class ServiceDao {
         service.setType(resultSet.getString("type"));
         service.setParent(resultSet.getString("parent"));
         service.setPublished(resultSet.getBoolean("published"));
+
 
         service.setAverageRun("");
         return service;
