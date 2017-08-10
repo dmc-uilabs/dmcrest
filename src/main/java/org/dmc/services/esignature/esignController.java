@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -38,15 +39,15 @@ public class esignController {
   		}
 	}
 
-	@RequestMapping(value = "/esignCheck", method = RequestMethod.GET)
-	public ResponseEntity<eSignStatus> signCheck(@RequestBody String documentID) {
+	@RequestMapping(value = "/esignCheck/{LinkToFillID}", method = RequestMethod.GET)
+	public ResponseEntity<eSignStatus> signCheck(@PathVariable("LinkToFillID") String LinkToFillID) {
 
 			String response = "";
 
       try {
   				//Will throw an exception if esign fails
-  				response = eSignService.eSignCheck(documentID);
-					System.out.println("response " + response);
+  				response = eSignService.eSignCheck(LinkToFillID);
+					System.out.println("response " + response.items);
 					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "eSignCheck Successful!"), HttpStatus.OK);
   		} catch (Exception e) {
 					// System.out.println("failed");
