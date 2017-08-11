@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dmc.services.esignature.ESignStatusRespond;
 
 
 @RestController
@@ -34,8 +36,7 @@ public class esignController {
 					System.out.println("response " + response);
 					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "eSignature Successful!"), HttpStatus.OK);
   		} catch (Exception e) {
-					// System.out.println("failed");
-					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "eSignature Failed!"), HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<eSignStatus>(new eSignStatus(null, "eSignature Failed!"), HttpStatus.BAD_REQUEST);
   		}
 	}
 
@@ -47,8 +48,21 @@ public class esignController {
       try {
   				//Will throw an exception if esign fails
   				response = eSignService.eSignCheck(LinkToFillID);
-					System.out.println("response " + response.items);
-					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "eSignCheck Successful!"), HttpStatus.OK);
+					System.out.println("response " + response);
+
+					ObjectMapper objectMapper = new ObjectMapper();
+					ESignStatusRespond esignStatusRespond;
+
+					try{
+						 esignStatusRespond = objectMapper.readValue(response, ESignStatusRespond.class);
+					}catch (Exception e) {
+							e.printStackTrace();
+				      return null;
+					}
+
+					String total = String.valueOf(esignStatusRespond.getTotal());
+					return new ResponseEntity<eSignStatus>(new eSignStatus(total, "eSignCheck Successful!"), HttpStatus.OK);
+
   		} catch (Exception e) {
 					// System.out.println("failed");
 					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "eSignCheck Failed!"), HttpStatus.BAD_REQUEST);

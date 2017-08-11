@@ -48,6 +48,7 @@ import javax.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.dmc.services.security.UserPrincipal;
 
+
 @Service
 public class ESignService {
 
@@ -90,7 +91,7 @@ public class ESignService {
 				String json =
 				"{\"document_id\": \""+ eDocuID+ "\", " +
 				"\"access\": \"full\", " +
-				// "\"name\": \"Membership Agreement Clean Version 3.4_"+ dtf.format(localDate) + "\", " +
+				"\"name\": \"Membership Agreement Clean Version 3.4_"+ dtf.format(localDate) + "\", " +
 				"\"status\": \"public\", "+
 				"\"name_required\": false, "+
 				"\"email_required\": true, "+
@@ -157,33 +158,12 @@ public class ESignService {
 			String results = null;
 			CloseableHttpClient httpclient = HttpClients.createDefault();
 
+
+
 			try{
 					HttpGet httpget = new HttpGet(eSignURL + '/' +DocumentID + "/filled_forms");
 					httpget.addHeader("content-type", "application/json");
 					httpget.addHeader("authorization", "Bearer " + eSignKey);
-
-					// String json =
-					// "{\"document_id\": \""+ eDocuID+ "\", " +
-					// "\"access\": \"full\", " +
-					// // "\"name\": \"Membership Agreement Clean Version 3.4_"+ dtf.format(localDate) + "\", " +
-					// "\"status\": \"public\", "+
-					// "\"name_required\": false, "+
-					// "\"email_required\": true, "+
-					// "\"allow_downloads\": true, "+
-					// // "\"custom_logo_id\": 44947, "+
-					// "\"redirect_url\": \"https://dev-web2.opendmc.org/company-onboarding.php/pay\", "+
-					// "\"callback_url\": \"https://requestb.in/y82ufvy8\", "+
-					// "\"reusable\": false, "+
-					// "\"required_fields\": true, "+
-					// "\"signature_stamp\": false, "+
-					// "\"fillable_fields\":"  + CompanyInfo + "}";
-
-					// StringEntity reqEntity = new StringEntity(json);
-					//
-					// httppost.setEntity(reqEntity);
-					// System.out.println("httppost " + httppost);
-					// System.out.println("json " + json);
-					// System.out.println("reqEntity " + reqEntity.getContent());
 
 					response = httpclient.execute(httpget);
 
