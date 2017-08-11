@@ -34,12 +34,25 @@ public class esignController {
 	public ResponseEntity<eSignStatus> signDocument(@RequestBody String CompanyInfo) {
 
 			String response = "";
+			ObjectMapper mapper = new ObjectMapper();
+			Map<String, Object> map = new HashMap<String, Object>();
+			Map<String, String> resultMap = new HashMap<String, String>();
+			String results = "";
 
       try {
   				//Will throw an exception if esign fails
   				response = eSignService.eSignField(CompanyInfo);
-					System.out.println("response " + response);
-					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "eSignature Successful!"), HttpStatus.OK);
+					// System.out.println("response " + response);
+					try{
+						 map = mapper.readValue(response, new TypeReference<Map<String, Object>>(){});
+						 resultMap.put("url", map.get("url").toString());
+	 					 resultMap.put("template_id", map.get("fillable_form_id").toString());
+						 results = new ObjectMapper().writeValueAsString(resultMap);
+					}catch (Exception e) {
+							e.printStackTrace();
+				      return null;
+					}
+					return new ResponseEntity<eSignStatus>(new eSignStatus(results, "eSignature Successful!"), HttpStatus.OK);
   		} catch (Exception e) {
 					return new ResponseEntity<eSignStatus>(new eSignStatus(null, "eSignature Failed!"), HttpStatus.BAD_REQUEST);
   		}
@@ -53,7 +66,6 @@ public class esignController {
       try {
   				//Will throw an exception if esign fails
   				response = eSignService.eSignCheck(LinkToFillID);
-					System.out.println("response " + response);
 
 					ObjectMapper mapper = new ObjectMapper();
 					Map<String, Object> map = new HashMap<String, Object>();

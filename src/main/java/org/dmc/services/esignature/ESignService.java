@@ -48,6 +48,14 @@ import javax.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.dmc.services.security.UserPrincipal;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 @Service
 public class ESignService {
@@ -71,12 +79,29 @@ public class ESignService {
 	//
 	// }
 
+	private String getCompanyName(String CompanyInfo){
+
+		try{
+				ObjectMapper mapper = new ObjectMapper();
+				Map<String, Object> map = new HashMap<String, Object>();
+				map = mapper.readValue(CompanyInfo, new TypeReference<Map<String, Object>>(){});
+				return map.get("companyName").toString();
+		} catch (Exception e) {
+				// No-op
+				e.printStackTrace();
+				return "Unknown";
+		}
+
+	}
+
   public String eSignField(String CompanyInfo){
 
 		CloseableHttpResponse response = null;
 		InputStream is = null;
 		String results = null;
 		CloseableHttpClient httpclient = HttpClients.createDefault();
+
+		String companyName = getCompanyName(CompanyInfo);
 		// Integer id = (Integer) ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
 		// System.out.println("id" + id);
 
@@ -91,7 +116,7 @@ public class ESignService {
 				String json =
 				"{\"document_id\": \""+ eDocuID+ "\", " +
 				"\"access\": \"full\", " +
-				"\"name\": \"Membership Agreement Clean Version 3.4_"+ dtf.format(localDate) + "\", " +
+				"\"name\": \"Membership Agreement Clean Version 3.4_"+ companyName + "_" + dtf.format(localDate) + "\", " +
 				"\"status\": \"public\", "+
 				"\"name_required\": false, "+
 				"\"email_required\": true, "+
