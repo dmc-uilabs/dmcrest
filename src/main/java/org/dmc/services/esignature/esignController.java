@@ -45,16 +45,21 @@ public class esignController {
 					// System.out.println("response " + response);
 					try{
 						 map = mapper.readValue(response, new TypeReference<Map<String, Object>>(){});
-						 resultMap.put("url", map.get("url").toString());
-	 					 resultMap.put("template_id", map.get("fillable_form_id").toString());
-						 results = new ObjectMapper().writeValueAsString(resultMap);
+						 if (!map.containsKey("fillable_form_id")){
+						 		return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", response), HttpStatus.BAD_REQUEST);
+						 }
+						 else{
+							resultMap.put("url", map.get("url").toString());
+		 					resultMap.put("template_id", map.get("fillable_form_id").toString());
+						 	results = new ObjectMapper().writeValueAsString(resultMap);
+						 }
 					}catch (Exception e) {
 							e.printStackTrace();
-				      return null;
+				      return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", response), HttpStatus.BAD_REQUEST);
 					}
-					return new ResponseEntity<eSignStatus>(new eSignStatus(results, "eSignature Successful!"), HttpStatus.OK);
+					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Successful!", results), HttpStatus.OK);
   		} catch (Exception e) {
-					return new ResponseEntity<eSignStatus>(new eSignStatus(null, "eSignature Failed!"), HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", null), HttpStatus.BAD_REQUEST);
   		}
 	}
 
@@ -72,16 +77,16 @@ public class esignController {
 
 					try{
 						 map = mapper.readValue(response, new TypeReference<Map<String, Object>>(){});
+						 if (map.containsKey("error"))
+						 		return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", String.valueOf(map.get("error"))), HttpStatus.BAD_REQUEST);
 					}catch (Exception e) {
-							e.printStackTrace();
-				      return null;
+						 e.printStackTrace();
+				     return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", response), HttpStatus.BAD_REQUEST);
 					}
-
-					// System.out.println(map);
-					return new ResponseEntity<eSignStatus>(new eSignStatus(String.valueOf(map.get("total")), "eSignCheck Successful!"), HttpStatus.OK);
+					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Successful!", String.valueOf(map.get("total"))), HttpStatus.OK);
 
   		} catch (Exception e) {
-					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "eSignCheck Failed!"), HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", "eSignCheck Failed!"), HttpStatus.BAD_REQUEST);
   		}
 	}
 
