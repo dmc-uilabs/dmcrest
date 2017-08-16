@@ -85,7 +85,7 @@ public class ESignService {
 				"\"redirect_url\": \"https://dev-web2.opendmc.org/company-onboarding.php#/pay\", "+
 				// "\"callback_url\": \"https://requestb.in/y82ufvy8\", "+
 				"\"reusable\": false, "+
-				"\"required_fields\": true, "+
+				"\"enforce_required_fields\": true, "+
 				"\"signature_stamp\": false, "+
 				"\"fillable_fields\":"  + jsonObj + "}";
 
