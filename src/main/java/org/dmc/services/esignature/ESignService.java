@@ -79,7 +79,7 @@ public class ESignService {
 				"\"name\": \"Membership Agreement Clean Version 3.4_"+ companyName + "_" + dtf.format(localDate) + "\", " +
 				"\"status\": \"public\", "+
 				"\"name_required\": false, "+
-				"\"email_required\": true, "+
+				"\"email_required\": false, "+
 				"\"allow_downloads\": true, "+
 				// "\"custom_logo_id\": 44947, "+
 				"\"redirect_url\": \"https://dev-web2.opendmc.org/company-onboarding.php#/pay\", "+
