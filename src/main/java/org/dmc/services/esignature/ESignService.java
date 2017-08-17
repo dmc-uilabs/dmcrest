@@ -77,6 +77,7 @@ public class ESignService {
 				"{\"document_id\":" + eDocuID + ", " +
 				"\"access\": \"full\", " +
 				"\"name\": \"Membership Agreement Clean Version 3.4_"+ companyName + "_" + dtf.format(localDate) + "\", " +
+				"\"enforce_required_fields\": true, "+
 				"\"status\": \"public\", "+
 				"\"name_required\": false, "+
 				"\"email_required\": false, "+
@@ -84,8 +85,7 @@ public class ESignService {
 				// "\"custom_logo_id\": 44947, "+
 				"\"redirect_url\": \"https://dev-web2.opendmc.org/company-onboarding.php#/pay\", "+
 				// "\"callback_url\": \"https://requestb.in/y82ufvy8\", "+
-				"\"reusable\": false, "+
-				"\"enforce_required_fields\": true, "+
+				"\"reusable\": false, "+	
 				"\"signature_stamp\": false, "+
 				"\"fillable_fields\":"  + jsonObj + "}";
 
