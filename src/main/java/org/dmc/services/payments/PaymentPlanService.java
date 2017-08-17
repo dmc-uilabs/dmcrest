@@ -17,5 +17,9 @@ public class PaymentPlanService {
 	public List<PaymentPlan> getPlans(Integer id) {
 		return payPlanRepo.findByServiceId(id);
 	}
+	
+	public List<PaymentPlan> getPlans(List<Integer> serviceIds) {
+		return payPlanRepo.findByServiceIdIn(serviceIds);
+	}
 
 }

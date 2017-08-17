@@ -1,6 +1,7 @@
 package org.dmc.services;
 
 
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ServiceUsePermitService {
+	
+	private final int UNLIMITED =  -1;
+	private final int EMPTY = 0;
 	
 	@Inject
 	private PaymentPlanRepository payPlanRepo;
@@ -37,7 +41,7 @@ public class ServiceUsePermitService {
 			sup = supRepo.findByOrganizationIdAndServiceId(orgUserRepo.findByUserId(userId).getOrganization().getId(), serviceId);
 		}
 		if(sup != null) {
-			canRun = true;
+			determineUsage(sup);
 		}
 		List<PaymentPlan> plans = payPlanRepo.findByServiceId(serviceId);
 		//If no payment plans, assume free usage
@@ -46,6 +50,26 @@ public class ServiceUsePermitService {
 		}
 		
 		return canRun;
+	}
+	
+	private Boolean determineUsage(ServiceUsePermit sup) {
+		Boolean canUse = false;
+		
+		if(sup.getExpirationDate() != null) {
+			Date now = new Date();
+			canUse = sup.getExpirationDate().before(now);
+		} else {
+			Integer uses = sup.getUses();
+			if(uses == UNLIMITED) {
+				canUse = true;
+			} else if(uses > EMPTY) {
+				sup.setUses(uses -= 1);
+				supRepo.save(sup);
+				canUse = true;
+			}
+		}
+			
+		return canUse;
 	}
 	
 	public ServiceUsePermit getServiceUsePermit(Integer id) {

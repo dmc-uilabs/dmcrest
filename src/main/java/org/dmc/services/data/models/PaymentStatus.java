@@ -2,7 +2,7 @@ package org.dmc.services.data.models;
 
 public class PaymentStatus {
 	
-	private String status;
+	private String status = "failed";
 	
 	private String reason;
 	

@@ -3,15 +3,12 @@ package org.dmc.services.payments;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.data.entities.PaymentParentType;
 import org.dmc.services.data.models.OrgCreation;
-import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.PaymentStatus;
 import org.dmc.services.data.models.ServicePayment;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
-import org.dmc.services.organization.OrganizationService;
+import org.dmc.services.exceptions.TooManyAttemptsException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stripe.exception.StripeException;
-import com.stripe.model.Charge;
 
 @RestController
 public class PaymentsController {
@@ -32,47 +29,34 @@ public class PaymentsController {
 	@Autowired
 	private PaymentService paymentsService;
 
-	@Autowired
-	private OrganizationService organizationService;
-
 	@RequestMapping(value = "/payment/organization", method = RequestMethod.POST)
 	public ResponseEntity<PaymentStatus> makeOrgPayment(@RequestBody OrgCreation orgCreation,
-			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws StripeException, TooManyAttemptsException {
 		ServiceLogger.log(logTag, "organizationPaymentPOST, userEPPN: " + userEPPN);
-		Charge charge = new Charge();
-		OrganizationModel orgModel = organizationService.save(orgCreation.getOrganizationModel());
-		String token = orgCreation.getStripeToken();
-		if (orgModel == null) {
-			ServiceLogger.log(logTag,
-					"Database failed to create org named " + orgCreation.getOrganizationModel().getName());
-			return new ResponseEntity<PaymentStatus>(
-					new PaymentStatus(charge.getStatus(), "Organization creation failed!"), HttpStatus.OK);
-		}
-		if (orgModel.getIsPaid()) {
-			ServiceLogger.log(logTag, orgModel.getName() + " is already paid for.");
-			return new ResponseEntity<PaymentStatus>(
-					new PaymentStatus(charge.getStatus(), "Organization already paid!"), HttpStatus.OK);
-		}
-		try {
-			charge = paymentsService.createOrgCharge(token, "Registration charge for " + orgModel.getName());
-			organizationService.updatePaymentStatus(orgModel, charge.getPaid());
-			paymentsService.savePaymentReceipt(charge, orgModel.getId(), PaymentParentType.ORGANIZATION);
-		} catch (StripeException e) {
-			organizationService.delete(orgModel.getId());
-		} catch (DataAccessException dae) {
-			ServiceLogger.log(logTag, "Database Exception Occurred: " + dae.getMessage());
-			return new ResponseEntity<PaymentStatus>(new PaymentStatus(charge.getStatus(),
-					"There was a problem in the database, please contact support."), HttpStatus.OK);
-		}
-		return new ResponseEntity<PaymentStatus>(new PaymentStatus(charge.getStatus(), "Payment Successful!"), HttpStatus.OK);
+		return new ResponseEntity<PaymentStatus>(paymentsService.processOrganizationPayment(orgCreation), HttpStatus.OK);
 	}
 
+	@RequestMapping(value = "/payment/stripe/service", method = RequestMethod.POST)
+	public ResponseEntity<PaymentStatus> makeStripePayment(@RequestBody ServicePayment sp,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
+					throws StripeException, ArgumentNotFoundException, TooManyAttemptsException {
+		ServiceLogger.log(logTag, "servicePaymentPOST, userEPPN: " + userEPPN);
+		return new ResponseEntity<PaymentStatus>(paymentsService.processStripePayment(sp), HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/payment/service", method = RequestMethod.POST)
 	public ResponseEntity<PaymentStatus> makeServicePayment(@RequestBody ServicePayment sp,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
 					throws StripeException, ArgumentNotFoundException {
 		ServiceLogger.log(logTag, "servicePaymentPOST, userEPPN: " + userEPPN);
-		return new ResponseEntity<PaymentStatus>(paymentsService.processServicePayment(sp), HttpStatus.OK);
+		return new ResponseEntity<PaymentStatus>(paymentsService.processInternalPayment(sp), HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/payment/account", method = RequestMethod.POST)
+	public ResponseEntity<PaymentStatus> addFundsToAccount(@RequestParam (value = "stripeToken", required = true) String token,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) throws StripeException, TooManyAttemptsException {
+		ServiceLogger.log(logTag, "Adding funds to Org account for user: " + userEPPN);
+		return new ResponseEntity<PaymentStatus>(paymentsService.addFundsToAccount(token), HttpStatus.OK);
 	}
 	
 	@ExceptionHandler(StripeException.class)
@@ -82,8 +66,15 @@ public class PaymentsController {
 		return new ResponseEntity<PaymentStatus>(status, HttpStatus.OK);
 	}
 	
+	@ExceptionHandler(TooManyAttemptsException.class)
+	public ResponseEntity<?> handleTMAException(TooManyAttemptsException e) {
+		ServiceLogger.logException(logTag, new DMCServiceException(DMCError.PaymentError, e.getMessage()));
+		PaymentStatus status = new PaymentStatus("failed", e.getMessage());
+		return new ResponseEntity<PaymentStatus>(status, HttpStatus.OK);
+	}
+	
 	@ExceptionHandler(ArgumentNotFoundException.class)
-	public ResponseEntity<?> handleException(ArgumentNotFoundException e) {
+	public ResponseEntity<?> handleANFException(ArgumentNotFoundException e) {
 		ServiceLogger.logException(logTag, new DMCServiceException(DMCError.NotFound, e.getMessage()));
 		PaymentStatus status = new PaymentStatus("failed", e.getMessage());
 		return new ResponseEntity<PaymentStatus>(status, HttpStatus.OK);

@@ -163,9 +163,13 @@ public class ServiceRunController {
 
     	int runId;
     	String sId = serviceInput.getServiceId();
+    	int serviceId = new Integer(sId);
     	RunDomeModelResponse response = new RunDomeModelResponse();
     	try {
     		int userId = CompanyUserUtil.getUserId(userEPPN);
+    		if(!supService.checkUserServicePermit(serviceId, userId)) {
+    			throw new ServiceUseException("Could not find service use permit for user: " + userId);
+    		}
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
     		HashMap paras = new HashMap();
     		Map ins = serviceInput.getInParams();
@@ -180,7 +184,6 @@ public class ServiceRunController {
     			Map.Entry pair = (Map.Entry)ut.next();
     			paras.put(pair.getKey(), pair.getValue());
     		}*/
-    		int serviceId = new Integer(sId);
     		runId = serviceRunInstance.runModel(serviceId,paras,userId);
 				JSONObject jsonParams = new JSONObject(paras);
     		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " serviceTitle: " + serviceDao.getService(Integer.parseInt(serviceInput.getServiceId()), userEPPN).getTitle() + " called by user " + userEPPN + " with params: " + jsonParams.toString());

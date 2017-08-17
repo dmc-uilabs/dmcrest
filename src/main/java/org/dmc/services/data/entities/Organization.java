@@ -21,12 +21,12 @@ import java.util.Set;
 
 @Entity
 @Where(clause = "is_deleted='FALSE'")
-@SQLDelete(sql="UPDATE organization SET is_deleted = 'TRUE' WHERE organization_id = ?")
+@SQLDelete(sql = "UPDATE organization SET is_deleted = 'TRUE' WHERE organization_id = ?")
 @Table(name = "organization")
 public class Organization extends BaseEntity {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "organization_id")
 	private Integer id;
 
@@ -58,21 +58,17 @@ public class Organization extends BaseEntity {
 	private String customers;
 
 	@ManyToMany
-	@JoinTable(name = "organization_area_of_expertise",
-			   joinColumns = @JoinColumn(name="organization_id"),
-			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
+	@JoinTable(name = "organization_area_of_expertise", joinColumns = @JoinColumn(name = "organization_id") , inverseJoinColumns = @JoinColumn(name = "area_of_expertise_id") )
 	private List<AreaOfExpertise> areasOfExpertise;
 
 	@ManyToMany
-	@JoinTable(name = "organization_desired_area_of_expertise",
-			   joinColumns = @JoinColumn(name="organization_id"),
-			   inverseJoinColumns = @JoinColumn(name="area_of_expertise_id"))
+	@JoinTable(name = "organization_desired_area_of_expertise", joinColumns = @JoinColumn(name = "organization_id") , inverseJoinColumns = @JoinColumn(name = "area_of_expertise_id") )
 	private List<AreaOfExpertise> desiredAreasOfExpertise;
 
-	@OneToMany(mappedBy="organization", cascade={CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval=true)
+	@OneToMany(mappedBy = "organization", cascade = { CascadeType.MERGE, CascadeType.PERSIST }, orphanRemoval = true)
 	private List<Award> awards;
 
-	@OneToMany(mappedBy="organization", cascade={CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval=true)
+	@OneToMany(mappedBy = "organization", cascade = { CascadeType.MERGE, CascadeType.PERSIST }, orphanRemoval = true)
 	private List<OrganizationContact> contacts;
 
 	@Column(name = "tech_expertise")
@@ -93,7 +89,7 @@ public class Organization extends BaseEntity {
 	@Column(name = "upcoming_project_interests")
 	private String upcomingProjectInterests;
 
-	@OneToOne(cascade={CascadeType.MERGE, CascadeType.PERSIST})
+	@OneToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
 	@JoinColumn(name = "address_id")
 	private Address address;
 
@@ -154,17 +150,20 @@ public class Organization extends BaseEntity {
 	@OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
 	private Set<OrganizationUser> organizationUsers;
 
-	@Column(name="production_capabilities")
+	@Column(name = "production_capabilities")
 	private String productionCapabilities;
-	
-	@Column(name="dmdii_membership_info")
+
+	@Column(name = "dmdii_membership_info")
 	private String dmdiiMembershipInfo;
-	
-	@Column(name="is_paid")
+
+	@Column(name = "is_paid")
 	private Boolean isPaid = false;
 
-	@Column(name="other_organization_tags")
+	@Column(name = "other_organization_tags")
 	private String otherOrganizationTags;
+
+	@Column(name = "account_balance")
+	private Integer accountBalance;
 
 	public Integer getId() {
 		return id;
@@ -488,33 +487,45 @@ public class Organization extends BaseEntity {
 		this.organizationUsers = organizationUsers;
 	}
 
-	public String getProductionCapabilities() { 
-		return productionCapabilities; 
+	public String getProductionCapabilities() {
+		return productionCapabilities;
 	}
 
-	public void setProductionCapabilities(String productionCapabilities) { 
-		this.productionCapabilities = productionCapabilities; 
+	public void setProductionCapabilities(String productionCapabilities) {
+		this.productionCapabilities = productionCapabilities;
 	}
-	
+
 	public String getDmdiiMembershipInfo() {
 		return dmdiiMembershipInfo;
 	}
-	
+
 	public void setDmdiiMembershipInfo(String dmdiiMembershipInfo) {
 		this.dmdiiMembershipInfo = dmdiiMembershipInfo;
 	}
-	
+
 	public Boolean getIsPaid() {
 		return isPaid;
 	}
-	
+
 	public void setIsPaid(Boolean isPaid) {
 		this.isPaid = isPaid;
 	}
 
-	public String getOtherOrganizationTags() { return otherOrganizationTags; }
+	public String getOtherOrganizationTags() {
+		return otherOrganizationTags;
+	}
 
-	public void setOtherOrganizationTags(String otherOrganizationTags) { this.otherOrganizationTags = otherOrganizationTags; }
+	public void setOtherOrganizationTags(String otherOrganizationTags) {
+		this.otherOrganizationTags = otherOrganizationTags;
+	}
+
+	public Integer getAccountBalance() {
+		return accountBalance;
+	}
+
+	public void setAccountBalance(Integer accountBalance) {
+		this.accountBalance = accountBalance;
+	}
 
 	@Override
 	public int hashCode() {
@@ -787,11 +798,11 @@ public class Organization extends BaseEntity {
 			if (other.isPaid != null)
 				return false;
 		} else if (!isPaid.equals(other.isPaid))
-		if (otherOrganizationTags == null) {
-			if (other.otherOrganizationTags != null)
+			if (otherOrganizationTags == null) {
+				if (other.otherOrganizationTags != null)
+					return false;
+			} else if (!otherOrganizationTags.equals(other.otherOrganizationTags))
 				return false;
-		} else if (!otherOrganizationTags.equals(other.otherOrganizationTags))
-			return false;
 		return true;
 	}
 

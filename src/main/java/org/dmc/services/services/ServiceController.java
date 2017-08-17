@@ -70,6 +70,18 @@ public class ServiceController {
         }
     }
     
+    @RequestMapping(value = "/services/pricing")
+    public ResponseEntity<?> getServicePaymentPlansForIds(@RequestParam("id") List<Integer> serviceIds,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+    	ServiceLogger.log(LOGTAG, "getServicePaymentPlansForIds");
+    	try {
+    		return new ResponseEntity<List<PaymentPlan>>(paymentPlanService.getPlans(serviceIds), HttpStatus.OK);
+    	} catch (DMCServiceException e) {
+    		ServiceLogger.logException(LOGTAG, e);
+    		return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+    	}
+    }
+    
     @RequestMapping(value = "/services/{id}/pricing")
     public ResponseEntity<?> getServicePaymentPlans(@PathVariable("id") int id,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {

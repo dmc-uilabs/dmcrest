@@ -15,7 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.stripe.model.Charge;
 
 @Entity
 @Table(name = "payment_receipt")
@@ -31,6 +30,9 @@ public class PaymentReceipt extends BaseEntity {
 
 	@Column(name = "user_id")
 	private Integer userId;
+	
+	@Column(name = "organization_id")
+	private Integer orgId;
 
 	@Column(name = "parent_id")
 	private Integer parentId;
@@ -49,10 +51,13 @@ public class PaymentReceipt extends BaseEntity {
 	private String chargeId;
 
 	@Column(name = "charge_dt")
-	private Date date;
+	private Date date = new Date();
 
 	@Column(name = "description")
 	private String description;
+	
+	@Column(name = "balance")
+	private BigDecimal balance;
 
 	@JoinColumn(name = "payment_plan_id", referencedColumnName = "id")
 	@ManyToOne
@@ -60,52 +65,32 @@ public class PaymentReceipt extends BaseEntity {
 	
 	public PaymentReceipt() {}
 
-	public PaymentReceipt(Integer userId, Integer parentId, PaymentParentType type, String status, BigDecimal amount,
-			String chargeId, String description, PaymentPlan plan) {
+	public PaymentReceipt(Integer userId, Integer orgId, Integer parentId, PaymentParentType type, String status, BigDecimal amount,
+			String chargeId, String description, PaymentPlan plan, BigDecimal balance) {
 		this.userId = userId;
+		this.orgId = orgId;
 		this.parentId = parentId;
 		this.type = type;
 		this.status = status;
 		this.amount = amount;
 		this.chargeId = chargeId;
-		this.date = new Date();
 		this.description = description;
 		this.paymentPlan = plan;
+		this.balance = balance;
 	}
 	
-	public PaymentReceipt(Integer userId, PaymentParentType type, String status, String description, PaymentPlan plan) {
+	public PaymentReceipt(Integer userId, Integer orgId, Integer parentId, PaymentParentType type, String status, Integer amount,
+			String chargeId, String description, PaymentPlan plan, Integer balance) {
 		this.userId = userId;
-		this.parentId = plan.getServiceId();
-		this.type = type;
-		this.status = status;
-		this.amount = BigDecimal.valueOf(plan.getPrice(), 2);
-		this.date = new Date();
-		this.description = description;
-		this.paymentPlan = plan;
-	}
-	
-	public PaymentReceipt(Integer userId, Integer parentId, PaymentParentType type, Charge charge) {
-		this.userId = userId;
+		this.orgId = orgId;
 		this.parentId = parentId;
 		this.type = type;
-		this.status = charge.getStatus();
-		this.amount = BigDecimal.valueOf(charge.getAmount(), 2);
-		this.chargeId = charge.getId();
-		this.date = new Date();
-		this.description = DEFAULT_DESC + type.toString() + " with Id: " + parentId;
-		this.paymentPlan = null;
-	}
-	
-	public PaymentReceipt(Integer userId, PaymentParentType type, Charge charge, PaymentPlan plan) {
-		this.userId = userId;
-		this.parentId = plan.getServiceId();
-		this.type = type;
-		this.status = charge.getStatus();
-		this.amount = BigDecimal.valueOf(charge.getAmount(), 2);
-		this.chargeId = charge.getId();
-		this.date = new Date();
-		this.description = DEFAULT_DESC + type.toString() + " with Id: " + parentId;
+		this.status = status;
+		this.amount = BigDecimal.valueOf(amount, 2);
+		this.chargeId = chargeId;
+		this.description = description;
 		this.paymentPlan = plan;
+		this.balance = BigDecimal.valueOf(balance, 2);
 	}
 	
 	public Integer getId() {
@@ -122,6 +107,14 @@ public class PaymentReceipt extends BaseEntity {
 
 	public void setUserId(Integer userId) {
 		this.userId = userId;
+	}
+	
+	public Integer getOrgId() {
+		return orgId;
+	}
+	
+	public void setOrgId(Integer orgId) {
+		this.orgId = orgId;
 	}
 
 	public Integer getParentId() {
@@ -155,6 +148,14 @@ public class PaymentReceipt extends BaseEntity {
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
+	
+	public void setAmount(Integer amount) {
+		this.amount = BigDecimal.valueOf(amount, 2);
+	}
+	
+	public void setAmount(Long amount) {
+		this.amount = BigDecimal.valueOf(amount, 2);
+	}
 
 	public String getChargeId() {
 		return chargeId;
@@ -179,6 +180,18 @@ public class PaymentReceipt extends BaseEntity {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public BigDecimal getBalance() {
+		return balance;
+	}
+	
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
+	}
+	
+	public void setBalance(Integer balance) {
+		this.balance = BigDecimal.valueOf(balance, 2);
+	}
 
 	public PaymentPlan getPaymentPlan() {
 		return paymentPlan;
@@ -187,5 +200,5 @@ public class PaymentReceipt extends BaseEntity {
 	public void setPaymentPlan(PaymentPlan paymentPlan) {
 		this.paymentPlan = paymentPlan;
 	}
-
+	
 }
