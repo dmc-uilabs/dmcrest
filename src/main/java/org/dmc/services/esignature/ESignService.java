@@ -13,17 +13,16 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.StringEntity;
-// import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.InputStream;
 import java.io.StringWriter;
 import org.dmc.services.ServiceLogger;
-import org.apache.http.Header;
-import com.mysema.query.jpa.JPASubQuery;
-import com.mysema.query.types.Predicate;
-import com.mysema.query.types.query.ListSubQuery;
+// import org.apache.http.Header;
+// import com.mysema.query.jpa.JPASubQuery;
+// import com.mysema.query.types.Predicate;
+// import com.mysema.query.types.query.ListSubQuery;
 
 import org.dmc.services.data.entities.ESignDocument;
 import org.dmc.services.data.mappers.Mapper;
@@ -32,7 +31,6 @@ import org.dmc.services.data.models.ESignModel;
 import org.dmc.services.data.repositories.ESignRepository;
 import javax.inject.Inject;
 import org.springframework.security.core.context.SecurityContextHolder;
-// import org.dmc.services.security.UserPrincipal;
 
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -85,7 +83,7 @@ public class ESignService {
 				// "\"custom_logo_id\": 44947, "+
 				"\"redirect_url\": \"https://dev-web2.opendmc.org/company-onboarding.php#/pay\", "+
 				// "\"callback_url\": \"https://requestb.in/y82ufvy8\", "+
-				"\"reusable\": false, "+	
+				"\"reusable\": false, "+
 				"\"signature_stamp\": false, "+
 				"\"fillable_fields\":"  + jsonObj + "}";
 
@@ -185,6 +183,68 @@ public class ESignService {
 					// No-op
 					e.printStackTrace();
 					return "Unable to call filled_forms API";
+			}
+	}
+
+	public String eSignToken(String userEPPN){
+			String eSignTokenURL = "https://api.pdffiller.com/v2/tokens";
+
+			CloseableHttpResponse response = null;
+			InputStream is = null;
+			String results = null;
+			CloseableHttpClient httpclient = HttpClients.createDefault();
+
+			try{
+					HttpPost httppost = new HttpPost(eSignTokenURL);
+					httppost.addHeader("content-type", "application/json");
+					httppost.addHeader("authorization", "Bearer " + eSignKey);
+
+					String json =
+					"{\"data\":" + "{\"userEPPN\": \"" + userEPPN + "\"}}";
+
+					System.out.println(json);
+
+					StringEntity reqEntity = new StringEntity(json);
+					httppost.setEntity(reqEntity);
+					response = httpclient.execute(httppost);
+
+					HttpEntity entity = response.getEntity();
+
+					if (entity != null) {
+							is = entity.getContent();
+							StringWriter writer = new StringWriter();
+							IOUtils.copy(is, writer, "UTF-8");
+							results = writer.toString();
+							ServiceLogger.log(logTag, "eSignToken results: " + results);
+					}
+
+					try {
+							if (is != null) {
+									is.close();
+							}
+					} catch (Exception e) {
+							// No-op
+							e.printStackTrace();
+				      return null;
+					}
+
+					try {
+							if (response != null) {
+									response.close();
+							}
+					} catch (Exception e) {
+							// No-op
+							e.printStackTrace();
+				      return null;
+					}
+
+					httpclient.close();
+					return results;
+
+			}catch (Exception e) {
+					// No-op
+					e.printStackTrace();
+					return null;
 			}
 	}
 

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
@@ -23,6 +24,10 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 @RestController
 public class esignController {
@@ -72,21 +77,61 @@ public class esignController {
   				//Will throw an exception if esign fails
   				response = eSignService.eSignCheck(LinkToFillID);
 
-					ObjectMapper mapper = new ObjectMapper();
-					Map<String, Object> map = new HashMap<String, Object>();
+					// ObjectMapper mapper = new ObjectMapper();
+					// Map<String, Object> map = new HashMap<String, Object>();
 
 					try{
-						 map = mapper.readValue(response, new TypeReference<Map<String, Object>>(){});
-						 if (map.containsKey("error"))
-						 		return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", String.valueOf(map.get("error"))), HttpStatus.BAD_REQUEST);
+						//  map = mapper.readValue(response, new TypeReference<Map<String, Object>>(){});
+						 JSONObject jsonObj = new JSONObject(response);
+						 JSONObject resultJsonObject = new JSONObject();
+						 if (jsonObj.has("error")){
+							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", jsonObj.getString("error")), HttpStatus.BAD_REQUEST);
+						 }
+						 else{
+							 	JSONArray eSignItems = jsonObj.getJSONArray("items");
+							 	resultJsonObject.put("items", eSignItems);
+								resultJsonObject.put("total", jsonObj.get("total"));
+								System.out.println(resultJsonObject.toString());
+								return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Successful!", resultJsonObject.toString()), HttpStatus.OK);
+						 }
+
+						//  if (map.containsKey("error"))
+						//  		return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", String.valueOf(map.get("error"))), HttpStatus.BAD_REQUEST);
 					}catch (Exception e) {
 						 e.printStackTrace();
 				     return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", response), HttpStatus.BAD_REQUEST);
 					}
-					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Successful!", String.valueOf(map.get("total"))), HttpStatus.OK);
+					// return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Successful!", String.valueOf(map.get("total"))), HttpStatus.OK);
 
   		} catch (Exception e) {
 					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", "eSignCheck Failed!"), HttpStatus.BAD_REQUEST);
+  		}
+	}
+
+	@RequestMapping(value = "/esignToken", method = RequestMethod.GET)
+	public ResponseEntity<eSignStatus> signToken(@RequestHeader(value = "AJP_eppn", required = true) String UserEPPN) {
+
+			String response = "";
+
+      try {
+  				//Will throw an exception if esign fails
+  				response = eSignService.eSignToken(UserEPPN);
+
+					try{
+						 JSONObject jsonObj = new JSONObject(response);
+						 if (jsonObj.has("hash")){
+						 		return new ResponseEntity<eSignStatus>(new eSignStatus("eSignToken Successful!", jsonObj.getString("hash")), HttpStatus.OK);
+						 }
+						 else{
+							  return new ResponseEntity<eSignStatus>(new eSignStatus("eSignToken Failed!", response), HttpStatus.BAD_REQUEST);
+						 }
+					}catch (Exception e) {
+						 e.printStackTrace();
+				     return new ResponseEntity<eSignStatus>(new eSignStatus("eSignToken Failed!", response), HttpStatus.BAD_REQUEST);
+					}
+
+  		} catch (Exception e) {
+					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignToken Failed!", "eSignToken Failed!"), HttpStatus.BAD_REQUEST);
   		}
 	}
 
