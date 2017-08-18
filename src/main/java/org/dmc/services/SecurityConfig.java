@@ -2,7 +2,9 @@ package org.dmc.services;
 
 import org.dmc.services.security.DMCRequestHeaderAuthenticationFilter;
 import org.dmc.services.security.UserPrincipalService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,6 +29,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Inject
 	private UserPrincipalService userPrincipalService;
 
+	@Autowired
+	private Environment environment;
+
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) {
 		UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken> wrapper
@@ -49,19 +54,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/users/create",
-				"/user",
-				"/companies",
-				"/swagger-ui.html",
-				"/webjars/springfox-swagger-ui/**",
-				"/configuration/security",
-				"/configuration/ui",
-				"/swagger-resources",
-				"/v2/api-docs");
+		ServiceLogger.log("PROFILES", environment.getActiveProfiles().toString());
+		if (environment.acceptsProfiles("local")) {
+			web.ignoring().antMatchers("/**");
+			ServiceLogger.log("HAPPENING", "Local profile active");
+		} else {
+			web.ignoring().antMatchers("/users/create",
+					"/user",
+					"/companies",
+					"/swagger-ui.html",
+					"/webjars/springfox-swagger-ui/**",
+					"/configuration/security",
+					"/configuration/ui",
+					"/swagger-resources",
+					"/v2/api-docs");
+		}
+
 	}
 
 	private DMCRequestHeaderAuthenticationFilter dmcRequestHeaderAuthenticationFilter() throws Exception {
+
 		DMCRequestHeaderAuthenticationFilter authFilter = new DMCRequestHeaderAuthenticationFilter();
+
 		authFilter.setCheckForPrincipalChanges(true);
 		authFilter.setContinueFilterChainOnUnsuccessfulAuthentication(false);
 		authFilter.setAuthenticationManager(authenticationManager());
