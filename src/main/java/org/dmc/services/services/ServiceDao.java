@@ -30,6 +30,8 @@ import org.dmc.services.security.UserPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.dmc.services.security.SecurityRoles;
 
+import org.dmc.services.projects.ProjectController;
+
 public class ServiceDao {
 
     private final String logTag = ServiceDao.class.getName();
@@ -64,6 +66,8 @@ public class ServiceDao {
             // look up userID
             final int userID = UserDao.getUserID(userEPPN);
             final int companyId = CompanyDao.getUserCompanyId(userID);
+
+            // List<Project> projects = getAllPublicAndPrivateProjects(userID);
 
             String query = "insert into service (organization_id, title, description, owner_id, release_date, service_type, specifications, project_id, from_location, type, parent, published)";
             query += "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)";
