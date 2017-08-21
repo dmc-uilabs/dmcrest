@@ -45,7 +45,7 @@ public class esignController {
 			ObjectMapper mapper = new ObjectMapper();
 			Map<String, Object> map = new HashMap<String, Object>();
 			Map<String, String> resultMap = new HashMap<String, String>();
-			String results = "";			
+			String results = "";
 
 			ServiceLogger.log(logTag, "From frontend : " + CompanyInfo);
 
@@ -91,8 +91,8 @@ public class esignController {
 						//  map = mapper.readValue(response, new TypeReference<Map<String, Object>>(){});
 						 JSONObject jsonObj = new JSONObject(response);
 						 JSONObject resultJsonObject = new JSONObject();
-						 if (jsonObj.has("error")){
-							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", jsonObj.getString("error")), HttpStatus.BAD_REQUEST);
+						 if (jsonObj.has("errors")){
+							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", jsonObj.getString("errors")), HttpStatus.BAD_REQUEST);
 						 }
 						 else{
 							 	JSONArray eSignItems = jsonObj.getJSONArray("items");
