@@ -72,7 +72,7 @@ public class ServiceRunController {
     	try {
     		int userId = CompanyUserUtil.getUserId(userEPPN);
     		if(!supService.checkUserServicePermit(serviceId, userId)) {
-    			throw new ServiceUseException("Could not find service use permit for user: " + userId);
+    			throw new ServiceUseException("Could not find valid service use permit for user: " + userId);
     		}
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
     		HashMap paras = new HashMap<String, DomeModelParam>();
@@ -168,7 +168,7 @@ public class ServiceRunController {
     	try {
     		int userId = CompanyUserUtil.getUserId(userEPPN);
     		if(!supService.checkUserServicePermit(serviceId, userId)) {
-    			throw new ServiceUseException("Could not find service use permit for user: " + userId);
+    			throw new ServiceUseException("Could not find valid service use permit for user: " + userId);
     		}
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
     		HashMap paras = new HashMap();
@@ -192,6 +192,7 @@ public class ServiceRunController {
         catch (Exception e)
         {
         	ServiceLogger.log(logTag, "Exception in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " called by user " + userEPPN);
+        	ServiceLogger.log(logTag, "Exception: " + e.toString());
         	return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<RunDomeModelResponse>(response, HttpStatus.OK);

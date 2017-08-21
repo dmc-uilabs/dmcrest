@@ -34,6 +34,7 @@ public class DMCServiceException extends RuntimeException {
             break;
         case UnauthorizedAccessAttempt:
         case InvalidAccountId:
+        case OrganizationNotPaid:
             status = HttpStatus.UNAUTHORIZED;
             break;
         case AWSError:

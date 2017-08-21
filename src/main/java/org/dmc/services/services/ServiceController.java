@@ -70,7 +70,7 @@ public class ServiceController {
         }
     }
     
-    @RequestMapping(value = "/services/pricing")
+    @RequestMapping(value = "/services/pay_plan")
     public ResponseEntity<?> getServicePaymentPlansForIds(@RequestParam("id") List<Integer> serviceIds,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
     	ServiceLogger.log(LOGTAG, "getServicePaymentPlansForIds");
@@ -82,7 +82,7 @@ public class ServiceController {
     	}
     }
     
-    @RequestMapping(value = "/services/{id}/pricing")
+    @RequestMapping(value = "/services/{id}/pay_plan")
     public ResponseEntity<?> getServicePaymentPlans(@PathVariable("id") int id,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
     	ServiceLogger.log(LOGTAG, "getServicePaymentPlans, id: " + id);

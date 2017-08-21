@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,20 +37,20 @@ public class PaymentsController {
 		return new ResponseEntity<PaymentStatus>(paymentsService.processOrganizationPayment(orgCreation), HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/payment/stripe/service", method = RequestMethod.POST)
+	@RequestMapping(value = "/payment/plan/stripe", method = RequestMethod.POST)
 	public ResponseEntity<PaymentStatus> makeStripePayment(@RequestBody ServicePayment sp,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
 					throws StripeException, ArgumentNotFoundException, TooManyAttemptsException {
 		ServiceLogger.log(logTag, "servicePaymentPOST, userEPPN: " + userEPPN);
-		return new ResponseEntity<PaymentStatus>(paymentsService.processStripePayment(sp), HttpStatus.OK);
+		return new ResponseEntity<PaymentStatus>(paymentsService.processStripeServicePayment(sp), HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/payment/service", method = RequestMethod.POST)
-	public ResponseEntity<PaymentStatus> makeServicePayment(@RequestBody ServicePayment sp,
+	@RequestMapping(value = "/payment/plan/{id}", method = RequestMethod.POST)
+	public ResponseEntity<PaymentStatus> makeServicePayment(@PathVariable("id") Integer planId,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
 					throws StripeException, ArgumentNotFoundException {
 		ServiceLogger.log(logTag, "servicePaymentPOST, userEPPN: " + userEPPN);
-		return new ResponseEntity<PaymentStatus>(paymentsService.processInternalPayment(sp), HttpStatus.OK);
+		return new ResponseEntity<PaymentStatus>(paymentsService.processInternalPayment(planId), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/payment/account", method = RequestMethod.POST)
@@ -59,6 +60,7 @@ public class PaymentsController {
 		return new ResponseEntity<PaymentStatus>(paymentsService.addFundsToAccount(token), HttpStatus.OK);
 	}
 	
+	/* Exception Handling */
 	@ExceptionHandler(StripeException.class)
 	public ResponseEntity<?> handleStripeException(StripeException e) {
 		ServiceLogger.logException(logTag, new DMCServiceException(DMCError.PaymentError, e.getMessage()));
@@ -76,6 +78,13 @@ public class PaymentsController {
 	@ExceptionHandler(ArgumentNotFoundException.class)
 	public ResponseEntity<?> handleANFException(ArgumentNotFoundException e) {
 		ServiceLogger.logException(logTag, new DMCServiceException(DMCError.NotFound, e.getMessage()));
+		PaymentStatus status = new PaymentStatus("failed", e.getMessage());
+		return new ResponseEntity<PaymentStatus>(status, HttpStatus.OK);
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<?> handleException(Exception e) {
+		e.printStackTrace();
 		PaymentStatus status = new PaymentStatus("failed", e.getMessage());
 		return new ResponseEntity<PaymentStatus>(status, HttpStatus.OK);
 	}

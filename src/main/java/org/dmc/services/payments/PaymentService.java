@@ -1,6 +1,8 @@
 package org.dmc.services.payments;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,6 +13,10 @@ import javax.inject.Inject;
 
 import org.dmc.services.data.entities.PaymentReceipt;
 import org.dmc.services.data.entities.ServiceUsePermit;
+import org.apache.commons.lang3.time.DateUtils;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.ServiceUsePermitService;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.PaymentParentType;
 import org.dmc.services.data.entities.PaymentPlan;
@@ -68,6 +74,9 @@ public class PaymentService {
 	@Inject
 	private OrganizationService orgService;
 
+	@Inject
+	private ServiceUsePermitService supService;
+
 	@Value("${STRIPE_SKEY:empty}")
 	private String stripeSKey;
 
@@ -119,70 +128,34 @@ public class PaymentService {
 						"Registration charge for " + orgModel.getName() + " with id: " + orgModel.getId());
 			} catch (StripeException e) {
 				orgService.delete(orgModel.getId());
-				savePaymentReceipt(orgModel.getId(), PaymentParentType.SERVICE, FAILED, T_3_PRICE, null, e.getMessage(),
-						null);
+				savePaymentReceipt(orgModel.getId(), PaymentParentType.ORGANIZATION, FAILED, T_3_PRICE, null,
+						e.getMessage(), null);
 				throw e;
 			}
 			orgService.updatePaymentStatus(orgModel, charge.getPaid());
 			ps.setStatus(SUCCESS);
 			ps.setReason("Payment successfully completed!");
-			savePaymentReceipt(orgModel.getId(), PaymentParentType.SERVICE, charge.getStatus(), T_3_PRICE,
+			savePaymentReceipt(orgModel.getId(), PaymentParentType.ORGANIZATION, charge.getStatus(), T_3_PRICE,
 					charge.getId(), charge.getDescription(), null);
 		}
 		return ps;
 	}
 
-	public PaymentStatus processStripePayment(ServicePayment sp)
-			throws StripeException, ArgumentNotFoundException, TooManyAttemptsException {
-		String token = sp.getStripeToken();
-		Integer planId = sp.getPlanId();
-		return processStripePayment(token, planId);
-	}
-
-	public PaymentStatus processStripePayment(String token, Integer planId)
-			throws StripeException, ArgumentNotFoundException, TooManyAttemptsException {
-		checkPaymentAttempts();
+	public PaymentStatus processInternalPayment(Integer planId) throws ArgumentNotFoundException {
 		PaymentStatus ps = new PaymentStatus();
 		ServiceUsePermit sup = new ServiceUsePermit();
-		Charge charge = new Charge();
 		PaymentPlan plan = new PaymentPlan();
 
-		if (token == null || planId == null) {
-			ps.setReason("Token and planId must not be null.");
+		if (planId == null) {
+			ps.setReason("planId must not be null.");
 		} else {
 			plan = payPlanRepo.findOne(planId);
 			if (plan == null) {
 				throw new ArgumentNotFoundException("Could not find payment plan with given ID " + planId);
 			}
-			sup = serviceUsePermitRepo.save(createPermitFromPlan(plan));
-			try {
-				charge = createCharge(token, plan.getPrice(), "Charge for service: " + plan.getServiceId());
-			} catch (StripeException e) {
-				if (sup != null) {
-					serviceUsePermitRepo.delete(sup);
-				}
-				savePaymentReceipt(plan.getServiceId(), PaymentParentType.SERVICE, FAILED, plan.getPrice(), null,
-						e.getMessage(), plan);
-				throw e;
-			}
-			ps.setStatus(SUCCESS);
-			ps.setReason("Service payment successfully completed!");
-			savePaymentReceipt(charge, plan, PaymentParentType.SERVICE);
-		}
-		return ps;
-	}
-
-	public PaymentStatus processInternalPayment(ServicePayment sp) throws ArgumentNotFoundException {
-		PaymentStatus ps = new PaymentStatus();
-		ServiceUsePermit sup = new ServiceUsePermit();
-		PaymentPlan plan = new PaymentPlan();
-
-		if (sp.getStripeToken() == null || sp.getPlanId() == null) {
-			ps.setReason("Token and planId must not be null.");
-		} else {
-			plan = payPlanRepo.findOne(sp.getPlanId());
-			if (plan == null) {
-				throw new ArgumentNotFoundException("Could not find payment plan with given ID " + sp.getPlanId());
+			if (supService.getServiceUsePermitByOrganizationIdAndServiceId(getCurrentOrg().getId(), plan.getServiceId()) != null) {
+				ps.setReason("Organization already has permit for service with id: " + plan.getServiceId());
+				return ps;
 			}
 			sup = serviceUsePermitRepo.save(createPermitFromPlan(plan));
 			Organization org = getCurrentOrg();
@@ -212,7 +185,10 @@ public class PaymentService {
 	}
 
 	public PaymentStatus addFundsToAccount(String token) throws StripeException, TooManyAttemptsException {
+
 		checkPaymentAttempts();
+		checkValidOrg();
+
 		Integer price = T_3_PRICE;
 		Organization org = getCurrentUser().getOrganizationUser().getOrganization();
 		org.setAccountBalance(org.getAccountBalance() + price);
@@ -228,8 +204,52 @@ public class PaymentService {
 			throw e;
 		}
 
-		return new PaymentStatus(SUCCESS,
-				"Organization account balance successfully updated to: " + org.getAccountBalance());
+		return new PaymentStatus(SUCCESS, "Organization account balance successfully updated to: "
+				+ BigDecimal.valueOf(org.getAccountBalance(), 2));
+	}
+	
+	public PaymentStatus processStripeServicePayment(ServicePayment sp)
+			throws StripeException, ArgumentNotFoundException, TooManyAttemptsException {
+		String token = sp.getStripeToken();
+		Integer planId = sp.getPlanId();
+		return processStripeServicePayment(token, planId);
+	}
+
+	public PaymentStatus processStripeServicePayment(String token, Integer planId)
+			throws StripeException, TooManyAttemptsException {
+
+		checkPaymentAttempts();
+		checkValidOrg();
+
+		PaymentStatus ps = new PaymentStatus();
+		ServiceUsePermit sup = new ServiceUsePermit();
+		Charge charge = new Charge();
+		PaymentPlan plan = new PaymentPlan();
+
+		if (token == null || planId == null) {
+			ps.setReason("Token and planId must not be null.");
+		} else {
+			plan = payPlanRepo.findOne(planId);
+			if (plan == null) {
+				throw new DMCServiceException(DMCError.NoContentInQuery,
+						"Could not find payment plan with given ID " + planId);
+			}
+			sup = serviceUsePermitRepo.save(createPermitFromPlan(plan));
+			try {
+				charge = createCharge(token, plan.getPrice(), "Charge for service: " + plan.getServiceId());
+			} catch (StripeException e) {
+				if (sup != null) {
+					serviceUsePermitRepo.delete(sup);
+				}
+				savePaymentReceipt(plan.getServiceId(), PaymentParentType.SERVICE, FAILED, plan.getPrice(), null,
+						e.getMessage(), plan);
+				throw e;
+			}
+			ps.setStatus(SUCCESS);
+			ps.setReason("Service payment successfully completed!");
+			savePaymentReceipt(charge, plan, PaymentParentType.SERVICE);
+		}
+		return ps;
 	}
 
 	/* Payment Receipt methods BEGIN */
@@ -242,17 +262,35 @@ public class PaymentService {
 			String chargeId, String desc, PaymentPlan plan) {
 		Integer userId = getCurrentUser().getId();
 		Organization org = getCurrentOrg();
-		PaymentReceipt receipt = new PaymentReceipt(userId, org.getId(), parentId, parentType, status, amount, chargeId,
-				desc, plan, org.getAccountBalance());
+		Integer orgId = null;
+		Integer orgBalance = 0;
+		if (org == null && parentType == PaymentParentType.ORGANIZATION) {
+			orgId = parentId;
+		} else {
+			orgId = org.getId();
+			orgBalance = org.getAccountBalance();
+		}
+		PaymentReceipt receipt = new PaymentReceipt(userId, orgId, parentId, parentType, status, amount, chargeId, desc,
+				plan, orgBalance);
 		receiptRepository.save(receipt);
 	}
 	/* Payment Receipt methods END */
 
 	/* Utility methods BEGIN */
 	private void checkPaymentAttempts() throws TooManyAttemptsException {
-		if (receiptRepository.countByUserIdAndDateAndStatus(getCurrentUser().getId(), new Date(),
-				FAILED) > MAX_ATTEMPTS) {
+
+		Date startDate = DateUtils.addDays(new Date(), -1);
+		Date endDate = DateUtils.addDays(new Date(), 1);
+		if (receiptRepository.countByUserIdAndStatusAndDateBetween(getCurrentUser().getId(), FAILED, startDate,
+				endDate) > MAX_ATTEMPTS) {
 			throw new TooManyAttemptsException();
+		}
+	}
+
+	private void checkValidOrg() {
+		if (!getCurrentOrg().getIsPaid()) {
+			throw new DMCServiceException(DMCError.OrganizationNotPaid,
+					"Unauthorized. Organization with id: " + getCurrentOrg().getId() + " not paid!");
 		}
 	}
 

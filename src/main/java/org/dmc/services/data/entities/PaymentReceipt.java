@@ -13,16 +13,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 
 @Entity
 @Table(name = "payment_receipt")
 public class PaymentReceipt extends BaseEntity {
 	
-	@Transient
-	private final String DEFAULT_DESC = "Payment for ";
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
@@ -46,18 +42,18 @@ public class PaymentReceipt extends BaseEntity {
 
 	@Column(name = "amount")
 	private BigDecimal amount;
-
-	@Column(name = "charge_id")
-	private String chargeId;
-
-	@Column(name = "charge_dt")
-	private Date date = new Date();
-
-	@Column(name = "description")
-	private String description;
 	
 	@Column(name = "balance")
 	private BigDecimal balance;
+	
+	@Column(name = "description")
+	private String description;
+	
+	@Column(name = "create_dt")
+	private Date date = new Date();
+
+	@Column(name = "charge_id")
+	private String chargeId;
 
 	@JoinColumn(name = "payment_plan_id", referencedColumnName = "id")
 	@ManyToOne
@@ -157,12 +153,24 @@ public class PaymentReceipt extends BaseEntity {
 		this.amount = BigDecimal.valueOf(amount, 2);
 	}
 
-	public String getChargeId() {
-		return chargeId;
+	public BigDecimal getBalance() {
+		return balance;
 	}
 
-	public void setChargeId(String chargeId) {
-		this.chargeId = chargeId;
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
+	}
+	
+	public void setBalance(Integer balance) {
+		this.balance = BigDecimal.valueOf(balance, 2);
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public Date getDate() {
@@ -173,24 +181,12 @@ public class PaymentReceipt extends BaseEntity {
 		this.date = date;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getChargeId() {
+		return chargeId;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
-	public BigDecimal getBalance() {
-		return balance;
-	}
-	
-	public void setBalance(BigDecimal balance) {
-		this.balance = balance;
-	}
-	
-	public void setBalance(Integer balance) {
-		this.balance = BigDecimal.valueOf(balance, 2);
+	public void setChargeId(String chargeId) {
+		this.chargeId = chargeId;
 	}
 
 	public PaymentPlan getPaymentPlan() {
@@ -200,5 +196,5 @@ public class PaymentReceipt extends BaseEntity {
 	public void setPaymentPlan(PaymentPlan paymentPlan) {
 		this.paymentPlan = paymentPlan;
 	}
-	
+
 }

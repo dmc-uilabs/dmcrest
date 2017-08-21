@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +39,13 @@ public class ServiceUsePermitController {
 	public ResponseEntity<?> getServicePermitByOrgId(@PathVariable("id") Integer id) {
 		ServiceLogger.log(logTag, "Retrieving service use permits by organization: " + id);
 		return new ResponseEntity<List<ServiceUsePermit>>(supService.getServiceUsePermitByOrgId(id), HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/check/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> checkServicePermit(@PathVariable("id") Integer id,
+			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+		ServiceLogger.log(logTag, "Checking service use permit for service: " + id + " and user: " + userEPPN);
+		return new ResponseEntity<Boolean>(supService.checkUserServicePermit(id), HttpStatus.OK);
 	}
 
 }

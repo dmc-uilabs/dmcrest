@@ -21,6 +21,7 @@ public enum DMCError {
 	NotDMDIIMember,
 	CanNotInsertChangeLog,
 	CompanySkillSetNotExist,
+	OrganizationNotPaid,
 	
 	//Stripe
 	PaymentError,

@@ -72,7 +72,7 @@ public class OrganizationModel extends BaseModel {
 	private Boolean isPaid = false;
 	
 	@JsonIgnore
-	private Integer accountBalance;
+	private Integer accountBalance = 0;
 
 	public String getName() {
 		return name;

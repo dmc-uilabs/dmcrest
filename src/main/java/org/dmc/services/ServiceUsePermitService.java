@@ -35,18 +35,23 @@ public class ServiceUsePermitService {
 	}
 	
 	public Boolean checkUserServicePermit(Integer serviceId, Integer userId) {
+		return checkOrgServicePermit(serviceId, orgUserRepo.findByUserId(userId).getOrganization().getId());
+	}
+	
+	public Boolean checkOrgServicePermit(Integer serviceId, Integer orgId) {
 		Boolean canRun = false;
-		ServiceUsePermit sup = supRepo.findByUserIdAndServiceId(userId, serviceId);
-		if(sup == null) {
-			sup = supRepo.findByOrganizationIdAndServiceId(orgUserRepo.findByUserId(userId).getOrganization().getId(), serviceId);
-		}
-		if(sup != null) {
-			determineUsage(sup);
-		}
 		List<PaymentPlan> plans = payPlanRepo.findByServiceId(serviceId);
+		
 		//If no payment plans, assume free usage
 		if(plans.isEmpty()) {
-			canRun = true;
+			return true;
+		}
+		
+		ServiceUsePermit sup = supRepo.findByOrganizationIdAndServiceId(orgId, serviceId);
+		
+		//If a permit was found, determine uses left
+		if(sup != null) {
+			canRun = determineUsage(sup);
 		}
 		
 		return canRun;
@@ -63,13 +68,21 @@ public class ServiceUsePermitService {
 			if(uses == UNLIMITED) {
 				canUse = true;
 			} else if(uses > EMPTY) {
-				sup.setUses(uses -= 1);
-				supRepo.save(sup);
 				canUse = true;
 			}
 		}
 			
 		return canUse;
+	}
+	
+	private void processUsage(ServiceUsePermit sup) {
+		//Only deduct from uses if there's no expiration date
+		if(sup.getExpirationDate() == null) {
+			int uses = sup.getUses();
+			uses -= 1;
+			sup.setUses(uses);
+			supRepo.save(sup);
+		}
 	}
 	
 	public ServiceUsePermit getServiceUsePermit(Integer id) {
@@ -82,6 +95,10 @@ public class ServiceUsePermitService {
 	
 	public List<ServiceUsePermit> getServiceUsePermitByOrgId(Integer id) {
 		return supRepo.findByOrganizationId(id);
+	}
+	
+	public ServiceUsePermit getServiceUsePermitByOrganizationIdAndServiceId(Integer orgId, Integer serviceId) {
+		return supRepo.findByOrganizationIdAndServiceId(orgId, serviceId);
 	}
 	
 	private Integer getCurrentUserId() {

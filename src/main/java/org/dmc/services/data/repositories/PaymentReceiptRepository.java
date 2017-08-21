@@ -8,6 +8,6 @@ public interface PaymentReceiptRepository extends BaseRepository<PaymentReceipt,
 
 	Integer countByUserIdAndDate(Integer id, Date date);
 
-	Integer countByUserIdAndDateAndStatus(Integer id, Date date, String status);
+	Integer countByUserIdAndStatusAndDateBetween(Integer id, String status, Date startDate, Date endDate);
 
 }

@@ -163,7 +163,7 @@ public class Organization extends BaseEntity {
 	private String otherOrganizationTags;
 
 	@Column(name = "account_balance")
-	private Integer accountBalance;
+	private Integer accountBalance = 0;
 
 	public Integer getId() {
 		return id;
