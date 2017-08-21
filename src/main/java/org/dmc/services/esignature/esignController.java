@@ -17,13 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -39,30 +35,26 @@ public class esignController {
 	public ResponseEntity<eSignStatus> signDocument(@RequestBody String CompanyInfo) {
 
 			String response = "";
-			ObjectMapper mapper = new ObjectMapper();
-			Map<String, Object> map = new HashMap<String, Object>();
-			Map<String, String> resultMap = new HashMap<String, String>();
-			String results = "";
 
       try {
   				//Will throw an exception if esign fails
   				response = eSignService.eSignField(CompanyInfo);
-					// System.out.println("response " + response);
+
 					try{
-						 map = mapper.readValue(response, new TypeReference<Map<String, Object>>(){});
-						 if (!map.containsKey("fillable_form_id")){
-						 		return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", response), HttpStatus.BAD_REQUEST);
+						 JSONObject jsonObj = new JSONObject(response);
+						 if (!jsonObj.has("fillable_form_id")){
+							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", response), HttpStatus.BAD_REQUEST);
 						 }
 						 else{
-							resultMap.put("url", map.get("url").toString());
-		 					resultMap.put("template_id", map.get("fillable_form_id").toString());
-						 	results = new ObjectMapper().writeValueAsString(resultMap);
+							 	JSONObject resultJSONObject = new JSONObject();
+								resultJSONObject.put("template_id", jsonObj.get("fillable_form_id"));
+								resultJSONObject.put("url", jsonObj.getString("url"));
+								return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Successful!", resultJSONObject.toString()), HttpStatus.OK);
 						 }
 					}catch (Exception e) {
 							e.printStackTrace();
 				      return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", response), HttpStatus.BAD_REQUEST);
 					}
-					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Successful!", results), HttpStatus.OK);
   		} catch (Exception e) {
 					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", null), HttpStatus.BAD_REQUEST);
   		}
@@ -120,7 +112,7 @@ public class esignController {
 					}
 
   		} catch (Exception e) {
-					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", "eSignCheck Failed!"), HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", "Failed to call API!"), HttpStatus.BAD_REQUEST);
   		}
 	}
 
