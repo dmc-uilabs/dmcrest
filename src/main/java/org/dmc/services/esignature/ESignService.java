@@ -58,9 +58,8 @@ public class ESignService {
 		String results = null;
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 
-		ServiceLogger.log(logTag, "eSignField url: " + eSignURL);
-
 		JSONObject jsonObj = new JSONObject(CompanyInfo);
+		ServiceLogger.log(logTag, "Parsed companyInfo : " + jsonObj);
 		String companyName = jsonObj.getString("companyName");
 
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
@@ -80,7 +79,7 @@ public class ESignService {
 				"\"name_required\": false, "+
 				"\"email_required\": false, "+
 				"\"allow_downloads\": true, "+
-				// "\"custom_logo_id\": 44947, "+
+				"\"custom_logo_id\": 44665, "+
 				"\"redirect_url\": \"https://dev-web2.opendmc.org/company-onboarding.php#/pay\", "+
 				// "\"callback_url\": \"https://requestb.in/y82ufvy8\", "+
 				"\"reusable\": false, "+
@@ -100,7 +99,6 @@ public class ESignService {
 						StringWriter writer = new StringWriter();
 						IOUtils.copy(is, writer, "UTF-8");
 						results = writer.toString();
-						ServiceLogger.log(logTag, "eSignField results: " + results);
 				}
 
 				try {

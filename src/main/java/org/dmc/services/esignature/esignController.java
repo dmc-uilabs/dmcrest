@@ -29,8 +29,11 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import org.dmc.services.ServiceLogger;
 @RestController
 public class esignController {
+
+	private final String logTag = esignController.class.getName();
 
 	@Autowired
 	private ESignService eSignService;
@@ -42,12 +45,14 @@ public class esignController {
 			ObjectMapper mapper = new ObjectMapper();
 			Map<String, Object> map = new HashMap<String, Object>();
 			Map<String, String> resultMap = new HashMap<String, String>();
-			String results = "";
+			String results = "";			
+
+			ServiceLogger.log(logTag, "From frontend : " + CompanyInfo);
 
       try {
   				//Will throw an exception if esign fails
   				response = eSignService.eSignField(CompanyInfo);
-					// System.out.println("response " + response);
+					ServiceLogger.log(logTag, "Response from API :" + response);
 					try{
 						 map = mapper.readValue(response, new TypeReference<Map<String, Object>>(){});
 						 if (!map.containsKey("fillable_form_id")){
@@ -57,11 +62,13 @@ public class esignController {
 							resultMap.put("url", map.get("url").toString());
 		 					resultMap.put("template_id", map.get("fillable_form_id").toString());
 						 	results = new ObjectMapper().writeValueAsString(resultMap);
+							ServiceLogger.log(logTag, "ResultMap to return :" + resultMap);
 						 }
 					}catch (Exception e) {
 							e.printStackTrace();
 				      return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", response), HttpStatus.BAD_REQUEST);
 					}
+					ServiceLogger.log(logTag, "Results to return :" + results);
 					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Successful!", results), HttpStatus.OK);
   		} catch (Exception e) {
 					return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", null), HttpStatus.BAD_REQUEST);
