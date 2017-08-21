@@ -81,8 +81,8 @@ public class esignController {
 					try{
 						 JSONObject jsonObj = new JSONObject(response);
 						 JSONObject resultJsonObject = new JSONObject();
-						 if (jsonObj.has("error")){
-							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", jsonObj.getString("error")), HttpStatus.BAD_REQUEST);
+						 if (jsonObj.has("errors")){
+							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", jsonObj.getString("errors")), HttpStatus.BAD_REQUEST);
 						 }
 						 else if (response == "null"){
 							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", "Error when calling the API"), HttpStatus.BAD_REQUEST);
@@ -95,7 +95,10 @@ public class esignController {
 
 										for (int i = 0; i < eSignItems.length(); i++){
 												JSONObject iterative = eSignItems.getJSONObject(i);
-												String signatureToken = iterative.getJSONObject("token").getJSONObject("data").getString("userEPPN");
+												String signatureToken = "";
+												if (!iterative.getJSONObject("token").isNull("data")){
+														signatureToken = iterative.getJSONObject("token").getJSONObject("data").getString("userEPPN");
+												}
 												iterative.remove("token");
 												iterative.remove("additional_documents");
 												if (signatureToken.equals(UserEPPN)){
