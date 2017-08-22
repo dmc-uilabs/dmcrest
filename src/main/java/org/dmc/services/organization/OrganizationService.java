@@ -172,6 +172,7 @@ public class OrganizationService {
 
 			//Use isPaid value from existing org
 			organizationEntity.setIsPaid(existingOrg.getIsPaid());
+			organizationEntity.setAccountBalance(existingOrg.getAccountBalance());
 			organizationEntity = organizationRepository.save(organizationEntity);
 		}
 

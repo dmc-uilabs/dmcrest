@@ -22,10 +22,13 @@ import org.dmc.services.data.entities.PaymentParentType;
 import org.dmc.services.data.entities.PaymentPlan;
 import org.dmc.services.data.entities.PaymentPlanType;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.mappers.Mapper;
+import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrgCreation;
 import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.PaymentStatus;
 import org.dmc.services.data.models.ServicePayment;
+import org.dmc.services.data.models.ServiceUsePermitModel;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.PaymentPlanRepository;
 import org.dmc.services.data.repositories.PaymentReceiptRepository;
@@ -76,6 +79,9 @@ public class PaymentService {
 
 	@Inject
 	private ServiceUsePermitService supService;
+	
+	@Inject
+	private MapperFactory mapperFactory;
 
 	@Value("${STRIPE_SKEY:empty}")
 	private String stripeSKey;
@@ -141,31 +147,26 @@ public class PaymentService {
 		return ps;
 	}
 
-	public PaymentStatus processInternalPayment(Integer planId) throws ArgumentNotFoundException {
-		PaymentStatus ps = new PaymentStatus();
+	public ServiceUsePermitModel processInternalPayment(Integer planId) throws ArgumentNotFoundException {
 		ServiceUsePermit sup = new ServiceUsePermit();
 		PaymentPlan plan = new PaymentPlan();
 
 		if (planId == null) {
-			ps.setReason("planId must not be null.");
+			throw new DMCServiceException(DMCError.InvalidArgument, "Plan must not be null!");
 		} else {
 			plan = payPlanRepo.findOne(planId);
 			if (plan == null) {
 				throw new ArgumentNotFoundException("Could not find payment plan with given ID " + planId);
 			}
-			if (supService.getServiceUsePermitByOrganizationIdAndServiceId(getCurrentOrg().getId(), plan.getServiceId()) != null) {
-				ps.setReason("Organization already has permit for service with id: " + plan.getServiceId());
-				return ps;
-			}
-			sup = serviceUsePermitRepo.save(createPermitFromPlan(plan));
+			sup = serviceUsePermitRepo.save(processPermitFromPlan(plan));
 			Organization org = getCurrentOrg();
 			Integer newBalance = org.getAccountBalance() - plan.getPrice();
 			if (newBalance > 0) {
 				org.setAccountBalance(newBalance);
 			} else {
-				ps.setReason("INSUFFICIENT FUNDS AVAILABLE : $" + BigDecimal.valueOf(plan.getPrice(), 2)
-						+ " REQUIRED. $" + BigDecimal.valueOf(org.getAccountBalance(), 2) + " AVAILABLE.");
-				return ps;
+				throw new DMCServiceException(DMCError.PaymentError,
+						"INSUFFICIENT FUNDS AVAILABLE : $" + BigDecimal.valueOf(plan.getPrice(), 2) + " REQUIRED. $"
+								+ BigDecimal.valueOf(org.getAccountBalance(), 2) + " AVAILABLE.");
 			}
 			try {
 				orgRepo.save(org);
@@ -175,13 +176,12 @@ public class PaymentService {
 				}
 				savePaymentReceipt(plan.getServiceId(), PaymentParentType.SERVICE, FAILED, plan.getPrice(), null,
 						e.getMessage(), plan);
+				throw e;
 			}
-			ps.setStatus(SUCCESS);
-			ps.setReason("Service payment successfully completed!");
 			savePaymentReceipt(plan.getServiceId(), PaymentParentType.SERVICE, SUCCESS, plan.getPrice(), null,
 					"INTERNAL charge for service with id: " + plan.getServiceId(), plan);
 		}
-		return ps;
+		return getSupMapper().mapToModel(sup);
 	}
 
 	public PaymentStatus addFundsToAccount(String token) throws StripeException, TooManyAttemptsException {
@@ -207,7 +207,7 @@ public class PaymentService {
 		return new PaymentStatus(SUCCESS, "Organization account balance successfully updated to: "
 				+ BigDecimal.valueOf(org.getAccountBalance(), 2));
 	}
-	
+
 	public PaymentStatus processStripeServicePayment(ServicePayment sp)
 			throws StripeException, ArgumentNotFoundException, TooManyAttemptsException {
 		String token = sp.getStripeToken();
@@ -234,7 +234,7 @@ public class PaymentService {
 				throw new DMCServiceException(DMCError.NoContentInQuery,
 						"Could not find payment plan with given ID " + planId);
 			}
-			sup = serviceUsePermitRepo.save(createPermitFromPlan(plan));
+			sup = serviceUsePermitRepo.save(processPermitFromPlan(plan));
 			try {
 				charge = createCharge(token, plan.getPrice(), "Charge for service: " + plan.getServiceId());
 			} catch (StripeException e) {
@@ -294,26 +294,36 @@ public class PaymentService {
 		}
 	}
 
-	private ServiceUsePermit createPermitFromPlan(PaymentPlan plan) {
-		User user = getCurrentUser();
-		ServiceUsePermit sup = new ServiceUsePermit();
-		sup.setOrganizationId(user.getOrganizationUser().getOrganization().getId());
-		sup.setUserId(user.getId());
-		sup.setServiceId(plan.getServiceId());
-		if (plan.getPlanType() == PaymentPlanType.PAY_FOR_TIME) {
-			sup.setUses(-1);
-			sup.setExpirationDate(addDaysToCurrentDate(plan.getUses()));
-		} else {
+	public ServiceUsePermit processPermitFromPlan(PaymentPlan plan) {
+		
+		ServiceUsePermit sup = supService.getServiceUsePermitByOrganizationIdAndServiceId(getCurrentOrg().getId(),
+				plan.getServiceId());
+		
+		if (sup == null) {
+			sup = new ServiceUsePermit();
+			sup.setOrganizationId(getCurrentOrg().getId());
+			sup.setUserId(getCurrentUser().getId());
+			sup.setServiceId(plan.getServiceId());
+		} 
+		
+		if(plan.getPlanType() == PaymentPlanType.PAY_FOR_TIME) {
+			sup.setExpirationDate(addDaysToDate(plan.getUses(), sup.getExpirationDate()));
+		} else if (plan.getPlanType() == PaymentPlanType.PAY_ONCE) {
 			sup.setUses(plan.getUses());
-			// Expiration Date should be null/empty
+		} else {	
+			Integer uses = sup.getUses() + plan.getUses();
+			sup.setUses(uses);
 		}
+		
 		return sup;
 	}
 
-	private Date addDaysToCurrentDate(Integer days) {
-		Date currentDate = new Date();
+	private Date addDaysToDate(Integer days, Date date) {
+		if(date == null) {
+			date = new Date();
+		}
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(currentDate);
+		cal.setTime(date);
 
 		cal.add(Calendar.DATE, days);
 		return cal.getTime();
@@ -326,6 +336,10 @@ public class PaymentService {
 
 	private Organization getCurrentOrg() {
 		return getCurrentUser().getOrganizationUser().getOrganization();
+	}
+	
+	private Mapper<ServiceUsePermit, ServiceUsePermitModel> getSupMapper() {
+		return mapperFactory.mapperFor(ServiceUsePermit.class, ServiceUsePermitModel.class);
 	}
 	/* Utility methods END */
 

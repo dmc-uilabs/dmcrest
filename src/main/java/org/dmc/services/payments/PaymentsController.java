@@ -6,6 +6,7 @@ import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.models.OrgCreation;
 import org.dmc.services.data.models.PaymentStatus;
 import org.dmc.services.data.models.ServicePayment;
+import org.dmc.services.data.models.ServiceUsePermitModel;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
 import org.dmc.services.exceptions.TooManyAttemptsException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,11 +47,11 @@ public class PaymentsController {
 	}
 	
 	@RequestMapping(value = "/payment/plan/{id}", method = RequestMethod.POST)
-	public ResponseEntity<PaymentStatus> makeServicePayment(@PathVariable("id") Integer planId,
+	public ResponseEntity<?> makeServicePayment(@PathVariable("id") Integer planId,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN)
 					throws StripeException, ArgumentNotFoundException {
 		ServiceLogger.log(logTag, "servicePaymentPOST, userEPPN: " + userEPPN);
-		return new ResponseEntity<PaymentStatus>(paymentsService.processInternalPayment(planId), HttpStatus.OK);
+		return new ResponseEntity<ServiceUsePermitModel>(paymentsService.processInternalPayment(planId), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/payment/account", method = RequestMethod.POST)
@@ -84,7 +85,7 @@ public class PaymentsController {
 	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleException(Exception e) {
-		e.printStackTrace();
+		ServiceLogger.logException(logTag, new DMCServiceException(DMCError.Generic, e.getMessage()));
 		PaymentStatus status = new PaymentStatus("failed", e.getMessage());
 		return new ResponseEntity<PaymentStatus>(status, HttpStatus.OK);
 	}

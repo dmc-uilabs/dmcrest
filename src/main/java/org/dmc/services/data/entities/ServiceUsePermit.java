@@ -72,6 +72,7 @@ public class ServiceUsePermit extends BaseEntity {
 	 * @returns -1 for unlimited uses
 	 */
 	public Integer getUses() {
+		remainingUses = remainingUses == null ? 0 : remainingUses;
 		return remainingUses;
 	}
 

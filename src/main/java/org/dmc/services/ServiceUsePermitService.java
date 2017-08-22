@@ -59,12 +59,14 @@ public class ServiceUsePermitService {
 	
 	private Boolean determineUsage(ServiceUsePermit sup) {
 		Boolean canUse = false;
+		Integer uses = sup.getUses();
 		
 		if(sup.getExpirationDate() != null) {
 			Date now = new Date();
 			canUse = sup.getExpirationDate().before(now);
-		} else {
-			Integer uses = sup.getUses();
+		}
+		
+		if(!canUse) {
 			if(uses == UNLIMITED) {
 				canUse = true;
 			} else if(uses > EMPTY) {
@@ -76,13 +78,14 @@ public class ServiceUsePermitService {
 	}
 	
 	private void processUsage(ServiceUsePermit sup) {
-		//Only deduct from uses if there's no expiration date
-		if(sup.getExpirationDate() == null) {
-			int uses = sup.getUses();
+		int uses = sup.getUses();
+		
+		if(uses != UNLIMITED) {
 			uses -= 1;
 			sup.setUses(uses);
 			supRepo.save(sup);
 		}
+		
 	}
 	
 	public ServiceUsePermit getServiceUsePermit(Integer id) {

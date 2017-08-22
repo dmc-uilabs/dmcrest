@@ -520,6 +520,7 @@ public class Organization extends BaseEntity {
 	}
 
 	public Integer getAccountBalance() {
+		accountBalance = accountBalance == null ? 0 : accountBalance;
 		return accountBalance;
 	}
 
