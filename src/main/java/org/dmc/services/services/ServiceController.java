@@ -83,6 +83,38 @@ public class ServiceController {
         }
     }
 
+    @RequestMapping(value = "/defaultServices", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getDefaultServiceList(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+        ServiceLogger.log(LOGTAG, "In getDefaultServiceList as user: " + userEPPN);
+
+        try {
+          int defaultProjectId = projectController.findOrCreateDefaultProject(userEPPN);
+          return new ResponseEntity<ArrayList<Service>>(serviceDao.getServiceList(defaultProjectId), HttpStatus.OK);
+        }
+        catch (DMCServiceException e){
+          ServiceLogger.logException(LOGTAG, e);
+          return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+
+    @RequestMapping(value = "/defaultServices/{parentId}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getDefaultService(@PathVariable("parentId") int parentId,
+                                               @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+        ServiceLogger.log(LOGTAG, "In getDefaultService as user: " + userEPPN);
+
+        try {
+          int defaultProjectId = projectController.findOrCreateDefaultProject(userEPPN);
+          Integer existingServiceId = checkForExistingServiceInDefaultSpace(Integer.toString(defaultProjectId), Integer.toString(parentId));
+          return new ResponseEntity<Service>(serviceDao.getService(existingServiceId, userEPPN), HttpStatus.OK);
+        }
+        catch (DMCServiceException e){
+          ServiceLogger.logException(LOGTAG, e);
+          return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+
     @RequestMapping(value = "/components/{componentId}/services", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getServiceByComponentList(@PathVariable("componentId") int componentId) {
         try {
