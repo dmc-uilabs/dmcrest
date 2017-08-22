@@ -15,6 +15,7 @@ import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.projects.ProjectController;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,9 @@ public class ServiceController {
 
     @Inject
     private DocumentService documentService;
+
+    @Inject
+    private ProjectController projectController;
 
     @RequestMapping(value = "/services/{id}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getService(@PathVariable("id") int id,
@@ -79,6 +83,38 @@ public class ServiceController {
         }
     }
 
+    @RequestMapping(value = "/defaultServices", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getDefaultServiceList(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+        ServiceLogger.log(LOGTAG, "In getDefaultServiceList as user: " + userEPPN);
+
+        try {
+          int defaultProjectId = projectController.findOrCreateDefaultProject(userEPPN);
+          return new ResponseEntity<ArrayList<Service>>(serviceDao.getServiceList(defaultProjectId), HttpStatus.OK);
+        }
+        catch (DMCServiceException e){
+          ServiceLogger.logException(LOGTAG, e);
+          return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+
+    @RequestMapping(value = "/defaultServices/{parentId}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getDefaultService(@PathVariable("parentId") int parentId,
+                                               @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+        ServiceLogger.log(LOGTAG, "In getDefaultService as user: " + userEPPN);
+
+        try {
+          int defaultProjectId = projectController.findOrCreateDefaultProject(userEPPN);
+          Integer existingServiceId = checkForExistingServiceInDefaultSpace(Integer.toString(defaultProjectId), Integer.toString(parentId));
+          return new ResponseEntity<Service>(serviceDao.getService(existingServiceId, userEPPN), HttpStatus.OK);
+        }
+        catch (DMCServiceException e){
+          ServiceLogger.logException(LOGTAG, e);
+          return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+
     @RequestMapping(value = "/components/{componentId}/services", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getServiceByComponentList(@PathVariable("componentId") int componentId) {
         try {
@@ -94,8 +130,28 @@ public class ServiceController {
     @RequestMapping(value = "/services", produces = { APPLICATION_JSON_VALUE, "text/html" }, method = RequestMethod.POST)
     public ResponseEntity<?> postService(@RequestBody Service body,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+        ServiceLogger.log(LOGTAG, "In createService");
+
+        if (body.getProjectId() == null) {
+          ServiceLogger.log(LOGTAG, "no projectId included for service create, userEPPN: " + userEPPN);
+          try {
+              String defaultProjectId = Integer.toString(projectController.findOrCreateDefaultProject(userEPPN));
+              body.setProjectId(defaultProjectId);
+          } catch (DMCServiceException e) {
+              ServiceLogger.logException(LOGTAG, e);
+              return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+          }
+
+          Integer existingServiceId = checkForExistingServiceInDefaultSpace(body.getProjectId(), body.getParent());
+          if (!existingServiceId.equals(0)) {
+            ServiceLogger.log(LOGTAG, "service already exists in default space, returning existing service, userEPPN: " + userEPPN);
+            return new ResponseEntity<Service>(serviceDao.getService(existingServiceId, userEPPN), HttpStatus.OK);
+          }
+        }
+
+
         try {
-            ServiceLogger.log(LOGTAG, "In createService");
             return new ResponseEntity<Service>(serviceDao.createService(body, userEPPN), HttpStatus.OK);
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
@@ -356,6 +412,23 @@ public class ServiceController {
             ServiceLogger.logException(LOGTAG, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
+    }
+
+    private Integer checkForExistingServiceInDefaultSpace(String defaultWorkspaceId, String parentServiceId) {
+
+      Integer workspaceId = Integer.parseInt(defaultWorkspaceId);
+      ArrayList<Service> servicesInWorkspace = serviceDao.getServiceList(workspaceId);
+
+      int count = 0;
+      while (servicesInWorkspace.size() > count) {
+         Service currentService = servicesInWorkspace.get(count);
+         if (currentService.getParent().equals(parentServiceId)) {
+           return currentService.getId();
+         }
+         count++;
+      }
+
+      return 0;
     }
 
 }
