@@ -1,8 +1,6 @@
 package org.dmc.services.payments;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,7 +9,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.dmc.services.data.entities.PaymentReceipt;
 import org.dmc.services.data.entities.ServiceUsePermit;
 import org.apache.commons.lang3.time.DateUtils;
 import org.dmc.services.DMCError;
@@ -60,9 +57,6 @@ public class PaymentService {
 	private final Integer MAX_ATTEMPTS = 10;
 
 	@Inject
-	private PaymentReceiptRepository receiptRepository;
-
-	@Inject
 	private ServiceUsePermitRepository serviceUsePermitRepo;
 
 	@Inject
@@ -72,6 +66,12 @@ public class PaymentService {
 	private PaymentPlanRepository payPlanRepo;
 
 	@Inject
+	private PaymentReceiptService receiptService;
+
+	@Inject
+	private PaymentReceiptRepository receiptRepo;
+
+	@Inject
 	private OrganizationRepository orgRepo;
 
 	@Inject
@@ -79,9 +79,6 @@ public class PaymentService {
 
 	@Inject
 	private ServiceUsePermitService supService;
-	
-	@Inject
-	private MapperFactory mapperFactory;
 
 	@Value("${STRIPE_SKEY:empty}")
 	private String stripeSKey;
@@ -134,15 +131,16 @@ public class PaymentService {
 						"Registration charge for " + orgModel.getName() + " with id: " + orgModel.getId());
 			} catch (StripeException e) {
 				orgService.delete(orgModel.getId());
-				savePaymentReceipt(orgModel.getId(), PaymentParentType.ORGANIZATION, FAILED, T_3_PRICE, null,
-						e.getMessage(), null);
+				receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), orgModel.getId(),
+						PaymentParentType.ORGANIZATION, FAILED, T_3_PRICE, null, e.getMessage(), null);
 				throw e;
 			}
 			orgService.updatePaymentStatus(orgModel, charge.getPaid());
 			ps.setStatus(SUCCESS);
 			ps.setReason("Payment successfully completed!");
-			savePaymentReceipt(orgModel.getId(), PaymentParentType.ORGANIZATION, charge.getStatus(), T_3_PRICE,
-					charge.getId(), charge.getDescription(), null);
+			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), orgModel.getId(),
+					PaymentParentType.ORGANIZATION, charge.getStatus(), T_3_PRICE, charge.getId(),
+					charge.getDescription(), null);
 		}
 		return ps;
 	}
@@ -174,14 +172,15 @@ public class PaymentService {
 				if (sup != null) {
 					serviceUsePermitRepo.delete(sup);
 				}
-				savePaymentReceipt(plan.getServiceId(), PaymentParentType.SERVICE, FAILED, plan.getPrice(), null,
-						e.getMessage(), plan);
+				receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), plan.getServiceId(),
+						PaymentParentType.SERVICE, FAILED, plan.getPrice(), null, e.getMessage(), plan);
 				throw e;
 			}
-			savePaymentReceipt(plan.getServiceId(), PaymentParentType.SERVICE, SUCCESS, plan.getPrice(), null,
+			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), plan.getServiceId(),
+					PaymentParentType.SERVICE, SUCCESS, plan.getPrice(), null,
 					"INTERNAL charge for service with id: " + plan.getServiceId(), plan);
 		}
-		return getSupMapper().mapToModel(sup);
+		return supService.mapToModel(sup);
 	}
 
 	public PaymentStatus addFundsToAccount(String token) throws StripeException, TooManyAttemptsException {
@@ -195,12 +194,13 @@ public class PaymentService {
 		orgRepo.save(org);
 		try {
 			Charge charge = createCharge(token, price, "Adding funds to organization account: " + org.getId());
-			savePaymentReceipt(org.getId(), PaymentParentType.ACCOUNT, SUCCESS, price, charge.getId(),
-					charge.getDescription(), null);
+			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), org.getId(),
+					PaymentParentType.ACCOUNT, SUCCESS, price, charge.getId(), charge.getDescription(), null);
 		} catch (StripeException e) {
 			org.setAccountBalance(org.getAccountBalance() - price);
 			orgRepo.save(org);
-			savePaymentReceipt(org.getId(), PaymentParentType.ACCOUNT, FAILED, price, null, e.getMessage(), null);
+			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), org.getId(),
+					PaymentParentType.ACCOUNT, FAILED, price, null, e.getMessage(), null);
 			throw e;
 		}
 
@@ -241,47 +241,24 @@ public class PaymentService {
 				if (sup != null) {
 					serviceUsePermitRepo.delete(sup);
 				}
-				savePaymentReceipt(plan.getServiceId(), PaymentParentType.SERVICE, FAILED, plan.getPrice(), null,
-						e.getMessage(), plan);
+				receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), plan.getServiceId(),
+						PaymentParentType.SERVICE, FAILED, plan.getPrice(), null, e.getMessage(), plan);
 				throw e;
 			}
 			ps.setStatus(SUCCESS);
 			ps.setReason("Service payment successfully completed!");
-			savePaymentReceipt(charge, plan, PaymentParentType.SERVICE);
+			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), charge, plan,
+					PaymentParentType.SERVICE);
 		}
 		return ps;
 	}
-
-	/* Payment Receipt methods BEGIN */
-	public void savePaymentReceipt(Charge charge, PaymentPlan plan, PaymentParentType parentType) {
-		savePaymentReceipt(plan.getServiceId(), parentType, charge.getStatus(), Math.toIntExact(charge.getAmount()),
-				charge.getId(), charge.getDescription(), plan);
-	}
-
-	public void savePaymentReceipt(Integer parentId, PaymentParentType parentType, String status, Integer amount,
-			String chargeId, String desc, PaymentPlan plan) {
-		Integer userId = getCurrentUser().getId();
-		Organization org = getCurrentOrg();
-		Integer orgId = null;
-		Integer orgBalance = 0;
-		if (org == null && parentType == PaymentParentType.ORGANIZATION) {
-			orgId = parentId;
-		} else {
-			orgId = org.getId();
-			orgBalance = org.getAccountBalance();
-		}
-		PaymentReceipt receipt = new PaymentReceipt(userId, orgId, parentId, parentType, status, amount, chargeId, desc,
-				plan, orgBalance);
-		receiptRepository.save(receipt);
-	}
-	/* Payment Receipt methods END */
 
 	/* Utility methods BEGIN */
 	private void checkPaymentAttempts() throws TooManyAttemptsException {
 
 		Date startDate = DateUtils.addDays(new Date(), -1);
 		Date endDate = DateUtils.addDays(new Date(), 1);
-		if (receiptRepository.countByUserIdAndStatusAndDateBetween(getCurrentUser().getId(), FAILED, startDate,
+		if (receiptRepo.countByUserIdAndStatusAndDateBetween(getCurrentUser().getId(), FAILED, startDate,
 				endDate) > MAX_ATTEMPTS) {
 			throw new TooManyAttemptsException();
 		}
@@ -295,31 +272,31 @@ public class PaymentService {
 	}
 
 	public ServiceUsePermit processPermitFromPlan(PaymentPlan plan) {
-		
+
 		ServiceUsePermit sup = supService.getServiceUsePermitByOrganizationIdAndServiceId(getCurrentOrg().getId(),
 				plan.getServiceId());
-		
+
 		if (sup == null) {
 			sup = new ServiceUsePermit();
 			sup.setOrganizationId(getCurrentOrg().getId());
 			sup.setUserId(getCurrentUser().getId());
 			sup.setServiceId(plan.getServiceId());
-		} 
-		
-		if(plan.getPlanType() == PaymentPlanType.PAY_FOR_TIME) {
+		}
+
+		if (plan.getPlanType() == PaymentPlanType.PAY_FOR_TIME) {
 			sup.setExpirationDate(addDaysToDate(plan.getUses(), sup.getExpirationDate()));
 		} else if (plan.getPlanType() == PaymentPlanType.PAY_ONCE) {
 			sup.setUses(plan.getUses());
-		} else {	
+		} else {
 			Integer uses = sup.getUses() + plan.getUses();
 			sup.setUses(uses);
 		}
-		
+
 		return sup;
 	}
 
 	private Date addDaysToDate(Integer days, Date date) {
-		if(date == null) {
+		if (date == null) {
 			date = new Date();
 		}
 		Calendar cal = Calendar.getInstance();
@@ -337,10 +314,7 @@ public class PaymentService {
 	private Organization getCurrentOrg() {
 		return getCurrentUser().getOrganizationUser().getOrganization();
 	}
-	
-	private Mapper<ServiceUsePermit, ServiceUsePermitModel> getSupMapper() {
-		return mapperFactory.mapperFor(ServiceUsePermit.class, ServiceUsePermitModel.class);
-	}
+
 	/* Utility methods END */
 
 }

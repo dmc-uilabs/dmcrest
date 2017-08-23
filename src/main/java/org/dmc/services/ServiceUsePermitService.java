@@ -8,6 +8,9 @@ import javax.inject.Inject;
 
 import org.dmc.services.data.entities.PaymentPlan;
 import org.dmc.services.data.entities.ServiceUsePermit;
+import org.dmc.services.data.mappers.Mapper;
+import org.dmc.services.data.mappers.MapperFactory;
+import org.dmc.services.data.models.ServiceUsePermitModel;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.PaymentPlanRepository;
 import org.dmc.services.data.repositories.ServiceUsePermitRepository;
@@ -29,6 +32,9 @@ public class ServiceUsePermitService {
 	
 	@Inject
 	private OrganizationUserRepository orgUserRepo;
+	
+	@Inject
+	private MapperFactory mapperFactory;
 	
 	public Boolean checkUserServicePermit(Integer serviceId) {
 		return checkUserServicePermit(serviceId, getCurrentUserId());
@@ -88,16 +94,16 @@ public class ServiceUsePermitService {
 		
 	}
 	
-	public ServiceUsePermit getServiceUsePermit(Integer id) {
-		return supRepo.findOne(id);
+	public ServiceUsePermitModel getServiceUsePermit(Integer id) {
+		return getSupMapper().mapToModel((supRepo.findOne(id)));
 	}
 	
-	public List<ServiceUsePermit> getServiceUsePermitByServiceId(Integer id) {
-		return supRepo.findByServiceId(id);
+	public List<ServiceUsePermitModel> getServiceUsePermitByServiceId(Integer id) {
+		return getSupMapper().mapToModel(supRepo.findByServiceId(id));
 	}
 	
-	public List<ServiceUsePermit> getServiceUsePermitByOrgId(Integer id) {
-		return supRepo.findByOrganizationId(id);
+	public List<ServiceUsePermitModel> getServiceUsePermitByOrgId(Integer id) {
+		return getSupMapper().mapToModel(supRepo.findByOrganizationId(id));
 	}
 	
 	public ServiceUsePermit getServiceUsePermitByOrganizationIdAndServiceId(Integer orgId, Integer serviceId) {
@@ -106,6 +112,14 @@ public class ServiceUsePermitService {
 	
 	private Integer getCurrentUserId() {
 		return ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+	}
+	
+	public ServiceUsePermitModel mapToModel(ServiceUsePermit sup) {
+		return getSupMapper().mapToModel(sup);
+	}
+	
+	private Mapper<ServiceUsePermit, ServiceUsePermitModel> getSupMapper() {
+		return mapperFactory.mapperFor(ServiceUsePermit.class, ServiceUsePermitModel.class);
 	}
 
 }

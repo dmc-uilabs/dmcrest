@@ -28,7 +28,7 @@ public class PaymentReceipt extends BaseEntity {
 	private Integer userId;
 	
 	@Column(name = "organization_id")
-	private Integer orgId;
+	private Integer organizationId;
 
 	@Column(name = "parent_id")
 	private Integer parentId;
@@ -64,7 +64,7 @@ public class PaymentReceipt extends BaseEntity {
 	public PaymentReceipt(Integer userId, Integer orgId, Integer parentId, PaymentParentType type, String status, BigDecimal amount,
 			String chargeId, String description, PaymentPlan plan, BigDecimal balance) {
 		this.userId = userId;
-		this.orgId = orgId;
+		this.organizationId = orgId;
 		this.parentId = parentId;
 		this.type = type;
 		this.status = status;
@@ -78,7 +78,7 @@ public class PaymentReceipt extends BaseEntity {
 	public PaymentReceipt(Integer userId, Integer orgId, Integer parentId, PaymentParentType type, String status, Integer amount,
 			String chargeId, String description, PaymentPlan plan, Integer balance) {
 		this.userId = userId;
-		this.orgId = orgId;
+		this.organizationId = orgId;
 		this.parentId = parentId;
 		this.type = type;
 		this.status = status;
@@ -106,11 +106,11 @@ public class PaymentReceipt extends BaseEntity {
 	}
 	
 	public Integer getOrgId() {
-		return orgId;
+		return organizationId;
 	}
 	
 	public void setOrgId(Integer orgId) {
-		this.orgId = orgId;
+		this.organizationId = orgId;
 	}
 
 	public Integer getParentId() {

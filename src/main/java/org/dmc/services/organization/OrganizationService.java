@@ -11,8 +11,6 @@ import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.Organization;
-import org.dmc.services.data.entities.PaymentReceipt;
-import org.dmc.services.data.entities.PaymentParentType;
 import org.dmc.services.data.entities.QDMDIIMember;
 import org.dmc.services.data.entities.QDocument;
 import org.dmc.services.data.entities.QOrganization;
@@ -26,7 +24,6 @@ import org.dmc.services.data.models.OrganizationModel;
 import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.repositories.AreaOfExpertiseRepository;
 import org.dmc.services.data.repositories.DocumentRepository;
-import org.dmc.services.data.repositories.PaymentReceiptRepository;
 import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.data.repositories.UserRoleAssignmentRepository;
@@ -45,7 +42,6 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 

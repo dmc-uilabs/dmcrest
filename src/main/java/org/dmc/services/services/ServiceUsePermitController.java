@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.ServiceUsePermitService;
-import org.dmc.services.data.entities.ServiceUsePermit;
+import org.dmc.services.data.models.ServiceUsePermitModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,19 +26,19 @@ public class ServiceUsePermitController {
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getServicePermitById(@PathVariable("id") Integer id) {
 		ServiceLogger.log(logTag, "Retrieving service use permit by id: " + id);
-		return new ResponseEntity<ServiceUsePermit>(supService.getServiceUsePermit(id), HttpStatus.OK);
+		return new ResponseEntity<ServiceUsePermitModel>(supService.getServiceUsePermit(id), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/service/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getServicePermitByServiceId(@PathVariable("id") Integer id) {
 		ServiceLogger.log(logTag, "Retrieving service use permits by service: " + id);
-		return new ResponseEntity<List<ServiceUsePermit>>(supService.getServiceUsePermitByServiceId(id), HttpStatus.OK);
+		return new ResponseEntity<List<ServiceUsePermitModel>>(supService.getServiceUsePermitByServiceId(id), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/organization/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getServicePermitByOrgId(@PathVariable("id") Integer id) {
 		ServiceLogger.log(logTag, "Retrieving service use permits by organization: " + id);
-		return new ResponseEntity<List<ServiceUsePermit>>(supService.getServiceUsePermitByOrgId(id), HttpStatus.OK);
+		return new ResponseEntity<List<ServiceUsePermitModel>>(supService.getServiceUsePermitByOrgId(id), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/check/{id}", method = RequestMethod.GET)
