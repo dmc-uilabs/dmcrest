@@ -19,6 +19,9 @@ import com.stripe.model.Charge;
 @Service
 public class PaymentReceiptService {
 	
+	private final String FAILED = "failed";
+	private final String SUCCESS = "succeeded";
+	
 	@Inject
 	private PaymentReceiptRepository receiptRepository;
 	
@@ -46,7 +49,7 @@ public class PaymentReceiptService {
 	}
 	
 	public List<PaymentReceiptModel> getPaymentReceiptsByOrgId(Integer orgId) {
-		return getReceiptMapper().mapToModel(receiptRepository.findByOrganizationId(orgId));
+		return getReceiptMapper().mapToModel(receiptRepository.findByOrganizationIdAndStatus(orgId, SUCCESS));
 	}
 	
 	private Mapper<PaymentReceipt, PaymentReceiptModel> getReceiptMapper() {

@@ -12,5 +12,7 @@ public interface PaymentReceiptRepository extends BaseRepository<PaymentReceipt,
 	Integer countByUserIdAndStatusAndDateBetween(Integer id, String status, Date startDate, Date endDate);
 	
 	List<PaymentReceipt> findByOrganizationId(Integer orgId);
+	
+	List<PaymentReceipt> findByOrganizationIdAndStatus(Integer orgId, String status);
 
 }

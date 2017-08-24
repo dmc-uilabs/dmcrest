@@ -108,7 +108,7 @@ public class UserService {
 
 	@Inject
 	private EmailService emailService;
-
+	
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findOne(id));
