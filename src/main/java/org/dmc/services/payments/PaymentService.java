@@ -13,16 +13,18 @@ import org.dmc.services.data.entities.ServiceUsePermit;
 import org.apache.commons.lang3.time.DateUtils;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceUsePermitService;
+import org.dmc.services.UserService;
 import org.dmc.services.data.entities.Organization;
+import org.dmc.services.data.entities.OrganizationUser;
 import org.dmc.services.data.entities.PaymentParentType;
 import org.dmc.services.data.entities.PaymentPlan;
 import org.dmc.services.data.entities.PaymentPlanType;
 import org.dmc.services.data.entities.User;
-import org.dmc.services.data.mappers.Mapper;
-import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrgCreation;
 import org.dmc.services.data.models.OrganizationModel;
+import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.PaymentStatus;
 import org.dmc.services.data.models.ServicePayment;
 import org.dmc.services.data.models.ServiceUsePermitModel;
@@ -61,6 +63,9 @@ public class PaymentService {
 
 	@Inject
 	private UserRepository userRepository;
+	
+	@Inject
+	private UserService userService;
 
 	@Inject
 	private PaymentPlanRepository payPlanRepo;
@@ -76,6 +81,9 @@ public class PaymentService {
 
 	@Inject
 	private OrganizationService orgService;
+	
+	@Inject
+	private OrganizationUserService orgUserService;
 
 	@Inject
 	private ServiceUsePermitService supService;
@@ -115,10 +123,21 @@ public class PaymentService {
 
 	public PaymentStatus processOrganizationPayment(String token, OrganizationModel orgModel)
 			throws StripeException, TooManyAttemptsException {
+		
+		userService.canCreateOrg(getCurrentUser().getId());
+		
 		checkPaymentAttempts();
+		
 		PaymentStatus ps = new PaymentStatus();
 		Charge charge = new Charge();
 
+		if(orgModel.getId() == null) {
+			Integer existingOrgId = orgService.findByUser().getId();
+			if(existingOrgId != null) {
+				orgModel.setId(existingOrgId);
+			}
+		}
+		
 		orgModel = orgService.save(orgModel);
 
 		if (token == null || orgModel == null) {
@@ -131,6 +150,7 @@ public class PaymentService {
 						"Registration charge for " + orgModel.getName() + " with id: " + orgModel.getId());
 			} catch (StripeException e) {
 				orgService.delete(orgModel.getId());
+				orgUserService.verifyUnverifyExistingUser(getCurrentUser().getId(), false);
 				receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), orgModel.getId(),
 						PaymentParentType.ORGANIZATION, FAILED, T_3_PRICE, null, e.getMessage(), null);
 				throw e;
@@ -312,7 +332,12 @@ public class PaymentService {
 	}
 
 	private Organization getCurrentOrg() {
-		return getCurrentUser().getOrganizationUser().getOrganization();
+		OrganizationUser orgUser = getCurrentUser().getOrganizationUser();
+		if(orgUser != null) {
+			return orgUser.getOrganization();
+		} else {
+			return null;
+		}
 	}
 
 	/* Utility methods END */

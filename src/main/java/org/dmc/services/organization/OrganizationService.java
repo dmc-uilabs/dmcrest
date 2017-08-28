@@ -178,6 +178,8 @@ public class OrganizationService {
 	
 	@Transactional
 	public Organization updatePaymentStatus(OrganizationModel orgModel, Boolean paid) {
+		organizationUserService.verifyUnverifyExistingUser(getCurrentUser().getId(), true);
+		
 		Organization orgEntity = getOrgMapper().mapToEntity(orgModel);
 		
 		orgEntity.setIsPaid(paid);
