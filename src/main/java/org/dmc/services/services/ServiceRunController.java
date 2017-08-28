@@ -1,9 +1,10 @@
 package org.dmc.services.services;
 
-import org.dmc.services.ErrorMessage;
-import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
+import org.dmc.services.ServiceUsePermitService;
 import org.dmc.services.company.CompanyUserUtil;
+import org.dmc.services.exceptions.ServiceUseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,9 @@ public class ServiceRunController {
 	private final String logTag = ServiceRunController.class.getName();
 
 	private ServiceDao serviceDao = new ServiceDao();
+	
+	@Autowired
+	private ServiceUsePermitService supService;
 
 	@RequestMapping(value = "/model_run_file1", method = RequestMethod.POST)
 	public ResponseEntity<?> handleFormUploadTest(@RequestParam("file") MultipartFile uploadfile,@RequestParam("service")String serviceID,
@@ -62,10 +66,14 @@ public class ServiceRunController {
     	JSONObject inputs = new JSONObject(serviceInput);
     	String sId = inputs.getString("serviceId");
     	JSONObject inpars = inputs.getJSONObject("inParams");
-
+    	int serviceId = new Integer(sId);
+    	
     	RunDomeModelResponse response = new RunDomeModelResponse();
     	try {
     		int userId = CompanyUserUtil.getUserId(userEPPN);
+    		if(!supService.checkUserServicePermit(serviceId, userId)) {
+    			throw new ServiceUseException("Could not find valid service use permit for user: " + userId);
+    		}
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
     		HashMap paras = new HashMap<String, DomeModelParam>();
     		//Map ins = serviceInput.getInParams();
@@ -136,7 +144,6 @@ public class ServiceRunController {
     			// Need a type change here.
     				paras.put(variableName, parValue);
     		}
-    		int serviceId = new Integer(sId);
     		runId = serviceRunInstance.runModel(serviceId,paras,uploadfile, userId);
     		ServiceLogger.log(logTag, "Successfully called runModel, serviceIdStr: " + sId + " called by user " + userEPPN);
     		response.setRunId(runId);
@@ -156,9 +163,13 @@ public class ServiceRunController {
 
     	int runId;
     	String sId = serviceInput.getServiceId();
+    	int serviceId = new Integer(sId);
     	RunDomeModelResponse response = new RunDomeModelResponse();
     	try {
     		int userId = CompanyUserUtil.getUserId(userEPPN);
+    		if(!supService.checkUserServicePermit(serviceId, userId)) {
+    			throw new ServiceUseException("Could not find valid service use permit for user: " + userId);
+    		}
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
     		HashMap paras = new HashMap();
     		Map ins = serviceInput.getInParams();
@@ -173,7 +184,6 @@ public class ServiceRunController {
     			Map.Entry pair = (Map.Entry)ut.next();
     			paras.put(pair.getKey(), pair.getValue());
     		}*/
-    		int serviceId = new Integer(sId);
     		runId = serviceRunInstance.runModel(serviceId,paras,userId);
 				JSONObject jsonParams = new JSONObject(paras);
     		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " serviceTitle: " + serviceDao.getService(Integer.parseInt(serviceInput.getServiceId()), userEPPN).getTitle() + " called by user " + userEPPN + " with params: " + jsonParams.toString());
@@ -182,6 +192,7 @@ public class ServiceRunController {
         catch (Exception e)
         {
         	ServiceLogger.log(logTag, "Exception in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " called by user " + userEPPN);
+        	ServiceLogger.log(logTag, "Exception: " + e.toString());
         	return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<RunDomeModelResponse>(response, HttpStatus.OK);

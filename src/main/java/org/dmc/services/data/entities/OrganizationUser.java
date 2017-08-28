@@ -10,6 +10,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
 @Entity
 @Table(name = "organization_user")
 
@@ -25,6 +28,7 @@ public class OrganizationUser extends BaseEntity{
 
 	@ManyToOne
 	@JoinColumn(name = "organization_id")
+	@NotFound(action=NotFoundAction.IGNORE)
 	private Organization organization;
 
 	@Column(name = "is_verified")
