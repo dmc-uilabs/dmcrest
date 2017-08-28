@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 
 public class OrganizationModel extends BaseModel {
 
@@ -66,6 +70,9 @@ public class OrganizationModel extends BaseModel {
 	
 	@JsonIgnore
 	private Boolean isPaid = false;
+	
+	@JsonIgnore
+	private Integer accountBalance;
 
 	public String getName() {
 		return name;
@@ -292,6 +299,7 @@ public class OrganizationModel extends BaseModel {
 	}
 	
 	@JsonProperty
+	@JsonInclude(Include.NON_NULL)
 	public Boolean getIsPaid() {
 		return isPaid;
 	}
@@ -299,6 +307,17 @@ public class OrganizationModel extends BaseModel {
 	@JsonIgnore
 	public void setIsPaid(Boolean isPaid) {
 		this.isPaid = isPaid;
+	}
+	
+	@JsonProperty
+	@JsonInclude(Include.NON_NULL)
+	public Integer getAccountBalance() {
+		return accountBalance;
+	}
+	
+	@JsonIgnore
+	public void setAccountBalance(Integer accountBalance) {
+		this.accountBalance = accountBalance;
 	}
 
 }

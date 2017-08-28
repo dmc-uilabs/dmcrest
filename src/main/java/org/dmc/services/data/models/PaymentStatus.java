@@ -1,12 +1,17 @@
 package org.dmc.services.data.models;
 
-public class PaymentsStatus {
+public class PaymentStatus {
 	
-	private String status;
+	private String status = "failed";
 	
 	private String reason;
 	
-	public PaymentsStatus(String status, String reason) {
+	//Default constructor
+	public PaymentStatus() {
+	
+	}
+	
+	public PaymentStatus(String status, String reason) {
 		this.status = status;
 		this.reason = reason;
 	}

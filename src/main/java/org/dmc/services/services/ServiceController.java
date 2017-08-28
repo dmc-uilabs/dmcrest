@@ -15,11 +15,12 @@ import org.dmc.services.ErrorMessage;
 import org.dmc.services.Id;
 import org.dmc.services.ServiceLogger;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.data.entities.PaymentPlan;
+import org.dmc.services.payments.PaymentPlanService;
 import org.dmc.services.projects.ProjectController;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -40,6 +41,9 @@ public class ServiceController {
 
     @Inject
     private DocumentService documentService;
+
+    @Inject
+    private PaymentPlanService paymentPlanService;
 
     @Inject
     private ProjectController projectController;
@@ -72,6 +76,30 @@ public class ServiceController {
         }
     }
 
+    @RequestMapping(value = "/services/pay_plan")
+    public ResponseEntity<?> getServicePaymentPlansForIds(@RequestParam("id") List<Integer> serviceIds,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+    	ServiceLogger.log(LOGTAG, "getServicePaymentPlansForIds");
+    	try {
+    		return new ResponseEntity<List<PaymentPlan>>(paymentPlanService.getPlans(serviceIds), HttpStatus.OK);
+    	} catch (DMCServiceException e) {
+    		ServiceLogger.logException(LOGTAG, e);
+    		return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+    	}
+    }
+
+    @RequestMapping(value = "/services/{id}/pay_plan")
+    public ResponseEntity<?> getServicePaymentPlans(@PathVariable("id") int id,
+            @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+    	ServiceLogger.log(LOGTAG, "getServicePaymentPlans, id: " + id);
+    	try {
+    		return new ResponseEntity<List<PaymentPlan>>(paymentPlanService.getPlans(id), HttpStatus.OK);
+    	} catch (DMCServiceException e) {
+    		ServiceLogger.logException(LOGTAG, e);
+    		return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+    	}
+    }
+
     @RequestMapping(value = "/projects/{projectId}/services", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getServiceList(@PathVariable("projectId") int projectId) {
         try {
@@ -80,6 +108,38 @@ public class ServiceController {
         } catch (DMCServiceException e) {
             ServiceLogger.logException(LOGTAG, e);
             return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+
+    @RequestMapping(value = "/defaultServices", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getDefaultServiceList(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+        ServiceLogger.log(LOGTAG, "In getDefaultServiceList as user: " + userEPPN);
+
+        try {
+          int defaultProjectId = projectController.findOrCreateDefaultProject(userEPPN);
+          return new ResponseEntity<ArrayList<Service>>(serviceDao.getServiceList(defaultProjectId), HttpStatus.OK);
+        }
+        catch (DMCServiceException e){
+          ServiceLogger.logException(LOGTAG, e);
+          return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
+        }
+    }
+
+    @RequestMapping(value = "/defaultServices/{parentId}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getDefaultService(@PathVariable("parentId") int parentId,
+                                               @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
+
+        ServiceLogger.log(LOGTAG, "In getDefaultService as user: " + userEPPN);
+
+        try {
+          int defaultProjectId = projectController.findOrCreateDefaultProject(userEPPN);
+          Integer existingServiceId = checkForExistingServiceInDefaultSpace(Integer.toString(defaultProjectId), Integer.toString(parentId));
+          return new ResponseEntity<Service>(serviceDao.getService(existingServiceId, userEPPN), HttpStatus.OK);
+        }
+        catch (DMCServiceException e){
+          ServiceLogger.logException(LOGTAG, e);
+          return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
         }
     }
 
