@@ -163,7 +163,7 @@ public class Organization extends BaseEntity {
 	private String otherOrganizationTags;
 
 	@Column(name = "account_balance")
-	private Integer accountBalance = 0;
+	private int accountBalance = 0;
 
 	public Integer getId() {
 		return id;
@@ -519,12 +519,11 @@ public class Organization extends BaseEntity {
 		this.otherOrganizationTags = otherOrganizationTags;
 	}
 
-	public Integer getAccountBalance() {
-		accountBalance = accountBalance == null ? 0 : accountBalance;
+	public int getAccountBalance() {
 		return accountBalance;
 	}
 
-	public void setAccountBalance(Integer accountBalance) {
+	public void setAccountBalance(int accountBalance) {
 		this.accountBalance = accountBalance;
 	}
 
@@ -573,7 +572,6 @@ public class Organization extends BaseEntity {
 		result = prime * result + ((dmdiiMembershipInfo == null) ? 0 : dmdiiMembershipInfo.hashCode());
 		result = prime * result + ((isPaid == null) ? 0 : isPaid.hashCode());
 		result = prime * result + ((otherOrganizationTags == null) ? 0 : otherOrganizationTags.hashCode());
-		result = prime * result + ((accountBalance == null) ? 0 : accountBalance.hashCode());
 		return result;
 	}
 
@@ -805,11 +803,6 @@ public class Organization extends BaseEntity {
 			if (other.otherOrganizationTags != null)
 				return false;
 		} else if (!otherOrganizationTags.equals(other.otherOrganizationTags))
-			return false;
-		if (accountBalance == null) {
-			if (other.accountBalance != null)
-				return false;
-		} else if (!accountBalance.equals(other.accountBalance))
 			return false;
 		return true;
 	}
