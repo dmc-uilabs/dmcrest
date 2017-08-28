@@ -81,6 +81,7 @@ public class ESignService {
 				"\"email_required\": true, "+
 				"\"allow_downloads\": true, "+
 				"\"custom_logo_id\": 44665, "+
+				"\"custom_message\": \"`Please go to PAGE 51 to sign the agreement`\", " +
 				"\"redirect_url\": \"https://dev-web2.opendmc.org/company-onboarding.php#/pay\", "+
 				// "\"callback_url\": \"https://requestb.in/y82ufvy8\", "+
 				"\"reusable\": false, "+
