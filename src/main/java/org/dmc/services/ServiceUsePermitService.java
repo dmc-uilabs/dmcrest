@@ -7,6 +7,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.dmc.services.data.entities.PaymentPlan;
+import org.dmc.services.data.entities.ServiceEntity;
 import org.dmc.services.data.entities.ServiceUsePermit;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
@@ -15,6 +16,7 @@ import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.PaymentPlanRepository;
 import org.dmc.services.data.repositories.ServiceUsePermitRepository;
 import org.dmc.services.security.UserPrincipal;
+import org.dmc.services.services.ServiceEntityService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -36,24 +38,41 @@ public class ServiceUsePermitService {
 	@Inject
 	private MapperFactory mapperFactory;
 	
-	public Boolean checkUserServicePermit(Integer serviceId) {
-		return checkUserServicePermit(serviceId, getCurrentUserId());
+	@Inject
+	private ServiceEntityService servService;
+	
+	public void processServiceUse(Integer serviceId) {
+		if(hasPaymentPlan(serviceId)) {
+			processUsage(findServiceUsePermit(serviceId, getCurrentOrgId()));
+		}
 	}
 	
-	public Boolean checkUserServicePermit(Integer serviceId, Integer userId) {
-		return checkOrgServicePermit(serviceId, orgUserRepo.findByUserId(userId).getOrganization().getId());
+	public void refundUse(Integer serviceId) {
+		if(hasPaymentPlan(serviceId)) {
+			refundUse(findServiceUsePermit(serviceId, getCurrentOrgId()));
+		}
+	}
+	
+	public void processServiceUse(Integer serviceId, Integer orgId) {
+		if(hasPaymentPlan(serviceId)) {
+			ServiceUsePermit sup = findServiceUsePermit(serviceId, orgId);
+			processUsage(sup);
+		}
+	}
+	
+	public Boolean checkServicePermit(Integer serviceId) {
+		return checkOrgServicePermit(serviceId, getCurrentOrgId());
 	}
 	
 	public Boolean checkOrgServicePermit(Integer serviceId, Integer orgId) {
 		Boolean canRun = false;
-		List<PaymentPlan> plans = payPlanRepo.findByServiceId(serviceId);
 		
 		//If no payment plans, assume free usage
-		if(plans.isEmpty()) {
+		if(!hasPaymentPlan(serviceId)) {
 			return true;
 		}
 		
-		ServiceUsePermit sup = supRepo.findByOrganizationIdAndServiceId(orgId, serviceId);
+		ServiceUsePermit sup = findServiceUsePermit(serviceId, orgId);
 		
 		//If a permit was found, determine uses left
 		if(sup != null) {
@@ -63,16 +82,28 @@ public class ServiceUsePermitService {
 		return canRun;
 	}
 	
-	private Boolean determineUsage(ServiceUsePermit sup) {
-		Boolean canUse = false;
-		Integer uses = sup.getUses();
-		
-		if(sup.getExpirationDate() != null) {
-			Date now = new Date();
-			canUse = sup.getExpirationDate().before(now);
+	private ServiceUsePermit findServiceUsePermit(Integer serviceId, Integer orgId) {
+		ServiceUsePermit sup = supRepo.findByOrganizationIdAndServiceId(orgId, serviceId);
+		if(sup == null) {
+			ServiceEntity service = servService.getService(serviceId);
+			sup = supRepo.findByOrganizationIdAndServiceId(orgId, Integer.valueOf(service.getParent()));
 		}
+		return sup;
+	}
+	
+	private Boolean hasPaymentPlan(Integer serviceId) {
+		List<PaymentPlan> plans = payPlanRepo.findByServiceId(serviceId);
+		
+		return !plans.isEmpty();
+	}
+
+	private Boolean determineUsage(ServiceUsePermit sup) {
+		
+		Date expirDt = sup.getExpirationDate();
+		Boolean canUse = expirDt != null ? expirDt.before(new Date()) : true;
 		
 		if(!canUse) {
+			Integer uses = sup.getUses();
 			if(uses == UNLIMITED) {
 				canUse = true;
 			} else if(uses > EMPTY) {
@@ -83,10 +114,24 @@ public class ServiceUsePermitService {
 		return canUse;
 	}
 	
+	private void refundUse(ServiceUsePermit sup) {
+		int uses = sup.getUses();
+		Date expirDt = sup.getExpirationDate();
+		Boolean beforeExpiration = expirDt != null ? expirDt.before(new Date()) : true;
+		
+		if(uses != UNLIMITED && !beforeExpiration) {
+			uses += 1;
+			sup.setUses(uses);
+			supRepo.save(sup);
+		}
+	}
+	
 	private void processUsage(ServiceUsePermit sup) {
 		int uses = sup.getUses();
+		Date expirDt = sup.getExpirationDate();
+		Boolean beforeExpiration = expirDt != null ? expirDt.before(new Date()) : true;
 		
-		if(uses != UNLIMITED) {
+		if(uses != UNLIMITED && beforeExpiration) {
 			uses -= 1;
 			sup.setUses(uses);
 			supRepo.save(sup);
@@ -110,8 +155,9 @@ public class ServiceUsePermitService {
 		return supRepo.findByOrganizationIdAndServiceId(orgId, serviceId);
 	}
 	
-	private Integer getCurrentUserId() {
-		return ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+	private Integer getCurrentOrgId() {
+		Integer userId = ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+		return orgUserRepo.findByUserId(userId).getOrganization().getId();
 	}
 	
 	public ServiceUsePermitModel mapToModel(ServiceUsePermit sup) {

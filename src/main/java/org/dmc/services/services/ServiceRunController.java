@@ -71,7 +71,7 @@ public class ServiceRunController {
     	RunDomeModelResponse response = new RunDomeModelResponse();
     	try {
     		int userId = CompanyUserUtil.getUserId(userEPPN);
-    		if(!supService.checkUserServicePermit(serviceId, userId)) {
+    		if(!supService.checkServicePermit(serviceId)) {
     			throw new ServiceUseException("Could not find valid service use permit for user: " + userId);
     		}
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
@@ -145,6 +145,7 @@ public class ServiceRunController {
     				paras.put(variableName, parValue);
     		}
     		runId = serviceRunInstance.runModel(serviceId,paras,uploadfile, userId);
+    		supService.processServiceUse(serviceId);
     		ServiceLogger.log(logTag, "Successfully called runModel, serviceIdStr: " + sId + " called by user " + userEPPN);
     		response.setRunId(runId);
         }
@@ -167,7 +168,7 @@ public class ServiceRunController {
     	RunDomeModelResponse response = new RunDomeModelResponse();
     	try {
     		int userId = CompanyUserUtil.getUserId(userEPPN);
-    		if(!supService.checkUserServicePermit(serviceId, userId)) {
+    		if(!supService.checkServicePermit(serviceId)) {
     			throw new ServiceUseException("Could not find valid service use permit for user: " + userId);
     		}
     		ServiceRunDOMEAPI serviceRunInstance = new ServiceRunDOMEAPI();
@@ -185,7 +186,8 @@ public class ServiceRunController {
     			paras.put(pair.getKey(), pair.getValue());
     		}*/
     		runId = serviceRunInstance.runModel(serviceId,paras,userId);
-				JSONObject jsonParams = new JSONObject(paras);
+			JSONObject jsonParams = new JSONObject(paras);
+			supService.processServiceUse(serviceId);
     		ServiceLogger.log(logTag, "Success in serviceRun, serviceIdStr: " + serviceInput.getServiceId() + " serviceTitle: " + serviceDao.getService(Integer.parseInt(serviceInput.getServiceId()), userEPPN).getTitle() + " called by user " + userEPPN + " with params: " + jsonParams.toString());
     		response.setRunId(runId);
         }
