@@ -48,9 +48,6 @@ public class ServiceController {
     @Inject
     private ProjectController projectController;
 
-    @Inject
-    private ProjectController projectController;
-
     @RequestMapping(value = "/services/{id}", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getService(@PathVariable("id") int id,
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
