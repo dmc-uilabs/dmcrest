@@ -31,7 +31,7 @@ public class ServiceUsePermit extends BaseEntity {
 	private Integer serviceId;
 	
 	@Column(name = "remaining_uses")
-	private int remainingUses;
+	private Integer remainingUses;
 	
 	@Column(name = "expire_dt")
 	private Date expirationDate;
@@ -71,11 +71,11 @@ public class ServiceUsePermit extends BaseEntity {
 	/**
 	 * @returns -1 for unlimited uses
 	 */
-	public int getUses() {
+	public Integer getUses() {
 		return remainingUses;
 	}
 
-	public void setUses(int uses) {
+	public void setUses(Integer uses) {
 		this.remainingUses = uses;
 	}
 
