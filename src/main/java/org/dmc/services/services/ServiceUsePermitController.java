@@ -41,10 +41,16 @@ public class ServiceUsePermitController {
 		return new ResponseEntity<List<ServiceUsePermitModel>>(supService.getServiceUsePermitByOrgId(id), HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/check/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/organization/service/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> getServicePermitByOrgIdAndServiceId(@PathVariable("id") Integer id) {
+		ServiceLogger.log(logTag, "Retrieving service use permit for current organization with service id: " + id);
+		return new ResponseEntity<ServiceUsePermitModel>(supService.getServiceUsePermitByOrganizationIdAndServiceId(id), HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/check/service/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> checkServicePermit(@PathVariable("id") Integer id,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
-		ServiceLogger.log(logTag, "Checking service use permit for service: " + id + " and user: " + userEPPN);
+		ServiceLogger.log(logTag, "Checking service use permit with current org for service: " + id + " and user: " + userEPPN);
 		return new ResponseEntity<Boolean>(supService.checkServicePermit(id), HttpStatus.OK);
 	}
 

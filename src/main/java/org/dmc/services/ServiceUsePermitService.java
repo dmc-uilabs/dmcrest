@@ -151,6 +151,10 @@ public class ServiceUsePermitService {
 		return getSupMapper().mapToModel(supRepo.findByOrganizationId(id));
 	}
 	
+	public ServiceUsePermitModel getServiceUsePermitByOrganizationIdAndServiceId(Integer serviceId) {
+		return getSupMapper().mapToModel(supRepo.findByOrganizationIdAndServiceId(getCurrentOrgId(), serviceId));
+	}
+	
 	public ServiceUsePermit getServiceUsePermitByOrganizationIdAndServiceId(Integer orgId, Integer serviceId) {
 		return supRepo.findByOrganizationIdAndServiceId(orgId, serviceId);
 	}

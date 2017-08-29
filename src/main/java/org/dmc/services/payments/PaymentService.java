@@ -24,7 +24,6 @@ import org.dmc.services.data.entities.PaymentPlanType;
 import org.dmc.services.data.entities.User;
 import org.dmc.services.data.models.OrgCreation;
 import org.dmc.services.data.models.OrganizationModel;
-import org.dmc.services.data.models.OrganizationUserModel;
 import org.dmc.services.data.models.PaymentStatus;
 import org.dmc.services.data.models.ServicePayment;
 import org.dmc.services.data.models.ServiceUsePermitModel;
@@ -165,7 +164,7 @@ public class PaymentService {
 		return ps;
 	}
 
-	public ServiceUsePermitModel processInternalPayment(Integer planId) throws ArgumentNotFoundException {
+	public ServiceUsePermitModel processInternalPayment(Integer planId, Integer quantity) throws ArgumentNotFoundException {
 		ServiceUsePermit sup = new ServiceUsePermit();
 		PaymentPlan plan = new PaymentPlan();
 
@@ -176,14 +175,16 @@ public class PaymentService {
 			if (plan == null) {
 				throw new ArgumentNotFoundException("Could not find payment plan with given ID " + planId);
 			}
-			sup = serviceUsePermitRepo.save(processPermitFromPlan(plan));
+			sup = serviceUsePermitRepo.save(processPermitFromPlan(plan, quantity));
 			Organization org = getCurrentOrg();
-			Integer newBalance = org.getAccountBalance() - plan.getPrice();
+			int totalPrice = plan.getPrice() * quantity;
+			Integer newBalance = org.getAccountBalance() - (totalPrice);
 			if (newBalance > 0) {
 				org.setAccountBalance(newBalance);
 			} else {
+				serviceUsePermitRepo.delete(sup);
 				throw new DMCServiceException(DMCError.PaymentError,
-						"INSUFFICIENT FUNDS AVAILABLE : $" + BigDecimal.valueOf(plan.getPrice(), 2) + " REQUIRED. $"
+						"INSUFFICIENT FUNDS AVAILABLE : $" + BigDecimal.valueOf(totalPrice, 2) + " REQUIRED. $"
 								+ BigDecimal.valueOf(org.getAccountBalance(), 2) + " AVAILABLE.");
 			}
 			try {
@@ -193,38 +194,37 @@ public class PaymentService {
 					serviceUsePermitRepo.delete(sup);
 				}
 				receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), plan.getServiceId(),
-						PaymentParentType.SERVICE, FAILED, plan.getPrice(), null, e.getMessage(), plan);
+						PaymentParentType.SERVICE, FAILED, totalPrice, null, e.getMessage(), plan);
 				throw e;
 			}
 			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), plan.getServiceId(),
-					PaymentParentType.SERVICE, SUCCESS, plan.getPrice(), null,
+					PaymentParentType.SERVICE, SUCCESS, totalPrice, null,
 					"INTERNAL charge for service with id: " + plan.getServiceId(), plan);
 		}
 		return supService.mapToModel(sup);
 	}
 
-	public PaymentStatus addFundsToAccount(String token) throws StripeException, TooManyAttemptsException {
+	public PaymentStatus addFundsToAccount(String token, int amount) throws StripeException, TooManyAttemptsException {
 
 		checkPaymentAttempts();
 		checkValidOrg();
 
-		Integer price = T_3_PRICE;
 		Organization org = getCurrentUser().getOrganizationUser().getOrganization();
-		org.setAccountBalance(org.getAccountBalance() + price);
+		org.setAccountBalance(org.getAccountBalance() + amount);
 		orgRepo.save(org);
 		try {
-			Charge charge = createCharge(token, price, "Adding funds to organization account: " + org.getId());
+			Charge charge = createCharge(token, amount, "Adding funds to organization account: " + org.getId());
 			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), org.getId(),
-					PaymentParentType.ACCOUNT, SUCCESS, price, charge.getId(), charge.getDescription(), null);
+					PaymentParentType.ACCOUNT, SUCCESS, amount, charge.getId(), charge.getDescription(), null);
 		} catch (StripeException e) {
-			org.setAccountBalance(org.getAccountBalance() - price);
+			org.setAccountBalance(org.getAccountBalance() - amount);
 			orgRepo.save(org);
 			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), org.getId(),
-					PaymentParentType.ACCOUNT, FAILED, price, null, e.getMessage(), null);
+					PaymentParentType.ACCOUNT, FAILED, amount, null, e.getMessage(), null);
 			throw e;
 		}
 
-		return new PaymentStatus(SUCCESS, "Organization account balance successfully updated to: "
+		return new PaymentStatus(SUCCESS, "Organization account balance successfully updated to: $"
 				+ BigDecimal.valueOf(org.getAccountBalance(), 2));
 	}
 
@@ -254,7 +254,7 @@ public class PaymentService {
 				throw new DMCServiceException(DMCError.NoContentInQuery,
 						"Could not find payment plan with given ID " + planId);
 			}
-			sup = serviceUsePermitRepo.save(processPermitFromPlan(plan));
+			sup = serviceUsePermitRepo.save(processPermitFromPlan(plan, 1));
 			try {
 				charge = createCharge(token, plan.getPrice(), "Charge for service: " + plan.getServiceId());
 			} catch (StripeException e) {
@@ -291,24 +291,31 @@ public class PaymentService {
 		}
 	}
 
-	public ServiceUsePermit processPermitFromPlan(PaymentPlan plan) {
+	private ServiceUsePermit processPermitFromPlan(PaymentPlan plan, Integer quantity) {
 
+		//Get existing permit if available
 		ServiceUsePermit sup = supService.getServiceUsePermitByOrganizationIdAndServiceId(getCurrentOrg().getId(),
 				plan.getServiceId());
-
+		
+		//Create new permit
 		if (sup == null) {
 			sup = new ServiceUsePermit();
 			sup.setOrganizationId(getCurrentOrg().getId());
 			sup.setUserId(getCurrentUser().getId());
 			sup.setServiceId(plan.getServiceId());
+		} else if(sup.getUses() == -1) {
+				throw new DMCServiceException(DMCError.PaymentError, "Organization already possesses unlimited uses of service!");
 		}
 
 		if (plan.getPlanType() == PaymentPlanType.PAY_FOR_TIME) {
-			sup.setExpirationDate(addDaysToDate(plan.getUses(), sup.getExpirationDate()));
-		} else if (plan.getPlanType() == PaymentPlanType.PAY_ONCE) {
+			sup.setExpirationDate(addDaysToDate((plan.getUses() * quantity), sup.getExpirationDate()));
+		}
+		//Unlimited uses
+		else if (plan.getPlanType() == PaymentPlanType.PAY_ONCE) {
 			sup.setUses(plan.getUses());
 		} else {
-			Integer uses = sup.getUses() + plan.getUses();
+			Integer uses = sup.getUses() == null ? 0 : sup.getUses();
+			uses += (plan.getUses() * quantity);
 			sup.setUses(uses);
 		}
 
