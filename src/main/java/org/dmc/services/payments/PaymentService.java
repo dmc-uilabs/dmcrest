@@ -56,6 +56,7 @@ public class PaymentService {
 	private final String SUCCESS = "succeeded";
 	private final Integer T_3_PRICE = 50000;
 	private final Integer MAX_ATTEMPTS = 10;
+	private final Integer MINIMUM_FUND_ADD = 2000;
 
 	@Inject
 	private ServiceUsePermitRepository serviceUsePermitRepo;
@@ -205,6 +206,10 @@ public class PaymentService {
 	}
 
 	public PaymentStatus addFundsToAccount(String token, int amount) throws StripeException, TooManyAttemptsException {
+		
+		if(amount < MINIMUM_FUND_ADD) {
+			throw new DMCServiceException(DMCError.InvalidArgument, "Minimum amount of $20.00 required!");
+		}
 
 		checkPaymentAttempts();
 		checkValidOrg();
