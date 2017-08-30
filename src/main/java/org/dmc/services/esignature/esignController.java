@@ -26,6 +26,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import org.dmc.services.ServiceLogger;
+
+//RestController for esignController.
 @RestController
 public class esignController {
 
@@ -34,29 +36,29 @@ public class esignController {
 	@Autowired
 	private ESignService eSignService;
 
+	//Match front end call /rest/esignDoc with POST method.
 	@RequestMapping(value = "/esignDoc", method = RequestMethod.POST)
 	public ResponseEntity<eSignStatus> signDocument(@RequestBody String CompanyInfo) {
 
 			String response = "";
-
 			ServiceLogger.log(logTag, "From frontend : " + CompanyInfo);
 
       try {
-  				//Will throw an exception if esign fails
+					//Call eSignService.eSignField for execute the API call.
+  				//Will throw an exception if esign fails.
   				response = eSignService.eSignField(CompanyInfo);
 					ServiceLogger.log(logTag, "Response from API :" + response);
 
 					try{
+						 //Jsonify the response string.
 						 JSONObject jsonObj = new JSONObject(response);
+						 //if 'fillable_form_id' not exists in object means an error call.
 						 if (!jsonObj.has("fillable_form_id")){
 							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Failed!", response), HttpStatus.BAD_REQUEST);
 						 }
 						 else{
-							// resultMap.put("url", map.get("url").toString());
-							// 	resultMap.put("template_id", map.get("fillable_form_id").toString());
-							// 	results = new ObjectMapper().writeValueAsString(resultMap);
-							// ServiceLogger.log(logTag, "ResultMap to return :" + resultMap);
 							 	JSONObject resultJSONObject = new JSONObject();
+								//abstract 'fillable_form_id' and 'url' to resultJSONObject and return to front for use
 								resultJSONObject.put("template_id", jsonObj.get("fillable_form_id"));
 								resultJSONObject.put("url", jsonObj.getString("url"));
 								return new ResponseEntity<eSignStatus>(new eSignStatus("eSignature Successful!", resultJSONObject.toString()), HttpStatus.OK);
@@ -71,6 +73,7 @@ public class esignController {
   		}
 	}
 
+	//Match front end call /rest/esignCheck/{LinkToFillID} with GET method.
 	@RequestMapping(value = "/esignCheck/{LinkToFillID}", method = RequestMethod.GET)
 	public ResponseEntity<eSignStatus> signCheck(@PathVariable("LinkToFillID") String LinkToFillID,
 																							 @RequestHeader(value = "AJP_eppn", required = true) String UserEPPN) {
@@ -78,24 +81,32 @@ public class esignController {
 			String response = "";
 
       try {
+					//Call eSignService.eSignCheck for execute the API call.
   				//Will throw an exception if esign fails
   				response = eSignService.eSignCheck(LinkToFillID);
 
 					try{
+						 //Jsonify the response string.
 						 JSONObject jsonObj = new JSONObject(response);
 						 JSONObject resultJsonObject = new JSONObject();
+
+						 //if 'errors' in object means an error call.
 						 if (jsonObj.has("errors")){
 							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", jsonObj.getString("errors")), HttpStatus.BAD_REQUEST);
 						 }
+						 //if 'null' in object means an exception call.
 						 else if (response == "null"){
 							 	return new ResponseEntity<eSignStatus>(new eSignStatus("eSignCheck Failed!", "Error when calling the API"), HttpStatus.BAD_REQUEST);
 						 }
 						 else{
+							 	//'items' contain signature informations as an array of objects.
 							 	JSONArray eSignItems = jsonObj.getJSONArray("items");
 								JSONArray eSignResultItems = new JSONArray();
 								resultJsonObject.put("total", jsonObj.get("total"));
+								//Check total signature quantities
 							 	if ((int)jsonObj.get("total") >= 1){
 
+										//If more than 1, compare with each of the 'token.data.userEPPN' field in 'items' to mark verified user
 										for (int i = 0; i < eSignItems.length(); i++){
 												JSONObject iterative = eSignItems.getJSONObject(i);
 												String signatureToken = "";
@@ -104,6 +115,7 @@ public class esignController {
 												}
 												iterative.remove("token");
 												iterative.remove("additional_documents");
+												//If token info with userEPPN matches, mark as same, else mark as different
 												if (signatureToken.equals(UserEPPN)){
 														iterative.put("user", "same");
 												}
@@ -127,17 +139,20 @@ public class esignController {
   		}
 	}
 
+	//Match front end call /esignToken with GET method.
 	@RequestMapping(value = "/esignToken", method = RequestMethod.GET)
 	public ResponseEntity<eSignStatus> signToken(@RequestHeader(value = "AJP_eppn", required = true) String UserEPPN) {
 
 			String response = "";
 
       try {
+					//Call eSignService.eSignToken for execute the API call.
   				//Will throw an exception if esign fails
   				response = eSignService.eSignToken(UserEPPN);
 
 					try{
 						 JSONObject jsonObj = new JSONObject(response);
+						 //if 'hash' contained in the response, return this token to front.
 						 if (jsonObj.has("hash")){
 						 		return new ResponseEntity<eSignStatus>(new eSignStatus("eSignToken Successful!", jsonObj.getString("hash")), HttpStatus.OK);
 						 }
@@ -154,19 +169,20 @@ public class esignController {
   		}
 	}
 
-	@RequestMapping(value = "/esignCallback", method = RequestMethod.POST)
-	public ResponseEntity<eSignStatus> signCallback(@RequestBody String documentID) {
-
-			String response = "";
-
-      try {
-  				//Will throw an exception if esign fails
-  				response = eSignService.eSignCallback(documentID);
-					System.out.println("response " + response);
-					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "esignCallback Successful!"), HttpStatus.OK);
-  		} catch (Exception e) {
-					// System.out.println("failed");
-					return new ResponseEntity<eSignStatus>(new eSignStatus(response, "esignCallback Failed!"), HttpStatus.BAD_REQUEST);
-  		}
-	}
+	// Comment /rest/esignCallback if needed in future.
+	// @RequestMapping(value = "/esignCallback", method = RequestMethod.POST)
+	// public ResponseEntity<eSignStatus> signCallback(@RequestBody String documentID) {
+	//
+	// 		String response = "";
+	//
+  //     try {
+  // 				//Will throw an exception if esign fails
+  // 				response = eSignService.eSignCallback(documentID);
+	// 				System.out.println("response " + response);
+	// 				return new ResponseEntity<eSignStatus>(new eSignStatus(response, "esignCallback Successful!"), HttpStatus.OK);
+  // 		} catch (Exception e) {
+	// 				// System.out.println("failed");
+	// 				return new ResponseEntity<eSignStatus>(new eSignStatus(response, "esignCallback Failed!"), HttpStatus.BAD_REQUEST);
+  // 		}
+	// }
 }
