@@ -36,7 +36,6 @@ import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.verification.Verification;
-import org.dmc.services.ServiceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -46,7 +45,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
@@ -54,14 +52,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -140,6 +132,7 @@ public class DocumentService {
 		// check for access
 		// superadmin's see everything
 		if (owner.getRoles().stream().anyMatch(r -> r.getRole().getRole().equals(SecurityRoles.SUPERADMIN))) {
+			results = results.stream().map(document -> renewLinkIfExpired(document)).collect(Collectors.toList());
 			List<DocumentModel> returnModels = mapper.mapToModel(pagify(results, pageNumber, pageSize));
 			for (DocumentModel d : returnModels) {
 				if (hasVersions(d.getId())) {
@@ -154,6 +147,7 @@ public class DocumentService {
 		for (Document doc : results) {
 			// check for access
 			if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, owner)) {
+				doc = renewLinkIfExpired(doc);
 				returnList.add(doc);
 			}
 		}
@@ -208,8 +202,14 @@ public class DocumentService {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		List<Document> docList = Collections.singletonList(documentRepository.findOne(documentId));
 
-		if (docList.size() == 0)
+		if (docList.size() == 0) {
 			return null;
+		}
+
+		if (docList.get(0).getExpires().toLocalDateTime().isBefore(LocalDateTime.now())) {
+			renewDocumentLink(documentId);
+			return findOne(documentId);
+		}
 
 		DocumentModel retModel = mapper.mapToModel(docList.get(0));
 
@@ -246,7 +246,7 @@ public class DocumentService {
 		return response;
 	}
 
-	public List<DocumentModel> findByDirectory(Integer directoryId) {
+	public List<DocumentModel> findByDirectory(Integer directoryId) throws IllegalAccessException {
 		Assert.notNull(directoryId);
 		Mapper<Document, DocumentModel> documentMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User currentUser = userRepository.findOne(
@@ -268,9 +268,9 @@ public class DocumentService {
 				if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, doc, currentUser)) {
 					Project documentParentProject = projectDao.getProject(doc.getParentId(), currentUser.getUsername());
 					if (documentParentProject.getProjectManagerId().equals(currentUser.getId())) {
-						returnList.add(doc);
+						returnList.add(renewLinkIfExpired(doc));
 					} else if (doc.getIsAccepted()) {
-						returnList.add(doc);
+						returnList.add(renewLinkIfExpired(doc));
 					}
 				}
 			}
@@ -759,6 +759,45 @@ public class DocumentService {
 		}
 	}
 
+	@Transactional(rollbackFor = DMCServiceException.class)
+	protected String renewDocumentLink(Integer documentId) throws DMCServiceException {
+
+		Document documentToRenew = documentRepository.findFirstById(documentId);
+
+		try {
+			String path = AWSConnector.returnKeyNameFromURL(documentToRenew.getDocumentUrl());
+			String newUrl = AWSConnector.refreshURL(path);
+
+			//ServiceLogger.log();
+
+			//String ruleId = AWSConnector.getS3Document(documentToRenew.getDocumentUrl()).getObjectMetadata().getExpirationTimeRuleId();
+
+			documentToRenew.setDocumentUrl(newUrl);
+			documentToRenew.setExpires(Timestamp.valueOf(LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1)));
+
+			documentRepository.save(documentToRenew);
+			parentDocumentService.updateParents(documentToRenew);
+
+			return newUrl;
+
+
+		} catch (DMCServiceException ex) {
+			ServiceLogger.logException("Error occurred while refreshing document", ex);
+			return ex.toString();
+		}
+
+
+	}
+
+	private Document renewLinkIfExpired(Document doc) throws DMCServiceException {
+		if (doc.getExpires().toLocalDateTime().isBefore(LocalDateTime.now())) {
+			doc.setDocumentUrl(renewDocumentLink(doc.getId()));
+			doc.setExpires(Timestamp.valueOf(LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1)));
+		}
+		ServiceLogger.log(logTag, "Document URL refreshed for document " + doc.getId());
+		return doc;
+	}
+
 	public List<Document> findServiceDocumentsByProjectId(Integer projectId) {
 		List<ServiceEntity> services = serviceRepository.findByProjectId(projectId);
 		List<Document> documents = new ArrayList<>();
@@ -842,6 +881,7 @@ public class DocumentService {
 
 			if(!CollectionUtils.isEmpty(documents)) {
 				ServiceLogger.log(logTag, "Getting baseDocId: " + Integer.toString(baseDocId) + ", documentName: " + docEntity.getDocumentName() + " as user " + userEPPN);
+				documents = documents.stream().map(document -> renewLinkIfExpired(document)).collect(Collectors.toList());
 				return mapper.mapToModel(documents);
 			}
 		} else {
@@ -866,6 +906,7 @@ public class DocumentService {
 					.getContent();
 
 			if (!CollectionUtils.isEmpty(documents)) {
+				documents = documents.stream().map(document -> renewLinkIfExpired(document)).collect(Collectors.toList());
 				return documents;
 			}
 		} else {
