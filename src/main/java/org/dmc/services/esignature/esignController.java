@@ -110,11 +110,14 @@ public class esignController {
 										for (int i = 0; i < eSignItems.length(); i++){
 												JSONObject iterative = eSignItems.getJSONObject(i);
 												String signatureToken = "";
+
+												//Get userEPPN from response if exists
 												if (!iterative.getJSONObject("token").isNull("data")){
 														signatureToken = iterative.getJSONObject("token").getJSONObject("data").getString("userEPPN");
 												}
 												iterative.remove("token");
 												iterative.remove("additional_documents");
+
 												//If token info with userEPPN matches, mark as same, else mark as different
 												if (signatureToken.equals(UserEPPN)){
 														iterative.put("user", "same");
@@ -122,6 +125,8 @@ public class esignController {
 												else{
 														iterative.put("user", "different");
 												}
+
+												//Bind to return json object
 												eSignResultItems.put(iterative);
 										}
 								}

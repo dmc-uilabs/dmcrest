@@ -35,22 +35,29 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.json.JSONObject;
 import org.json.JSONException;
 
+//Service for ESignService.
 @Service
 public class ESignService {
 
 	private final String logTag = esignController.class.getName();
 
+	//eSignURL
 	private String eSignURL = "https://api.pdffiller.com/v2/fillable_forms";
 
+	//Get value of API key from apache. If regenerated, remember to change on REST Machine as well
   @Value("${ESIGN_KEY}")
 	private String eSignKey;
 
+	//Get value for template id from apache. If changed, remember to change on REST Machine as well
   @Value("${ESIGN_DOCUMENT_ID}")
 	private String eDocuID;
 
-	@Inject
-	private ESignRepository esignRepository;
+	//Commented for future if signing information need to be in database.
+	// @Inject
+	// private ESignRepository esignRepository;
 
+	//Called by esignController.signDocument()
+	//Generate Membership Agreement with pre-populate fields using apache HttpClients
   public String eSignField(String CompanyInfo){
 
 		CloseableHttpResponse response = null;
@@ -58,18 +65,23 @@ public class ESignService {
 		String results = null;
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 
+		//Jsonify company information.
 		JSONObject jsonObj = new JSONObject(CompanyInfo);
 		ServiceLogger.log(logTag, "Parsed companyInfo : " + jsonObj);
 		String companyName = jsonObj.getString("companyName");
 
+		//Get local date for document name.
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		LocalDate localDate = LocalDate.now();
 
 		try{
 				HttpPost httppost = new HttpPost(eSignURL);
+
+				//Add header for post request
 				httppost.addHeader("content-type", "application/json");
 				httppost.addHeader("authorization", "Bearer " + eSignKey);
 
+				//Create json string for body request
 				String json =
 				"{\"document_id\":" + eDocuID + ", " +
 				"\"access\": \"full\", " +
@@ -87,15 +99,18 @@ public class ESignService {
 				"\"signature_stamp\": false, "+
 				"\"fillable_fields\":"  + jsonObj + "}";
 
+				//Make json string as entity for request body
 				StringEntity reqEntity = new StringEntity(json);
-
 				httppost.setEntity(reqEntity);
 
+				//Execute request
 				response = httpclient.execute(httppost);
 
+				//Get response
 				HttpEntity entity = response.getEntity();
 				System.out.println("entity" + entity);
 				if (entity != null) {
+						//Stringify response & return to controller
 						is = entity.getContent();
 						StringWriter writer = new StringWriter();
 						IOUtils.copy(is, writer, "UTF-8");
@@ -107,7 +122,7 @@ public class ESignService {
 								is.close();
 						}
 				} catch (Exception e) {
-						// No-op
+						// Exception handler
 						e.printStackTrace();
 			      return null;
 				}
@@ -117,7 +132,7 @@ public class ESignService {
 								response.close();
 						}
 				} catch (Exception e) {
-						// No-op
+						// Exception handler
 						e.printStackTrace();
 			      return null;
 				}
@@ -125,12 +140,14 @@ public class ESignService {
 				httpclient.close();
 				return results;
 		}catch (Exception e) {
-				// No-op
+				// Exception handler
 				e.printStackTrace();
 				return null;
 		}
   }
 
+	//Called by esignController.signCheck(),
+	//Check signaure information using apache HttpClients
 	public String eSignCheck(String DocumentID){
 
 			CloseableHttpResponse response = null;
@@ -139,16 +156,22 @@ public class ESignService {
 			CloseableHttpClient httpclient = HttpClients.createDefault();
 
 			try{
+					//Pass template id to url
 					HttpGet httpget = new HttpGet(eSignURL + '/' +DocumentID + "/filled_forms");
 
 					ServiceLogger.log(logTag, "eSignCheck url: " + eSignURL + '/' + DocumentID + "/filled_forms");
+
+					//Add header
 					httpget.addHeader("content-type", "application/x-www-form-urlencoded");
 					httpget.addHeader("authorization", "Bearer " + eSignKey);
 
+					//Execute http request
 					response = httpclient.execute(httpget);
 
+					//Get response
 					HttpEntity entity = response.getEntity();
 					if (entity != null) {
+							//Stringify response & return
 							is = entity.getContent();
 							StringWriter writer = new StringWriter();
 							IOUtils.copy(is, writer, "UTF-8");
@@ -161,7 +184,7 @@ public class ESignService {
 									is.close();
 							}
 					} catch (Exception e) {
-							// No-op
+							// Exception handler
 							e.printStackTrace();
 				      return null;
 					}
@@ -171,7 +194,7 @@ public class ESignService {
 									response.close();
 							}
 					} catch (Exception e) {
-							// No-op
+							// Exception handler
 							e.printStackTrace();
 				      return null;
 					}
@@ -179,13 +202,16 @@ public class ESignService {
 					httpclient.close();
 					return results;
 			}catch (Exception e) {
-					// No-op
+					// Exception handler
 					e.printStackTrace();
 					return "Unable to call filled_forms API";
 			}
 	}
 
+	//Called by esignController.signToken(),
+	//Create token with userEPPN for signature verification
 	public String eSignToken(String userEPPN){
+			//Token creation url
 			String eSignTokenURL = "https://api.pdffiller.com/v2/tokens";
 
 			CloseableHttpResponse response = null;
@@ -195,21 +221,29 @@ public class ESignService {
 
 			try{
 					HttpPost httppost = new HttpPost(eSignTokenURL);
+
+					//Add header
 					httppost.addHeader("content-type", "application/json");
 					httppost.addHeader("authorization", "Bearer " + eSignKey);
 
+					//Add json string with userEPPN
 					String json =
 					"{\"data\":" + "{\"userEPPN\": \"" + userEPPN + "\"}}";
 
 					System.out.println(json);
 
+					//Set body
 					StringEntity reqEntity = new StringEntity(json);
 					httppost.setEntity(reqEntity);
+
+					//Execute HTTP request
 					response = httpclient.execute(httppost);
 
+					//Get response
 					HttpEntity entity = response.getEntity();
 
 					if (entity != null) {
+							//Stringify response & return
 							is = entity.getContent();
 							StringWriter writer = new StringWriter();
 							IOUtils.copy(is, writer, "UTF-8");
@@ -222,7 +256,7 @@ public class ESignService {
 									is.close();
 							}
 					} catch (Exception e) {
-							// No-op
+							// Exception handler
 							e.printStackTrace();
 				      return null;
 					}
@@ -232,7 +266,7 @@ public class ESignService {
 									response.close();
 							}
 					} catch (Exception e) {
-							// No-op
+							// Exception handler
 							e.printStackTrace();
 				      return null;
 					}
@@ -241,13 +275,14 @@ public class ESignService {
 					return results;
 
 			}catch (Exception e) {
-					// No-op
+					// Exception handler
 					e.printStackTrace();
 					return null;
 			}
 	}
 
-	public String eSignCallback(String DocumentID){
-			return "";
-	}
+	// Comment /rest/esignCallback if needed in future
+	// public String eSignCallback(String DocumentID){
+	// 		return "";
+	// }
 }
