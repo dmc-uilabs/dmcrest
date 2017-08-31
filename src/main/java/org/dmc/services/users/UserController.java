@@ -1,5 +1,6 @@
 package org.dmc.services.users;
 
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.Id;
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ServiceLogger;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -174,6 +176,11 @@ public class UserController {
 
 		return response;
 	}
+	
+	@RequestMapping(value = "/user/unverified", method = RequestMethod.GET)
+	public Boolean checkUserVerificationStatus() throws DMCServiceException {
+		return userService.canCreateOrg((Integer) ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+	}
 
 	@RequestMapping(value = "/users/{userId}/organizations", method = RequestMethod.PUT)
 	public OrganizationUserModel changeOrganization(@PathVariable Integer userId, @RequestBody OrganizationUserModel orgUser) {
@@ -182,7 +189,7 @@ public class UserController {
 		}
 		return orgUserService.changeOrganization(orgUser);
 	}
-
+	
 	@RequestMapping(value = "/users/{userId}/notifications/{notificationId}", params = "action=markNotificationRead", method = RequestMethod.GET)
 	public NotificationUserResponse markNotificationRead(@PathVariable("userId") Integer userId, @PathVariable("notificationId") Integer notificationId) {
 		UserPrincipal loggedIn = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -207,6 +214,12 @@ public class UserController {
 	@RequestMapping(value = "/users/{userId}/email", method = RequestMethod.POST)
 	public ResponseEntity createTokenEmail(@PathVariable Integer userId, @RequestParam("token") String token){
 		return this.userService.emailToken(userId, token);
+	}
+	
+	@ExceptionHandler(DMCServiceException.class)
+	public ResponseEntity<?> handlerServiceException(DMCServiceException e) {
+		ServiceLogger.logException(logTag, e);
+		return new ResponseEntity<String>("{\"message\":\"" + e.getMessage() + "\"}", HttpStatus.BAD_REQUEST);
 	}
 
 }
