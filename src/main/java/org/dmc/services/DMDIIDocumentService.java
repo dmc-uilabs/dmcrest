@@ -57,6 +57,9 @@ public class DMDIIDocumentService {
 	@Inject
 	private MapperFactory mapperFactory;
 
+	@Inject
+	private DocumentLinkService documentLinkService;
+
 	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
 
 	private final String logTag = DMDIIDocumentService.class.getName();
@@ -331,7 +334,7 @@ public class DMDIIDocumentService {
 			String newUrl = AWSConnector.refreshURL(path);
 
 			documentToRenew.setDocumentUrl(newUrl);
-			documentToRenew.setExpires(Timestamp.valueOf(LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1)));
+			documentToRenew.setExpires(documentLinkService.getDMDIIDocumentExpirationTime(documentToRenew));
 
 			this.dmdiiDocumentRepository.save(documentToRenew);
 
@@ -340,14 +343,14 @@ public class DMDIIDocumentService {
 
 		} catch (DMCServiceException ex) {
 			ServiceLogger.logException("Error occurred while refreshing document", ex);
-			return ex.toString();
+			return "There was an error refreshing the document.";
 		}
 	}
 
 	private DMDIIDocument renewLinkIfExpired(DMDIIDocument doc) throws DMCServiceException {
 		if (doc.getExpires().toLocalDateTime().isBefore(LocalDateTime.now())) {
 			doc.setDocumentUrl(renewDocumentLink(doc.getId()));
-			doc.setExpires(Timestamp.valueOf(LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1)));
+			doc.setExpires(documentLinkService.getDMDIIDocumentExpirationTime(doc));
 		}
 		ServiceLogger.log(logTag, "Document URL refreshed for document " + doc.getId());
 		return doc;

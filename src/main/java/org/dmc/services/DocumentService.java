@@ -112,6 +112,9 @@ public class DocumentService {
 	@Inject
 	private ProjectDao projectDao;
 
+	@Inject
+	private DocumentLinkService documentLinkService;
+
 	private Verification verify = new Verification();
 
 	public List<DocumentModel> filter(Map filterParams, Integer pageNumber, Integer pageSize, String userEPPN)
@@ -773,7 +776,7 @@ public class DocumentService {
 			//String ruleId = AWSConnector.getS3Document(documentToRenew.getDocumentUrl()).getObjectMetadata().getExpirationTimeRuleId();
 
 			documentToRenew.setDocumentUrl(newUrl);
-			documentToRenew.setExpires(Timestamp.valueOf(LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1)));
+			documentToRenew.setExpires(documentLinkService.getDcoumentExpirationTime(documentToRenew));
 
 			documentRepository.save(documentToRenew);
 			parentDocumentService.updateParents(documentToRenew);
@@ -783,7 +786,7 @@ public class DocumentService {
 
 		} catch (DMCServiceException ex) {
 			ServiceLogger.logException("Error occurred while refreshing document", ex);
-			return ex.toString();
+			return "There was an error refreshing the document.";
 		}
 
 
@@ -792,7 +795,7 @@ public class DocumentService {
 	private Document renewLinkIfExpired(Document doc) throws DMCServiceException {
 		if (doc.getExpires().toLocalDateTime().isBefore(LocalDateTime.now())) {
 			doc.setDocumentUrl(renewDocumentLink(doc.getId()));
-			doc.setExpires(Timestamp.valueOf(LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1)));
+			doc.setExpires(documentLinkService.getDcoumentExpirationTime(doc));
 		}
 		ServiceLogger.log(logTag, "Document URL refreshed for document " + doc.getId());
 		return doc;
