@@ -1,5 +1,6 @@
 package org.dmc.services.web.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.commons.collections.CollectionUtils;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.DocumentService;
@@ -12,8 +13,8 @@ import org.dmc.services.data.models.PagedResponse;
 import org.dmc.services.exceptions.InvalidFilterParameterException;
 import org.dmc.services.utils.RestViews;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -22,17 +23,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 @RestController
 public class DocumentController {
@@ -66,7 +62,7 @@ public class DocumentController {
 	public ResponseEntity getDocumentContent(@PathVariable("id") Integer id) {
 		return documentService.downloadFile(id);
 	}
-	
+
 	@RequestMapping(value = "/documents", method = RequestMethod.POST)
 	public DocumentModel postDocument(@RequestBody @Valid DocumentModel doc) throws DMCServiceException {
 		return documentService.save(doc);
@@ -113,13 +109,13 @@ public class DocumentController {
 	}
 
 	@RequestMapping(value = "/documents/directories/{directoryId}", method = RequestMethod.GET)
-	public List<DocumentModel> getDocumentsByDirectory(@PathVariable("directoryId") Integer directoryId) {
+	public List<DocumentModel> getDocumentsByDirectory(@PathVariable("directoryId") Integer directoryId) throws IllegalAccessException {
 		return documentService.findByDirectory(directoryId);
 	}
-	
+
 	@JsonView(RestViews.SDocumentsView.class)
 	@RequestMapping(value = "/documents/s_directories/{directoryId}", method = RequestMethod.GET)
-	public List<DocumentModel> getDocumentsByDirectoryS(@PathVariable("directoryId") Integer directoryId) {
+	public List<DocumentModel> getDocumentsByDirectoryS(@PathVariable("directoryId") Integer directoryId) throws IllegalAccessException {
 		return documentService.findByDirectory(directoryId);
 	}
 
@@ -133,7 +129,7 @@ public class DocumentController {
 			@RequestHeader(value = "AJP_eppn") String userEPPN) throws IllegalAccessException {
 		return this.documentService.getVersions(baseDocId, userEPPN);
 	}
-	
+
 	@JsonView(RestViews.SDocumentsView.class)
 	@RequestMapping(value = "/documents/s_versions/{baseDocId}", method = RequestMethod.GET)
 	public List<Document> getVersionsS(@PathVariable("baseDocId") Integer baseDocId,
@@ -159,6 +155,13 @@ public class DocumentController {
 			throws IllegalAccessException {
 		return documentService.acceptDocument(documentId);
 	}
+
+//	@RequestMapping(value = "/documents/{documentId}/renewLink", method = RequestMethod.PATCH)
+//	public ResponseEntity renewDocumentLink(@PathVariable("documentId") Integer documentId)
+//			throws IllegalAccessException {
+//		//documentService.renewDocumentLink(documentId);
+//		return new ResponseEntity<>("{\"message\":\"Document link renewed.\"}", HttpStatus.OK);
+//	}
 
 	@ExceptionHandler(IllegalAccessException.class)
 	public ResponseEntity exceptionHandler(IllegalAccessException e) {

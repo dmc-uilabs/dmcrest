@@ -1,13 +1,13 @@
 package org.dmc.services.data.repositories;
 
-import java.sql.Timestamp;
-import java.util.List;
-
 import org.dmc.services.data.entities.Directory;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentClass;
 import org.dmc.services.data.entities.DocumentParentType;
 import org.dmc.services.data.entities.User;
+
+import java.sql.Timestamp;
+import java.util.List;
 
 public interface DocumentRepository extends BaseRepository<Document, Integer> {
 
@@ -20,4 +20,6 @@ public interface DocumentRepository extends BaseRepository<Document, Integer> {
 	List<Document> findByDirectory(Directory dir);
 
 	List<Document> findByParentTypeAndParentId(DocumentParentType parentType, Integer parentId);
+
+	Document findFirstById(Integer documentId);
 }
