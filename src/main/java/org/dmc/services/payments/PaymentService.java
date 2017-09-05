@@ -124,13 +124,19 @@ public class PaymentService {
 	public PaymentStatus processOrganizationPayment(String token, OrganizationModel orgModel)
 			throws StripeException, TooManyAttemptsException {
 		
+		PaymentStatus ps = new PaymentStatus();
+		Charge charge = new Charge();
+		
+		if (token == null || orgModel == null) {
+			ps.setReason("Token and organization must not be null.");
+		} else if (orgModel.getIsPaid()) {
+			ps.setReason("Organization already paid!");
+		} else {
+			
 		userService.canCreateOrg(getCurrentUser().getId());
 		
 		checkPaymentAttempts();
 		
-		PaymentStatus ps = new PaymentStatus();
-		Charge charge = new Charge();
-
 		if(orgModel.getId() == null) {
 			Integer existingOrgId = orgService.findByUser().getId();
 			if(existingOrgId != null) {
@@ -140,11 +146,7 @@ public class PaymentService {
 		
 		orgModel = orgService.save(orgModel);
 
-		if (token == null || orgModel == null) {
-			ps.setReason("Token and organization must not be null.");
-		} else if (orgModel.getIsPaid()) {
-			ps.setReason("Organization already paid!");
-		} else {
+		
 			try {
 				charge = createCharge(token, T_3_PRICE,
 						"Registration charge for " + orgModel.getName() + " with id: " + orgModel.getId());
