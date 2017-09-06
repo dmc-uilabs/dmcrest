@@ -143,7 +143,7 @@ public class DMDIIDocumentService {
 
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 
-		if (docEntity.getExpires().equals(null)) {
+		if (docEntity.getExpires() == null) {
 			docEntity.setExpires(documentLinkService.getHoursFromNow(1));
 		}
 		docEntity.setIsDeleted(false);

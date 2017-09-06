@@ -298,6 +298,7 @@ public class DocumentService {
 	public DocumentModel save(DocumentModel doc) throws DMCServiceException, IllegalArgumentException {
 		Assert.notNull(doc);
 		Mapper<Document, DocumentModel> docMapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
+
 		String folder = "APPLICATION";
 
 		if (doc.getParentType() != null) {
@@ -312,7 +313,7 @@ public class DocumentService {
 
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 
-		if (docEntity.getExpires().equals(null)) {
+		if (docEntity.getExpires() == null) {
 			docEntity.setExpires(documentLinkService.getHoursFromNow(1));
 		}
 		docEntity.setIsDeleted(false);
@@ -322,10 +323,10 @@ public class DocumentService {
 		}
 		docEntity.setModified(now);
 		docEntity.setVersion(0);
-
 		if (docEntity.getIsAccepted()) {
 			docEntity.setIsAccepted(true);
 		}
+
 
 		if (folder == "SERVICE") {
 			ServiceDao serviceDao = new ServiceDao();
@@ -334,13 +335,13 @@ public class DocumentService {
 			}
 		}
 
+
 		docEntity = documentRepository.save(docEntity);
 		this.parentDocumentService.updateParents(docEntity);
 
 		docEntity.setBaseDocId(docEntity.getId());
 		docEntity = documentRepository.save(docEntity);
 
-		logger.debug("Attempting to verify document");
 		// Verify the document
 		String temp = verify.verify(docEntity.getId(), docEntity.getDocumentUrl(), "document",
 				docEntity.getOwner().getUsername(), folder, "Documents", "id", "url");
@@ -794,8 +795,9 @@ public class DocumentService {
 			Timestamp expiration = documentLinkService.getHoursFromNow(1);
 			doc.setDocumentUrl(renewDocumentLink(doc.getId(), expiration));
 			doc.setExpires(expiration);
+			ServiceLogger.log(logTag, "Document URL refreshed for document " + doc.getId());
 		}
-		ServiceLogger.log(logTag, "Document URL refreshed for document " + doc.getId());
+
 		return doc;
 	}
 
@@ -941,7 +943,7 @@ public class DocumentService {
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 
 		if (resourceAccessService.hasAccess(ResourceType.DOCUMENT, baseEntity, requester)) {
-			if (docEntity.getExpires().equals(null)) {
+			if (docEntity.getExpires() == null) {
 				docEntity.setExpires(documentLinkService.getHoursFromNow(1));
 			}
 			docEntity.setModified(now);
