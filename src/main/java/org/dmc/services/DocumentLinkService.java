@@ -100,7 +100,7 @@ public class DocumentLinkService {
     }
 
     public Timestamp getHoursFromNow(Integer hours) {
-        return Timestamp.valueOf(LocalDate.now().atStartOfDay().plusWeeks(hours));
+        return Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(hours));
     }
 
 }
