@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class DocumentLinkService {
@@ -100,7 +101,7 @@ public class DocumentLinkService {
     }
 
     public Timestamp getHoursFromNow(Integer hours) {
-        return Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(hours));
+        return Timestamp.valueOf(LocalDateTime.now().plusHours(hours));
     }
 
 }
