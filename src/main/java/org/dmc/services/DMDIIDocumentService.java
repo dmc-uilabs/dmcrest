@@ -133,10 +133,9 @@ public class DMDIIDocumentService {
 	public DMDIIDocumentModel findMostRecentDocumentByFileTypeIdAndDMDIIProjectId (Integer fileTypeId, Integer dmdiiProjectId) {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeAndDmdiiProjectIdOrderByModifiedDesc(fileTypeId, dmdiiProjectId));
-		ServiceLogger.log("THIS IS HAPPENING", "jumping into document stream");
+
 		if (docList.get(0) != null) {
 			docList = docList.stream().map(dmdiiDocument -> renewLinkIfExpired(dmdiiDocument)).collect(Collectors.toList());
-			ServiceLogger.log("THIS IS HAPPENING", docList.toString());
 		}
 
 		return mapper.mapToModel(docList.get(0));
@@ -339,7 +338,6 @@ public class DMDIIDocumentService {
 
 		try {
 
-			ServiceLogger.log("THIS IS HAPPENING", "inside try block in renew function");
 			String path = AWSConnector.returnKeyNameFromURL(documentToRenew.getDocumentUrl());
 			String newUrl = AWSConnector.refreshURL(path, expiration);
 
@@ -358,14 +356,11 @@ public class DMDIIDocumentService {
 	}
 
 	private DMDIIDocument renewLinkIfExpired(DMDIIDocument doc) throws DMCServiceException {
-		ServiceLogger.log("THIS IS HAPPENING", "check to see if link is expired.");
-		ServiceLogger.log("THIS IS HAPPENING", doc.getExpires().toLocalDateTime().toString());
 		if (doc.getExpires().toLocalDateTime().isBefore(LocalDateTime.now())) {
-			ServiceLogger.log("THIS IS HAPPENING", "Link is expired... go renew it.");
 			Timestamp expiration = documentLinkService.getHoursFromNow(1);
 			doc.setDocumentUrl(renewDocumentLink(doc.getId(), expiration));
 			doc.setExpires(expiration);
-			ServiceLogger.log("THIS IS HAPPENING", "Document URL refreshed for dmdii Document " + doc.getId());
+			ServiceLogger.log("Document Refresh", "Document URL refreshed for dmdii Document " + doc.getId());
 		}
 		return doc;
 	}
