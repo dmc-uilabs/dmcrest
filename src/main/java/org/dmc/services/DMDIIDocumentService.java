@@ -30,7 +30,6 @@ import org.springframework.validation.BindingResult;
 
 import javax.inject.Inject;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.dmc.services.ServiceLogger;
+import java.util.stream.Collectors;
 
 @Service
 public class DMDIIDocumentService {
@@ -58,6 +57,9 @@ public class DMDIIDocumentService {
 	@Inject
 	private MapperFactory mapperFactory;
 
+	@Inject
+	private DocumentLinkService documentLinkService;
+
 	private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
 
 	private final String logTag = DMDIIDocumentService.class.getName();
@@ -68,6 +70,9 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
 		List<DMDIIDocument> results = dmdiiDocumentRepository.findAll(where, new PageRequest(pageNumber, pageSize)).getContent();
+
+		results = results.stream().map(dmdiiDocument -> renewLinkIfExpired(dmdiiDocument)).collect(Collectors.toList());
+
 		return mapper.mapToModel(results);
 	}
 
@@ -77,6 +82,9 @@ public class DMDIIDocumentService {
 			ServiceLogger.log("getting all dmdii docs pby project id ", "In getAllDMDIIDocumentsByDMDIIProjectId: " + dmdiiProjectId);
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> documents = dmdiiDocumentRepository.findByDmdiiProjectId(new PageRequest(pageNumber, pageSize), dmdiiProjectId).getContent();
+
+		documents = documents.stream().map(dmdiiDocument -> renewLinkIfExpired(dmdiiDocument)).collect(Collectors.toList());
+
 		return mapper.mapToModel(documents);
 	}
 
@@ -85,12 +93,22 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findOne(dmdiiDocumentId));
 
+		if (docList.get(0).getExpires().toLocalDateTime().isBefore(LocalDateTime.now())) {
+			renewDocumentLink(dmdiiDocumentId, documentLinkService.getHoursFromNow(1));
+			return findOne(dmdiiDocumentId);
+		}
+
 		return mapper.mapToModel(docList.get(0));
 	}
 
 	public DMDIIDocument findOneEntity(Integer id) throws DMCServiceException {
 		Assert.notNull(id);
 		DMDIIDocument docEntity = dmdiiDocumentRepository.findOne(id);
+
+		if (docEntity.getExpires().toLocalDateTime().isBefore(LocalDateTime.now())) {
+			renewDocumentLink(id, documentLinkService.getHoursFromNow(1));
+			return findOneEntity(id);
+		}
 
 		return docEntity;
 	}
@@ -100,6 +118,8 @@ public class DMDIIDocumentService {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeOrderByModifiedDesc(fileTypeId));
 
+		docList = docList.stream().map(dmdiiDocument -> renewLinkIfExpired(dmdiiDocument)).collect(Collectors.toList());
+
 		return mapper.mapToModel(docList.get(0));
 
 	}
@@ -107,6 +127,8 @@ public class DMDIIDocumentService {
 	public DMDIIDocumentModel findMostRecentDocumentByFileTypeIdAndDMDIIProjectId (Integer fileTypeId, Integer dmdiiProjectId) {
 		Mapper<DMDIIDocument, DMDIIDocumentModel> mapper = mapperFactory.mapperFor(DMDIIDocument.class, DMDIIDocumentModel.class);
 		List<DMDIIDocument> docList = Collections.singletonList(dmdiiDocumentRepository.findTopByFileTypeAndDmdiiProjectIdOrderByModifiedDesc(fileTypeId, dmdiiProjectId));
+
+		docList = docList.stream().map(dmdiiDocument -> renewLinkIfExpired(dmdiiDocument)).collect(Collectors.toList());
 
 		return mapper.mapToModel(docList.get(0));
 	}
@@ -119,13 +141,11 @@ public class DMDIIDocumentService {
 		User userEntity = this.userRepository.findOne(doc.getOwnerId());
 		docEntity.setOwner(userEntity);
 
-		//current time plus one month
-		Long duration = 1000L * 60L * 60L * 24L * 30L;
-
 		Timestamp now = new Timestamp(System.currentTimeMillis());
-		Timestamp expires = new Timestamp(now.getTime() + duration);
 
-		docEntity.setExpires(expires);
+		if (docEntity.getExpires().equals(null)) {
+			docEntity.setExpires(documentLinkService.getHoursFromNow(1));
+		}
 		docEntity.setIsDeleted(false);
 		docEntity.setVerified(false);
 		docEntity.setModified(now);
@@ -284,13 +304,14 @@ public class DMDIIDocumentService {
 
 		for (DMDIIDocument document : documents) {
 			try {
+				Timestamp expiration = documentLinkService.getHoursFromNow(1);
 				String path = AWSConnector.returnKeyNameFromURL(document.getDocumentUrl());
-				String newURL = AWSConnector.refreshURL(path);
+				String newURL = AWSConnector.refreshURL(path, expiration);
 
 				LocalDateTime nextMonth = LocalDate.now().atStartOfDay().plusMonths(1).minusDays(1);
 
 				document.setDocumentUrl(newURL);
-				document.setExpires(Timestamp.valueOf(nextMonth));
+				document.setExpires(expiration);
 
 				logger.info("Refreshing document with owner id: {} and new url: {}", document.getOwner().getId(), document.getDocumentUrl());
 
@@ -300,5 +321,39 @@ public class DMDIIDocumentService {
 				logger.error("Error occurred while refreshing document", ex);
 			}
 		}
+	}
+
+	@Transactional(rollbackFor = DMCServiceException.class)
+	protected String renewDocumentLink(Integer documentId, Timestamp expiration) throws DMCServiceException {
+
+		DMDIIDocument documentToRenew = this.dmdiiDocumentRepository.findOne(documentId);
+
+		try {
+
+			String path = AWSConnector.returnKeyNameFromURL(documentToRenew.getDocumentUrl());
+			String newUrl = AWSConnector.refreshURL(path, expiration);
+
+			documentToRenew.setDocumentUrl(newUrl);
+			documentToRenew.setExpires(expiration);
+
+			this.dmdiiDocumentRepository.save(documentToRenew);
+
+			return newUrl;
+
+
+		} catch (DMCServiceException ex) {
+			ServiceLogger.logException("Error occurred while refreshing document", ex);
+			return "There was an error refreshing the document.";
+		}
+	}
+
+	private DMDIIDocument renewLinkIfExpired(DMDIIDocument doc) throws DMCServiceException {
+		if (doc.getExpires().toLocalDateTime().isBefore(LocalDateTime.now())) {
+			Timestamp expiration = documentLinkService.getHoursFromNow(1);
+			doc.setDocumentUrl(renewDocumentLink(doc.getId(), expiration));
+			doc.setExpires(expiration);
+		}
+		ServiceLogger.log(logTag, "Document URL refreshed for document " + doc.getId());
+		return doc;
 	}
 }
