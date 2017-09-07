@@ -202,9 +202,18 @@ public class RecentUpdateDao {
 	}
 
 	private void addDMDIIDocumentUpdate(DMDIIDocument dmdiiDocument, String description, String internalDescription, String attributeName) throws SQLException {
+
+		int parentId;
+
+		// for DMDII docs with no parent, don't add an update
+		if (dmdiiDocument.getDmdiiProject() != null) {
+			parentId = dmdiiDocument.getDmdiiProject().getId();
+		} else {
+			return;
+		}
+
 		String updateType = dmdiiDocument.getClass().getSimpleName();
 		int updateId = dmdiiDocument.getId();
-		int parentId = dmdiiDocument.getDmdiiProject().getId();
 		int userId = dmdiiDocument.getOwner().getId();
 
 		try {
