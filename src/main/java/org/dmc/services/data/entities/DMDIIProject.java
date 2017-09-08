@@ -96,6 +96,8 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
 
+	private Boolean isEvent = false;
+
 	public DMDIIProject () {
 
 	}
@@ -242,6 +244,14 @@ public class DMDIIProject extends BaseEntity {
 
 	public void setIsDeleted(Boolean isDeleted) {
 		this.isDeleted = isDeleted;
+	}
+
+	public Boolean getIsEvent() {
+		return isEvent;
+	}
+
+	public void setIsEvent(Boolean isEvent) {
+		this.isEvent = isEvent;
 	}
 
 	@Override

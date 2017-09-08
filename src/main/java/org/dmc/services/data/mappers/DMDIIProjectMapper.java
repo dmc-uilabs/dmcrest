@@ -55,17 +55,20 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
-		List<DMDIIMemberModel> contributingCompanyModels = model.getContributingCompanyIds()
-				.stream()
-				.map(e -> dmdiiMemberService.findOne(e))
-				.collect(Collectors.toList());
-		entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
-		entity.setPrincipalInvestigator(contactMapper.mapToEntity(model.getPrincipalInvestigator()));
+		if (!model.getIsEvent()) {
+			List<DMDIIMemberModel> contributingCompanyModels = model.getContributingCompanyIds()
+			.stream()
+			.map(e -> dmdiiMemberService.findOne(e))
+			.collect(Collectors.toList());
+			entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
+			entity.setPrincipalInvestigator(contactMapper.mapToEntity(model.getPrincipalInvestigator()));
+			entity.setProjectStatus(statusMapper.mapToEntity(model.getProjectStatus()));
+			entity.setProjectFocusArea(focusMapper.mapToEntity(model.getProjectFocusArea()));
+			entity.setProjectThrust(thrustMapper.mapToEntity(model.getProjectThrust()));
+			entity.setContributingCompanies(memberMapper.mapToEntity(contributingCompanyModels));
+		}
+
 		entity.setPrincipalPointOfContact(userMapper.mapToEntity(model.getPrincipalPointOfContact()));
-		entity.setProjectStatus(statusMapper.mapToEntity(model.getProjectStatus()));
-		entity.setProjectFocusArea(focusMapper.mapToEntity(model.getProjectFocusArea()));
-		entity.setProjectThrust(thrustMapper.mapToEntity(model.getProjectThrust()));
-		entity.setContributingCompanies(memberMapper.mapToEntity(contributingCompanyModels));
 
 		try{
 			entity.setAwardedDate(format.parse(model.getAwardedDate()));
@@ -81,7 +84,9 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 	public DMDIIProjectModel mapToModel(DMDIIProject entity) {
 		if (entity == null) return null;
 
+
 		DMDIIProjectModel model = copyProperties(entity, new DMDIIProjectModel());
+
 
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -91,19 +96,25 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		Mapper<DMDIIProjectFocusArea, DMDIIProjectFocusAreaModel> focusMapper = mapperFactory.mapperFor(DMDIIProjectFocusArea.class, DMDIIProjectFocusAreaModel.class);
 		Mapper<DMDIIProjectThrust, DMDIIProjectThrustModel> thrustMapper = mapperFactory.mapperFor(DMDIIProjectThrust.class, DMDIIProjectThrustModel.class);
 
+
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
-		List<Integer> contributingCompanyIds = entity.getContributingCompanies()
-				.stream()
-				.map(e -> e.getId())
-				.collect(Collectors.toList());
-		model.setPrimeOrganization(new DMDIIPrimeOrganizationModel(entity.getPrimeOrganization().getId(), entity.getPrimeOrganization().getOrganization().getName()));
-		model.setPrincipalInvestigator(contactMapper.mapToModel(entity.getPrincipalInvestigator()));
+		if (!entity.getIsEvent()) {
+
+			List<Integer> contributingCompanyIds = entity.getContributingCompanies()
+					.stream()
+					.map(e -> e.getId())
+					.collect(Collectors.toList());
+			model.setPrimeOrganization(new DMDIIPrimeOrganizationModel(entity.getPrimeOrganization().getId(), entity.getPrimeOrganization().getOrganization().getName()));
+			model.setPrincipalInvestigator(contactMapper.mapToModel(entity.getPrincipalInvestigator()));
+			model.setProjectStatus(statusMapper.mapToModel(entity.getProjectStatus()));
+			model.setProjectFocusArea(focusMapper.mapToModel(entity.getProjectFocusArea()));
+			model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));
+			model.setContributingCompanies(contributingCompanyIds);
+		}
+
+
 		model.setPrincipalPointOfContact(userMapper.mapToModel(entity.getPrincipalPointOfContact()));
-		model.setProjectStatus(statusMapper.mapToModel(entity.getProjectStatus()));
-		model.setProjectFocusArea(focusMapper.mapToModel(entity.getProjectFocusArea()));
-		model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));
-		model.setContributingCompanies(contributingCompanyIds);
 
 		if(entity.getAwardedDate() != null){
 			model.setAwardedDate(format.format(entity.getAwardedDate()));
