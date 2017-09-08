@@ -34,7 +34,7 @@ public class DMDIIProject extends BaseEntity {
 	private Integer id;
 
 	@ManyToOne
-	@JoinColumn(name = "organization_dmdii_member_id", nullable = false)
+	@JoinColumn(name = "organization_dmdii_member_id")
 	private DMDIIMember primeOrganization;
 
 	@OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
@@ -96,6 +96,7 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
 
+	@Column(name = "is_event")
 	private Boolean isEvent = false;
 
 	public DMDIIProject () {
@@ -266,6 +267,7 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
+		result = prime * result + ((isEvent == null) ? 0 : isEvent.hashCode());
 		result = prime * result + ((primeOrganization == null) ? 0 : primeOrganization.hashCode());
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
 		result = prime * result + ((principalPointOfContact == null) ? 0 : principalPointOfContact.hashCode());
@@ -327,6 +329,11 @@ public class DMDIIProject extends BaseEntity {
 			if (other.isDeleted != null)
 				return false;
 		} else if (!isDeleted.equals(other.isDeleted))
+			return false;
+		if (isEvent == null) {
+			if (other.isEvent != null)
+				return false;
+		} else if (!isEvent.equals(other.isEvent))
 			return false;
 		if (primeOrganization == null) {
 			if (other.primeOrganization != null)
