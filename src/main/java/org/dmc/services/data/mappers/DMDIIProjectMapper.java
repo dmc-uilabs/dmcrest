@@ -45,6 +45,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 		DMDIIProject entity = copyProperties(model, new DMDIIProject());
 
+
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
 		Mapper<DMDIIMember, DMDIIMemberModel> memberMapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
@@ -55,12 +56,15 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
+
 		if (!model.getIsEvent()) {
 			List<DMDIIMemberModel> contributingCompanyModels = model.getContributingCompanyIds()
 			.stream()
 			.map(e -> dmdiiMemberService.findOne(e))
 			.collect(Collectors.toList());
-			entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
+			if (model.getPrimeOrganization().getId() != null) {
+				entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
+			}
 			entity.setPrincipalInvestigator(contactMapper.mapToEntity(model.getPrincipalInvestigator()));
 			entity.setProjectStatus(statusMapper.mapToEntity(model.getProjectStatus()));
 			entity.setProjectFocusArea(focusMapper.mapToEntity(model.getProjectFocusArea()));
@@ -68,14 +72,21 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 			entity.setContributingCompanies(memberMapper.mapToEntity(contributingCompanyModels));
 		}
 
+
 		entity.setPrincipalPointOfContact(userMapper.mapToEntity(model.getPrincipalPointOfContact()));
 
+
 		try{
-			entity.setAwardedDate(format.parse(model.getAwardedDate()));
-			entity.setEndDate(format.parse(model.getEndDate()));
+			if (model.getAwardedDate() != null) {
+				entity.setAwardedDate(format.parse(model.getAwardedDate()));
+			}
+			if (model.getEndDate() != null) {
+				entity.setEndDate(format.parse(model.getEndDate()));
+			}
 		} catch (Exception e){
 			throw new DMCServiceException(DMCError.ParseError, e.getMessage());
 		}
+
 
 		return entity;
 	}
@@ -86,7 +97,6 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 
 		DMDIIProjectModel model = copyProperties(entity, new DMDIIProjectModel());
-
 
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -100,19 +110,19 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
 		if (!entity.getIsEvent()) {
-
 			List<Integer> contributingCompanyIds = entity.getContributingCompanies()
 					.stream()
 					.map(e -> e.getId())
 					.collect(Collectors.toList());
-			model.setPrimeOrganization(new DMDIIPrimeOrganizationModel(entity.getPrimeOrganization().getId(), entity.getPrimeOrganization().getOrganization().getName()));
+			if (entity.getPrimeOrganization() != null) {
+				model.setPrimeOrganization(new DMDIIPrimeOrganizationModel(entity.getPrimeOrganization().getId(), entity.getPrimeOrganization().getOrganization().getName()));
+			}
 			model.setPrincipalInvestigator(contactMapper.mapToModel(entity.getPrincipalInvestigator()));
 			model.setProjectStatus(statusMapper.mapToModel(entity.getProjectStatus()));
 			model.setProjectFocusArea(focusMapper.mapToModel(entity.getProjectFocusArea()));
 			model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));
 			model.setContributingCompanies(contributingCompanyIds);
 		}
-
 
 		model.setPrincipalPointOfContact(userMapper.mapToModel(entity.getPrincipalPointOfContact()));
 

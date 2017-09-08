@@ -174,7 +174,7 @@ public class DMDIIProjectModel extends BaseModel {
 	}
 
 	public Boolean getIsEvent() {
-		return isEvent;
+		return isEvent == null ? false : isEvent;
 	}
 
 	public void setIsEvent(Boolean isEvent) {

@@ -264,7 +264,8 @@ public class DMDIIProjectService {
 
 		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
 
-		if(project.getPrimeOrganization() != null) {
+
+		if(projectEntity.getPrimeOrganization() != null) {
 			DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
 			projectEntity.setPrimeOrganization(memberEntity);
 		}
