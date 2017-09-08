@@ -273,8 +273,10 @@ public class DMDIIProjectService {
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
 
 		// Insert update for newly-created project
-		RecentUpdateController recentUpdateController = new RecentUpdateController();
-		recentUpdateController.addRecentUpdate(projectEntity);
+		if (!project.getIsEvent()) {
+			RecentUpdateController recentUpdateController = new RecentUpdateController();
+			recentUpdateController.addRecentUpdate(projectEntity);
+		}
 
 		return projectMapper.mapToModel(projectEntity);
 	}
@@ -294,8 +296,10 @@ public class DMDIIProjectService {
 		}
 
 		// Insert update for all modified fields
-		RecentUpdateController recentUpdateController = new RecentUpdateController();
-		recentUpdateController.addRecentUpdate(projectEntity, oldEntity);
+		if (!project.getIsEvent()) {
+			RecentUpdateController recentUpdateController = new RecentUpdateController();
+			recentUpdateController.addRecentUpdate(projectEntity, oldEntity);
+		}
 
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
 
