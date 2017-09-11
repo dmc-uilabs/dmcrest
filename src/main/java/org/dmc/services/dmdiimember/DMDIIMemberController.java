@@ -50,12 +50,7 @@ public class DMDIIMemberController {
 	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam(value="tier", required=false) String[] tiers, @RequestParam(value="type", required=false) String[] types, @RequestParam(value="activeProjects", required=false) String[] activeProjects) throws InvalidFilterParameterException {
 		List<? extends BaseModel> results = dmdiiMemberService.filter(page, pageSize, tiers, types, activeProjects);
 
-		Long count;
-		if (CollectionUtils.isNotEmpty(results)) {
-			count = Long.valueOf(results.size());
-		} else {
-			count = 0L;
-		}
+		Long count = dmdiiMemberService.count(tiers, types, activeProjects, null);
 
 		return new PagedResponse(count, results);
 	}
@@ -104,18 +99,12 @@ public class DMDIIMemberController {
 																@RequestParam(value="tier", required=false) String[] tiers,
 																@RequestParam(value="type", required=false) String[] types,
 																@RequestParam(value="activeProjects", required=false) String[] activeProjects) throws InvalidFilterParameterException {
-		if(!name.equals("")){
+		if(!"".equals(name)){
 			ServiceLogger.log(logTag, "In findMembersByName: " + name + " as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
 		}
 		List<? extends BaseModel> results = dmdiiMemberService.findByNameOrTags(name, page, pageSize, tiers, types, activeProjects);
-		//Long count = dmdiiMemberService.countByNameOrTags(name);
 
-		Long count;
-		if (CollectionUtils.isNotEmpty(results)) {
-			count = Long.valueOf(results.size());
-		} else {
-			count = 0L;
-		}
+		Long count = dmdiiMemberService.count(tiers, types, activeProjects, name);
 
 		return new PagedResponse(count, results);
 	}

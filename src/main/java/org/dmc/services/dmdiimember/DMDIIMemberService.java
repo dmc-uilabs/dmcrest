@@ -72,11 +72,10 @@ public class DMDIIMemberService {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(tiers, types, activeProjects, name));
-		ServiceLogger.log("where", where.toString());
+		// if(where != null){
+		// 	ServiceLogger.log("where", where.toString());
+		// }
 		return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
-
-
-		//return mapper.mapToModel(dmdiiMemberDao.findDistinctByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%", name, name).getContent());
 	}
 
 	public Long countByNameOrTags(String name) {
@@ -135,14 +134,16 @@ public class DMDIIMemberService {
 	public List<DMDIIMemberModel> filter(Integer pageNumber, Integer pageSize, String[] tiers, String[] types, String[] activeProjects) throws InvalidFilterParameterException {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(tiers, types, activeProjects, null));
-		ServiceLogger.log("where", where.toString());
+		// if(where != null){
+		// 	ServiceLogger.log("where", where.toString());
+		// }
 		return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
 	}
 
-	// public Long count(Map filterParams) throws InvalidFilterParameterException {
-	// 	Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
-	// 	return dmdiiMemberDao.count(where);
-	// }
+	public Long count(String[] tiers, String[] types, String[] activeProjects, String searchTerm) throws InvalidFilterParameterException {
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(tiers, types, activeProjects, searchTerm));
+		return dmdiiMemberDao.count(where);
+	}
 
 	public List<DMDIIMemberAutocompleteModel> getAllMembers() {
 		Mapper<DMDIIMember, DMDIIMemberAutocompleteModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberAutocompleteModel.class);
@@ -157,7 +158,7 @@ public class DMDIIMemberService {
 		expressions.add(hasActiveProjectsFilter(activeProjects));
 		expressions.add(searchFilter(searchTerm));
 
-		ServiceLogger.log("expressions", expressions.toString());
+		//ServiceLogger.log("expressions", expressions.toString());
 
 		//expressions.addAll(tagFilter(filterParams.get("expertiseTags"), "expertiseTags"));
 		//expressions.addAll(tagFilter(filterParams.get("desiredExpertiseTags"), "desiredExpertiseTags"));
@@ -166,13 +167,16 @@ public class DMDIIMemberService {
 	}
 
 	private Predicate searchFilter(String searchTerm){
+		if (searchTerm == null){
+			return null;
+		}
 		if (searchTerm.equals("")) {
 			return null;
 		}
 
 		// Generate list of predicates for each field
 		Collection<Predicate> expressions = new ArrayList<Predicate>();
-		expressions.add(QDMDIIMember.dMDIIMember.organization().name.like(searchTerm));
+		expressions.add(QDMDIIMember.dMDIIMember.organization().name.containsIgnoreCase(searchTerm));
 		expressions.add(QDMDIIMember.dMDIIMember.organization().description.containsIgnoreCase(searchTerm));
 		expressions.add(QDMDIIMember.dMDIIMember.organization().industry.containsIgnoreCase(searchTerm));
 
