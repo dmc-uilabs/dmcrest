@@ -2,11 +2,6 @@ package org.dmc.services.data.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
-@Entity
-@Table(name = "fav_content_type")
 public class FavoriteContentType extends BaseEntity{
 
 	private Integer id;

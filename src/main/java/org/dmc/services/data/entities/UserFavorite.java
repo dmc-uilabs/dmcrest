@@ -2,17 +2,12 @@ package org.dmc.services.data.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Column;
-
 public class UserFavorite {
 
-	@Column(name = "user_id")
 	private Integer userId;
 
-	@Column(name = "content_id")
 	private Integer contentId;
 
-	@Column(name = "content_type")
 	private FavoriteContentType contentType;
 
 	@JsonProperty("userId")

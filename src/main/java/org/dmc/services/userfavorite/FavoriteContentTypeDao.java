@@ -41,7 +41,7 @@ public class FavoriteContentTypeDao {
         } catch (SQLException e ) {
             ServiceLogger.log(logTag, e.getMessage());
             throw new DMCServiceException(DMCError.OtherSQLError, "unable to get favorite content type with "
-                + " the id " + contentTypeId + ": " + e.getMessage());
+                + " the id " + contentTypeId);
         }
 
     }

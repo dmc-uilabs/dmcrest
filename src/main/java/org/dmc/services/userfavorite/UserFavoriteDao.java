@@ -50,7 +50,7 @@ public class UserFavoriteDao {
         } catch (SQLException e) {
             ServiceLogger.log(logTag, e.getMessage());
             throw new DMCServiceException(DMCError.OtherSQLError, "unable to get user favorites for user "
-                + userId + ": " + e.getMessage());
+                + userId);
         }
 
     }
