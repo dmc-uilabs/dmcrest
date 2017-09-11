@@ -1,5 +1,25 @@
 package org.dmc.services.services;
 
+import org.dmc.services.Config;
+import org.dmc.services.DBConnector;
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
+import org.dmc.services.ServiceLogger;
+import org.dmc.services.SqlTypeConverterUtility;
+import org.dmc.services.company.CompanyDao;
+import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.UserFavorite;
+import org.dmc.services.search.SearchException;
+import org.dmc.services.search.SearchQueueImpl;
+import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
+import org.dmc.services.services.ServiceHistory.PeriodEnum;
+import org.dmc.services.services.ServiceHistory.SectionEnum;
+import org.dmc.services.sharedattributes.FeatureImage;
+import org.dmc.services.userfavorite.UserFavoriteDao;
+import org.dmc.solr.SolrUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,27 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.dmc.services.Config;
-import org.dmc.services.DBConnector;
-import org.dmc.services.DMCError;
-import org.dmc.services.DMCServiceException;
-import org.dmc.services.ServiceLogger;
-import org.dmc.services.SqlTypeConverterUtility;
-import org.dmc.services.company.CompanyDao;
-import org.dmc.services.data.dao.user.UserDao;
-import org.dmc.services.search.SearchException;
-import org.dmc.services.search.SearchQueueImpl;
-import org.dmc.services.services.ServiceHistory.PeriodEnum;
-import org.dmc.services.services.ServiceHistory.SectionEnum;
-import org.dmc.services.sharedattributes.FeatureImage;
-import org.dmc.solr.SolrUtils;
-
-import org.dmc.services.security.UserPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.dmc.services.security.SecurityRoles;
-
-import org.dmc.services.projects.ProjectController;
 
 public class ServiceDao {
 
@@ -514,6 +513,11 @@ public class ServiceDao {
     }
 
     private Service readServiceResultSet(ResultSet resultSet) throws SQLException {
+
+        final UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final UserFavoriteDao userFavoriteDao = new UserFavoriteDao();
+        //TODO: get the user favorites object and check to see if this exists in the result set. If so then set the favorited field to true.
+
         final Service service = new Service();
         service.setId(resultSet.getInt("service_id"));
         service.setCompanyId(Integer.toString(resultSet.getInt("organization_id")));
@@ -544,6 +548,14 @@ public class ServiceDao {
         service.setPublished(resultSet.getBoolean("published"));
 
         service.setAverageRun("");
+
+        final ArrayList<UserFavorite> userFavorites = userFavoriteDao.getUserFavorites(user.getId(), 1);
+        if (userFavorites.stream().anyMatch(userFavorite -> userFavorite.getContentId().equals(service.getId()))) {
+            service.setFavorited(true);
+        } else {
+            service.setFavorited(false);
+        }
+
         return service;
     }
 

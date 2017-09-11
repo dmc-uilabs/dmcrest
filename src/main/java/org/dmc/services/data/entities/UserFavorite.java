@@ -1,47 +1,42 @@
 package org.dmc.services.data.entities;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Entity
-@Table(name = "user_favorite")
+import javax.persistence.Column;
+
 public class UserFavorite {
-	
-	@JoinColumn(name = "user_id")
-	@ManyToOne
-	private User user;
-	
+
+	@Column(name = "user_id")
+	private Integer userId;
+
 	@Column(name = "content_id")
 	private Integer contentId;
-	
+
 	@Column(name = "content_type")
 	private FavoriteContentType contentType;
 
-	public User getUser() {
-		return user;
+	@JsonProperty("userId")
+	public Integer getUserId() {
+		return userId;
+	}
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-
+	@JsonProperty("contentId")
 	public Integer getContentId() {
 		return contentId;
 	}
-
 	public void setContentId(Integer contentId) {
 		this.contentId = contentId;
 	}
 
+	@JsonProperty("contentType")
 	public FavoriteContentType getContentType() {
 		return contentType;
 	}
-
 	public void setContentType(FavoriteContentType contentType) {
 		this.contentType = contentType;
 	}
-	
+
 }

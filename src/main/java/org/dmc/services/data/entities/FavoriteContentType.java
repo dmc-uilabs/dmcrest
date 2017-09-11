@@ -1,36 +1,28 @@
 package org.dmc.services.data.entities;
 
-import javax.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "fav_content_type")
 public class FavoriteContentType extends BaseEntity{
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
 	private Integer id;
-	
-	@Column(name = "role")
 	private String contentType;
 
 	public Integer getId() {
 		return id;
 	}
-
 	public void setId(Integer id) {
 		this.id = id;
 	}
 
+	@JsonProperty("contentType")
 	public String getContentType() {
 		return contentType;
 	}
-
 	public void setContentType(String contentType) {
 		this.contentType = contentType;
 	}
