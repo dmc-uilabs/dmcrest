@@ -56,12 +56,14 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
+		List<DMDIIMemberModel> contributingCompanyModels = model.getContributingCompanyIds()
+		.stream()
+		.map(e -> dmdiiMemberService.findOne(e))
+		.collect(Collectors.toList());
+
+		entity.setContributingCompanies(memberMapper.mapToEntity(contributingCompanyModels));
 
 		if (!model.getIsEvent()) {
-			List<DMDIIMemberModel> contributingCompanyModels = model.getContributingCompanyIds()
-			.stream()
-			.map(e -> dmdiiMemberService.findOne(e))
-			.collect(Collectors.toList());
 			if (model.getPrimeOrganization().getId() != null) {
 				entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
 			}
@@ -69,7 +71,6 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 			entity.setProjectStatus(statusMapper.mapToEntity(model.getProjectStatus()));
 			entity.setProjectFocusArea(focusMapper.mapToEntity(model.getProjectFocusArea()));
 			entity.setProjectThrust(thrustMapper.mapToEntity(model.getProjectThrust()));
-			entity.setContributingCompanies(memberMapper.mapToEntity(contributingCompanyModels));
 		}
 
 
@@ -109,11 +110,14 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
+		List<Integer> contributingCompanyIds = entity.getContributingCompanies()
+		.stream()
+		.map(e -> e.getId())
+		.collect(Collectors.toList());
+
+		model.setContributingCompanies(contributingCompanyIds);
+
 		if (!entity.getIsEvent()) {
-			List<Integer> contributingCompanyIds = entity.getContributingCompanies()
-					.stream()
-					.map(e -> e.getId())
-					.collect(Collectors.toList());
 			if (entity.getPrimeOrganization() != null) {
 				model.setPrimeOrganization(new DMDIIPrimeOrganizationModel(entity.getPrimeOrganization().getId(), entity.getPrimeOrganization().getOrganization().getName()));
 			}
@@ -121,7 +125,6 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 			model.setProjectStatus(statusMapper.mapToModel(entity.getProjectStatus()));
 			model.setProjectFocusArea(focusMapper.mapToModel(entity.getProjectFocusArea()));
 			model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));
-			model.setContributingCompanies(contributingCompanyIds);
 		}
 
 		model.setPrincipalPointOfContact(userMapper.mapToModel(entity.getPrincipalPointOfContact()));
