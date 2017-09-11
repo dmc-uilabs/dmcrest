@@ -73,6 +73,7 @@ public class DMDIIProjectService {
 				)
 		);
 
+
 		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, pageRequest).getContent());
 	}
 
