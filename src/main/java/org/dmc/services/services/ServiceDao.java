@@ -516,7 +516,6 @@ public class ServiceDao {
 
         final UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UserFavoriteDao userFavoriteDao = new UserFavoriteDao();
-        //TODO: get the user favorites object and check to see if this exists in the result set. If so then set the favorited field to true.
 
         final Service service = new Service();
         service.setId(resultSet.getInt("service_id"));
