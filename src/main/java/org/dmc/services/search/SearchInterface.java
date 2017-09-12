@@ -70,4 +70,12 @@ public interface SearchInterface {
      * @throws SearchException
      */
     public List<Company> searchCompanies (String query, String userEPPN) throws SearchException;
+
+    /**
+     * Search companies
+     * @param query
+     * @return
+     * @throws SearchException
+     */
+    public List<Service> searchMarketplace (String query, String userEPPN) throws SearchException;
 }

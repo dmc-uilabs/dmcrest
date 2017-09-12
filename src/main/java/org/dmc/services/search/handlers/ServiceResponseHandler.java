@@ -10,6 +10,8 @@ import org.dmc.services.services.Service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 /**
  * Created by 200005921 on 2/2/2016.
@@ -47,6 +49,9 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
     public static final String FIELD_PROJECT_ID          = "project_id";
     public static final String FIELD_TYPE                = "type";
     public static final String FIELD_PUBLISHED           = "published";
+    public static final String FIELD_RELEASE_DATE        = "release_date";
+    public static final String FIELD_SERVICE_TYPE        = "service_type";
+    public static final String FIELD_FROM_LOCATION       = "from_location";
     public static final String FIELD_COMPANY_NAME        = "company_name";
     public static final String FIELD_COMPANY_DESCRIPTION = "company_description";
     public static final String FIELD_OWNER_USER_NAME     = "owner_user_name";
@@ -71,39 +76,42 @@ public class ServiceResponseHandler implements ResponseHandler<Service> {
 
                     String idStr = (String) doc.getFieldValue(FIELD_ID);
                     int id = Integer.parseInt(idStr);
-                    
+
                     String organizationIdStr = (String) doc.getFieldValue(FIELD_ORGANIZATION_ID);
                     String title = (String) doc.getFieldValue(FIELD_TITLE);
                     String description = (String) doc.getFieldValue(FIELD_DESCRIPTION);
                     String ownerIdStr = (String) doc.getFieldValue(FIELD_OWNER_ID);
-                    String tags = (String) doc.getFieldValue(FIELD_TAGS);
                     String specifications = (String) doc.getFieldValue(FIELD_SPECIFICATIONS);
                     String projectIdStr = (String) doc.getFieldValue(FIELD_PROJECT_ID);
                     String type = (String) doc.getFieldValue(FIELD_TYPE);
                     String published = (String) doc.getFieldValue(FIELD_PUBLISHED);
-                    String companyName = (String) doc.getFieldValue(FIELD_COMPANY_NAME);
-                    String companyDescription = (String) doc.getFieldValue(FIELD_COMPANY_DESCRIPTION);
-                    String ownerUserName = (String) doc.getFieldValue(FIELD_OWNER_USER_NAME);
-                    String ownerRealName = (String) doc.getFieldValue(FIELD_OWNER_REALNAME);
-                    String serviceInterfaceName = (String) doc.getFieldValue(FIELD_SERVICE_INTERFACE_NAME);
-
-//                    ServiceLogger.log(logTag, "doc: " + doc);
-//                    ServiceLogger.log(logTag, "->id: " + id);
-//                    ServiceLogger.log(logTag, "->interfaceData: " + interfaceData);
-//                    ServiceLogger.log(logTag, "->interfaceName: " + interfaceName);
-//                    ServiceLogger.log(logTag, "->serverUrl: " + serverUrl);
-//                    ServiceLogger.log(logTag, "->groupName: " + groupName);
-//                    ServiceLogger.log(logTag, "->unixGroupName: " + unixGroupName);
-//                    ServiceLogger.log(logTag, "->title: " + title);
-//                    ServiceLogger.log(logTag, "->description: " + description);
+                    String release_date = (String) doc.getFieldValue(FIELD_RELEASE_DATE);
+                    String from_location = (String) doc.getFieldValue(FIELD_FROM_LOCATION);
+                    String service_type = (String) doc.getFieldValue(FIELD_SERVICE_TYPE);
+                    List<String> tags = (List<String>) doc.getFieldValue(FIELD_TAGS);
 
                     Service service =  new Service();
-					service.setId(id);
-					service.setTitle(title);
-					service.setDescription(description);
-                    service.setOwner(ownerUserName);
+          					service.setId(id);
+          					service.setTitle(title);
+          					service.setDescription(description);
+                    service.setOwner(ownerIdStr);
                     service.setType(type);
-					
+                    service.setCompanyId(organizationIdStr);
+                    service.setProfileId(ownerIdStr);
+                    service.setProjectId(projectIdStr);
+                    service.setPublished(Boolean.valueOf(published));
+                    try {
+                      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                      service.setReleaseDate(format.parse(release_date));
+                    }
+                    catch (Exception e) {
+                      // Date could not be formatted
+                    }
+                    service.setFrom(from_location);
+                    service.setServiceType(service_type);
+                    service.setSpecifications(specifications);
+                    service.setTags(tags);
+
                     if (l == null) {
                         l = new ArrayList<Service>();
                     }

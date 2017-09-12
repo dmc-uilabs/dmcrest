@@ -131,7 +131,7 @@ public class SearchImpl implements SearchInterface {
         try {
             ServiceLogger.log(logTag, "solrQuery: " + solrQuery + ", collection: " + collection);
             solrQueryResponse = solrClient.query(collection, solrParams);
-            ServiceLogger.log(logTag, "solrQueryResponse: " + solrQueryResponse);
+            //ServiceLogger.log(logTag, "solrQueryResponse: " + solrQueryResponse);
 
             // solrQueryResponse.getResults()
 
@@ -287,5 +287,51 @@ public class SearchImpl implements SearchInterface {
             ServiceLogger.log(logTag, "SolR error searching collection " + COLLECTION_COMPANIES + ": " + e.toString());
             throw new SearchException(e.toString());
         }
-        return companyResults;    }
+        return companyResults;
+    }
+
+    @Override
+    public List<Service> searchMarketplace(String query, String userEPPN) throws SearchException {
+
+        //HttpSolrServer solrServer = new HttpSolrServer("http://52.35.63.139:8983/solr");
+        //SolrClient solrClient = new HttpSolrClient("http://52.35.63.139:8983/solr");
+
+        String collection = COLLECTION_SERVICES;
+        //List<String> fields = getFieldsForCollection (collection);
+        //ServiceLogger.log(logTag, "fields: " + fields + ", collection: " + collection);
+        //String solrQuery = SolrUtils.convertToSolrQuery(query, fields);
+
+        SolrClient solrClient = new HttpSolrClient(SolrUtils.getBaseUrl());
+
+        ModifiableSolrParams solrParams = new ModifiableSolrParams();
+        solrParams.set("q", "*"+query+"*");
+        solrParams.set("wt", "json");
+        solrParams.set("indent", "true");
+        solrParams.set("defType", "edismax");
+        solrParams.set("fq", "published:true");   // All published services
+        solrParams.add("fq", "!project_id:0");    // that are not deleted
+        solrParams.set("qf", "title^1");
+        solrParams.add("qf", "description^1");
+        solrParams.add("qf", "tags^1");
+        solrParams.set("rows", "10000");
+
+
+        QueryResponse solrQueryResponse = null;
+        List<Service> serviceResults = null;
+        try {
+            ServiceLogger.log(logTag, "solrQuery: " + query + ", params: " + solrParams.toString() + ", collection: " + collection);
+            solrQueryResponse = solrClient.query(collection, solrParams);
+            ServiceLogger.log(logTag, "Number of solrQuery results: " + solrQueryResponse.getResults().getNumFound());
+            serviceResults = serviceHandler.retrieve(solrQueryResponse, userEPPN);
+        } catch (SolrServerException e) {
+            ServiceLogger.log(logTag, "SolR error searching collection " + collection + ": " + e.toString());
+            e.printStackTrace();
+            throw new SearchException(e);
+        } catch (IOException e) {
+            ServiceLogger.log(logTag, "SolR error searching collection " + collection + ": " + e.toString());
+            throw new SearchException(e);
+        }
+
+        return serviceResults;
+    }
 }
