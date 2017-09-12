@@ -17,10 +17,23 @@ public class DomeServerService {
 
 	static final Logger LOG = LoggerFactory.getLogger(ServerAccessService.class);
 	
-	//returns all public servers and user's own servers
+	/**
+	 * @param userId
+	 * @param page
+	 * @return All public servers and user's own servers
+	 */
 	public List<DomeServer> findAllServers(Integer userId, Pageable page){
 		LOG.info("Get all accessible servers: (user: {})", userId);
 		return serverRepo.findAllServers(userId, page).getContent();
+	}
+	
+	/**
+	 * @param id
+	 * @return DomeServer URL from provided ID
+	 */
+	public String getServerURLById(Integer id) {
+		LOG.info("Get DomeServer URL by id: (id: {})", id);
+		return serverRepo.getServerURLById(id);
 	}
 	
 }

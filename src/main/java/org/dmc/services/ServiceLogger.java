@@ -7,6 +7,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import org.json.JSONObject;
+
 
 public class ServiceLogger {
 
@@ -24,14 +26,14 @@ public class ServiceLogger {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	public static void log (String logTag, String message) {
 		if (serviceLoggerInstance == null) {
 			serviceLoggerInstance = new ServiceLogger();
-		} 
-	    logger.info(logTag + ": " + message);	
+		}
+	    logger.info(logTag + ": " + message);
 	}
-	
+
 	/**
 	 * Exception Logging
 	 * @param logTag
@@ -42,32 +44,35 @@ public class ServiceLogger {
 		if (serviceLoggerInstance == null) {
 			serviceLoggerInstance = new ServiceLogger();
 		}
-		
+
+		JSONObject logJson = new JSONObject();
+		logJson.put("Class", logTag);
+		logJson.put("Error", e.getError());
+		logJson.put("HttpStatus Code", e.getHttpStatusCode());
+		logJson.put("Message", e.getMessage());
+
 		logMessage += "\n---------------------------------------------------------------------------------------------------------------\n";
-		logMessage +="EXCEPTION\n";
-		logMessage +="Class: " + logTag + "\n";
-		logMessage +="Error: " + e.getError() + "\n";
-		logMessage +="HttpStatus Code: " + e.getHttpStatusCode() + "\n";
-		logMessage +="Message: " + e.getMessage() + "\n";
-		logMessage += "---------------------------------------------------------------------------------------------------------------\n";
-		
-	    logger.info(logMessage);	
+		logMessage +="DMC EXCEPTION: ";
+		logMessage +=logJson.toString();
+		logMessage += "\n---------------------------------------------------------------------------------------------------------------\n";
+
+	    logger.info(logMessage);
 	}
-	
+
 	private void setup() throws IOException {
 	    logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-	    
+
         //Log to the file by default
 	    logger.setLevel(Level.INFO);
-	    logFileHandler = new FileHandler(LOGFILE);  
+	    logFileHandler = new FileHandler(LOGFILE);
         logger.addHandler(logFileHandler);
-        
+
 	    //disable console logging by default
 	    logger.setUseParentHandlers(false);
-	    
+
 	    //Use the Simple file formatter
-        logFileFormatter = new SimpleFormatter();  
-        logFileHandler.setFormatter(logFileFormatter); 
+        logFileFormatter = new SimpleFormatter();
+        logFileHandler.setFormatter(logFileFormatter);
 
         //Log to console if enabled in config
         if (Config.CONSOLE_LOGGING) {

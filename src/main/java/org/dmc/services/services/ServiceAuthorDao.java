@@ -99,7 +99,7 @@ public class ServiceAuthorDao {
 		ArrayList<ServiceAuthor> authors = new ArrayList<ServiceAuthor>();
 		ServiceLogger.log(this.logTag, "User: " + userEPPN + " asking for all authors of the service: " + serviceId);
 		try {
-			String query = "SELECT owner_id FROM service WHERE service_id = ?";
+			String query = "SELECT owner_id FROM service WHERE service_id = ? AND project_id != 0";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(query);
 			preparedStatement.setInt(1, serviceId);

@@ -3,6 +3,7 @@ package org.dmc.services.services;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import org.dmc.services.ServiceLogger;
+import org.apache.commons.lang3.StringUtils;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.DomeServerService;
 
 import static org.springframework.http.MediaType.*;
 
@@ -25,6 +28,9 @@ public class DomeAPIController {
 
 	private final String logTag = DomeAPIController.class.getName();
 	private DomeAPIDao domeAPIDao = new DomeAPIDao();
+
+	@Autowired
+    DomeServerService serverService;
 
 	@RequestMapping(value = "/getChildren", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity getChildrenFromDome(
@@ -40,12 +46,17 @@ public class DomeAPIController {
 
 		ServiceLogger.log(logTag, "In childrenGet: as user " + userEPPN);
 		String children = "";
-		
+
 		try {
 			DomeEntity domeEntity = new DomeEntity();
 			domeEntity.setDateModified(dateModified);
 			domeEntity.setDescription(description);
-			domeEntity.setDomeServer(domeServer);
+			//True if it's the ID instead of the URL
+			if(StringUtils.isNumeric(domeServer)) {
+				domeEntity.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
+			} else {
+				domeEntity.setDomeServer(domeServer);
+			}
 			domeEntity.setModelId(modelId);
 			domeEntity.setName(name);
 			domeEntity.setPath(path);
@@ -61,7 +72,7 @@ public class DomeAPIController {
 		}
 
 	}
-	
+
 	@RequestMapping(value = "/getModel", produces = { "application/json" }, method = RequestMethod.GET)
 	public ResponseEntity getModelFromDome(
 			@RequestParam(value = "domeServer", required = true) String domeServer,
@@ -76,12 +87,17 @@ public class DomeAPIController {
 
 		ServiceLogger.log(logTag, "In modelGet: as user " + userEPPN);
 		String model = "";
-		
+
 		try {
 			DomeModel domeModel = new DomeModel();
 			domeModel.setProjectId(projectId);
 			domeModel.setInterfaceId(interfaceId);
-			domeModel.setDomeServer(domeServer);
+			//True if it's the ID instead of the URL
+			if(StringUtils.isNumeric(domeServer)) {
+				domeModel.setDomeServer(serverService.getServerURLById(Integer.valueOf(domeServer)));
+			} else {
+				domeModel.setDomeServer(domeServer);
+			}
 			domeModel.setModelId(modelId);
 			domeModel.setName(name);
 			domeModel.setPath(path);
@@ -97,5 +113,5 @@ public class DomeAPIController {
 		}
 
 	}
-	
+
 }

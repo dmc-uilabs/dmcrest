@@ -20,7 +20,7 @@ public class DMDIIProjectModel extends BaseModel {
 
 	private String projectSummary;
 
-	private DMDIIProjectContactModel principalPointOfContact;
+	private UserModel principalPointOfContact;
 
 	private DMDIIProjectFocusAreaModel projectFocusArea;
 
@@ -37,6 +37,8 @@ public class DMDIIProjectModel extends BaseModel {
 	private BigDecimal costShare;
 
 	private BigDecimal dmdiiFunding;
+
+	private Boolean isEvent;
 
 
 	public DMDIIPrimeOrganizationModel getPrimeOrganization() {
@@ -87,11 +89,11 @@ public class DMDIIProjectModel extends BaseModel {
 		this.projectSummary = projectSummary;
 	}
 
-	public DMDIIProjectContactModel getPrincipalPointOfContact() {
+	public UserModel getPrincipalPointOfContact() {
 		return principalPointOfContact;
 	}
 
-	public void setPrincipalPointOfContact(DMDIIProjectContactModel principalPointOfContact) {
+	public void setPrincipalPointOfContact(UserModel principalPointOfContact) {
 		this.principalPointOfContact = principalPointOfContact;
 	}
 
@@ -169,6 +171,14 @@ public class DMDIIProjectModel extends BaseModel {
 
 	public void setDmdiiFunding(BigDecimal dmdiiFunding) {
 		this.dmdiiFunding = dmdiiFunding;
+	}
+
+	public Boolean getIsEvent() {
+		return isEvent == null ? false : isEvent;
+	}
+
+	public void setIsEvent(Boolean isEvent) {
+		this.isEvent = isEvent;
 	}
 
 }

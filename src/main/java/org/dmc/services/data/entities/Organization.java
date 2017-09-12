@@ -1,7 +1,7 @@
 package org.dmc.services.data.entities;
 
-import java.util.List;
-import java.util.Set;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,9 +16,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Where(clause = "is_deleted='FALSE'")
@@ -145,15 +144,21 @@ public class Organization extends BaseEntity {
 
 	@OneToOne(mappedBy = "organization", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 	private DMDIIMember dmdiiMember;
-	
+
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
-	
+
 	@OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
 	private Set<UserRoleAssignment> userRoleAssignments;
-	
+
 	@OneToMany(mappedBy = "organization", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
 	private Set<OrganizationUser> organizationUsers;
+
+	@Column(name="production_capabilities")
+	private String productionCapabilities;
+
+	@Column(name="other_organization_tags")
+	private String otherOrganizationTags;
 
 	public Integer getId() {
 		return id;
@@ -477,6 +482,14 @@ public class Organization extends BaseEntity {
 		this.organizationUsers = organizationUsers;
 	}
 
+	public String getProductionCapabilities() { return productionCapabilities; }
+
+	public void setProductionCapabilities(String productionCapabilities) { this.productionCapabilities = productionCapabilities; }
+
+	public String getOtherOrganizationTags() { return otherOrganizationTags; }
+
+	public void setOtherOrganizationTags(String otherOrganizationTags) { this.otherOrganizationTags = otherOrganizationTags; }
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -518,6 +531,8 @@ public class Organization extends BaseEntity {
 		result = prime * result + ((toolsSoftwareEquipMach == null) ? 0 : toolsSoftwareEquipMach.hashCode());
 		result = prime * result + ((upcomingProjectInterests == null) ? 0 : upcomingProjectInterests.hashCode());
 		result = prime * result + ((website == null) ? 0 : website.hashCode());
+		result = prime * result + ((productionCapabilities == null) ? 0 : productionCapabilities.hashCode());
+		result = prime * result + ((otherOrganizationTags == null) ? 0 : otherOrganizationTags.hashCode());
 		return result;
 	}
 
@@ -729,6 +744,16 @@ public class Organization extends BaseEntity {
 			if (other.website != null)
 				return false;
 		} else if (!website.equals(other.website))
+			return false;
+		if (productionCapabilities == null) {
+			if (other.productionCapabilities != null)
+				return false;
+		} else if (!productionCapabilities.equals(other.productionCapabilities))
+			return false;
+		if (otherOrganizationTags == null) {
+			if (other.otherOrganizationTags != null)
+				return false;
+		} else if (!otherOrganizationTags.equals(other.otherOrganizationTags))
 			return false;
 		return true;
 	}

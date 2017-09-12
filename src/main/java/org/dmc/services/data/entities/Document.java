@@ -1,7 +1,10 @@
 package org.dmc.services.data.entities;
 
-import java.sql.Timestamp;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import org.dmc.services.utils.RestViews;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,12 +21,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.sql.Timestamp;
 import java.util.Date;
-
-import org.hibernate.annotations.Where;
-import org.hibernate.annotations.WhereJoinTable;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 
 @Entity
 @Table(name = "document")
@@ -33,9 +33,11 @@ public class Document extends ResourceEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Integer id;
 
 	@Column(name = "name")
+	@JsonView(RestViews.SDocumentsView.class)
 	private String documentName;
 
 	@Column(name = "url")
@@ -43,42 +45,53 @@ public class Document extends ResourceEntity {
 
 	@Column(name = "parent_type")
 	@Enumerated(EnumType.STRING)
+	@JsonView(RestViews.SDocumentsView.class)
 	private DocumentParentType parentType;
 
 	@Column(name = "parent_id")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Integer parentId;
 
 	@ManyToOne
 	@JoinColumn(name = "owner_id")
+	@JsonView(RestViews.SDocumentsView.class)
 	private User owner;
 
 	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "document_tag_join",
 			joinColumns = @JoinColumn(name = "document_id", referencedColumnName = "id"),
 			inverseJoinColumns = @JoinColumn(name = "document_tag_id", referencedColumnName = "id"))
+	@JsonView(RestViews.SDocumentsView.class)
 	private List<DocumentTag> tags;
 
 	@Column(name = "modified")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Timestamp modified;
 
 	@Column(name = "expires")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Timestamp expires;
 
 	@Column(name = "is_deleted")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Boolean isDeleted = false;
 
 	@Column(name = "resource_type")
 	@Enumerated(EnumType.STRING)
+	@JsonView(RestViews.SDocumentsView.class)
 	private ResourceType resourceType;
 
 	@Column(name = "doc_class")
 	@Enumerated(EnumType.STRING)
+	@JsonView(RestViews.SDocumentsView.class)
 	private DocumentClass docClass;
 
 	@Column(name = "verified")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Boolean verified = false;
 
 	@Column(name = "sha256")
+	@JsonView(RestViews.SDocumentsView.class)
 	private String sha256;
 
 
@@ -93,23 +106,33 @@ public class Document extends ResourceEntity {
 	@JoinTable(name = "document_user",
 				joinColumns = @JoinColumn(name = "document_id"),
 				inverseJoinColumns = @JoinColumn(name = "user_id"))
+	@JsonView(RestViews.SDocumentsView.class)
 	private List<User> vips;
 
 	@Column(name = "is_public")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Boolean isPublic = false;
 
 	@Column(name = "version")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Integer version;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "directory_id")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Directory directory;
 
 	@Column(name = "base_doc_id")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Integer baseDocId;
 
 	@Column(name="scan_date")
+	@JsonView(RestViews.SDocumentsView.class)
 	private Date scanDate;
+
+	@Column(name="is_accepted")
+	@JsonView(RestViews.SDocumentsView.class)
+	private Boolean isAccepted = false;
 
 	public Date getScanDate() {
 		return scanDate;
@@ -281,6 +304,10 @@ public class Document extends ResourceEntity {
 	public void setBaseDocId(Integer baseDocId) {
 		this.baseDocId = baseDocId;
 	}
+
+	public Boolean getIsAccepted() { return isAccepted; }
+
+	public void setIsAccepted(Boolean accepted) { isAccepted = accepted; }
 
 	@Override
 	public int hashCode() {

@@ -7,9 +7,11 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import org.apache.commons.lang3.time.DateUtils;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -32,7 +34,7 @@ public class AWSConnector {
     private static String accessKey = System.getenv("AWS_UPLOAD_KEY");
     private static String secretKey = System.getenv("AWS_UPLOAD_SEC");
 
-    // Source is the path the the resource in the bucket
+    // Source is the path to the resource in the bucket
     public static String upload(String tempURL, String Folder, String userEPPN, String ResourceType, boolean isVerified)
             throws DMCServiceException {
 
@@ -47,6 +49,7 @@ public class AWSConnector {
 
         final String sourceKey = createSourceKey(tempURL);
         final String destKey = createDestKey(tempURL, Folder, userEPPN, ResourceType);
+        final Timestamp expiration = Timestamp.valueOf(LocalDateTime.now().plusHours(1));
 
         try {
             // Copying object, AWS takes care of all implementation of this.
@@ -60,11 +63,11 @@ public class AWSConnector {
             ServiceLogger.log(LOGTAG, "Copying object to s3 bucket.");
             s3client.copyObject(copyObjRequest);
             ServiceLogger.log(LOGTAG, "Generating pre-signed URL.");
-            final String preSignedURL = refreshURL(destKey);
+            final String preSignedURL = refreshURL(destKey, expiration);
             return preSignedURL;
 
         } catch (AmazonServiceException ase) {
-            logDetailsOfAmazonServiceException("Caught an AmazonServiceException, which means your request made it "
+            logAmazonServiceException("Caught an AmazonServiceException, which means your request made it "
                     + "to Amazon S3, but was rejected with an error response for some reason.", ase);
             throw new DMCServiceException(DMCError.AWSError,
                     "AWS Upload Request from " + userEPPN + " made it, rejected do to: " + ase.getMessage());
@@ -94,7 +97,7 @@ public class AWSConnector {
             // Deleting object, AWS takes care of all implementation of this.
             s3client.deleteObject(new DeleteObjectRequest(destBucket, ResourcePath));
         } catch (AmazonServiceException ase) {
-            logDetailsOfAmazonServiceException("Caught an AmazonServiceException, " + "which means your request made it "
+            logAmazonServiceException("Caught an AmazonServiceException, " + "which means your request made it "
                     + "to Amazon S3, but was rejected with an error " + "response for some reason.", ase);
             throw new DMCServiceException(DMCError.AWSError,
                     "AWS Delete Request from " + userEPPN + " made it, but rejected do to: " + ase.getMessage());
@@ -108,29 +111,64 @@ public class AWSConnector {
 
     }// Remove
 
-    // Function to create a path to resource in S3 to store in DB for easy
-    // future references
-    public static String createPath(String URL) throws DMCServiceException {
+    public static S3Object getS3Document(String bucket, String keyName) {
+    	AmazonS3 s3Client = getAmazonS3Client();
+    	return s3Client.getObject(new GetObjectRequest(bucket, keyName));
+    }
+
+    public static S3Object getS3Document(String documentUrl) {
+		return getS3Document(returnBucketFromURL(documentUrl), returnKeyNameFromURL(documentUrl));
+	}
+
+    // Gets Amazon key name from S3 URL
+    public static String returnKeyNameFromURL(String URL) throws DMCServiceException {
         // Parse URL to get Path
         try {
+            URL = URL.replace(":443","");
             final int ResourcePathStart = URL.indexOf("com/") + 4;
-            final int ResourcePathEnd = URL.indexOf("?A");
+            final int ResourcePathEnd;
+            // Below deals with different formatting of AWS links
+            if (URL.indexOf("?A") == -1) {
+             ResourcePathEnd = URL.indexOf("?S");
+            } else {
+             ResourcePathEnd = URL.indexOf("?A");
+            }
             final String ResourcePath = URL.substring(ResourcePathStart, ResourcePathEnd);
             return ResourcePath.replace("%40","@");
         } catch (Exception e) {
             throw new DMCServiceException(DMCError.AWSError,
                     "AWS create path from " + URL + "encountered internal error");
         }
-    }// createPath
+    }
 
-    public static String refreshURL(String path) throws DMCServiceException {
+    public static String returnBucketFromURL(String URL) throws DMCServiceException {
+        try {
+          final int bucketStart = URL.indexOf("//")+2;
+          final int bucketEnd = URL.indexOf(".s3");
+
+          return URL.substring(bucketStart, bucketEnd);
+        } catch (Exception e) {
+            throw new DMCServiceException(DMCError.AWSError,
+                    "Extracting bucket from " + URL + "encountered internal error");
+        }
+    }
+
+    public static String refreshURL(String path, Timestamp expiration) throws DMCServiceException {
         ServiceLogger.log(LOGTAG, "Refreshing pre-signed URL.");
-        return generatePresignedUrl(path, DateUtils.addMonths(new Date(), 1));
+        return generatePresignedUrl(path, expiration);
     }
 
     public static String generatePresignedUrl(String key, Date expiration){
+      String finalBucket = destBucket;
+      if (key.startsWith("http")){
+        String currentBucket = returnBucketFromURL(key);
+        if (!currentBucket.equals(destBucket)) {
+          finalBucket = currentBucket;
+        }
+        key = returnKeyNameFromURL(key);
+      }
         final AmazonS3 s3client = getAmazonS3Client();
-        return s3client.generatePresignedUrl(destBucket, key, expiration).toString();
+        return s3client.generatePresignedUrl(finalBucket, key, expiration).toString();
     }
 
     private static AmazonS3 getAmazonS3Client() {
@@ -215,7 +253,7 @@ public class AWSConnector {
         ServiceLogger.log(LOGTAG, "Error Message: " + ace.getMessage());
     }
 
-    private static void logDetailsOfAmazonServiceException(String msg, AmazonServiceException ase) {
+    private static void logAmazonServiceException(String msg, AmazonServiceException ase) {
         ServiceLogger.log(LOGTAG, msg);
         // Detailed Error Logging
         ServiceLogger.log(LOGTAG, "Error Message:    " + ase.getMessage());
