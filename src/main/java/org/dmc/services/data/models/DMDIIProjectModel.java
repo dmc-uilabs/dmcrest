@@ -38,6 +38,8 @@ public class DMDIIProjectModel extends BaseModel {
 
 	private BigDecimal dmdiiFunding;
 
+	private Boolean isEvent;
+
 
 	public DMDIIPrimeOrganizationModel getPrimeOrganization() {
 		return primeOrganization;
@@ -169,6 +171,14 @@ public class DMDIIProjectModel extends BaseModel {
 
 	public void setDmdiiFunding(BigDecimal dmdiiFunding) {
 		this.dmdiiFunding = dmdiiFunding;
+	}
+
+	public Boolean getIsEvent() {
+		return isEvent == null ? false : isEvent;
+	}
+
+	public void setIsEvent(Boolean isEvent) {
+		this.isEvent = isEvent;
 	}
 
 }
