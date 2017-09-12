@@ -36,7 +36,7 @@ public class ServiceRunsDao {
 		try {
 			connection.setAutoCommit(false);
 
-			String serviceRunQuery = "SELECT * FROM service_run WHERE run_id = ?";
+			String serviceRunQuery = "SELECT service_run.* FROM service_run INNER JOIN service ON (service_run.service_id = service.service_id AND service.project_id != 0) WHERE run_id = ?";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(serviceRunQuery);
 			preparedStatement.setInt(1, Integer.parseInt(id));
@@ -199,7 +199,7 @@ public class ServiceRunsDao {
 			columnsInServiceRunTable.add("interface_id");
 			columnsInServiceRunTable.add("queue_name");
 
-			String serviceRunQuery = "SELECT * FROM service_run";
+			String serviceRunQuery = "SELECT service_run.* FROM service_run INNER JOIN service ON (service_run.service_id = service.service_id AND service.project_id != 0)";
 
 			if (sort == null) {
 				serviceRunQuery += " ORDER BY run_id";

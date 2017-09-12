@@ -181,7 +181,7 @@ public class DomeInterfacesDao {
 		try {
 			connection.setAutoCommit(false);
 
-			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE interface_id = ?";
+			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, service_interface.type, name, service_interface.service_id, server_id FROM service_interface INNER JOIN service ON (service_interface.service_id = service.service_id AND service.project_id != 0) WHERE interface_id = ?";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setInt(1, new Integer(domeInterfaceId.intValue()));
@@ -502,7 +502,7 @@ public class DomeInterfacesDao {
 			columnsInServiceInterfaceTable.add("service_id");
 			columnsInServiceInterfaceTable.add("server_id");
 
-			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE service_id = ?";
+			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, service_interface.type, name, service_interface.service_id, server_id FROM service_interface INNER JOIN service ON (service_interface.service_id = service.service_id AND service.project_id != 0) WHERE service_interface.service_id = ?";
 
 			if (sort == null) {
 				domeInterfacesQuery += " ORDER BY interface_id";
@@ -618,7 +618,7 @@ public class DomeInterfacesDao {
 			// let's start a transaction
 			connection.setAutoCommit(false);
 
-			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, type, name, service_id, server_id FROM service_interface WHERE interface_id_str = ?";
+			String domeInterfacesQuery = "SELECT interface_id, version, model_id, interface_id_str, service_interface.type, name, service_interface.service_id, server_id FROM service_interface INNER JOIN service ON (service_interface.service_id = service.service_id AND service.project_id != 0) WHERE interface_id_str = ?";
 
 			PreparedStatement preparedStatement = DBConnector.prepareStatement(domeInterfacesQuery);
 			preparedStatement.setString(1, interface_id_str);

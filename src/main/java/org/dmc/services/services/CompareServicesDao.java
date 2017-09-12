@@ -83,7 +83,7 @@ public class CompareServicesDao {
 	}
 
 	public GetCompareService getCompareService(int id, String userEPPN) throws DMCServiceException {
-		final String query = "SELECT * FROM service_compare WHERE service_compare_id = " + id;
+		final String query = "SELECT service_compare.* FROM service_compare INNER JOIN service ON (service_compare.service_id = service.service_id AND service.project_id != 0) WHERE service_compare_id = " + id;
 		GetCompareService compareService = null;
 		resultSet = DBConnector.executeQuery(query);
 		try {

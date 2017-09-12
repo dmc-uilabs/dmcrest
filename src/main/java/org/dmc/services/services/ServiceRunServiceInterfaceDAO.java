@@ -50,7 +50,7 @@ public class ServiceRunServiceInterfaceDAO {
 	public static int getServiceId(String interfaceIdStr) throws DMCServiceException
 	{
 	    int result = -9;
-	    String query = "select service_id from service_interface where interface_id_str=?";
+	    String query = "select service_interface.service_id from service_interface INNER JOIN service ON (service_interface.service_id = service.service_id AND service.project_id != 0) where interface_id_str=?";
 	    try {
 	    PreparedStatement preparedStatement = DBConnector
 				.prepareStatement(query);
@@ -260,7 +260,7 @@ public class ServiceRunServiceInterfaceDAO {
 		
 		ResultSet rs = null;
 		try{
-			String query = "select * from service_interface where service_id = ?";
+			String query = "select service_interface.* from service_interface INNER JOIN service ON (service_interface.service_id = service.service_id AND service.project_id != 0) where service_interface.service_id = ?";
 			PreparedStatement preparedStatement = DBConnector
 				.prepareStatement(query);
 			preparedStatement.setInt(1,sId);
@@ -292,7 +292,7 @@ public class ServiceRunServiceInterfaceDAO {
 		
 		ResultSet rs = null;
 		try{
-			String query = "select * from service_interface where interface_id_str = ?";
+			String query = "select service_interface.* from service_interface INNER JOIN service ON (service_interface.service_id = service.service_id AND service.project_id != 0) where interface_id_str = ?";
 			PreparedStatement preparedStatement = DBConnector
 				.prepareStatement(query);
 			preparedStatement.setString(1,interfaceIdString);
