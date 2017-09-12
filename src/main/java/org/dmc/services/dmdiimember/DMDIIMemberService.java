@@ -31,6 +31,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.dmc.services.ServiceLogger;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -75,7 +78,13 @@ public class DMDIIMemberService {
 		// if(where != null){
 		// 	ServiceLogger.log("where", where.toString());
 		// }
-		return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
+				new Sort(
+						new Order(Direction.ASC, "organizationName")
+				)
+		);
+		//return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		return mapper.mapToModel(dmdiiMemberDao.findAll(where, pageRequest).getContent());
 	}
 
 	public Long countByNameOrTags(String name) {
@@ -137,7 +146,13 @@ public class DMDIIMemberService {
 		// if(where != null){
 		// 	ServiceLogger.log("where", where.toString());
 		// }
-		return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
+				new Sort(
+						new Order(Direction.ASC, "organizationName")
+				)
+		);
+		//return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		return mapper.mapToModel(dmdiiMemberDao.findAll(where, pageRequest).getContent());
 	}
 
 	public Long count(String[] tiers, String[] types, String[] activeProjects, String searchTerm) throws InvalidFilterParameterException {

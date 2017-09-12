@@ -91,9 +91,6 @@ public class DMDIIProject extends BaseEntity {
 	@Formula("concat(project_root_number, '-', project_call_number, '-', project_number)")
 	private String projectNumberString;
 
-	// @Transient
-	// private String projectNumberString = String.format("%02d", rootNumber) + "-" + String.format("%02d", callNumber) + "-" + String.format("%02d", projectNumber);
-
 	@Column(name = "cost_share")
 	private BigDecimal costShare;
 
