@@ -73,6 +73,7 @@ public class DMDIIProjectService {
 				)
 		);
 
+
 		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, pageRequest).getContent());
 	}
 
@@ -89,6 +90,7 @@ public class DMDIIProjectService {
 		expressions.add(thrustIdFilter(filterParams.get("thrustId")));
 		expressions.add(rootNumberFilter(filterParams.get("rootNumber")));
 		expressions.add(callNumberFilter(filterParams.get("callNumber")));
+		expressions.add(isEventFilter(filterParams.get("isEvent")));
 
 		return expressions;
 	}
@@ -166,6 +168,14 @@ public class DMDIIProjectService {
 		}
 
 		return QDMDIIProject.dMDIIProject.callNumber.eq(callNumberInt);
+	}
+
+	private Predicate isEventFilter(String isEvent) throws InvalidFilterParameterException {
+		if (isEvent == null) {
+			return null;
+		}
+
+		return QDMDIIProject.dMDIIProject.isEvent.eq(Boolean.valueOf(isEvent));
 	}
 
 	public List<DMDIIProjectModel> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId, Integer pageNumber, Integer pageSize) {
@@ -264,15 +274,19 @@ public class DMDIIProjectService {
 
 		DMDIIProject projectEntity = projectMapper.mapToEntity(project);
 
-		if(project.getPrimeOrganization() != null) {
+
+		if(projectEntity.getPrimeOrganization() != null) {
 			DMDIIMember memberEntity = memberMapper.mapToEntity(dmdiiMemberService.findOne(project.getPrimeOrganization().getId()));
 			projectEntity.setPrimeOrganization(memberEntity);
 		}
 
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
+
 		// Insert update for newly-created project
-		RecentUpdateController recentUpdateController = new RecentUpdateController();
-		recentUpdateController.addRecentUpdate(projectEntity);
+		if (!project.getIsEvent()) {
+			RecentUpdateController recentUpdateController = new RecentUpdateController();
+			recentUpdateController.addRecentUpdate(projectEntity);
+		}
 
 		return projectMapper.mapToModel(projectEntity);
 	}
@@ -292,8 +306,10 @@ public class DMDIIProjectService {
 		}
 
 		// Insert update for all modified fields
-		RecentUpdateController recentUpdateController = new RecentUpdateController();
-		recentUpdateController.addRecentUpdate(projectEntity, oldEntity);
+		if (!project.getIsEvent()) {
+			RecentUpdateController recentUpdateController = new RecentUpdateController();
+			recentUpdateController.addRecentUpdate(projectEntity, oldEntity);
+		}
 
 		projectEntity = dmdiiProjectRepository.save(projectEntity);
 
