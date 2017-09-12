@@ -21,6 +21,7 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.hibernate.annotations.Formula;
 
 
 @Entity
@@ -86,6 +87,12 @@ public class DMDIIProject extends BaseEntity {
 
 	@Column(name = "project_number")
 	private Integer projectNumber;
+
+	@Formula("concat(project_root_number, '-', project_call_number, '-', project_number)")
+	private String projectNumberString;
+
+	// @Transient
+	// private String projectNumberString = String.format("%02d", rootNumber) + "-" + String.format("%02d", callNumber) + "-" + String.format("%02d", projectNumber);
 
 	@Column(name = "cost_share")
 	private BigDecimal costShare;
