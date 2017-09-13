@@ -81,11 +81,30 @@ public class DMDIIProjectService {
 		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, pageRequest).getContent());
 	}
 
+	public List<DMDIIProjectModel> filter(String isEvent, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		Collection<Predicate> expressions = new ArrayList<Predicate>();
+		expressions.add(isEventFilter(isEvent));
+		Predicate where = ExpressionUtils.allOf(expressions);
+		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
+				new Sort(
+						new Order(Direction.ASC, "rootNumber"),
+						new Order(Direction.ASC, "callNumber"),
+						new Order(Direction.ASC, "projectNumber")
+				)
+		);
+		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, pageRequest).getContent());
+	}
+
 	public Long count(String[] focusIds, String[] statuses, String[] thrustIds, String searchTerm) throws InvalidFilterParameterException {
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(focusIds, statuses, thrustIds, searchTerm));
-		if(where != null){
-			ServiceLogger.log("where count", where.toString());
-		}
+		return dmdiiProjectRepository.count(where);
+	}
+
+	public Long count(String isEvent) throws InvalidFilterParameterException {
+		Collection<Predicate> expressions = new ArrayList<Predicate>();
+		expressions.add(isEventFilter(isEvent));
+		Predicate where = ExpressionUtils.allOf(expressions);
 		return dmdiiProjectRepository.count(where);
 	}
 
