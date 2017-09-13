@@ -18,6 +18,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -227,6 +228,14 @@ public class DMDIIProject extends BaseEntity {
 		this.projectNumber = projectNumber;
 	}
 
+	// public String getProjectNumberString() {
+	// 	return projectNumberString;
+	// }
+	//
+	// public void setProjectNumberString(String projectNumberString) {
+	// 	this.projectNumberString = projectNumberString;
+	// }
+
 	public BigDecimal getCostShare() {
 		return costShare;
 	}
@@ -282,6 +291,7 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((projectThrust == null) ? 0 : projectThrust.hashCode());
 		result = prime * result + ((projectTitle == null) ? 0 : projectTitle.hashCode());
 		result = prime * result + ((rootNumber == null) ? 0 : rootNumber.hashCode());
+		//result = prime * result + ((projectNumberString == null) ? 0 : projectNumberString.hashCode());
 		return result;
 	}
 
@@ -389,6 +399,11 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!rootNumber.equals(other.rootNumber))
 			return false;
+		// if (projectNumberString == null) {
+		// 		if (other.projectNumberString != null)
+		// 			return false;
+		// 	} else if (!projectNumberString.equals(other.projectNumberString))
+		// 		return false;
 		return true;
 	}
 

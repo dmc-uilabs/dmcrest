@@ -212,9 +212,10 @@ public class DMDIIProjectController {
 	@RequestMapping(value = "/dmdiievents", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public PagedResponse getEvents(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
 		ServiceLogger.log(logTag, "In getEvents");
-		params.put("isEvent","true");
-		List<? extends BaseModel> results = dmdiiProjectService.filter(params, page, pageSize);
-		Long count = dmdiiProjectService.count(params);
-		return new PagedResponse(count, results);
+		// params.put("isEvent","true");
+		// List<? extends BaseModel> results = dmdiiProjectService.filter(params, page, pageSize);
+		// Long count = dmdiiProjectService.count(params);
+		// return new PagedResponse(count, results);
+		return null;
 	}
  }
