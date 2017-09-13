@@ -115,6 +115,7 @@ public class DMDIIProjectService {
 		expressions.add(focusIdFilter(focusIds));
 		expressions.add(thrustIdFilter(thrustIds));
 		expressions.add(searchFilter(searchTerm));
+		expressions.add(isEventFilter("false"));
 
 		// expressions.add(rootNumberFilter(filterParams.get("rootNumber")));
 		// expressions.add(callNumberFilter(filterParams.get("callNumber")));
