@@ -65,7 +65,7 @@ public class DMDIIProjectController {
 	@RequestMapping(value = "/dmdiiprojects/member", params = {"page", "pageSize"}, method = RequestMethod.GET)
 	public PagedResponse getDmdiiProjectsByDMDIIMemberId(@RequestParam("dmdiiMemberId") Integer dmdiiMemberId,
 																		@RequestParam("page") Integer page,
-																		@RequestParam("pageSize") Integer pageSize) {
+																		@RequestParam("pageSize") Integer pageSize) throws InvalidFilterParameterException {
 		ServiceLogger.log(logTag, "In getDmdiiProjectsByDMDIIMemberId as member " + dmdiiMemberId);
 
 		List<DMDIIProjectModel> results = dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId, page, pageSize);

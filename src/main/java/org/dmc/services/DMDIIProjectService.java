@@ -240,7 +240,7 @@ public class DMDIIProjectService {
 		return QDMDIIProject.dMDIIProject.isEvent.eq(Boolean.valueOf(isEvent));
 	}
 
-	public List<DMDIIProjectModel> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId, Integer pageNumber, Integer pageSize) {
+	public List<DMDIIProjectModel> findDmdiiProjectsByPrimeOrganizationId (Integer primeOrganizationId, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Assert.notNull(primeOrganizationId);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
 		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationId(new PageRequest(pageNumber, pageSize), primeOrganizationId).getContent());
@@ -252,7 +252,7 @@ public class DMDIIProjectService {
 		return dmdiiProjectRepository.countByPrimeOrganizationIdAndIsActive(dmdiiMemberId);
 	}
 
-	public Long countDmdiiProjectsByPrimeOrganizationId(Integer dmdiiMemberId) {
+	public Long countDmdiiProjectsByPrimeOrganizationId(Integer dmdiiMemberId) throws InvalidFilterParameterException {
 		Assert.notNull(dmdiiMemberId);
 		return dmdiiProjectRepository.countByPrimeOrganizationId(dmdiiMemberId);
 	}
