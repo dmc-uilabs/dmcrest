@@ -260,7 +260,12 @@ public class RecentUpdateDao {
 			int updateId = dmdiiProject.getId();
 			int parentId = updateId;
 			// TODO -- need to update this to pull in who actually creaetd the project
-			int userId = dmdiiProject.getPrincipalPointOfContact().getId();
+			int userId;
+			if (dmdiiProject.getPrincipalPointOfContact() != null) {
+				userId = dmdiiProject.getPrincipalPointOfContact().getId();
+			} else {
+				userId = 0;
+			}
 
 		try {
 			insertUpdate(updateType, updateId, parentId, description, userId, internalDescription, attributeName);

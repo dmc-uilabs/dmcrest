@@ -128,14 +128,18 @@ public class DMDIIMemberService {
 		DMDIIMember memberEntity = memberMapper.mapToEntity(memberModel);
 
 		// Projects on DMDII member entity are not mapped to/from model
-		// So if this is an existing DMDII member being updated, we need to get any existing projects and add them to the member for data integrity
+		// So if this is an existing DMDII member being updated,
+		// we need to get any existing projects and add them to the member for data integrity
 		if (memberEntity.getId() != null) {
 			DMDIIMember originalEntity = dmdiiMemberDao.findOne(memberEntity.getId());
 			memberEntity.setProjects(originalEntity.getProjects());
 		}
 
-		RecentUpdateController recentUpdateController = new RecentUpdateController();
-		recentUpdateController.addRecentUpdate(memberEntity);
+		// Only create recent updates for newly-created members
+		if (memberEntity.getId() == null) {
+			RecentUpdateController recentUpdateController = new RecentUpdateController();
+			recentUpdateController.addRecentUpdate(memberEntity);
+		}
 
 		return memberMapper.mapToModel(dmdiiMemberDao.save(memberEntity));
 	}
