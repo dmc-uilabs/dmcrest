@@ -34,6 +34,8 @@ public class DMDIIProjectModel extends BaseModel {
 
 	private Integer projectNumber;
 
+	// private String projectNumberString;
+
 	private BigDecimal costShare;
 
 	private BigDecimal dmdiiFunding;
@@ -152,6 +154,14 @@ public class DMDIIProjectModel extends BaseModel {
 	public void setProjectNumber(Integer projectNumber) {
 		this.projectNumber = projectNumber;
 	}
+
+	// public String getProjectNumberString() {
+	// 	return projectNumberString;
+	// }
+	//
+	// public void setProjectNumberString(String projectNumberString) {
+	// 	this.projectNumberString = projectNumberString;
+	// }
 
 	public String getProjectIdentifier() {
 		return rootNumber + "-" + callNumber + "-" + projectNumber;

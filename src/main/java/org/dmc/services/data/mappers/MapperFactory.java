@@ -6,6 +6,7 @@ import org.dmc.services.data.entities.BaseEntity;
 import org.dmc.services.data.models.BaseModel;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import org.dmc.services.ServiceLogger;
 
 import javax.inject.Inject;
 import java.util.logging.Level;

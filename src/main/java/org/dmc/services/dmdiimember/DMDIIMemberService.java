@@ -5,6 +5,9 @@ import com.mysema.query.jpa.JPASubQuery;
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
 import com.mysema.query.types.query.ListSubQuery;
+import com.mysema.query.types.expr.StringExpression;
+import com.mysema.query.types.path.PathBuilder;
+import com.mysema.query.types.path.StringPath;
 import org.apache.commons.lang3.BooleanUtils;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIMemberEvent;
@@ -26,7 +29,11 @@ import org.dmc.services.organization.OrganizationService;
 import org.dmc.services.recentupdates.RecentUpdateController;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.dmc.services.ServiceLogger;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -64,9 +71,20 @@ public class DMDIIMemberService {
 		return mapper.mapToModel(dmdiiMemberDao.findAll());
 	}
 
-	public List<DMDIIMemberModel> findByNameOrTags(String name, Integer pageNumber, Integer pageSize) {
+	public List<DMDIIMemberModel> findByNameOrTags(String name, Integer pageNumber, Integer pageSize, String[] tiers, String[] types, String[] activeProjects) throws InvalidFilterParameterException {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		return mapper.mapToModel(dmdiiMemberDao.findDistinctByOrganizationNameLikeIgnoreCaseOrOrganizationAreasOfExpertiseNameContainsIgnoreCaseOrOrganizationDesiredAreasOfExpertiseNameContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+name+"%", name, name).getContent());
+
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(tiers, types, activeProjects, name));
+		// if(where != null){
+		// 	ServiceLogger.log("where", where.toString());
+		// }
+		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
+				new Sort(
+						new Order(Direction.ASC, "organizationName")
+				)
+		);
+		//return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		return mapper.mapToModel(dmdiiMemberDao.findAll(where, pageRequest).getContent());
 	}
 
 	public Long countByNameOrTags(String name) {
@@ -122,14 +140,23 @@ public class DMDIIMemberService {
 		return memberMapper.mapToModel(dmdiiMemberDao.save(memberEntity));
 	}
 
-	public List<DMDIIMemberModel> filter(Map filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
+	public List<DMDIIMemberModel> filter(Integer pageNumber, Integer pageSize, String[] tiers, String[] types, String[] activeProjects) throws InvalidFilterParameterException {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
-		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
-		return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(tiers, types, activeProjects, null));
+		// if(where != null){
+		// 	ServiceLogger.log("where", where.toString());
+		// }
+		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
+				new Sort(
+						new Order(Direction.ASC, "organizationName")
+				)
+		);
+		//return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
+		return mapper.mapToModel(dmdiiMemberDao.findAll(where, pageRequest).getContent());
 	}
 
-	public Long count(Map filterParams) throws InvalidFilterParameterException {
-		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+	public Long count(String[] tiers, String[] types, String[] activeProjects, String searchTerm) throws InvalidFilterParameterException {
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(tiers, types, activeProjects, searchTerm));
 		return dmdiiMemberDao.count(where);
 	}
 
@@ -138,16 +165,38 @@ public class DMDIIMemberService {
 		return mapper.mapToModel(dmdiiMemberDao.findAll());
 	}
 
-	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
+	private Collection<Predicate> getFilterExpressions(String[] tiers, String[] types, String[] activeProjects, String searchTerm) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<Predicate>();
 
-		expressions.add(categoryIdFilter(filterParams.get("categoryId")));
-		expressions.add(tierFilter(filterParams.get("tier")));
-		expressions.add(hasActiveProjectsFilter(filterParams.get("activeProjects")));
-		expressions.addAll(tagFilter(filterParams.get("expertiseTags"), "expertiseTags"));
-		expressions.addAll(tagFilter(filterParams.get("desiredExpertiseTags"), "desiredExpertiseTags"));
+		expressions.add(tierFilter(tiers));
+		expressions.add(categoryIdFilter(types));
+		expressions.add(hasActiveProjectsFilter(activeProjects));
+		expressions.add(searchFilter(searchTerm));
+
+		//ServiceLogger.log("expressions", expressions.toString());
+
+		//expressions.addAll(tagFilter(filterParams.get("expertiseTags"), "expertiseTags"));
+		//expressions.addAll(tagFilter(filterParams.get("desiredExpertiseTags"), "desiredExpertiseTags"));
 
 		return expressions;
+	}
+
+	private Predicate searchFilter(String searchTerm){
+		if (searchTerm == null){
+			return null;
+		}
+		if (searchTerm.equals("")) {
+			return null;
+		}
+
+		// Generate list of predicates for each field
+		Collection<Predicate> expressions = new ArrayList<Predicate>();
+		expressions.add(QDMDIIMember.dMDIIMember.organization().name.containsIgnoreCase(searchTerm));
+		expressions.add(QDMDIIMember.dMDIIMember.organization().description.containsIgnoreCase(searchTerm));
+		expressions.add(QDMDIIMember.dMDIIMember.organization().industry.containsIgnoreCase(searchTerm));
+
+		// return any of for these predicates
+		return ExpressionUtils.anyOf(expressions);
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds, String tagType) throws InvalidFilterParameterException {
@@ -174,40 +223,55 @@ public class DMDIIMemberService {
 		return returnValue;
 	}
 
-	private Predicate categoryIdFilter(String categoryId) throws InvalidFilterParameterException {
-		if (categoryId == null) {
+	private Predicate categoryIdFilter(String[] categoryIds) throws InvalidFilterParameterException {
+		if (categoryIds == null) {
 			return null;
 		}
 
-		Integer categoryIdInt = null;
-		try {
-			categoryIdInt = Integer.parseInt(categoryId);
-		} catch (NumberFormatException e) {
-			throw new InvalidFilterParameterException("categoryId", Integer.class);
+		List<Integer> categoryIdInts = new ArrayList<Integer>();
+
+		for(String categoryId: categoryIds){
+			Integer categoryIdInt = null;
+			try {
+				categoryIdInt = Integer.parseInt(categoryId);
+				categoryIdInts.add(categoryIdInt);
+			} catch (NumberFormatException e) {
+				throw new InvalidFilterParameterException("categoryId", Integer.class);
+			}
 		}
 
-		return QDMDIIMember.dMDIIMember.dmdiiType().dmdiiTypeCategory().id.eq(categoryIdInt);
+		return QDMDIIMember.dMDIIMember.dmdiiType().dmdiiTypeCategory().id.in(categoryIdInts);
 	}
 
-	private Predicate tierFilter(String tier) throws InvalidFilterParameterException {
-		if (tier == null) {
+	private Predicate tierFilter(String[] tiers) throws InvalidFilterParameterException {
+		if (tiers == null) {
 			return null;
 		}
 
-		Integer tierInt = null;
-		try {
-			tierInt = Integer.parseInt(tier);
-		} catch (NumberFormatException e) {
-			throw new InvalidFilterParameterException("tier", Integer.class);
+		List<Integer> tierInts = new ArrayList<Integer>();
+
+		for(String tier: tiers){
+			Integer tierInt = null;
+			try {
+				tierInt = Integer.parseInt(tier);
+				tierInts.add(tierInt);
+			} catch (NumberFormatException e) {
+				throw new InvalidFilterParameterException("tier", Integer.class);
+			}
 		}
 
-		return QDMDIIMember.dMDIIMember.dmdiiType().tier.eq(tierInt);
+		return QDMDIIMember.dMDIIMember.dmdiiType().tier.in(tierInts);
 	}
 
-	private Predicate hasActiveProjectsFilter(String hasActiveProjects) {
-		if (hasActiveProjects == null) {
+	private Predicate hasActiveProjectsFilter(String[] hasActiveProjectsList) {
+		if (hasActiveProjectsList == null) {
 			return null;
 		}
+		if(hasActiveProjectsList.length != 1){
+			return null;
+		}
+
+		String hasActiveProjects = hasActiveProjectsList[0];
 
 		Date today = new Date();
 		QDMDIIProject qdmdiiProject = QDMDIIProject.dMDIIProject;

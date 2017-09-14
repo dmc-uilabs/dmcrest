@@ -2,6 +2,7 @@ package org.dmc.services;
 
 import com.mysema.query.types.ExpressionUtils;
 import com.mysema.query.types.Predicate;
+import com.mysema.query.types.expr.StringExpression;
 import org.dmc.services.data.entities.DMDIIMember;
 import org.dmc.services.data.entities.DMDIIProject;
 import org.dmc.services.data.entities.DMDIIProjectEvent;
@@ -62,9 +63,9 @@ public class DMDIIProjectService {
 	@Inject
 	private DMDIIDocumentService dmdiiDocumentService;
 
-	public List<DMDIIProjectModel> filter(Map<String, String> filterParams, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
+	public List<DMDIIProjectModel> filter(String[] focusIds, String[] statuses, String[] thrustIds, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(focusIds, statuses, thrustIds, null));
 		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
 				new Sort(
 						new Order(Direction.ASC, "rootNumber"),
@@ -73,71 +74,132 @@ public class DMDIIProjectService {
 				)
 		);
 
+		if(where != null){
+			ServiceLogger.log("where", where.toString());
+		}
 
 		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, pageRequest).getContent());
 	}
 
-	public Long count(Map<String, String> filterParams) throws InvalidFilterParameterException {
-		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams));
+	public List<DMDIIProjectModel> filter(String isEvent, Integer pageNumber, Integer pageSize) throws InvalidFilterParameterException {
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		Collection<Predicate> expressions = new ArrayList<Predicate>();
+		expressions.add(isEventFilter(isEvent));
+		Predicate where = ExpressionUtils.allOf(expressions);
+		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
+				new Sort(
+						new Order(Direction.ASC, "rootNumber"),
+						new Order(Direction.ASC, "callNumber"),
+						new Order(Direction.ASC, "projectNumber")
+				)
+		);
+		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, pageRequest).getContent());
+	}
+
+	public Long count(String[] focusIds, String[] statuses, String[] thrustIds, String searchTerm) throws InvalidFilterParameterException {
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(focusIds, statuses, thrustIds, searchTerm));
 		return dmdiiProjectRepository.count(where);
 	}
 
-	private Collection<Predicate> getFilterExpressions(Map<String, String> filterParams) throws InvalidFilterParameterException {
+	public Long count(String isEvent) throws InvalidFilterParameterException {
+		Collection<Predicate> expressions = new ArrayList<Predicate>();
+		expressions.add(isEventFilter(isEvent));
+		Predicate where = ExpressionUtils.allOf(expressions);
+		return dmdiiProjectRepository.count(where);
+	}
+
+	private Collection<Predicate> getFilterExpressions(String[] focusIds, String[] statuses, String[] thrustIds, String searchTerm) throws InvalidFilterParameterException {
 		Collection<Predicate> expressions = new ArrayList<Predicate>();
 
-		expressions.add(statusIdFilter(filterParams.get("statusId")));
-		expressions.add(focusIdFilter(filterParams.get("focusId")));
-		expressions.add(thrustIdFilter(filterParams.get("thrustId")));
-		expressions.add(rootNumberFilter(filterParams.get("rootNumber")));
-		expressions.add(callNumberFilter(filterParams.get("callNumber")));
-		expressions.add(isEventFilter(filterParams.get("isEvent")));
+		expressions.add(statusIdFilter(statuses));
+		expressions.add(focusIdFilter(focusIds));
+		expressions.add(thrustIdFilter(thrustIds));
+		expressions.add(searchFilter(searchTerm));
+		expressions.add(isEventFilter("false"));
+
+		// expressions.add(rootNumberFilter(filterParams.get("rootNumber")));
+		// expressions.add(callNumberFilter(filterParams.get("callNumber")));
 
 		return expressions;
 	}
 
-	private Predicate statusIdFilter(String statusId) throws InvalidFilterParameterException {
-		if (statusId == null) {
+	private Predicate searchFilter(String searchTerm){
+		if (searchTerm == null){
+			return null;
+		}
+		if (searchTerm.equals("")) {
 			return null;
 		}
 
-		Integer statusIdInt = null;
-		try {
-			statusIdInt = Integer.parseInt(statusId);
-		} catch (NumberFormatException e) {
-			throw new InvalidFilterParameterException("statusId", Integer.class);
-		}
+		// Generate list of predicates for each field
+		Collection<Predicate> expressions = new ArrayList<Predicate>();
+		expressions.add(QDMDIIProject.dMDIIProject.projectTitle.containsIgnoreCase(searchTerm));
+		expressions.add(QDMDIIProject.dMDIIProject.projectSummary.containsIgnoreCase(searchTerm));
+		expressions.add(QDMDIIProject.dMDIIProject.projectNumberString.containsIgnoreCase(parseProjectNumberSearchString(searchTerm)));
+		//expressions.add(QDMDIIProject.dMDIIProject.rootNumber.toString().containsIgnoreCase(parseProjectNumberSearchString(searchTerm)));
 
-		return QDMDIIProject.dMDIIProject.projectStatus().id.eq(statusIdInt);
+		// return any of for these predicates
+		return ExpressionUtils.anyOf(expressions);
 	}
 
-	private Predicate focusIdFilter(String focusId) throws InvalidFilterParameterException {
-		if (focusId == null) {
+	private Predicate statusIdFilter(String[] statusIds) throws InvalidFilterParameterException {
+		if (statusIds == null) {
 			return null;
 		}
 
-		Integer focusIdInt = null;
-		try {
-			focusIdInt = Integer.parseInt(focusId);
-		} catch (NumberFormatException e) {
-			throw new InvalidFilterParameterException("focusId", Integer.class);
+		List<Integer> statusInts = new ArrayList<Integer>();
+
+		for(String statusId: statusIds){
+			Integer statusInt = null;
+			try {
+				statusInt = Integer.parseInt(statusId);
+				statusInts.add(statusInt);
+			} catch (NumberFormatException e) {
+				throw new InvalidFilterParameterException("statusId", Integer.class);
+			}
 		}
 
-		return QDMDIIProject.dMDIIProject.projectFocusArea().id.eq(focusIdInt);
+		return QDMDIIProject.dMDIIProject.projectStatus().id.in(statusInts);
 	}
 
-	private Predicate thrustIdFilter(String thrustId) throws InvalidFilterParameterException {
-		if (thrustId == null) {
+	private Predicate focusIdFilter(String[] focusIds) throws InvalidFilterParameterException {
+		if (focusIds == null) {
 			return null;
 		}
 
-		Integer thrustIdInt = null;
-		try {
-			thrustIdInt = Integer.parseInt(thrustId);
-		} catch (NumberFormatException e) {
-			throw new InvalidFilterParameterException("thrustId", Integer.class);
+		List<Integer> focusInts = new ArrayList<Integer>();
+
+		for(String focusId: focusIds){
+			Integer focusInt = null;
+			try {
+				focusInt = Integer.parseInt(focusId);
+				focusInts.add(focusInt);
+			} catch (NumberFormatException e) {
+				throw new InvalidFilterParameterException("focusId", Integer.class);
+			}
 		}
 
-		return QDMDIIProject.dMDIIProject.projectThrust().id.eq(thrustIdInt);
+		return QDMDIIProject.dMDIIProject.projectFocusArea().id.in(focusInts);
+	}
+
+	private Predicate thrustIdFilter(String[] thrustIds) throws InvalidFilterParameterException {
+		if (thrustIds == null) {
+			return null;
+		}
+
+		List<Integer> thrustInts = new ArrayList<Integer>();
+
+		for(String thrustId: thrustIds){
+			Integer thrustInt = null;
+			try {
+				thrustInt = Integer.parseInt(thrustId);
+				thrustInts.add(thrustInt);
+			} catch (NumberFormatException e) {
+				throw new InvalidFilterParameterException("thrustId", Integer.class);
+			}
+		}
+
+		return QDMDIIProject.dMDIIProject.projectThrust().id.in(thrustInts);
 	}
 
 	private Predicate rootNumberFilter(String rootNumber) throws InvalidFilterParameterException {
@@ -184,11 +246,6 @@ public class DMDIIProjectService {
 		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationId(new PageRequest(pageNumber, pageSize), primeOrganizationId).getContent());
 	}
 
-	public List<DMDIIProjectModel> findDMDIIProjectsByPrimeOrganizationIdAndIsActive(Integer dmdiiMemberId, Integer pageNumber, Integer pageSize) {
-		Assert.notNull(dmdiiMemberId);
-		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationIdAndIsActive(new PageRequest(pageNumber, pageSize), dmdiiMemberId).getContent());
-	}
 
 	public Long countDMDIIProjectsByPrimeOrganizationIdAndIsActive(Integer dmdiiMemberId) {
 		Assert.notNull(dmdiiMemberId);
@@ -222,10 +279,26 @@ public class DMDIIProjectService {
 		return dmdiiProjectRepository.countByProjectTitleLikeIgnoreCase("%"+title+"%");
 	}
 
-	public List<DMDIIProjectModel> findByTitleOrProjectNumber(String searchTerm, Integer pageNumber, Integer pageSize) {
-		Assert.notNull(searchTerm);
+	public List<DMDIIProjectModel> findByTitleOrProjectNumber(String searchTerm, Integer pageNumber, Integer pageSize, String[] focusIds, String[] statuses, String[] thrustIds) throws InvalidFilterParameterException {
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
-		return mapper.mapToModel(dmdiiProjectRepository.findByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+parseProjectNumberSearchString(searchTerm)+"%").getContent());
+		Predicate where = ExpressionUtils.allOf(getFilterExpressions(focusIds, statuses, thrustIds, searchTerm));
+		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
+				new Sort(
+						new Order(Direction.ASC, "rootNumber"),
+						new Order(Direction.ASC, "callNumber"),
+						new Order(Direction.ASC, "projectNumber")
+				)
+		);
+
+		if(where != null){
+			ServiceLogger.log("where", where.toString());
+		}
+
+		return mapper.mapToModel(dmdiiProjectRepository.findAll(where, pageRequest).getContent());
+
+		// Assert.notNull(searchTerm);
+		// Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		// return mapper.mapToModel(dmdiiProjectRepository.findByProjectTitleLikeIgnoreCaseOrProjectNumberContainsIgnoreCase(new PageRequest(pageNumber, pageSize), "%"+parseProjectNumberSearchString(searchTerm)+"%").getContent());
 	}
 
 	public Long countByTitleOrProjectNumber(String searchTerm) {
@@ -339,9 +412,16 @@ public class DMDIIProjectService {
 		return mapper.mapToModel(dmdiiProjectRepository.findByContributingCompanyId(dmdiiMemberId));
 	}
 
+	public List<DMDIIProjectModel> findDMDIIProjectsByPrimeOrganizationIdAndIsActive(Integer dmdiiMemberId, Integer pageNumber, Integer pageSize) {
+		Assert.notNull(dmdiiMemberId);
+		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		return mapper.mapToModel(dmdiiProjectRepository.findByPrimeOrganizationIdAndIsActive(new PageRequest(pageNumber, pageSize), dmdiiMemberId).getContent());
+	}
+
 	public List<DMDIIProjectModel> findActiveDMDIIProjectsByContributingCompany(Integer dmdiiMemberId) {
 		Assert.notNull(dmdiiMemberId);
 		Mapper<DMDIIProject, DMDIIProjectModel> mapper = mapperFactory.mapperFor(DMDIIProject.class, DMDIIProjectModel.class);
+		dmdiiProjectRepository.findActiveByContributingCompanyId(dmdiiMemberId);
 		return mapper.mapToModel(dmdiiProjectRepository.findActiveByContributingCompanyId(dmdiiMemberId));
 	}
 

@@ -15,6 +15,7 @@ import org.dmc.services.data.entities.DMDIIProjectFocusArea;
 import org.dmc.services.data.entities.DMDIIProjectStatus;
 import org.dmc.services.data.entities.DMDIIProjectThrust;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.ServiceLogger;
 
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIPrimeOrganizationModel;
@@ -95,7 +96,6 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 	@Override
 	public DMDIIProjectModel mapToModel(DMDIIProject entity) {
 		if (entity == null) return null;
-
 
 		DMDIIProjectModel model = copyProperties(entity, new DMDIIProjectModel());
 

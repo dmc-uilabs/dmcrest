@@ -39,12 +39,15 @@ public interface DMDIIProjectRepository extends BaseRepository<DMDIIProject, Int
 			"CURRENT_TIMESTAMP() BETWEEN p.awardedDate AND p.endDate")
 	Long countByPrimeOrganizationIdAndIsActive(@Param("dmdiiMemberId") Integer dmdiiMemberId);
 
-	@Query(value = "SELECT * FROM dmdii_project dp JOIN dmdii_project_contributing_company cc on " +
-			"cc.dmdii_project_id=dp.id WHERE cc.contributing_company_id = :dmdiiMemberId", nativeQuery = true)
+	// @Query(value = "SELECT * FROM dmdii_project dp JOIN dmdii_project_contributing_company cc on " +
+	// 		"cc.dmdii_project_id=dp.id WHERE cc.contributing_company_id = :dmdiiMemberId", nativeQuery = true)
+	@Query(value = "SELECT dp FROM DMDIIProject dp WHERE EXISTS (select cc FROM dp.contributingCompanies cc WHERE cc.id = :dmdiiMemberId)")
 	List<DMDIIProject> findByContributingCompanyId(@Param("dmdiiMemberId") Integer dmdiiMemberId);
 
-	@Query(value = "SELECT * FROM dmdii_project dp JOIN dmdii_project_contributing_company cc on " +
-			"cc.dmdii_project_id=dp.id WHERE cc.contributing_company_id = :dmdiiMemberId AND "
-			+ "current_timestamp BETWEEN dp.awarded_date AND dp.end_date", nativeQuery = true)
+	// @Query(value = "SELECT * FROM dmdii_project dp JOIN dmdii_project_contributing_company cc on " +
+	// 		"cc.dmdii_project_id=dp.id WHERE cc.contributing_company_id = :dmdiiMemberId AND "
+	// 		+ "current_timestamp BETWEEN dp.awarded_date AND dp.end_date", nativeQuery = true)
+	@Query(value = "SELECT dp FROM DMDIIProject dp WHERE EXISTS (select cc FROM dp.contributingCompanies cc WHERE cc.id = :dmdiiMemberId) AND "
+			+ "CURRENT_TIMESTAMP() BETWEEN dp.awardedDate AND dp.endDate")
 	List<DMDIIProject> findActiveByContributingCompanyId(@Param("dmdiiMemberId") Integer dmdiiMemberId);
 }

@@ -67,7 +67,7 @@ public class DMDIIMember extends BaseEntity {
 	}
 
 	public Organization getOrganization() {
-		return organization;
+		return this.organization;
 	}
 
 	public void setOrganization(Organization organization) {
