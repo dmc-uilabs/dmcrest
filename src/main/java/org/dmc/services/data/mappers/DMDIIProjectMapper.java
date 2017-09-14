@@ -65,7 +65,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		entity.setContributingCompanies(memberMapper.mapToEntity(contributingCompanyModels));
 
 		if (!model.getIsEvent()) {
-			if (model.getPrimeOrganization().getId() != null) {
+			if (model.getPrimeOrganization() != null && model.getPrimeOrganization().getId() != null) {
 				entity.setPrimeOrganization(memberMapper.mapToEntity(dmdiiMemberService.findOne(model.getPrimeOrganization().getId())));
 			}
 			entity.setPrincipalInvestigator(contactMapper.mapToEntity(model.getPrincipalInvestigator()));
