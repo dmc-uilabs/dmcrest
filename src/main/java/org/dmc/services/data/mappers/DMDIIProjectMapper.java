@@ -62,6 +62,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		.map(e -> dmdiiMemberService.findOne(e))
 		.collect(Collectors.toList());
 
+
 		entity.setContributingCompanies(memberMapper.mapToEntity(contributingCompanyModels));
 
 		if (!model.getIsEvent()) {
@@ -74,9 +75,9 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 			entity.setProjectThrust(thrustMapper.mapToEntity(model.getProjectThrust()));
 		}
 
-
-		entity.setPrincipalPointOfContact(userMapper.mapToEntity(model.getPrincipalPointOfContact()));
-
+		if (model.getPrincipalPointOfContact() != null) {
+			entity.setPrincipalPointOfContact(userMapper.mapToEntity(model.getPrincipalPointOfContact()));
+		}
 
 		try{
 			if (model.getAwardedDate() != null) {
@@ -88,7 +89,6 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		} catch (Exception e){
 			throw new DMCServiceException(DMCError.ParseError, e.getMessage());
 		}
-
 
 		return entity;
 	}
@@ -110,6 +110,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
+
 		List<Integer> contributingCompanyIds = entity.getContributingCompanies()
 		.stream()
 		.map(e -> e.getId())
@@ -127,7 +128,9 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 			model.setProjectThrust(thrustMapper.mapToModel(entity.getProjectThrust()));
 		}
 
-		model.setPrincipalPointOfContact(userMapper.mapToModel(entity.getPrincipalPointOfContact()));
+		if (entity.getPrincipalPointOfContact() != null) {
+			model.setPrincipalPointOfContact(userMapper.mapToModel(entity.getPrincipalPointOfContact()));
+		}
 
 		if(entity.getAwardedDate() != null){
 			model.setAwardedDate(format.format(entity.getAwardedDate()));

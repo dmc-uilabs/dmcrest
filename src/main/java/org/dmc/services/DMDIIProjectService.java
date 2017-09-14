@@ -360,7 +360,6 @@ public class DMDIIProjectService {
 			RecentUpdateController recentUpdateController = new RecentUpdateController();
 			recentUpdateController.addRecentUpdate(projectEntity);
 		}
-
 		return projectMapper.mapToModel(projectEntity);
 	}
 
