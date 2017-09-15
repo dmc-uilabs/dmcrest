@@ -106,7 +106,7 @@ public class UserRoleAssignmentService {
 		
 		return userRoleAssignmentMapper.mapToModel(userRoleAssignmentRepository.save(newAssignment));
 	}
-
+	
 	public UserRoleAssignment assignInitialCompanyAdmin(User user, Organization organization) {
 		Role role = roleRepository.findByRole(SecurityRoles.ADMIN);
 		UserRoleAssignment userRoleAssignmentEntity = new UserRoleAssignment(user, organization, role);

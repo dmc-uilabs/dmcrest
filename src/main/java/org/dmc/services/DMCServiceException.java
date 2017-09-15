@@ -34,9 +34,11 @@ public class DMCServiceException extends RuntimeException {
             break;
         case UnauthorizedAccessAttempt:
         case InvalidAccountId:
+        case OrganizationNotPaid:
             status = HttpStatus.UNAUTHORIZED;
             break;
         case AWSError:
+        case PaymentError:
         case UnexpectedDOMEError:
         case UnexpectedDOMEConnectionError:
             status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -61,6 +63,7 @@ public class DMCServiceException extends RuntimeException {
         case IncorrectType:
         case InvalidCommentId:
         case InvalidDiscussionId:
+        case InvalidArgument:
             status = HttpStatus.BAD_REQUEST;
             break;
         case CannotConnectToDome:

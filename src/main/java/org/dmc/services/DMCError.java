@@ -9,16 +9,22 @@ public enum DMCError {
 
 	// Generic
 	Generic,
+	NotFound,
 
 	// SQL
 	OtherSQLError,
-
+	InvalidArgument,
+	
 	// Company
 	NotAdminUser,
 	UserNoCompany,
 	NotDMDIIMember,
 	CanNotInsertChangeLog,
 	CompanySkillSetNotExist,
+	OrganizationNotPaid,
+	
+	//Stripe
+	PaymentError,
 
 	//AWS
 	AWSError,

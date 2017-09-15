@@ -9,6 +9,9 @@ import java.util.List;
 
 import java.util.Objects;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-05-03T15:13:20.207Z")
 
 public class Service  {

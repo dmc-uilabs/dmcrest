@@ -1,10 +1,13 @@
 package org.dmc.services.utility;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.jayway.restassured.response.ValidatableResponse;
 
 import org.dmc.services.member.FollowingMember;
+import org.dmc.services.security.UserPrincipal;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,6 +19,13 @@ import java.text.SimpleDateFormat;
 import static com.jayway.restassured.RestAssured.*;
 
 public class TestUserUtil {
+	
+	public static void setupSecurityContext(Integer id, String username) {
+		UserPrincipal user = new UserPrincipal(id, username);
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, "test");
+		SecurityContextHolder.getContext().setAuthentication(token);
+	}
+	
     public static String generateTime() {
         Date date = new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
