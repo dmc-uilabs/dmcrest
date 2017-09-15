@@ -49,6 +49,14 @@ public class OrganizationUserService {
 		Mapper<OrganizationUser, OrganizationUserModel> mapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
 		return mapper.mapToModel(organizationUserRepository.findByUserId(userId));
 	}
+	
+	public OrganizationUser getOrgUserEntityByUserId(Integer userId) {
+		return organizationUserRepository.findByUserId(userId);
+	}
+	
+	public OrganizationUser saveOrganizationUser(OrganizationUser orgUser) {
+		return organizationUserRepository.save(orgUser);
+	}
 
 	public OrganizationUserModel getByUserId (Integer userId) {
 		Mapper<OrganizationUser, OrganizationUserModel> mapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
@@ -67,6 +75,13 @@ public class OrganizationUserService {
 
 	public Integer getNumberOfVerifiedUsers(Integer organizationId) {
 		return organizationUserRepository.findNumberOfVerifiedUsersByOrganizationId(organizationId);
+	}
+	
+	public OrganizationUserModel verifyUnverifyExistingUser(Integer userId, Boolean verified) {
+		Mapper<OrganizationUser, OrganizationUserModel> mapper = mapperFactory.mapperFor(OrganizationUser.class, OrganizationUserModel.class);
+		OrganizationUser orgUser = getOrgUserEntityByUserId(userId);
+		orgUser.setIsVerified(verified);
+		return mapper.mapToModel(saveOrganizationUser(orgUser));
 	}
 
 	@Transactional

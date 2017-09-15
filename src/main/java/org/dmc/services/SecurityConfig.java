@@ -2,7 +2,10 @@ package org.dmc.services;
 
 import org.dmc.services.security.DMCRequestHeaderAuthenticationFilter;
 import org.dmc.services.security.UserPrincipalService;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -59,7 +62,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"/swagger-resources",
 				"/v2/api-docs");
 	}
-
+	
+	//Uncomment to show SQL in console
+//	@Bean
+//	public JpaVendorAdapter jpaVendorAdapter() {
+//		HibernateJpaVendorAdapter jpaVA = new HibernateJpaVendorAdapter();
+//		jpaVA.setGenerateDdl(true);
+//		jpaVA.setShowSql(true);
+//		
+//		return jpaVA;
+//	}
+	
 	private DMCRequestHeaderAuthenticationFilter dmcRequestHeaderAuthenticationFilter() throws Exception {
 		DMCRequestHeaderAuthenticationFilter authFilter = new DMCRequestHeaderAuthenticationFilter();
 		authFilter.setCheckForPrincipalChanges(true);
