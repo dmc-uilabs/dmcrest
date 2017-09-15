@@ -49,6 +49,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -113,6 +114,11 @@ public class UserService {
 
 	@Inject
 	private EmailService emailService;
+	
+	public User getCurrentUser() {
+		return userRepository.findOne(
+				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+	}
 	
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);

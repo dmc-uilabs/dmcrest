@@ -62,9 +62,6 @@ public class PaymentService {
 	private ServiceUsePermitRepository serviceUsePermitRepo;
 
 	@Inject
-	private UserRepository userRepository;
-	
-	@Inject
 	private UserService userService;
 
 	@Inject
@@ -72,9 +69,6 @@ public class PaymentService {
 
 	@Inject
 	private PaymentReceiptService receiptService;
-
-	@Inject
-	private PaymentReceiptRepository receiptRepo;
 
 	@Inject
 	private OrganizationRepository orgRepo;
@@ -87,7 +81,7 @@ public class PaymentService {
 
 	@Inject
 	private ServiceUsePermitService supService;
-
+	
 	@Value("${STRIPE_SKEY:empty}")
 	private String stripeSKey;
 
@@ -132,10 +126,13 @@ public class PaymentService {
 		} else if (orgModel.getIsPaid()) {
 			ps.setReason("Organization already paid!");
 		} else {
-			
-		userService.canCreateOrg(getCurrentUser().getId());
 		
-		checkPaymentAttempts();
+		User user = userService.getCurrentUser();
+		userService.canCreateOrg(user.getId());
+		
+		if(receiptService.getPaymentFailureCount(user) > MAX_ATTEMPTS) {
+			throw new TooManyAttemptsException();
+		}
 		
 		if(orgModel.getId() == null) {
 			Integer existingOrgId = orgService.findByUser().getId();
@@ -152,15 +149,15 @@ public class PaymentService {
 						"Registration charge for " + orgModel.getName() + " with id: " + orgModel.getId());
 			} catch (StripeException e) {
 				orgService.delete(orgModel.getId());
-				orgUserService.verifyUnverifyExistingUser(getCurrentUser().getId(), false);
-				receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), orgModel.getId(),
+				orgUserService.verifyUnverifyExistingUser(user.getId(), false);
+				receiptService.savePaymentReceipt(user.getId(), getCurrentOrg(user), orgModel.getId(),
 						PaymentParentType.ORGANIZATION, FAILED, T_3_PRICE, null, e.getMessage(), null);
 				throw e;
 			}
 			orgService.updatePaymentStatus(orgModel, charge.getPaid());
 			ps.setStatus(SUCCESS);
 			ps.setReason("Payment successfully completed!");
-			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), orgModel.getId(),
+			receiptService.savePaymentReceipt(user.getId(), getCurrentOrg(user), orgModel.getId(),
 					PaymentParentType.ORGANIZATION, charge.getStatus(), T_3_PRICE, charge.getId(),
 					charge.getDescription(), null);
 		}
@@ -170,6 +167,8 @@ public class PaymentService {
 	public ServiceUsePermitModel processInternalPayment(Integer planId, Integer quantity) throws ArgumentNotFoundException {
 		ServiceUsePermit sup = new ServiceUsePermit();
 		PaymentPlan plan = new PaymentPlan();
+		
+		User user = userService.getCurrentUser();
 
 		if (planId == null) {
 			throw new DMCServiceException(DMCError.InvalidArgument, "Plan must not be null!");
@@ -179,7 +178,7 @@ public class PaymentService {
 				throw new ArgumentNotFoundException("Could not find payment plan with given ID " + planId);
 			}
 			sup = serviceUsePermitRepo.save(processPermitFromPlan(plan, quantity));
-			Organization org = getCurrentOrg();
+			Organization org = getCurrentOrg(userService.getCurrentUser());
 			int totalPrice = plan.getPrice() * quantity;
 			Integer newBalance = org.getAccountBalance() - (totalPrice);
 			if (newBalance > 0) {
@@ -196,11 +195,11 @@ public class PaymentService {
 				if (sup != null) {
 					serviceUsePermitRepo.delete(sup);
 				}
-				receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), plan.getServiceId(),
+				receiptService.savePaymentReceipt(user.getId(), getCurrentOrg(user), plan.getServiceId(),
 						PaymentParentType.SERVICE, FAILED, totalPrice, null, e.getMessage(), plan);
 				throw e;
 			}
-			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), plan.getServiceId(),
+			receiptService.savePaymentReceipt(user.getId(), getCurrentOrg(user), plan.getServiceId(),
 					PaymentParentType.SERVICE, SUCCESS, totalPrice, null,
 					"INTERNAL charge for service with id: " + plan.getServiceId(), plan);
 		}
@@ -209,24 +208,28 @@ public class PaymentService {
 
 	public PaymentStatus addFundsToAccount(String token, int amount) throws StripeException, TooManyAttemptsException {
 		
+		User user = userService.getCurrentUser();
+		
 		if(amount < MINIMUM_FUND_ADD) {
 			throw new DMCServiceException(DMCError.InvalidArgument, "Minimum amount of $20.00 required!");
 		}
 
-		checkPaymentAttempts();
+		if(receiptService.getPaymentFailureCount(user) > MAX_ATTEMPTS) {
+			throw new TooManyAttemptsException();
+		}
 		checkValidOrg();
 
-		Organization org = getCurrentUser().getOrganizationUser().getOrganization();
+		Organization org = user.getOrganizationUser().getOrganization();
 		org.setAccountBalance(org.getAccountBalance() + amount);
 		orgRepo.save(org);
 		try {
 			Charge charge = createCharge(token, amount, "Adding funds to organization account: " + org.getId());
-			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), org.getId(),
+			receiptService.savePaymentReceipt(user.getId(), getCurrentOrg(user), org.getId(),
 					PaymentParentType.ACCOUNT, SUCCESS, amount, charge.getId(), charge.getDescription(), null);
 		} catch (StripeException e) {
 			org.setAccountBalance(org.getAccountBalance() - amount);
 			orgRepo.save(org);
-			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), org.getId(),
+			receiptService.savePaymentReceipt(user.getId(), getCurrentOrg(user), org.getId(),
 					PaymentParentType.ACCOUNT, FAILED, amount, null, e.getMessage(), null);
 			throw e;
 		}
@@ -244,8 +247,12 @@ public class PaymentService {
 
 	public PaymentStatus processStripeServicePayment(String token, Integer planId)
 			throws StripeException, TooManyAttemptsException {
+		
+		User user = userService.getCurrentUser();
 
-		checkPaymentAttempts();
+		if(receiptService.getPaymentFailureCount(user) > MAX_ATTEMPTS) {
+			throw new TooManyAttemptsException();
+		}
 		checkValidOrg();
 
 		PaymentStatus ps = new PaymentStatus();
@@ -268,47 +275,39 @@ public class PaymentService {
 				if (sup != null) {
 					serviceUsePermitRepo.delete(sup);
 				}
-				receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), plan.getServiceId(),
+				receiptService.savePaymentReceipt(user.getId(), getCurrentOrg(user), plan.getServiceId(),
 						PaymentParentType.SERVICE, FAILED, plan.getPrice(), null, e.getMessage(), plan);
 				throw e;
 			}
 			ps.setStatus(SUCCESS);
 			ps.setReason("Service payment successfully completed!");
-			receiptService.savePaymentReceipt(getCurrentUser().getId(), getCurrentOrg(), charge, plan,
+			receiptService.savePaymentReceipt(user.getId(), getCurrentOrg(user), charge, plan,
 					PaymentParentType.SERVICE);
 		}
 		return ps;
 	}
 
 	/* Utility methods BEGIN */
-	private void checkPaymentAttempts() throws TooManyAttemptsException {
-
-		Date startDate = DateUtils.addDays(new Date(), -1);
-		Date endDate = DateUtils.addDays(new Date(), 1);
-		if (receiptRepo.countByUserIdAndStatusAndDateBetween(getCurrentUser().getId(), FAILED, startDate,
-				endDate) > MAX_ATTEMPTS) {
-			throw new TooManyAttemptsException();
-		}
-	}
-
 	private void checkValidOrg() {
-		if (!getCurrentOrg().getIsPaid()) {
+		User user = userService.getCurrentUser();
+		if (!getCurrentOrg(user).getIsPaid()) {
 			throw new DMCServiceException(DMCError.OrganizationNotPaid,
-					"Unauthorized. Organization with id: " + getCurrentOrg().getId() + " not paid!");
+					"Unauthorized. Organization with id: " + getCurrentOrg(user).getId() + " not paid!");
 		}
 	}
 
 	private ServiceUsePermit processPermitFromPlan(PaymentPlan plan, Integer quantity) {
+		User user = userService.getCurrentUser();
 
 		//Get existing permit if available
-		ServiceUsePermit sup = supService.getServiceUsePermitByOrganizationIdAndServiceId(getCurrentOrg().getId(),
+		ServiceUsePermit sup = supService.getServiceUsePermitByOrganizationIdAndServiceId(getCurrentOrg(user).getId(),
 				plan.getServiceId());
 		
 		//Create new permit
 		if (sup == null) {
 			sup = new ServiceUsePermit();
-			sup.setOrganizationId(getCurrentOrg().getId());
-			sup.setUserId(getCurrentUser().getId());
+			sup.setOrganizationId(getCurrentOrg(user).getId());
+			sup.setUserId(user.getId());
 			sup.setServiceId(plan.getServiceId());
 		} else if(sup.getUses() == -1) {
 				throw new DMCServiceException(DMCError.PaymentError, "Organization already possesses unlimited uses of service!");
@@ -340,13 +339,8 @@ public class PaymentService {
 		return cal.getTime();
 	}
 
-	private User getCurrentUser() {
-		return userRepository.findOne(
-				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
-	}
-
-	private Organization getCurrentOrg() {
-		OrganizationUser orgUser = getCurrentUser().getOrganizationUser();
+	private Organization getCurrentOrg(User user) {
+		OrganizationUser orgUser = user.getOrganizationUser();
 		if(orgUser != null) {
 			return orgUser.getOrganization();
 		} else {

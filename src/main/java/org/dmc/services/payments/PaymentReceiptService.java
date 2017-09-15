@@ -1,17 +1,21 @@
 package org.dmc.services.payments;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.dmc.services.data.entities.Organization;
 import org.dmc.services.data.entities.PaymentParentType;
 import org.dmc.services.data.entities.PaymentPlan;
 import org.dmc.services.data.entities.PaymentReceipt;
+import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.PaymentReceiptModel;
 import org.dmc.services.data.repositories.PaymentReceiptRepository;
+import org.dmc.services.exceptions.TooManyAttemptsException;
 import org.springframework.stereotype.Service;
 
 import com.stripe.model.Charge;
@@ -54,6 +58,13 @@ public class PaymentReceiptService {
 	
 	private Mapper<PaymentReceipt, PaymentReceiptModel> getReceiptMapper() {
 		return mapperFactory.mapperFor(PaymentReceipt.class, PaymentReceiptModel.class);
+	}
+
+	public Integer getPaymentFailureCount(User user) {
+		Date startDate = DateUtils.addDays(new Date(), -1);
+		Date endDate = DateUtils.addDays(new Date(), 1);
+		
+		return receiptRepository.countByUserIdAndStatusAndDateBetween(user.getId(), FAILED, startDate, endDate);
 	}
 	
 }
