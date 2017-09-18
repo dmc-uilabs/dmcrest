@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
+import org.dmc.services.exceptions.InvalidFilterParameterException;
 
 @RestController
 public class PaymentsController {
 
 	@Autowired
 	private PaymentsService paymentsService;
-	
+
 	@Autowired
 	private OrganizationService organizationService;
 
@@ -30,7 +31,7 @@ public class PaymentsController {
 		OrganizationModel orgModel = organizationService.save(orgCreation.getOrganizationModel());
 		Charge charge = new Charge();
 		charge.setStatus("failed");
-		
+
 		if (orgModel != null) {
 			String token = orgCreation.getStripeToken();
 			try {
@@ -42,10 +43,14 @@ public class PaymentsController {
 				}
 				return new ResponseEntity<PaymentsStatus>(new PaymentsStatus(charge.getStatus(), "Payment Successful!"), HttpStatus.OK);
 			} catch (StripeException e) {
-				organizationService.delete(orgModel.getId());
+				try {
+					organizationService.delete(orgModel.getId());
+				} catch (InvalidFilterParameterException fpe) {
+					return new ResponseEntity<PaymentsStatus>(new PaymentsStatus(charge.getStatus(), "Payment unsuccessful, org could not be deleted"), HttpStatus.OK);
+				}
 				return new ResponseEntity<PaymentsStatus>(new PaymentsStatus(charge.getStatus(), e.getMessage()), HttpStatus.OK);
 			}
-		
+
 		} else {
 			return new ResponseEntity<PaymentsStatus>(new PaymentsStatus(charge.getStatus(), "Org creation failed!"), HttpStatus.OK);
 		}
