@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -54,6 +55,9 @@ public class DMDIIMember extends BaseEntity {
 	@OneToMany(mappedBy="primeOrganization", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 	@Where(clause = "is_deleted = 'FALSE'")
 	private Set<DMDIIProject> projects;
+
+	@ManyToMany(mappedBy="contributingCompanies", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	private Set<DMDIIProject> contributingProjects;
 
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;

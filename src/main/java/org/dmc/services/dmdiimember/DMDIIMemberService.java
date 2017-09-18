@@ -280,10 +280,15 @@ public class DMDIIMemberService {
 		Date today = new Date();
 		QDMDIIProject qdmdiiProject = QDMDIIProject.dMDIIProject;
 		ListSubQuery subQuery = new JPASubQuery().from(qdmdiiProject).where(qdmdiiProject.awardedDate.before(today), qdmdiiProject.endDate.after(today)).list(qdmdiiProject.id);
+		Collection<Predicate> expressions = new ArrayList<Predicate>();
 		if (BooleanUtils.toBoolean(hasActiveProjects)) {
-			return QDMDIIMember.dMDIIMember.projects.any().in(subQuery);
+			expressions.add(QDMDIIMember.dMDIIMember.projects.any().in(subQuery));
+			expressions.add(QDMDIIMember.dMDIIMember.contributingProjects.any().in(subQuery));
+			return ExpressionUtils.anyOf(expressions);
 		} else {
-			return new BooleanBuilder().and(QDMDIIMember.dMDIIMember.projects.any().in(subQuery)).not().getValue();
+			expressions.add(QDMDIIMember.dMDIIMember.projects.any().in(subQuery));
+			expressions.add(QDMDIIMember.dMDIIMember.contributingProjects.any().in(subQuery));
+			return new BooleanBuilder().and(ExpressionUtils.anyOf(expressions)).not().getValue();
 		}
 	}
 
