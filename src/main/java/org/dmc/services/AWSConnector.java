@@ -2,25 +2,16 @@ package org.dmc.services;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 
-import org.apache.commons.lang3.time.DateUtils;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -58,6 +49,7 @@ public class AWSConnector {
 
         final String sourceKey = createSourceKey(tempURL);
         final String destKey = createDestKey(tempURL, Folder, userEPPN, ResourceType);
+        final Timestamp expiration = Timestamp.valueOf(LocalDateTime.now().plusHours(1));
 
         try {
             // Copying object, AWS takes care of all implementation of this.
@@ -71,7 +63,7 @@ public class AWSConnector {
             ServiceLogger.log(LOGTAG, "Copying object to s3 bucket.");
             s3client.copyObject(copyObjRequest);
             ServiceLogger.log(LOGTAG, "Generating pre-signed URL.");
-            final String preSignedURL = refreshURL(destKey);
+            final String preSignedURL = refreshURL(destKey, expiration);
             return preSignedURL;
 
         } catch (AmazonServiceException ase) {
@@ -118,16 +110,16 @@ public class AWSConnector {
         return ResourcePath;
 
     }// Remove
-    
+
     public static S3Object getS3Document(String bucket, String keyName) {
     	AmazonS3 s3Client = getAmazonS3Client();
     	return s3Client.getObject(new GetObjectRequest(bucket, keyName));
     }
-    
+
     public static S3Object getS3Document(String documentUrl) {
 		return getS3Document(returnBucketFromURL(documentUrl), returnKeyNameFromURL(documentUrl));
 	}
-    
+
     // Gets Amazon key name from S3 URL
     public static String returnKeyNameFromURL(String URL) throws DMCServiceException {
         // Parse URL to get Path
@@ -160,10 +152,10 @@ public class AWSConnector {
                     "Extracting bucket from " + URL + "encountered internal error");
         }
     }
-    
-    public static String refreshURL(String path) throws DMCServiceException {
+
+    public static String refreshURL(String path, Timestamp expiration) throws DMCServiceException {
         ServiceLogger.log(LOGTAG, "Refreshing pre-signed URL.");
-        return generatePresignedUrl(path, DateUtils.addMonths(new Date(), 1));
+        return generatePresignedUrl(path, expiration);
     }
 
     public static String generatePresignedUrl(String key, Date expiration){

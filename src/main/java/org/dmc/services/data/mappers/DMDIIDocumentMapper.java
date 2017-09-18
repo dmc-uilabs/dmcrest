@@ -93,15 +93,28 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 
 	@Override
 	public DMDIIDocumentModel mapToModel(DMDIIDocument entity) {
+
 		Boolean isAuthorized = false;
 		if (entity == null) return null;
 
 		if (entity.getDmdiiProject() != null && entity.getAccessLevel() != null) {
 			List<DMDIIMember> projectMembers = new ArrayList<DMDIIMember>();
-			projectMembers.add(entity.getDmdiiProject().getPrimeOrganization());
-			projectMembers.addAll(entity.getDmdiiProject().getContributingCompanies());
+			if (entity.getDmdiiProject().getPrimeOrganization() != null) {
+				projectMembers.add(entity.getDmdiiProject().getPrimeOrganization());
+			}
 
-			List<Integer> projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
+
+			// events may have no contributingcompanies
+			if (entity.getDmdiiProject().getContributingCompanies() != null) {
+				projectMembers.addAll(entity.getDmdiiProject().getContributingCompanies());
+			}
+
+
+			List<Integer> projectMemberIds = new ArrayList<Integer>();
+
+			if (projectMembers.size() != 0) {
+				projectMemberIds = projectMembers.stream().map((n) -> n.getOrganization().getId()).collect(Collectors.toList());
+			}
 
 			Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 			User currentUser = userRepository.findOne(
@@ -123,6 +136,7 @@ public class DMDIIDocumentMapper extends AbstractMapper<DMDIIDocument, DMDIIDocu
 		if (entity.getAccessLevel() != null) {
 			model.setAccessLevel(entity.getAccessLevel().toString());
 		}
+
 
 		return model;
 	}

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -46,9 +47,11 @@ public class DMDIIMemberController {
 	private DMDIIMemberNewsService dmdiiMemberNewsService;
 
 	@RequestMapping(value = "/dmdiiMember", params = {"page", "pageSize"}, method = RequestMethod.GET)
-	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
-		List<? extends BaseModel> results = dmdiiMemberService.filter(params, page, pageSize);
-		Long count = dmdiiMemberService.count(params);
+	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam(value="tier", required=false) String[] tiers, @RequestParam(value="type", required=false) String[] types, @RequestParam(value="activeProjects", required=false) String[] activeProjects) throws InvalidFilterParameterException {
+		List<? extends BaseModel> results = dmdiiMemberService.filter(page, pageSize, tiers, types, activeProjects);
+
+		Long count = dmdiiMemberService.count(tiers, types, activeProjects, null);
+
 		return new PagedResponse(count, results);
 	}
 
@@ -92,10 +95,17 @@ public class DMDIIMemberController {
 	@RequestMapping(value = "/dmdiiMember/search", method = RequestMethod.GET,params = {"page", "pageSize", "name"})
 	public PagedResponse findMembersByName(@RequestParam("page") Integer page,
 																@RequestParam("pageSize") Integer pageSize,
-																@RequestParam("name") String name) {
-		ServiceLogger.log(logTag, "In findMembersByName: " + name + " as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-		List<? extends BaseModel> results = dmdiiMemberService.findByNameOrTags(name, page, pageSize);
-		Long count = dmdiiMemberService.countByNameOrTags(name);
+																@RequestParam("name") String name,
+																@RequestParam(value="tier", required=false) String[] tiers,
+																@RequestParam(value="type", required=false) String[] types,
+																@RequestParam(value="activeProjects", required=false) String[] activeProjects) throws InvalidFilterParameterException {
+		if(!"".equals(name)){
+			ServiceLogger.log(logTag, "In findMembersByName: " + name + " as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+		}
+		List<? extends BaseModel> results = dmdiiMemberService.findByNameOrTags(name, page, pageSize, tiers, types, activeProjects);
+
+		Long count = dmdiiMemberService.count(tiers, types, activeProjects, name);
+
 		return new PagedResponse(count, results);
 	}
 

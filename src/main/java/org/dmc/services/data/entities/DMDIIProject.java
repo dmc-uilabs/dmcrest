@@ -18,9 +18,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.hibernate.annotations.Formula;
 
 
 @Entity
@@ -34,7 +36,7 @@ public class DMDIIProject extends BaseEntity {
 	private Integer id;
 
 	@ManyToOne
-	@JoinColumn(name = "organization_dmdii_member_id", nullable = false)
+	@JoinColumn(name = "organization_dmdii_member_id")
 	private DMDIIMember primeOrganization;
 
 	@OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
@@ -87,6 +89,9 @@ public class DMDIIProject extends BaseEntity {
 	@Column(name = "project_number")
 	private Integer projectNumber;
 
+	@Formula("concat(project_root_number, '-', project_call_number, '-', project_number)")
+	private String projectNumberString;
+
 	@Column(name = "cost_share")
 	private BigDecimal costShare;
 
@@ -95,6 +100,9 @@ public class DMDIIProject extends BaseEntity {
 
 	@Column(name = "is_deleted")
 	private Boolean isDeleted = false;
+
+	@Column(name = "is_event")
+	private Boolean isEvent = false;
 
 	public DMDIIProject () {
 
@@ -220,6 +228,14 @@ public class DMDIIProject extends BaseEntity {
 		this.projectNumber = projectNumber;
 	}
 
+	// public String getProjectNumberString() {
+	// 	return projectNumberString;
+	// }
+	//
+	// public void setProjectNumberString(String projectNumberString) {
+	// 	this.projectNumberString = projectNumberString;
+	// }
+
 	public BigDecimal getCostShare() {
 		return costShare;
 	}
@@ -244,6 +260,14 @@ public class DMDIIProject extends BaseEntity {
 		this.isDeleted = isDeleted;
 	}
 
+	public Boolean getIsEvent() {
+		return isEvent;
+	}
+
+	public void setIsEvent(Boolean isEvent) {
+		this.isEvent = isEvent;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -256,6 +280,7 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
+		result = prime * result + ((isEvent == null) ? 0 : isEvent.hashCode());
 		result = prime * result + ((primeOrganization == null) ? 0 : primeOrganization.hashCode());
 		result = prime * result + ((principalInvestigator == null) ? 0 : principalInvestigator.hashCode());
 		result = prime * result + ((principalPointOfContact == null) ? 0 : principalPointOfContact.hashCode());
@@ -266,6 +291,7 @@ public class DMDIIProject extends BaseEntity {
 		result = prime * result + ((projectThrust == null) ? 0 : projectThrust.hashCode());
 		result = prime * result + ((projectTitle == null) ? 0 : projectTitle.hashCode());
 		result = prime * result + ((rootNumber == null) ? 0 : rootNumber.hashCode());
+		//result = prime * result + ((projectNumberString == null) ? 0 : projectNumberString.hashCode());
 		return result;
 	}
 
@@ -318,6 +344,11 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!isDeleted.equals(other.isDeleted))
 			return false;
+		if (isEvent == null) {
+			if (other.isEvent != null)
+				return false;
+		} else if (!isEvent.equals(other.isEvent))
+			return false;
 		if (primeOrganization == null) {
 			if (other.primeOrganization != null)
 				return false;
@@ -368,6 +399,11 @@ public class DMDIIProject extends BaseEntity {
 				return false;
 		} else if (!rootNumber.equals(other.rootNumber))
 			return false;
+		// if (projectNumberString == null) {
+		// 		if (other.projectNumberString != null)
+		// 			return false;
+		// 	} else if (!projectNumberString.equals(other.projectNumberString))
+		// 		return false;
 		return true;
 	}
 
