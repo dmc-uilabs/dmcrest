@@ -36,7 +36,6 @@ import org.dmc.services.security.SecurityRoles;
 import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.services.ServiceDao;
 import org.dmc.services.verification.Verification;
-import org.dmc.services.ServiceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -46,7 +45,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
@@ -54,14 +52,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -127,7 +119,10 @@ public class DocumentService {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User owner = userRepository.findByUsername(userEPPN);
 
+		ServiceLogger.log(logTag, filterParams.toString());
+
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
+		ServiceLogger.log(logTag, where.toString());
 		List<Document> results;
 		List<Document> returnList = new ArrayList<>();
 
@@ -594,6 +589,7 @@ public class DocumentService {
 
 		Predicate baseDocsOnly = QDocument.document.version.eq(0);
 
+		expressions.addAll(idFilter(filterParams.get("ids")));
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
@@ -607,6 +603,27 @@ public class DocumentService {
 		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class,
 				DocumentTagModel.class);
 		return tagMapper.mapToModel(documentTagRepository.findAll());
+	}
+
+	private Collection<Predicate> idFilter(String idList) throws InvalidFilterParameterException {
+		if (idList == null) {
+			return new ArrayList<>();
+		}
+
+		Collection<Predicate> returnValue = new ArrayList<>();
+		String[] ids = idList.split(",");
+		Integer idInt;
+
+		for (String id : ids) {
+			try {
+				idInt = Integer.parseInt(id);
+			} catch (NumberFormatException e) {
+				throw new InvalidFilterParameterException("ids", Integer.class);
+			}
+
+			returnValue.add(QDocument.document.id.eq(idInt));
+		}
+		return returnValue;
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {

@@ -1,6 +1,7 @@
 package org.dmc.services.userfavorite;
 
 import org.dmc.services.DMCServiceException;
+import org.dmc.services.ServiceLogger;
 import org.dmc.services.data.entities.UserFavorite;
 import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.services.UserFavoriteService;
@@ -35,6 +36,7 @@ public class UserFavoriteController {
     public UserFavorite postUserFavorite(@RequestParam(value = "contentId") Integer contentId,
                                          @RequestParam(value = "contentType") Integer contentType) throws DMCServiceException {
 
+        ServiceLogger.log("This will be gone soon", contentId.toString());
         this.userFavoriteService = new UserFavoriteService();
         return userFavoriteService.saveUserFavorite(contentId, contentType);
 
