@@ -5,24 +5,35 @@ import java.util.Map;
 
 import org.dmc.services.users.UserMessages;
 import org.dmc.services.users.UserRunningServices;
+import org.dmc.services.utils.RestViews;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 public class UserModel extends BaseModel {
 
+	@JsonView(RestViews.SimpleUserView.class)
 	private Integer id;
+	@JsonView(RestViews.SimpleUserView.class)
 	private String displayName;
 	private Integer accountId;
 	private Integer profileId;
+	@JsonView(RestViews.SimpleUserView.class)
 	private Integer companyId;
+	@JsonView(RestViews.SimpleUserView.class)
 	private String companyName;
 	private int role;
 	private String realname;
+	@JsonView(RestViews.SimpleUserView.class)
 	private String title;
 	private boolean termsConditions;
 	private String firstName;
+	@JsonView(RestViews.SimpleUserView.class)
 	private String lastName;
+	@JsonView(RestViews.SimpleUserView.class)
 	private String email;
 	private String address;
 	private String phone;
+	@JsonView(RestViews.SimpleUserView.class)
 	private String image;
 	private UserRunningServices runningServices = new UserRunningServices();
 	private UserMessages messages = new UserMessages();
@@ -31,6 +42,7 @@ public class UserModel extends BaseModel {
 	private Map<Integer, String> roles;
 	private Boolean isDMDIIMember;
 	private UserContactInfoModel userContactInfo;
+	@JsonView(RestViews.SimpleUserView.class)
 	private String aboutMe;
 	private String resume;
 	private int account;

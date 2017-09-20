@@ -12,7 +12,14 @@ public class ModelInterface  {
   
   private Map<String, DomeModelParam> inParams = new HashMap<String, DomeModelParam>();
   private Map<String, DomeModelParam> outParams = new HashMap<String, DomeModelParam>();
-
+  
+  public void addParameter(Boolean isInput, DomeModelParam param) {
+	  if(isInput) {
+		  inParams.put(param.getName(), param);
+	  } else {
+		  outParams.put(param.getName(), param);
+	  }
+  }
   
   /**
    **/

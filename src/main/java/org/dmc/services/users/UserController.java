@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -99,8 +100,12 @@ public class UserController {
 	}
 
     @RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public UserModel getUser(@PathVariable Integer id) {
-		return userService.findOne(id);
+	public MappingJacksonValue getUser(@PathVariable Integer id) {
+    	UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    	ServiceLogger.log(logTag, "In getUser: " + userPrincipal.getUsername());
+		MappingJacksonValue result = new MappingJacksonValue(userService.findOne(id));
+		result.setSerializationView(PermissionEvaluationHelper.determineUserView(userPrincipal, id));
+		return result;
 	}
 
 	@RequestMapping(value = "/user/{id}/userName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

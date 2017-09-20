@@ -1,13 +1,15 @@
 package org.dmc.services.data.entities;
 
-import java.util.Date;
+import java.sql.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+@Entity
 @Table(name = "service_run")
 public class ServiceRun extends BaseEntity {
 
@@ -34,7 +36,7 @@ public class ServiceRun extends BaseEntity {
 	@Column(name = "start_date")
 	private Date startDate;
 	
-	@Column(name = "end_date")
+	@Column(name = "stop_date")
 	private Date endDate;
 
 	public Integer getId() {

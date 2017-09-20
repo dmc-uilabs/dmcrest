@@ -23,6 +23,10 @@ public static class SecureServerView extends Public {}
  */
 public static class SDocumentsView extends Public {}
 
+public static class SimpleUserView extends Public {}
+
 }
+
+
 
 

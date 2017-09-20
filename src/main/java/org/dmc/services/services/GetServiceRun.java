@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 
 import java.util.Objects;
 
+import org.dmc.services.data.entities.ServiceRun;
+
 
 @javax.annotation.Generated(value = "class io.swagger.codegen.languages.SpringMVCServerCodegen", date = "2016-04-08T14:26:00.636Z")
 public class GetServiceRun  {
@@ -23,8 +25,19 @@ public class GetServiceRun  {
   private String stopTime = null;
   private ModelInterface _interface = null;
 
+  public GetServiceRun() {}
   
-  /**
+  public GetServiceRun(ServiceRun run) {
+	this.serviceId = Integer.toString(run.getServiceId());
+	this.accountId = run.getAccountId() == null ? "0" : Integer.toString(run.getAccountId());
+	this.runBy = Integer.toString(run.getRunBy());
+	this.status = BigDecimal.valueOf(run.getStatus());
+	this.percentCompleted = run.getPercentCompleted() == null ? BigDecimal.valueOf(0) : BigDecimal.valueOf(run.getPercentCompleted());
+	this.startDate = run.getStartDate().toString();
+	this.id = Integer.toString(run.getId());
+	this.stopDate = run.getEndDate() == null ? null : run.getEndDate().toString();
+}
+/**
    **/
   @JsonProperty("serviceId")
   public String getServiceId() {

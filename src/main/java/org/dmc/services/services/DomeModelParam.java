@@ -1,12 +1,9 @@
 package org.dmc.services.services;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Objects;
 
-import org.json.JSONObject;
+import org.dmc.services.data.entities.ServiceInterfaceParameter;
+import org.dmc.services.data.entities.ServiceRunParameter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -18,6 +15,19 @@ public class DomeModelParam {
 	private String value = null;
 	private String parameterid = null;
 	private String instancename = null;
+	
+	public DomeModelParam() {}
+	
+	public DomeModelParam(ServiceRunParameter param) {
+		ServiceInterfaceParameter sip = param.getParameter();
+		this.type = sip.getType();
+		this.name = sip.getName();
+		this.unit = sip.getUnit();
+		this.category = sip.getCategory();
+		this.value = param.getValue();
+		this.parameterid = sip.getParameterTxtId();
+		this.instancename = sip.getInstanceName();
+	}
 
 	@JsonProperty("type")
 	public String getType() {

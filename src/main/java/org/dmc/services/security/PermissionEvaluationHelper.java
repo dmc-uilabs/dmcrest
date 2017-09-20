@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.dmc.services.data.entities.User;
-
+import org.dmc.services.utils.RestViews;
+import org.dmc.services.utils.RestViews.Public;
 import org.dmc.services.data.entities.DMDIIProjectItemAccessLevel;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.dmc.services.ServiceLogger;
@@ -67,6 +68,15 @@ public class PermissionEvaluationHelper {
 				.filter(user.getAllRoles().keySet()::contains)
 				.anyMatch((n) -> userHasRole(role, n));
 	}
+	
+	public static boolean isSuperAdmin() {
+		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (user.hasAuthority(SecurityRoles.SUPERADMIN)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	public static boolean userHasRole(String requiredRole, Integer tenantId) {
 		UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -100,6 +110,22 @@ public class PermissionEvaluationHelper {
 		}
 
 		return completeRoleSetForRole;
+	}
+
+	public static Class<? extends Public> determineUserView(UserPrincipal userPrincipal, Integer idToView) {
+		return determineUserView(userPrincipal.getId(), idToView);
+	}
+	
+	public static Class<? extends Public> determineUserView(User user, Integer idToView) {
+		return determineUserView(user.getId(), idToView);
+	}
+	
+	private static Class<? extends Public> determineUserView(Integer currentUserId, Integer userIdToView) {
+		Class clazz = RestViews.SimpleUserView.class;
+		if(currentUserId == userIdToView) {
+			clazz = null;
+		}
+		return clazz;
 	}
 
 }

@@ -147,15 +147,11 @@ public class DMDIIMemberService {
 	public List<DMDIIMemberModel> filter(Integer pageNumber, Integer pageSize, String[] tiers, String[] types, String[] activeProjects) throws InvalidFilterParameterException {
 		Mapper<DMDIIMember, DMDIIMemberModel> mapper = mapperFactory.mapperFor(DMDIIMember.class, DMDIIMemberModel.class);
 		Predicate where = ExpressionUtils.allOf(getFilterExpressions(tiers, types, activeProjects, null));
-		// if(where != null){
-		// 	ServiceLogger.log("where", where.toString());
-		// }
 		PageRequest pageRequest = new PageRequest(pageNumber, pageSize,
 				new Sort(
 						new Order(Direction.ASC, "organizationName")
 				)
 		);
-		//return mapper.mapToModel(dmdiiMemberDao.findAll(where, new PageRequest(pageNumber, pageSize)).getContent());
 		return mapper.mapToModel(dmdiiMemberDao.findAll(where, pageRequest).getContent());
 	}
 
