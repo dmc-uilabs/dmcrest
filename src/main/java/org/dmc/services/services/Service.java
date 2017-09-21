@@ -14,7 +14,7 @@ import java.util.Objects;
 public class Service  {
 
     private final String logTag = Service.class.getName();
-	
+
 	private int id = -1;
 	private String companyId = null;
 	private String title = null;
@@ -33,8 +33,9 @@ public class Service  {
 	private String parent = null;
 	private Boolean published = null;
 	private String averageRun = null;
-	
-	
+	private Boolean favorited = null;
+
+
 	/**
 	 **/
 	@JsonProperty("id")
@@ -44,8 +45,8 @@ public class Service  {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("companyId")
@@ -55,7 +56,7 @@ public class Service  {
 	public void setCompanyId(String companyId) {
 		this.companyId = companyId;
 	}
-	
+
 	/**
 	 **/
 	@JsonProperty("title")
@@ -65,8 +66,8 @@ public class Service  {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("description")
@@ -76,8 +77,8 @@ public class Service  {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("owner")
@@ -87,8 +88,8 @@ public class Service  {
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("profileId")
@@ -98,8 +99,8 @@ public class Service  {
 	public void setProfileId(String profileId) {
 		this.profileId = profileId;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("releaseDate")
@@ -109,7 +110,7 @@ public class Service  {
 	public void setReleaseDate(Date releaseDate) {
 		this.releaseDate = releaseDate;
 	}
-	
+
 	/**
 	 **/
 	@JsonProperty("serviceType")
@@ -119,8 +120,8 @@ public class Service  {
 	public void setServiceType(String serviceType) {
 		this.serviceType = serviceType;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("tags")
@@ -130,8 +131,8 @@ public class Service  {
 	public void setTags(List<String> tags) {
 		this.tags = tags;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("specifications")
@@ -141,8 +142,8 @@ public class Service  {
 	public void setSpecifications(String specifications) {
 		this.specifications = specifications;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("featureImage")
@@ -152,8 +153,8 @@ public class Service  {
 	public void setFeatureImage(FeatureImage featureImage) {
 		this.featureImage = featureImage;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("currentStatus")
@@ -163,8 +164,8 @@ public class Service  {
 	public void setCurrentStatus(ServiceCurrentStatus currentStatus) {
 		this.currentStatus = currentStatus;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("projectId")
@@ -184,8 +185,8 @@ public class Service  {
 	public void setFrom(String from) {
 		this.from = from;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("type")
@@ -195,8 +196,8 @@ public class Service  {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("parent")
@@ -206,8 +207,8 @@ public class Service  {
 	public void setParent(String parent) {
 		this.parent = parent;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("published")
@@ -217,8 +218,8 @@ public class Service  {
 	public void setPublished(Boolean published) {
 		this.published = published;
 	}
-	
-	
+
+
 	/**
 	 **/
 	@JsonProperty("averageRun")
@@ -228,9 +229,15 @@ public class Service  {
 	public void setAverageRun(String averageRun) {
 		this.averageRun = averageRun;
 	}
-	
-	
-	
+
+	/**
+	 **/
+	@JsonProperty("favorited")
+	public Boolean getFavorited() { return favorited; }
+	public void setFavorited(Boolean favorited) {
+		this.favorited = favorited;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -257,19 +264,20 @@ public class Service  {
         Objects.equals(type, service.type) &&
         Objects.equals(parent, service.parent) &&
         Objects.equals(published, service.published) &&
-        Objects.equals(averageRun, service.averageRun);
+        Objects.equals(averageRun, service.averageRun) &&
+        Objects.equals(favorited, service.favorited);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, companyId, title, description, owner, profileId, releaseDate, serviceType, tags, specifications, featureImage, currentStatus, projectId, from, type, parent, published, averageRun);
 	}
-	
+
 	@Override
 	public String toString()  {
 		StringBuilder sb = new StringBuilder();
 		sb.append("class Service {\n");
-		
+
 		sb.append("  id: ").append(id).append("\n");
 		sb.append("  companyId: ").append(companyId).append("\n");
 		sb.append("  title: ").append(title).append("\n");
@@ -288,6 +296,7 @@ public class Service  {
 		sb.append("  parent: ").append(parent).append("\n");
 		sb.append("  published: ").append(published).append("\n");
 		sb.append("  averageRun: ").append(averageRun).append("\n");
+		sb.append("  favorited: ").append(favorited).append("\n");
 		sb.append("}\n");
 		return sb.toString();
 	}
