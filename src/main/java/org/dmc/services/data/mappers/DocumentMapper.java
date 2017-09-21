@@ -1,10 +1,5 @@
 package org.dmc.services.data.mappers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dmc.services.data.entities.Document;
@@ -13,6 +8,7 @@ import org.dmc.services.data.entities.DocumentTag;
 import org.dmc.services.data.entities.ResourceGroup;
 import org.dmc.services.data.entities.ResourceType;
 import org.dmc.services.data.entities.User;
+import org.dmc.services.data.entities.UserFavorite;
 import org.dmc.services.data.models.DocumentModel;
 import org.dmc.services.data.models.DocumentTagModel;
 import org.dmc.services.data.models.SimpleUserModel;
@@ -21,7 +17,14 @@ import org.dmc.services.data.repositories.DocumentTagRepository;
 import org.dmc.services.data.repositories.ResourceGroupRepository;
 import org.dmc.services.data.repositories.UserRepository;
 import org.dmc.services.security.SecurityRoles;
+import org.dmc.services.security.UserPrincipal;
+import org.dmc.services.userfavorite.UserFavoriteDao;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
@@ -111,6 +114,9 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 		if (entity == null) return null;
 		Mapper<User, SimpleUserModel> userMapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
 
+		final UserPrincipal user = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		final UserFavoriteDao userFavoriteDao = new UserFavoriteDao();
+
 		DocumentModel model = copyProperties(entity, new DocumentModel(), new String[]{"resourceType", "resourceGroups"});
 		List<ResourceGroup> groups = entity.getResourceGroups();
 
@@ -144,6 +150,13 @@ public class DocumentMapper extends AbstractMapper<Document, DocumentModel> {
 
 		if (entity.getIsPublic()) {
 			model.setAccessLevel("PUBLIC");
+		}
+
+		final ArrayList<UserFavorite> userFavorites = userFavoriteDao.getUserFavorites(user.getId(), 2);
+		if (userFavorites.stream().anyMatch(userFavorite -> userFavorite.getContentId().equals(model.getId()))) {
+			model.setFavorited(true);
+		} else {
+			model.setFavorited(false);
 		}
 
 		return model;

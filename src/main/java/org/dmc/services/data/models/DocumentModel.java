@@ -68,6 +68,9 @@ public class DocumentModel extends BaseModel {
 	@JsonView(RestViews.SDocumentsView.class)
 	private Boolean isAccepted;
 
+	@JsonView(RestViews.SDocumentsView.class)
+	private Boolean favorited;
+
 	public String getDocumentName() {
 		return documentName;
 	}
@@ -207,4 +210,8 @@ public class DocumentModel extends BaseModel {
 	public Boolean getIsAccepted() { return isAccepted; }
 
 	public void setIsAccepted(Boolean isAccepted) { this.isAccepted = isAccepted; }
+
+	public Boolean getFavorited() { return favorited; }
+
+	public void setFavorited(Boolean favorited) { this.favorited = favorited; }
 }
