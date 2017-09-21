@@ -9,7 +9,6 @@ import org.dmc.services.data.entities.UserRoleAssignment;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.OrganizationModel;
-import org.dmc.services.data.models.UserModel;
 import org.dmc.services.data.models.UserRoleAssignmentModel;
 import org.dmc.services.data.repositories.RoleRepository;
 import org.dmc.services.data.repositories.UserRepository;
@@ -73,7 +72,6 @@ public class UserRoleAssignmentService {
 			throw new AccessDeniedException("403 access denied");
 		}
 
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		Mapper<Organization, OrganizationModel> orgMapper = mapperFactory.mapperFor(Organization.class, OrganizationModel.class);
 		Mapper<UserRoleAssignment, UserRoleAssignmentModel> userRoleAssignmentMapper = mapperFactory.mapperFor(UserRoleAssignment.class, UserRoleAssignmentModel.class);
 
