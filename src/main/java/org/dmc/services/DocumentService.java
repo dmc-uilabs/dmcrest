@@ -596,6 +596,7 @@ public class DocumentService {
 
 		Predicate baseDocsOnly = QDocument.document.version.eq(0);
 
+		expressions.addAll(idFilter(filterParams.get("ids")));
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
@@ -609,6 +610,27 @@ public class DocumentService {
 		Mapper<DocumentTag, DocumentTagModel> tagMapper = mapperFactory.mapperFor(DocumentTag.class,
 				DocumentTagModel.class);
 		return tagMapper.mapToModel(documentTagRepository.findAll());
+	}
+
+	private Collection<Predicate> idFilter(String idList) throws InvalidFilterParameterException {
+		if (idList == null) {
+			return new ArrayList<>();
+		}
+
+		Collection<Predicate> returnValue = new ArrayList<>();
+		String[] ids = idList.split(",");
+		Integer idInt;
+
+		for (String id : ids) {
+			try {
+				idInt = Integer.parseInt(id);
+			} catch (NumberFormatException e) {
+				throw new InvalidFilterParameterException("ids", Integer.class);
+			}
+
+			returnValue.add(QDocument.document.id.eq(idInt));
+		}
+		return returnValue;
 	}
 
 	private Collection<Predicate> tagFilter(String tagIds) throws InvalidFilterParameterException {
