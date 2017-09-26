@@ -121,14 +121,18 @@ public class DocumentService {
 			throws InvalidFilterParameterException, DMCServiceException {
 		Mapper<Document, DocumentModel> mapper = mapperFactory.mapperFor(Document.class, DocumentModel.class);
 		User owner = userRepository.findByUsername(userEPPN);
-
-		Predicate where = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
+		Predicate filterExpressions = ExpressionUtils.allOf(getFilterExpressions(filterParams, owner));
+		Predicate idExpression = ExpressionUtils.anyOf(getIdFilterExpression((String) filterParams.get("ids")));
+		Predicate where = ExpressionUtils.allOf(filterExpressions, idExpression);
+		ServiceLogger.log(logTag, where.toString());
 		List<Document> results;
 		List<Document> returnList = new ArrayList<>();
 
 		results = documentRepository
 				.findAll(where, new PageRequest(0, Integer.MAX_VALUE, new Sort(new Order(Direction.DESC, "modified"))))
 				.getContent();
+
+		ServiceLogger.log(logTag, results.toString());
 
 		if (results.size() == 0)
 			return null;
@@ -596,12 +600,21 @@ public class DocumentService {
 
 		Predicate baseDocsOnly = QDocument.document.version.eq(0);
 
-		expressions.addAll(idFilter(filterParams.get("ids")));
 		expressions.addAll(tagFilter(filterParams.get("tags")));
 		expressions.add(parentTypeFilter(filterParams.get("parentType")));
 		expressions.add(parentIdFilter(filterParams.get("parentId")));
 		expressions.add(docClassFilter(filterParams.get("docClass")));
 		expressions.add(baseDocsOnly);
+		ServiceLogger.log(logTag, expressions.toString());
+
+		return expressions;
+	}
+
+	private Collection<Predicate> getIdFilterExpression(String ids)
+			throws InvalidFilterParameterException {
+		Collection<Predicate> expressions = new ArrayList<>();
+
+		expressions.addAll(idFilter(ids));
 
 		return expressions;
 	}
