@@ -28,11 +28,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.dmc.services.data.dao.user.UserDao;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.sql.SQLException;
 
 @RestController
 public class UserController {
@@ -69,6 +72,25 @@ public class UserController {
         ServiceLogger.log(logTag, "In user: " + userEPPN);
 		return userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
 	}
+
+	@RequestMapping(value = "/user/auth", method = RequestMethod.GET)
+public ResponseEntity<Map<String, String>> getUserAuth(@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN, @RequestHeader(value="AJP_givenName", defaultValue="testUserFirstName") String userFirstName,
+											@RequestHeader(value="AJP_sn", defaultValue="testUserSurname") String userSurname,
+											@RequestHeader(value="AJP_displayName", defaultValue="testUserFullName") String userFull,
+											@RequestHeader(value="AJP_mail", defaultValue="testUserEmail") String userEmail)
+	{
+			ServiceLogger.log(logTag, "In userAuth: " + userEPPN);
+			Map<String, String> hm = new HashMap<>();
+			try{
+				UserModel userModel = userService.readOrCreateUser(userEPPN, userFirstName, userSurname, userFull, userEmail);
+				hm.put("realname", userModel.getRealname());
+				hm.put("username", UserDao.getUserName(userModel.getId().intValue()));
+				return ResponseEntity.ok(hm);
+			} catch (SQLException e) {
+				hm.put("errorMessage", "User not found." );
+				return new ResponseEntity<>(hm, HttpStatus.NOT_FOUND);
+			}
+}
 
 	@RequestMapping(value = "/users", method = RequestMethod.GET)
 	public Page<SimpleUserModel> getAllUsers(
