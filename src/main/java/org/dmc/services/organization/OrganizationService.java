@@ -3,6 +3,9 @@ package org.dmc.services.organization;
 import com.mysema.query.jpa.JPASubQuery;
 import com.mysema.query.types.Predicate;
 import com.mysema.query.types.query.ListSubQuery;
+
+import org.dmc.services.DMCError;
+import org.dmc.services.DMCServiceException;
 import org.dmc.services.DMDIIDocumentService;
 import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.OrganizationUserService;
@@ -42,6 +45,7 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 
@@ -100,6 +104,14 @@ public class OrganizationService {
 		List<OrganizationModel> organizationModels = getOrgMapper().mapToModel(organizations.getContent());
 
 		return new PageImpl<>(organizationModels, pageRequest, organizations.getTotalElements());
+	}
+	
+	public Organization save(Organization organization) {
+		//Should only be used to save existing organization
+		if(organization.getId() == null) {
+			return null;
+		}
+		return organizationRepository.save(organization);
 	}
 
 	@Transactional
@@ -176,6 +188,21 @@ public class OrganizationService {
 
 	}
 	
+	public Organization deductFunds(Organization org, int amount) throws DMCServiceException {
+		Integer newBalance = org.getAccountBalance() - (amount);
+		if (newBalance > 0) {
+			org.setAccountBalance(newBalance);
+		} else {
+			throw new DMCServiceException(DMCError.PaymentError,
+					"INSUFFICIENT FUNDS AVAILABLE : $" + BigDecimal.valueOf(amount, 2) + " REQUIRED. $"
+							+ BigDecimal.valueOf(org.getAccountBalance(), 2) + " AVAILABLE.");
+		}
+		
+		org.setAccountBalance(newBalance);
+		
+		return org;
+	}
+	
 	@Transactional
 	public Organization updatePaymentStatus(OrganizationModel orgModel, Boolean paid) {
 		organizationUserService.verifyUnverifyExistingUser(getCurrentUser().getId(), true);
@@ -184,10 +211,6 @@ public class OrganizationService {
 		
 		orgEntity.setIsPaid(paid);
 		return save(orgEntity);
-	}
-
-	public Organization save(Organization organization) {
-		return organizationRepository.save(organization);
 	}
 
 	public String findMyVPC() {

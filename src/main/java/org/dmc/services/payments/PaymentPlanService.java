@@ -14,12 +14,20 @@ public class PaymentPlanService {
 	@Inject 
 	private PaymentPlanRepository payPlanRepo;
 	
-	public List<PaymentPlan> getPlans(Integer id) {
+	public PaymentPlan getPlan(Integer id) {
+		return payPlanRepo.findOne(id);
+	}
+	
+	public List<PaymentPlan> getPlansByServiceId(Integer id) {
 		return payPlanRepo.findByServiceId(id);
 	}
 	
-	public List<PaymentPlan> getPlans(List<Integer> serviceIds) {
+	public List<PaymentPlan> getPlansByServiceIds(List<Integer> serviceIds) {
 		return payPlanRepo.findByServiceIdIn(serviceIds);
+	}
+	
+	public boolean hasPaymentPlan(Integer serviceId) {
+		return !payPlanRepo.findByServiceId(serviceId).isEmpty();
 	}
 
 }

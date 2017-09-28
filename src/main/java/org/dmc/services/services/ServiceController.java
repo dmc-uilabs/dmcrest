@@ -80,7 +80,7 @@ public class ServiceController {
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
     	ServiceLogger.log(LOGTAG, "getServicePaymentPlansForIds");
     	try {
-    		return new ResponseEntity<List<PaymentPlan>>(paymentPlanService.getPlans(serviceIds), HttpStatus.OK);
+    		return new ResponseEntity<List<PaymentPlan>>(paymentPlanService.getPlansByServiceIds(serviceIds), HttpStatus.OK);
     	} catch (DMCServiceException e) {
     		ServiceLogger.logException(LOGTAG, e);
     		return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());
@@ -92,7 +92,7 @@ public class ServiceController {
             @RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
     	ServiceLogger.log(LOGTAG, "getServicePaymentPlans, id: " + id);
     	try {
-    		return new ResponseEntity<List<PaymentPlan>>(paymentPlanService.getPlans(id), HttpStatus.OK);
+    		return new ResponseEntity<List<PaymentPlan>>(paymentPlanService.getPlansByServiceId(id), HttpStatus.OK);
     	} catch (DMCServiceException e) {
     		ServiceLogger.logException(LOGTAG, e);
     		return new ResponseEntity<String>(e.getMessage(), e.getHttpStatusCode());

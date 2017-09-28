@@ -51,7 +51,7 @@ public class ServiceUsePermitController {
 	public ResponseEntity<?> checkServicePermit(@PathVariable("id") Integer id,
 			@RequestHeader(value = "AJP_eppn", defaultValue = "testUser") String userEPPN) {
 		ServiceLogger.log(logTag, "Checking service use permit with current org for service: " + id + " and user: " + userEPPN);
-		return new ResponseEntity<Boolean>(supService.checkServicePermit(id), HttpStatus.OK);
+		return new ResponseEntity<Boolean>(supService.checkOrgServicePermit(id), HttpStatus.OK);
 	}
 
 }
