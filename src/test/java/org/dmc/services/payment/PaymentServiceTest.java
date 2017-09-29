@@ -37,13 +37,13 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @SpringApplicationConfiguration(classes = ApplicationTestConfig.class)
-public class PaymentsServiceTest {
+public class PaymentServiceTest {
 	
 	private final String testKey = "sk_test_MQ0ysMK0BD7jH4BLSivbXEwO";
 	private final String goodToken = "tok_visa";
 	private final String badToken = "tok_chargeDeclined";
-	private static OrgCreation orgCreation;
-	private static User testUser;
+	private OrgCreation orgCreation;
+	private User testUser;
 
 	@InjectMocks
 	private PaymentService paymentService;
@@ -188,7 +188,7 @@ public class PaymentsServiceTest {
     	paymentStatus = paymentService.processOrganizationPayment(orgCreation);
     }
     
-    private static OrgCreation getOrgCreationObj() {
+    private OrgCreation getOrgCreationObj() {
     	orgCreation = new OrgCreation();
     	OrganizationModel orgModel = new OrganizationModel();
     	orgModel.setId(1);
@@ -197,7 +197,7 @@ public class PaymentsServiceTest {
     	return orgCreation;
     }
     
-    private static User setUpTestUser() {
+    private User setUpTestUser() {
     	testUser = new User();
     	testUser.setId(1);
     	testUser.setUsername("testUser");

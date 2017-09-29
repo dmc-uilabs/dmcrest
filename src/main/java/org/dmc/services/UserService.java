@@ -138,6 +138,10 @@ public class UserService {
 		List<SimpleUserModel> simpleUsers = mapper.mapToModel(users.getContent());
 		return new PageImpl<>(simpleUsers, pageRequest, users.getTotalElements());
 	}
+	
+	public List<User> save(List<User> users) {
+		return userRepository.save(users);
+	}
 
 	public UserModel save(UserModel userModel, String userEPPN) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
@@ -155,6 +159,10 @@ public class UserService {
 		} else {
 			return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
 		}
+	}
+	
+	public List<User> findByOrganizationId(Integer organizationId) {
+		return userRepository.findByOrganizationUserOrganizationId(organizationId);
 	}
 
 	public List<UserModel> findByOrganizationIdAndRole(Integer organizaitonId, String role) {

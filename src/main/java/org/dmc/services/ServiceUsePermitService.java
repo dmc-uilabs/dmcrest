@@ -2,6 +2,7 @@ package org.dmc.services;
 
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -16,13 +17,9 @@ import org.dmc.services.data.entities.User;
 import org.dmc.services.data.mappers.Mapper;
 import org.dmc.services.data.mappers.MapperFactory;
 import org.dmc.services.data.models.ServiceUsePermitModel;
-import org.dmc.services.data.repositories.OrganizationUserRepository;
-import org.dmc.services.data.repositories.PaymentPlanRepository;
 import org.dmc.services.data.repositories.ServiceUsePermitRepository;
 import org.dmc.services.payments.PaymentPlanService;
-import org.dmc.services.security.UserPrincipal;
 import org.dmc.services.services.ServiceEntityService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -47,19 +44,39 @@ public class ServiceUsePermitService {
 	private UserService	userService;
 	
 	public ServiceUsePermitModel getServiceUsePermit(Integer id) {
-		return getSupMapper().mapToModel((supRepo.findOne(id)));
+		return mapToModel((supRepo.findOne(id)));
 	}
 	
 	public List<ServiceUsePermitModel> getServiceUsePermitByServiceId(Integer id) {
-		return getSupMapper().mapToModel(supRepo.findByServiceId(id));
+		return mapToModel(supRepo.findByServiceId(id));
 	}
 	
 	public List<ServiceUsePermitModel> getServiceUsePermitByOrgId(Integer id) {
-		return getSupMapper().mapToModel(supRepo.findByOrganizationId(id));
+		return mapToModel(supRepo.findByOrganizationId(id));
 	}
 	
 	public ServiceUsePermitModel getServiceUsePermitByOrganizationIdAndServiceId(Integer serviceId) {
-		return getSupMapper().mapToModel(supRepo.findByOrganizationIdAndServiceId(userService.getCurrentUser().getOrganization().getId(), serviceId));
+		return mapToModel(supRepo.findByOrganizationIdAndServiceId(userService.getCurrentUser().getOrganization().getId(), serviceId));
+	}
+	
+	public ServiceUsePermit save(ServiceUsePermit sup) {
+		return supRepo.save(sup);
+	}
+	
+	public ServiceUsePermitModel processServiceUse(Integer serviceId) {
+		if(payPlanService.hasPaymentPlan(serviceId)) {
+			return mapToModel(supRepo.save(processUsage(findServiceUsePermit(serviceId, userService.getCurrentUser().getOrganization().getId()))));
+		} else {
+			return null;
+		}
+	}
+	
+	public ServiceUsePermitModel refundUse(Integer serviceId) {
+		if(payPlanService.hasPaymentPlan(serviceId)) {
+			return mapToModel(supRepo.save(refundUse(findServiceUsePermit(serviceId, userService.getCurrentUser().getOrganization().getId()))));
+		} else {
+			return null;
+		}
 	}
 	
 	public ServiceUsePermit findServiceUsePermit(Integer serviceId, Integer orgId) {
@@ -71,29 +88,8 @@ public class ServiceUsePermitService {
 		return sup;
 	}
 	
-	public ServiceUsePermit save(ServiceUsePermit sup) {
-		return supRepo.save(sup);
-	}
-	
-	public ServiceUsePermitModel mapToModel(ServiceUsePermit sup) {
-		return getSupMapper().mapToModel(sup);
-	}
-	
-	public void processServiceUse(Integer serviceId) {
-		if(payPlanService.hasPaymentPlan(serviceId)) {
-			processUsage(findServiceUsePermit(serviceId, userService.getCurrentUser().getOrganization().getId()));
-		}
-	}
-	
-	public void refundUse(Integer serviceId) {
-		if(payPlanService.hasPaymentPlan(serviceId)) {
-			refundUse(findServiceUsePermit(serviceId, userService.getCurrentUser().getOrganization().getId()));
-		}
-	}
-	
 	public Boolean checkOrgServicePermit(Integer serviceId) {
 		
-		Integer orgId = userService.getCurrentUser().getOrganization().getId();
 		Boolean canRun = false;
 		
 		//If no payment plans, assume free usage
@@ -101,6 +97,7 @@ public class ServiceUsePermitService {
 			return true;
 		}
 		
+		Integer orgId = userService.getCurrentUser().getOrganization().getId();
 		ServiceUsePermit sup = findServiceUsePermit(serviceId, orgId);
 		
 		//If a permit was found, determine uses left
@@ -116,8 +113,7 @@ public class ServiceUsePermitService {
 		Organization org = user.getOrganization();
 
 		//Get existing permit if available
-		ServiceUsePermit sup = supRepo.findByOrganizationIdAndServiceId(org.getId(),
-				plan.getServiceId());
+		ServiceUsePermit sup = supRepo.findByOrganizationIdAndServiceId(org.getId(), plan.getServiceId());
 		
 		//Create new permit
 		if (sup == null) {
@@ -146,6 +142,16 @@ public class ServiceUsePermitService {
 		return sup;
 	}
 	
+	public ServiceUsePermitModel mapToModel(ServiceUsePermit sup) {
+		Mapper<ServiceUsePermit, ServiceUsePermitModel> mapper = mapperFactory.mapperFor(ServiceUsePermit.class, ServiceUsePermitModel.class);
+		return mapper.mapToModel(sup);
+	}
+	
+	public List<ServiceUsePermitModel> mapToModel(Collection<ServiceUsePermit> collection) {
+		Mapper<ServiceUsePermit, ServiceUsePermitModel> mapper = mapperFactory.mapperFor(ServiceUsePermit.class, ServiceUsePermitModel.class);
+		return mapper.mapToModel(collection);
+	}
+	
 	private Date addDaysToDate(Integer days, Date date) {
 		if (date == null) {
 			date = new Date();
@@ -160,7 +166,7 @@ public class ServiceUsePermitService {
 	private Boolean determineUsage(ServiceUsePermit sup) {
 		
 		Date expirDt = sup.getExpirationDate();
-		Boolean canUse = expirDt != null ? expirDt.before(new Date()) : true;
+		Boolean canUse = expirDt != null ? expirDt.before(new Date()) : false;
 		
 		if(!canUse) {
 			Integer uses = sup.getUses();
@@ -177,9 +183,9 @@ public class ServiceUsePermitService {
 	private ServiceUsePermit refundUse(ServiceUsePermit sup) {
 		int uses = sup.getUses();
 		Date expirDt = sup.getExpirationDate();
-		Boolean beforeExpiration = expirDt != null ? expirDt.before(new Date()) : true;
+		Boolean hasExpirDt = expirDt == null ? false : true;
 		
-		if(uses != UNLIMITED && !beforeExpiration) {
+		if(uses != UNLIMITED && !hasExpirDt) {
 			uses += 1;
 			sup.setUses(uses);
 		}
@@ -198,8 +204,4 @@ public class ServiceUsePermitService {
 		return sup;
 	}
 	
-	private Mapper<ServiceUsePermit, ServiceUsePermitModel> getSupMapper() {
-		return mapperFactory.mapperFor(ServiceUsePermit.class, ServiceUsePermitModel.class);
-	}
-
 }

@@ -10,6 +10,7 @@ import org.dmc.services.DMDIIDocumentService;
 import org.dmc.services.DMDIIProjectService;
 import org.dmc.services.OrganizationUserService;
 import org.dmc.services.ResourceGroupService;
+import org.dmc.services.UserService;
 import org.dmc.services.data.entities.AreaOfExpertise;
 import org.dmc.services.data.entities.Document;
 import org.dmc.services.data.entities.DocumentParentType;
@@ -70,7 +71,7 @@ public class OrganizationService {
 	private MapperFactory mapperFactory;
 
 	@Inject
-	private UserRepository userRepository;
+	private UserService userService;
 
 	@Inject
 	private OrganizationUserService organizationUserService;
@@ -106,32 +107,31 @@ public class OrganizationService {
 		return new PageImpl<>(organizationModels, pageRequest, organizations.getTotalElements());
 	}
 	
-	public Organization save(Organization organization) {
-		//Should only be used to save existing organization
-		if(organization.getId() == null) {
-			return null;
-		}
-		return organizationRepository.save(organization);
+	public OrganizationModel save(OrganizationModel organizationModel) {
+		Organization organization = getOrgMapper().mapToEntity(organizationModel);
+		return save(organization);
 	}
 
 	@Transactional
-	public OrganizationModel save(OrganizationModel organizationModel) {
-
-		Organization organizationEntity = getOrgMapper().mapToEntity(organizationModel);
+	public OrganizationModel save(Organization organizationEntity) {
 
 		// Check each of the tags to see if they're new or not. If new, they're saved separately through their own repository.
 		List<AreaOfExpertise> aTags = organizationEntity.getAreasOfExpertise();
 		List<AreaOfExpertise> dTags = organizationEntity.getDesiredAreasOfExpertise();
 
-		for (int i = 0; i < aTags.size(); i++) {
-			if (aTags.get(i).getId() == null) {
-				aTags.set(i, areaOfExpertiseRepository.save(aTags.get(i)));
+		if(aTags != null) {
+			for (int i = 0; i < aTags.size(); i++) {
+				if (aTags.get(i).getId() == null) {
+					aTags.set(i, areaOfExpertiseRepository.save(aTags.get(i)));
+				}
 			}
 		}
 
-		for (int i = 0; i < dTags.size(); i++) {
-			if (dTags.get(i).getId() == null) {
-				dTags.set(i, areaOfExpertiseRepository.save(dTags.get(i)));
+		if(dTags != null) {
+			for (int i = 0; i < dTags.size(); i++) {
+				if (dTags.get(i).getId() == null) {
+					dTags.set(i, areaOfExpertiseRepository.save(dTags.get(i)));
+				}
 			}
 		}
 
@@ -141,7 +141,7 @@ public class OrganizationService {
 		// if organization is being created, save it and set the user saving as company admin
 		if (organizationEntity.getId() == null) {
 			organizationEntity = organizationRepository.save(organizationEntity);
-			User userEntity = getCurrentUser();
+			User userEntity = userService.getCurrentUser();
 			organizationUserService.createVerifiedOrganizationUser(userEntity, organizationEntity);
 			userRoleAssignmentService.assignInitialCompanyAdmin(userEntity, organizationEntity);
 
@@ -165,7 +165,7 @@ public class OrganizationService {
 				organizationEntity.getAddress().setId(existingOrg.getAddress().getId());
 			}
 			
-			User userEntity = userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+			User userEntity = userService.getCurrentUser();
 			
 			//Update ResourceGroups for Organization
 			resourceGroupService.newCreate(DocumentParentType.ORGANIZATION, organizationEntity.getId());
@@ -204,8 +204,8 @@ public class OrganizationService {
 	}
 	
 	@Transactional
-	public Organization updatePaymentStatus(OrganizationModel orgModel, Boolean paid) {
-		organizationUserService.verifyUnverifyExistingUser(getCurrentUser().getId(), true);
+	public OrganizationModel updatePaymentStatus(OrganizationModel orgModel, Boolean paid) {
+		organizationUserService.verifyUnverifyExistingUser(userService.getCurrentUser().getId(), true);
 		
 		Organization orgEntity = getOrgMapper().mapToEntity(orgModel);
 		
@@ -217,8 +217,7 @@ public class OrganizationService {
 
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 
-		User currentUser = userRepository.findOne(
-				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+		User currentUser = userService.getCurrentUser();
 
 		UserModel currentUserModel = mapper.mapToModel(currentUser);
 		return findById(currentUserModel.getCompanyId()).getProductionCapabilities();
@@ -257,7 +256,7 @@ public class OrganizationService {
 		projectModels.stream().map(n -> n.getId()).forEach(dmdiiDocumentService::deleteDMDIIDocumentsByDMDIIProjectId);
 		organizationRepository.delete(organizationId);
 
-		List<User> users = userRepository.findByOrganizationUserOrganizationId(organizationId);
+		List<User> users = userService.findByOrganizationId(organizationId);
 
 		for(User user: users) {
 			if(user.getResourceGroups() != null) {
@@ -271,7 +270,7 @@ public class OrganizationService {
 			}
 		}
 
-		userRepository.save(users);
+		userService.save(users);
 
 
 		//remove organization documents
@@ -285,10 +284,6 @@ public class OrganizationService {
 
 		//remove associated resource groups
 		resourceGroupService.removeAll(DocumentParentType.ORGANIZATION, organizationId);
-	}
-	
-	private User getCurrentUser() {
-		return userRepository.findOne(((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
 	}
 	
 	private Mapper<Organization, OrganizationModel> getOrgMapper() {
