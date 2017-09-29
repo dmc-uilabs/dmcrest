@@ -52,11 +52,11 @@ public class DMDIIMember extends BaseEntity {
 	@OneToMany(mappedBy="dmdiiMember", cascade={CascadeType.MERGE, CascadeType.PERSIST})
 	private List<DMDIIMemberFinance> finances;
 
-	@OneToMany(mappedBy="primeOrganization", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	@OneToMany(mappedBy="primeOrganization", fetch = FetchType.LAZY)
 	@Where(clause = "is_deleted = 'FALSE'")
 	private Set<DMDIIProject> projects;
 
-	@ManyToMany(mappedBy="contributingCompanies", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+	@ManyToMany(mappedBy="contributingCompanies", fetch = FetchType.LAZY)
 	private Set<DMDIIProject> contributingProjects;
 
 	@Column(name = "is_deleted")
