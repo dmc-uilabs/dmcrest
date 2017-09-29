@@ -42,6 +42,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.dmc.services.exceptions.InvalidFilterParameterException;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -251,7 +252,7 @@ public class OrganizationService {
 	}
 
 	@Transactional
-	public void delete(Integer organizationId) {
+	public void delete(Integer organizationId) throws InvalidFilterParameterException {
 		List<DMDIIProjectModel> projectModels = dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(organizationId, 0, Integer.MAX_VALUE);
 		projectModels.stream().map(n -> n.getId()).forEach(dmdiiDocumentService::deleteDMDIIDocumentsByDMDIIProjectId);
 		organizationRepository.delete(organizationId);

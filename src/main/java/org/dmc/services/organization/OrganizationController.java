@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.dmc.services.exceptions.InvalidFilterParameterException;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -101,7 +102,7 @@ public class OrganizationController {
 
 	@RequestMapping(value = "/organizations/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize(SecurityRoles.REQUIRED_ROLE_SUPERADMIN)
-	public void delete(@PathVariable("id") Integer id) {
+	public void delete(@PathVariable("id") Integer id) throws InvalidFilterParameterException {
 		organizationService.delete(id);
 	}
 }

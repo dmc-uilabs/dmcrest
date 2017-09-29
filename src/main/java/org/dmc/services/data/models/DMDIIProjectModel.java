@@ -34,9 +34,13 @@ public class DMDIIProjectModel extends BaseModel {
 
 	private Integer projectNumber;
 
+	// private String projectNumberString;
+
 	private BigDecimal costShare;
 
 	private BigDecimal dmdiiFunding;
+
+	private Boolean isEvent;
 
 
 	public DMDIIPrimeOrganizationModel getPrimeOrganization() {
@@ -151,6 +155,14 @@ public class DMDIIProjectModel extends BaseModel {
 		this.projectNumber = projectNumber;
 	}
 
+	// public String getProjectNumberString() {
+	// 	return projectNumberString;
+	// }
+	//
+	// public void setProjectNumberString(String projectNumberString) {
+	// 	this.projectNumberString = projectNumberString;
+	// }
+
 	public String getProjectIdentifier() {
 		return rootNumber + "-" + callNumber + "-" + projectNumber;
 	}
@@ -169,6 +181,14 @@ public class DMDIIProjectModel extends BaseModel {
 
 	public void setDmdiiFunding(BigDecimal dmdiiFunding) {
 		this.dmdiiFunding = dmdiiFunding;
+	}
+
+	public Boolean getIsEvent() {
+		return isEvent == null ? false : isEvent;
+	}
+
+	public void setIsEvent(Boolean isEvent) {
+		this.isEvent = isEvent;
 	}
 
 }

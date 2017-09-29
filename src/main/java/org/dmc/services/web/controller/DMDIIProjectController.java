@@ -50,18 +50,22 @@ public class DMDIIProjectController {
 	private DMDIIProjectUpdateService dmdiiProjectUpdateService;
 
 	@RequestMapping(value = "/dmdiiprojects", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public PagedResponse filter(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
+	public PagedResponse filter(@RequestParam("page") Integer page,
+															@RequestParam("pageSize") Integer pageSize,
+															@RequestParam(value="focusId", required=false) String[] focusIds,
+															@RequestParam(value="status", required=false) String[] statuses,
+															@RequestParam(value="thrustId", required=false) String[] thrustIds) throws InvalidFilterParameterException {
 		ServiceLogger.log(logTag, "In filter");
 
-		List<? extends BaseModel> results = dmdiiProjectService.filter(params, page, pageSize);
-		Long count = dmdiiProjectService.count(params);
+		List<? extends BaseModel> results = dmdiiProjectService.filter(focusIds, statuses, thrustIds, page, pageSize);
+		Long count = dmdiiProjectService.count(focusIds, statuses, thrustIds, null);
 		return new PagedResponse(count, results);
 	}
 
 	@RequestMapping(value = "/dmdiiprojects/member", params = {"page", "pageSize"}, method = RequestMethod.GET)
 	public PagedResponse getDmdiiProjectsByDMDIIMemberId(@RequestParam("dmdiiMemberId") Integer dmdiiMemberId,
 																		@RequestParam("page") Integer page,
-																		@RequestParam("pageSize") Integer pageSize) {
+																		@RequestParam("pageSize") Integer pageSize) throws InvalidFilterParameterException {
 		ServiceLogger.log(logTag, "In getDmdiiProjectsByDMDIIMemberId as member " + dmdiiMemberId);
 
 		List<DMDIIProjectModel> results = dmdiiProjectService.findDmdiiProjectsByPrimeOrganizationId(dmdiiMemberId, page, pageSize);
@@ -99,14 +103,20 @@ public class DMDIIProjectController {
 		return new PagedResponse(count, results);
 	}
 
-	@RequestMapping(value = "/dmdiiprojects/search", params = {"title", "page", "pageSize"}, method = RequestMethod.GET)
-	public PagedResponse getDmdiiProjectsByTitle(@RequestParam("title") String title,
+	@RequestMapping(value = "/dmdiiprojects/search", params = {"page", "pageSize"}, method = RequestMethod.GET)
+	public PagedResponse getDmdiiProjectsByTitle(@RequestParam(value="title", required=false) String title,
 															@RequestParam("page") Integer page,
-															@RequestParam("pageSize") Integer pageSize) {
-		ServiceLogger.log(logTag, "In getDmdiiProjectsByTitle: " + title + " as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+															@RequestParam("pageSize") Integer pageSize,
+															@RequestParam(value="focusId", required=false) String[] focusIds,
+															@RequestParam(value="status", required=false) String[] statuses,
+															@RequestParam(value="thrustId", required=false) String[] thrustIds) throws InvalidFilterParameterException {
+		if(title != null && !"".equals(title)){
+			ServiceLogger.log(logTag, "In getDmdiiProjectsByTitle: " + title + " as user " + ((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+		}
 
-		List<? extends BaseModel> results = dmdiiProjectService.findByTitleOrProjectNumber(title, page, pageSize);
-		Long count = dmdiiProjectService.countByTitleOrProjectNumber(title);
+		List<? extends BaseModel> results = dmdiiProjectService.findByTitleOrProjectNumber(title, page, pageSize, focusIds, statuses, thrustIds);
+		// Long count = dmdiiProjectService.countByTitleOrProjectNumber(title);
+		Long count = dmdiiProjectService.count(focusIds, statuses, thrustIds, title);
 		return new PagedResponse(count, results);
 	}
 
@@ -197,5 +207,14 @@ public class DMDIIProjectController {
 	public List<DMDIIProjectModel> getDMDIIProjectsByContributingCompany (@RequestParam ("dmdiiMemberId") Integer dmdiiMemberId) {
 		ServiceLogger.log(logTag, "In getDMDIIProjectsByContributingCompany: " + dmdiiMemberId);
 		return dmdiiProjectService.findDMDIIProjectsByContributingCompany(dmdiiMemberId);
+	}
+
+	@RequestMapping(value = "/dmdiievents", params = {"page", "pageSize"}, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public PagedResponse getEvents(@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam Map<String, String> params) throws InvalidFilterParameterException {
+		ServiceLogger.log(logTag, "In getEvents");
+		String isEvent = "true";
+		List<? extends BaseModel> results = dmdiiProjectService.filter(isEvent, page, pageSize);
+		Long count = dmdiiProjectService.count(isEvent);
+		return new PagedResponse(count, results);
 	}
  }

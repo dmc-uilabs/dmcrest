@@ -449,7 +449,7 @@ public class ServiceController {
       int count = 0;
       while (servicesInWorkspace.size() > count) {
          Service currentService = servicesInWorkspace.get(count);
-         if (currentService.getParent().equals(parentServiceId)) {
+         if (currentService.getParent() != null && currentService.getParent().equals(parentServiceId)) {
            return currentService.getId();
          }
          count++;
