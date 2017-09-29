@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.xml.ws.http.HTTPException;
 import org.springframework.http.HttpStatus;
 
@@ -20,13 +20,15 @@ import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.sharedattributes.Util;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.dmc.services.ServiceUsePermitService;
 import org.dmc.services.data.dao.user.UserDao;
 
 public class ServiceRunsDao {
 
 	private static final String LOGTAG = ServiceRunsDao.class.getName();
+	
+	@Inject
+	private ServiceUsePermitService supService;
 
 	public GetServiceRun getSingleServiceRun(String id) throws DMCServiceException {
 		final Connection connection = DBConnector.connection();
@@ -151,6 +153,13 @@ public class ServiceRunsDao {
 				i++;
 			}
 			preparedStatement.setInt(i, Integer.parseInt(id));
+			
+			//Refund use if status is going from something != -1 to -1
+			retObj = getSingleServiceRun(id);
+			if(serviceRunObj.getStatus().intValue() == -1 && retObj.getStatus().intValue() != -1) {
+				supService.refundUse(Integer.valueOf(retObj.getServiceId()));
+			}
+			
 			int rowsAffected = preparedStatement.executeUpdate();
 			if (rowsAffected != 1) {
 				connection.rollback();
@@ -348,7 +357,9 @@ public class ServiceRunsDao {
 				throw new HTTPException(HttpStatus.FORBIDDEN.value());
 			}
 
+			//Refund use on a cancelled run
 			retObj = getSingleServiceRun(id);
+			supService.refundUse(Integer.valueOf(retObj.getServiceId()));
 
 		} catch (SQLException se) {
 			ServiceLogger.log(LOGTAG, se.getMessage());

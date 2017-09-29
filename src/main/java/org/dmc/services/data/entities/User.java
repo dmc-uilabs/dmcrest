@@ -272,6 +272,10 @@ public class User extends BaseEntity {
 	public void setOrganizationUser(OrganizationUser organizationUser) {
 		this.organizationUser = organizationUser;
 	}
+	
+	public Organization getOrganization() {
+		return this.organizationUser != null ? this.organizationUser.getOrganization() : null;
+	}
 
 	public OnboardingStatus getOnboarding() {
 		return onboarding;

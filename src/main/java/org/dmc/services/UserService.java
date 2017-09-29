@@ -13,6 +13,7 @@ import org.dmc.services.data.entities.UserContactInfo;
 import org.dmc.services.data.entities.UserMemberPortalContactInfo;
 import org.dmc.services.data.entities.UserPublicContactInfo;
 import org.dmc.services.data.entities.UserRoleAssignment;
+import org.dmc.services.data.entities.UserRoleAssignmentRO;
 import org.dmc.services.data.entities.UserSkill;
 import org.dmc.services.data.entities.UserToken;
 import org.dmc.services.data.mappers.Mapper;
@@ -31,6 +32,7 @@ import org.dmc.services.data.repositories.OrganizationRepository;
 import org.dmc.services.data.repositories.OrganizationUserRepository;
 import org.dmc.services.data.repositories.ServerAccessRepository;
 import org.dmc.services.data.repositories.UserRepository;
+import org.dmc.services.data.repositories.UserRoleAssignmentRepository;
 import org.dmc.services.data.repositories.UserTokenRepository;
 import org.dmc.services.email.EmailService;
 import org.dmc.services.exceptions.ArgumentNotFoundException;
@@ -47,6 +49,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -84,6 +87,9 @@ public class UserService {
 
 	@Inject
 	private UserRoleAssignmentService userRoleAssignmentService;
+	
+	@Inject
+	private UserRoleAssignmentRepository userRoleAssignmentRepository;
 
 	@Inject
 	private UserPrincipalService userPrincipalService;
@@ -108,7 +114,12 @@ public class UserService {
 
 	@Inject
 	private EmailService emailService;
-
+	
+	public User getCurrentUser() {
+		return userRepository.findOne(
+				((UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+	}
+	
 	public UserModel findOne(Integer id) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		return mapper.mapToModel(userRepository.findOne(id));
@@ -119,12 +130,17 @@ public class UserService {
 		return mapper.mapToModel(userRepository.findByUsername(username));
 	}
 
-	public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter, List<String> lastNameFilter, List<String> displayNameFilter) {
+	public Page<SimpleUserModel> findAll(PageRequest pageRequest, List<String> firstNameFilter,
+			List<String> lastNameFilter, List<String> displayNameFilter) {
 		Mapper<User, SimpleUserModel> mapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
-		Page<User> users = userRepository.findAll(
-						buildPredicate(likeFirstName(firstNameFilter), likeLastName(lastNameFilter), likeDisplayName(displayNameFilter)), pageRequest);
+		Page<User> users = userRepository.findAll(buildPredicate(likeFirstName(firstNameFilter),
+				likeLastName(lastNameFilter), likeDisplayName(displayNameFilter)), pageRequest);
 		List<SimpleUserModel> simpleUsers = mapper.mapToModel(users.getContent());
 		return new PageImpl<>(simpleUsers, pageRequest, users.getTotalElements());
+	}
+	
+	public List<User> save(List<User> users) {
+		return userRepository.save(users);
 	}
 
 	public UserModel save(UserModel userModel, String userEPPN) {
@@ -138,10 +154,15 @@ public class UserService {
 	public List<UserModel> findByOrganizationId(Integer organizationId, String displayName) {
 		Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		if (displayName != null && displayName != "") {
-			return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationIdLikeDisplayName(organizationId, "%" + displayName + "%"));
+			return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationIdLikeDisplayName(organizationId,
+					"%" + displayName + "%"));
 		} else {
 			return mapper.mapToModel(userRepository.findByOrganizationUserOrganizationId(organizationId));
 		}
+	}
+	
+	public List<User> findByOrganizationId(Integer organizationId) {
+		return userRepository.findByOrganizationUserOrganizationId(organizationId);
 	}
 
 	public List<UserModel> findByOrganizationIdAndRole(Integer organizaitonId, String role) {
@@ -185,6 +206,22 @@ public class UserService {
 		return this.emailService.sendEmail(user, 1, params);
 	}
 
+	public Boolean canCreateOrg(Integer userId) throws DMCServiceException {
+		UserRoleAssignmentRO ura = userRoleAssignmentRepository.findByUserId(userId);
+		if(ura != null && SecurityRoles.SUPERADMIN.equalsIgnoreCase(ura.getRole().getRole())) {
+			return true;
+		}
+		OrganizationUser orgUser = orgUserService.getOrgUserEntityByUserId(userId);
+		if(orgUser != null) {
+			if (orgUser.getIsVerified()) {
+				throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt,
+						"You tried to create an organization while verified with an organization already, "
+						+ "if you want to create a new organization, please leave your current organization.");
+			}
+		}
+		return true;
+	}
+
 	@Transactional
 	public VerifyUserResponse verifyUser(Integer userId, String token) throws ArgumentNotFoundException {
 		Mapper<UserToken, UserTokenModel> mapper = mapperFactory.mapperFor(UserToken.class, UserTokenModel.class);
@@ -200,9 +237,8 @@ public class UserService {
 		if (tokenEntity.getAttemptsMade() >= 5) {
 			response = tooManyAttempts(tokenEntity);
 		} else {
-			response = (tokenEntity.getToken().equals(token)) ?
-					correctToken(userId, tokenEntity) :
-					incorrectToken(tokenEntity);
+			response = (tokenEntity.getToken().equals(token)) ? correctToken(userId, tokenEntity)
+					: incorrectToken(tokenEntity);
 		}
 
 		return response;
@@ -233,9 +269,8 @@ public class UserService {
 		if (rowsDeleted > 0) {
 			response = new VerifyUserResponse(0, "Successfully declined user.");
 		} else {
-			response = new VerifyUserResponse(1000,
-					"User with ID " + userId + " could not be declined from organization with ID " + organizationId
-							+ ".");
+			response = new VerifyUserResponse(1000, "User with ID " + userId
+					+ " could not be declined from organization with ID " + organizationId + ".");
 		}
 
 		return response;
@@ -254,15 +289,16 @@ public class UserService {
 		orgUserModel.setIsVerified(true);
 		orgUserService.saveOrganizationUser(orgUserModel);
 
-		// if this user is the only verified user of this organization, they're defaulted to company admin, else defaulted to member
+		// if this user is the only verified user of this organization, they're
+		// defaulted to company admin, else defaulted to member
 		Integer numberOfUsersVerified = orgUserService.getNumberOfVerifiedUsers(orgUserModel.getOrganizationId());
 
 		if (numberOfUsersVerified == 1) {
-			userRoleAssignmentService
-					.grantRoleToUserForOrg(SecurityRoles.ADMIN, userId, orgUserModel.getOrganizationId(), true);
+			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.ADMIN, userId,
+					orgUserModel.getOrganizationId(), true);
 		} else if (numberOfUsersVerified > 1) {
-			userRoleAssignmentService
-					.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId, orgUserModel.getOrganizationId(), true);
+			userRoleAssignmentService.grantRoleToUserForOrg(SecurityRoles.MEMBER, userId,
+					orgUserModel.getOrganizationId(), true);
 		}
 
 		return new VerifyUserResponse(0, "Successfully verified user.");
@@ -277,7 +313,7 @@ public class UserService {
 
 	@Transactional
 	public UserModel readOrCreateUser(String userEPPN, String userFirstName, String userSurname, String userFullname,
-	                                  String userEmail) {
+			String userEmail) {
 		final Mapper<User, UserModel> mapper = mapperFactory.mapperFor(User.class, UserModel.class);
 		User user = userRepository.findByUsername(userEPPN);
 		UserModel userModel;
@@ -300,7 +336,7 @@ public class UserService {
 	}
 
 	private User createUserAndOnboardingStatus(String userEPPN, String firstName, String lastName, String fullName,
-	                                           String email) {
+			String email) {
 		final User user = createUser(userEPPN, firstName, lastName, fullName, email);
 		final OnboardingStatus onboardingStatus = createOnboardingStatus(user.getId());
 		user.setOnboarding(onboardingStatus);
@@ -326,7 +362,8 @@ public class UserService {
 		if (idp != null) {
 			OrganizationUser orgUser = orgUserRepo.save(new OrganizationUser(user, idp.getOrganization(), true));
 			user.setOrganizationUser(orgUser);
-			UserRoleAssignment role = userRoleAssignmentService.setUserAsMemberForAuthorizedIdps(user, user.getOrganizationUser().getOrganization());
+			UserRoleAssignment role = userRoleAssignmentService.setUserAsMemberForAuthorizedIdps(user,
+					user.getOrganizationUser().getOrganization());
 			user.setRoles(Arrays.asList(role));
 		}
 
@@ -344,8 +381,8 @@ public class UserService {
 	}
 
 	private Boolean containsSkill(List<UserSkill> unmanagedSkills, UserSkill managedSkill) {
-		for(UserSkill unmanagedSkill: unmanagedSkills) {
-			if(managedSkill.getId().equals(unmanagedSkill.getId())) {
+		for (UserSkill unmanagedSkill : unmanagedSkills) {
+			if (managedSkill.getId().equals(unmanagedSkill.getId())) {
 				return true;
 			}
 		}
@@ -375,17 +412,17 @@ public class UserService {
 
 		// remove skills that aren't in new list from managed list of skills
 		Iterator<UserSkill> iterator = currentUser.getSkills().iterator();
-		while(iterator.hasNext()) {
+		while (iterator.hasNext()) {
 			UserSkill managedSkill = iterator.next();
 
-			if( !containsSkill(patchUserEntity.getSkills(), managedSkill) ) {
+			if (!containsSkill(patchUserEntity.getSkills(), managedSkill)) {
 				iterator.remove();
 			}
 		}
 
 		// add new skills to the managed list
-		for(UserSkill newSkill: patchUserEntity.getSkills()) {
-			if(newSkill.getId() == null) {
+		for (UserSkill newSkill : patchUserEntity.getSkills()) {
+			if (newSkill.getId() == null) {
 				currentUser.getSkills().add(newSkill);
 			}
 		}
@@ -395,16 +432,18 @@ public class UserService {
 		currentUser.setTimezone(patchUser.getTimezone());
 		currentUser.setAboutMe(patchUser.getAboutMe());
 
-		// If a user is updating their primary user info, un-verify them from their current organization if they have one
-		if (!currentUser.getFirstName().equals(patchUser.getFirstName()) ||
-				!currentUser.getLastName().equals(patchUser.getLastName()) ||
-				!currentUser.getEmail().equals(patchUser.getEmail())) {
+		// If a user is updating their primary user info, un-verify them from
+		// their current organization if they have one
+		if (!currentUser.getFirstName().equals(patchUser.getFirstName())
+				|| !currentUser.getLastName().equals(patchUser.getLastName())
+				|| !currentUser.getEmail().equals(patchUser.getEmail())) {
 			OrganizationUserModel orgUserModel = orgUserService.getOrganizationUserByUserId(currentUser.getId());
 
 			if (orgUserModel != null) {
 				orgUserModel.setIsVerified(false);
 				orgUserService.saveOrganizationUser(orgUserModel);
-				userRoleAssignmentService.deleteByUserIdAndOrganizationId(currentUser.getId(), orgUserModel.getOrganizationId());
+				userRoleAssignmentService.deleteByUserIdAndOrganizationId(currentUser.getId(),
+						orgUserModel.getOrganizationId());
 			}
 
 			currentUser.setFirstName(patchUser.getFirstName());
@@ -423,11 +462,13 @@ public class UserService {
 		if (currentUser.getUserContactInfo() != null && patchUser.getUserContactInfo() != null) {
 
 			UserContactInfo currentUserContactInfo = currentUser.getUserContactInfo();
-			UserMemberPortalContactInfo currentUserMemberPortalContactInfo = currentUserContactInfo.getUserMemberPortalContactInfo();
+			UserMemberPortalContactInfo currentUserMemberPortalContactInfo = currentUserContactInfo
+					.getUserMemberPortalContactInfo();
 			UserPublicContactInfo currentUserPublicContactInfo = currentUserContactInfo.getUserPublicContactInfo();
 
 			UserContactInfoModel newUserContactInfo = patchUser.getUserContactInfo();
-			UserMemberPortalContactInfoModel newUserMemberPortalContactInfo = newUserContactInfo.getUserMemberPortalContactInfo();
+			UserMemberPortalContactInfoModel newUserMemberPortalContactInfo = newUserContactInfo
+					.getUserMemberPortalContactInfo();
 			UserPublicContactInfoModel newUserPublicContactInfo = newUserContactInfo.getUserPublicContactInfo();
 
 			if (newUserMemberPortalContactInfo != null) {
@@ -435,7 +476,8 @@ public class UserService {
 					currentUserMemberPortalContactInfo = new UserMemberPortalContactInfo();
 				}
 
-				BeanUtils.copyProperties(newUserMemberPortalContactInfo, currentUserMemberPortalContactInfo, new String[]{"id"});
+				BeanUtils.copyProperties(newUserMemberPortalContactInfo, currentUserMemberPortalContactInfo,
+						new String[] { "id" });
 				currentUser.getUserContactInfo().setUserMemberPortalContactInfo(currentUserMemberPortalContactInfo);
 
 			}
@@ -445,14 +487,15 @@ public class UserService {
 					currentUserPublicContactInfo = new UserPublicContactInfo();
 				}
 
-				BeanUtils.copyProperties(newUserPublicContactInfo, currentUserPublicContactInfo, new String[]{"id"});
+				BeanUtils.copyProperties(newUserPublicContactInfo, currentUserPublicContactInfo, new String[] { "id" });
 				currentUser.getUserContactInfo().setUserPublicContactInfo(currentUserPublicContactInfo);
 			}
 		}
 	}
 
 	private OrganizationUser createOrganizationUser(User user, Integer organizationId) {
-		if (organizationId == null) return null;
+		if (organizationId == null)
+			return null;
 
 		Organization organization = this.organizationRepository.findOne(organizationId);
 		OrganizationUser organizationUser = this.orgUserRepo.findByUserId(user.getId());
@@ -467,8 +510,8 @@ public class UserService {
 
 	private void updateUserProfileLogo(User user) {
 		if (user.getId() != null) {
-			Document document = this.documentRepository.
-					findFirstByParentTypeAndDocClassAndOwnerOrderByModifiedDesc(DocumentParentType.USER, DocumentClass.IMAGE, user);
+			Document document = this.documentRepository.findFirstByParentTypeAndDocClassAndOwnerOrderByModifiedDesc(
+					DocumentParentType.USER, DocumentClass.IMAGE, user);
 			if (document != null) {
 				user.setImage(document.getDocumentUrl());
 			}
