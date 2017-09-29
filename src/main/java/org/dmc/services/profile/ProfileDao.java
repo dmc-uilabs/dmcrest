@@ -387,27 +387,6 @@ public class ProfileDao {
         return compareService;
     }
 
-    private int checkAuthorizedUser(String profileId, String userEPPN) throws DMCServiceException {
-        int user_id_lookedup = -1;
-        String errorHeader = "ACCOUNT SERVERS GET AUTHORIZED USER ID: ";
-        try {
-            user_id_lookedup = UserDao.getUserID(userEPPN);
-        } catch (SQLException e) {
-            ServiceLogger.log(LOGTAG, e.getMessage());
-            throw new DMCServiceException(DMCError.UnknownUser, errorHeader + e.getMessage()); // unknown
-                                                                                               // user
-        }
-        // check if user has permission to update account
-        if (user_id_lookedup != Integer.parseInt(profileId)) {
-            String errMessage = errorHeader + "current user id " + user_id_lookedup
-                    + " does not match id of compare user " + profileId;
-            ServiceLogger.log(LOGTAG, errMessage);
-            throw new DMCServiceException(DMCError.UnauthorizedAccessAttempt, errMessage);
-            // current id and user id do not match
-        }
-        return user_id_lookedup;
-    }
-
     public ArrayList<ProfileHistory> getHistory(String profileId, String section, String order, String sort, Integer limit, Integer start, String userEPPN) throws DMCServiceException {
         try {
             int userid = UserDao.getUserID(userEPPN);

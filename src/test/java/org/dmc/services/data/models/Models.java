@@ -184,22 +184,16 @@ public class Models {
 		return dmdiiRole;
 	}
 
-	public static UserModel user() {
-		UserModel user = new UserModel();
+	public static SimpleUserModel user() {
+		SimpleUserModel user = new SimpleUserModel();
 		user.setId(1000);
-		user.setDisplayName(RandomStringUtils.randomAlphanumeric(10));
 		user.setRealname(RandomStringUtils.randomAlphanumeric(10));
 		user.setTitle(RandomStringUtils.randomAlphanumeric(10));
-		user.setTermsConditions(true);
 		user.setFirstName(RandomStringUtils.randomAlphanumeric(10));
 		user.setLastName(RandomStringUtils.randomAlphanumeric(10));
 		user.setEmail(RandomStringUtils.randomAlphanumeric(10));
-		user.setAddress(RandomStringUtils.randomAlphanumeric(10));
-		user.setPhone(RandomStringUtils.randomAlphanumeric(10));
 		user.setImage(RandomStringUtils.randomAlphanumeric(10));
 		user.setAboutMe(RandomStringUtils.randomAlphanumeric(10));
-		user.setResume(RandomStringUtils.randomAlphanumeric(10));
-		user.setUserContactInfo(userContactInfo());
 		return user;
 	}
 

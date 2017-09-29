@@ -15,7 +15,6 @@ import org.dmc.services.data.entities.DMDIIProjectFocusArea;
 import org.dmc.services.data.entities.DMDIIProjectStatus;
 import org.dmc.services.data.entities.DMDIIProjectThrust;
 import org.dmc.services.data.entities.User;
-import org.dmc.services.ServiceLogger;
 
 import org.dmc.services.data.models.DMDIIMemberModel;
 import org.dmc.services.data.models.DMDIIPrimeOrganizationModel;
@@ -24,7 +23,7 @@ import org.dmc.services.data.models.DMDIIProjectFocusAreaModel;
 import org.dmc.services.data.models.DMDIIProjectModel;
 import org.dmc.services.data.models.DMDIIProjectStatusModel;
 import org.dmc.services.data.models.DMDIIProjectThrustModel;
-import org.dmc.services.data.models.UserModel;
+import org.dmc.services.data.models.SimpleUserModel;
 
 import org.dmc.services.dmdiimember.DMDIIMemberService;
 import org.dmc.services.UserService;
@@ -36,9 +35,6 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 
 	@Inject
 	private DMDIIMemberService dmdiiMemberService;
-
-	@Inject
-	private UserService userService;
 
 	@Override
 	public DMDIIProject mapToEntity(DMDIIProjectModel model) {
@@ -55,7 +51,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		Mapper<DMDIIProjectFocusArea, DMDIIProjectFocusAreaModel> focusMapper = mapperFactory.mapperFor(DMDIIProjectFocusArea.class, DMDIIProjectFocusAreaModel.class);
 		Mapper<DMDIIProjectThrust, DMDIIProjectThrustModel> thrustMapper = mapperFactory.mapperFor(DMDIIProjectThrust.class, DMDIIProjectThrustModel.class);
 
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<User, SimpleUserModel> userMapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
 
 		List<DMDIIMemberModel> contributingCompanyModels = model.getContributingCompanyIds()
 		.stream()
@@ -108,7 +104,7 @@ public class DMDIIProjectMapper extends AbstractMapper<DMDIIProject, DMDIIProjec
 		Mapper<DMDIIProjectThrust, DMDIIProjectThrustModel> thrustMapper = mapperFactory.mapperFor(DMDIIProjectThrust.class, DMDIIProjectThrustModel.class);
 
 
-		Mapper<User, UserModel> userMapper = mapperFactory.mapperFor(User.class, UserModel.class);
+		Mapper<User, SimpleUserModel> userMapper = mapperFactory.mapperFor(User.class, SimpleUserModel.class);
 
 
 		List<Integer> contributingCompanyIds = entity.getContributingCompanies()

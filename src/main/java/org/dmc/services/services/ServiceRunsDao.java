@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,18 +12,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.xml.ws.http.HTTPException;
-import org.springframework.http.HttpStatus;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.dmc.services.DBConnector;
 import org.dmc.services.DMCError;
 import org.dmc.services.DMCServiceException;
 import org.dmc.services.ServiceLogger;
-import org.dmc.services.sharedattributes.Util;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.dmc.services.UserService;
 import org.dmc.services.data.dao.user.UserDao;
+import org.dmc.services.data.entities.ServiceRun;
+import org.dmc.services.data.entities.ServiceRunParameter;
+import org.dmc.services.data.repositories.ServiceRunParameterRepository;
+import org.dmc.services.data.repositories.ServiceRunRepository;
+import org.dmc.services.security.PermissionEvaluationHelper;
 
+@Service
 public class ServiceRunsDao {
+	
+	@Inject
+	private ServiceRunRepository sRunRepo;
+	
+	@Inject
+	private ServiceRunParameterRepository sRunParamRepo;
+	
+	@Inject
+	private UserService userService;
 
 	private static final String LOGTAG = ServiceRunsDao.class.getName();
 
@@ -178,6 +194,42 @@ public class ServiceRunsDao {
 		}
 
 		return retObj;
+	}
+	
+	public List<GetServiceRun> getListOfServiceRuns(List<Integer> ids, Pageable page) throws SQLException {
+		List<GetServiceRun> resultList = new ArrayList<GetServiceRun>();
+		
+		List<ServiceRun> runs = sRunRepo.findByServiceIdIn(ids, page).getContent();
+		
+		for(ServiceRun run : runs) {
+			if(run.getRunBy() != userService.getCurrentUser().getId() && !PermissionEvaluationHelper.isSuperAdmin()) {
+				continue;
+			}
+			ModelInterface modelInterface = new ModelInterface();
+			List<ServiceRunParameter> sRunParams = sRunParamRepo.findByRunId(run.getId());
+			for(ServiceRunParameter sRunParam : sRunParams) {
+				DomeModelParam domeModelParam = new DomeModelParam(sRunParam);
+				modelInterface.addParameter(sRunParam.getParameter().isInputParameter(), domeModelParam);
+			}
+			
+			String projectQuery = "SELECT groups.group_id, groups.group_name FROM service INNER JOIN groups ON service.project_id = groups.group_id WHERE service.service_id = ? AND service.project_id != 0";
+			PreparedStatement preparedStatementProject = DBConnector.prepareStatement(projectQuery);
+			preparedStatementProject.setInt(1, run.getServiceId());
+			preparedStatementProject.execute();
+			ResultSet resultSetProject = preparedStatementProject.getResultSet();
+
+			SimplifiedProject sProject = new SimplifiedProject();
+			if (resultSetProject.next()) {
+				sProject.setId(Integer.toString(resultSetProject.getInt("group_id")));
+				sProject.setTitle(resultSetProject.getString("group_name"));
+			}
+			GetServiceRun getServiceRun = new GetServiceRun(run);
+			getServiceRun.setInterface(modelInterface);
+			getServiceRun.setProject(sProject);
+			resultList.add(getServiceRun);
+		}
+		return resultList;
+		
 	}
 
 	public List<GetServiceRun> getListOfServiceRuns(Integer limit, String order, String sort, ArrayList<String> serviceIdsList) throws DMCServiceException {
